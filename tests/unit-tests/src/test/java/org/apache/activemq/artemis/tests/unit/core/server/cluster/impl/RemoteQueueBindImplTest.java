@@ -93,9 +93,14 @@ public class RemoteQueueBindImplTest extends ActiveMQTestBase {
       final SimpleString bridgeName = RandomUtil.randomSimpleString();
       final int distance = 0;
       RemoteQueueBindingImpl bindingOff = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.OFF);
+      bindingOff.addConsumer(null);
       assertFalse(bindingOff.isHighAcceptPriority(null));
 
       RemoteQueueBindingImpl bindingOffWithRedistribution = new RemoteQueueBindingImpl(id, address, uniqueName, routingName, remoteQueueID, filterString, storeAndForwardQueue, bridgeName, distance, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION);
-      assertFalse(bindingOffWithRedistribution.isHighAcceptPriority(null));
+      bindingOffWithRedistribution.addConsumer(null);
+      // not really intuitive, but via getNextBinding (initial routing) BindingsImpl.matchBinding() traps remote bindings
+      // with OFF_WITH_REDISTRIBUTION which makes the need for change in isHighAcceptPriority redundant
+      // and ensures that redistribution can occur as isHighAcceptPriority is invoked from redistribute
+      assertTrue(bindingOffWithRedistribution.isHighAcceptPriority(null));
    }
 }
