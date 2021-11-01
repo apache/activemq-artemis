@@ -881,7 +881,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             map.put(propertiesPrefix + "contentEncoding", properties.getContentEncoding().toString());
          }
          if (properties.getGroupId() != null) {
-            map.put(propertiesPrefix + "groupID", properties.getGroupId());
+            map.put(propertiesPrefix + "groupId", properties.getGroupId());
          }
          if (properties.getGroupSequence() != null) {
             map.put(propertiesPrefix + "groupSequence", properties.getGroupSequence().intValue());
@@ -916,9 +916,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
                map.put(prefix + "x-opt-delivery-time", deliveryTime);
             } else if ("x-opt-delivery-delay".equals(key) && entry.getValue() != null) {
                long delay = ((Number) entry.getValue()).longValue();
-               map.put("x-opt-delivery-delay", delay);
+               map.put(prefix + "x-opt-delivery-delay", delay);
             } else if (AMQPMessageSupport.X_OPT_INGRESS_TIME.equals(key) && entry.getValue() != null) {
-               map.put("X_OPT_INGRESS_TIME", ((Number) entry.getValue()).longValue());
+               map.put(prefix + AMQPMessageSupport.X_OPT_INGRESS_TIME, ((Number) entry.getValue()).longValue());
             } else {
                try {
                   map.put(prefix + key, entry.getValue());
@@ -1878,30 +1878,25 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          }
 
          final Symbol contentType = properties != null ? properties.getContentType() : null;
-         final String contentTypeString = contentType != null ? contentType.toString() : null;
 
          if (m.getBody() instanceof Data && contentType != null) {
-
-            if (contentType.equals(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE)) {
+            if (AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.equals(contentType)) {
                type = OBJECT_TYPE;
-            } else if (contentType.equals(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE)) {
+            } else if (AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE_SYMBOL.equals(contentType)) {
                type = BYTES_TYPE;
             } else {
-               Charset charset = getCharsetForTextualContent(contentTypeString);
+               Charset charset = getCharsetForTextualContent(contentType.toString());
                if (StandardCharsets.UTF_8.equals(charset)) {
                   type = TEXT_TYPE;
                }
             }
-         } else if (m.getBody() instanceof AmqpSequence) {
-            type = STREAM_TYPE;
          } else if (m.getBody() instanceof AmqpValue) {
             Object value = ((AmqpValue) m.getBody()).getValue();
 
             if (value instanceof String) {
                type = TEXT_TYPE;
             } else if (value instanceof Binary) {
-
-               if (contentType.equals(AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE)) {
+               if (AMQPMessageSupport.SERIALIZED_JAVA_OBJECT_CONTENT_TYPE.equals(contentType)) {
                   type = OBJECT_TYPE;
                } else {
                   type = BYTES_TYPE;
@@ -1911,7 +1906,10 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
             } else if (value instanceof Map) {
                type = MAP_TYPE;
             }
+         } else if (m.getBody() instanceof AmqpSequence) {
+            type = STREAM_TYPE;
          }
+
          return type;
       }
    }

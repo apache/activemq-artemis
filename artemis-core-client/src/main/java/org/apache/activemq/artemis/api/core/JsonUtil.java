@@ -326,7 +326,7 @@ public final class JsonUtil {
    }
 
    public static String truncateString(final String str, final int valueSizeLimit) {
-      if (str.length() > valueSizeLimit) {
+      if (valueSizeLimit >= 0 && str.length() > valueSizeLimit) {
          return new StringBuilder(valueSizeLimit + 32).append(str.substring(0, valueSizeLimit)).append(", + ").append(str.length() - valueSizeLimit).append(" more").toString();
       } else {
          return str;
