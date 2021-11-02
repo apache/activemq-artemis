@@ -117,11 +117,12 @@ public abstract class AbstractControl extends StandardMBean {
                                 boolean createMessageId,
                                 Long...queueID) throws Exception {
       ManagementRemotingConnection fakeConnection = new ManagementRemotingConnection();
+      final String validatedUser = server.validateUser(user, password, fakeConnection, null);
       ServerSession serverSession = server.createSession("management::" + UUIDGenerator.getInstance().generateStringUUID(), user, password,
                                                          Integer.MAX_VALUE, fakeConnection,
                                                          true, true, false,
                                                          false, address.toString(), fakeConnection.callback,
-                                                         false, new DummyOperationContext(), Collections.emptyMap(), null);
+                                                         false, new DummyOperationContext(), Collections.emptyMap(), null, validatedUser);
       try {
          CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
          if (headers != null) {

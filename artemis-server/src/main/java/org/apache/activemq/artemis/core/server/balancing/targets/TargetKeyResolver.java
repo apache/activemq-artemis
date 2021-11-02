@@ -17,7 +17,10 @@
 
 package org.apache.activemq.artemis.core.server.balancing.targets;
 
+import javax.security.auth.Subject;
+
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.jboss.logging.Logger;
 
 import java.util.regex.Matcher;
@@ -79,6 +82,35 @@ public class TargetKeyResolver {
             break;
          case USER_NAME:
             keyValue = username;
+            break;
+         case ROLE_NAME:
+            if (connection != null &&  connection.getProtocolConnection() != null) {
+               Subject subject = connection.getProtocolConnection().getAuditSubject();
+               if (subject != null) {
+                  for (RolePrincipal candidateRole : subject.getPrincipals(RolePrincipal.class)) {
+                     String roleName = candidateRole.getName();
+                     if (roleName != null) {
+                        if (keyFilter != null) {
+                           Matcher keyMatcher = keyFilter.matcher(roleName);
+                           if (keyMatcher.find()) {
+                              keyValue = keyMatcher.group();
+                              if (logger.isDebugEnabled()) {
+                                 logger.debugf("role match for %s via %s", roleName, keyMatcher);
+                              }
+                              return keyValue;
+                           }
+                        } else {
+                           // with no filter, first role is the candidate
+                           keyValue = roleName;
+                           if (logger.isDebugEnabled()) {
+                              logger.debugf("first role match: %s", roleName);
+                           }
+                           return keyValue;
+                        }
+                     }
+                  }
+               }
+            }
             break;
          default:
             throw new IllegalStateException("Unexpected value: " + key);

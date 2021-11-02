@@ -137,7 +137,25 @@ public class BalancingTestBase extends ClusterTestBase {
       acceptor.getParams().put("redirect-to", BROKER_BALANCER_NAME);
    }
 
+
+   protected void setupBalancerServerWithLocalTarget(final int node, final TargetKey targetKey, final String targetKeyFilter, final String localTargetFilter) {
+
+      Configuration configuration = getServer(node).getConfiguration();
+      BrokerBalancerConfiguration brokerBalancerConfiguration = new BrokerBalancerConfiguration().setName(BROKER_BALANCER_NAME);
+      brokerBalancerConfiguration.setTargetKey(targetKey).setLocalTargetFilter(localTargetFilter).setTargetKeyFilter(targetKeyFilter);
+
+      configuration.setBalancerConfigurations(Collections.singletonList(brokerBalancerConfiguration));
+
+      TransportConfiguration acceptor = getDefaultServerAcceptor(node);
+      acceptor.getParams().put("redirect-to", BROKER_BALANCER_NAME);
+
+   }
+
    protected ConnectionFactory createFactory(String protocol, boolean sslEnabled, String host, int port, String clientID, String user, String password) throws Exception {
+      return createFactory(protocol, sslEnabled,  host, port, clientID, user, password, -1);
+   }
+
+   protected ConnectionFactory createFactory(String protocol, boolean sslEnabled, String host, int port, String clientID, String user, String password, int retries) throws Exception {
       switch (protocol) {
          case CORE_PROTOCOL: {
             StringBuilder urlBuilder = new StringBuilder();
@@ -146,7 +164,7 @@ public class BalancingTestBase extends ClusterTestBase {
             urlBuilder.append(host);
             urlBuilder.append(":");
             urlBuilder.append(port);
-            urlBuilder.append("?ha=true&reconnectAttempts=30");
+            urlBuilder.append("?ha=true&reconnectAttempts=10&initialConnectAttempts=" + retries);
 
             urlBuilder.append("&sniHost=");
             urlBuilder.append(host);
@@ -197,8 +215,10 @@ public class BalancingTestBase extends ClusterTestBase {
                urlBuilder.append(")");
             }
 
+            urlBuilder.append("?failover.startupMaxReconnectAttempts=" + retries);
+
             if (clientID != null) {
-               urlBuilder.append("?jms.clientID=");
+               urlBuilder.append("&jms.clientID=");
                urlBuilder.append(clientID);
             }
 
@@ -223,8 +243,10 @@ public class BalancingTestBase extends ClusterTestBase {
                urlBuilder.append(")");
             }
 
+            urlBuilder.append("?startupMaxReconnectAttempts=" + retries + "&maxReconnectAttempts=" + retries);
+
             if (clientID != null) {
-               urlBuilder.append("?jms.clientID=");
+               urlBuilder.append("&jms.clientID=");
                urlBuilder.append(clientID);
             }
 

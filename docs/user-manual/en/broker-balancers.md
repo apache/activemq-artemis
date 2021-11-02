@@ -13,10 +13,11 @@ The remote target is another reachable broker.
 ## Target Key
 The broker balancer uses a target key to select a target broker.
 It is a string retrieved from an incoming client connection, the supported values are:
-* `CLIENT_ID` is the JMS client ID;
-* `SNI_HOST` is the hostname indicated by the client in the SNI extension of the TLS protocol;
-* `SOURCE_IP` is the source IP address of the client;
+* `CLIENT_ID` is the JMS client ID.
+* `SNI_HOST` is the hostname indicated by the client in the SNI extension of the TLS protocol.
+* `SOURCE_IP` is the source IP address of the client.
 * `USER_NAME` is the username indicated by the client.
+* `ROLE_NAME` is a role associated with the authenticated user of the connection.
 
 ## Pools
 The pool is a group of target brokers with periodic checks on their state.
@@ -108,7 +109,7 @@ for more details about setting the `cache-timeout` parameter.
 ## Defining broker balancers
 A broker balancer is defined by the `broker-balancer` element, it includes the following items:
 * the `name` attribute defines the name of the broker balancer and is used to reference the balancer from an acceptor;
-* the `target-key` element defines what key to select a target broker, the supported values are: `CLIENT_ID`, `SNI_HOST`, `SOURCE_IP`, `USER_NAME`, default is `SOURCE_IP`, see [target key](#target-key) for further details;
+* the `target-key` element defines what key to select a target broker, the supported values are: `CLIENT_ID`, `SNI_HOST`, `SOURCE_IP`, `USER_NAME`, `ROLE_NAME`, default is `SOURCE_IP`, see [target key](#target-key) for further details;
 * the `target-key-filter` element defines a regular expression to filter the resolved keys;
 * the `local-target-filter` element defines a regular expression to match the keys that have to return a local target;
 * the `cache-timeout` element is the time period for a target broker to remain in the cache, measured in milliseconds, setting `0` will disable the cache, default is `-1`, meaning no expiration;

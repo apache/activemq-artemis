@@ -56,4 +56,5 @@ public interface Target {
    <T> T getAttribute(String resourceName, String attributeName, Class<T> attributeClass, int timeout) throws Exception;
 
    <T> T invokeOperation(String resourceName, String operationName, Object[] operationParams, Class<T> operationClass, int timeout) throws Exception;
+
 }

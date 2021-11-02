@@ -357,19 +357,21 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       return websocketRegistryNames;
    }
 
-   public void addConnection(OpenWireConnection connection, ConnectionInfo info) throws Exception {
+   public void validateUser(OpenWireConnection connection, ConnectionInfo info) throws Exception {
       String username = info.getUserName();
       String password = info.getPassword();
 
       try {
-         validateUser(username, password, connection);
+         connection.setValidatedUser(validateUser(username, password, connection));
       } catch (ActiveMQSecurityException e) {
          // We need to send an exception used by the openwire
          SecurityException ex = new SecurityException("User name [" + username + "] or password is invalid.");
          ex.initCause(e);
          throw ex;
       }
+   }
 
+   public void addConnection(OpenWireConnection connection, ConnectionInfo info) throws Exception {
       String clientId = info.getClientId();
       if (clientId == null) {
          throw new InvalidClientIDException("No clientID specified for connection request");
@@ -529,8 +531,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       return false;
    }
 
-   public void validateUser(String login, String passcode, OpenWireConnection connection) throws Exception {
-      server.getSecurityStore().authenticate(login, passcode, connection, getSecurityDomain());
+   public String validateUser(String login, String passcode, OpenWireConnection connection) throws Exception {
+      return server.validateUser(login, passcode, connection, getSecurityDomain());
    }
 
    public void sendBrokerInfo(OpenWireConnection connection) throws Exception {

@@ -189,4 +189,62 @@ public class AmqpRedirectTest extends BalancingTestBase {
 
       stopServers(0, 1);
    }
+
+   @Test
+   public void testBalancerRejectionUseAnother() throws Exception {
+      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+
+      // only accepts users with RoleName==B so will reject
+      setupBalancerServerWithLocalTarget(0, TargetKey.ROLE_NAME, "B", null);
+
+      startServers(0);
+
+      URI uri = new URI("tcp://localhost:" + TransportConstants.DEFAULT_PORT);
+      AmqpClient client = new AmqpClient(uri, "admin", "admin");
+
+      AmqpConnection connection = client.createConnection();
+      connection.setContainerId(getName());
+
+      connection.setStateInspector(new AmqpValidator() {
+
+         @Override
+         public void inspectOpenedResource(Connection connection) {
+            if (!connection.getRemoteProperties().containsKey(AmqpSupport.CONNECTION_OPEN_FAILED)) {
+               markAsInvalid("Broker did not set connection establishment failed hint");
+            }
+         }
+
+         @Override
+         public void inspectClosedResource(Connection connection) {
+            ErrorCondition remoteError = connection.getRemoteCondition();
+            if (remoteError == null || remoteError.getCondition() == null) {
+               markAsInvalid("Broker did not add error condition for connection");
+               return;
+            }
+
+            if (!remoteError.getCondition().equals(ConnectionError.CONNECTION_FORCED)) {
+               markAsInvalid("Broker did not set condition to " + ConnectionError.CONNECTION_FORCED);
+               return;
+            }
+            String expectedDescription = "Broker balancer " + BROKER_BALANCER_NAME + ", rejected this connection";
+            String actualDescription = remoteError.getDescription();
+            if (!expectedDescription.equals(actualDescription)) {
+               markAsInvalid("Broker did not set description as expected, was: " + actualDescription);
+               return;
+            }
+         }
+      });
+
+      try {
+         connection.connect();
+         fail("Expected connection to fail, without redirect");
+      } catch (Exception e) {
+         // Expected
+      }
+
+      connection.getStateInspector().assertValid();
+      connection.close();
+
+      stopServers(0);
+   }
 }

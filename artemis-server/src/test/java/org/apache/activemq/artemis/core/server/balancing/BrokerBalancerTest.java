@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.core.server.balancing;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -29,6 +28,7 @@ import org.apache.activemq.artemis.core.server.balancing.pools.Pool;
 import org.apache.activemq.artemis.core.server.balancing.targets.LocalTarget;
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,8 +74,8 @@ public class BrokerBalancerTest {
 
    @Test
    public void getTarget() {
-      assertEquals( localTarget, underTest.getTarget("FOO_EE"));
-      assertNotEquals( localTarget, underTest.getTarget("BAR_EE"));
+      assertEquals( localTarget, underTest.getTarget("FOO_EE").target);
+      assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
    }
 
 }

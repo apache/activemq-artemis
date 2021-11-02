@@ -18,7 +18,7 @@
 package org.apache.activemq.artemis.core.server.balancing.targets;
 
 public enum TargetKey {
-   CLIENT_ID, SNI_HOST, SOURCE_IP, USER_NAME;
+   CLIENT_ID, SNI_HOST, SOURCE_IP, USER_NAME, ROLE_NAME;
 
    public static final String validValues;
 
@@ -46,6 +46,8 @@ public enum TargetKey {
             return SOURCE_IP;
          case "USER_NAME":
             return USER_NAME;
+         case "ROLE_NAME":
+            return ROLE_NAME;
          default:
             throw new IllegalStateException("Invalid RedirectKey:" + type + " valid Types: " + validValues);
       }
