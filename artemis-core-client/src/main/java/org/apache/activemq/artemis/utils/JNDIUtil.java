@@ -24,9 +24,6 @@ import javax.naming.NamingException;
 import java.util.StringTokenizer;
 
 public class JNDIUtil {
-   // Constants -----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    /**
     * Create a context path recursively.
@@ -89,9 +86,6 @@ public class JNDIUtil {
       }
    }
 
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

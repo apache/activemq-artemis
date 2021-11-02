@@ -39,7 +39,7 @@ import org.junit.Test;
  * Testing of message property conversion. See {@link javax.jms.Message} for details
  */
 public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
-   // Attributes ----------------------------------------------------
+
 
    private Connection producerConnection, consumerConnection;
 
@@ -49,7 +49,7 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
    private MessageConsumer queueConsumer;
 
-   // Constructors --------------------------------------------------
+
 
    // Public --------------------------------------------------------
 

@@ -24,13 +24,6 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 
 public class AIOAllPossibilitiesCompactStressTest extends AllPossibilitiesCompactStressTest {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

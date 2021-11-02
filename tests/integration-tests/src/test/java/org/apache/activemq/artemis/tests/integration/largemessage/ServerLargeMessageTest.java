@@ -59,11 +59,6 @@ import org.junit.Test;
 
 public class ServerLargeMessageTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    String originalPath;
 
@@ -88,7 +83,7 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       }
    }
 
-   // Constructors --------------------------------------------------
+
 
    // Public --------------------------------------------------------
 

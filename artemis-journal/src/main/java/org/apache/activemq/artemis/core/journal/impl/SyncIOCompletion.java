@@ -23,13 +23,6 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
  */
 public abstract class SyncIOCompletion implements IOCompletion {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

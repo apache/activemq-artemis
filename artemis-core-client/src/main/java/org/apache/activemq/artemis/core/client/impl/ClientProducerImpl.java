@@ -64,9 +64,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
 
    private final ClientProducerCredits producerCredits;
 
-   // Static ---------------------------------------------------------------------------------------
-
-   // Constructors ---------------------------------------------------------------------------------
 
    public ClientProducerImpl(final ClientSessionInternal session,
                              final SimpleString address,

@@ -30,15 +30,8 @@ import org.junit.Test;
 
 public class ManagementHelperTest extends Assert {
 
-   // Constants -----------------------------------------------------
 
    private static final Logger log = Logger.getLogger(ManagementHelperTest.class);
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

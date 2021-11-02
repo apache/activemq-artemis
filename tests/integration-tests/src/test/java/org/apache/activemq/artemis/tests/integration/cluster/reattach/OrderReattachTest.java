@@ -41,16 +41,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OrderReattachTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
    final SimpleString ADDRESS = new SimpleString("address");
 
-   // Attributes ----------------------------------------------------
    private ActiveMQServer server;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

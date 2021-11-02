@@ -34,7 +34,6 @@ public class DummyXid implements Xid {
 
    private boolean hashCalculated;
 
-   // Static --------------------------------------------------------
 
    public static String toBase64String(final Xid xid) {
       return Base64.encodeBytes(DummyXid.toByteArray(xid));
@@ -55,8 +54,6 @@ public class DummyXid implements Xid {
       System.arraycopy(intBytes, 0, hashBytes, branchQualifier.length + globalTransactionId.length, 4);
       return hashBytes;
    }
-
-   // Constructors --------------------------------------------------
 
    /**
     * Standard constructor

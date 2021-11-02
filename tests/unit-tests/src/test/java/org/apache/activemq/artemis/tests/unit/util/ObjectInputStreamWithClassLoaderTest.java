@@ -49,11 +49,7 @@ import org.junit.Test;
 
 public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    public static ClassLoader newClassLoader(final Class... userClasses) throws Exception {
 
@@ -84,8 +80,6 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       ClassLoader appClassLoader = URLClassLoader.newInstance(userClassUrls.toArray(new URL[0]), masterClassLoader);
       return appClassLoader;
    }
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

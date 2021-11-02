@@ -57,17 +57,12 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
    private static final Logger log = Logger.getLogger(LargeMessageTestBase.class);
 
    protected final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
-   // Attributes ----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

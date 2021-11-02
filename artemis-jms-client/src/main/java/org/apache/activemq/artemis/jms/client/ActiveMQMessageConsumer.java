@@ -66,7 +66,7 @@ public final class ActiveMQMessageConsumer implements QueueReceiver, TopicSubscr
 
    private final SimpleString autoDeleteQueueName;
 
-   // Constructors --------------------------------------------------
+
 
    protected ActiveMQMessageConsumer(final ConnectionFactoryOptions options,
                                      final ActiveMQConnection connection,

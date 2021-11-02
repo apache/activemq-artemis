@@ -38,15 +38,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JMSLargeMessageTest extends JMSTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    Queue queue1;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

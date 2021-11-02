@@ -26,13 +26,7 @@ import org.junit.Test;
  * A JMSReplyToHeaderTest
  */
 public class JMSReplyToHeaderTest extends MessageHeaderTestBase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

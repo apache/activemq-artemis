@@ -28,19 +28,12 @@ import javax.management.MBeanOperationInfo;
 
 public class BaseBroadcastGroupControlImpl extends AbstractControl implements BaseBroadcastGroupControl {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
    private Class broadcastGroupControlClass;
 
    private final BroadcastGroup broadcastGroup;
 
    private final BroadcastGroupConfiguration configuration;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public BaseBroadcastGroupControlImpl(final BroadcastGroup broadcastGroup,
                                         final StorageManager storageManager,

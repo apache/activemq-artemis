@@ -33,13 +33,6 @@ public class NIOImportExportTest extends JournalImplTestBase {
       return new NIOSequentialFileFactory(getTestDirfile(), true, 1);
    }
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

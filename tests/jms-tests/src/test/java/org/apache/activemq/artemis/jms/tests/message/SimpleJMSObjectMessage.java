@@ -21,15 +21,10 @@ import javax.jms.ObjectMessage;
 import java.io.Serializable;
 
 public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMessage {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private Serializable object;
 
-   // Constructors --------------------------------------------------
 
    // ObjectMessage implementation ----------------------------------
 

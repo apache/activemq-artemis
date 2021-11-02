@@ -29,9 +29,7 @@ import org.junit.Test;
 
 public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManagementTestBase {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private final String validAdminUser = "validAdminUser";
 
@@ -41,9 +39,7 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
 
    private final String invalidAdminPassword = "invalidAdminPassword";
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

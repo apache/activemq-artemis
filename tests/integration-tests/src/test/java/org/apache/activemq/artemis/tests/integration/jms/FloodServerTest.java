@@ -38,7 +38,7 @@ import org.junit.Test;
  * A FloodServerTest
  */
 public class FloodServerTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
+
 
    private static final Logger log = Logger.getLogger(FloodServerTest.class);
 
@@ -46,11 +46,6 @@ public class FloodServerTest extends ActiveMQTestBase {
 
    private final String topicName = "my-topic";
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // TestCase overrides -------------------------------------------
 

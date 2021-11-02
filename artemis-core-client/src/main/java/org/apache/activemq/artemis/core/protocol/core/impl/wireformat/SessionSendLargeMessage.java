@@ -28,9 +28,6 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
     */
    private Message largeMessage;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SessionSendLargeMessage(final Message largeMessage) {
       super(SESS_SEND_LARGE);

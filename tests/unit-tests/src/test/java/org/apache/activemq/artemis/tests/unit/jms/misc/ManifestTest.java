@@ -34,13 +34,7 @@ import org.junit.Test;
 public class ManifestTest extends ActiveMQTestBase {
 
    private static final Logger log = Logger.getLogger(ManifestTest.class);
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

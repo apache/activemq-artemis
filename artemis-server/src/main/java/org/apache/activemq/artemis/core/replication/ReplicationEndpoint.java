@@ -142,7 +142,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
    private final ArrayDeque<Packet> pendingPackets;
 
 
-   // Constructors --------------------------------------------------
+
    public ReplicationEndpoint(final ActiveMQServerImpl server,
                               boolean wantedFailBack,
                               ReplicationEndpointEventListener eventListener) {

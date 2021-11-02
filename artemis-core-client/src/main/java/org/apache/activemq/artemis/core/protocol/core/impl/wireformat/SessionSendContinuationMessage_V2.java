@@ -28,9 +28,7 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
 
    private long correlationID;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    public SessionSendContinuationMessage_V2() {
       super();

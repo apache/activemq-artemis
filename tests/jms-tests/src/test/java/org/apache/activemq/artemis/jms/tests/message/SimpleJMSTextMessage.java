@@ -20,15 +20,10 @@ import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
 public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessage {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private String text;
 
-   // Constructors --------------------------------------------------
 
    public SimpleJMSTextMessage() {
       this(null);

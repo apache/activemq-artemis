@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * </p>
  */
 public class TimeAndCounterIDGenerator implements IDGenerator {
-   // Constants ----------------------------------------------------
+
 
    /**
     * Bits to move the date accordingly to MASK_TIME
@@ -40,7 +40,6 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
 
    private static final long TIME_ID_MASK = 0x7fffffffff000000L;
 
-   // Attributes ----------------------------------------------------
 
    private final AtomicLong counter = new AtomicLong(0);
 
@@ -48,9 +47,6 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
 
    private volatile long tmMark;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public TimeAndCounterIDGenerator() {
       refresh();

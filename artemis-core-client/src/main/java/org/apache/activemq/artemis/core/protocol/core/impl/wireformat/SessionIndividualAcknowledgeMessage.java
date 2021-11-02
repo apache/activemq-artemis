@@ -20,9 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 public class SessionIndividualAcknowledgeMessage extends PacketImpl {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private long consumerID;
 
@@ -30,9 +28,6 @@ public class SessionIndividualAcknowledgeMessage extends PacketImpl {
 
    private boolean requiresResponse;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SessionIndividualAcknowledgeMessage(final long consumerID,
                                               final long messageID,

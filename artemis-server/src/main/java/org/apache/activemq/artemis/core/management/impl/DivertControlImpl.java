@@ -34,17 +34,11 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 
 public class DivertControlImpl extends AbstractControl implements DivertControl {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private final Divert divert;
 
    private final String internalNamingPrefix;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // DivertControlMBean implementation ---------------------------
 

@@ -26,14 +26,10 @@ import org.apache.activemq.artemis.api.core.SimpleString;
  * This class can be instantiated directly.
  */
 public class ActiveMQTopic extends ActiveMQDestination implements Topic {
-   // Constants -----------------------------------------------------
+
 
    private static final long serialVersionUID = 7873614001276404156L;
-   // Static --------------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
    public ActiveMQTopic() {
       this((SimpleString) null);
    }

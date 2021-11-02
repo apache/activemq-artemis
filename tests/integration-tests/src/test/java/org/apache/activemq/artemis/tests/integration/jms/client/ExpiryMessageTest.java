@@ -31,13 +31,7 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
 
 public class ExpiryMessageTest extends JMSTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

@@ -43,9 +43,6 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
    private static final Logger log = Logger.getLogger(MultipleConsumersPageStressTest.class);
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private static final int TIME_TO_RUN = 60 * 1000;
 
@@ -203,9 +200,6 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
    }
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

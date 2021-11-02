@@ -40,17 +40,12 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomXid;
 
 public class SessionCloseTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
    private ClientSessionFactory sf;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

@@ -36,9 +36,7 @@ public class CrashClient {
 
    public static int OK = 9;
    public static int NOT_OK = 1;
-   // Constants ------------------------------------------------------------------------------------
 
-   // Static ---------------------------------------------------------------------------------------
 
    public static void main(final String[] args) throws Exception {
       try {
@@ -63,10 +61,6 @@ public class CrashClient {
          System.exit(NOT_OK);
       }
    }
-
-   // Attributes -----------------------------------------------------------------------------------
-
-   // Constructors ---------------------------------------------------------------------------------
 
    // Command implementation -----------------------------------------------------------------------
 

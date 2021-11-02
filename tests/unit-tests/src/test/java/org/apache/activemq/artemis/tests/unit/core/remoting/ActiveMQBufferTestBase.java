@@ -26,13 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

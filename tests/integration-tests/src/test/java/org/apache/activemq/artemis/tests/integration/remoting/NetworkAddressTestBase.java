@@ -40,11 +40,6 @@ import org.junit.Test;
 
 public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    static {
       try {
@@ -78,7 +73,6 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
       return map;
    }
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

@@ -34,9 +34,6 @@ import org.jboss.logging.Logger;
 public class GracefulClient {
    private static final Logger log = Logger.getLogger(GracefulClient.class);
 
-   // Constants ------------------------------------------------------------------------------------
-
-   // Static ---------------------------------------------------------------------------------------
 
    public static void main(final String[] args) throws Exception {
       if (args.length != 2) {
@@ -70,9 +67,6 @@ public class GracefulClient {
       }
    }
 
-   // Attributes -----------------------------------------------------------------------------------
-
-   // Constructors ---------------------------------------------------------------------------------
 
    // Command implementation -----------------------------------------------------------------------
 

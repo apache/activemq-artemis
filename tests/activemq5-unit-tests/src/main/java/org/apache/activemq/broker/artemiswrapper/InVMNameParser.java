@@ -27,11 +27,9 @@ import java.util.Properties;
  * @author <a href="mailto:ovidiu@feodorov.com">Ovidiu Feodorov</a>
  */
 public class InVMNameParser implements NameParser, Serializable {
-   // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 2925203703371001031L;
 
-   // Static --------------------------------------------------------
 
    static Properties syntax;
 
@@ -42,9 +40,6 @@ public class InVMNameParser implements NameParser, Serializable {
       InVMNameParser.syntax.put("jndi.syntax.separator", "/");
    }
 
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

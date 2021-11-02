@@ -63,7 +63,6 @@ import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_Q
  */
 public class ActiveMQMessage implements javax.jms.Message {
 
-   // Constants -----------------------------------------------------
    public static final byte TYPE = org.apache.activemq.artemis.api.core.Message.DEFAULT_TYPE;
 
    public static final SimpleString OLD_QUEUE_QUALIFIED_PREFIX = SimpleString.toSimpleString(ActiveMQDestination.QUEUE_QUALIFIED_PREFIX + PacketImpl.OLD_QUEUE_PREFIX);
@@ -110,7 +109,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       return jmsdata;
    }
 
-   // Static --------------------------------------------------------
 
    private static final HashSet<String> reservedIdentifiers = new HashSet<>();
 
@@ -172,7 +170,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       return msg;
    }
 
-   // Attributes ----------------------------------------------------
 
    // The underlying message
    protected ClientMessage message;
@@ -206,7 +203,6 @@ public class ActiveMQMessage implements javax.jms.Message {
 
    private long jmsDeliveryTime;
 
-   // Constructors --------------------------------------------------
 
    /*
     * Create a new message prior to sending

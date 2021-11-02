@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMessage {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    protected List<Object> content;
 
@@ -42,9 +40,6 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
 
    // protected transient boolean deserialised;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SimpleJMSStreamMessage() {
       content = new ArrayList<>();

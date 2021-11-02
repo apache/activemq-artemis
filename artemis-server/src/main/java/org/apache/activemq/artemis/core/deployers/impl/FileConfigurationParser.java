@@ -321,7 +321,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ENABLE_INGRESS_TIMESTAMP = "enable-ingress-timestamp";
 
-   // Attributes ----------------------------------------------------
 
    private boolean validateAIO = false;
 

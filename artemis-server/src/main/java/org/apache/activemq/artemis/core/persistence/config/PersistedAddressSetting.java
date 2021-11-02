@@ -22,9 +22,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 
 public class PersistedAddressSetting implements EncodingSupport {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private long storeId;
 
@@ -32,9 +30,6 @@ public class PersistedAddressSetting implements EncodingSupport {
 
    private AddressSettings setting;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public PersistedAddressSetting() {
       super();

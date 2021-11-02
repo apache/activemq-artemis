@@ -35,15 +35,11 @@ import org.junit.Test;
 
 public class DivertControlTest extends ManagementTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
    private DivertConfiguration divertConfig;
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

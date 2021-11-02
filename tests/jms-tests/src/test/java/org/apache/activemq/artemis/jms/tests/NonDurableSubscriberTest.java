@@ -28,13 +28,7 @@ import org.junit.Test;
  * Non-durable subscriber tests.
  */
 public class NonDurableSubscriberTest extends JMSTestCase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

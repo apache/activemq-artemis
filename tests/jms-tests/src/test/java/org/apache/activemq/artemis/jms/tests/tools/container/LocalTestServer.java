@@ -51,14 +51,13 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 
 public class LocalTestServer implements Server, Runnable {
-   // Constants ------------------------------------------------------------------------------------
 
    private boolean started = false;
 
    private final HashMap<String, List<String>> allBindings = new HashMap<>();
    private JMSServerManagerImpl jmsServerManager;
 
-   // Static ---------------------------------------------------------------------------------------
+
 
    public static void setEnvironmentServerIndex(final int serverIndex) {
       System.setProperty(Constants.SERVER_INDEX_PROPERTY_NAME, Integer.toString(serverIndex));
@@ -68,11 +67,9 @@ public class LocalTestServer implements Server, Runnable {
       System.getProperty(Constants.SERVER_INDEX_PROPERTY_NAME, null);
    }
 
-   // Attributes -----------------------------------------------------------------------------------
 
    private final int serverIndex;
 
-   // Constructors ---------------------------------------------------------------------------------
 
    public LocalTestServer() {
       super();

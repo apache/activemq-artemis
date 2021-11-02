@@ -54,11 +54,9 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
  */
 public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
-   // Constants -----------------------------------------------------
 
    public static final String ADDRESS_FILE = "address.txt";
 
-   // Attributes ----------------------------------------------------
 
    private final File directory;
 
