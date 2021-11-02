@@ -672,13 +672,13 @@ public interface ActiveMQServer extends ServiceComponent {
                      SecurityAuth session,
                      boolean checkConsumerCount,
                      boolean removeConsumers,
-                     boolean forceAutoDeleteAddress) throws Exception;
+                     boolean instantAutoDeleteAddress) throws Exception;
 
    void destroyQueue(SimpleString queueName,
                      SecurityAuth session,
                      boolean checkConsumerCount,
                      boolean removeConsumers,
-                     boolean forceAutoDeleteAddress,
+                     boolean instantAutoDeleteAddress,
                      boolean checkMessageCount) throws Exception;
 
    String destroyConnectionWithSessionMetadata(String metaKey, String metaValue) throws Exception;

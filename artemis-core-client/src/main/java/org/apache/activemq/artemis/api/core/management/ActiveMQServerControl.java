@@ -1102,7 +1102,7 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a queue", impact = MBeanOperationInfo.ACTION)
    void destroyQueue(@Parameter(name = "name", desc = "Name of the queue to destroy") String name,
                      @Parameter(name = "removeConsumers", desc = "Remove consumers of this queue") boolean removeConsumers,
-                     @Parameter(name = "forceAutoDeleteAddress", desc = "Automatically delete the address if this was the last queue") boolean autoDeleteAddress) throws Exception;
+                     @Parameter(name = "instantAutoDeleteAddress", desc = "Immediately delete the auto-created address if this was the last queue, ignoring any settings from address-settings") boolean autoDeleteAddress) throws Exception;
 
    /**
     * Enables message counters for this server.

@@ -2372,16 +2372,23 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                             final SecurityAuth session,
                             final boolean checkConsumerCount,
                             final boolean removeConsumers,
-                            final boolean forceAutoDeleteAddress) throws Exception {
-      destroyQueue(queueName, session, checkConsumerCount, removeConsumers, forceAutoDeleteAddress, false);
+                            final boolean instantAutoDeleteAddress) throws Exception {
+      destroyQueue(queueName, session, checkConsumerCount, removeConsumers, instantAutoDeleteAddress, false);
    }
 
+   /**
+    * instantAutoDeleteAddress will immediately remove any auto-created address when the last queue for that address is removed.
+    * Normally the reaper should be responsible for dealing with that but if this parameter is set it will be removed instantly.
+    *
+    * This is useful when you are sure the address should be removeved like on a temporary queue or topic
+    * or when a management operation is calling the destroyQueue directly.
+    */
    @Override
    public void destroyQueue(final SimpleString queueName,
                             final SecurityAuth session,
                             final boolean checkConsumerCount,
                             final boolean removeConsumers,
-                            final boolean forceAutoDeleteAddress,
+                            final boolean instantAutoDeleteAddress,
                             final boolean checkMessageCount) throws Exception {
       if (postOffice == null) {
          return;
@@ -2417,7 +2424,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
 
          if (hasBrokerQueuePlugins()) {
-            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queue, session, checkConsumerCount, removeConsumers, forceAutoDeleteAddress));
+            callBrokerQueuePlugins(plugin -> plugin.beforeDestroyQueue(queue, session, checkConsumerCount, removeConsumers, instantAutoDeleteAddress));
          }
 
          if (mirrorControllerService != null) {
@@ -2427,16 +2434,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          queue.deleteQueue(removeConsumers);
 
          if (hasBrokerQueuePlugins()) {
-            callBrokerQueuePlugins(plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount, removeConsumers, forceAutoDeleteAddress));
+            callBrokerQueuePlugins(plugin -> plugin.afterDestroyQueue(queue, address, session, checkConsumerCount, removeConsumers, instantAutoDeleteAddress));
          }
 
-         if (forceAutoDeleteAddress) {
+         if (instantAutoDeleteAddress) {
             AddressInfo addressInfo = getAddressInfo(address);
 
-            if (postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString()) && addressSettingsRepository.getMatch(address.toString()).getAutoDeleteAddressesDelay() == 0) {
+            if (postOffice != null && addressInfo != null && addressInfo.isAutoCreated() && !isAddressBound(address.toString())) {
                try {
                   removeAddressInfo(address, session);
                } catch (ActiveMQDeleteAddressException e) {
+                  logger.warn(e.getMessage(), e);
                   // Could be thrown if the address has bindings or is not deletable.
                }
             }

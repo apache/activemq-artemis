@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueManager;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 import org.jboss.logging.Logger;
 
@@ -64,7 +63,6 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
 
    public static void performAutoDeleteQueue(ActiveMQServer server, Queue queue) {
       SimpleString queueName = queue.getName();
-      AddressSettings settings = server.getAddressSettingsRepository().getMatch(queue.getAddress().toString());
       if (logger.isDebugEnabled()) {
          logger.debug("deleting auto-created queue \"" + queueName + "\": consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
       }
