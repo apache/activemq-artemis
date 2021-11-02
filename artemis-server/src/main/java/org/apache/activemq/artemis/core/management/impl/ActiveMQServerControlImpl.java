@@ -1563,9 +1563,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public void destroyQueue(final String name, final boolean removeConsumers, final boolean autoDeleteAddress) throws Exception {
+   public void destroyQueue(final String name, final boolean removeConsumers, final boolean forceAutoDeleteAddress) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.destroyQueue(this.server, null, null, name, removeConsumers, autoDeleteAddress);
+         AuditLogger.destroyQueue(this.server, null, null, name, removeConsumers, forceAutoDeleteAddress);
       }
       checkStarted();
 
@@ -1573,7 +1573,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          SimpleString queueName = new SimpleString(name);
          try {
-            server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, autoDeleteAddress);
+            server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, forceAutoDeleteAddress);
          } catch (Exception e) {
             if (AuditLogger.isResourceLoggingEnabled()) {
                AuditLogger.destroyQueueFailure(name);
