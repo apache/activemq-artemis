@@ -113,9 +113,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @Rule
    public RetryRule retryRule = new RetryRule(0);
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    protected boolean legacyCreateQueue;
 
@@ -134,7 +131,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       this.legacyCreateQueue = legacyCreateQueue;
    }
 
-   // Static --------------------------------------------------------
 
    private static boolean contains(final String name, final String[] strings) {
       boolean found = false;
@@ -147,7 +143,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return found;
    }
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

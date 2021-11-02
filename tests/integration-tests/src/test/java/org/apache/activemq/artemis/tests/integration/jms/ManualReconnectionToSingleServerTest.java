@@ -47,7 +47,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
+
 
    public static final String BROKER_URL = "tcp://localhost:61616?minLargeMessageSize=10000&HA=true&retryInterval=100&reconnectAttempts=20&producerWindowSize=10000";
 

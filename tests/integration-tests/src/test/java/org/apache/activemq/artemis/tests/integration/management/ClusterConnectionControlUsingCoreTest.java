@@ -23,14 +23,6 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
 public class ClusterConnectionControlUsingCoreTest extends ClusterConnectionControlTest {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
    // ClusterConnectionControlTest overrides --------------------------------
 
    @Override

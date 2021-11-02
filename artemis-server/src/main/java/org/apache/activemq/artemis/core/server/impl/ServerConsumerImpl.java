@@ -75,13 +75,10 @@ import org.jboss.logging.Logger;
  * Concrete implementation of a ClientConsumer.
  */
 public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
-   // Constants ------------------------------------------------------------------------------------
+
 
    private static final Logger logger = Logger.getLogger(ServerConsumerImpl.class);
 
-   // Static ---------------------------------------------------------------------------------------
-
-   // Attributes -----------------------------------------------------------------------------------
 
    private final long id;
 
@@ -163,7 +160,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private boolean isClosed = false;
 
-   // Constructors ---------------------------------------------------------------------------------
 
    public ServerConsumerImpl(final long id,
                              final ServerSession session,

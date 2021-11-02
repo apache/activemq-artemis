@@ -44,18 +44,14 @@ public class SoftValueLongObjectHashMap<V extends SoftValueLongObjectHashMap.Val
 
    private int maxElements;
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    public interface ValueCache {
 
       boolean isLive();
    }
 
-   // Constructors --------------------------------------------------
+
 
    public SoftValueLongObjectHashMap(final int maxElements) {
       this.maxElements = maxElements;

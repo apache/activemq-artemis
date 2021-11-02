@@ -24,16 +24,10 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
  */
 public class SimpleEncoding implements EncodingSupport {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
    private final int size;
 
    private final byte bytetosend;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SimpleEncoding(final int size, final byte bytetosend) {
       this.size = size;

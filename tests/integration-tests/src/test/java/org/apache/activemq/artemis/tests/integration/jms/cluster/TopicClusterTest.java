@@ -39,13 +39,7 @@ public class TopicClusterTest extends JMSClusteredTestBase {
    // TODO: required to match cluster-connection
    public static final String TOPIC = "jms.t1";
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

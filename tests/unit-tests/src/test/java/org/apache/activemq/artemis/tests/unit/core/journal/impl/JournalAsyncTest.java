@@ -34,9 +34,6 @@ import org.junit.Test;
 
 public class JournalAsyncTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private FakeSequentialFileFactory factory;
 
@@ -46,9 +43,6 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
    private ArrayList<PreparedTransactionInfo> transactions = null;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

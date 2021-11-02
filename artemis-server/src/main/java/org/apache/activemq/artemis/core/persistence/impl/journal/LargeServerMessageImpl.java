@@ -68,10 +68,8 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       return lsm.toMessage();
    }
 
-   // Constants -----------------------------------------------------
    private static final Logger logger = Logger.getLogger(LargeServerMessageImpl.class);
 
-   // Attributes ----------------------------------------------------
 
    private final StorageManager storageManager;
 

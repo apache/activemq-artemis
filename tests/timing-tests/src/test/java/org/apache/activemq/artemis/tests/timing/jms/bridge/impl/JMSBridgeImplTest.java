@@ -75,9 +75,6 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
 
    private static Logger log = Logger.getLogger(JMSBridgeImplTest.class);
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private static final String SOURCE = RandomUtil.randomString();
 
@@ -90,7 +87,6 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    @Rule
    public ExpectedException thrown = ExpectedException.none();
 
-   // Static --------------------------------------------------------
 
    protected static TransactionManager newTransactionManager() {
       return new TransactionManager() {
@@ -183,7 +179,6 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       };
    }
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

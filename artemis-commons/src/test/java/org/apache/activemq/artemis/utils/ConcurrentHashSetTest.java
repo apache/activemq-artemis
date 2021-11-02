@@ -25,17 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ConcurrentHashSetTest extends Assert {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private ConcurrentSet<String> set;
 
    private String element;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

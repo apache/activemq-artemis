@@ -32,17 +32,13 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 
 public class ClusterConnectionControlImpl extends AbstractControl implements ClusterConnectionControl {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private final ClusterConnection clusterConnection;
 
    private final ClusterConnectionConfiguration configuration;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    public ClusterConnectionControlImpl(final ClusterConnection clusterConnection,
                                        final StorageManager storageManager,

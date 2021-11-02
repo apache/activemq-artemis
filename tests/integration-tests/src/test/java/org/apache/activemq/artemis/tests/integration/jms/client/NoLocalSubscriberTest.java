@@ -31,13 +31,6 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Test;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
-   // Constants -----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

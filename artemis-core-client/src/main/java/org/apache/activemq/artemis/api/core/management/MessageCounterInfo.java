@@ -66,7 +66,6 @@ public final class MessageCounterInfo {
       return new MessageCounterInfo(name, subscription, durable, count, countDelta, depth, depthDelta, lastAddTimestamp, lastAckTimestamp, updateTimestamp);
    }
 
-   // Constructors --------------------------------------------------
 
    public MessageCounterInfo(final String name,
                              final String subscription,

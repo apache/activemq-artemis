@@ -25,15 +25,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JNDIUtilTest extends ActiveMQServerTestCase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private InitialContext ic;
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

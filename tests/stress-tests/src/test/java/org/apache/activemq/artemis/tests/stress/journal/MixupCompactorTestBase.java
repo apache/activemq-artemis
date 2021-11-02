@@ -35,9 +35,6 @@ import org.junit.Test;
  */
 public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ReusableLatch startedCompactingLatch = null;
 
@@ -55,9 +52,6 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
 
    SimpleIDGenerator idGen = new SimpleIDGenerator(1000);
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
    @Override

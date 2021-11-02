@@ -59,9 +59,7 @@ import org.junit.Test;
 
 public class PageCursorStressTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private final SimpleString ADDRESS = new SimpleString("test-add");
 

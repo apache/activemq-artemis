@@ -85,9 +85,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
    private static final Logger log = Logger.getLogger(JMSFailoverTest.class);
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    protected InVMNamingContext ctx1 = new InVMNamingContext();
 
@@ -114,10 +112,6 @@ public class JMSFailoverTest extends ActiveMQTestBase {
    private TransportConfiguration liveAcceptortc;
 
    private TransportConfiguration backupAcceptortc;
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

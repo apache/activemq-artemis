@@ -51,12 +51,12 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
    private static final double MAX_TIMEOUT_ERROR_FACTOR = 1.5;
 
-   // Constants -----------------------------------------------------
+
 
    // The number of tries on sleep before switching to spin
    private static final int MAX_CHECKS_ON_SLEEP = 20;
 
-   // Attributes ----------------------------------------------------
+
    // If the TimedBuffer is idle - i.e. no records are being added, then it's pointless the timer flush thread
    // in spinning and checking the time - and using up CPU in the process - this semaphore is used to
    // prevent that
@@ -88,9 +88,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
    // no need to be volatile as every access is synchronized
    private boolean spinning = false;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

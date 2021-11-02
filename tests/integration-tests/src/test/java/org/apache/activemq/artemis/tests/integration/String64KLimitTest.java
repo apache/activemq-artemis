@@ -42,18 +42,13 @@ import org.junit.Test;
  * http://jira.jboss.com/jira/browse/JBAS-2641
  */
 public class String64KLimitTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
    private ClientSession session;
    private ServerLocator locator;
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

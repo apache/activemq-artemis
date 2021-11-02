@@ -32,7 +32,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class MessageTest extends JMSTestBase {
-   // Constants -----------------------------------------------------
+
 
    private static final long TIMEOUT = 1000;
 
@@ -42,11 +42,6 @@ public class MessageTest extends JMSTestBase {
 
    private static final String propName3 = "myprop3";
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

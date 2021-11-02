@@ -34,15 +34,10 @@ import org.junit.Test;
 
 public class DeleteQueueRestartTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
+
 
    private static final String ADDRESS = "ADDRESS";
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

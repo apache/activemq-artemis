@@ -23,9 +23,6 @@ import org.apache.activemq.artemis.jms.server.config.impl.ConnectionFactoryConfi
 
 public class PersistedConnectionFactory implements EncodingSupport {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private long id;
 
@@ -43,9 +40,6 @@ public class PersistedConnectionFactory implements EncodingSupport {
       this.config = config;
    }
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

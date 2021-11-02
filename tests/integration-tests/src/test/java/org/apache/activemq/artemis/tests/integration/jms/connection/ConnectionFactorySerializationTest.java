@@ -52,14 +52,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ConnectionFactorySerializationTest extends JMSTestBase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
    protected static ActiveMQConnectionFactory cf;
 
-   // Constructors --------------------------------------------------
    @Override
    @Before
    public void setUp() throws Exception {

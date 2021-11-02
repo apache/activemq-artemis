@@ -31,14 +31,9 @@ import org.junit.Test;
  * Safeguards for previously detected TCK failures.
  */
 public class CTSMiscellaneousTest extends JMSTest {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
    protected static ActiveMQConnectionFactory cf;
 
-   // Constructors --------------------------------------------------
    @Override
    @Before
    public void setUp() throws Exception {

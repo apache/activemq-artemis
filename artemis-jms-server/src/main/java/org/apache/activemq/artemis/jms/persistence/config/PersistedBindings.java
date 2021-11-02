@@ -26,9 +26,6 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistedBindings implements EncodingSupport {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private long id;
 
@@ -38,9 +35,6 @@ public class PersistedBindings implements EncodingSupport {
 
    private ArrayList<String> bindings = new ArrayList<>();
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public PersistedBindings() {
    }

@@ -34,9 +34,6 @@ public class CrashClient2 {
 
    private static final Logger log = Logger.getLogger(CrashClient2.class);
    public static final int OK = 9;
-   // Constants ------------------------------------------------------------------------------------
-
-   // Static ---------------------------------------------------------------------------------------
 
    public static void main(final String[] args) throws Exception {
       try {
@@ -76,9 +73,6 @@ public class CrashClient2 {
       }
    }
 
-   // Attributes -----------------------------------------------------------------------------------
-
-   // Constructors ---------------------------------------------------------------------------------
 
    // Command implementation -----------------------------------------------------------------------
 

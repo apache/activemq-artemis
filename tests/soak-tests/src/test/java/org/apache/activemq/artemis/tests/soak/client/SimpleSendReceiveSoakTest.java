@@ -35,9 +35,6 @@ import org.junit.Test;
 
 public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private static final SimpleString ADDRESS = new SimpleString("ADD");
 
@@ -49,9 +46,6 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
       return false;
    }
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

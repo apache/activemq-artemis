@@ -34,13 +34,6 @@ import org.junit.Test;
  */
 public class MessageWithReadResolveTest extends JMSTestCase {
 
-   // Constants -----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // TestCase overrides -------------------------------------------
 

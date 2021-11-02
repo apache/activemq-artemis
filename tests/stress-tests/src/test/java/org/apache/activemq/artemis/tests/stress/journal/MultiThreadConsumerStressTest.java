@@ -43,9 +43,6 @@ import org.junit.Test;
  */
 public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    final SimpleString ADDRESS = new SimpleString("SomeAddress");
 
@@ -167,9 +164,6 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
    }
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

@@ -35,13 +35,6 @@ import org.junit.Test;
  * Various use cases, added here while trying things or fixing forum issues.
  */
 public class MiscellaneousTest extends JMSTestCase {
-   // Constants -----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    @Override
    @After

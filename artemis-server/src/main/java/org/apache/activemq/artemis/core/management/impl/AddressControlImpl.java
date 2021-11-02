@@ -57,9 +57,6 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private AddressInfo addressInfo;
 
@@ -73,9 +70,6 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    private final ManagementService managementService;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public AddressControlImpl(AddressInfo addressInfo,
                              final ActiveMQServer server,

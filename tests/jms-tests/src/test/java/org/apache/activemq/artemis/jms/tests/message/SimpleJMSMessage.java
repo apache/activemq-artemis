@@ -32,7 +32,7 @@ public class SimpleJMSMessage implements Message {
 
    private boolean ignoreSetDestination;
 
-   // Constructors --------------------------------------------------
+
 
    public SimpleJMSMessage() {
       properties.put("JMSXDeliveryCount", Integer.valueOf(0));

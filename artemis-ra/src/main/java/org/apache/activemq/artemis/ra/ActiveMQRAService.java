@@ -26,16 +26,12 @@ import java.util.Set;
  * https://jira.jboss.org/browse/HORNETQ-339
  */
 public class ActiveMQRAService {
-   // Constants -----------------------------------------------------
-   // Attributes ----------------------------------------------------
 
    private final MBeanServer mBeanServer;
 
    private final String resourceAdapterObjectName;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    public ActiveMQRAService(final MBeanServer mBeanServer, final String resourceAdapterObjectName) {
       this.mBeanServer = mBeanServer;

@@ -26,13 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class VersionLoaderTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

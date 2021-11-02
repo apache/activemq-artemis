@@ -57,11 +57,9 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
    private static final Logger log = Logger.getLogger(RandomReattachTest.class);
 
-   // Constants -----------------------------------------------------
 
    private static final int RECEIVE_TIMEOUT = 10000;
 
-   // Attributes ----------------------------------------------------
 
    private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
 
@@ -69,9 +67,6 @@ public class RandomReattachTest extends ActiveMQTestBase {
 
    private Timer timer;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

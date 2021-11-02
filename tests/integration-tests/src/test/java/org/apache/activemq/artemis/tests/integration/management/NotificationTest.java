@@ -53,9 +53,6 @@ import static org.apache.activemq.artemis.api.core.management.CoreNotificationTy
 
 public class NotificationTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
@@ -66,9 +63,7 @@ public class NotificationTest extends ActiveMQTestBase {
    private SimpleString notifQueue;
    private ServerLocator locator;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

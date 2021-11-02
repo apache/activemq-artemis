@@ -27,13 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class DestinationObjectFactoryTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

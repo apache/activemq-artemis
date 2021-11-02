@@ -38,9 +38,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AcceptorControlTest extends ManagementTestBase {
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

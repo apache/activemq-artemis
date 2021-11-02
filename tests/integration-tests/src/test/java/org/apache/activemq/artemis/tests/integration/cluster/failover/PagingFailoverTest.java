@@ -45,7 +45,7 @@ import org.junit.Test;
  * <br>
  */
 public class PagingFailoverTest extends FailoverTestBase {
-   // Constants -----------------------------------------------------
+
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -57,10 +57,6 @@ public class PagingFailoverTest extends FailoverTestBase {
    private ClientSession session;
 
    private ClientSessionFactoryInternal sf;
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

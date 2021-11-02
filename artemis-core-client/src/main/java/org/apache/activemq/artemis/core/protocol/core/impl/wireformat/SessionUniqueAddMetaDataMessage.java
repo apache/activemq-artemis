@@ -18,13 +18,6 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
 public class SessionUniqueAddMetaDataMessage extends SessionAddMetaDataMessageV2 {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SessionUniqueAddMetaDataMessage() {
       super(SESS_UNIQUE_ADD_METADATA);

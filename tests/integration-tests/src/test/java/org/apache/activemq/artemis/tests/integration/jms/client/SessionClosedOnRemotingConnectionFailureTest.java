@@ -41,13 +41,7 @@ import org.junit.Test;
  * A SessionClosedOnRemotingConnectionFailureTest
  */
 public class SessionClosedOnRemotingConnectionFailureTest extends JMSTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

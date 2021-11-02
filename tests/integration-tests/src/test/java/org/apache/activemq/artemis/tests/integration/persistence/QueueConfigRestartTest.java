@@ -26,15 +26,9 @@ import org.junit.Test;
 
 public class QueueConfigRestartTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
    private static final String ADDRESS = "ADDRESS";
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

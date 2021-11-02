@@ -30,15 +30,9 @@ import org.junit.Test;
 
 public class AutoAckMessageListenerTest extends JMSTestCase {
 
-   // Constants -----------------------------------------------------
 
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

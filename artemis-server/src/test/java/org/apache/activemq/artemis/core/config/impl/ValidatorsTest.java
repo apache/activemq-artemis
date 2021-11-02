@@ -36,7 +36,6 @@ public class ValidatorsTest extends Assert {
       }
    }
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 
