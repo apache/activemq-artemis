@@ -162,14 +162,14 @@ public class LargeMessageControllerImpl implements LargeMessageController {
 
                flowControlCredit = flowControlSize;
 
-               notifyAll();
-
                if (streamEnded) {
                   outStream.close();
                }
             } catch (Exception e) {
                ActiveMQClientLogger.LOGGER.errorAddingPacket(e);
                handledException = e;
+            } finally {
+               notifyAll();
             }
          } else {
             if (fileCache != null) {

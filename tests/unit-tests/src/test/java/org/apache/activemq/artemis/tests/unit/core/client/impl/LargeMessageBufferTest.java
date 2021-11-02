@@ -468,6 +468,33 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testStreamDataWaitCompletionOnException() throws Exception {
+      final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 5, 5000);
+
+      class FakeOutputStream extends OutputStream {
+
+         @Override
+         public void write(int b) throws IOException {
+            throw new IOException();
+         }
+      }
+
+      outBuffer.setOutputStream(new FakeOutputStream());
+
+      CountDownLatch latch = new CountDownLatch(1);
+      new Thread(() -> {
+         try {
+            outBuffer.waitCompletion(0);
+            fail("supposed to throw an exception");
+         } catch (ActiveMQException e) {
+            latch.countDown();
+         }
+      }).start();
+      outBuffer.addPacket(RandomUtil.randomBytes(), 1, true);
+      assertTrue("The IOException should trigger an immediate failure", latch.await(3, TimeUnit.SECONDS));
+   }
+
+   @Test
    public void testStreamDataWaitCompletionOnSlowComingBuffer() throws Exception {
       final LargeMessageControllerImpl outBuffer = new LargeMessageControllerImpl(new FakeConsumerInternal(), 5, 1000);
 
