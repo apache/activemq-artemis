@@ -29,11 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private volatile boolean testFailed;
 
@@ -41,7 +37,6 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
    private volatile Message expectedMessage;
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

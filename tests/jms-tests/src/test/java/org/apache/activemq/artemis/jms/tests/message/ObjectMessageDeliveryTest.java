@@ -32,13 +32,7 @@ import org.junit.Test;
  * ObjectMessageDeliveryTest
  */
 public class ObjectMessageDeliveryTest extends ActiveMQServerTestCase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

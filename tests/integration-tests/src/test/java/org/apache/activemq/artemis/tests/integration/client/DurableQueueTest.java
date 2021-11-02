@@ -34,9 +34,6 @@ import org.junit.Test;
 
 public class DurableQueueTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
@@ -46,9 +43,6 @@ public class DurableQueueTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

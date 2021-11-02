@@ -25,7 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class XMLUtilTest extends SilentTestCase {
-   // Constructors --------------------------------------------------
+
 
    // Public --------------------------------------------------------
 

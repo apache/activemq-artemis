@@ -45,9 +45,7 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
     */
    protected long messageBodySize = -1;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    public SessionSendContinuationMessage() {
       super(SESS_SEND_CONTINUATION);

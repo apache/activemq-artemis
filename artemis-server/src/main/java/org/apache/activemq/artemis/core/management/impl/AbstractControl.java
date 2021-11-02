@@ -41,15 +41,9 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 public abstract class AbstractControl extends StandardMBean {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    protected final StorageManager storageManager;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public AbstractControl(final Class<?> clazz, final StorageManager storageManager) throws NotCompliantMBeanException {
       super(clazz);

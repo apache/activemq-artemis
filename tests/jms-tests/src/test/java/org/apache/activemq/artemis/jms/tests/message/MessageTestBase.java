@@ -31,11 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public abstract class MessageTestBase extends ActiveMQServerTestCase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    protected Message message;
 
@@ -46,8 +42,6 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
    protected MessageProducer queueProd;
 
    protected MessageConsumer queueCons;
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

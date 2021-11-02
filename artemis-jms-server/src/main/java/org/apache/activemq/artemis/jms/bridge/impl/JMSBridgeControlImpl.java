@@ -26,7 +26,6 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
 
    private final JMSBridge bridge;
 
-   // Constructors --------------------------------------------------
 
    public JMSBridgeControlImpl(final JMSBridge bridge) throws Exception {
       super(JMSBridgeControl.class);
@@ -207,11 +206,6 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       bridge.setTargetUsername(name);
    }
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    // Package protected ---------------------------------------------
 

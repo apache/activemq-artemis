@@ -23,15 +23,10 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 
 public class SessionXAStartMessage extends PacketImpl {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private Xid xid;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SessionXAStartMessage(final Xid xid) {
       super(SESS_XA_START);

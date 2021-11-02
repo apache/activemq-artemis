@@ -77,11 +77,11 @@ import org.jboss.logging.Logger;
  */
 
 public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener, ClientProducerFlowCallback {
-   // Constants -----------------------------------------------------
+
 
    private static final Logger logger = Logger.getLogger(BridgeImpl.class);
 
-   // Attributes ----------------------------------------------------
+
 
    protected final ServerLocatorInternal serverLocator;
 

@@ -38,9 +38,7 @@ import org.junit.Test;
 
 public class LargeJournalStressTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private static final String AD1 = "ad1";
 
@@ -56,9 +54,6 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

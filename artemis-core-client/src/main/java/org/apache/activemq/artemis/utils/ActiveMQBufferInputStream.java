@@ -29,14 +29,9 @@ public class ActiveMQBufferInputStream extends InputStream {
    /* (non-Javadoc)
     * @see java.io.InputStream#read()
     */
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
    private ActiveMQBuffer bb;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

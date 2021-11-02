@@ -36,9 +36,7 @@ public class NodeAnnounceMessage extends PacketImpl {
 
    private String scaleDownGroupName;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    public NodeAnnounceMessage(final long currentEventID,
                               final String nodeID,

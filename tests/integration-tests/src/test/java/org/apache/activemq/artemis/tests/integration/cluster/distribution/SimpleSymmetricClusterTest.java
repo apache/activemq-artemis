@@ -36,13 +36,7 @@ import org.junit.Test;
 public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
    private static final Logger log = Logger.getLogger(SimpleSymmetricClusterTest.class);
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

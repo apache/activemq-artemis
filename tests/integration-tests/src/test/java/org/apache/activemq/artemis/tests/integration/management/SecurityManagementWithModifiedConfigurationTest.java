@@ -24,15 +24,9 @@ import org.junit.Test;
 
 public class SecurityManagementWithModifiedConfigurationTest extends SecurityManagementTestBase {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private final String configuredClusterPassword = "this is not the default password";
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

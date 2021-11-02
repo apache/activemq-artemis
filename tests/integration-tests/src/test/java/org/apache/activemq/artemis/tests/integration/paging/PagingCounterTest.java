@@ -44,17 +44,12 @@ import org.junit.Test;
 
 public class PagingCounterTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
    private ServerLocator sl;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

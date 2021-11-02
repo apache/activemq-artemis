@@ -24,15 +24,11 @@ import java.util.Hashtable;
 import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
 
 public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
-   // Constants ------------------------------------------------------------------------------------
+
 
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
 
-   // Static ---------------------------------------------------------------------------------------
 
-   // Attributes -----------------------------------------------------------------------------------
-
-   // Constructors ---------------------------------------------------------------------------------
 
    public InVMInitialContextFactoryBuilder() {
    }

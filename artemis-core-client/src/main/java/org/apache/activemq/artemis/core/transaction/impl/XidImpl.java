@@ -39,7 +39,6 @@ public class XidImpl implements Xid, Serializable {
 
    private boolean hashCalculated;
 
-   // Static --------------------------------------------------------
 
    public static String toBase64String(final Xid xid) {
       byte[] data = XidImpl.toByteArray(xid);
@@ -62,7 +61,7 @@ public class XidImpl implements Xid, Serializable {
       return hashBytes;
    }
 
-   // Constructors --------------------------------------------------
+
 
    /**
     * Standard constructor

@@ -20,15 +20,10 @@ import javax.jms.TemporaryTopic;
 
 public class ActiveMQTemporaryTopic extends ActiveMQTopic implements TemporaryTopic {
 
-   // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 845450764835635266L;
 
-   // Attributes ----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
    public ActiveMQTemporaryTopic() {
       this(null, null);
    }

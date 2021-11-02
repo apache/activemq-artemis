@@ -43,9 +43,6 @@ import org.junit.Test;
 
 public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    ActiveMQServer server;
 
@@ -55,9 +52,6 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

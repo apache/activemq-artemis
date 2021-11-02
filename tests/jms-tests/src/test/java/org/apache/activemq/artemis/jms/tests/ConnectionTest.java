@@ -35,15 +35,9 @@ import org.junit.Test;
  * which go to ConnectionClosedTest.
  */
 public class ConnectionTest extends JMSTestCase {
-   // Constants -----------------------------------------------------
 
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // TestCase overrides -------------------------------------------
 

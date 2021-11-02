@@ -50,13 +50,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    ExecutorService executor;
 

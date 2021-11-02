@@ -43,20 +43,13 @@ import org.junit.Test;
 
 public class HeuristicXATest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
    final SimpleString ADDRESS = new SimpleString("ADDRESS");
 
    final String body = "this is the body";
 
-   // Attributes ----------------------------------------------------
-
    private MBeanServer mbeanServer;
 
    private ServerLocator locator;
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

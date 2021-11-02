@@ -64,9 +64,6 @@ import org.junit.Test;
  */
 public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    protected Configuration backupConf;
 
@@ -86,9 +83,6 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    private TransportConfiguration backupAcceptortc;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

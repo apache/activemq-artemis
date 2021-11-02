@@ -20,17 +20,10 @@ import org.apache.activemq.artemis.jms.server.config.TopicConfiguration;
 
 public class TopicConfigurationImpl implements TopicConfiguration {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
    private String name;
 
    private String[] bindings;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public TopicConfigurationImpl() {
    }

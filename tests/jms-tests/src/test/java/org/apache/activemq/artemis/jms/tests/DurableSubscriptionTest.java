@@ -39,13 +39,7 @@ import org.junit.Test;
  * MessageConsumerTest.
  */
 public class DurableSubscriptionTest extends JMSTestCase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

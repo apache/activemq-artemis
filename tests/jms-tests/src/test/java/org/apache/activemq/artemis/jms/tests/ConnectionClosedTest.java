@@ -35,13 +35,7 @@ import org.junit.Test;
  * All tests related to closing a Connection.
  */
 public class ConnectionClosedTest extends JMSTestCase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // TestCase overrides -------------------------------------------
 

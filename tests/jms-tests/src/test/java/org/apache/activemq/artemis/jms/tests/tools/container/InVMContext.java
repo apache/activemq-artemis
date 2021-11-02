@@ -39,15 +39,12 @@ import java.util.Map;
 import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
 
 public class InVMContext implements Context, Serializable {
-   // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 385743957345L;
 
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
 
-   // Static --------------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    protected Map<String, Object> map;
 
@@ -55,7 +52,6 @@ public class InVMContext implements Context, Serializable {
 
    private String nameInNamespace = "";
 
-   // Constructors --------------------------------------------------
 
    public InVMContext() {
       map = Collections.synchronizedMap(new HashMap<String, Object>());

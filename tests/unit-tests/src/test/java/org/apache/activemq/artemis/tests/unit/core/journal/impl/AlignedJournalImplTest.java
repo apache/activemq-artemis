@@ -45,7 +45,7 @@ import org.junit.Test;
 
 public class AlignedJournalImplTest extends ActiveMQTestBase {
    private static final Logger log = Logger.getLogger(AlignedJournalImplTest.class);
-   // Constants -----------------------------------------------------
+
 
    private static final LoaderCallback dummyLoader = new LoaderCallback() {
 
@@ -72,7 +72,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       }
    };
 
-   // Attributes ----------------------------------------------------
+
 
    private SequentialFileFactory factory;
 
@@ -84,9 +84,6 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
    private ArrayList<PreparedTransactionInfo> transactions = null;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

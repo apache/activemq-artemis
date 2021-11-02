@@ -37,13 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 public class InVMNamingContext implements Context, Serializable {
-   // Constants -----------------------------------------------------
 
    private static final long serialVersionUID = 385743957345L;
 
-   // Static --------------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    protected Map<String, Object> map;
 
@@ -51,7 +48,6 @@ public class InVMNamingContext implements Context, Serializable {
 
    private String nameInNamespace = "";
 
-   // Constructors --------------------------------------------------
 
    public InVMNamingContext() {
       map = Collections.synchronizedMap(new HashMap<String, Object>());

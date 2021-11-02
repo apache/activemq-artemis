@@ -108,13 +108,11 @@ import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
  * Server side Session implementation
  */
 public class ServerSessionImpl implements ServerSession, FailureListener {
-   // Constants -----------------------------------------------------------------------------
+
 
    private static final Logger logger = Logger.getLogger(ServerSessionImpl.class);
 
-   // Static -------------------------------------------------------------------------------
 
-   // Attributes ----------------------------------------------------------------------------
 
    private boolean securityEnabled = true;
 

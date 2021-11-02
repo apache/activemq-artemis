@@ -52,9 +52,6 @@ import org.junit.Test;
 
 public class ClusterConnectionControlTest extends ManagementTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server_0;
 
@@ -65,8 +62,6 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
    private ActiveMQServer server_1;
 
    private MBeanServer mbeanServer_1;
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

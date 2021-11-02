@@ -120,7 +120,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
    private final Map<String, Queue> queueCache = new ConcurrentHashMap<>();
 
-   // Constructors --------------------------------------------------
 
    protected ActiveMQSession(final ConnectionFactoryOptions options,
                              final ActiveMQConnection connection,

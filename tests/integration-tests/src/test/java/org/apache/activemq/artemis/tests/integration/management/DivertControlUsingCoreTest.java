@@ -23,13 +23,6 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
 public class DivertControlUsingCoreTest extends DivertControlTest {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // DivertControlTest overrides --------------------------------
 

@@ -53,9 +53,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
    private SimpleString address;
    private ServerLocator locator;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

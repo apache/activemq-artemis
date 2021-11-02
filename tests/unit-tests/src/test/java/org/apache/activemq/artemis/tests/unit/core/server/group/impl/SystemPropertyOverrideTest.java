@@ -22,13 +22,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 public class SystemPropertyOverrideTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

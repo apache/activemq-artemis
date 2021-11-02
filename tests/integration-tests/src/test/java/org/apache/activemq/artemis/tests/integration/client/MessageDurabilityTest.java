@@ -35,9 +35,6 @@ import org.junit.Test;
 
 public class MessageDurabilityTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
@@ -47,9 +44,6 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

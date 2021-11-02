@@ -22,13 +22,7 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 
 public class JMSTimestampHeaderTest extends MessageHeaderTestBase {
-   // Constants -----------------------------------------------------
 
-   // Static --------------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

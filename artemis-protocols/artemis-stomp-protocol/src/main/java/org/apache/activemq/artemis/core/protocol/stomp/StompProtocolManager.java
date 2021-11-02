@@ -71,9 +71,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    private final List<StompFrameInterceptor> incomingInterceptors;
    private final List<StompFrameInterceptor> outgoingInterceptors;
 
-   // Static --------------------------------------------------------
 
-   // Constructors --------------------------------------------------
 
    StompProtocolManager(final StompProtocolManagerFactory factory,
                         final ActiveMQServer server,

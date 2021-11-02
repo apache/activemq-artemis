@@ -37,15 +37,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class JMSServerDeployerTest extends ActiveMQTestBase {
-   // Constants -----------------------------------------------------
+
 
    private static final Logger log = org.jboss.logging.Logger.getLogger(JMSServerDeployerTest.class);
 
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    private JMSServerManager jmsServer;
 

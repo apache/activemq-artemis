@@ -21,17 +21,12 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class SessionReceiveContinuationMessage extends SessionContinuationMessage {
 
-   // Constants -----------------------------------------------------
 
    public static final int SESSION_RECEIVE_CONTINUATION_BASE_SIZE = SESSION_CONTINUATION_BASE_SIZE + DataConstants.SIZE_LONG;
 
-   // Attributes ----------------------------------------------------
 
    private long consumerID;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public SessionReceiveContinuationMessage() {
       super(SESS_RECEIVE_CONTINUATION);

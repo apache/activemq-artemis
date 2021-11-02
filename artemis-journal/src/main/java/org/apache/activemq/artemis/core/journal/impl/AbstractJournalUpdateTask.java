@@ -38,9 +38,6 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashSet;
  */
 public abstract class AbstractJournalUpdateTask implements JournalReaderCallback {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
    public static final String FILE_COMPACT_CONTROL = "journal-rename-control.ctr";
 
    protected final JournalImpl journal;
@@ -63,9 +60,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
 
    protected final List<JournalFile> newDataFiles = new ArrayList<>();
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    protected AbstractJournalUpdateTask(final SequentialFileFactory fileFactory,
                                        final JournalImpl journal,

@@ -28,13 +28,6 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTest {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public ActiveMQServerControlUsingCoreTest(boolean legacyCreateQueue) {
       super(legacyCreateQueue);

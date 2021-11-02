@@ -38,9 +38,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.jboss.logging.Logger;
 
 public final class PageTransactionInfoImpl implements PageTransactionInfo {
-   // Constants -----------------------------------------------------
 
-   // Attributes ----------------------------------------------------
 
    private static final Logger logger = Logger.getLogger(PageTransactionInfoImpl.class);
 
@@ -64,10 +62,6 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    private volatile int numberOfPersistentMessages = 0;
 
    private List<LateDelivery> lateDeliveries;
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    public PageTransactionInfoImpl(final long transactionID) {
       this();

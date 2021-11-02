@@ -53,15 +53,8 @@ import org.junit.Test;
 
 public class LargeMessageBufferTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    static int tmpFileCounter = 0;
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

@@ -82,13 +82,11 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    private Consumer<? super MessageReference> onDelivery;
 
-   // Static --------------------------------------------------------
 
    // This value has been computed by using https://github.com/openjdk/jol
    // on HotSpot 64-bit VM COOPS, 8-byte alignment
    private static final int memoryOffset = 72;
 
-   // Constructors --------------------------------------------------
 
    public MessageReferenceImpl() {
       queue = null;

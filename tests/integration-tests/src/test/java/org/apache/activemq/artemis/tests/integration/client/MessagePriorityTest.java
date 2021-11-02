@@ -36,11 +36,9 @@ import org.junit.Test;
 
 public class MessagePriorityTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
 
    private static final Logger log = Logger.getLogger(MessagePriorityTest.class);
 
-   // Attributes ----------------------------------------------------
 
    private ActiveMQServer server;
 
@@ -48,10 +46,6 @@ public class MessagePriorityTest extends ActiveMQTestBase {
 
    private ClientSessionFactory sf;
    private ServerLocator locator;
-
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 

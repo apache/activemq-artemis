@@ -60,9 +60,6 @@ public class OrderTest extends ActiveMQTestBase {
       locator = createNettyNonHALocator();
    }
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // Public --------------------------------------------------------
 
