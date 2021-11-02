@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.server.balancing;
 
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetResult;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class RedirectContext {
@@ -27,7 +28,7 @@ public class RedirectContext {
 
    private final String username;
 
-   private Target target;
+   private TargetResult result;
 
    public RemotingConnection getConnection() {
       return connection;
@@ -42,11 +43,15 @@ public class RedirectContext {
    }
 
    public Target getTarget() {
-      return target;
+      return result.target;
    }
 
-   public void setTarget(Target target) {
-      this.target = target;
+   public TargetResult getResult() {
+      return result;
+   }
+
+   public void setResult(TargetResult result) {
+      this.result = result;
    }
 
    public RedirectContext(RemotingConnection connection, String clientID, String username) {

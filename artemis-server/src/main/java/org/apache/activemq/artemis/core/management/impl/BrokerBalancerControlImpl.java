@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.api.core.management.BrokerBalancerControl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.balancing.BrokerBalancer;
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetResult;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 import javax.json.JsonObjectBuilder;
@@ -59,17 +60,16 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
 
    @Override
    public CompositeData getTarget(String key) throws Exception {
-      Target target = balancer.getTarget(key);
-
-      if (target != null) {
+      TargetResult result = balancer.getTarget(key);
+      if (TargetResult.Status.OK == result.status) {
          CompositeData connectorData = null;
-         TransportConfiguration connector = target.getConnector();
+         TransportConfiguration connector = result.target.getConnector();
 
          if (connector != null) {
             TabularData paramsData = new TabularDataSupport(getParametersType());
             for (Map.Entry<String, Object> param : connector.getParams().entrySet()) {
                paramsData.put(new CompositeDataSupport(getParameterType(), new String[]{"key", "value"},
-                  new Object[]{param.getKey(), param == null ? param : param.getValue().toString()}));
+                  new Object[]{param.getKey(), param.getValue() == null ? null : param.getValue().toString()}));
             }
 
             connectorData = new CompositeDataSupport(getTransportConfigurationType(),
@@ -77,11 +77,9 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
                new Object[]{connector.getName(), connector.getFactoryClassName(), paramsData});
          }
 
-         CompositeData targetData = new CompositeDataSupport(getTargetCompositeType(),
-            new String[]{"nodeID", "local", "connector"},
-            new Object[]{target.getNodeID(), target.isLocal(), connectorData});
-
-         return targetData;
+         return new CompositeDataSupport(getTargetCompositeType(),
+                                         new String[]{"nodeID", "local", "connector"},
+                                         new Object[]{result.target.getNodeID(), result.target.isLocal(), connectorData});
       }
 
       return null;
@@ -89,14 +87,13 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
 
    @Override
    public String getTargetAsJSON(String key) {
-      Target target = balancer.getTarget(key);
-
-      if (target != null) {
-         TransportConfiguration connector = target.getConnector();
+      TargetResult result = balancer.getTarget(key);
+      if (TargetResult.Status.OK == result.status) {
+         TransportConfiguration connector = result.target.getConnector();
 
          JsonObjectBuilder targetDataBuilder = JsonLoader.createObjectBuilder()
-            .add("nodeID", target.getNodeID())
-            .add("local", target.isLocal());
+            .add("nodeID", result.target.getNodeID())
+            .add("local", result.target.isLocal());
 
          if (connector == null) {
             targetDataBuilder.addNull("connector");

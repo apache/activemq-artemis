@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttProperties;
-import io.netty.util.CharsetUtil;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -61,13 +60,13 @@ public class MQTTConnectionManager {
     */
    void connect(String cId,
                 String username,
-                byte[] passwordInBytes,
+                String password,
                 boolean will,
                 byte[] willMessage,
                 String willTopic,
                 boolean willRetain,
                 int willQosLevel,
-                boolean cleanSession) throws Exception {
+                boolean cleanSession, String validatedUser) throws Exception {
       String clientId = validateClientId(cId, cleanSession);
       if (clientId == null) {
          session.getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_IDENTIFIER_REJECTED);
@@ -79,11 +78,10 @@ public class MQTTConnectionManager {
       MQTTSessionState sessionState = getSessionState(clientId);
       synchronized (sessionState) {
          session.setSessionState(sessionState);
-         String password = passwordInBytes == null ? null : new String(passwordInBytes, CharsetUtil.UTF_8);
          session.getConnection().setClientID(clientId);
-         ServerSessionImpl serverSession = createServerSession(username, password);
+         ServerSessionImpl serverSession = createServerSession(username, password, validatedUser);
          serverSession.start();
-         ServerSessionImpl internalServerSession = createServerSession(username, password);
+         ServerSessionImpl internalServerSession = createServerSession(username, password, validatedUser);
          internalServerSession.disableSecurity();
          internalServerSession.start();
          session.setServerSession(serverSession, internalServerSession);
@@ -120,10 +118,9 @@ public class MQTTConnectionManager {
     * @return
     * @throws Exception
     */
-   ServerSessionImpl createServerSession(String username, String password) throws Exception {
+   ServerSessionImpl createServerSession(String username, String password, String validatedUser) throws Exception {
       String id = UUIDGenerator.getInstance().generateStringUUID();
       ActiveMQServer server = session.getServer();
-
       ServerSession serverSession = server.createSession(id,
                                                          username,
                                                          password,
@@ -138,7 +135,7 @@ public class MQTTConnectionManager {
                                                          MQTTUtil.SESSION_AUTO_CREATE_QUEUE,
                                                          server.newOperationContext(),
                                                          session.getProtocolManager().getPrefixes(),
-                                                         session.getProtocolManager().getSecurityDomain());
+                                                         session.getProtocolManager().getSecurityDomain(), validatedUser);
       return (ServerSessionImpl) serverSession;
    }
 

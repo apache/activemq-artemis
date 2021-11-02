@@ -163,10 +163,6 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             connection.setClientID(((CreateSessionMessage_V2) request).getClientID());
          }
 
-         if (connection.getTransportConnection().getRedirectTo() != null) {
-            protocolManager.getRedirectHandler().redirect(connection, request);
-         }
-
          Channel channel = connection.getChannel(request.getSessionChannelID(), request.getWindowSize());
 
          ActiveMQPrincipal activeMQPrincipal = null;
@@ -175,12 +171,17 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             activeMQPrincipal = connection.getDefaultActiveMQPrincipal();
          }
 
+         final String validatedUser = server.validateUser(activeMQPrincipal == null ? request.getUsername() : activeMQPrincipal.getUserName(), activeMQPrincipal == null ? request.getPassword() : activeMQPrincipal.getPassword(), connection, protocolManager.getSecurityDomain());
+         if (connection.getTransportConnection().getRedirectTo() != null) {
+            protocolManager.getRedirectHandler().redirect(connection, request);
+         }
+
          OperationContext sessionOperationContext = server.newOperationContext();
 
          Map<SimpleString, RoutingType> routingTypeMap = protocolManager.getPrefixes();
 
          CoreSessionCallback sessionCallback = new CoreSessionCallback(request.getName(), protocolManager, channel, connection);
-         ServerSession session = server.createSession(request.getName(), activeMQPrincipal == null ? request.getUsername() : activeMQPrincipal.getUserName(), activeMQPrincipal == null ? request.getPassword() : activeMQPrincipal.getPassword(), request.getMinLargeMessageSize(), connection, request.isAutoCommitSends(), request.isAutoCommitAcks(), request.isPreAcknowledge(), request.isXA(), request.getDefaultAddress(), sessionCallback, true, sessionOperationContext, routingTypeMap, protocolManager.getSecurityDomain());
+         ServerSession session = server.createSession(request.getName(), activeMQPrincipal == null ? request.getUsername() : activeMQPrincipal.getUserName(), activeMQPrincipal == null ? request.getPassword() : activeMQPrincipal.getPassword(), request.getMinLargeMessageSize(), connection, request.isAutoCommitSends(), request.isAutoCommitAcks(), request.isPreAcknowledge(), request.isXA(), request.getDefaultAddress(), sessionCallback, true, sessionOperationContext, routingTypeMap, protocolManager.getSecurityDomain(), validatedUser);
          ServerProducer serverProducer = new ServerProducerImpl(session.getName(), "CORE", request.getDefaultAddress());
          session.addProducer(serverProducer);
          ServerSessionPacketHandler handler = new ServerSessionPacketHandler(server, session, channel);

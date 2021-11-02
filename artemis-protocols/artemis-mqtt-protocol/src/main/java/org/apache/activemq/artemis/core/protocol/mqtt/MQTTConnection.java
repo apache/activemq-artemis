@@ -59,6 +59,7 @@ public class MQTTConnection implements RemotingConnection {
       this.creationTime = System.currentTimeMillis();
       this.dataReceived = new AtomicBoolean();
       this.destroyed = false;
+      transportConnection.setProtocolConnection(this);
    }
 
 

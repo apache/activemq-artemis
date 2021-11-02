@@ -41,10 +41,17 @@ public class AMQPRedirectHandler extends RedirectHandler<AMQPRedirectContext> {
    }
 
    @Override
-   protected void cannotRedirect(AMQPRedirectContext context) throws Exception {
+   protected void cannotRedirect(AMQPRedirectContext context) {
       ErrorCondition error = new ErrorCondition();
       error.setCondition(ConnectionError.CONNECTION_FORCED);
-      error.setDescription(String.format("Broker balancer %s is not ready to redirect", context.getConnection().getTransportConnection().getRedirectTo()));
+      switch (context.getResult().status) {
+         case REFUSED_USE_ANOTHER:
+            error.setDescription(String.format("Broker balancer %s, rejected this connection", context.getConnection().getTransportConnection().getRedirectTo()));
+            break;
+         case REFUSED_UNAVAILABLE:
+            error.setDescription(String.format("Broker balancer %s is not ready to redirect", context.getConnection().getTransportConnection().getRedirectTo()));
+            break;
+      }
 
       Connection protonConnection = context.getProtonConnection();
       protonConnection.setCondition(error);
@@ -52,7 +59,7 @@ public class AMQPRedirectHandler extends RedirectHandler<AMQPRedirectContext> {
    }
 
    @Override
-   protected void redirectTo(AMQPRedirectContext context) throws Exception {
+   protected void redirectTo(AMQPRedirectContext context) {
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, context.getTarget().getConnector().getParams());
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, context.getTarget().getConnector().getParams());
 

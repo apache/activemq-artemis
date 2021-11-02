@@ -24,8 +24,11 @@ import org.apache.activemq.artemis.api.core.management.BrokerBalancerControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.balancing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -37,6 +40,8 @@ import org.junit.Test;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -44,7 +49,16 @@ import java.util.concurrent.TimeUnit;
 
 public class MQTTRedirectTest extends BalancingTestBase {
 
-   private final boolean discovery = true;
+   static {
+      String path = System.getProperty("java.security.auth.login.config");
+      if (path == null) {
+         URL resource = SecurityTest.class.getClassLoader().getResource("login.config");
+         if (resource != null) {
+            path = resource.getFile();
+            System.setProperty("java.security.auth.login.config", path);
+         }
+      }
+   }
 
    @Test
    public void testSimpleRedirect() throws Exception {
@@ -52,11 +66,7 @@ public class MQTTRedirectTest extends BalancingTestBase {
 
       setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupLiveServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      if (discovery) {
-         setupBalancerServerWithDiscovery(0, TargetKey.USER_NAME, FirstElementPolicy.NAME, null, false, null, 1);
-      } else {
-         setupBalancerServerWithStaticConnectors(0, TargetKey.USER_NAME, FirstElementPolicy.NAME, null, false, null, 1, 1);
-      }
+      setupBalancerServerWithDiscovery(0, TargetKey.USER_NAME, FirstElementPolicy.NAME, null, false, null, 1);
 
       startServers(0, 1);
 
@@ -94,7 +104,7 @@ public class MQTTRedirectTest extends BalancingTestBase {
       CompositeData hostData = targetConnectorParams.get(new Object[]{TransportConstants.HOST_PROP_NAME});
       CompositeData portData = targetConnectorParams.get(new Object[]{TransportConstants.PORT_PROP_NAME});
       String host = hostData != null ? (String)hostData.get("value") : TransportConstants.DEFAULT_HOST;
-      int port = portData != null ? Integer.valueOf((String)portData.get("value")) : TransportConstants.DEFAULT_PORT;
+      int port = portData != null ? Integer.parseInt((String)portData.get("value")) : TransportConstants.DEFAULT_PORT;
 
       CountDownLatch latch = new CountDownLatch(1);
       List<MqttMessage> messages = new ArrayList<>();
@@ -119,7 +129,40 @@ public class MQTTRedirectTest extends BalancingTestBase {
       client1.close();
 
       Assert.assertEquals(0, queueControl0.countMessages());
-      Wait.assertEquals(0, () -> queueControl1.countMessages());
+      Wait.assertEquals(0, (Wait.LongCondition) queueControl1::countMessages);
+   }
+
+   @Test
+   public void testRoleNameKeyLocalTarget() throws Exception {
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      servers[0] = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(true).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      setupBalancerServerWithLocalTarget(0, TargetKey.ROLE_NAME, "b", "b");
+
+      startServers(0);
+
+      MqttConnectOptions connOpts = new MqttConnectOptions();
+      connOpts.setCleanSession(true);
+      connOpts.setUserName("a");
+      connOpts.setPassword("a".toCharArray());
+
+      MqttClient client0 = new MqttClient("tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_PORT, "TEST", new MemoryPersistence());
+      try {
+         client0.connect(connOpts);
+         fail("Expect to be rejected as not in role b");
+      } catch (MqttException e) {
+         Assert.assertEquals(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER, MqttConnectReturnCode.valueOf((byte) e.getReasonCode()));
+      }
+      client0.close();
+
+      MqttClient client1 = new MqttClient("tcp://" + TransportConstants.DEFAULT_HOST + ":" + TransportConstants.DEFAULT_PORT, "TEST", new MemoryPersistence());
+      connOpts.setUserName("b");
+      connOpts.setPassword("b".toCharArray());
+
+      // expect to be accepted, b has role b
+      client1.connect(connOpts);
+      client1.disconnect();
+      client1.close();
    }
 }
 

@@ -36,13 +36,20 @@ public class MQTTRedirectHandler extends RedirectHandler<MQTTRedirectContext> {
    }
 
    @Override
-   protected void cannotRedirect(MQTTRedirectContext context) throws Exception {
-      context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_SERVER_UNAVAILABLE);
+   protected void cannotRedirect(MQTTRedirectContext context) {
+      switch (context.getResult().status) {
+         case REFUSED_USE_ANOTHER:
+            context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER);
+            break;
+         case REFUSED_UNAVAILABLE:
+            context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_SERVER_UNAVAILABLE);
+            break;
+      }
       context.getMQTTSession().getProtocolHandler().disconnect(true);
    }
 
    @Override
-   protected void redirectTo(MQTTRedirectContext context) throws Exception {
+   protected void redirectTo(MQTTRedirectContext context) {
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, context.getTarget().getConnector().getParams());
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, context.getTarget().getConnector().getParams());
 

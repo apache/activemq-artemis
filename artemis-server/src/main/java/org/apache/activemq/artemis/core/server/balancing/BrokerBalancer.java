@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.server.balancing.pools.Pool;
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKeyResolver;
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetResult;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
 
@@ -46,7 +47,7 @@ public class BrokerBalancer implements ActiveMQComponent {
 
    private final TargetKeyResolver targetKeyResolver;
 
-   private final Target localTarget;
+   private final TargetResult localTarget;
 
    private final Pattern localTargetFilter;
 
@@ -54,7 +55,7 @@ public class BrokerBalancer implements ActiveMQComponent {
 
    private final Policy policy;
 
-   private final Cache<String, Target> cache;
+   private final Cache<String, TargetResult> cache;
 
    private volatile boolean started = false;
 
@@ -67,7 +68,7 @@ public class BrokerBalancer implements ActiveMQComponent {
    }
 
    public Target getLocalTarget() {
-      return localTarget;
+      return localTarget.target;
    }
 
    public String getLocalTargetFilter() {
@@ -82,7 +83,7 @@ public class BrokerBalancer implements ActiveMQComponent {
       return policy;
    }
 
-   public Cache<String, Target> getCache() {
+   public Cache<String, TargetResult> getCache() {
       return cache;
    }
 
@@ -99,7 +100,7 @@ public class BrokerBalancer implements ActiveMQComponent {
 
       this.targetKeyResolver = new TargetKeyResolver(targetKey, targetKeyFilter);
 
-      this.localTarget = localTarget;
+      this.localTarget = new TargetResult(localTarget);
 
       this.localTargetFilter = localTargetFilter != null ? Pattern.compile(localTargetFilter) : null;
 
@@ -134,7 +135,7 @@ public class BrokerBalancer implements ActiveMQComponent {
       }
    }
 
-   public Target getTarget(Connection connection, String clientID, String username) {
+   public TargetResult getTarget(Connection connection, String clientID, String username) {
       if (clientID != null && clientID.startsWith(BrokerBalancer.CLIENT_ID_PREFIX)) {
          if (logger.isDebugEnabled()) {
             logger.debug("The clientID [" + clientID + "] starts with BrokerBalancer.CLIENT_ID_PREFIX");
@@ -146,7 +147,7 @@ public class BrokerBalancer implements ActiveMQComponent {
       return getTarget(targetKeyResolver.resolve(connection, clientID, username));
    }
 
-   public Target getTarget(String key) {
+   public TargetResult getTarget(String key) {
 
       if (this.localTargetFilter != null && this.localTargetFilter.matcher(key).matches()) {
          if (logger.isDebugEnabled()) {
@@ -157,45 +158,47 @@ public class BrokerBalancer implements ActiveMQComponent {
       }
 
       if (pool == null) {
-         return null;
+         return TargetResult.REFUSED_USE_ANOTHER_RESULT;
       }
 
-      Target target = null;
+      TargetResult result = null;
 
       if (cache != null) {
-         target = cache.getIfPresent(key);
+         result = cache.getIfPresent(key);
       }
 
-      if (target != null) {
-         if (pool.isTargetReady(target)) {
+      if (result != null) {
+         if (pool.isTargetReady(result.target)) {
             if (logger.isDebugEnabled()) {
-               logger.debug("The cache returns [" + target + "] ready for " + targetKey + "[" + key + "]");
+               logger.debug("The cache returns [" + result.target + "] ready for " + targetKey + "[" + key + "]");
             }
 
-            return target;
+            return result;
          }
 
          if (logger.isDebugEnabled()) {
-            logger.debug("The cache returns [" + target + "] not ready for " + targetKey + "[" + key + "]");
+            logger.debug("The cache returns [" + result.target + "] not ready for " + targetKey + "[" + key + "]");
          }
       }
 
       List<Target> targets = pool.getTargets();
 
-      target = policy.selectTarget(targets, key);
+      Target target = policy.selectTarget(targets, key);
 
       if (logger.isDebugEnabled()) {
          logger.debug("The policy selects [" + target + "] from " + targets + " for " + targetKey + "[" + key + "]");
       }
 
-      if (target != null && cache != null) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Caching " + targetKey + "[" + key + "] for [" + target + "]");
+      if (target != null) {
+         result = new TargetResult(target);
+         if (cache != null) {
+            if (logger.isDebugEnabled()) {
+               logger.debug("Caching " + targetKey + "[" + key + "] for [" + target + "]");
+            }
+            cache.put(key, result);
          }
-
-         cache.put(key, target);
       }
 
-      return target;
+      return result != null ? result : TargetResult.REFUSED_UNAVAILABLE_RESULT;
    }
 }

@@ -197,6 +197,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private final AtomicBoolean disableTtl = new AtomicBoolean(false);
 
+   private String validatedUser = null;
+
    public OpenWireConnection(Connection connection,
                              ActiveMQServer server,
                              OpenWireProtocolManager openWireProtocolManager,
@@ -210,6 +212,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.outWireFormat = wf.copy();
       this.useKeepAlive = openWireProtocolManager.isUseKeepAlive();
       this.maxInactivityDuration = openWireProtocolManager.getMaxInactivityDuration();
+      this.transportConnection.setProtocolConnection(this);
    }
 
    // SecurityAuth implementation
@@ -768,7 +771,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private void createInternalSession(ConnectionInfo info) throws Exception {
-      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes(), protocolManager.getSecurityDomain());
+      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), validatedUser);
    }
 
    //raise the refCount of context
@@ -1010,6 +1013,14 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return protocolManager.isSupportAdvisory();
    }
 
+   public String getValidatedUser() {
+      return validatedUser;
+   }
+
+   public void setValidatedUser(String validatedUser) {
+      this.validatedUser = validatedUser;
+   }
+
    class SlowConsumerDetection implements SlowConsumerDetectionListener {
 
       @Override
@@ -1126,12 +1137,13 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       @Override
       public Response processAddConnection(ConnectionInfo info) throws Exception {
          try {
-            if (transportConnection.getRedirectTo() != null && protocolManager.getRedirectHandler()
-               .redirect(OpenWireConnection.this, info)) {
-               shutdown(true);
-               return null;
+            protocolManager.validateUser(OpenWireConnection.this, info);
+            if (transportConnection.getRedirectTo() != null) {
+               if (protocolManager.getRedirectHandler().redirect(OpenWireConnection.this, info)) {
+                  shutdown(true);
+                  return null;
+               }
             }
-
             protocolManager.addConnection(OpenWireConnection.this, info);
          } catch (Exception e) {
             Response resp = new ExceptionResponse(e);

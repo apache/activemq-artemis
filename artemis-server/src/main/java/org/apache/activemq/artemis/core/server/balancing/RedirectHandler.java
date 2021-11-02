@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server.balancing;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.balancing.targets.TargetResult;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 public abstract class RedirectHandler<T extends RedirectContext> {
@@ -51,9 +52,9 @@ public abstract class RedirectHandler<T extends RedirectContext> {
          return true;
       }
 
-      context.setTarget(brokerBalancer.getTarget(transportConnection, context.getClientID(), context.getUsername()));
+      context.setResult(brokerBalancer.getTarget(transportConnection, context.getClientID(), context.getUsername()));
 
-      if (context.getTarget() == null) {
+      if (TargetResult.Status.OK != context.getResult().status) {
          ActiveMQServerLogger.LOGGER.cannotRedirectClientConnection(transportConnection);
 
          cannotRedirect(context);

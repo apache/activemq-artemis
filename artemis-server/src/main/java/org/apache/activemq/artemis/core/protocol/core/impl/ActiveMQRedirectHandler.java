@@ -40,7 +40,12 @@ public class ActiveMQRedirectHandler extends RedirectHandler<ActiveMQRedirectCon
 
    @Override
    public void cannotRedirect(ActiveMQRedirectContext context) throws Exception {
-      throw ActiveMQMessageBundle.BUNDLE.cannotRedirect();
+      switch (context.getResult().status) {
+         case REFUSED_UNAVAILABLE:
+            throw ActiveMQMessageBundle.BUNDLE.cannotRedirect();
+         case REFUSED_USE_ANOTHER:
+            throw ActiveMQMessageBundle.BUNDLE.balancerReject();
+      }
    }
 
    @Override

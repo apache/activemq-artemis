@@ -18,12 +18,17 @@
 package org.apache.activemq.artemis.tests.integration.balancing;
 
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
+import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.balancing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.balancing.policies.Policy;
 import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactory;
 import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
+import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -33,12 +38,16 @@ import org.junit.runners.Parameterized;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RunWith(Parameterized.class)
 public class TargetKeyTest extends BalancingTestBase {
@@ -56,6 +65,17 @@ public class TargetKeyTest extends BalancingTestBase {
       return data;
    }
 
+
+   static {
+      String path = System.getProperty("java.security.auth.login.config");
+      if (path == null) {
+         URL resource = SecurityTest.class.getClassLoader().getResource("login.config");
+         if (resource != null) {
+            path = resource.getFile();
+            System.setProperty("java.security.auth.login.config", path);
+         }
+      }
+   }
 
    private final String protocol;
 
@@ -172,6 +192,42 @@ public class TargetKeyTest extends BalancingTestBase {
 
       Assert.assertEquals(1, keys.size());
       Assert.assertEquals("admin", keys.get(0));
+   }
+
+   @Test
+   public void testRoleNameKeyLocalTarget() throws Exception {
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
+      servers[0] = addServer(ActiveMQServers.newActiveMQServer(createDefaultConfig(true).setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      setupBalancerServerWithLocalTarget(0, TargetKey.ROLE_NAME, "b", "b");
+
+      // ensure advisory permission is present for openwire connection creation by 'b'
+      HierarchicalRepository<Set<Role>> securityRepository = servers[0].getSecurityRepository();
+      Role role = new Role("b", true, true, true, true, true, true, false, false, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      securityRepository.addMatch("ActiveMQ.Advisory.#", roles);
+
+      startServers(0);
+
+      final int noRetriesSuchThatWeGetAnErrorOnRejection = 0;
+      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
+                                                          TransportConstants.DEFAULT_PORT + 0, null, "a", "a", noRetriesSuchThatWeGetAnErrorOnRejection);
+
+      // expect disconnect/reject as not role b
+      try (Connection connection = connectionFactory.createConnection()) {
+         connection.start();
+         fail("Expect to be rejected as not in role b");
+      } catch (Exception expectedButNotSpecificDueToDifferentProtocolsInPlay) {
+      }
+
+      connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
+                                        TransportConstants.DEFAULT_PORT + 0, null, "b", "b");
+
+      // expect to be accepted, b has role b
+      try (Connection connection = connectionFactory.createConnection()) {
+         connection.start();
+      }
    }
 
    private boolean checkLocalHostname(String host) {

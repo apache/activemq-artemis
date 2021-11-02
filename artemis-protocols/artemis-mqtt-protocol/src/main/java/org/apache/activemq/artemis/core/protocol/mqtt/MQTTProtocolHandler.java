@@ -38,6 +38,7 @@ import io.netty.handler.codec.mqtt.MqttSubAckPayload;
 import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
+import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
@@ -177,12 +178,15 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
     * @param connect
     */
    void handleConnect(MqttConnectMessage connect) throws Exception {
+      final String username = connect.payload().userName();
+      final String password = connect.payload().passwordInBytes() == null ? null : new String( connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
+      final String validatedUser = server.validateUser(username, password, session.getConnection(), session.getProtocolManager().getSecurityDomain());
       if (connection.getTransportConnection().getRedirectTo() == null ||
          !protocolManager.getRedirectHandler().redirect(connection, session, connect)) {
          connectionEntry.ttl = connect.variableHeader().keepAliveTimeSeconds() * 1500L;
 
          String clientId = connect.payload().clientIdentifier();
-         session.getConnectionManager().connect(clientId, connect.payload().userName(), connect.payload().passwordInBytes(), connect.variableHeader().isWillFlag(), connect.payload().willMessageInBytes(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession());
+         session.getConnectionManager().connect(clientId, username, password, connect.variableHeader().isWillFlag(), connect.payload().willMessageInBytes(), connect.payload().willTopic(), connect.variableHeader().isWillRetain(), connect.variableHeader().willQos(), connect.variableHeader().isCleanSession(), validatedUser);
       }
    }
 

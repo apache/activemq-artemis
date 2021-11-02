@@ -17,7 +17,15 @@
 
 package org.apache.activemq.artemis.core.server.balancing.targets;
 
+import javax.security.auth.Subject;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.commons.collections.set.ListOrderedSet;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -106,5 +114,66 @@ public class TargetKeyResolverTest {
       Assert.assertEquals(expected, targetKeyResolver.resolve(null, null, username));
 
       Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(null, null, null));
+   }
+
+   @Test
+   public void testRoleNameKeyWithFilter() throws Exception {
+      TargetKeyResolver targetKeyResolver = new TargetKeyResolver(TargetKey.ROLE_NAME, "B");
+
+      Connection connection = Mockito.mock(Connection.class);
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      RemotingConnection protocolConnection = Mockito.mock(RemotingConnection.class);
+      Mockito.when(connection.getProtocolConnection()).thenReturn(protocolConnection);
+      Subject subject = Mockito.mock(Subject.class);
+      Mockito.when(protocolConnection.getAuditSubject()).thenReturn(subject);
+
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      Set<RolePrincipal> rolePrincipals = new HashSet<>();
+      Mockito.when(subject.getPrincipals(RolePrincipal.class)).thenReturn(rolePrincipals);
+
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      rolePrincipals.add(new RolePrincipal("A"));
+
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      rolePrincipals.add(new RolePrincipal("B"));
+
+      Assert.assertEquals("B", targetKeyResolver.resolve(connection, null, null));
+   }
+
+   @Test
+   public void testRoleNameKeyWithoutFilter() throws Exception {
+      TargetKeyResolver targetKeyResolver = new TargetKeyResolver(TargetKey.ROLE_NAME, null);
+
+      Connection connection = Mockito.mock(Connection.class);
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      RemotingConnection protocolConnection = Mockito.mock(RemotingConnection.class);
+      Mockito.when(connection.getProtocolConnection()).thenReturn(protocolConnection);
+      Subject subject = Mockito.mock(Subject.class);
+      Mockito.when(protocolConnection.getAuditSubject()).thenReturn(subject);
+
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      Set<RolePrincipal> rolePrincipals = new ListOrderedSet();
+      Mockito.when(subject.getPrincipals(RolePrincipal.class)).thenReturn(rolePrincipals);
+
+      Assert.assertEquals(TargetKeyResolver.DEFAULT_KEY_VALUE, targetKeyResolver.resolve(connection, null, null));
+
+      final RolePrincipal roleA = new RolePrincipal("A");
+      rolePrincipals.add(roleA);
+
+      Assert.assertEquals("A", targetKeyResolver.resolve(connection, null, null));
+
+      rolePrincipals.add(new RolePrincipal("B"));
+
+      Assert.assertEquals("A", targetKeyResolver.resolve(connection, null, null));
+
+      rolePrincipals.remove(roleA);
+      // with no filter, the first entry matches
+      Assert.assertEquals("B", targetKeyResolver.resolve(connection, null, null));
    }
 }
