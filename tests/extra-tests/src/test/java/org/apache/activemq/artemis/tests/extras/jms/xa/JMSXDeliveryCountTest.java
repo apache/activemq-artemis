@@ -678,7 +678,6 @@ public class JMSXDeliveryCountTest extends JMSTestBase {
       }
    }
 
- 
    static class DummyXAResource implements XAResource {
 
       DummyXAResource() {
