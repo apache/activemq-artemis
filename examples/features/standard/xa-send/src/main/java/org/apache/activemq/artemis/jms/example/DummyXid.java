@@ -96,8 +96,6 @@ public class DummyXid implements Xid {
       return globalTransactionId;
    }
 
-----------
-
    @Override
    public int hashCode() {
       if (!hashCalculated) {
