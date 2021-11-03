@@ -145,7 +145,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    public boolean usingCore() {
       return false;
@@ -4308,12 +4307,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
    interface ScaleDownHandler {
 
       void scaleDown(ActiveMQServerControl control) throws Exception;
    }
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -4345,7 +4342,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return ManagementControlHelper.createActiveMQServerControl(mbeanServer);
    }
 
-   // Private -------------------------------------------------------
 
    private String createJsonFilter(String fieldName, String operationName, String value) {
       HashMap<String, Object> filterMap = new HashMap<>();
@@ -4390,7 +4386,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
       session.commit();
    }
-   // Inner classes -------------------------------------------------
 
 }
 

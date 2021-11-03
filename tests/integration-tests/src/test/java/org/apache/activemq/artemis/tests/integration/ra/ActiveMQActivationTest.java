@@ -24,7 +24,6 @@ import org.junit.Test;
 public class ActiveMQActivationTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testValidateJNDIParameters() throws Exception {
@@ -40,13 +39,5 @@ public class ActiveMQActivationTest extends ActiveMQTestBase {
       assertEquals("a1,a2,a3", spec.getParsedJndiParams().get("url"));
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

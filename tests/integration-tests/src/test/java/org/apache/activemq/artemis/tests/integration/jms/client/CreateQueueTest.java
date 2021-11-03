@@ -28,7 +28,6 @@ import org.junit.Test;
 public class CreateQueueTest extends JMSTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCreateQueueTempQueue() throws Exception {

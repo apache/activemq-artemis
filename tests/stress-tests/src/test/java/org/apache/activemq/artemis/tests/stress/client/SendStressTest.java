@@ -31,7 +31,6 @@ import org.junit.Test;
 public class SendStressTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    // Remove this method to re-enable those tests
    @Test
@@ -113,13 +112,5 @@ public class SendStressTest extends ActiveMQTestBase {
       }
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

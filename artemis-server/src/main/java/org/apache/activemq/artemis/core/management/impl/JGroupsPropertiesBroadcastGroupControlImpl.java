@@ -52,14 +52,5 @@ public class JGroupsPropertiesBroadcastGroupControlImpl extends BaseBroadcastGro
       return endpointFactory.getProperties();
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

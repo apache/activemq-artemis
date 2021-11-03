@@ -65,7 +65,6 @@ public class NotificationTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testBINDING_ADDED() throws Exception {
@@ -425,9 +424,7 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -457,7 +454,6 @@ public class NotificationTest extends ActiveMQTestBase {
       notifConsumer = session.createConsumer(notifQueue);
    }
 
-   // Private -------------------------------------------------------
 
    private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException {
       ClientMessage message = null;
@@ -490,6 +486,5 @@ public class NotificationTest extends ActiveMQTestBase {
       return messages;
    }
 
-   // Inner classes -------------------------------------------------
 
 }

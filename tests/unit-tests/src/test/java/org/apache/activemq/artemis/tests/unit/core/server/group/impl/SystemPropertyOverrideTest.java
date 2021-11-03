@@ -24,7 +24,6 @@ import org.junit.Test;
 public class SystemPropertyOverrideTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSystemPropertyOverride() throws Exception {

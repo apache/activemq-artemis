@@ -1132,7 +1132,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return BigDecimal.valueOf((acks - messageConsumedSnapshot.getAndSet(acks)) / timeSlice).setScale(2, BigDecimal.ROUND_UP).floatValue();
    }
 
-   // Private --------------------------------------------------------------------------------------
 
    @Override
    public void promptDelivery() {
@@ -1198,9 +1197,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
       }
    }
-
-   // Inner classes
-   // ------------------------------------------------------------------------
 
    private final Runnable resumeLargeMessageRunnable = new Runnable() {
       @Override

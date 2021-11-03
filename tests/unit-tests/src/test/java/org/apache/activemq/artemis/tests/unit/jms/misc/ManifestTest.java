@@ -36,7 +36,6 @@ public class ManifestTest extends ActiveMQTestBase {
    private static final Logger log = Logger.getLogger(ManifestTest.class);
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testManifestEntries() throws Exception {
@@ -63,7 +62,5 @@ public class ManifestTest extends ActiveMQTestBase {
       Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 }

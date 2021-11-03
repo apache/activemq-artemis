@@ -349,7 +349,6 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       reset();
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public byte getType() {

@@ -26,7 +26,6 @@ import org.junit.Test;
 
 public class VersionImplTest extends Assert {
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testVersionImpl() throws Exception {
@@ -74,11 +73,5 @@ public class VersionImplTest extends Assert {
       Assert.assertTrue(version.equals(version2));
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

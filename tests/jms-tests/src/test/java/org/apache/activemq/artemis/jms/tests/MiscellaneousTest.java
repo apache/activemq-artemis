@@ -44,7 +44,6 @@ public class MiscellaneousTest extends JMSTestCase {
       super.tearDown();
    }
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testBrowser() throws Exception {
@@ -211,14 +210,6 @@ public class MiscellaneousTest extends JMSTestCase {
          removeAllMessages(queue1.getQueueName(), true);
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    private class Result {
 

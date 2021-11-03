@@ -37,7 +37,6 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    /**
     * test does not pass in eclipse (because it can not find artemis-configuration.xsd).

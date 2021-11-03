@@ -30,7 +30,6 @@ import org.junit.Before;
 public class BytesMessageTest extends MessageTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

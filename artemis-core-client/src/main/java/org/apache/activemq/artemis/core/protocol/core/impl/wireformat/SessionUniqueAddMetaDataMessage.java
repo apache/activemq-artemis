@@ -27,14 +27,4 @@ public class SessionUniqueAddMetaDataMessage extends SessionAddMetaDataMessageV2
       super(SESS_UNIQUE_ADD_METADATA, key, data);
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
-
 }

@@ -33,7 +33,6 @@ public class ManagementHelperTest extends Assert {
 
    private static final Logger log = Logger.getLogger(ManagementHelperTest.class);
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testArrayOfStringParameter() throws Exception {
@@ -219,13 +218,5 @@ public class ManagementHelperTest extends Assert {
       Assert.assertEquals(arr2[2], val2[2]);
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

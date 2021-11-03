@@ -89,7 +89,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
    private boolean spinning = false;
 
 
-   // Public --------------------------------------------------------
 
    public TimedBuffer(CriticalAnalyzer analyzer, final int size, final int timeout, final boolean logRates) {
       super(analyzer, CRITICAL_PATHS);
@@ -344,14 +343,6 @@ public final class TimedBuffer extends CriticalComponentImpl {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    /**
     * Sub classes (tests basically) can use this to override how the sleep is being done

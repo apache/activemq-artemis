@@ -1200,5 +1200,4 @@ public class PagingStoreImpl implements PagingStore {
       }
    }
 
-   // Inner classes -------------------------------------------------
 }

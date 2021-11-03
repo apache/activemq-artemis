@@ -53,7 +53,6 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testRedeliveryMessageStrict() throws Exception {
@@ -392,9 +391,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       factory.close();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    /**
     * @param persistDeliveryCountBeforeDelivery

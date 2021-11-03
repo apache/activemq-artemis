@@ -165,7 +165,6 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    class BaseThread extends Thread {
 
@@ -288,13 +287,5 @@ public class MultiThreadConsumerStressTest extends ActiveMQTestBase {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

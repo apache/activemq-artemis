@@ -45,7 +45,6 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testNonDurableMessageOnNonDurableQueue() throws Exception {
@@ -168,9 +167,7 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       });
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -184,7 +181,6 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       session = addClientSession(sf.createSession(false, true, true));
    }
 
-   // Private -------------------------------------------------------
 
    private void restart() throws Exception {
       session.close();
@@ -195,6 +191,5 @@ public class MessageDurabilityTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
    }
-   // Inner classes -------------------------------------------------
 
 }

@@ -30,7 +30,6 @@ import org.junit.Test;
 public class NonDurableSubscriberTest extends JMSTestCase {
 
 
-   // Public --------------------------------------------------------
 
    /**
     * Test introduced as a result of a TCK failure.
@@ -81,13 +80,5 @@ public class NonDurableSubscriberTest extends JMSTestCase {
          // OK
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

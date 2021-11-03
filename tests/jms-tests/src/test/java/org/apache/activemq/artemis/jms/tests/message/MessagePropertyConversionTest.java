@@ -51,7 +51,6 @@ public class MessagePropertyConversionTest extends ActiveMQServerTestCase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

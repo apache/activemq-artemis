@@ -59,7 +59,6 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testNodes() throws Exception {

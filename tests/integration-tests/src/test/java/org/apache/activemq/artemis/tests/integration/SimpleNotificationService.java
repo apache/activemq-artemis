@@ -52,15 +52,6 @@ public class SimpleNotificationService implements NotificationService {
       }
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    public static class Listener implements NotificationListener {
 

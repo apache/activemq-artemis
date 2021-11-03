@@ -122,8 +122,6 @@ public class LargeMessageControllerImpl implements LargeMessageController {
       this.bufferSize = bufferSize;
    }
 
-   // Public --------------------------------------------------------
-
    public void setLocal(boolean local) {
       this.local = local;
    }

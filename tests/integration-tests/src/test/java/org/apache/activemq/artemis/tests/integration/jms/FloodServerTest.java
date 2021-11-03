@@ -49,11 +49,8 @@ public class FloodServerTest extends ActiveMQTestBase {
 
    // TestCase overrides -------------------------------------------
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -65,9 +62,7 @@ public class FloodServerTest extends ActiveMQTestBase {
       server.start();
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
    @Test
    public void testFoo() {

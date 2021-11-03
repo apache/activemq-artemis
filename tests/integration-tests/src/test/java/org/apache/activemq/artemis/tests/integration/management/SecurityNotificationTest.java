@@ -58,7 +58,6 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
    private SimpleString notifQueue;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSECURITY_AUTHENTICATION_VIOLATION() throws Exception {
@@ -167,9 +166,7 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       guestSession.close();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -204,7 +201,6 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       notifConsumer = adminSession.createConsumer(notifQueue);
    }
 
-   // Private -------------------------------------------------------
 
    private static void flush(final ClientConsumer notifConsumer) throws ActiveMQException {
       ClientMessage message = null;
@@ -231,6 +227,5 @@ public class SecurityNotificationTest extends ActiveMQTestBase {
       return messages;
    }
 
-   // Inner classes -------------------------------------------------
 
 }

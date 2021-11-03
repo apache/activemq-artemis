@@ -85,7 +85,6 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    // The ClientConsumer should be able to also send ServerLargeMessages as that's done by the CoreBridge
    @Test
@@ -370,13 +369,6 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
       mockFile.close();
    }
 
-      // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
    private class MockSequentialFile extends AbstractSequentialFile {
 
       private SequentialFile originalFile;
@@ -458,5 +450,4 @@ public class ServerLargeMessageTest extends ActiveMQTestBase {
          return originalFile.cloneFile();
       }
    }
-
 }

@@ -40,8 +40,6 @@ public class SessionReceiveMessage extends MessagePacket {
       super(SESS_RECEIVE_MSG, message);
    }
 
-   // Public --------------------------------------------------------
-
    public long getConsumerID() {
       return consumerID;
    }

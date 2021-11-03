@@ -41,8 +41,6 @@ public class SessionXAAfterFailedMessage extends PacketImpl {
       super(SESS_XA_FAILED);
    }
 
-   // Public --------------------------------------------------------
-
    public Xid getXid() {
       return xid;
    }

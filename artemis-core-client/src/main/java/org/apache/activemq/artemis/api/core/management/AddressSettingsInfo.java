@@ -316,8 +316,6 @@ public final class AddressSettingsInfo {
       this.enableMetrics = enableMetrics;
    }
 
-   // Public --------------------------------------------------------
-
    public int getPageCacheMaxSize() {
       return pageCacheMaxSize;
    }

@@ -38,7 +38,6 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
    private static final Logger log = Logger.getLogger(SimpleSymmetricClusterTest.class);
 
 
-   // Public --------------------------------------------------------
 
    public boolean isNetty() {
       return false;
@@ -475,13 +474,5 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       verifyReceiveRoundRobin(100, -1, -1, 2);
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

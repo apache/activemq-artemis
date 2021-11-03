@@ -32,7 +32,6 @@ import org.junit.Test;
 
 public class NoLocalSubscriberTest extends JMSTestBase {
 
-   // Public --------------------------------------------------------
 
    /**
     * Test that a message created from the same connection than a nolocal consumer

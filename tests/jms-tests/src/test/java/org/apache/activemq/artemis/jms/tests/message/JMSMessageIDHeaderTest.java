@@ -24,7 +24,6 @@ import org.junit.Test;
 public class JMSMessageIDHeaderTest extends MessageHeaderTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testJMSMessageIDPrefix() throws Exception {
@@ -65,11 +64,5 @@ public class JMSMessageIDHeaderTest extends MessageHeaderTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

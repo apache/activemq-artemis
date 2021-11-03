@@ -33,8 +33,6 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
    public InVMInitialContextFactoryBuilder() {
    }
 
-   // InitialContextFactoryBuilder implementation --------------------------------------------------
-
    @Override
    public InitialContextFactory createInitialContextFactory(final Hashtable<?, ?> environment) throws NamingException {
 
@@ -71,15 +69,4 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
 
       return icf;
    }
-
-   // Public ---------------------------------------------------------------------------------------
-
-   // Package protected ----------------------------------------------------------------------------
-
-   // Protected ------------------------------------------------------------------------------------
-
-   // Private --------------------------------------------------------------------------------------
-
-   // Inner classes --------------------------------------------------------------------------------
-
 }

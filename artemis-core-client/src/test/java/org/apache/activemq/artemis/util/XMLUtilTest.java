@@ -27,8 +27,6 @@ import org.w3c.dom.NodeList;
 public class XMLUtilTest extends SilentTestCase {
 
 
-   // Public --------------------------------------------------------
-
    @Test
    public void testGetTextContext_1() throws Exception {
       String document = "<blah>foo</blah>";

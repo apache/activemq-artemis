@@ -180,7 +180,6 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testStartWithRepeatedFailure() throws Exception {
@@ -675,9 +674,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
    private static MockContextClassLoader setMockTCCL() {
       ClassLoader parent = JMSBridgeImpl.class.getClassLoader();
       MockContextClassLoader tccl = new MockContextClassLoader(parent);
@@ -766,9 +763,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       bridge.stop();
       Assert.assertFalse(bridge.isStarted());
    }
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
    private static class MockContextClassLoader extends ClassLoader {
 
       private final ClassLoader original;

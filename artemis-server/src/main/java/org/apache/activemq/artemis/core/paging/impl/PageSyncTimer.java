@@ -59,7 +59,6 @@ final class PageSyncTimer extends ActiveMQScheduledComponent {
       this.timeSync = timeSync;
    }
 
-   // Public --------------------------------------------------------
 
    synchronized void addSync(OperationContext ctx) {
       ctx.pageSyncLineUp();

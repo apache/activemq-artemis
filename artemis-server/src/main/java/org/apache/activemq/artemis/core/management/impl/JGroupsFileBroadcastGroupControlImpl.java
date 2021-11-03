@@ -71,14 +71,5 @@ public class JGroupsFileBroadcastGroupControlImpl extends BaseBroadcastGroupCont
       return endpointFactory.getFile();
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

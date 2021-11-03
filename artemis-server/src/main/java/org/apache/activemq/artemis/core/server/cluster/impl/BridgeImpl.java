@@ -1124,7 +1124,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
 
-   // Inner classes -------------------------------------------------
 
    protected void scheduleRetryConnectFixedTimeout(final long milliseconds) {
       try {

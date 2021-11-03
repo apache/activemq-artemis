@@ -201,15 +201,6 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    abstract class Tester extends Thread {
 

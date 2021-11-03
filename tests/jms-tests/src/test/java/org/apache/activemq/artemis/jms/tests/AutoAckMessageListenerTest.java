@@ -34,7 +34,6 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testAutoAckMsgListenerQueue() throws Exception {
@@ -74,14 +73,6 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    private static class AutoAckMsgListener implements MessageListener {
 

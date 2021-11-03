@@ -40,8 +40,6 @@ public class DisconnectMessage extends PacketImpl {
       super(disconnectV2);
    }
 
-   // Public --------------------------------------------------------
-
    public SimpleString getNodeID() {
       return nodeID;
    }

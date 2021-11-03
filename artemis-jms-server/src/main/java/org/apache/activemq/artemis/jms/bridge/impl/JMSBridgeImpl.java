@@ -940,10 +940,6 @@ public final class JMSBridgeImpl implements JMSBridge {
       this.tm = tm;
    }
 
-   // Public ---------------------------------------------------------------------------
-
-   // Private -------------------------------------------------------------------
-
    private synchronized void checkParams() {
       checkNotNull(sourceCff, "sourceCff");
       checkNotNull(targetCff, "targetCff");
@@ -1746,8 +1742,6 @@ public final class JMSBridgeImpl implements JMSBridge {
       });
       return service;
    }
-
-   // Inner classes ---------------------------------------------------------------
 
    /**
     * We use a Thread which polls the sourceDestination instead of a MessageListener

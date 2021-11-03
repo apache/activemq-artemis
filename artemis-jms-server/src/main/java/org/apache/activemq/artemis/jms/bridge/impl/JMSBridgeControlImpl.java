@@ -32,7 +32,6 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       this.bridge = bridge;
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public void pause() throws Exception {
@@ -206,13 +205,5 @@ public class JMSBridgeControlImpl extends StandardMBean implements JMSBridgeCont
       bridge.setTargetUsername(name);
    }
 
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

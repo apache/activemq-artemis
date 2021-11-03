@@ -41,7 +41,6 @@ public class DivertControlTest extends ManagementTestBase {
    private DivertConfiguration divertConfig;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testAttributes() throws Exception {
@@ -88,9 +87,7 @@ public class DivertControlTest extends ManagementTestBase {
       Assert.assertTrue(divertControl.isRetroactiveResource());
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

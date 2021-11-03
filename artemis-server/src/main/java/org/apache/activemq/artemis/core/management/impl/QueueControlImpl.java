@@ -122,7 +122,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       this.addressSettingsRepository = addressSettingsRepository;
    }
 
-   // Public --------------------------------------------------------
 
    public void setMessageCounter(final MessageCounter counter) {
       this.counter = counter;
@@ -1972,11 +1971,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private void checkStarted() {
       if (!server.getPostOffice().isStarted()) {
@@ -1984,5 +1980,4 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
-   // Inner classes -------------------------------------------------
 }

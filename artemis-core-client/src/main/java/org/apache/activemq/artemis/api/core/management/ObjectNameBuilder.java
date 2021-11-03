@@ -73,8 +73,6 @@ public final class ObjectNameBuilder {
       this.jmxUseBrokerName = jmxUseBrokerName;
    }
 
-   // Public --------------------------------------------------------
-
    /**
     * Returns the ObjectName used by the single {@link ActiveMQServerControl}.
     */

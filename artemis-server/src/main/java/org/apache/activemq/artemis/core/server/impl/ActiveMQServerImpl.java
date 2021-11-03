@@ -2895,8 +2895,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return sessions.get(sessionName);
    }
 
-   // PUBLIC -------
-
    @Override
    public String toString() {
       if (identity != null) {
@@ -4153,9 +4151,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          }
       }
    }
-
-   // Inner classes
-   // --------------------------------------------------------------------------------
 
    public final class DefaultCriticalErrorListener implements IOCriticalErrorListener {
 

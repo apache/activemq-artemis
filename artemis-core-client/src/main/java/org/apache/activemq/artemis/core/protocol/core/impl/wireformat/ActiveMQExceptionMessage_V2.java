@@ -35,8 +35,6 @@ public class ActiveMQExceptionMessage_V2 extends ActiveMQExceptionMessage {
       super();
    }
 
-   // Public --------------------------------------------------------
-
    @Override
    public boolean isResponse() {
       return true;

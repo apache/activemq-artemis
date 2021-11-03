@@ -433,11 +433,8 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    /**
     * Check the name
@@ -454,6 +451,5 @@ public class SimpleJMSMapMessage extends SimpleJMSMessage implements MapMessage 
       }
    }
 
-   // Inner classes -------------------------------------------------
 
 }

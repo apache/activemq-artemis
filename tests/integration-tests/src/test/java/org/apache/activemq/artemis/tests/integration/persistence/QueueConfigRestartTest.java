@@ -30,7 +30,6 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
    private static final String ADDRESS = "ADDRESS";
 
 
-   // Public --------------------------------------------------------
 
 
    @Test
@@ -211,12 +210,4 @@ public class QueueConfigRestartTest extends ActiveMQTestBase {
       QueueBinding queueBinding2 = (QueueBinding)server.getPostOffice().getBinding(queue);
       Assert.assertFalse(queueBinding2.getQueue().isEnabled());
    }
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
-
 }

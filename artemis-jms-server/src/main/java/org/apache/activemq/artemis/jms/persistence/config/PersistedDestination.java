@@ -51,15 +51,6 @@ public class PersistedDestination implements EncodingSupport {
       this.selector = selector;
       this.durable = durable;
    }
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    public long getId() {
       return id;

@@ -857,18 +857,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
-   // Public
-   // ---------------------------------------------------------------------------------------
-
-   // Package protected
-   // ---------------------------------------------------------------------------------------
-
-   // Protected
-   // ---------------------------------------------------------------------------------------
-
-   // Private
-   // ---------------------------------------------------------------------------------------
-
    /**
     * Sending an initial credit for slow consumers
     */
@@ -1136,9 +1124,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          ", queueName=" + queueName +
          '}';
    }
-
-   // Inner classes
-   // --------------------------------------------------------------------------------
 
    private class Runner implements Runnable {
 

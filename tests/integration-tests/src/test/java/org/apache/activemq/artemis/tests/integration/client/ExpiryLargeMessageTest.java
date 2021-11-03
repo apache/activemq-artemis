@@ -61,7 +61,6 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
    final int numberOfMessages = 50;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testExpiryMessagesThenDLQ() throws Exception {
@@ -457,13 +456,5 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       session.close();
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

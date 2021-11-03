@@ -498,8 +498,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return null; // we offer RA
    }
 
-   // Public ---------------------------------------------------------------------------------------
-
    /**
     * Sets a FailureListener for the session which is notified if a failure occurs on the session.
     *
@@ -558,12 +556,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
    public ClientSession getInitialSession() {
       return initialSession;
    }
-
-   // Package protected ----------------------------------------------------------------------------
-
-   // Protected ------------------------------------------------------------------------------------
-
-   // In case the user forgets to close the connection manually
 
    @Override
    protected final void finalize() throws Throwable {
@@ -634,7 +626,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return sessionFactory;
    }
 
-   // Private --------------------------------------------------------------------------------------
 
    /**
     * @param transacted
@@ -709,8 +700,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return this.factoryReference.getDeserializationWhiteList();
    }
 
-
-   // Inner classes --------------------------------------------------------------------------------
 
    private static class JMSFailureListener implements SessionFailureListener {
 

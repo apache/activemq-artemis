@@ -718,8 +718,6 @@ final class CompressedLargeMessageControllerImpl implements LargeMessageControll
       throw new UnsupportedOperationException();
    }
 
-   // Inner classes -------------------------------------------------
-
    @Override
    public ByteBuf byteBuf() {
       return null;

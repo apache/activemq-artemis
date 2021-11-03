@@ -71,7 +71,6 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
       factory = new OrderedExecutorFactory(executor);
    }
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testReloadDuplication() throws Exception {

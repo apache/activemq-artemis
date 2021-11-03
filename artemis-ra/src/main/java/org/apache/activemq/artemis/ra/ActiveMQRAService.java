@@ -38,7 +38,6 @@ public class ActiveMQRAService {
       this.resourceAdapterObjectName = resourceAdapterObjectName;
    }
 
-   // Public --------------------------------------------------------
 
    public void stop() {
       try {
@@ -56,13 +55,5 @@ public class ActiveMQRAService {
          ActiveMQRALogger.LOGGER.errorStoppingRA(e);
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

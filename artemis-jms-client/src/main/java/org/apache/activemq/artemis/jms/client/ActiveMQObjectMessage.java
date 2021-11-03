@@ -73,7 +73,6 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       this.options = options;
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public byte getType() {

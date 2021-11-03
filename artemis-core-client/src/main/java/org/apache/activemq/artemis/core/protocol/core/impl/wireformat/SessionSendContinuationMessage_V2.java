@@ -48,8 +48,6 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
       super(message, body, continues, requiresResponse, messageBodySize, handler);
    }
 
-   // Public --------------------------------------------------------
-
    @Override
    public int expectedEncodeSize() {
       return super.expectedEncodeSize() + DataConstants.SIZE_LONG;

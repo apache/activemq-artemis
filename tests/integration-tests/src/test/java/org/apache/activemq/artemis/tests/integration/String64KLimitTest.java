@@ -50,7 +50,6 @@ public class String64KLimitTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    protected String genString(final int len) {
       char[] chars = new char[len];

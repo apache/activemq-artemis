@@ -63,11 +63,8 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -146,8 +143,6 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
       return control.getMessagesAdded();
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

@@ -76,7 +76,6 @@ public class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMess
       message = new ClientMessageImpl((byte) 0, false, 0, 0, (byte) 4, 1500, null);
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public byte getType() {

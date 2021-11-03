@@ -43,7 +43,6 @@ public class MessageTest extends JMSTestBase {
    private static final String propName3 = "myprop3";
 
 
-   // Public --------------------------------------------------------
 
    /**
     * @see https://jira.jboss.org/jira/browse/HORNETQ-242
@@ -203,11 +202,8 @@ public class MessageTest extends JMSTestBase {
       checkProperties(received);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private void checkProperties(final Message message) throws Exception {
       Assert.assertNull(message.getObjectProperty(MessageTest.propName1));
@@ -305,5 +301,4 @@ public class MessageTest extends JMSTestBase {
       return received;
    }
 
-   // Inner classes -------------------------------------------------
 }

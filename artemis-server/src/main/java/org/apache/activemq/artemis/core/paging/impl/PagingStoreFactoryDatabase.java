@@ -139,7 +139,6 @@ public class PagingStoreFactoryDatabase implements PagingStoreFactory {
          started = true;
       }
    }
-   // Public --------------------------------------------------------
 
    @Override
    public synchronized void stop() {

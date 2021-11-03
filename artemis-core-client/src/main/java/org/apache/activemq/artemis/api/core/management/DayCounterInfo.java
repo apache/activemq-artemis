@@ -78,8 +78,6 @@ public final class DayCounterInfo {
       this.counters = counters;
    }
 
-   // Public --------------------------------------------------------
-
    /**
     * Returns the date of the counter.
     */

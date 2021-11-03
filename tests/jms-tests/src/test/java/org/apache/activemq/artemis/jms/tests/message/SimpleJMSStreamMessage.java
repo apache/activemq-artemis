@@ -48,7 +48,6 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       offset = 0;
    }
 
-   // Public --------------------------------------------------------
 
    // StreamMessage implementation ----------------------------------
 
@@ -526,11 +525,5 @@ public class SimpleJMSStreamMessage extends SimpleJMSMessage implements StreamMe
       offset = 0;
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

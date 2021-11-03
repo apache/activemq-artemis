@@ -78,7 +78,6 @@ public class SSLSupportTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

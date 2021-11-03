@@ -260,15 +260,6 @@ public class JMSUtil {
    }
 
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    public static ActiveMQConnection createConnectionAndWaitForTopology(ActiveMQConnectionFactory factory,
                                                                        int topologyMembers,

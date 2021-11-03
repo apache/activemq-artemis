@@ -30,7 +30,6 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
    private InitialContext ic;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testRebind_1() throws Exception {
@@ -78,9 +77,7 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
       ic.unbind("doesnotexistyet");
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -94,8 +91,6 @@ public class JNDIUtilTest extends ActiveMQServerTestCase {
       log.debug("setup done");
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

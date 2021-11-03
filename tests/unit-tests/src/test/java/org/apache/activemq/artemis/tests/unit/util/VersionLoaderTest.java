@@ -28,7 +28,6 @@ import org.junit.Test;
 public class VersionLoaderTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testLoadVersion() throws Exception {
@@ -48,11 +47,5 @@ public class VersionLoaderTest extends ActiveMQTestBase {
 
    // Y overrides ---------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

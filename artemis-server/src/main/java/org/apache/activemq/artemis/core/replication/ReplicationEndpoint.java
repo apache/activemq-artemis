@@ -153,7 +153,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       this.supportResponseBatching = false;
    }
 
-   // Public --------------------------------------------------------
 
    public synchronized void registerJournal(final byte id, final Journal journal) {
       if (journals == null || id >= journals.length) {

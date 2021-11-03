@@ -139,7 +139,6 @@ public class MessageCounter {
       }
    };
 
-   // Public --------------------------------------------------------
 
    /*
     * This method is called periodically to update statistics from the queue
@@ -351,11 +350,8 @@ public class MessageCounter {
          .toString();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    /**
     * Update message counter history
@@ -427,7 +423,6 @@ public class MessageCounter {
       }
    }
 
-   // Inner classes -------------------------------------------------
 
    /**
     * Internal day counter class for one day hour based counter history

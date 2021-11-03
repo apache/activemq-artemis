@@ -32,7 +32,6 @@ import org.junit.Test;
 public class BlockingSendTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSinglePersistentBlockingNonSync() throws Exception {

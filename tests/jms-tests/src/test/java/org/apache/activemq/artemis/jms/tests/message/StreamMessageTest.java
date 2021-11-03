@@ -30,7 +30,6 @@ import org.junit.Test;
  */
 public class StreamMessageTest extends MessageTestBase {
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

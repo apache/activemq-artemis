@@ -39,8 +39,6 @@ public class SessionExpireMessage extends PacketImpl {
       super(SESS_EXPIRED);
    }
 
-   // Public --------------------------------------------------------
-
    public long getConsumerID() {
       return consumerID;
    }

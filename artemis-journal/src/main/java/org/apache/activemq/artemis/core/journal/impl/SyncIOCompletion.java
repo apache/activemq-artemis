@@ -24,16 +24,7 @@ import org.apache.activemq.artemis.core.journal.IOCompletion;
 public abstract class SyncIOCompletion implements IOCompletion {
 
 
-   // Public --------------------------------------------------------
 
    public abstract void waitCompletion() throws Exception;
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

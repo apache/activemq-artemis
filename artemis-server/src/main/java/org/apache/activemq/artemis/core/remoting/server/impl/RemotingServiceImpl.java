@@ -670,7 +670,6 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       return clusterConnection;
    }
 
-   // Inner classes -------------------------------------------------
 
    private final class DelegatingBufferHandler implements BufferHandler {
 

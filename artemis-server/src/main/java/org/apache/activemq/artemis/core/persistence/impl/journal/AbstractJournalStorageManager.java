@@ -1685,8 +1685,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
    }
 
-   // Public -----------------------------------------------------------------------------------
-
    @Override
    public Journal getMessageJournal() {
       return messageJournal;
@@ -1696,8 +1694,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    public Journal getBindingsJournal() {
       return bindingsJournal;
    }
-
-   // Package protected ---------------------------------------------
 
    protected void confirmLargeMessage(final LargeServerMessage largeServerMessage) {
       synchronized (largeServerMessage) {
@@ -1939,8 +1935,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       }
    }
 
-   // Inner Classes
-   // ----------------------------------------------------------------------------
 
    private static final class DummyOperationContext implements OperationContext {
 

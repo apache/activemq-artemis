@@ -25,15 +25,8 @@ import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 public class AIOAllPossibilitiesCompactStressTest extends AllPossibilitiesCompactStressTest {
 
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());

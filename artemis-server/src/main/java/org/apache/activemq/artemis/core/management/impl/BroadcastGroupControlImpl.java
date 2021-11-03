@@ -83,14 +83,5 @@ public class BroadcastGroupControlImpl extends BaseBroadcastGroupControlImpl imp
    // MessagingComponentControlMBean implementation -----------------
 
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

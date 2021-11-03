@@ -35,8 +35,6 @@ public class SessionSendLargeMessage extends PacketImpl implements MessagePacket
       this.largeMessage = largeMessage;
    }
 
-   // Public --------------------------------------------------------
-
    public Message getLargeMessage() {
       return largeMessage;
    }

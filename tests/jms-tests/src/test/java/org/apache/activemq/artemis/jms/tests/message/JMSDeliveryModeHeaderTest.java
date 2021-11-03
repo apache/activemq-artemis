@@ -24,7 +24,6 @@ import org.junit.Test;
 
 public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase {
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testDefaultDeliveryMode() throws Exception {
@@ -52,13 +51,5 @@ public class JMSDeliveryModeHeaderTest extends MessageHeaderTestBase {
 
       ProxyAssertSupport.assertEquals(DeliveryMode.PERSISTENT, queueConsumer.receive().getJMSDeliveryMode());
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

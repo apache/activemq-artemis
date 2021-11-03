@@ -360,9 +360,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
                         final ClientSession... sessions) throws Exception {
       liveServer.crash(failover, waitFailure, sessions);
    }
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
    public static final class LatchClusterTopologyListener implements ClusterTopologyListener {
 

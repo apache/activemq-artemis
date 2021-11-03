@@ -55,7 +55,6 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCanNotUseAClosedConsumer() throws Exception {
@@ -261,9 +260,7 @@ public class ConsumerCloseTest extends ActiveMQTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

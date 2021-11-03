@@ -67,11 +67,8 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
    // TestCase overrides -------------------------------------------
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    /**
     * @throws Exception
@@ -184,8 +181,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       return configuration;
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

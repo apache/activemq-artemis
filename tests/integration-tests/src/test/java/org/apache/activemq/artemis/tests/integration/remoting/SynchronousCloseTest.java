@@ -31,11 +31,8 @@ public class SynchronousCloseTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

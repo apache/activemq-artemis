@@ -22,19 +22,10 @@ import org.junit.Test;
 public class PagePositionTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testNextSequenceOf() {
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

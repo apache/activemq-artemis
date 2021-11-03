@@ -47,7 +47,6 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCanNotUseAClosedSession() throws Exception {
@@ -218,9 +217,7 @@ public class SessionCloseTest extends ActiveMQTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -232,8 +229,6 @@ public class SessionCloseTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

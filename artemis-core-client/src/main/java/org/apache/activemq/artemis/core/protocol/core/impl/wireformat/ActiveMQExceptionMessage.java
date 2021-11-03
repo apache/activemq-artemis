@@ -36,8 +36,6 @@ public class ActiveMQExceptionMessage extends PacketImpl {
       super(EXCEPTION);
    }
 
-   // Public --------------------------------------------------------
-
    @Override
    public boolean isResponse() {
       return true;

@@ -76,7 +76,6 @@ public class AcceptorControlUsingCoreTest extends AcceptorControlTest {
       };
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public boolean usingCore() {

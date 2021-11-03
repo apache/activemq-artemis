@@ -44,7 +44,6 @@ public class DurableQueueTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testConsumeFromDurableQueue() throws Exception {
@@ -142,9 +141,7 @@ public class DurableQueueTest extends ActiveMQTestBase {
       session.deleteQueue(queue);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

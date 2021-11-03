@@ -45,7 +45,6 @@ public class TimedBufferTest extends ActiveMQTestBase {
    private static final int ONE_SECOND_IN_NANOS = 1000000000; // in nanoseconds
 
 
-   // Public --------------------------------------------------------
 
    IOCallback dummyCallback = new IOCallback() {
 

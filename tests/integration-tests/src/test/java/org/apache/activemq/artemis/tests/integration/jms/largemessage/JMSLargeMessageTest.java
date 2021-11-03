@@ -44,7 +44,6 @@ public class JMSLargeMessageTest extends JMSTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Override
    protected boolean usePersistence() {
@@ -293,14 +292,6 @@ public class JMSLargeMessageTest extends JMSTestBase {
       validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 0);
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    class ThreadReader extends Thread {
 

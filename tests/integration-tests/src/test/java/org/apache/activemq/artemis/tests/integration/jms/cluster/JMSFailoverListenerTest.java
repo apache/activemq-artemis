@@ -84,7 +84,6 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
    private TransportConfiguration backupAcceptortc;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testAutomaticFailover() throws Exception {
@@ -240,9 +239,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       connBackup.close();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -286,9 +283,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       JMSUtil.waitForServer(backupServer);
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
    private static class MyFailoverListener implements FailoverEventListener {
 

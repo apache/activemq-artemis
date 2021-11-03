@@ -1138,7 +1138,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return (TopicSession) getSession();
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public String toString() {
@@ -1236,8 +1235,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return enable1xPrefixes;
    }
 
-   // Package protected ---------------------------------------------
-
    void deleteQueue(final SimpleString queueName) throws JMSException {
       if (!session.isClosed()) {
          try {
@@ -1251,8 +1248,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
    public ActiveMQConnection getConnection() {
       return connection;
    }
-
-   // Protected -----------------------------------------------------
 
 
    void checkClosed() throws JMSException {
@@ -1279,7 +1274,6 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       session.createQueue(queueConfiguration.setName(queueName).setAddress(destination.getAddress()).setAutoCreated(autoCreated).setDurable(durable));
    }
 
-   // Private -------------------------------------------------------
 
 
    private ActiveMQQueue lookupQueue(final String queueName, boolean isTemporary) throws ActiveMQException {
@@ -1336,6 +1330,5 @@ public class ActiveMQSession implements QueueSession, TopicSession {
          return topic;
       }
    }
-   // Inner classes -------------------------------------------------
 
 }

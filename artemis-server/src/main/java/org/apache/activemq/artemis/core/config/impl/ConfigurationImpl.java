@@ -372,8 +372,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
     */
    private File artemisInstance;
 
-   // Public -------------------------------------------------------------------------
-
    @Override
    public String getJournalRetentionDirectory() {
       return journalRetentionDirectory;

@@ -40,7 +40,6 @@ import org.junit.Test;
 public class AcceptorControlTest extends ManagementTestBase {
 
 
-   // Public --------------------------------------------------------
 
    public boolean usingCore() {
       return false;
@@ -160,9 +159,7 @@ public class AcceptorControlTest extends ManagementTestBase {
       return i;
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected AcceptorControl createManagementControl(final String name) throws Exception {
       return ManagementControlHelper.createAcceptorControl(name, mbeanServer);

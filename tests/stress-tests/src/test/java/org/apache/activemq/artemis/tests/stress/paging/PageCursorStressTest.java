@@ -789,9 +789,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       return (PagingStoreImpl) server.getPagingManager().getPageStore(address);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

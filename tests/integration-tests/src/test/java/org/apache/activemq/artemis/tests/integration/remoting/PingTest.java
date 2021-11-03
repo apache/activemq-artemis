@@ -53,7 +53,6 @@ public class PingTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

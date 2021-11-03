@@ -44,7 +44,6 @@ public class JournalAsyncTest extends ActiveMQTestBase {
    private ArrayList<PreparedTransactionInfo> transactions = null;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testAsynchronousCommit() throws Exception {
@@ -286,9 +285,7 @@ public class JournalAsyncTest extends ActiveMQTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -318,7 +315,6 @@ public class JournalAsyncTest extends ActiveMQTestBase {
       super.tearDown();
    }
 
-   // Private -------------------------------------------------------
    private void setupJournal(final int journalSize,
                              final int alignment,
                              final int numberOfMinimalFiles) throws Exception {
@@ -340,6 +336,5 @@ public class JournalAsyncTest extends ActiveMQTestBase {
       journalImpl.load(records, transactions, null);
    }
 
-   // Inner classes -------------------------------------------------
 
 }

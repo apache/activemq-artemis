@@ -93,9 +93,7 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
       Assert.assertTrue((Boolean) proxy.retrieveAttributeValue("Started"));
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

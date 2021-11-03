@@ -31,7 +31,6 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
 
    // TemporaryQueue implementation ------------------------------------------
 
-   // Public --------------------------------------------------------
    public ActiveMQTemporaryQueue() {
       this(null, null);
    }
@@ -69,11 +68,5 @@ public class ActiveMQTemporaryQueue extends ActiveMQQueue implements TemporaryQu
       return super.getAddress().hashCode();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

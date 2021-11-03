@@ -24,7 +24,6 @@ import org.junit.Test;
 public class JMSDestinationHeaderTest extends MessageHeaderTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testJMSDestination() throws Exception {
@@ -33,11 +32,5 @@ public class JMSDestinationHeaderTest extends MessageHeaderTestBase {
       ProxyAssertSupport.assertEquals(queue1, m.getJMSDestination());
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

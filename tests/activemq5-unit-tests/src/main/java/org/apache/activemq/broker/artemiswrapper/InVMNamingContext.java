@@ -258,13 +258,9 @@ public class InVMNamingContext implements Context, Serializable {
       return nameInNamespace;
    }
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private String trimSlashes(String s) {
       int i = 0;
@@ -300,7 +296,6 @@ public class InVMNamingContext implements Context, Serializable {
       c.map.put(name, obj);
    }
 
-   // Inner classes -------------------------------------------------
 
    private class NamingEnumerationImpl<T> implements NamingEnumeration<T> {
 

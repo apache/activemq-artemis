@@ -24,7 +24,6 @@ import org.junit.Test;
 public class JMSTimestampHeaderTest extends MessageHeaderTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testJMSTimestamp() throws Exception {
@@ -47,13 +46,5 @@ public class JMSTimestampHeaderTest extends MessageHeaderTestBase {
       queueProducer.send(m);
       ProxyAssertSupport.assertEquals(0L, queueConsumer.receive().getJMSTimestamp());
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

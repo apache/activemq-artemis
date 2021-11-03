@@ -38,7 +38,6 @@ public class TextMessageTest extends JMSTestBase {
    private Queue queue;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSendReceiveNullBody() throws Exception {
@@ -160,9 +159,7 @@ public class TextMessageTest extends JMSTestBase {
       assertEquals(str, received4.getText());
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

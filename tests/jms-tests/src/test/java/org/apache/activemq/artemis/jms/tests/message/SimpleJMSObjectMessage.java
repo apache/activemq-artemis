@@ -38,13 +38,6 @@ public class SimpleJMSObjectMessage extends SimpleJMSMessage implements ObjectMe
       return object;
    }
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

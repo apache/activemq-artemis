@@ -71,7 +71,6 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    public PageTransactionInfoImpl() {
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public long getRecordID() {
@@ -294,14 +293,6 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
          return true;
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    /**
     * a Message shouldn't be delivered until it's committed

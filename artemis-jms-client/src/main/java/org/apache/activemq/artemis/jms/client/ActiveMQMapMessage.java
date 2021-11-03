@@ -84,7 +84,6 @@ public class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage {
       }
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public byte getType() {
@@ -330,11 +329,8 @@ public class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage {
       readBodyMap(message.getBodyBuffer(), map);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    /**
     * Check the name

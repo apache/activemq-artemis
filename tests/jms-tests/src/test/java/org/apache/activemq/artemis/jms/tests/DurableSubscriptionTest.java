@@ -41,7 +41,6 @@ import org.junit.Test;
 public class DurableSubscriptionTest extends JMSTestCase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSimplestDurableSubscription() throws Exception {

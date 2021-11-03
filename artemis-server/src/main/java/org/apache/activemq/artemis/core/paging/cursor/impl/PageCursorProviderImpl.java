@@ -115,7 +115,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       this.inProgressReadPages = new LongObjectHashMap<>();
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public synchronized PageSubscription createSubscription(long cursorID, Filter filter, boolean persistent) {
@@ -699,6 +698,5 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
-   // Inner classes -------------------------------------------------
 
 }

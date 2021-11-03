@@ -34,7 +34,6 @@ import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_Q
 public class ActiveMQDestinationTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testEquals() throws Exception {
@@ -97,11 +96,5 @@ public class ActiveMQDestinationTest extends ActiveMQTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

@@ -48,7 +48,6 @@ public class ReSendMessageTest extends JMSTestBase {
    private Queue queue;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testResendWithLargeMessage() throws Exception {
@@ -217,9 +216,7 @@ public class ReSendMessageTest extends JMSTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
    @Override
    protected void createCF(final List<TransportConfiguration> connectorConfigs,
                            final String... jndiBindings) throws Exception {
@@ -238,8 +235,6 @@ public class ReSendMessageTest extends JMSTestBase {
       queue = createQueue("queue1");
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }
