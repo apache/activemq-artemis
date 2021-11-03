@@ -1152,11 +1152,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected void waitForNotPaging(PagingStore store) throws InterruptedException {
-      long timeout = System.currentTimeMillis() + 20000;
-      while (timeout > System.currentTimeMillis() && store.isPaging()) {
-         Thread.sleep(100);
-      }
-      assertFalse(store.isPaging());
+      Wait.assertFalse(store::isPaging, 20000, 50);
    }
 
    protected static Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception {
