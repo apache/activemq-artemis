@@ -3391,8 +3391,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       copyMessage.setAddress(toAddress);
 
-      if (ref.getMessage().getAnnotationString(Message.HDR_ORIG_ROUTING_TYPE) != null) {
-         copyMessage.setRoutingType(RoutingType.getType(ref.getMessage().getByteProperty(Message.HDR_ORIG_ROUTING_TYPE)));
+      Object originalRoutingType = ref.getMessage().getBrokerProperty(Message.HDR_ORIG_ROUTING_TYPE);
+      if (originalRoutingType != null && originalRoutingType instanceof Byte) {
+         copyMessage.setRoutingType(RoutingType.getType((Byte) originalRoutingType));
       }
 
       if (queueIDs != null && queueIDs.length > 0) {

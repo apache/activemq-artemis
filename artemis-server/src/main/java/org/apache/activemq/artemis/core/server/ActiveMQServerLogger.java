@@ -1050,7 +1050,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorFlushingExecutorsOnQueue();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222145, value = "Error expiring reference {0} 0n queue", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222145, value = "Error expiring reference {0} on queue", format = Message.Format.MESSAGE_FORMAT)
    void errorExpiringReferencesOnQueue(@Cause Exception e, MessageReference ref);
 
    @LogMessage(level = Logger.Level.WARN)
