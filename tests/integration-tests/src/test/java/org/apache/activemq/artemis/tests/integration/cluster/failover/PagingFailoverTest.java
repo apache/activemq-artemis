@@ -58,7 +58,6 @@ public class PagingFailoverTest extends FailoverTestBase {
 
    private ClientSessionFactoryInternal sf;
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before
@@ -202,9 +201,7 @@ public class PagingFailoverTest extends FailoverTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {

@@ -45,13 +45,9 @@ public class ClientExitTest extends ClientTestBase {
 
    private static final Logger log = Logger.getLogger(ClientExitTest.class);
 
-
-
    private ClientSession session;
 
    private ClientConsumer consumer;
-
-   // Public ---------------------------------------------------------------------------------------
 
    @Test
    public void testGracefulClientExit() throws Exception {
@@ -86,8 +82,6 @@ public class ClientExitTest extends ClientTestBase {
       // assertActiveConnections(0);
       // // assertActiveSession(0);
    }
-
-   // Package protected ----------------------------------------------------------------------------
 
    @Override
    @Before

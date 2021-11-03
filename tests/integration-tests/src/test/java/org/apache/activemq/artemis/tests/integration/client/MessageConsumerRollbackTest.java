@@ -74,7 +74,6 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testRollbackMultipleConsumers() throws Exception {

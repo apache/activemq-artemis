@@ -58,7 +58,6 @@ public class PersistedAddressSetting implements EncodingSupport {
       this.setting = setting;
    }
 
-   // Public --------------------------------------------------------
 
    public void setStoreId(long id) {
       this.storeId = id;
@@ -101,13 +100,5 @@ public class PersistedAddressSetting implements EncodingSupport {
    public int getEncodeSize() {
       return addressMatch.sizeof() + setting.getEncodeSize();
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

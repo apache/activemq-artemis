@@ -32,8 +32,6 @@ public class ConcurrentHashSetTest extends Assert {
    private String element;
 
 
-   // Public --------------------------------------------------------
-
    @Test
    public void testAdd() throws Exception {
       Assert.assertTrue(set.add(element));
@@ -114,12 +112,4 @@ public class ConcurrentHashSetTest extends Assert {
       set = new ConcurrentHashSet<>();
       element = RandomUtil.randomString();
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

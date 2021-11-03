@@ -103,20 +103,11 @@ public class ManagementControlHelper {
 
 
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
    public static Object createProxy(final ObjectName objectName,
                                      final Class mbeanInterface,
                                      final MBeanServer mbeanServer) {
       return MBeanServerInvocationHandler.newProxyInstance(mbeanServer, objectName, mbeanInterface, false);
    }
 
-   // Inner classes -------------------------------------------------
 
 }

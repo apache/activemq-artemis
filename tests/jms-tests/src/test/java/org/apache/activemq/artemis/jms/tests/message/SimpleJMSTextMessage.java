@@ -45,13 +45,6 @@ public class SimpleJMSTextMessage extends SimpleJMSMessage implements TextMessag
       return text;
    }
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

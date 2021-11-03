@@ -64,11 +64,8 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected StoreConfiguration.StoreType storeType;
 
@@ -696,7 +693,5 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
       }
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 }

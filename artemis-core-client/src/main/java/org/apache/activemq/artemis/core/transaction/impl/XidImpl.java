@@ -87,8 +87,6 @@ public class XidImpl implements Xid, Serializable {
       globalTransactionId = copyBytes(other.getGlobalTransactionId());
    }
 
-   // Xid implementation ------------------------------------------------------------------
-
    @Override
    public byte[] getBranchQualifier() {
       return branchQualifier;
@@ -103,8 +101,6 @@ public class XidImpl implements Xid, Serializable {
    public byte[] getGlobalTransactionId() {
       return globalTransactionId;
    }
-
-   // Public -------------------------------------------------------------------------------
 
    @Override
    public int hashCode() {
@@ -159,7 +155,6 @@ public class XidImpl implements Xid, Serializable {
          " base64:" + toBase64String(this);
    }
 
-   // Private -------------------------------------------------------------------------------
 
    private String stringRep(final byte[] bytes) {
       StringBuffer buff = new StringBuffer();

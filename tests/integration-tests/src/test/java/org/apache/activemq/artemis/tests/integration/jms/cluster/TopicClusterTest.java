@@ -41,7 +41,6 @@ public class TopicClusterTest extends JMSClusteredTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testDeleteTopicAfterClusteredSend() throws Exception {
@@ -177,13 +176,5 @@ public class TopicClusterTest extends JMSClusteredTestBase {
       }
       assertTrue(checked);
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

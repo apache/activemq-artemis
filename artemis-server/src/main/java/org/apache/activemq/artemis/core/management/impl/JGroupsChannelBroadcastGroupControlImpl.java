@@ -46,14 +46,5 @@ public class JGroupsChannelBroadcastGroupControlImpl extends BaseBroadcastGroupC
       return endpointFactory.getChannelName();
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

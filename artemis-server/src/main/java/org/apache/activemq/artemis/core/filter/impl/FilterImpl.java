@@ -156,8 +156,6 @@ public class FilterImpl implements Filter {
       return "FilterImpl [sfilterString=" + sfilterString + "]";
    }
 
-   // Private --------------------------------------------------------------------------
-
    private static Object getHeaderFieldValue(final Message msg, final SimpleString fieldName) {
       if (FilterConstants.ACTIVEMQ_USERID.equals(fieldName)) {
          if (msg.getUserID() == null) {

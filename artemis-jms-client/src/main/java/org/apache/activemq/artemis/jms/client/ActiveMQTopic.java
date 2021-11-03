@@ -67,7 +67,6 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       return getName();
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public String toString() {
@@ -94,11 +93,5 @@ public class ActiveMQTopic extends ActiveMQDestination implements Topic {
       return super.getAddress().hashCode();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

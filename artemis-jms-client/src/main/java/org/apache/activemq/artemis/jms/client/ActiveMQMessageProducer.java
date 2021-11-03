@@ -325,7 +325,6 @@ public class ActiveMQMessageProducer implements MessageProducer, QueueSender, To
       return (Queue) getDestination();
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public String toString() {

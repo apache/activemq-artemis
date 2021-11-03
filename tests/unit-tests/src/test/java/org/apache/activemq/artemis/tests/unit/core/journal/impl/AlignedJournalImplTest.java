@@ -85,7 +85,6 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
    private ArrayList<PreparedTransactionInfo> transactions = null;
 
 
-   // Public --------------------------------------------------------
 
    // This test just validates basic alignment on the FakeSequentialFile itself
    @Test
@@ -1259,9 +1258,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -1299,7 +1296,6 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       super.tearDown();
    }
 
-   // Private -------------------------------------------------------
 
    private void setupAndLoadJournal(final int journalSize, final int alignment) throws Exception {
       setupAndLoadJournal(journalSize, alignment, 2);
@@ -1336,6 +1332,5 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
       });
    }
 
-   // Inner classes -------------------------------------------------
 
 }

@@ -74,7 +74,6 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testConnectToServerWithSameHost() throws Exception {
@@ -215,9 +214,7 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected abstract String getAcceptorFactoryClassName();
 
@@ -227,8 +224,6 @@ public abstract class NetworkAddressTestBase extends ActiveMQTestBase {
 
    protected abstract String getLocalPortProperty();
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

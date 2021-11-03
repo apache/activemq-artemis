@@ -55,7 +55,6 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testMultiProducerAndCompactAIO() throws Throwable {
@@ -271,13 +270,5 @@ public class LargeJournalStressTest extends ActiveMQTestBase {
       // so, we only clear data on setup.
       // super.tearDown();
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

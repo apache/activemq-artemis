@@ -321,7 +321,6 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    class BaseThread extends Thread {
 
@@ -455,13 +454,5 @@ public class NIOMultiThreadCompactorStressTest extends ActiveMQTestBase {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

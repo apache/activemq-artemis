@@ -34,7 +34,6 @@ import org.junit.Test;
 public class TopicTest extends JMSTestCase {
 
 
-   // Public --------------------------------------------------------
 
    /**
     * The simplest possible topic test.
@@ -126,14 +125,6 @@ public class TopicTest extends JMSTestCase {
       ProxyAssertSupport.assertFalse(l2.failed);
       ProxyAssertSupport.assertFalse(l3.failed);
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    static class Wibble2 implements Serializable {
 

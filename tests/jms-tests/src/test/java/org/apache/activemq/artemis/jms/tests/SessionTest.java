@@ -41,7 +41,6 @@ import org.junit.Test;
 public class SessionTest extends ActiveMQServerTestCase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCreateProducer() throws Exception {

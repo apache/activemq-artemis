@@ -31,7 +31,6 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
    public static final String QUEUE_NAME = "target";
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testClusteredQueue() throws Exception {
@@ -139,13 +138,5 @@ public class TemporaryQueueClusterTest extends JMSClusteredTestBase {
       jmsServer2.destroyQueue(QUEUE_NAME);
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

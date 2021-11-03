@@ -29,7 +29,6 @@ import org.junit.Test;
 public class LibaioDependencyCheckTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testDependency() throws Exception {
@@ -37,13 +36,5 @@ public class LibaioDependencyCheckTest extends ActiveMQTestBase {
          assertTrue("Libaio is not available on this platform", LibaioContext.isLoaded());
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

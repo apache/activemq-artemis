@@ -81,7 +81,6 @@ public class TextReverserService implements MessageListener {
       }
    }
 
-   // Public --------------------------------------------------------
 
    public void close() {
       if (connection != null) {
@@ -93,13 +92,5 @@ public class TextReverserService implements MessageListener {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

@@ -60,7 +60,6 @@ public class CompactingStressTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCleanupAIO() throws Throwable {

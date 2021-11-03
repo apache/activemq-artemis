@@ -47,7 +47,6 @@ public class OrderReattachTest extends ActiveMQTestBase {
    private ActiveMQServer server;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testOrderOnSendInVM() throws Throwable {

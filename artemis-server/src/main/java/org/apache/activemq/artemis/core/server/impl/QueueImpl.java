@@ -4124,9 +4124,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          .setAutoCreated(autoCreated);
    }
 
-   // Inner classes
-   // --------------------------------------------------------------------------
-
    protected static class ConsumerHolder<T extends Consumer> implements PriorityAware {
 
       ConsumerHolder(final T consumer) {

@@ -58,8 +58,6 @@ public class TypedPropertiesTest {
 
 
 
-   // Public --------------------------------------------------------
-
    private TypedProperties props;
 
    private SimpleString key;

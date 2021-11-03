@@ -92,7 +92,6 @@ public class PersistedSecuritySetting implements EncodingSupport {
       this.deleteAddressRoles = SimpleString.toSimpleString(deleteAddressRoles);
    }
 
-   // Public --------------------------------------------------------
 
    public long getStoreId() {
       return storeId;
@@ -352,13 +351,5 @@ public class PersistedSecuritySetting implements EncodingSupport {
          deleteAddressRoles +
          "]";
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

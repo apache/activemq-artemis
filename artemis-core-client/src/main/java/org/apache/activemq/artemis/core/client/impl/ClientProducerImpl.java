@@ -192,8 +192,6 @@ public class ClientProducerImpl implements ClientProducerInternal {
       return rateLimiter == null ? -1 : rateLimiter.getRate();
    }
 
-   // Public ---------------------------------------------------------------------------------------
-
    @Override
    public ClientProducerCredits getProducerCredits() {
       return producerCredits;

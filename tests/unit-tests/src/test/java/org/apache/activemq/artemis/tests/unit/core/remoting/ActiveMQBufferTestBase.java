@@ -27,7 +27,6 @@ import org.junit.Test;
 
 public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
 
-   // Public --------------------------------------------------------
 
    private ActiveMQBuffer wrapper;
 
@@ -332,11 +331,8 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       Assert.assertEquals(0, wrapper.writerIndex());
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private String putAndGetNullableString(final String nullableString) throws Exception {
       wrapper.writeNullableString(nullableString);
@@ -350,5 +346,4 @@ public abstract class ActiveMQBufferTestBase extends ActiveMQTestBase {
       return wrapper.readNullableSimpleString();
    }
 
-   // Inner classes -------------------------------------------------
 }

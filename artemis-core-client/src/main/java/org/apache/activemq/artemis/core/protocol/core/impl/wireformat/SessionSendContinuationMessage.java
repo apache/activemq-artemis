@@ -94,8 +94,6 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
       this.messageBodySize = messageBodySize;
    }
 
-   // Public --------------------------------------------------------
-
    /**
     * @return the requiresResponse
     */

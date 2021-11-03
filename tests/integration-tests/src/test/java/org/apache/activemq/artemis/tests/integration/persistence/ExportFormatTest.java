@@ -139,12 +139,4 @@ public class ExportFormatTest extends ActiveMQTestBase {
       session.commit();
    }
 
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
-
 }

@@ -81,7 +81,6 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       return appClassLoader;
    }
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testClassLoaderIsolation() throws Exception {
@@ -469,11 +468,8 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       return result;
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    public static class ProxyReader implements Runnable {
 
@@ -532,7 +528,6 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       return baos.toByteArray();
    }
 
-   // Inner classes -------------------------------------------------
 
    private interface AnObject extends Serializable {
 

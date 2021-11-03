@@ -28,7 +28,6 @@ import org.junit.Test;
 public class JMSReplyToHeaderTest extends MessageHeaderTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testJMSDestinationSimple() throws Exception {
@@ -50,13 +49,5 @@ public class JMSReplyToHeaderTest extends MessageHeaderTestBase {
       queueConsumer.receive();
       ProxyAssertSupport.assertNull(m.getJMSReplyTo());
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

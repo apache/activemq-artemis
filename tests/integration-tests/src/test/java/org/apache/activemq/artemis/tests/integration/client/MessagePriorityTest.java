@@ -47,7 +47,6 @@ public class MessagePriorityTest extends ActiveMQTestBase {
    private ClientSessionFactory sf;
    private ServerLocator locator;
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testMessagePriority() throws Exception {
@@ -296,9 +295,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       session.close();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -312,7 +309,6 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       session = addClientSession(sf.createSession(false, true, true));
    }
 
-   // Private -------------------------------------------------------
 
    private static void expectMessage(final byte expectedPriority,
                                      final String expectedStringInBody,
@@ -323,6 +319,5 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       Assert.assertEquals(expectedStringInBody, m.getBodyBuffer().readString());
    }
 
-   // Inner classes -------------------------------------------------
 
 }

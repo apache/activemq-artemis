@@ -396,13 +396,9 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       return internalArray.length;
    }
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    /**
     * Check the message is readable
@@ -422,5 +418,4 @@ public class SimpleJMSBytesMessage extends SimpleJMSMessage implements BytesMess
       }
    }
 
-   // Inner classes -------------------------------------------------
 }

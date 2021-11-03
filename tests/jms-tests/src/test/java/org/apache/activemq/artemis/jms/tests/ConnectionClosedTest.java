@@ -39,7 +39,6 @@ public class ConnectionClosedTest extends JMSTestCase {
 
    // TestCase overrides -------------------------------------------
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCloseOnce() throws Exception {
@@ -318,13 +317,5 @@ public class ConnectionClosedTest extends JMSTestCase {
       // Browser
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

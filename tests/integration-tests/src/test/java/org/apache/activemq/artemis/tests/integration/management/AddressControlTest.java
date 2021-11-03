@@ -693,9 +693,7 @@ public class AddressControlTest extends ManagementTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -719,9 +717,7 @@ public class AddressControlTest extends ManagementTestBase {
       return ManagementControlHelper.createAddressControl(address, mbeanServer);
    }
 
-   // Private -------------------------------------------------------
 
 
-   // Inner classes -------------------------------------------------
 
 }

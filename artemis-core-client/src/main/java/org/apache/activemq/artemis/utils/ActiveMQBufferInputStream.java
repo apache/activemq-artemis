@@ -33,8 +33,6 @@ public class ActiveMQBufferInputStream extends InputStream {
    private ActiveMQBuffer bb;
 
 
-   // Public --------------------------------------------------------
-
    public ActiveMQBufferInputStream(final ActiveMQBuffer paramByteBuffer) {
       bb = paramByteBuffer;
    }
@@ -132,19 +130,11 @@ public class ActiveMQBufferInputStream extends InputStream {
       return false;
    }
 
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
    /**
     * @return
     */
    private int remainingBytes() {
       return bb.writerIndex() - bb.readerIndex();
    }
-
-   // Inner classes -------------------------------------------------
 
 }

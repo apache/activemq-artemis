@@ -38,8 +38,6 @@ public class SessionXAStartMessage extends PacketImpl {
       super(SESS_XA_START);
    }
 
-   // Public --------------------------------------------------------
-
    public Xid getXid() {
       return xid;
    }

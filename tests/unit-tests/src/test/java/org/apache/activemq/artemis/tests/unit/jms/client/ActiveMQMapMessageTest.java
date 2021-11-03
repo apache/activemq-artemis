@@ -39,7 +39,6 @@ public class ActiveMQMapMessageTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testClearBody() throws Exception {

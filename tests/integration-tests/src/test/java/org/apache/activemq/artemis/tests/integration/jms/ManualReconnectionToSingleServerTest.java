@@ -121,9 +121,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -147,9 +145,7 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
       allMessagesReceived = new CountDownLatch(1);
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
    protected void disconnect() {
       instanceLog.debug("calling disconnect");

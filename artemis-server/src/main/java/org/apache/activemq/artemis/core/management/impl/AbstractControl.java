@@ -50,11 +50,8 @@ public abstract class AbstractControl extends StandardMBean {
       this.storageManager = storageManager;
    }
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected void clearIO() {
       // the storage manager could be null on the backup on certain components
@@ -170,6 +167,6 @@ public abstract class AbstractControl extends StandardMBean {
          }
       }
    }
-   // Inner classes------------------------------------------------
+
 
 }

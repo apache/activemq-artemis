@@ -98,7 +98,7 @@ public class DummyXid implements Xid {
       return globalTransactionId;
    }
 
-   // Public -------------------------------------------------------------------------------
+----------
 
    @Override
    public int hashCode() {
@@ -152,7 +152,6 @@ public class DummyXid implements Xid {
          stringRep(globalTransactionId);
    }
 
-   // Private -------------------------------------------------------------------------------
 
    private String stringRep(final byte[] bytes) {
       StringBuilder buff = new StringBuilder();

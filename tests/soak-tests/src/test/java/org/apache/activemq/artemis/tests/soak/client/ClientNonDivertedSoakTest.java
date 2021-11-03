@@ -47,7 +47,6 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    private ActiveMQServer server;
 
@@ -135,13 +134,5 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
       locator.close();
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

@@ -46,7 +46,6 @@ public class CTSMiscellaneousTest extends JMSTest {
 
    }
 
-   // Public --------------------------------------------------------
 
    /* By default we send non persistent messages asynchronously for performance reasons
     * when running with strictTCK we send them synchronously
@@ -87,11 +86,5 @@ public class CTSMiscellaneousTest extends JMSTest {
       super.tearDown();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

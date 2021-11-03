@@ -220,9 +220,6 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       return toString().compareTo(o.toString());
    }
 
-   // Public
-   // ---------------------------------------------------------------------------
-
    /**
     * returns the underlying byte array of this SimpleString
     *

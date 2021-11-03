@@ -32,8 +32,6 @@ public class TypedPropertiesConversionTest {
 
    private final SimpleString unknownKey = new SimpleString("this.key.is.never.used");
 
-   // Public --------------------------------------------------------
-
    @Before
    public void setUp() throws Exception {
       key = RandomUtil.randomSimpleString();
@@ -290,13 +288,5 @@ public class TypedPropertiesConversionTest {
 
       Assert.assertNull(props.getBytesProperty(unknownKey));
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

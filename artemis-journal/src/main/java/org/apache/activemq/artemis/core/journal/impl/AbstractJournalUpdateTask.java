@@ -74,7 +74,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       this.recordsSnapshot = recordsSnapshot;
    }
 
-   // Public --------------------------------------------------------
 
    public static SequentialFile writeControlFile(final SequentialFileFactory fileFactory,
                                                  final List<JournalFile> files,
@@ -248,9 +247,7 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       return recordsSnapshot.contains(id);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    /**
     * @throws Exception
@@ -306,8 +303,6 @@ public abstract class AbstractJournalUpdateTask implements JournalReaderCallback
       writeEncoder(record);
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

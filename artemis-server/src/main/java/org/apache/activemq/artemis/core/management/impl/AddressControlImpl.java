@@ -87,7 +87,6 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       this.managementService = managementService;
    }
 
-   // Public --------------------------------------------------------
 
    // AddressControlMBean implementation ----------------------------
 
@@ -587,7 +586,6 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       server.replay(startScanDate, endScanDate, this.getAddress(), target, filter);
    }
 
-   // Private -------------------------------------------------------
 
    private long getMessageCount(final DurabilityType durability) {
       List<QueueControl> queues = getQueues(durability);
@@ -625,7 +623,6 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       }
    }
 
-   // Inner classes -------------------------------------------------
 
    private enum DurabilityType {
       ALL, DURABLE, NON_DURABLE

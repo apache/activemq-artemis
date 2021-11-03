@@ -630,8 +630,6 @@ public class TypedProperties {
       return sb.append("]").toString();
    }
 
-   // Private ------------------------------------------------------------------------------------
-
    private synchronized void doPutValue(final SimpleString key, final PropertyValue value) {
       if (!internalProperties && internalPropertyPredicate != null && internalPropertyPredicate.test(key)) {
          internalProperties = true;
@@ -675,8 +673,6 @@ public class TypedProperties {
          return val.getValue();
       }
    }
-
-   // Inner classes ------------------------------------------------------------------------------
 
    private abstract static class PropertyValue {
 

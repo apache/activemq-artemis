@@ -52,9 +52,7 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
       refresh();
    }
 
-   // Public --------------------------------------------------------
 
-   // Public --------------------------------------------------------
 
    @Override
    public long generateID() {
@@ -131,12 +129,6 @@ public class TimeAndCounterIDGenerator implements IDGenerator {
          hex(currentCounter) +
          ")";
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
 
    private long newTM() {
       return (System.currentTimeMillis() & TimeAndCounterIDGenerator.MASK_TIME) << TimeAndCounterIDGenerator.BITS_TO_MOVE;

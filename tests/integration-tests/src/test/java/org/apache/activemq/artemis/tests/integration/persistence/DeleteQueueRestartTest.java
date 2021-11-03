@@ -39,7 +39,6 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
    private static final String ADDRESS = "ADDRESS";
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testDeleteQueueAndRestart() throws Exception {
@@ -96,12 +95,4 @@ public class DeleteQueueRestartTest extends ActiveMQTestBase {
       server.stop();
 
    }
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
-
 }

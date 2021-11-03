@@ -767,7 +767,6 @@ public class ActiveMQMessage implements javax.jms.Message {
       return message.getBodySize() == 0;
    }
 
-   // Public --------------------------------------------------------
 
    public void setIndividualAcknowledge() {
       this.individualAck = true;
@@ -861,9 +860,7 @@ public class ActiveMQMessage implements javax.jms.Message {
       return sb.toString();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected void checkWrite() throws JMSException {
       if (readOnly) {
@@ -876,8 +873,6 @@ public class ActiveMQMessage implements javax.jms.Message {
          throw ActiveMQJMSClientBundle.BUNDLE.messageNotReadable();
       }
    }
-
-   // Private ------------------------------------------------------------
 
    private void checkStream() throws JMSException {
       if (!(message.getType() == ActiveMQBytesMessage.TYPE || message.getType() == ActiveMQStreamMessage.TYPE)) {
@@ -944,5 +939,4 @@ public class ActiveMQMessage implements javax.jms.Message {
       }
    }
 
-   // Inner classes -------------------------------------------------
 }

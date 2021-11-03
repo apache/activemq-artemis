@@ -89,8 +89,6 @@ public final class MessageCounterInfo {
       this.updateTimestamp = updateTimestamp;
    }
 
-   // Public --------------------------------------------------------
-
    /**
     * Returns the name of the queue.
     */

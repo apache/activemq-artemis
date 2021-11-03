@@ -61,7 +61,6 @@ public abstract class ClientAbstract extends Thread {
       this.sf = sf;
    }
 
-   // Public --------------------------------------------------------
 
    public ClientSession getConnection() {
       return session;
@@ -176,13 +175,5 @@ public abstract class ClientAbstract extends Thread {
 
       session = null;
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

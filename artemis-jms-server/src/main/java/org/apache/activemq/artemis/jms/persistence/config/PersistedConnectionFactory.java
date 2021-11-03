@@ -41,7 +41,6 @@ public class PersistedConnectionFactory implements EncodingSupport {
    }
 
 
-   // Public --------------------------------------------------------
 
    /**
     * @return the id
@@ -80,13 +79,5 @@ public class PersistedConnectionFactory implements EncodingSupport {
    public int getEncodeSize() {
       return config.getEncodeSize();
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

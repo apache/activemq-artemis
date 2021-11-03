@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.api.core.management.Parameter;
 public class MBeanInfoHelper {
 
 
-   // Public --------------------------------------------------------
 
    public static MBeanOperationInfo[] getMBeanOperationsInfo(final Class mbeanInterface) {
       List<MBeanOperationInfo> operations = new ArrayList<>();
@@ -75,11 +74,8 @@ public class MBeanInfoHelper {
       return finalAttributes.toArray(new MBeanAttributeInfo[finalAttributes.size()]);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private static boolean isGetterMethod(final Method method) {
       if (!method.getName().equals("get") && method.getName().startsWith("get") &&
@@ -176,5 +172,4 @@ public class MBeanInfoHelper {
       return paramsInfo;
    }
 
-   // Inner classes -------------------------------------------------
 }

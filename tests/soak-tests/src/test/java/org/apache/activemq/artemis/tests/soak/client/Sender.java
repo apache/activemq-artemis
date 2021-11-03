@@ -33,7 +33,6 @@ public class Sender extends ClientAbstract {
 
    protected final Receiver[] receivers;
 
-   // Public --------------------------------------------------------
 
    public Sender(final ClientSessionFactory sf, String queue, final Receiver[] receivers) {
       super(sf);
@@ -92,13 +91,5 @@ public class Sender extends ClientAbstract {
       return "Sender, msgs=" + msgs + ", pending=" + pendingMsgs;
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

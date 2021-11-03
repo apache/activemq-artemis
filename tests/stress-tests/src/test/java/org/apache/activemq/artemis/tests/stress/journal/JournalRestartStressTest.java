@@ -40,7 +40,6 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testLoad() throws Throwable {
@@ -85,8 +84,6 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
       }
 
    }
-
-   // Package protected ---------------------------------------------
 
    /**
     * @param sf
@@ -180,11 +177,5 @@ public class JournalRestartStressTest extends ActiveMQTestBase {
          throw e;
       }
    }
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

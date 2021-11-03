@@ -53,7 +53,6 @@ public class Receiver extends ClientAbstract {
       this.queue = queue;
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public void run() {
@@ -142,13 +141,5 @@ public class Receiver extends ClientAbstract {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

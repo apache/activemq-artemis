@@ -83,7 +83,6 @@ public class ClientCrashTest extends ClientTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCrashClient() throws Exception {
@@ -171,8 +170,6 @@ public class ClientCrashTest extends ClientTestBase {
       consumer.close();
       session.close();
    }
-
-   // Package protected ---------------------------------------------
 
    @Override
    @Before

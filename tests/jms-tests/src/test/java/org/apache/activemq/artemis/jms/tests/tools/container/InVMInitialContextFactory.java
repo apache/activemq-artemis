@@ -45,7 +45,6 @@ public class InVMInitialContextFactory implements InitialContextFactory {
       return env;
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public Context getInitialContext(final Hashtable<?, ?> environment) throws NamingException {
@@ -94,11 +93,5 @@ public class InVMInitialContextFactory implements InitialContextFactory {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

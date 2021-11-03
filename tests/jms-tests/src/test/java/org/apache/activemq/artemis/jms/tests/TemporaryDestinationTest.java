@@ -33,7 +33,6 @@ import org.junit.Test;
 public class TemporaryDestinationTest extends JMSTestCase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testTemp() throws Exception {
@@ -417,11 +416,5 @@ public class TemporaryDestinationTest extends JMSTestCase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

@@ -53,8 +53,6 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       setBlackList(blackList);
    }
 
-   // Public ---------------------------------------------------------------------------------------
-
    /**
     * @return the whiteList configured on this policy instance.
     */
@@ -93,10 +91,6 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       this.blackList = StringUtil.splitStringList(blackList, ",");
    }
 
-   // Package protected ----------------------------------------------------------------------------
-
-   // Protected ------------------------------------------------------------------------------------
-
    @Override
    protected Class resolveClass(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
       if (System.getSecurityManager() == null) {
@@ -133,7 +127,6 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
       }
    }
 
-   // Private --------------------------------------------------------------------------------------
 
    private Class resolveClass0(final ObjectStreamClass desc) throws IOException, ClassNotFoundException {
       String name = desc.getName();
@@ -267,7 +260,5 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
       return false;
    }
-
-   // Inner classes --------------------------------------------------------------------------------
 
 }

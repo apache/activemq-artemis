@@ -292,14 +292,6 @@ public class LocalTestServer implements Server, Runnable {
       }
    }
 
-   // Public ---------------------------------------------------------------------------------------
-
-   // Package protected ----------------------------------------------------------------------------
-
-   // Protected ------------------------------------------------------------------------------------
-
-   // Private --------------------------------------------------------------------------------------
-
    @Override
    public ActiveMQServer getActiveMQServer() {
       return jmsServerManager.getActiveMQServer();
@@ -364,7 +356,5 @@ public class LocalTestServer implements Server, Runnable {
       getActiveMQServer().getSecurityRepository().removeMatch("#");
       getActiveMQServer().getSecurityRepository().addMatch("#", defConfig);
    }
-
-   // Inner classes --------------------------------------------------------------------------------
 
 }

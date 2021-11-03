@@ -44,7 +44,6 @@ public class RestartSMTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before
@@ -95,13 +94,5 @@ public class RestartSMTest extends ActiveMQTestBase {
          }
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

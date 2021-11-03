@@ -51,7 +51,6 @@ public class HeuristicXATest extends ActiveMQTestBase {
 
    private ServerLocator locator;
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testInvalidCall() throws Exception {
@@ -402,9 +401,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
       session.close();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -414,8 +411,6 @@ public class HeuristicXATest extends ActiveMQTestBase {
       locator = createInVMNonHALocator();
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

@@ -47,7 +47,6 @@ public class SimpleSendReceiveSoakTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    private ActiveMQServer server;
 

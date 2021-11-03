@@ -36,7 +36,6 @@ import static org.apache.activemq.artemis.api.core.ActiveMQExceptionType.INVALID
 public class JMSExceptionHelperTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testCONNECTION_TIMEDOUT() throws Exception {

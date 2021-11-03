@@ -293,8 +293,6 @@ public class PacketImpl implements Packet {
       this.type = type;
    }
 
-   // Public --------------------------------------------------------
-
    public SimpleString convertName(SimpleString name) {
       if (name == null) {
          return null;

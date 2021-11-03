@@ -62,14 +62,10 @@ public class SessionReceiveContinuationMessage extends SessionContinuationMessag
       return consumerID;
    }
 
-   // Protected -----------------------------------------------------
-
    @Override
    public int expectedEncodeSize() {
       return super.expectedEncodeSize() + DataConstants.SIZE_LONG;
    }
-
-   // Public --------------------------------------------------------
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {

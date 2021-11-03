@@ -30,7 +30,6 @@ import org.junit.Test;
  */
 public class MapMessageTest extends MessageTestBase {
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

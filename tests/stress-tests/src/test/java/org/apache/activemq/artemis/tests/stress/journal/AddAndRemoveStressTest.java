@@ -65,7 +65,6 @@ public class AddAndRemoveStressTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testInsertAndLoad() throws Exception {

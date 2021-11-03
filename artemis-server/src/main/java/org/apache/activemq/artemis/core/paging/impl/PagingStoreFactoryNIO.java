@@ -132,7 +132,6 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
       this.readWholePage = readWholePage;
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public ScheduledExecutorService getScheduledExecutor() {

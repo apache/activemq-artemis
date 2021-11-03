@@ -41,7 +41,6 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
 
 
 
-   // Public --------------------------------------------------------
 
    /**
     * default CLUSTER_ADMIN_USER must work even when there are other
@@ -67,9 +66,7 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       doSendManagementMessage(null, null, false);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
@@ -95,8 +92,6 @@ public class SecurityManagementWithConfiguredAdminUserTest extends SecurityManag
       return server;
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

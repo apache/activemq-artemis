@@ -59,7 +59,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
    protected ActiveMQServer server;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testA() throws Exception {
@@ -214,9 +213,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }, NUM_THREADS, false);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    protected abstract void start() throws Exception;
@@ -1104,7 +1101,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       return 10;
    }
 
-   // Private -------------------------------------------------------
 
    private void runTestMultipleThreads(final RunnableT runnable,
                                        final int numThreads,
@@ -1196,7 +1192,6 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
       }
    }
 
-   // Inner classes -------------------------------------------------
 
    private class MyHandler implements MessageHandler {
 

@@ -26,11 +26,8 @@ public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterT
    protected static final int groupPort = getUDPDiscoveryPort();
 
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    protected void setupClusters() {
@@ -44,8 +41,6 @@ public class TwoWayTwoNodeClusterWithDiscoveryTest extends TwoWayTwoNodeClusterT
       setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), false);
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

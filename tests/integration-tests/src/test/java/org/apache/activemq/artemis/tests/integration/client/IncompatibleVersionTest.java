@@ -64,7 +64,6 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

@@ -53,7 +53,6 @@ public abstract class MixupCompactorTestBase extends JournalImplTestBase {
    SimpleIDGenerator idGen = new SimpleIDGenerator(1000);
 
 
-   // Public --------------------------------------------------------
    @Override
    @Before
    public void setUp() throws Exception {

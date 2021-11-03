@@ -49,7 +49,6 @@ public class PersistedBindings implements EncodingSupport {
       this.name = name;
    }
 
-   // Public --------------------------------------------------------
    @Override
    public void decode(ActiveMQBuffer buffer) {
       type = PersistedType.getType(buffer.readByte());
@@ -131,13 +130,5 @@ public class PersistedBindings implements EncodingSupport {
    public void deleteBinding(String address) {
       bindings.remove(address);
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

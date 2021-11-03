@@ -33,7 +33,6 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       super(legacyCreateQueue);
    }
 
-   // Public --------------------------------------------------------
 
    // ActiveMQServerControlTest overrides --------------------------
 
@@ -1659,12 +1658,4 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    public boolean usingCore() {
       return true;
    }
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
-
 }

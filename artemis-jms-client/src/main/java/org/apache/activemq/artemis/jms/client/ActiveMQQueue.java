@@ -63,7 +63,6 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
 
    // Queue implementation ------------------------------------------
 
-   // Public --------------------------------------------------------
 
    @Override
    public String getQueueName() {
@@ -95,11 +94,5 @@ public class ActiveMQQueue extends ActiveMQDestination implements Queue {
       return super.getAddress().hashCode();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

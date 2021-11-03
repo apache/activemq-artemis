@@ -425,7 +425,6 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return queue;
    }
 
-   // Public --------------------------------------------------------
 
    public String getAddress() {
       return simpleAddress != null ? simpleAddress.toString() : null;
@@ -508,14 +507,6 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
    protected void populateProperties(Properties props) {
       props.put("address", getAddress());
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    public enum TYPE {
       QUEUE,

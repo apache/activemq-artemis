@@ -45,7 +45,6 @@ public class MixRoutingTest extends SingleServerTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    @Override
    protected ActiveMQServer createServer() throws Exception {

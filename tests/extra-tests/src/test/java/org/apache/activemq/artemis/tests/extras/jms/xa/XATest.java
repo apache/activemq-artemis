@@ -109,7 +109,6 @@ public class XATest extends JMSTestBase {
 
    }
 
-   // Public --------------------------------------------------------
 
    @Test
    public void test2PCSendCommit1PCOptimization() throws Exception {

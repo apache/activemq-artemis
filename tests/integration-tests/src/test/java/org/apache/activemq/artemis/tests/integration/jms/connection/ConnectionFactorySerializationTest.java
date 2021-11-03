@@ -61,7 +61,6 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       super.setUp();
    }
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testConnectionFactoryUDP() throws Exception {
@@ -317,9 +316,7 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       return cl.cast(o);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected static InetAddress getLocalHost() throws UnknownHostException {
       InetAddress addr;
@@ -331,7 +328,5 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       return addr;
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 }

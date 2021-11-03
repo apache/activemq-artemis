@@ -28,7 +28,6 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
 
    private final String configuredClusterPassword = "this is not the default password";
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSendManagementMessageWithModifiedClusterAdminUser() throws Exception {
@@ -50,9 +49,7 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
       doSendManagementMessage(null, null, false);
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    protected ActiveMQServer setupAndStartActiveMQServer() throws Exception {
@@ -63,8 +60,6 @@ public class SecurityManagementWithModifiedConfigurationTest extends SecurityMan
       return server;
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

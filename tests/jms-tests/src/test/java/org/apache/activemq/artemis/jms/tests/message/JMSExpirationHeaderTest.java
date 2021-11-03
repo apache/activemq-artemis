@@ -38,7 +38,6 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
    private volatile Message expectedMessage;
 
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before
@@ -281,13 +280,5 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
       checkEmpty(queue1);
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

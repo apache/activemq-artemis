@@ -98,7 +98,6 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       this.idGenerator = idGenerator;
    }
 
-   // Public --------------------------------------------------------
    @Override
    public List<PersistedConnectionFactory> recoverConnectionFactories() {
       List<PersistedConnectionFactory> cfs = new ArrayList<>(mapFactories.values());
@@ -277,11 +276,8 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private void checkAndCreateDir(final File dir, final boolean create) {
 
@@ -296,6 +292,5 @@ public final class JMSJournalStorageManagerImpl implements JMSStorageManager {
       }
    }
 
-   // Inner classes -------------------------------------------------
 
 }

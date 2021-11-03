@@ -22,7 +22,6 @@ import org.junit.Test;
 public class DestroyConsumerTest extends ActiveMQTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testFoo() {
@@ -60,13 +59,5 @@ public class DestroyConsumerTest extends ActiveMQTestBase {
    //
    //
    // }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

@@ -30,7 +30,6 @@ import org.junit.Test;
  */
 public class TextMessageTest extends MessageTestBase {
 
-   // Public --------------------------------------------------------
 
    @Override
    @Before

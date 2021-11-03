@@ -152,14 +152,5 @@ public class AcceptorControlImpl extends AbstractControl implements AcceptorCont
       return MBeanInfoHelper.getMBeanAttributesInfo(AcceptorControl.class);
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

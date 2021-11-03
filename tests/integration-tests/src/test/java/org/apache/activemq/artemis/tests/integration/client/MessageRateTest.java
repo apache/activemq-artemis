@@ -43,7 +43,6 @@ public class MessageRateTest extends ActiveMQTestBase {
    private ServerLocator locator;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testProduceRate() throws Exception {

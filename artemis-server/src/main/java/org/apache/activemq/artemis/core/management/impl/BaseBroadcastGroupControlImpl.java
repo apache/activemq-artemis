@@ -166,14 +166,5 @@ public class BaseBroadcastGroupControlImpl extends AbstractControl implements Ba
       return broadcastGroup;
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

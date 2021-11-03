@@ -34,7 +34,6 @@ public class SimpleEncoding implements EncodingSupport {
       this.bytetosend = bytetosend;
    }
 
-   // Public --------------------------------------------------------
    @Override
    public void decode(final ActiveMQBuffer buffer) {
       throw new UnsupportedOperationException();
@@ -52,13 +51,5 @@ public class SimpleEncoding implements EncodingSupport {
    public int getEncodeSize() {
       return size;
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

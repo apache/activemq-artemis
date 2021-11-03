@@ -70,7 +70,6 @@ public class NodeAnnounceMessage extends PacketImpl {
       super(nodeAnnounceMessage_V2);
    }
 
-   // Public --------------------------------------------------------
 
    public String getNodeID() {
       return nodeID;

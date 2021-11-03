@@ -101,20 +101,11 @@ public final class ActiveMQQueueBrowser implements QueueBrowser {
       return queue;
    }
 
-   // Public ---------------------------------------------------------------------------------------
 
    @Override
    public String toString() {
       return "ActiveMQQueueBrowser->" + consumer;
    }
-
-   // Package protected ----------------------------------------------------------------------------
-
-   // Protected ------------------------------------------------------------------------------------
-
-   // Private --------------------------------------------------------------------------------------
-
-   // Inner classes --------------------------------------------------------------------------------
 
    private final class BrowserEnumeration implements Enumeration<ActiveMQMessage> {
 

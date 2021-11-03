@@ -949,14 +949,5 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       return useTopologyForLoadBalancing;
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

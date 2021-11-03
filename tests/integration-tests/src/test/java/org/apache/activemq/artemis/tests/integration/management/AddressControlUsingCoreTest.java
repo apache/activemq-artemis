@@ -204,15 +204,12 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
       };
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public boolean usingCore() {
       return true;
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

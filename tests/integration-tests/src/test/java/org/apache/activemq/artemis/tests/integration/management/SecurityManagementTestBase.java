@@ -35,11 +35,8 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
    private ActiveMQServer server;
 
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -89,8 +86,6 @@ public abstract class SecurityManagementTestBase extends ActiveMQTestBase {
       }
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

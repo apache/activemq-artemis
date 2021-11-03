@@ -44,7 +44,6 @@ import org.junit.Test;
 public class ReferenceableTest extends JMSTestCase {
 
 
-   // Public --------------------------------------------------------
 
    @SuppressWarnings("cast")
    @Test

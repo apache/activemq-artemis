@@ -55,7 +55,6 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
 
 
-   // Public --------------------------------------------------------
 
    class SomeProducer extends Thread {
 
@@ -263,13 +262,5 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
          server.stop();
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

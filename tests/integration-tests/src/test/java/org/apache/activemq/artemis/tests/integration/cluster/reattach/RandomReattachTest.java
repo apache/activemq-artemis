@@ -68,7 +68,6 @@ public class RandomReattachTest extends ActiveMQTestBase {
    private Timer timer;
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testA() throws Exception {
@@ -221,9 +220,7 @@ public class RandomReattachTest extends ActiveMQTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    protected void doTestA(final ClientSessionFactory sf) throws Exception {
       long start = System.currentTimeMillis();
@@ -1237,7 +1234,6 @@ public class RandomReattachTest extends ActiveMQTestBase {
       super.tearDown();
    }
 
-   // Private -------------------------------------------------------
 
    private Failer startFailer(final long time, final ClientSession session) {
       Failer failer = new Failer((ClientSessionInternal) session);
@@ -1260,7 +1256,6 @@ public class RandomReattachTest extends ActiveMQTestBase {
       server = null;
    }
 
-   // Inner classes -------------------------------------------------
 
    class Failer extends TimerTask {
 

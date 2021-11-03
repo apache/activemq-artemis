@@ -61,7 +61,6 @@ public class OrderTest extends ActiveMQTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testSimpleStorage() throws Exception {
@@ -239,13 +238,5 @@ public class OrderTest extends ActiveMQTestBase {
       session.commit();
       session.close();
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

@@ -34,7 +34,6 @@ public class NIOImportExportTest extends JournalImplTestBase {
    }
 
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testExportImport() throws Exception {
@@ -176,13 +175,5 @@ public class NIOImportExportTest extends JournalImplTestBase {
       loadAndCheck();
 
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

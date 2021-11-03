@@ -32,7 +32,6 @@ public class ConsumerClosedTest extends JMSTestCase {
 
    InitialContext ic;
 
-   // Public --------------------------------------------------------
 
    @Test
    public void testMessagesSentDuringClose() throws Exception {
@@ -68,11 +67,5 @@ public class ConsumerClosedTest extends JMSTestCase {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

@@ -60,7 +60,6 @@ public class ActiveMQTextMessage extends ActiveMQMessage implements TextMessage 
       setText(foreign.getText());
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public byte getType() {

@@ -301,7 +301,6 @@ public class NettyConnector extends AbstractConnector {
 
    private final ClientProtocolManager protocolManager;
 
-   // Public --------------------------------------------------------
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
@@ -960,8 +959,6 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 
-   // Public --------------------------------------------------------
-
    public int getConnectTimeoutMillis() {
       return connectTimeoutMillis;
    }
@@ -969,14 +966,6 @@ public class NettyConnector extends AbstractConnector {
    public void setConnectTimeoutMillis(int connectTimeoutMillis) {
       this.connectTimeoutMillis = connectTimeoutMillis;
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    private static final class ActiveMQClientChannelHandler extends ActiveMQChannelHandler {
 

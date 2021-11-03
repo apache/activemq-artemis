@@ -3453,9 +3453,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
    }
 
-   // Inner classes
-   // ---------------------------------------------------------------------------
-
    // Used on Load
    private static final class TransactionHolder {
 

@@ -171,7 +171,6 @@ public class ManagementServiceImpl implements ManagementService {
       objectNameBuilder = ObjectNameBuilder.create(configuration.getJMXDomain(), configuration.getName(), configuration.isJMXUseBrokerName());
    }
 
-   // Public --------------------------------------------------------
 
    // ManagementService implementation -------------------------
 
@@ -951,5 +950,4 @@ public class ManagementServiceImpl implements ManagementService {
       return correlationId;
    }
 
-   // Inner classes -------------------------------------------------
 }

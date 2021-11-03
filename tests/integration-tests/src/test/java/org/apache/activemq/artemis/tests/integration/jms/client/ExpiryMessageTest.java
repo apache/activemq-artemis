@@ -33,7 +33,6 @@ import org.junit.Test;
 public class ExpiryMessageTest extends JMSTestBase {
 
 
-   // Public --------------------------------------------------------
 
    @Override
    protected Configuration createDefaultConfig(boolean netty) throws Exception {
@@ -74,10 +73,6 @@ public class ExpiryMessageTest extends JMSTestBase {
 
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
-   // Inner classes -------------------------------------------------
 }

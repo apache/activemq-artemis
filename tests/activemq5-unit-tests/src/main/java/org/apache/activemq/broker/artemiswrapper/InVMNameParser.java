@@ -41,7 +41,6 @@ public class InVMNameParser implements NameParser, Serializable {
    }
 
 
-   // Public --------------------------------------------------------
 
    public static Properties getSyntax() {
       return InVMNameParser.syntax;
@@ -51,13 +50,5 @@ public class InVMNameParser implements NameParser, Serializable {
    public Name parse(final String name) throws NamingException {
       return new CompoundName(name, InVMNameParser.syntax);
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

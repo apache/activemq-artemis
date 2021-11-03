@@ -198,14 +198,5 @@ public class DivertControlImpl extends AbstractControl implements DivertControl 
       return MBeanInfoHelper.getMBeanAttributesInfo(DivertControl.class);
    }
 
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
 }

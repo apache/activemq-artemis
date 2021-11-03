@@ -39,11 +39,8 @@ public class CoreMessagingProxy {
       this.resourceName = resourceName;
    }
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    public Object retrieveAttributeValue(final String attributeName) {
       return retrieveAttributeValue(attributeName, null);
@@ -90,7 +87,6 @@ public class CoreMessagingProxy {
       }
    }
 
-   // Private -------------------------------------------------------
 
    private ClientSession getSession(ClientSessionFactory sessionFactory) throws ActiveMQException {
       ClientSession session = sessionFactory.createSession(false, true, true);
@@ -102,6 +98,5 @@ public class CoreMessagingProxy {
       return new ClientRequestor(session, ActiveMQDefaultConfiguration.getDefaultManagementAddress());
    }
 
-   // Inner classes -------------------------------------------------
 
 }
