@@ -47,8 +47,7 @@ import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.jboss.logging.Logger;
 
 public final class ClientConsumerImpl implements ClientConsumerInternal {
-   // Constants
-   // ------------------------------------------------------------------------------------
+
 
    private static final Logger logger = Logger.getLogger(ClientConsumerImpl.class);
 
@@ -57,9 +56,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    private static final int NUM_PRIORITIES = 10;
 
    public static final SimpleString FORCED_DELIVERY_MESSAGE = new SimpleString("_hornetq.forced.delivery.seq");
-
-   // Attributes
-   // -----------------------------------------------------------------------------------
 
    private final ClientSessionInternal session;
 
@@ -135,8 +131,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private final ClassLoader contextClassLoader;
 
-   // Constructors
-   // ---------------------------------------------------------------------------------
+
 
    public ClientConsumerImpl(final ClientSessionInternal session,
                              final ConsumerContext consumerContext,
@@ -862,18 +857,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
-   // Public
-   // ---------------------------------------------------------------------------------------
-
-   // Package protected
-   // ---------------------------------------------------------------------------------------
-
-   // Protected
-   // ---------------------------------------------------------------------------------------
-
-   // Private
-   // ---------------------------------------------------------------------------------------
-
    /**
     * Sending an initial credit for slow consumers
     */
@@ -1141,9 +1124,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          ", queueName=" + queueName +
          '}';
    }
-
-   // Inner classes
-   // --------------------------------------------------------------------------------
 
    private class Runner implements Runnable {
 

@@ -23,11 +23,6 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 
 public class XidCodecSupport {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
-
-   // Static --------------------------------------------------------
 
    public static void encodeXid(final Xid xid, final ActiveMQBuffer out) {
       out.writeInt(xid.getFormatId());
@@ -50,15 +45,4 @@ public class XidCodecSupport {
       return DataConstants.SIZE_INT * 3 + xid.getBranchQualifier().length + xid.getGlobalTransactionId().length;
    }
 
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 }

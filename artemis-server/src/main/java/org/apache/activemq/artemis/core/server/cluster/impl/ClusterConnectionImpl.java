@@ -922,8 +922,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
-   // Inner classes -----------------------------------------------------------------------------------
-
    private class MessageFlowRecordImpl implements MessageFlowRecord {
 
       private BridgeImpl bridge;

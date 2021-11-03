@@ -3880,9 +3880,7 @@ public class QueueControlTest extends ManagementTestBase {
       clientConsumer.close();
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    @Before

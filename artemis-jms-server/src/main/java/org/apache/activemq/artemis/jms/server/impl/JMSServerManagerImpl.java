@@ -1329,9 +1329,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       return server.getActiveMQServerControl().listPreparedTransactionDetailsAsHTML((xid, tx, creation) -> new JMSTransactionDetail(xid, tx, creation));
    }
 
-   // Public --------------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private synchronized void checkInitialised() {
       if (!active) {

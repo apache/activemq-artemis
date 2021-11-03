@@ -63,19 +63,12 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
    protected static final int MAX_HOPS = 1;
 
-   // Static --------------------------------------------------------
 
-   // Attributes ----------------------------------------------------
-
-   // Constructors --------------------------------------------------
 
    // TestCase overrides -------------------------------------------
 
-   // Public --------------------------------------------------------
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    /**
     * @throws Exception
@@ -188,8 +181,6 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
       return configuration;
    }
 
-   // Private -------------------------------------------------------
 
-   // Inner classes -------------------------------------------------
 
 }

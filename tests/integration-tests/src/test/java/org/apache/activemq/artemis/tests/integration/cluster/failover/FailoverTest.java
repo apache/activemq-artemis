@@ -2516,9 +2516,7 @@ public class FailoverTest extends FailoverTestBase {
       Assert.assertNotNull(sf.getConnection());
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
    @Override
    protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
@@ -2575,6 +2573,5 @@ public class FailoverTest extends FailoverTestBase {
       return session;
    }
 
-   // Inner classes -------------------------------------------------
 
 }

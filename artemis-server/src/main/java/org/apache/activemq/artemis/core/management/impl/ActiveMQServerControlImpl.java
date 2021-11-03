@@ -139,10 +139,9 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
-   // Constants -----------------------------------------------------
+
    private static final Logger logger = Logger.getLogger(ActiveMQServerControlImpl.class);
 
-   // Attributes ----------------------------------------------------
 
    private final PostOffice postOffice;
 
@@ -4137,11 +4136,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       return new MBeanNotificationInfo[]{new MBeanNotificationInfo(names, this.getClass().getName(), "Notifications emitted by a Core Server")};
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private synchronized void setMessageCounterEnabled(final boolean enable) {
       if (isStarted()) {

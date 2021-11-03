@@ -134,7 +134,6 @@ public class NettyConnector extends AbstractConnector {
 
    private static final Logger logger = Logger.getLogger(NettyConnector.class);
 
-   // Constants -----------------------------------------------------
    public static final String JAVAX_KEYSTORE_PATH_PROP_NAME = "javax.net.ssl.keyStore";
    public static final String JAVAX_KEYSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.keyStorePassword";
    public static final String JAVAX_KEYSTORE_TYPE_PROP_NAME = "javax.net.ssl.keyStoreType";
@@ -176,7 +175,6 @@ public class NettyConnector extends AbstractConnector {
       DEFAULT_CONFIG = Collections.unmodifiableMap(config);
    }
 
-   // Attributes ----------------------------------------------------
 
    private final boolean serverConnection;
 
@@ -303,11 +301,6 @@ public class NettyConnector extends AbstractConnector {
 
    private final ClientProtocolManager protocolManager;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
@@ -966,8 +959,6 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 
-   // Public --------------------------------------------------------
-
    public int getConnectTimeoutMillis() {
       return connectTimeoutMillis;
    }
@@ -975,14 +966,6 @@ public class NettyConnector extends AbstractConnector {
    public void setConnectTimeoutMillis(int connectTimeoutMillis) {
       this.connectTimeoutMillis = connectTimeoutMillis;
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    private static final class ActiveMQClientChannelHandler extends ActiveMQChannelHandler {
 

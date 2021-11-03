@@ -114,9 +114,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    @Rule
    public RetryRule retryRule = new RetryRule(0);
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    protected boolean legacyCreateQueue;
 
@@ -135,7 +132,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       this.legacyCreateQueue = legacyCreateQueue;
    }
 
-   // Static --------------------------------------------------------
 
    private static boolean contains(final String name, final String[] strings) {
       boolean found = false;
@@ -148,9 +144,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return found;
    }
 
-   // Constructors --------------------------------------------------
 
-   // Public --------------------------------------------------------
 
    public boolean usingCore() {
       return false;
@@ -4313,12 +4307,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
-   // Package protected ---------------------------------------------
    interface ScaleDownHandler {
 
       void scaleDown(ActiveMQServerControl control) throws Exception;
    }
-   // Protected -----------------------------------------------------
 
    @Override
    @Before
@@ -4350,7 +4342,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       return ManagementControlHelper.createActiveMQServerControl(mbeanServer);
    }
 
-   // Private -------------------------------------------------------
 
    private String createJsonFilter(String fieldName, String operationName, String value) {
       HashMap<String, Object> filterMap = new HashMap<>();
@@ -4395,7 +4386,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
       session.commit();
    }
-   // Inner classes -------------------------------------------------
 
 }
 

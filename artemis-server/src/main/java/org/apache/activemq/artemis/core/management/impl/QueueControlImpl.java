@@ -68,9 +68,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    public static final int FLUSH_LIMIT = 500;
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    private final Queue queue;
 
@@ -84,7 +81,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    private MessageCounter counter;
 
-   // Static --------------------------------------------------------
 
    private static String toJSON(final Map<String, Object>[] messages) {
       JsonArray array = toJSONMsgArray(messages);
@@ -111,8 +107,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       return arrayReturn.build().toString();
    }
 
-   // Constructors --------------------------------------------------
-
    public QueueControlImpl(final Queue queue,
                            final String address,
                            final ActiveMQServer server,
@@ -128,7 +122,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       this.addressSettingsRepository = addressSettingsRepository;
    }
 
-   // Public --------------------------------------------------------
 
    public void setMessageCounter(final MessageCounter counter) {
       this.counter = counter;
@@ -1978,11 +1971,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
-   // Package protected ---------------------------------------------
 
-   // Protected -----------------------------------------------------
 
-   // Private -------------------------------------------------------
 
    private void checkStarted() {
       if (!server.getPostOffice().isStarted()) {
@@ -1990,5 +1980,4 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
-   // Inner classes -------------------------------------------------
 }

@@ -53,17 +53,9 @@ import org.junit.Test;
 
 public class LargeMessageBufferTest extends ActiveMQTestBase {
 
-   // Constants -----------------------------------------------------
-
-   // Attributes ----------------------------------------------------
 
    static int tmpFileCounter = 0;
 
-   // Static --------------------------------------------------------
-
-   // Constructors --------------------------------------------------
-
-   // Public --------------------------------------------------------
 
    @Override
    @Before
@@ -635,14 +627,6 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
          Assert.assertEquals(i, bytes[i - 1]);
       }
    }
-
-   // Package protected ---------------------------------------------
-
-   // Protected -----------------------------------------------------
-
-   // Private -------------------------------------------------------
-
-   // Inner classes -------------------------------------------------
 
    static class FakeConsumerInternal implements ClientConsumerInternal {
 

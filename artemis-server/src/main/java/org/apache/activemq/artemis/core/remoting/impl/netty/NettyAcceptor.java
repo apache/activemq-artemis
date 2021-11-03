@@ -890,8 +890,6 @@ public class NettyAcceptor extends AbstractAcceptor {
       return String.join(",", protocolManagers.keySet());
    }
 
-   // Inner classes -----------------------------------------------------------------------------
-
    private final class ActiveMQServerChannelHandler extends ActiveMQChannelHandler implements ConnectionCreator {
 
       ActiveMQServerChannelHandler(final ChannelGroup group,

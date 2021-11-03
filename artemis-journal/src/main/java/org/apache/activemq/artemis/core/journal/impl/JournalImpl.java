@@ -202,7 +202,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    protected static final byte FILL_CHARACTER = (byte) 'J';
 
-   // Attributes ----------------------------------------------------
+
 
    private volatile boolean autoReclaim = true;
 
@@ -355,7 +355,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
    public JournalFilesRepository getFilesRepository() {
       return filesRepository;
    }
-   // Constructors --------------------------------------------------
+
 
    public JournalImpl(final int fileSize,
                       final int minFiles,
@@ -3452,9 +3452,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       }
    }
-
-   // Inner classes
-   // ---------------------------------------------------------------------------
 
    // Used on Load
    private static final class TransactionHolder {

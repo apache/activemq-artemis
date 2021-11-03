@@ -58,14 +58,11 @@ import static org.apache.activemq.artemis.reader.BytesMessageUtil.bytesWriteUTF;
  */
 public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessage {
 
-   // Static -------------------------------------------------------
    public static final byte TYPE = Message.BYTES_TYPE;
 
-   // Attributes ----------------------------------------------------
 
    private int bodyLength;
 
-   // Constructor ---------------------------------------------------
 
    /**
     * This constructor is used to construct messages prior to sending
@@ -352,7 +349,6 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       reset();
    }
 
-   // Public --------------------------------------------------------
 
    @Override
    public byte getType() {
