@@ -70,6 +70,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          reader.readInto(wrapbuffer);
 
          AMQPStandardMessage standardMessage = new AMQPStandardMessage(messageFormat, buffer, extraProperties, coreMessageObjectPools);
+         if (this.getExpiration() > 0) {
+            standardMessage.reloadExpiration(this.getExpiration());
+         }
          standardMessage.setMessageAnnotations(messageAnnotations);
          standardMessage.setMessageID(messageID);
          return standardMessage.toCore();

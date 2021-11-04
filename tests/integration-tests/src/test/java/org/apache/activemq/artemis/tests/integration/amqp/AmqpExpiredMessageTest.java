@@ -643,6 +643,17 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          server.start();
       }
 
+      final Queue serverQueue = server.locateQueue(getQueueName());
+
+      try (LinkedListIterator<MessageReference> referenceIterator = serverQueue.iterator()) {
+         while (referenceIterator.hasNext()) {
+            MessageReference ref = referenceIterator.next();
+            Assert.assertEquals(ref.getMessage().getExpiration(), ref.getMessage().toCore().getExpiration());
+            Assert.assertTrue(ref.getMessage().getExpiration() > 0);
+            Assert.assertTrue(ref.getMessage().toCore().getExpiration() > 0);
+         }
+      }
+
       final Queue dlqView = getProxyToQueue(getDeadLetterAddress());
 
       Wait.assertEquals(2, dlqView::getMessageCount);
@@ -728,8 +739,5 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
 
 
    }
-
-
-
 
 }
