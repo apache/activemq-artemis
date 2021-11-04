@@ -43,9 +43,4 @@ public class VersionLoaderTest extends ActiveMQTestBase {
       Assert.assertEquals(Integer.parseInt(new StringTokenizer(props.getProperty("activemq.version.incrementingVersion"), ",").nextToken()), version.getIncrementingVersion());
    }
 
-   // Z implementation ----------------------------------------------
-
-   // Y overrides ---------------------------------------------------
-
-
 }

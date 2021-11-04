@@ -341,8 +341,6 @@ public class ActiveMQStreamMessage extends ActiveMQMessage implements StreamMess
       getBuffer().resetReaderIndex();
    }
 
-   // ActiveMQRAMessage overrides ----------------------------------------
-
    @Override
    public void clearBody() throws JMSException {
       super.clearBody();

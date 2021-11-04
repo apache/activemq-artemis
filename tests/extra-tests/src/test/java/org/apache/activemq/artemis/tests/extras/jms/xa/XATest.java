@@ -58,8 +58,6 @@ public class XATest extends JMSTestBase {
    protected Queue queue1;
 
 
-   // TestCase overrides -------------------------------------------
-
    @Override
    @Before
    public void setUp() throws Exception {

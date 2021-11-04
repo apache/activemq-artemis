@@ -47,11 +47,6 @@ public class FloodServerTest extends ActiveMQTestBase {
    private final String topicName = "my-topic";
 
 
-   // TestCase overrides -------------------------------------------
-
-
-
-
    @Override
    @Before
    public void setUp() throws Exception {

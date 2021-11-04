@@ -37,9 +37,6 @@ import org.junit.Test;
 public class ConnectionClosedTest extends JMSTestCase {
 
 
-   // TestCase overrides -------------------------------------------
-
-
    @Test
    public void testCloseOnce() throws Exception {
       Connection conn = createConnection();

@@ -35,9 +35,6 @@ import org.junit.Test;
 public class MessageWithReadResolveTest extends JMSTestCase {
 
 
-   // TestCase overrides -------------------------------------------
-
-
    @Test
    public void testSendReceiveMessage() throws Exception {
       Connection conn = createConnection();
