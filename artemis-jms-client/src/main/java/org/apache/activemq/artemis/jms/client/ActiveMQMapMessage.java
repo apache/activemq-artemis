@@ -301,8 +301,6 @@ public class ActiveMQMapMessage extends ActiveMQMessage implements MapMessage {
       return map.containsProperty(new SimpleString(name));
    }
 
-   // ActiveMQRAMessage overrides ----------------------------------------
-
    @Override
    public void clearBody() throws JMSException {
       super.clearBody();

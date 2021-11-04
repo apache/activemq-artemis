@@ -39,9 +39,6 @@ public class ConnectionTest extends JMSTestCase {
    private static final JmsTestLogger log = JmsTestLogger.LOGGER;
 
 
-   // TestCase overrides -------------------------------------------
-
-
    @Test
    public void testManyConnections() throws Exception {
       for (int i = 0; i < 100; i++) {

@@ -327,8 +327,6 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
    }
 
-   // ActiveMQComponent overrides --------------------------------------------------
-
    @Override
    public JMSBridgeImpl setBridgeName(String name) {
       this.bridgeName = name;

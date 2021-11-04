@@ -105,8 +105,6 @@ public class ConcurrentHashSetTest extends Assert {
       }
    }
 
-   // TestCase overrides --------------------------------------------
-
    @Before
    public void setUp() throws Exception {
       set = new ConcurrentHashSet<>();

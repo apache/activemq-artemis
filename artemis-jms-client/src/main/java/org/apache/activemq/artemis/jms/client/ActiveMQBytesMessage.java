@@ -322,8 +322,6 @@ public class ActiveMQBytesMessage extends ActiveMQMessage implements BytesMessag
       bodyLength = message.getBodySize();
    }
 
-   // ActiveMQRAMessage overrides ----------------------------------------
-
    @Override
    public void clearBody() throws JMSException {
       super.clearBody();
