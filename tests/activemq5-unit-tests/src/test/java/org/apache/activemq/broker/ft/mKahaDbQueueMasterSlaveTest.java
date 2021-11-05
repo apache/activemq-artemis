@@ -28,17 +28,17 @@ import org.apache.activemq.store.kahadb.MultiKahaDBPersistenceAdapter;
 
 public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
 
-   protected String MASTER_URL = "tcp://localhost:62001";
-   protected String SLAVE_URL = "tcp://localhost:62002";
+   protected String PRIMARY_URL = "tcp://localhost:62001";
+   protected String BACKUP_URL = "tcp://localhost:62002";
 
    @Override
-   protected void createMaster() throws Exception {
-      master = new BrokerService();
-      master.setBrokerName("master");
-      master.addConnector(MASTER_URL);
-      master.setUseJmx(false);
-      master.setPersistent(true);
-      master.setDeleteAllMessagesOnStartup(true);
+   protected void createPrimary() throws Exception {
+      primary = new BrokerService();
+      primary.setBrokerName("primary");
+      primary.addConnector(PRIMARY_URL);
+      primary.setUseJmx(false);
+      primary.setPersistent(true);
+      primary.setDeleteAllMessagesOnStartup(true);
 
       MultiKahaDBPersistenceAdapter mKahaDB = new MultiKahaDBPersistenceAdapter();
       List<FilteredKahaDBPersistenceAdapter> adapters = new LinkedList<>();
@@ -48,26 +48,26 @@ public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
       adapters.add(defaultEntry);
 
       mKahaDB.setFilteredPersistenceAdapters(adapters);
-      master.setPersistenceAdapter(mKahaDB);
+      primary.setPersistenceAdapter(mKahaDB);
 
-      master.start();
+      primary.start();
    }
 
    @Override
-   protected void createSlave() throws Exception {
-      // use a separate thread as the slave will block waiting for
+   protected void createBackup() throws Exception {
+      // use a separate thread as the backup will block waiting for
       // the exclusive db lock
       Thread t = new Thread() {
          @Override
          public void run() {
             try {
                BrokerService broker = new BrokerService();
-               broker.setBrokerName("slave");
+               broker.setBrokerName("backup");
                TransportConnector connector = new TransportConnector();
-               connector.setUri(new URI(SLAVE_URL));
+               connector.setUri(new URI(BACKUP_URL));
                broker.addConnector(connector);
                // no need for broker.setMasterConnectorURI(masterConnectorURI)
-               // as the db lock provides the slave/master initialisation
+               // as the db lock provides the backup/priamry initialisation
                broker.setUseJmx(false);
                broker.setPersistent(true);
 
@@ -81,11 +81,11 @@ public class mKahaDbQueueMasterSlaveTest extends QueueMasterSlaveTestSupport {
                mKahaDB.setFilteredPersistenceAdapters(adapters);
                broker.setPersistenceAdapter(mKahaDB);
                broker.start();
-               slave.set(broker);
-               slaveStarted.countDown();
+               backup.set(broker);
+               backupStarted.countDown();
             } catch (IllegalStateException expectedOnShutdown) {
             } catch (Exception e) {
-               fail("failed to start slave broker, reason:" + e);
+               fail("failed to start backup broker, reason:" + e);
             }
          }
       };
