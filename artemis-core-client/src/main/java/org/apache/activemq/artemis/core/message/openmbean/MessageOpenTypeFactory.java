@@ -124,7 +124,7 @@ public class MessageOpenTypeFactory<M extends Message> {
    public Map<String, Object> getFields(M m, int valueSizeLimit, int deliveryCount) throws OpenDataException {
       Map<String, Object> rc = new HashMap<>();
       rc.put(CompositeDataConstants.MESSAGE_ID, "" + m.getMessageID());
-      rc.put(CompositeDataConstants.PROTOCOL, m.getClass().getSimpleName());
+      rc.put(CompositeDataConstants.PROTOCOL, m.getProtocolName());
       if (m.getUserID() != null) {
          rc.put(CompositeDataConstants.USER_ID, "ID:" + m.getUserID().toString());
       } else {

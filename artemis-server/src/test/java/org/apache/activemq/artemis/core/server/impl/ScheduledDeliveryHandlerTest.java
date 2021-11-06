@@ -297,6 +297,12 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    class FakeMessage implements Message {
 
       @Override
+      public String getProtocolName() {
+         // should normally not be visible in GUI
+         return getClass().getName();
+      }
+
+      @Override
       public SimpleString getReplyTo() {
          return null;
       }

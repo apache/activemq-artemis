@@ -36,6 +36,12 @@ public class MessageInternalImpl implements MessageInternal {
 
    private CoreMessage message;
 
+   @Override
+   public String getProtocolName() {
+      // should normally not be visible in GUI
+      return getClass().getName();
+   }
+
    public MessageInternalImpl(ICoreMessage message) {
       this.message = (CoreMessage) message;
    }

@@ -260,6 +260,11 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       this.coreMessageObjectPools = null;
    }
 
+   @Override
+   public String getProtocolName() {
+      return ProtonProtocolManagerFactory.AMQP_PROTOCOL_NAME;
+   }
+
    public final MessageDataScanningStatus getDataScanningStatus() {
       return MessageDataScanningStatus.valueOf(messageDataScanned);
    }
