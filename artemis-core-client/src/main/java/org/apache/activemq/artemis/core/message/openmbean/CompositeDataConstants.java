@@ -20,6 +20,7 @@ public interface CompositeDataConstants {
 
    String ADDRESS = "address";
    String MESSAGE_ID = "messageID";
+   String PROTOCOL = "protocol";
    String USER_ID = "userID";
    String TYPE = "type";
    String DURABLE = "durable";
@@ -35,6 +36,7 @@ public interface CompositeDataConstants {
 
    String ADDRESS_DESCRIPTION = "The Address";
    String MESSAGE_ID_DESCRIPTION = "The message ID";
+   String PROTOCOL_DESCRIPTION = "The message protocol";
    String USER_ID_DESCRIPTION = "The user ID";
    String TYPE_DESCRIPTION = "The message type";
    String DURABLE_DESCRIPTION = "Is the message durable";
