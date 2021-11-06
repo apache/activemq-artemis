@@ -330,6 +330,8 @@ public interface Message {
     */
    long getMessageID();
 
+   String getProtocolName();
+
    // used for NO-LOCAL: mainly for AMQP
    default Message setConnectionID(String connectionID) {
       return this;
