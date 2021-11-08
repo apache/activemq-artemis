@@ -795,6 +795,128 @@ public class MessageRedistributionTest extends ClusterTestBase {
    }
 
    @Test
+   public void testAnycastRedistributionLbOffWithRedistribution() throws Exception {
+
+      String address = "test.address";
+      String queue = "test.address";
+      String clusterAddress = "test";
+      AddressSettings settings = new AddressSettings().setRedistributionDelay(0).setAutoCreateAddresses(true).setAutoCreateQueues(true);
+      RoutingType routingType = RoutingType.ANYCAST;
+
+      getServer(0).getAddressSettingsRepository().addMatch(address, settings);
+      getServer(1).getAddressSettingsRepository().addMatch(address, settings);
+
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 1, 0);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, address, queue, null, true, routingType);
+      addConsumer(0, 0, queue, null);
+      waitForBindings(0, address, 1, 1, true);
+
+      Thread.sleep(3000);
+
+      createQueue(1, address, queue, null, true, routingType);
+      addConsumer(1, 1, queue, null);
+      waitForBindings(1, address, 1, 1, true);
+
+      waitForBindings(0, address, 1, 1, false);
+      waitForBindings(1, address, 1, 1, false);
+
+      final int noMessages = 10;
+      send(0, address, noMessages, true, null, routingType, null);
+      waitForMessages(0, address, noMessages);
+
+      verifyNotReceive(1);
+      removeConsumer(0);
+      verifyReceiveAll(noMessages, 1);
+
+   }
+
+   @Test
+   public void testAnycastRedistributionToRemoteConsumerFromNewQueueLbOffWithRedistribution() throws Exception {
+
+      String address = "test.address";
+      String queue = "test.address";
+      String clusterAddress = "test";
+      AddressSettings settings = new AddressSettings().setRedistributionDelay(0).setAutoCreateAddresses(true).setAutoCreateQueues(true);
+      RoutingType routingType = RoutingType.ANYCAST;
+
+      getServer(0).getAddressSettingsRepository().addMatch(address, settings);
+      getServer(1).getAddressSettingsRepository().addMatch(address, settings);
+
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 1, 0);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, address, queue, null, true, routingType);
+      addConsumer(0, 0, queue, null);
+      waitForBindings(0, address, 1, 1, true);
+
+      Thread.sleep(3000);
+
+      createQueue(1, address, queue, null, true, routingType);
+      waitForBindings(1, address, 1, 0, true);
+
+      waitForBindings(0, address, 1, 0, false);
+      waitForBindings(1, address, 1, 1, false);
+
+      final int noMessages = 10;
+      send(1, address, noMessages, true, null, routingType, null);
+      waitForMessages(1, address, noMessages);
+
+      verifyReceiveAll(noMessages, 0);
+
+   }
+
+   @Test
+   public void testMulticastRedistributionLbOffWithRedistribution() throws Exception {
+
+      String address = "test.address";
+      String queue = "queue";
+      String clusterAddress = "test";
+      AddressSettings settings = new AddressSettings().setRedistributionDelay(0).setAutoCreateAddresses(true).setAutoCreateQueues(true);
+      RoutingType routingType = RoutingType.MULTICAST;
+
+      getServer(0).getAddressSettingsRepository().addMatch(address, settings);
+      getServer(1).getAddressSettingsRepository().addMatch(address, settings);
+
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 1, 0);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, address, queue, null, false, routingType);
+      addConsumer(0, 0, queue, null);
+      waitForBindings(0, address, 1, 1, true);
+
+      Thread.sleep(3000);
+
+      createQueue(1, address, queue, null, false, routingType);
+      waitForBindings(1, address, 1, 0, true);
+
+      waitForBindings(0, address, 1, 0, false);
+      waitForBindings(1, address, 1, 1, false);
+
+      final int noMessages = 10;
+      send(1, address, noMessages, false, null, routingType, null);
+
+      verifyReceiveAll(noMessages, 0);
+
+   }
+
+   @Test
    public void testBackAndForth() throws Exception {
       for (int i = 0; i < 10; i++) {
          setupCluster(MessageLoadBalancingType.ON_DEMAND);

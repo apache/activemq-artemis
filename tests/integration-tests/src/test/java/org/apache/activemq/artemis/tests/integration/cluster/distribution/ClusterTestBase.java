@@ -723,7 +723,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               final int msgEnd,
                               final boolean durable,
                               final String filterVal) throws Exception {
-      sendInRange(node, address, msgStart, msgEnd, durable, filterVal, null);
+      sendInRange(node, address, msgStart, msgEnd, durable, filterVal, null, null);
    }
 
    protected void sendInRange(final int node,
@@ -732,6 +732,17 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               final int msgEnd,
                               final boolean durable,
                               final String filterVal,
+                              final RoutingType routingType) throws Exception {
+      sendInRange(node, address, msgStart, msgEnd, durable, filterVal, routingType, null);
+   }
+
+   protected void sendInRange(final int node,
+                              final String address,
+                              final int msgStart,
+                              final int msgEnd,
+                              final boolean durable,
+                              final String filterVal,
+                              final RoutingType routingType,
                               final AtomicInteger duplicateDetectionSeq) throws Exception {
       ClientSessionFactory sf = sfs[node];
 
@@ -749,6 +760,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
             if (filterVal != null) {
                message.putStringProperty(ClusterTestBase.FILTER_PROP, new SimpleString(filterVal));
+            }
+
+            if (routingType != null) {
+               message.setRoutingType(routingType);
             }
 
             if (duplicateDetectionSeq != null) {
@@ -853,7 +868,17 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                        final boolean durable,
                        final String filterVal,
                        final AtomicInteger duplicateDetectionCounter) throws Exception {
-      sendInRange(node, address, 0, numMessages, durable, filterVal, duplicateDetectionCounter);
+      send(node, address, numMessages, durable, filterVal, null, duplicateDetectionCounter);
+   }
+
+   protected void send(final int node,
+                       final String address,
+                       final int numMessages,
+                       final boolean durable,
+                       final String filterVal,
+                       final RoutingType routingType,
+                       final AtomicInteger duplicateDetectionCounter) throws Exception {
+      sendInRange(node, address, 0, numMessages, durable, filterVal, routingType, duplicateDetectionCounter);
    }
 
    protected void verifyReceiveAllInRange(final boolean ack,
