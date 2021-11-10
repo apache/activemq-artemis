@@ -57,7 +57,7 @@ var Artemis;
                      <div class="col-sm-offset-2 col-sm-10">
                          <button type="submit" class="btn btn-primary"
                                  ng-click="$ctrl.createAddress($ctrl.addressName, $ctrl.routingType)"
-                                 ng-disabled="!$ctrl.addressName">Create Address
+                                 ng-disabled="!$ctrl.addressName || !$ctrl.routingType">Create Address
                          </button>
                      </div>
                  </div>
@@ -92,7 +92,7 @@ var Artemis;
         Artemis.log.debug("loaded address controller");
         var ctrl = this;
         ctrl.addressName = "";
-        ctrl.routingType = "Anycast";
+        ctrl.routingType = null;
         ctrl.workspace = workspace;
         ctrl.message = "";
 
