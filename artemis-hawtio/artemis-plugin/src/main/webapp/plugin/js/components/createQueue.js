@@ -91,7 +91,7 @@ var Artemis;
                      <div class="col-sm-offset-2 col-sm-10">
                          <button type="submit" class="btn btn-primary"
                                  ng-click="$ctrl.createQueue($ctrl.queueName, $ctrl.routingType, $ctrl.durable, $ctrl.filter, $ctrl.maxConsumers, $ctrl.purgeWhenNoConsumers)"
-                                 ng-disabled="!$ctrl.queueName">Create Queue
+                                 ng-disabled="!$ctrl.queueName || !$ctrl.routingType">Create Queue
                          </button>
                      </div>
                  </div>
@@ -160,7 +160,13 @@ var Artemis;
         var artemisJmxDomain = localStorage['artemisJmxDomain'] || "org.apache.activemq.artemis";
         ctrl.workspace = workspace;
         ctrl.maxConsumers = -1;
-        ctrl.routingType = "Anycast";
+        if (workspace.selection.folderNames.length >= 6 && workspace.selection.folderNames[5] === "anycast") {
+            ctrl.routingType = "Anycast";
+        } else if (workspace.selection.folderNames.length >= 6 && workspace.selection.folderNames[5] === "multicast") {
+            ctrl.routingType = "Multicast";
+        } else {
+            ctrl.routingType = null;
+        }
         ctrl.filter = "";
         ctrl.purgeWhenNoConsumers = false;
         ctrl.durable = true;
@@ -184,8 +190,8 @@ var Artemis;
             var mbean = Artemis.getBrokerMBean(workspace, jolokia);
             if (mbean) {
                 var selection = workspace.selection;
-                var entries = selection.entries;
-                var address = entries["address"];
+                var folderNames = selection.folderNames;
+                var address = folderNames[3];
                 if (address.charAt(0) === '"' && address.charAt(address.length -1) === '"')
                 {
                     address = address.substr(1,address.length -2);
