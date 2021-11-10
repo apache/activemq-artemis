@@ -90,10 +90,6 @@
          <groupId>jakarta.transaction</groupId>
          <artifactId>jakarta.transaction-api</artifactId>
       </dependency>
-      <dependency>
-         <groupId>jakarta.json</groupId>
-         <artifactId>jakarta.json-api</artifactId>
-      </dependency>
    </dependencies>
 
    <profiles>

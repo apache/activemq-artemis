@@ -16,9 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonNumber;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonValue;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.johnzon.core.JsonLongImpl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class ManagementWithPagingServerTest extends ManagementTestBase {
       List<Long> longs = new ArrayList<>();
       for (JsonValue jsonValue : array) {
          JsonValue val = ((JsonObject) jsonValue).get("messageID");
-         Long l = ((JsonLongImpl) val).longValue();
+         Long l = ((JsonNumber) val).longValue();
          longs.add(l);
       }
       assertEquals(num, array.size());

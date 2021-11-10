@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.maven;
 
+import java.io.File;
 import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Properties;
 
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,6 +40,10 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
    @Parameter
    String[] args;
 
+
+   @Parameter
+   String classPath;
+
    @Parameter(defaultValue = "${noClient}")
    boolean ignore;
 
@@ -50,13 +57,31 @@ public class ArtemisClientPlugin extends ArtemisAbstractPlugin {
       return ignore;
    }
 
+
+   protected ClassLoader defineClassLoader(String classPath) throws Exception {
+      String[] classPathArray = classPath.split(File.pathSeparator);
+      URL[] elements = new URL[classPathArray.length];
+      for (int i = 0; i < classPathArray.length; i++) {
+         elements[i] = new File(classPathArray[i]).toPath().toUri().toURL();
+      }
+      return new URLClassLoader(elements);
+   }
+
+
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
       try {
          if (systemProperties != null && !systemProperties.isEmpty()) {
             System.getProperties().putAll(systemProperties);
          }
-         Class aClass = Class.forName(clientClass);
+
+         Class aClass;
+         if (classPath != null) {
+            ClassLoader loader = defineClassLoader(classPath);
+            aClass = loader.loadClass(clientClass);
+         } else {
+            aClass = Class.forName(clientClass);
+         }
          Method method = aClass.getDeclaredMethod("main", new Class[]{String[].class});
          method.invoke(null, new Object[]{args});
       } catch (Exception e) {

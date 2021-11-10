@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import javax.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.text.SimpleDateFormat;

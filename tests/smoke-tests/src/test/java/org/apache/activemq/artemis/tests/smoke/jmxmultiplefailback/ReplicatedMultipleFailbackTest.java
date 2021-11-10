@@ -17,10 +17,8 @@
 
 package org.apache.activemq.artemis.tests.smoke.jmxmultiplefailback;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
@@ -44,6 +42,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
@@ -92,23 +91,21 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       if (networkTopologyJson == null || networkTopologyJson.isEmpty()) {
          return Collections.emptyMap();
       }
-      try (JsonReader jsonReader = Json.createReader(new StringReader(networkTopologyJson))) {
-         final JsonArray nodeIDs = jsonReader.readArray();
-         final int nodeCount = nodeIDs.size();
-         Map<String, Pair<String, String>> networkTopology = new HashMap<>(nodeCount);
-         for (int i = 0; i < nodeCount; i++) {
-            final JsonObject nodePair = nodeIDs.getJsonObject(i);
-            try {
-               final String nodeID = nodePair.getString("nodeID");
-               final String live = nodePair.getString("live");
-               final String backup = nodePair.getString("backup", null);
-               networkTopology.put(nodeID, new Pair<>(live, backup));
-            } catch (Exception e) {
-               LOGGER.warnf(e, "Error on %s", nodePair);
-            }
+      final JsonArray nodeIDs = JsonLoader.readArray(new StringReader(networkTopologyJson));
+      final int nodeCount = nodeIDs.size();
+      Map<String, Pair<String, String>> networkTopology = new HashMap<>(nodeCount);
+      for (int i = 0; i < nodeCount; i++) {
+         final JsonObject nodePair = nodeIDs.getJsonObject(i);
+         try {
+            final String nodeID = nodePair.getString("nodeID");
+            final String live = nodePair.getString("live");
+            final String backup = nodePair.getString("backup", null);
+            networkTopology.put(nodeID, new Pair<>(live, backup));
+         } catch (Exception e) {
+            LOGGER.warnf(e, "Error on %s", nodePair);
          }
-         return networkTopology;
       }
+      return networkTopology;
    }
 
    private static long countMembers(Map<String, Pair<String, String>> networkTopology) {

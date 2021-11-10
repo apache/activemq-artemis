@@ -50,6 +50,20 @@ under the License.
             <artifactId>artemis-maven-plugin</artifactId>
             <executions>
                <execution>
+                  <id>snapshot-check</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <configuration>
+                     <libList>
+                        <arg>org.apache.activemq:artemis-jakarta-client-all:${project.version}</arg>
+                        <arg>org.apache.activemq.examples.broker:queue-jakarta:${project.version}</arg>
+                     </libList>
+                     <variableName>ARTEMIS-JAKARTA</variableName>
+                  </configuration>
+               </execution>
+               <execution>
                   <id>create</id>
                   <goals>
                      <goal>create</goal>
@@ -79,6 +93,7 @@ under the License.
                   </goals>
                   <configuration>
                      <clientClass>org.apache.activemq.artemis.jms.example.QueueExample</clientClass>
+                     <classPath>${ARTEMIS-JAKARTA}</classPath>
                   </configuration>
                </execution>
                <execution>

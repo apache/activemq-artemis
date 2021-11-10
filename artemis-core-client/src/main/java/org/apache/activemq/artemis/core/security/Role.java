@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.security;
 
-import javax.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObject;
 import java.io.Serializable;
 
 import org.apache.activemq.artemis.utils.JsonLoader;

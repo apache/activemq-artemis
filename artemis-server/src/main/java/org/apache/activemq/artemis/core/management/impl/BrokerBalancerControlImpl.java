@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.server.balancing.BrokerBalancer;
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.NotCompliantMBeanException;

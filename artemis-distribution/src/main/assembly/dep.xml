@@ -107,8 +107,6 @@
             <include>org.apache.commons:commons-lang3</include>
             <include>org.fusesource.hawtbuf:hawtbuf</include>
             <include>org.jgroups:jgroups</include>
-            <include>jakarta.json:jakarta.json-api</include>
-            <include>org.apache.johnzon:johnzon-core</include>
             <include>jakarta.xml.bind:jakarta.xml.bind-api</include>
             <include>com.sun.xml.bind:jaxb-impl</include>
             <include>jakarta.activation:jakarta.activation-api</include>

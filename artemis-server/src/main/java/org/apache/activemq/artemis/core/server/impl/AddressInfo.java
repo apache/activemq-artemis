@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonNumber;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.Map;

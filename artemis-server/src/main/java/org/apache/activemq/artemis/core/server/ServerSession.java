@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import javax.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import javax.transaction.xa.Xid;
 import java.util.EnumSet;
 import java.util.List;

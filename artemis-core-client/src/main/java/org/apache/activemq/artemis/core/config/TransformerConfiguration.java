@@ -18,9 +18,9 @@ package org.apache.activemq.artemis.core.config;
 
 import org.apache.activemq.artemis.utils.JsonLoader;
 
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.HashMap;

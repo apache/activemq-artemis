@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.core.transaction;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import javax.transaction.xa.Xid;
 import java.text.DateFormat;
 import java.util.Date;

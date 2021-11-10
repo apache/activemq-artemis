@@ -21,10 +21,9 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonValue;
-import javax.json.spi.JsonProvider;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonValue;
 import java.io.StringReader;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -162,7 +161,7 @@ public class BridgeConfigurationTest {
       objectBuilder.add(BridgeConfiguration.FORWARDING_ADDRESS, "forwarding-address");
       objectBuilder.add(BridgeConfiguration.FILTER_STRING, "filter-string");
       objectBuilder.add(BridgeConfiguration.STATIC_CONNECTORS,
-            JsonProvider.provider().createArrayBuilder()
+            JsonLoader.createArrayBuilder()
                   .add("connector1")
                   .add("connector2"));
       objectBuilder.add(BridgeConfiguration.DISCOVERY_GROUP_NAME, "dg");

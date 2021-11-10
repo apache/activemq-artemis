@@ -32,6 +32,25 @@
    </properties>
 
    <dependencies>
+
+      <!-- Johnzon and JSON is meant to be referenced only here on this package (commons)
+           and we should not leak any dependencies to JSON or Johnzon in any of our packages.
+           Any other references would be meant for tests. -->
+      <dependency>
+         <groupId>org.apache.johnzon</groupId>
+         <artifactId>johnzon-core</artifactId>
+         <scope>compile</scope>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>jakarta.json</groupId>
+         <artifactId>jakarta.json-api</artifactId>
+         <scope>compile</scope>
+         <optional>true</optional>
+         <!-- License: EPL 2.0 -->
+      </dependency>
+      <!-- ^^ these dependencies are shaded on this JAR -->
+
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>
@@ -53,6 +72,7 @@
       <dependency>
           <groupId>com.google.errorprone</groupId>
           <artifactId>error_prone_core</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
           <groupId>org.wildfly.common</groupId>
@@ -81,10 +101,6 @@
          <artifactId>commons-beanutils</artifactId>
       </dependency>
       <dependency>
-         <groupId>jakarta.json</groupId>
-         <artifactId>jakarta.json-api</artifactId>
-      </dependency>
-      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
@@ -108,6 +124,45 @@
                   <goals>
                      <goal>test-jar</goal>
                   </goals>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>shade</goal>
+                  </goals>
+                  <configuration>
+                     <createDependencyReducedPom>true</createDependencyReducedPom>
+                     <filters>
+                        <filter>
+                           <artifact>*:*</artifact>
+                           <excludes>
+                              <exclude>META-INF/**/*</exclude>
+                           </excludes>
+                        </filter>
+                     </filters>
+                     <relocations>
+                        <relocation>
+                           <pattern>javax.json</pattern>
+                           <shadedPattern>org.apache.activemq.artemis.commons.shaded.json</shadedPattern>
+                        </relocation>
+                        <relocation>
+                           <pattern>org.apache.johnzon</pattern>
+                           <shadedPattern>org.apache.activemq.artemis.commons.shaded.johnzon</shadedPattern>
+                        </relocation>
+                     </relocations>
+                     <artifactSet>
+                        <includes>
+                           <include>org.apache.johnzon:johnzon-core</include>
+                           <include>jakarta.json:jakarta.json-api</include>
+                        </includes>
+                     </artifactSet>
+                  </configuration>
                </execution>
             </executions>
          </plugin>

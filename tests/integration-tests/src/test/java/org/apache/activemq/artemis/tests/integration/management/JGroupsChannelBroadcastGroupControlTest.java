@@ -35,7 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import javax.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
 

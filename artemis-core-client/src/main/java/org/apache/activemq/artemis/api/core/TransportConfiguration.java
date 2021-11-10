@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-import javax.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObject;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;

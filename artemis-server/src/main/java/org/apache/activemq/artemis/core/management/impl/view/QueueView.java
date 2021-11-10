@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.QueueFilterPredicate;

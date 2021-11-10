@@ -17,8 +17,8 @@
 
 package org.apache.activemq.artemis.tests.extras.byteman;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
