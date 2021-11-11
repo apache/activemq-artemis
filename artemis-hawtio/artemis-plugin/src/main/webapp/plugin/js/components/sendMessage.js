@@ -103,7 +103,7 @@ var Artemis;
             </form>
 
             <p>
-                <button type="button" class="btn btn-primary artemis-send-message-button" ng-click="$ctrl.message.sendMessage($ctrl.message.durable, $ctrl.message.messageID)">Send message</button>
+                <button type="button" class="btn btn-primary artemis-send-message-button" ng-click="$ctrl.message.sendMessage($ctrl.message.durable, $ctrl.message.messageID)">Send Message</button>
             </p>
             <script type="text/ng-template" id="send-message-instructions.html">
             <div>
