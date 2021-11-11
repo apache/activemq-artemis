@@ -108,7 +108,7 @@ var Artemis;
                 <p>
                     This page allows you to send a message to the chosen queue. The message will be of type <code>text</code>
                     message and it will be possible to add headers to the message. The sending of the message will be authenticated
-                    using the username and password set ion <code>preferences</code>, if this is not set then these will
+                    using the username and password set in <code>preferences</code>, if this is not set then these will
                     be null.
                 </p>
             </div>
