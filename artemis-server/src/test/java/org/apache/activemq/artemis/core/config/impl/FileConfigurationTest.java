@@ -817,6 +817,28 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    }
 
    @Test
+   public void testJournalFileOpenTimeoutShouldBeConfigurable() throws Exception {
+      int timeout = RandomUtil.randomPositiveInt();
+      Configuration configuration = createConfiguration("shared-store-master-hapolicy-config.xml");
+      configuration.setJournalFileOpenTimeout(timeout)
+              .setJournalDirectory(getJournalDir())
+              .setPagingDirectory(getPageDir())
+              .setLargeMessagesDirectory(getLargeMessagesDir())
+              .setBindingsDirectory(getBindingsDir());
+      int overrideTimeoutValue =  RandomUtil.randomPositiveInt();
+      configuration.setJournalFileOpenTimeout(overrideTimeoutValue);
+      ActiveMQServerImpl server = new ActiveMQServerImpl(configuration);
+      try {
+         server.start();
+         JournalImpl journal = (JournalImpl) server.getStorageManager().getBindingsJournal();
+         Assert.assertEquals(overrideTimeoutValue, journal.getFilesRepository().getJournalFileOpenTimeout());
+         Assert.assertEquals(overrideTimeoutValue, server.getConfiguration().getJournalFileOpenTimeout());
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
    public void testMetricsPlugin() throws Exception {
       FileConfiguration fc = new FileConfiguration();
       FileDeploymentManager deploymentManager = new FileDeploymentManager("metricsPlugin.xml");

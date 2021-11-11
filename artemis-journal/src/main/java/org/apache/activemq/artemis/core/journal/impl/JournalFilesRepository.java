@@ -86,7 +86,7 @@ public class JournalFilesRepository {
 
    private final AtomicInteger freeFilesCount = new AtomicInteger(0);
 
-   private final int journalFileOpenTimeout;
+   private int journalFileOpenTimeout;
 
    private final int maxAtticFiles;
 
@@ -114,7 +114,7 @@ public class JournalFilesRepository {
                                  final int fileSize,
                                  final int minFiles,
                                  final int poolSize,
-                                 final int journalFileOpenTimeout,
+                                 int journalFileOpenTimeout,
                                  final int maxAtticFiles) {
       if (filePrefix == null) {
          throw new IllegalArgumentException("filePrefix cannot be null");
@@ -262,6 +262,10 @@ public class JournalFilesRepository {
 
    public int getJournalFileOpenTimeout() {
       return journalFileOpenTimeout;
+   }
+
+   public void setJournalFileOpenTimeout(int journalFileOpenTimeout) {
+      this.journalFileOpenTimeout = journalFileOpenTimeout;
    }
 
    public Collection<JournalFile> getDataFiles() {
