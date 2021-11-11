@@ -90,12 +90,14 @@ var Artemis;
                     <div hawtio-editor="$ctrl.message.message" mode="codeMirrorOptions.mode.name"></div>
                 </div>
                 <div class="form-group">
-                    <select class="form-control artemis-send-message-format" ng-model="codeMirrorOptions.mode.name">
+                    <select class="form-control artemis-send-message-format" ng-model="codeMirrorOptions.mode.name"
+                        style="display:inline; width:auto">
                         <option value="javascript">JSON</option>
                         <option value="xml">XML</option>
                     </select>
                     <button class="btn btn-default" ng-click="$ctrl.message.formatMessage()"
-                       title="Automatically pretty prints the message so it's easier to read">Format
+                       title="Automatically pretty prints the message so it's easier to read"
+                       style="vertical-align: initial">Format
                     </button>
                 </div>
             </form>
