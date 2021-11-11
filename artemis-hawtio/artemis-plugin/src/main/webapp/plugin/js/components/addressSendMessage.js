@@ -95,7 +95,7 @@ var Artemis;
                         <option value="xml">XML</option>
                     </select>
                     <button class="btn btn-default" ng-click="$ctrl.message.formatMessage()"
-                       title="Automatically pretty prints the message so its easier to read">Format
+                       title="Automatically pretty prints the message so it's easier to read">Format
                     </button>
                 </div>
             </form>
