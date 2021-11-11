@@ -70,7 +70,7 @@ var Artemis;
                             <td><input type="text" class="form-control" ng-model="header.name" placeholder="Name" autocomplete="off" id="name"></td>
                             <td><input type="text" class="form-control" ng-model="header.value" placeholder="Value" autocomplete="off" id="value"></td>
                             <td><div class="input-group-prepend">
-                                <button type="button" class="btn btn-default" title="Delete" ng-click="$ctrl.removeHeader(header)">
+                                <button type="button" class="btn btn-default" title="Delete" ng-click="$ctrl.message.removeHeader(header)">
                                     <span class="pficon pficon-delete"></span>
                                 </button>
                             </div></td>
