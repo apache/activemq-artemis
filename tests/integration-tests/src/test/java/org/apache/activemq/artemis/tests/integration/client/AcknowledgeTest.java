@@ -339,6 +339,12 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       final long id;
 
       @Override
+      public String getProtocolName() {
+         // should normally not be visible in GUI
+         return getClass().getName();
+      }
+
+      @Override
       public SimpleString getReplyTo() {
          return null;
       }

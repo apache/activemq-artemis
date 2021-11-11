@@ -77,6 +77,7 @@ public class MessageOpenTypeFactory<M extends Message> {
       addItem(CompositeDataConstants.TYPE, CompositeDataConstants.TYPE_DESCRIPTION, SimpleType.BYTE);
       addItem(CompositeDataConstants.ADDRESS, CompositeDataConstants.ADDRESS_DESCRIPTION, SimpleType.STRING);
       addItem(CompositeDataConstants.MESSAGE_ID, CompositeDataConstants.MESSAGE_ID_DESCRIPTION, SimpleType.STRING);
+      addItem(CompositeDataConstants.PROTOCOL, CompositeDataConstants.PROTOCOL_DESCRIPTION, SimpleType.STRING);
       addItem(CompositeDataConstants.USER_ID, CompositeDataConstants.USER_ID_DESCRIPTION, SimpleType.STRING);
       addItem(CompositeDataConstants.DURABLE, CompositeDataConstants.DURABLE_DESCRIPTION, SimpleType.BOOLEAN);
       addItem(CompositeDataConstants.EXPIRATION, CompositeDataConstants.EXPIRATION_DESCRIPTION, SimpleType.LONG);
@@ -123,6 +124,7 @@ public class MessageOpenTypeFactory<M extends Message> {
    public Map<String, Object> getFields(M m, int valueSizeLimit, int deliveryCount) throws OpenDataException {
       Map<String, Object> rc = new HashMap<>();
       rc.put(CompositeDataConstants.MESSAGE_ID, "" + m.getMessageID());
+      rc.put(CompositeDataConstants.PROTOCOL, m.getProtocolName());
       if (m.getUserID() != null) {
          rc.put(CompositeDataConstants.USER_ID, "ID:" + m.getUserID().toString());
       } else {

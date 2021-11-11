@@ -34,6 +34,11 @@ import io.netty.buffer.ByteBuf;
 public class OpenwireMessage implements Message {
 
    @Override
+   public String getProtocolName() {
+      return OpenWireProtocolManagerFactory.OPENWIRE_PROTOCOL_NAME;
+   }
+
+   @Override
    public boolean containsProperty(SimpleString key) {
       return false;
    }

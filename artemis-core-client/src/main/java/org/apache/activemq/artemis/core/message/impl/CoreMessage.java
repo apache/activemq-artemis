@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.buffers.impl.ResetLimitWrappedActiveMQBuffer;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
@@ -119,6 +120,11 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    public CoreMessage() {
       this.coreMessageObjectPools = null;
+   }
+
+   @Override
+   public String getProtocolName() {
+      return ActiveMQClient.DEFAULT_CORE_PROTOCOL;
    }
 
    /** On core there's no delivery annotation */
