@@ -94,7 +94,7 @@ var Artemis;
                         <option value="javascript">JSON</option>
                         <option value="xml">XML</option>
                     </select>
-                    <button class="btn btn-default" ng-click="$ctrl.formatMessage()"
+                    <button class="btn btn-default" ng-click="$ctrl.message.formatMessage()"
                        title="Automatically pretty prints the message so its easier to read">Format
                     </button>
                 </div>
