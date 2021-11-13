@@ -513,6 +513,8 @@ public final class ActiveMQDefaultConfiguration {
       DEFAULT_MAX_DISK_USAGE = maxDisk;
    }
 
+   public static final long DEFAULT_MIN_DISK_FREE = -1;
+
    public static final int DEFAULT_DISK_SCAN = 5000;
 
    public static final int DEFAULT_MAX_QUEUE_CONSUMERS = -1;
@@ -1485,6 +1487,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static int getDefaultMaxDiskUsage() {
       return DEFAULT_MAX_DISK_USAGE;
+   }
+
+   public static long getDefaultMinDiskFree() {
+      return DEFAULT_MIN_DISK_FREE;
    }
 
    public static int getDefaultDiskScanPeriod() {

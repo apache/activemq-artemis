@@ -3310,7 +3310,20 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          postOffice.startAddressQueueScanner();
       }
 
-      if (configuration.getMaxDiskUsage() != -1) {
+      if (configuration.getMinDiskFree() != -1 && configuration.getMaxDiskUsage() != -1) {
+         ActiveMQServerLogger.LOGGER.configParamOverride("min-disk-free", "max-disk-usage");
+         try {
+            injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMinDiskFree(), ioCriticalErrorListener));
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
+         }
+      } else if (configuration.getMinDiskFree() != -1) {
+         try {
+            injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMinDiskFree(), ioCriticalErrorListener));
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.unableToInjectMonitor(e);
+         }
+      } else if (configuration.getMaxDiskUsage() != -1) {
          try {
             injectMonitor(new FileStoreMonitor(getScheduledPool(), executorFactory.getExecutor(), configuration.getDiskScanPeriod(), TimeUnit.MILLISECONDS, configuration.getMaxDiskUsage() / 100f, ioCriticalErrorListener));
          } catch (Exception e) {

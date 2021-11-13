@@ -44,7 +44,8 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
    private final Set<Callback> callbackList = new HashSet<>();
    private final Set<FileStore> stores = new HashSet<>();
-   private double maxUsage;
+   private Double maxUsage;
+   private Long minDiskFree;
    private final Object monitorLock = new Object();
    private final IOCriticalErrorListener ioCriticalErrorListener;
 
@@ -56,6 +57,17 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
                            IOCriticalErrorListener ioCriticalErrorListener) {
       super(scheduledExecutorService, executor, checkPeriod, timeUnit, false);
       this.maxUsage = maxUsage;
+      this.ioCriticalErrorListener = ioCriticalErrorListener;
+   }
+
+   public FileStoreMonitor(ScheduledExecutorService scheduledExecutorService,
+                           Executor executor,
+                           long checkPeriod,
+                           TimeUnit timeUnit,
+                           long minDiskFree,
+                           IOCriticalErrorListener ioCriticalErrorListener) {
+      super(scheduledExecutorService, executor, checkPeriod, timeUnit, false);
+      this.minDiskFree = minDiskFree;
       this.ioCriticalErrorListener = ioCriticalErrorListener;
    }
 
@@ -94,8 +106,42 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
    }
 
    public void tick() {
+      if (minDiskFree != null) {
+         tickMinDiskFree();
+      } else if (maxUsage != null) {
+         tickMaxDiskUsage();
+      }
+   }
+
+   public double getMaxUsage() {
+      return maxUsage;
+   }
+
+   public long getMinDiskFree() {
+      return minDiskFree;
+   }
+
+   public FileStoreMonitor setMaxUsage(double maxUsage) {
+      this.maxUsage = maxUsage;
+      return this;
+   }
+
+   public FileStoreMonitor setMinDiskFree(long minDiskFree) {
+      this.minDiskFree = minDiskFree;
+      return this;
+   }
+
+   public static double calculateUsage(long usableSpace, long totalSpace) {
+
+      if (totalSpace == 0) {
+         return 0.0;
+      }
+      return 1.0 - (double) usableSpace / (double) totalSpace;
+   }
+
+   private void tickMinDiskFree() {
       synchronized (monitorLock) {
-         boolean over = false;
+         boolean underMinDiskFree = false;
          long usableSpace = 0;
          long totalSpace = 0;
 
@@ -103,8 +149,8 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
             try {
                usableSpace = store.getUsableSpace();
                totalSpace = getTotalSpace(store);
-               over = calculateUsage(usableSpace, totalSpace) > maxUsage;
-               if (over) {
+               underMinDiskFree = usableSpace < minDiskFree;
+               if (underMinDiskFree) {
                   break;
                }
             } catch (IOException ioe) {
@@ -117,30 +163,46 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
          for (Callback callback : callbackList) {
             callback.tick(usableSpace, totalSpace);
 
-            if (over) {
-               callback.over(usableSpace, totalSpace);
+            if (underMinDiskFree) {
+               callback.underMinDiskFree(usableSpace, minDiskFree);
             } else {
-               callback.under(usableSpace, totalSpace);
+               callback.overMinDiskFree(usableSpace, minDiskFree);
             }
          }
       }
    }
 
-   public double getMaxUsage() {
-      return maxUsage;
-   }
+   private void tickMaxDiskUsage() {
+      synchronized (monitorLock) {
+         boolean overmaxUsage = false;
+         long usableSpace = 0;
+         long totalSpace = 0;
 
-   public FileStoreMonitor setMaxUsage(double maxUsage) {
-      this.maxUsage = maxUsage;
-      return this;
-   }
+         for (FileStore store : stores) {
+            try {
+               usableSpace = store.getUsableSpace();
+               totalSpace = getTotalSpace(store);
+               overmaxUsage = calculateUsage(usableSpace, totalSpace) > maxUsage;
+               if (overmaxUsage) {
+                  break;
+               }
+            } catch (IOException ioe) {
+               ioCriticalErrorListener.onIOException(ioe, "IO Error while calculating disk usage", null);
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
 
-   public static double calculateUsage(long usableSpace, long totalSpace) {
+         for (Callback callback : callbackList) {
+            callback.tick(usableSpace, totalSpace);
 
-      if (totalSpace == 0) {
-         return 0.0;
+            if (overmaxUsage) {
+               callback.overMaxUsage(usableSpace, totalSpace);
+            } else {
+               callback.underMaxUsage(usableSpace, totalSpace);
+            }
+         }
       }
-      return 1.0 - (double) usableSpace / (double) totalSpace;
    }
 
    private long getTotalSpace(FileStore store) throws IOException {
@@ -155,8 +217,34 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
       void tick(long usableSpace, long totalSpace);
 
-      void over(long usableSpace, long totalSpace);
+      /**
+       * @deprecated Use overMaxUsage instead
+       */
+      @Deprecated
+      default void over(long usableSpace, long totalSpace) {
+      }
 
-      void under(long usableSpace, long totalSpace);
+      /**
+       * @deprecated Use underMaxUsage instead
+       */
+      @Deprecated
+      default void under(long usableSpace, long totalSpace) {
+      }
+
+      default void overMaxUsage(long usableSpace, long totalSpace) {
+         // this is here just to support older version of the API
+         over(usableSpace, totalSpace);
+      }
+
+      default void underMaxUsage(long usableSpace, long totalSpace) {
+         // this is here just to support older version of the API
+         under(usableSpace, totalSpace);
+      }
+
+      default void overMinDiskFree(long usableSpace, long minFreeSpace) {
+      }
+
+      default void underMinDiskFree(long usableSpace, long minFreeSpace) {
+      }
    }
 }

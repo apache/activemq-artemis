@@ -61,6 +61,7 @@
       <temporary-queue-namespace>TEMP</temporary-queue-namespace>
       <global-max-size>1234567</global-max-size>
       <max-disk-usage>37</max-disk-usage>
+      <min-disk-free>500Mb</min-disk-free>
       <disk-scan-period>123</disk-scan-period>
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
       <critical-analyzer-check-period>333</critical-analyzer-check-period>

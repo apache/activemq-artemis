@@ -898,7 +898,17 @@
          <xsd:element name="max-disk-usage" type="xsd:int" default="90" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Max percentage of disk usage before the system blocks or fails clients.
+                  Max percentage of disk usage before the system blocks or fails clients. Will be overrided by
+                  min-disk-free if both are set.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         
+         <xsd:element name="min-disk-free" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Min free bytes on disk below which the system blocks or fails clients. Supports byte notation like
+                  "K", "Mb", "GB", etc. Will override max-disk-usage if both are set.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

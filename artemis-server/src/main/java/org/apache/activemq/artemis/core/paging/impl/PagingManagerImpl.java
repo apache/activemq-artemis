@@ -205,19 +205,39 @@ public final class PagingManagerImpl implements PagingManager {
       }
 
       @Override
-      public void over(long usableSpace, long totalSpace) {
+      public void overMaxUsage(long usableSpace, long totalSpace) {
          if (!diskFull) {
-            ActiveMQServerLogger.LOGGER.diskBeyondCapacity(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+            ActiveMQServerLogger.LOGGER.diskBeyondCapacity1(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
             diskFull = true;
          }
       }
 
       @Override
-      public void under(long usableSpace, long totalSpace) {
+      public void underMaxUsage(long usableSpace, long totalSpace) {
          final boolean diskFull = PagingManagerImpl.this.diskFull;
          if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
             if (diskFull) {
-               ActiveMQServerLogger.LOGGER.diskCapacityRestored(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+               ActiveMQServerLogger.LOGGER.diskCapacityRestored1(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+               PagingManagerImpl.this.diskFull = false;
+            }
+            checkMemoryRelease();
+         }
+      }
+
+      @Override
+      public void underMinDiskFree(long usableSpace, long minFreeSpace) {
+         if (!diskFull) {
+            ActiveMQServerLogger.LOGGER.diskBeyondCapacity2(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(minFreeSpace));
+            diskFull = true;
+         }
+      }
+
+      @Override
+      public void overMinDiskFree(long usableSpace, long minFreeSpace) {
+         final boolean diskFull = PagingManagerImpl.this.diskFull;
+         if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
+            if (diskFull) {
+               ActiveMQServerLogger.LOGGER.diskCapacityRestored2(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(minFreeSpace));
                PagingManagerImpl.this.diskFull = false;
             }
             checkMemoryRelease();

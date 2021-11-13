@@ -1243,6 +1243,10 @@ public interface Configuration {
 
    Configuration setMaxDiskUsage(int maxDiskUsage);
 
+   long getMinDiskFree();
+
+   Configuration setMinDiskFree(long minDiskFree);
+
    ConfigurationImpl setInternalNamingPrefix(String internalNamingPrefix);
 
    Configuration setDiskScanPeriod(int diskScanPeriod);

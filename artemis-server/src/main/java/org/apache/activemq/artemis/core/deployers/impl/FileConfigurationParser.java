@@ -305,6 +305,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_DISK_USAGE = "max-disk-usage";
 
+   private static final String MIN_DISK_FREE = "min-disk-free";
+
    private static final String DISK_SCAN_PERIOD = "disk-scan-period";
 
    private static final String INTERNAL_NAMING_PREFIX = "internal-naming-prefix";
@@ -440,6 +442,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          // We do it this way because it will be valid also on the case of embedded
          config.setGlobalMaxSize(globalMaxSize);
       }
+
+      config.setMinDiskFree(getTextBytesAsLongBytes(e, MIN_DISK_FREE, config.getMinDiskFree(), Validators.MINUS_ONE_OR_GT_ZERO));
 
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE_OR_MINUS_ONE));
 

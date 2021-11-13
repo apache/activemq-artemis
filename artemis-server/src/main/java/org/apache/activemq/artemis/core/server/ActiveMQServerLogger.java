@@ -1366,12 +1366,22 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222210, value = "Free storage space is at {0} of {1} total. Usage rate is {2} which is beyond the configured <max-disk-usage>. System will start blocking producers.",
       format = Message.Format.MESSAGE_FORMAT)
-   void diskBeyondCapacity(String usableSpace, String totalSpace, String usage);
+   void diskBeyondCapacity1(String usableSpace, String totalSpace, String usage);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 222211, value = "Free storage space is at {0} of {1} total. Usage rate is {2} which is below the configured <max-disk-usage>.",
       format = Message.Format.MESSAGE_FORMAT)
-   void diskCapacityRestored(String usableSpace, String totalSpace, String usage);
+   void diskCapacityRestored1(String usableSpace, String totalSpace, String usage);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224114, value = "Free storage space is at {0}. The minimum free storage space required is {1}. System will start blocking producers.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void diskBeyondCapacity2(String usableSpace, String minFreeSpace);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224115, value = "Free storage space is at {0}. The minimum free storage space required is {1}.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void diskCapacityRestored2(String usableSpace, String minFreeSpace);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222212, value = "Disk Full! Blocking message production on address ''{0}''. Clients will report blocked.", format = Message.Format.MESSAGE_FORMAT)
@@ -2207,4 +2217,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224113, value = "Auto removing Address {0}", format = Message.Format.MESSAGE_FORMAT)
    void autoRemoveAddress(String name);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224116, value = "When both {0} and {1} are set, {0} will override {1}.", format = Message.Format.MESSAGE_FORMAT)
+   void configParamOverride(String overridingParam, String overridedParam);
 }
