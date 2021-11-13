@@ -37,6 +37,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType.MaxDiskUsage;
+
 public class FileStoreMonitorTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -58,85 +60,108 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testSimpleTick() throws Exception {
+   public void testSimpleTickForMaxDiskUsage() throws Exception {
       File garbageFile = new File(getTestDirfile(), "garbage.bin");
-      FileOutputStream garbage = new FileOutputStream(garbageFile);
-      BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(garbage);
-      PrintStream out = new PrintStream(bufferedOutputStream);
 
-      // This is just to make sure there is at least something on the device.
-      // If the testsuite is running with an empty tempFS, it would return 0 and the assertion would fail.
-      for (int i = 0; i < 100; i++) {
-         out.println("Garbage " + i);
+      try (FileOutputStream garbage = new FileOutputStream(garbageFile);
+           BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(garbage);
+           PrintStream out = new PrintStream(bufferedOutputStream)) {
+
+         // This is just to make sure there is at least something on the device.
+         // If the testsuite is running with an empty tempFS, it would return 0 and the assertion would fail.
+         for (int i = 0; i < 100; i++) {
+            out.println("Garbage " + i);
+         }
       }
 
-      bufferedOutputStream.close();
-
-      final AtomicInteger over = new AtomicInteger(0);
-      final AtomicInteger under = new AtomicInteger(0);
+      final AtomicInteger overMaxUsage = new AtomicInteger(0);
+      final AtomicInteger underMaxUsage = new AtomicInteger(0);
       final AtomicInteger tick = new AtomicInteger(0);
 
-      FileStoreMonitor.Callback callback = new FileStoreMonitor.Callback() {
-         @Override
-         public void tick(long usableSpace, long totalSpace) {
-            tick.incrementAndGet();
-            logger.debug("tick:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
+      FileStoreMonitor.Callback callback = (usableSpace, totalSpace, ok, type) -> {
+         tick.incrementAndGet();
+         if (ok) {
+            underMaxUsage.incrementAndGet();
+         } else {
+            overMaxUsage.incrementAndGet();
          }
-
-         @Override
-         public void over(long usableSpace, long totalSpace) {
-            over.incrementAndGet();
-            logger.debug("over:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
-         }
-
-         @Override
-         public void under(long usableSpace, long totalSpace) {
-            under.incrementAndGet();
-            logger.debug("under:: usableSpace: {}, totalSpace: {}", usableSpace, totalSpace);
-         }
+         logger.debug("tick:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
       };
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null);
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100L, TimeUnit.MILLISECONDS, 0.999, null, MaxDiskUsage);
       storeMonitor.addCallback(callback);
       storeMonitor.addStore(getTestDirfile());
 
       storeMonitor.tick();
 
-      Assert.assertEquals(0, over.get());
+      Assert.assertEquals(0, overMaxUsage.get());
       Assert.assertEquals(1, tick.get());
-      Assert.assertEquals(1, under.get());
+      Assert.assertEquals(1, underMaxUsage.get());
 
       storeMonitor.setMaxUsage(0);
 
       storeMonitor.tick();
 
-      Assert.assertEquals(1, over.get());
+      Assert.assertEquals(1, overMaxUsage.get());
       Assert.assertEquals(2, tick.get());
-      Assert.assertEquals(1, under.get());
+      Assert.assertEquals(1, underMaxUsage.get());
    }
 
    @Test
-   public void testScheduler() throws Exception {
+   public void testSimpleTickForMinDiskFree() throws Exception {
+      File garbageFile = new File(getTestDirfile(), "garbage.bin");
 
-      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 20, TimeUnit.MILLISECONDS, 0.9, null);
+      try (FileOutputStream garbage = new FileOutputStream(garbageFile);
+           BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(garbage);
+           PrintStream out = new PrintStream(bufferedOutputStream)) {
+
+         // This is just to make sure there is at least something on the device.
+         // If the testsuite is running with an empty tempFS, it would return 0 and the assertion would fail.
+         for (int i = 0; i < 100; i++) {
+            out.println("Garbage " + i);
+         }
+      }
+
+      final AtomicInteger underMinDiskFree = new AtomicInteger(0);
+      final AtomicInteger overMinDiskFree = new AtomicInteger(0);
+      final AtomicInteger tick = new AtomicInteger(0);
+
+      FileStoreMonitor.Callback callback = (usableSpace, totalSpace, ok, type) -> {
+         tick.incrementAndGet();
+         if (ok) {
+            overMinDiskFree.incrementAndGet();
+         } else {
+            underMinDiskFree.incrementAndGet();
+         }
+      };
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100L, TimeUnit.MILLISECONDS, 0, null, FileStoreMonitor.FileStoreMonitorType.MinDiskFree);
+      storeMonitor.addCallback(callback);
+      storeMonitor.addStore(getTestDirfile());
+
+      storeMonitor.tick();
+
+      Assert.assertEquals(0, underMinDiskFree.get());
+      Assert.assertEquals(1, tick.get());
+      Assert.assertEquals(1, overMinDiskFree.get());
+
+      storeMonitor.setMinDiskFree(Long.MAX_VALUE);
+
+      storeMonitor.tick();
+
+      Assert.assertEquals(1, underMinDiskFree.get());
+      Assert.assertEquals(2, tick.get());
+      Assert.assertEquals(1, overMinDiskFree.get());
+   }
+
+   @Test
+   public void testSchedulerForMaxDiskUsage() throws Exception {
+
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 20, TimeUnit.MILLISECONDS, 0.9, null, MaxDiskUsage);
 
       final ReusableLatch latch = new ReusableLatch(5);
       storeMonitor.addStore(getTestDirfile());
-      storeMonitor.addCallback(new FileStoreMonitor.Callback() {
-         @Override
-         public void tick(long usableSpace, long totalSpace) {
-            logger.debug("Tick");
-            latch.countDown();
-         }
-
-         @Override
-         public void over(long usableSpace, long totalSpace) {
-
-         }
-
-         @Override
-         public void under(long usableSpace, long totalSpace) {
-
-         }
+      storeMonitor.addCallback((usableSpace, totalSpace, ok, type) -> {
+         logger.debug("Tick");
+         latch.countDown();
       });
       storeMonitor.start();
 
@@ -148,7 +173,28 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
 
       Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
 
-      //      FileStoreMonitor monitor = new FileStoreMonitor()
+   }
+
+   @Test
+   public void testSchedulerForMinDiskFree() throws Exception {
+
+      FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 20, TimeUnit.MILLISECONDS, 500000000, null, FileStoreMonitor.FileStoreMonitorType.MinDiskFree);
+
+      final ReusableLatch latch = new ReusableLatch(5);
+      storeMonitor.addStore(getTestDirfile());
+      storeMonitor.addCallback((usableSpace, totalSpace, ok, type) -> {
+         logger.debug("Tick");
+         latch.countDown();
+      });
+      storeMonitor.start();
+
+      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+
+      storeMonitor.stop();
+
+      latch.setCount(1);
+
+      Assert.assertFalse(latch.await(100, TimeUnit.MILLISECONDS));
 
    }
 }

@@ -103,6 +103,8 @@ under the License.
       <!-- once the disk hits this limit the system will block, or close the connection in certain protocols
            that won't support flow control. -->
       <max-disk-usage>90</max-disk-usage>
+      <!-- when min-disk-free is set, it will override max-disk-usage -->
+      <min-disk-free>1GB</min-disk-free>
 
       <!-- should the broker detect dead locks and other issues -->
       <critical-analyzer>true</critical-analyzer>

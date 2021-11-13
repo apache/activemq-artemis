@@ -51,6 +51,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.function.BiConsumer;
 
+import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType;
+import static org.apache.activemq.artemis.core.server.files.FileStoreMonitor.FileStoreMonitorType.MaxDiskUsage;
+
 public final class PagingManagerImpl implements PagingManager {
 
    private static final int ARTEMIS_PAGING_COUNTER_SNAPSHOT_INTERVAL = Integer.valueOf(System.getProperty("artemis.paging.counter.snapshot.interval", "60"));
@@ -237,31 +240,34 @@ public final class PagingManagerImpl implements PagingManager {
       private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
       @Override
-      public void tick(long usableSpace, long totalSpace) {
+      public void tick(long usableSpace, long totalSpace, boolean withinLimit, FileStoreMonitorType type) {
          diskUsableSpace = usableSpace;
          diskTotalSpace = totalSpace;
          if (logger.isTraceEnabled()) {
             logger.trace("Tick:: usable space at {}, total space at {}", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
          }
-      }
-
-      @Override
-      public void over(long usableSpace, long totalSpace) {
-         if (!diskFull) {
-            ActiveMQServerLogger.LOGGER.diskBeyondCapacity(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
-            diskFull = true;
-         }
-      }
-
-      @Override
-      public void under(long usableSpace, long totalSpace) {
-         final boolean diskFull = PagingManagerImpl.this.diskFull;
-         if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
-            if (diskFull) {
-               ActiveMQServerLogger.LOGGER.diskCapacityRestored(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
-               PagingManagerImpl.this.diskFull = false;
+         if (withinLimit) {
+            final boolean diskFull = PagingManagerImpl.this.diskFull;
+            if (diskFull || !blockedStored.isEmpty() || !memoryCallback.isEmpty()) {
+               if (diskFull) {
+                  if (type == MaxDiskUsage) {
+                     ActiveMQServerLogger.LOGGER.maxDiskUsageRestored(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+                  } else {
+                     ActiveMQServerLogger.LOGGER.minDiskFreeRestored(ByteUtil.getHumanReadableByteCount(usableSpace));
+                  }
+                  PagingManagerImpl.this.diskFull = false;
+               }
+               checkMemoryRelease();
             }
-            checkMemoryRelease();
+         } else {
+            if (!diskFull) {
+               if (type == MaxDiskUsage) {
+                  ActiveMQServerLogger.LOGGER.maxDiskUsageReached(ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace), String.format("%.1f%%", FileStoreMonitor.calculateUsage(usableSpace, totalSpace) * 100));
+               } else {
+                  ActiveMQServerLogger.LOGGER.minDiskFreeReached(ByteUtil.getHumanReadableByteCount(usableSpace));
+               }
+               diskFull = true;
+            }
          }
       }
    }
@@ -295,7 +301,6 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public void checkMemory(final Runnable runWhenAvailable) {
-
       if (isGlobalFull()) {
          memoryCallback.add(AtomicRunnable.checkAtomic(runWhenAvailable));
          return;
@@ -319,7 +324,6 @@ public final class PagingManagerImpl implements PagingManager {
          runnable.run();
       }
    }
-
 
 
    @Override

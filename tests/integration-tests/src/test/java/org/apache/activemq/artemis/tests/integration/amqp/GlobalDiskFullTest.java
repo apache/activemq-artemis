@@ -44,19 +44,8 @@ public class GlobalDiskFullTest extends AmqpClientTestSupport {
    public void testProducerOnDiskFull() throws Exception {
       FileStoreMonitor monitor = ((ActiveMQServerImpl)server).getMonitor().setMaxUsage(0.0);
       final CountDownLatch latch = new CountDownLatch(1);
-      monitor.addCallback(new FileStoreMonitor.Callback() {
-
-         @Override
-         public void tick(long usableSpace, long totalSpace) {
-         }
-
-         @Override
-         public void over(long usableSpace, long totalSpace) {
-            latch.countDown();
-         }
-         @Override
-         public void under(long usableSpace, long totalSpace) {
-         }
+      monitor.addCallback((usableSpace, totalSpace, ok, type) -> {
+         latch.countDown();
       });
 
       Assert.assertTrue(latch.await(1, TimeUnit.MINUTES));

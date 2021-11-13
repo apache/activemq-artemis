@@ -379,6 +379,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private int maxDiskUsage = ActiveMQDefaultConfiguration.getDefaultMaxDiskUsage();
 
+   private long minDiskFree = ActiveMQDefaultConfiguration.getDefaultMinDiskFree();
+
    private int diskScanPeriod = ActiveMQDefaultConfiguration.getDefaultDiskScanPeriod();
 
    private String systemPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix();
@@ -903,6 +905,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public ConfigurationImpl setMaxDiskUsage(int maxDiskUsage) {
       this.maxDiskUsage = maxDiskUsage;
+      return this;
+   }
+
+   @Override
+   public long getMinDiskFree() {
+      return minDiskFree;
+   }
+
+   @Override
+   public ConfigurationImpl setMinDiskFree(long minDiskFree) {
+      this.minDiskFree = minDiskFree;
       return this;
    }
 
@@ -2825,6 +2838,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
          return false;
       }
       if (maxDiskUsage != other.maxDiskUsage) {
+         return false;
+      }
+      if (minDiskFree != other.minDiskFree) {
          return false;
       }
       if (diskScanPeriod != other.diskScanPeriod) {
