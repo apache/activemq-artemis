@@ -932,10 +932,10 @@ public interface ActiveMQServerLogger {
    void impossibleToRouteGrouped();
 
    @LogMessage(id = 222210, value = "Free storage space is at {} of {} total. Usage rate is {} which is beyond the configured <max-disk-usage>. System will start blocking producers.", level = LogMessage.Level.WARN)
-   void diskBeyondCapacity(String usableSpace, String totalSpace, String usage);
+   void maxDiskUsageReached(String usableSpace, String totalSpace, String usage);
 
-   @LogMessage(id = 222211, value = "Free storage space is at {} of {} total. Usage rate is {} which is below the configured <max-disk-usage>.", level = LogMessage.Level.INFO)
-   void diskCapacityRestored(String usableSpace, String totalSpace, String usage);
+   @LogMessage(id = 222211, value = "Free storage space is at {} of {} total. Usage rate is {} which is below the configured <max-disk-usage>. System will unblock producers.", level = LogMessage.Level.INFO)
+   void maxDiskUsageRestored(String usableSpace, String totalSpace, String usage);
 
    @LogMessage(id = 222212, value = "Disk Full! Blocking message production on address '{}'. Clients will report blocked.", level = LogMessage.Level.WARN)
    void blockingDiskFull(SimpleString addressName);
@@ -1584,4 +1584,13 @@ public interface ActiveMQServerLogger {
    void failureDuringProtocolHandshake(SocketAddress localAddress, SocketAddress remoteAddress, Throwable e);
 
    // notice loggerID=224127 is reserved as it's been used at ActiveMQQueueLogger
+
+   @LogMessage(id = 224128, value = "Free storage space is at {} which is below the configured <min-disk-free>. System will start blocking producers.", level = LogMessage.Level.WARN)
+   void minDiskFreeReached(String usableSpace);
+
+   @LogMessage(id = 224129, value = "Free storage space is at {} which is above the configured <min-disk-free>. System will unblock producers.", level = LogMessage.Level.WARN)
+   void minDiskFreeRestored(String usableSpace);
+
+   @LogMessage(id = 224130, value = "The {} value {} will override the {} value {} since both are set.", level = LogMessage.Level.INFO)
+   void configParamOverride(String overridingParam, Object overridingParamValue, String overriddenParam, Object overriddenParamValue);
 }

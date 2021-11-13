@@ -327,7 +327,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String GLOBAL_MAX_MESSAGES = "global-max-messages";
 
-   private static final String MAX_DISK_USAGE = "max-disk-usage";
+   public static final String MAX_DISK_USAGE = "max-disk-usage";
+
+   public static final String MIN_DISK_FREE = "min-disk-free";
 
    private static final String DISK_SCAN_PERIOD = "disk-scan-period";
 
@@ -473,6 +475,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       long globalMaxMessages = getLong(e, GLOBAL_MAX_MESSAGES, -1, Validators.MINUS_ONE_OR_GT_ZERO);
 
       config.setGlobalMaxMessages(globalMaxMessages);
+
+      config.setMinDiskFree(getTextBytesAsLongBytes(e, MIN_DISK_FREE, config.getMinDiskFree(), Validators.MINUS_ONE_OR_GT_ZERO));
 
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE_OR_MINUS_ONE));
 

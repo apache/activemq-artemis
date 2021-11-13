@@ -196,12 +196,28 @@ For example:
 In this example all the other 9 queues will be consuming messages from the page system.
 This may cause performance issues if this is an undesirable state.
 
-== Max Disk Usage
+== Monitoring Disk
 
-The System will perform scans on the disk to determine if the disk is beyond a configured limit.
-These are configured through `max-disk-usage` in percentage.
-Once that limit is reached any message will be blocked.
-(unless the protocol doesn't support flow control on which case there will be an exception thrown and the connection for those clients dropped).
+The broker can be configured to perform scans on the disk to determine if disk is beyond a configured limit.
+Since the disk is a critical piece of infrastructure for data integrity the broker will automatically shut itself down if it runs out of disk space.
+Configuring a limit allows the broker to enforce flow control on clients sending messages to the broker so that the disk never fills up completely.
+
+WARNING: If the protocol used to send the messages doesn't support flow control (e.g. STOMP) then an exception will be thrown and the connection for the client will be dropped so that it can no longer send messages and consume disk space.
+
+=== Max Disk Usage
+
+A limit on the _maximum_ disk space used can be configured through `max-disk-usage`
+This is the *percentage* of disk used.
+For example, if the disk's capacity was 500GiB and `max-disk-usage` was `50` then the broker would start blocking producers once 250GiB of disk space was used.
+
+=== Minimum Disk Free
+
+A limit on the _minimum_ disk space free can be configured through `min-disk-free`
+This is specific amount and not a percentage like with `max-disk-usage`.
+For example, if the disk's capacity was 500GiB and `min-disk-free` was `100GiB` then the broker would start blocking producers once 400GiB of disk space was used.
+
+NOTE: If _both_ `max-disk-usage` and `min-disk-free` are configured then `min-disk-free` will take priority.
+
 
 == Page Sync Timeout
 
