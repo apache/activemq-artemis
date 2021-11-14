@@ -465,7 +465,7 @@ var Artemis;
         }
 
         function formatExpires(timestamp) {
-             if (isNaN(timestamp)) {
+             if (isNaN(timestamp) || typeof timestamp !== "number") {
                 return timestamp;
              }
              if (timestamp == 0) {
@@ -488,7 +488,7 @@ var Artemis;
           }
 
           function formatTimestamp(timestamp) {
-             if (isNaN(timestamp)) {
+             if (isNaN(timestamp) || typeof timestamp !== "number") {
                 return timestamp;
              }
              var d = new Date(timestamp);
@@ -499,7 +499,7 @@ var Artemis;
 
         var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
         function formatType(type) {
-            if (isNaN(type)) {
+            if (isNaN(type) || typeof type !== "number") {
                 return type;
             }
             return type > -1 && type < 8 ? typeLabels[type] : type
@@ -507,7 +507,7 @@ var Artemis;
 
         var bindingTypeLabels = ["local-queue", "remote-queue", "divert"];
         function formatBindingType(type) {
-            if (isNaN(type)) {
+            if (isNaN(type) || typeof type !== "number") {
                 return type;
             }
             return type > -1 && type < 3 ? bindingTypeLabels[type] : type
@@ -526,7 +526,7 @@ var Artemis;
         }
 
         function formatPersistentSize(bytes) {
-            if(isNaN(bytes) || bytes < 0) return "n/a";
+            if(isNaN(bytes) || typeof bytes !== "number" || bytes < 0) return "n/a";
             if(bytes < 10240) return bytes.toLocaleString() + " Bytes";
             if(bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
             if(bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MB";
@@ -820,7 +820,7 @@ var Artemis;
             "amqp-unknown", "amqp-null", "amqp-data", "amqp-sequence", "amqp-value-null",
             "amqp-value-string", "amqp-value-binary", "amqp-value-map", "amqp-value-list"];
         function formatAmqpEncoding(enc) {
-            if (isNaN(enc)) {
+            if (isNaN(enc) || typeof enc !== "number") {
                 return enc;
             }
             return enc > -1 && enc < 9 ? amqpEncodingLabels[enc] : enc;
