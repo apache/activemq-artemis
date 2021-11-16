@@ -693,6 +693,90 @@ public class AddressControlTest extends ManagementTestBase {
       }
    }
 
+   @Test
+   public void testAddressSizeAfterRestart() throws Exception {
+      session.close();
+      server.stop();
+      server.getConfiguration().setPersistenceEnabled(true);
+
+      SimpleString address = RandomUtil.randomSimpleString();
+
+      server.start();
+      ServerLocator locator2 = createInVMNonHALocator();
+      addServerLocator(locator2);
+      ClientSessionFactory sf2 = createSessionFactory(locator2);
+
+      session = sf2.createSession(false, true, false);
+      session.start();
+      session.createQueue(new QueueConfiguration(address));
+
+      ClientProducer producer = session.createProducer(address);
+
+      final int numMessages = 10;
+      final int payLoadSize = 896;
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage msg = session.createMessage(true);
+         msg.getBodyBuffer().writeBytes(new byte[payLoadSize]);
+         producer.send(msg);
+      }
+      session.commit();
+
+      AddressControl addressControl = createManagementControl(address);
+      Assert.assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize );
+
+      // restart to reload journal
+      server.stop();
+      server.start();
+
+      addressControl = createManagementControl(address);
+      Assert.assertTrue(addressControl.getAddressSize() > numMessages * payLoadSize );
+   }
+
+
+   @Test
+   public void testAddressSizeAfterRestartWithPaging() throws Exception {
+      session.close();
+      server.stop();
+      server.getConfiguration().setPersistenceEnabled(true);
+
+      final int payLoadSize = 896;
+      final int pageLimitNumberOfMessages = 4;
+      SimpleString address = RandomUtil.randomSimpleString();
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(payLoadSize * 2).setMaxSizeBytes(payLoadSize * pageLimitNumberOfMessages);
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      server.start();
+      ServerLocator locator2 = createInVMNonHALocator();
+      addServerLocator(locator2);
+      ClientSessionFactory sf2 = createSessionFactory(locator2);
+
+      session = sf2.createSession(false, true, false);
+      session.start();
+      session.createQueue(new QueueConfiguration(address));
+
+      ClientProducer producer = session.createProducer(address);
+
+      final int numMessages = 8;
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage msg = session.createMessage(true);
+         msg.getBodyBuffer().writeBytes(new byte[payLoadSize]);
+         producer.send(msg);
+      }
+      session.commit();
+
+      AddressControl addressControl = createManagementControl(address);
+      Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
+
+      final long exactSizeValueBeforeRestart = addressControl.getAddressSize();
+
+      // restart to reload journal
+      server.stop();
+      server.start();
+
+      addressControl = createManagementControl(address);
+      Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
+      Assert.assertEquals(exactSizeValueBeforeRestart, addressControl.getAddressSize());
+   }
 
 
    @Override
