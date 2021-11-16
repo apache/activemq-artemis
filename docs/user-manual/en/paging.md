@@ -53,14 +53,15 @@ You can configure the location of the paging folder in `broker.xml`.
 ## Paging Mode
 
 As soon as messages delivered to an address exceed the configured size,
-that address alone goes into page mode.
+that address alone goes into page mode. If max-size-bytes == 0, an address
+will immediately enter into page mode.
 
 > **Note:**
 >
 > Paging is done individually per address. If you configure a max-size-bytes
 > for an address, that means each matching address will have a maximum size
 > that you specified. It DOES NOT mean that the total overall size of all
-> matching addresses is limited to max-size-bytes.
+> matching addresses is limited to max-size-bytes. Use [global-max-size](#global-max-size) for that!
 
 ### Configuration
 
