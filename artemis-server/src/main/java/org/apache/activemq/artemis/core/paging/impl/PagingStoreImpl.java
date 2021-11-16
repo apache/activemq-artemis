@@ -166,15 +166,6 @@ public class PagingStoreImpl implements PagingStore {
 
       applySetting(addressSettings);
 
-      if (addressFullMessagePolicy == AddressFullMessagePolicy.PAGE && maxSize != -1 && pageSize >= maxSize) {
-         throw new IllegalStateException("pageSize for address " + address +
-                                            " >= maxSize. Normally pageSize should" +
-                                            " be significantly smaller than maxSize, ms: " +
-                                            maxSize +
-                                            " ps " +
-                                            pageSize);
-      }
-
       this.executor = executor;
 
       this.pagingManager = pagingManager;
@@ -259,8 +250,8 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public long getMaxSize() {
-      if (maxSize < 0) {
-         // if maxSize < 0, we will return 2 pages for depage purposes
+      if (maxSize <= 0) {
+         // if maxSize <= 0, we will return 2 pages for de-page purposes
          return pageSize * 2;
       } else {
          return maxSize;
