@@ -470,12 +470,13 @@ public interface Message {
       // only valid probably on AMQP
    }
 
-   default void referenceOriginalMessage(final Message original, String originalQueue) {
+   default void referenceOriginalMessage(final Message original, final SimpleString originalQueue) {
       setBrokerProperty(Message.HDR_ORIGINAL_QUEUE, originalQueue);
-      setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddress());
+      setBrokerProperty(Message.HDR_ORIGINAL_ADDRESS, original.getAddressSimpleString());
       setBrokerProperty(Message.HDR_ORIG_MESSAGE_ID, original.getMessageID());
-      if (original.getRoutingType() != null) {
-         setBrokerProperty(Message.HDR_ORIG_ROUTING_TYPE, original.getRoutingType().getType());
+      final RoutingType routingType = original.getRoutingType();
+      if (routingType != null) {
+         setBrokerProperty(Message.HDR_ORIG_ROUTING_TYPE, routingType.getType());
       }
 
       // reset expiry
