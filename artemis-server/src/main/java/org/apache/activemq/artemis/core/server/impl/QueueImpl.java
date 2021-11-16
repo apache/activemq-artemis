@@ -2709,11 +2709,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   }
                }
 
-               if (targetQueue != null) {
-                  move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false, targetQueue.longValue());
-               } else {
-                  move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false);
-               }
+               move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false, targetQueue);
 
                return true;
             }
@@ -3386,19 +3382,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      final MessageReference ref,
                      final boolean expiry,
                      final boolean rejectDuplicate,
-                     final long... queueIDs) throws Exception {
+                     final Long queueID) throws Exception {
       Message copyMessage = makeCopy(ref, expiry, toAddress);
 
       if (ref.getMessage().getAnnotationString(Message.HDR_ORIG_ROUTING_TYPE) != null) {
          copyMessage.setRoutingType(RoutingType.getType(ref.getMessage().getByteProperty(Message.HDR_ORIG_ROUTING_TYPE)));
       }
 
-      if (queueIDs != null && queueIDs.length > 0) {
-         ByteBuffer buffer = ByteBuffer.allocate(8 * queueIDs.length);
-         for (long id : queueIDs) {
-            buffer.putLong(id);
-         }
-         copyMessage.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), buffer.array());
+      if (queueID != null) {
+         final byte[] encodedBuffer = new byte[Long.BYTES];
+         ByteBuffer buffer = ByteBuffer.wrap(encodedBuffer);
+         buffer.putLong(0, queueID);
+         copyMessage.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), encodedBuffer);
       }
 
       postOffice.route(copyMessage, tx, false, rejectDuplicate);
@@ -3554,7 +3549,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (copyOriginalHeaders) {
-         copy.referenceOriginalMessage(message, ref.getQueue().getName().toString());
+         copy.referenceOriginalMessage(message, ref.getQueue().getName());
       }
 
       copy.setExpiration(0);
@@ -3583,7 +3578,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
             acknowledge(tx, ref, AckReason.EXPIRED, null);
          } else {
-            move(expiryAddress, tx, ref, true, false);
+            move(expiryAddress, tx, ref, true, false, null);
          }
       } else {
          if (!printErrorExpiring) {

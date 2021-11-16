@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -265,7 +266,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public void referenceOriginalMessage(final Message original, String originalQueue) {
+   public void referenceOriginalMessage(final Message original, final SimpleString originalQueue) {
 
       super.referenceOriginalMessage(original, originalQueue);
 
