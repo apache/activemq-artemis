@@ -42,7 +42,7 @@ which eliminates all the setup and class variables which are provided by `Single
 ## Writing Web Tests
 
 The broker has a web console based on [hawtio](https://github.com/hawtio/hawtio) and the `smoke-tests` are used to test it.
-For instance, the [ConsoleTest](https://github.com/apache/activemq-artemis/blob/master/tests/smoke-tests/src/test/java/org/apache/activemq/artemis/tests/smoke/dnsswitch/ConsoleTest.java)
+For instance, the [ConsoleTest](https://github.com/apache/activemq-artemis/blob/main/tests/smoke-tests/src/test/java/org/apache/activemq/artemis/tests/smoke/console/ConsoleTest.java)
 checks the web console using the [selenium framework](https://github.com/SeleniumHQ/selenium).
 The tests can be executed using the local browsers or the [webdriver testcontainers](https://www.testcontainers.org/modules/webdriver_containers).
 To use your local Google Chrome browser download the [WebDriver for Chrome](https://chromedriver.chromium.org/) and set
