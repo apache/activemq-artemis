@@ -24,12 +24,6 @@ var Artemis;
              },
              'artemisExpiryQueue': {
                 'value': "^ExpiryQueue$"
-             },
-             'ArtemisBrowseBytesMessages': {
-                 'value': 99,
-                 'post': function (newValue) {
-                     $scope.$emit('ArtemisBrowseBytesMessages', newValue);
-                 }
              }
          })}])
    .run(configurePreferences)
@@ -61,23 +55,6 @@ var Artemis;
                     <div class="col-md-6">
                       <input type="text" id="artemisExpiryQueue" ng-model="artemisExpiryQueue">
                     </div>
-                  </div>
-
-                  <div class="form-group">
-                      <label class="col-md-2 control-label" for="Browse Byte Messages">
-                        Browse Bytes Messages
-                        <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="Browsing byte messages should display the message body as this"></span>
-                      </label>
-                      <div class="col-md-6">
-                        <select id="ArtemisBrowseBytesMessages" class="form-control" ng-model="ArtemisBrowseBytesMessages">
-                            <option value="99">Off</option>
-                            <option value="16">Text</option>
-                            <option value="8">Decimal</option>
-                            <option value="4">Hex</option>
-                            <option value="2">Decimal and Text</option>
-                            <option value="1">Hex and Text</option>
-                        </select>
-                      </div>
                   </div>
             </form>`
         );
