@@ -16,12 +16,14 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import javax.management.openmbean.ArrayType;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.OpenDataException;
 import javax.management.openmbean.SimpleType;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -1860,7 +1862,15 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       @Override
       protected void init() throws OpenDataException {
          super.init();
+         addItem(CompositeDataConstants.TEXT_DESCR, CompositeDataConstants.TEXT_DESCR, SimpleType.STRING);
          addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
+         addItem(CompositeDataConstants.HEX_DESCR, CompositeDataConstants.HEX_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.DECIMAL_DESCR, CompositeDataConstants.DECIMAL_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.BYTES_BODY, CompositeDataConstants.BYTES_BODY, new ArrayType(SimpleType.BYTE, true));
+         addItem(CompositeDataConstants.AMQP_DESCR, CompositeDataConstants.AMQP_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.AMQP_BODY, CompositeDataConstants.AMQP_BODY, SimpleType.STRING);
+         addItem(CompositeDataConstants.LARGE_DESCR, CompositeDataConstants.LARGE_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.LARGE_BODY, CompositeDataConstants.LARGE_BODY, SimpleType.STRING);
       }
 
       @Override
@@ -1877,18 +1887,130 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
          rc.put(CompositeDataConstants.TYPE, type);
 
+         // prepare all fields that we may send; must match the list at init()
+         rc.put(CompositeDataConstants.TEXT_DESCR, null);
+         rc.put(CompositeDataConstants.TEXT_BODY, null);
+         rc.put(CompositeDataConstants.HEX_DESCR, null);
+         rc.put(CompositeDataConstants.DECIMAL_DESCR, null);
+         rc.put(CompositeDataConstants.BYTES_BODY, null);
+         rc.put(CompositeDataConstants.AMQP_DESCR, null);
+         rc.put(CompositeDataConstants.AMQP_BODY, null);
+         rc.put(CompositeDataConstants.LARGE_DESCR, null);
+         rc.put(CompositeDataConstants.LARGE_BODY, null);
+
          if (m.isLargeMessage())  {
-            rc.put(CompositeDataConstants.TEXT_BODY, "... Large message ...");
-         } else {
-            Object amqpValue;
-            if (m.getBody() instanceof AmqpValue && (amqpValue = ((AmqpValue) m.getBody()).getValue()) != null) {
-               rc.put(CompositeDataConstants.TEXT_BODY, JsonUtil.truncateString(String.valueOf(amqpValue), valueSizeLimit));
-            } else {
-               rc.put(CompositeDataConstants.TEXT_BODY, JsonUtil.truncateString(String.valueOf(m.getBody()), valueSizeLimit));
-            }
+            rc.put(CompositeDataConstants.LARGE_DESCR, "large message");
+            rc.put(CompositeDataConstants.LARGE_BODY, "[large message]");
+            return rc;
+         }
+
+         Section body = m.getBody();
+         Object amqpValue = null;
+         boolean textAvailable = false;
+         if (!(body instanceof AmqpValue)) {
+            // not even a Value
+         } else if ((amqpValue = ((AmqpValue) body).getValue()) == null) {
+            // no body value
+         } else if (amqpValue instanceof String) {
+            String text = (String)amqpValue;
+            rc.put(CompositeDataConstants.TEXT_DESCR, getTextDescr(text, valueSizeLimit));
+            rc.put(CompositeDataConstants.TEXT_BODY, getTextBody(text, valueSizeLimit));
+            textAvailable = true;
+         }
+
+         if (m instanceof AMQPStandardMessage) {
+            // the byte-array is the whole message, but we only want the body
+            // it is hard to use regular access functions (without modifying several other classes)
+            // therefore we use a local function.
+            byte[] bytes = getBodyBytes((AMQPStandardMessage)m);
+            rc.put(CompositeDataConstants.HEX_DESCR, getHexDescr(bytes, valueSizeLimit));
+            rc.put(CompositeDataConstants.DECIMAL_DESCR, getDecimalDescr(bytes, valueSizeLimit));
+            rc.put(CompositeDataConstants.BYTES_BODY, getBytesBody(bytes, valueSizeLimit));
+         }
+
+         if (amqpValue != null && !textAvailable) {
+            // when it is a string, the value is already shown as TEXT_DESCR/TEXT_BODY
+            // so, do not bother do show it again
+            String text = String.valueOf(amqpValue);
+            rc.put(CompositeDataConstants.AMQP_DESCR, getAmqpDescr(text, valueSizeLimit));
+            rc.put(CompositeDataConstants.AMQP_BODY, getAmqpBody(text, valueSizeLimit));
          }
 
          return rc;
+      }
+
+      // 0x77 = AMQP Value
+      private static byte[] bytesAmqpValue1 = new byte[] {0, (byte)0x80, 0, 0, 0, 0, 0, 0, 0, 0x77}; // ULONG
+      private static byte[] bytesAmqpValue2 = new byte[] {0, (byte)0x53, 0x77}; // SMALLULONG
+
+      boolean bytesMatch(byte[] data, int offset, byte[] search) {
+         if (data.length - offset <= search.length) {
+            // not that many bytes left
+            return false;
+         }
+         if (!Arrays.equals(data, offset, offset + search.length, search, 0, search.length)) {
+            return false;
+         }
+         return true;
+      }
+
+      // the AMQP type indicators are very systematic
+      // data size for a type can be derived from the first nibble
+      private int getNextOffset(byte[] bytes, int offset) {
+         switch(bytes[offset++] & 0xF0) {
+            case 0x00: // descriptor
+               offset = getNextOffset(bytes, offset);
+               offset = getNextOffset(bytes, offset);
+               return offset;
+            case 0x40: // null
+               return offset;
+            case 0x50: // boolean, byte, etc
+               return offset + 1;
+            case 0x60: // short, ushort, etc
+               return offset + 2;
+            case 0x70: // uint, float, etc
+               return offset + 4;
+            case 0x80: // long, double, etc
+               return offset + 8;
+            case 0x90: // uuid, decimal128, etc
+               return offset + 16;
+            case 0xA0: // vbin8, str8, etc
+            case 0xC0: // list8, map8, etc
+            case 0xE0: // array8
+               int l1 = bytes[offset++] & 0xFF;
+               return offset + l1;
+            case 0xB0: // vbin32, str32, etc
+            case 0xD0: // list32, map32, etc
+            case 0xF0: // array32
+               int l44 = bytes[offset++] & 0xFF;
+               int l43 = bytes[offset++] & 0xFF;
+               int l42 = bytes[offset++] & 0xFF;
+               int l41 = bytes[offset++] & 0xFF;
+               return offset + (0x1000000 * l44) + (0x10000 * l43) + (0x100 * l42) + l41;
+            default:
+               // unknown, end the search
+               return bytes.length;
+         }
+      }
+
+      private byte[] getBodyBytes(AMQPStandardMessage msg) {
+         byte[] bytes = msg.data.array();
+         int offset = 0;
+         for (;;) {
+            if (offset >= bytes.length) {
+               // body not found, just return the full byte array for now
+               return bytes;
+            }
+            if (bytesMatch(bytes, offset, bytesAmqpValue1) || bytesMatch(bytes, offset, bytesAmqpValue2)) {
+               // skip 0x00
+               offset += 1;
+               // skip identifier
+               offset = getNextOffset(bytes, offset);
+               int offsetEnd = getNextOffset(bytes, offset);
+               return Arrays.copyOfRange(bytes, offset, offsetEnd);
+            }
+            offset = getNextOffset(bytes, offset);
+         }
       }
 
       @Override

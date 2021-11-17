@@ -39,7 +39,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
-import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -1364,33 +1363,49 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
    }
 
    static class BytesMessageOpenTypeFactory extends MessageOpenTypeFactory<CoreMessage> {
-      protected ArrayType body;
 
       @Override
       protected void init() throws OpenDataException {
          super.init();
-         body = new ArrayType(SimpleType.BYTE, true);
-         addItem(CompositeDataConstants.BODY, CompositeDataConstants.BODY_DESCRIPTION, body);
+         addItem(CompositeDataConstants.HEX_DESCR, CompositeDataConstants.HEX_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.DECIMAL_DESCR, CompositeDataConstants.DECIMAL_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.BYTES_BODY, CompositeDataConstants.BYTES_BODY, new ArrayType(SimpleType.BYTE, true));
+         addItem(CompositeDataConstants.LARGE_DESCR, CompositeDataConstants.LARGE_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.LARGE_BODY, CompositeDataConstants.LARGE_BODY, SimpleType.STRING);
       }
 
       @Override
       public Map<String, Object> getFields(CoreMessage m, int valueSizeLimit, int delivery) throws OpenDataException {
          Map<String, Object> rc = super.getFields(m, valueSizeLimit, delivery);
+
          rc.put(CompositeDataConstants.TYPE, m.getType());
-         if (!m.isLargeMessage()) {
-            ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
-            int arraySize;
-            if (valueSizeLimit == -1 || bodyCopy.readableBytes() <= valueSizeLimit) {
-               arraySize = bodyCopy.readableBytes();
-            } else {
-               arraySize = valueSizeLimit;
-            }
-            byte[] bytes = new byte[arraySize];
-            bodyCopy.readBytes(bytes);
-            rc.put(CompositeDataConstants.BODY, JsonUtil.truncate(bytes, valueSizeLimit));
-         } else {
-            rc.put(CompositeDataConstants.BODY, new byte[0]);
+
+         // prepare all fields that we may send; must match the list at init()
+         rc.put(CompositeDataConstants.HEX_DESCR, null);
+         rc.put(CompositeDataConstants.DECIMAL_DESCR, null);
+         rc.put(CompositeDataConstants.BYTES_BODY, null);
+         rc.put(CompositeDataConstants.LARGE_DESCR, null);
+         rc.put(CompositeDataConstants.LARGE_BODY, null);
+
+         if (m.isLargeMessage()) {
+            rc.put(CompositeDataConstants.LARGE_DESCR, "large bytes message");
+            rc.put(CompositeDataConstants.LARGE_BODY, "[large bytes message]");
+            return rc;
          }
+
+         ActiveMQBuffer bodyCopy = m.getReadOnlyBodyBuffer();
+         int arraySize;
+         if (valueSizeLimit == -1 || bodyCopy.readableBytes() <= valueSizeLimit) {
+            arraySize = bodyCopy.readableBytes();
+         } else {
+            arraySize = valueSizeLimit;
+         }
+         byte[] bytes = new byte[arraySize];
+         bodyCopy.readBytes(bytes);
+         rc.put(CompositeDataConstants.HEX_DESCR, getHexDescr(bytes, valueSizeLimit));
+         rc.put(CompositeDataConstants.DECIMAL_DESCR, getDecimalDescr(bytes, valueSizeLimit));
+         rc.put(CompositeDataConstants.BYTES_BODY, getBytesBody(bytes, valueSizeLimit));
+
          return rc;
       }
    }
@@ -1399,23 +1414,55 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
       @Override
       protected void init() throws OpenDataException {
          super.init();
+         addItem(CompositeDataConstants.TEXT_DESCR, CompositeDataConstants.TEXT_DESCR, SimpleType.STRING);
          addItem(CompositeDataConstants.TEXT_BODY, CompositeDataConstants.TEXT_BODY, SimpleType.STRING);
+         addItem(CompositeDataConstants.HEX_DESCR, CompositeDataConstants.HEX_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.DECIMAL_DESCR, CompositeDataConstants.DECIMAL_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.BYTES_BODY, CompositeDataConstants.BYTES_BODY, new ArrayType(SimpleType.BYTE, true));
+         addItem(CompositeDataConstants.LARGE_DESCR, CompositeDataConstants.LARGE_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.LARGE_BODY, CompositeDataConstants.LARGE_BODY, SimpleType.STRING);
+         addItem(CompositeDataConstants.COMPRESSED_DESCR, CompositeDataConstants.COMPRESSED_DESCR, SimpleType.STRING);
+         addItem(CompositeDataConstants.COMPRESSED_BODY, CompositeDataConstants.COMPRESSED_BODY, SimpleType.STRING);
       }
 
       @Override
       public Map<String, Object> getFields(CoreMessage m, int valueSizeLimit, int delivery) throws OpenDataException {
          Map<String, Object> rc = super.getFields(m, valueSizeLimit, delivery);
+
          rc.put(CompositeDataConstants.TYPE, m.getType());
-         if (!m.isLargeMessage()) {
-            if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
-               rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
-            } else {
-               SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
-               rc.put(CompositeDataConstants.TEXT_BODY, JsonUtil.truncate(text != null ? text.toString() : text, valueSizeLimit));
-            }
-         } else {
-            rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");
+
+         // prepare all fields that we may send; must match the list at init()
+         rc.put(CompositeDataConstants.TEXT_DESCR, null);
+         rc.put(CompositeDataConstants.TEXT_BODY, null);
+         rc.put(CompositeDataConstants.HEX_DESCR, null);
+         rc.put(CompositeDataConstants.DECIMAL_DESCR, null);
+         rc.put(CompositeDataConstants.BYTES_BODY, null);
+         rc.put(CompositeDataConstants.LARGE_DESCR, null);
+         rc.put(CompositeDataConstants.LARGE_BODY, null);
+         rc.put(CompositeDataConstants.COMPRESSED_DESCR, null);
+         rc.put(CompositeDataConstants.COMPRESSED_BODY, null);
+
+         if (m.isLargeMessage()) {
+            rc.put(CompositeDataConstants.LARGE_DESCR, "large message");
+            rc.put(CompositeDataConstants.LARGE_BODY, "[large message]");
+            return rc;
          }
+
+         if (m.containsProperty(Message.HDR_LARGE_COMPRESSED)) {
+            rc.put(CompositeDataConstants.COMPRESSED_DESCR, "compressed message");
+            rc.put(CompositeDataConstants.COMPRESSED_BODY, "[compressed message]");
+            return rc;
+         }
+
+         SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
+         rc.put(CompositeDataConstants.TEXT_DESCR, getTextDescr(text == null ? null : text.toString(), valueSizeLimit));
+         rc.put(CompositeDataConstants.TEXT_BODY, getTextBody(text == null ? null : text.toString(), valueSizeLimit));
+
+         byte[] bytes = m.getBuffer().array();
+         rc.put(CompositeDataConstants.HEX_DESCR, getHexDescr(bytes, valueSizeLimit));
+         rc.put(CompositeDataConstants.DECIMAL_DESCR, getDecimalDescr(bytes, valueSizeLimit));
+         rc.put(CompositeDataConstants.BYTES_BODY, getBytesBody(bytes, valueSizeLimit));
+
          return rc;
       }
    }

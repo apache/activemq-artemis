@@ -95,8 +95,20 @@ var Artemis;
                 <button class="btn btn-primary" title="Last Page" ng-disabled="$ctrl.pagination.pageNumber == $ctrl.pagination.pages" ng-click="$ctrl.lastPage()"><i class="fa fa-fast-forward" aria-hidden="true"/></button>
                 <h4>Message ID: {{$ctrl.currentMessage.messageID}}</h4>
 
-                <h4>Displaying body as <span ng-bind="$ctrl.currentMessage.textMode"></span></h4>
-                <div hawtio-editor="$ctrl.currentMessage.bodyText" read-only="true" mode='mode'></div>
+                <div>
+                <span>Display as:</span>
+                <!-- first 3 controls (text/hex/decimal) are always visible and are enabled/disabled -->
+                <label id="textDisplayAsLabel" style="margin-left:8px"><input style="vertical-align: middle; margin-top: 0; margin-right:2px" type="radio" name="displayAs" value="text" id="textDisplayAsRadio" ng-disabled="!$ctrl.currentMessage.textDescr" ng-model="$ctrl.displayAs" ng-change="$ctrl.updatedDisplayAs();">Text</label>
+                <label id="hexDisplayAsLabel" style="margin-left:8px"><input style="vertical-align: middle; margin-top: 0; margin-right:2px" type="radio" name="displayAs" value="hex" id="hexDisplayAsRadio" ng-disabled="!$ctrl.currentMessage.hexDescr" ng-model="$ctrl.displayAs" ng-change="$ctrl.updatedDisplayAs();">Hex</label>
+                <label id="decimalDisplayAsLabel" style="margin-left:8px"><input style="vertical-align: middle; margin-top: 0; margin-right:2px" type="radio" name="displayAs" value="decimal" id="decimalDisplayAsRadio" ng-disabled="!$ctrl.currentMessage.decimalDescr" ng-model="$ctrl.displayAs" ng-change="$ctrl.updatedDisplayAs();">Decimal</label>
+                <!-- other controls (amqp/large/compressed) are only visible when applicable and hidden otherwise -->
+                <label id="amqpDisplayAsLabel" style="margin-left:8px" ng-show="!!$ctrl.currentMessage.amqpDescr"><input style="vertical-align: middle; margin-top: 0; margin-right:2px" type="radio" name="displayAs" value="amqp" id="amqpDisplayAsRadio" ng-model="$ctrl.displayAs" ng-change="$ctrl.updatedDisplayAs();">AMQP</label>
+                <label id="largeDisplayAsLabel" style="margin-left:8px" ng-show="!!$ctrl.currentMessage.largeDescr"><input style="vertical-align: middle; margin-top: 0; margin-right:2px" type="radio" name="displayAs" value="large" id="largeDisplayAsRadio" ng-model="$ctrl.displayAs" ng-change="$ctrl.updatedDisplayAs();">Large</label>
+                <label id="compressedDisplayAsLabel" style="margin-left:8px" ng-show="!!$ctrl.currentMessage.compressedDescr"><input style="vertical-align: middle; margin-top: 0; margin-right:2px" type="radio" name="displayAs" value="compressed" id="compressedDisplayAsRadio" ng-model="$ctrl.displayAs" ng-change="$ctrl.updatedDisplayAs();">Compressed</label>
+                </div>
+
+                <h4>Displaying body as <span ng-bind="$ctrl.currentMessage.theDescr"></span></h4>
+                <div hawtio-editor="$ctrl.currentMessage.theBody" read-only="true" mode='mode'></div>
 
                 <h4>Headers</h4>
                 <pf-toolbar config="$ctrl.messageToolbarConfig"></pf-toolbar>
@@ -397,15 +409,16 @@ var Artemis;
         ctrl.moveDialog = false;
         ctrl.retryDialog = false;
         ctrl.showMessageDetails = false;
+        ctrl.displayAs = null;
 
-        var ignoreColumns = ["PropertiesText", "bodyText", "BodyPreview", "text", "headers", "properties", "textMode", "idx", "selected"];
+        var ignoreColumns = ["PropertiesText", "theBody", "theDescr", "textBody", "textDescr", "bytesBody", "hexBody", "hexDescr", "decimalBody", "decimalDescr", "amqpBody", "amqpDescr", "largeBody", "largeDescr", "compressedBody", "compressedDescr", "headers", "properties", "idx", "selected"];
         var flattenColumns = ["BooleanProperties", "ByteProperties", "ShortProperties", "IntProperties", "LongProperties", "FloatProperties", "DoubleProperties", "StringProperties"];
 
         function openMessageDialog(action, item) {
             ctrl.currentMessage = item;
             ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
             ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
-            ctrl.currentMessage.bodyText = createBodyText(ctrl.currentMessage);
+            createBodyText(ctrl, ctrl.currentMessage);
             ctrl.showMessageDetails = true;
         };
 
@@ -422,7 +435,7 @@ var Artemis;
             ctrl.currentMessage = nextMessage;
             ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
             ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
-            ctrl.currentMessage.bodyText = createBodyText(ctrl.currentMessage);
+            createBodyText(ctrl, ctrl.currentMessage);
         };
 
         ctrl.nextMessage = function() {
@@ -437,7 +450,7 @@ var Artemis;
             ctrl.currentMessage = nextMessage;
             ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
             ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
-            ctrl.currentMessage.bodyText = createBodyText(ctrl.currentMessage);
+            createBodyText(ctrl, ctrl.currentMessage);
         };
 
         ctrl.previousPage = function() {
@@ -692,9 +705,9 @@ var Artemis;
             }
             idx = 0;
             angular.forEach(ctrl.allMessages, function(message) {
-                message.bodyText = createBodyText(message);
+                createBodyText(ctrl, message);
                 if (idx == 0 && !ctrl.loadPrevousPage) {
-                //always load n the first message for paination when viewing message details
+                //always load n the first message for pagination when viewing message details
                     ctrl.currentMessage = message;
                     ctrl.currentMessage.headers = createHeaders(ctrl.currentMessage)
                     ctrl.currentMessage.properties = createProperties(ctrl.currentMessage);
@@ -711,6 +724,7 @@ var Artemis;
             ctrl.messages = ctrl.allMessages;
             ctrl.isLoading = false;
             Core.$apply($scope);
+            createBodyText(ctrl, ctrl.currentMessage);
         }
 
         function findFolder(node) {
@@ -755,71 +769,193 @@ var Artemis;
             var queueFolder = selection ? findFolder(addressesNode) : null;
             return queueFolder;
         }
+        
+        // bytes messages are passed as a bytes array while
+        // other message types get a ready-to-use representation
+        // thia is more compact and avoids duplication (e.g. hex+decimal).
+        ctrl.updateBytesBodies = function(message) {
+           if (!message.bytesBody) {
+              // no bytes-body is even present
+           }
+           if (message.hexBody || message.decimalBody) {
+              // the work has already been done
+           }
+
+           var hexBytesArr = [];
+           for (var b of message.bytesBody) {
+              var unsignedByte = b & 0xff;
+              if (unsignedByte < 16) {
+                 // hex and must be 2 digit so they space out evenly
+                 hexBytesArr.push('0' + unsignedByte.toString(16));
+              } else {
+                 hexBytesArr.push(unsignedByte.toString(16));
+              }
+           }
+           message.hexBody = hexBytesArr.join(" ");
+
+           var decimalBytesArr = [];
+           for (var b of message.bytesBody) {
+              var unsignedByte = b & 0xff;
+              // just show as is without spacing out, as that is usually more used for hex than decimal
+              decimalBytesArr.push(unsignedByte.toString(10));
+           }
+           message.decimalBody = decimalBytesArr.join(" ");
+        }
+
+        // apply the chosen representation
+        ctrl.updatedDisplayAs = function () {
+            var message = ctrl.currentMessage;
+
+            ctrl.updateBytesBodies(message);
+
+            if(ctrl.displayAs === "text") {
+                message.theDescr = message.textDescr;
+                message.theBody = message.textBody;
+            } else if(ctrl.displayAs === "hex") {
+                message.theDescr = message.hexDescr;
+                message.theBody = message.hexBody;
+            } else if(ctrl.displayAs === "decimal") {
+                message.theDescr = message.decimalDescr;
+                message.theBody = message.decimalBody;
+            } else if(ctrl.displayAs === "amqp") {
+                message.theDescr = message.amqpDescr;
+                message.theBody = message.amqpBody;
+            } else if(ctrl.displayAs === "large") {
+                message.theDescr = message.largeDescr;
+                message.theBody = message.largeBody;
+            } else if(ctrl.displayAs === "compressed") {
+                message.theDescr = message.compressedDescr;
+                message.theBody = message.compressedBody;
+            } else {
+                message.theDescr = "(unknown representation: " + ctrl.displayAs + ")";
+                message.theBody = "(unknown)";
+            }
+
+            // retrieve the setting for the presentation
+            var representations = sessionStorage.getItem('SelectedRepresentations');
+            if (!representations) representations = "";
+
+            // remove the current choice (if any) and insert it again at the front
+            // so that it becomes the highest priority
+            representations = representations.split(",");
+            var p = representations.indexOf(ctrl.displayAs);
+            if(p >= 0) representations.splice(p, 1);
+            representations.unshift(ctrl.displayAs);
+
+            // save the setting for the presentation
+            // prevent various incomplete forms of it before doing that
+            // TODO: remove invalid words
+            // TODO: remove duplicate words
+            representations = representations.join(",");
+            representations = representations.replace(/,,,*/, ","); // no empty strings
+            representations = representations.replace(/^,/, ""); // no empty strings at start
+            representations = representations.replace(/,$/, ""); // no empty strings at end
+            sessionStorage.setItem('SelectedRepresentations', representations);
+        }
 
         /*
-        * For some reason using ng-repeat in the modal dialog doesn't work so lets
-        * just create the HTML in code :)
+        * Set up the initial message view:
+        * - button enable/disable and/or hide/show is done by the controller
+        * - extra: make label for disabled radio-button the disabled-look (gray)
+        * - extra: set the pointer to also indicate whether radio button is active
         */
-        function createBodyText(message) {
-            Artemis.log.debug("loading message:" + message);
-            if (message.text) {
-                var body = message.text;
-                var lenTxt = "" + body.length;
-                message.textMode = "text (" + lenTxt + " chars)";
-                return body;
-            } else if (message.BodyPreview) {
-                var code = Core.parseIntValue(localStorage["ArtemisBrowseBytesMessages"] || "1", "browse bytes messages");
-                var body;
-                message.textMode = "bytes (turned off)";
-                if (code != 99) {
-                    var bytesArr = [];
-                    var textArr = [];
-                    message.BodyPreview.forEach(function(b) {
-                        if (code === 1 || code === 2 || code === 16) {
-                            // text
-                            textArr.push(String.fromCharCode(b));
-                        }
-                        if (code === 1 || code === 4) {
-                            var unsignedByte = b & 0xff;
+        function createBodyText(ctrl, message) {
+           document.getElementById("textDisplayAsLabel").style.color = message.textDescr ? "inherit" : "#9c9c9c";
+           document.getElementById("textDisplayAsLabel").style.cursor = message.textDescr ? "pointer" : "not-allowed";
+           document.getElementById("textDisplayAsRadio").style.cursor = message.textDescr ? "pointer" : "not-allowed";
 
-                            if (unsignedByte < 16) {
-                                // hex and must be 2 digit so they space out evenly
-                                bytesArr.push('0' + unsignedByte.toString(16));
-                            } else {
-                                bytesArr.push(unsignedByte.toString(16));
-                            }
-                        } else {
-                            // just show as is without spacing out, as that is usually more used for hex than decimal
-                            var s = b.toString(10);
-                            bytesArr.push(s);
-                        }
-                    });
-                    var bytesData = bytesArr.join(" ");
-                    var textData = textArr.join("");
-                    if (code === 1 || code === 2) {
-                        // bytes and text
-                        var len = message.BodyPreview.length;
-                        var lenTxt = "" + textArr.length;
-                        body = "bytes:\n" + bytesData + "\n\ntext:\n" + textData;
-                        message.textMode = "bytes (" + len + " bytes) and text (" + lenTxt + " chars)";
-                    } else if (code === 16) {
-                        // text only
-                        var len = message.BodyPreview.length;
-                        var lenTxt = "" + textArr.length;
-                        body = "text:\n" + textData;
-                        message.textMode = "text (" + lenTxt + " chars)";
-                    } else {
-                        // bytes only
-                        var len = message.BodyPreview.length;
-                        body = bytesData;
-                        message.textMode = "bytes (" + len + " bytes)";
-                    }
-                }
-            return body;
-            } else {
-                message.textMode = "unsupported";
-                return "Unsupported message body type which cannot be displayed by hawtio";
-            }
+           document.getElementById("hexDisplayAsLabel").style.color = message.hexDescr ? "inherit" : "#9c9c9c";
+           document.getElementById("hexDisplayAsLabel").style.cursor = message.hexDescr ? "pointer" : "not-allowed";
+           document.getElementById("hexDisplayAsRadio").style.cursor = message.hexDescr ? "pointer" : "not-allowed";
+
+           document.getElementById("decimalDisplayAsLabel").style.color = message.decimalDescr ? "inherit" : "#9c9c9c";
+           document.getElementById("decimalDisplayAsLabel").style.cursor = message.decimalDescr ? "pointer" : "not-allowed";
+           document.getElementById("decimalDisplayAsRadio").style.cursor = message.decimalDescr ? "pointer" : "not-allowed";
+
+           document.getElementById("amqpDisplayAsLabel").style.cursor = message.amqpDescr ? "pointer" : "not-allowed";
+           document.getElementById("amqpDisplayAsRadio").style.cursor = message.amqpDescr ? "pointer" : "not-allowed";
+
+           document.getElementById("largeDisplayAsLabel").style.cursor = message.largeDescr ? "pointer" : "not-allowed";
+           document.getElementById("largeDisplayAsRadio").style.cursor = message.largeDescr ? "pointer" : "not-allowed";
+
+           document.getElementById("compressedDisplayAsLabel").style.cursor = message.compressedDescr ? "pointer" : "not-allowed";
+           document.getElementById("compressedDisplayAsRadio").style.cursor = message.compressedDescr ? "pointer" : "not-allowed";
+
+           var representations = sessionStorage.getItem('SelectedRepresentations');
+           if (!representations) representations = "";
+
+           representations = representations.split(",");
+
+           ctrl.updateBytesBodies(message);
+
+           // try the representations in the preference order
+           for (var i = 0; i < representations.length; i++) {
+              if(representations[i] === "text" && message.textDescr) {
+                 ctrl.displayAs = "text";
+                 message.theDescr = message.textDescr;
+                 message.theBody = message.textBody;
+                 return;
+              }
+              if(representations[i] === "hex" && message.hexDescr) {
+                 ctrl.displayAs = "hex";
+                 message.theDescr = message.hexDescr;
+                 message.theBody = message.hexBody;
+                 return;
+              }
+              if(representations[i] === "decimal" && message.decimalDescr) {
+                 ctrl.displayAs = "decimal";
+                 message.theDescr = message.decimalDescr;
+                 message.theBody = message.decimalBody;
+                 return;
+              }
+              if(representations[i] === "amqp" && message.amqpDescr) {
+                 ctrl.displayAs = "amqp";
+                 message.theDescr = message.amqpDescr;
+                 message.theBody = message.amqpBody;
+                 return;
+              }
+              if(representations[i] === "large" && message.largeDescr) {
+                 ctrl.displayAs = "large";
+                 message.theDescr = message.largeDescr;
+                 message.theBody = message.largeBody;
+                 return;
+              }
+              if(representations[i] === "compressed" && message.compressedDescr) {
+                 ctrl.displayAs = "compressed";
+                 message.theDescr = message.compressedDescr;
+                 message.theBody = message.compressedBody;
+                 return;
+              }
+           }
+           // no valid user preference, use the first available representation
+           if (message.textDescr !== null) {
+              ctrl.displayAs = "text";
+              message.theDescr = message.textDescr;
+              message.theBody = message.textBody;
+           } else if (message.hexDescr !== null) {
+              ctrl.displayAs = "hex";
+              message.theDescr = message.hexDescr;
+              message.theBody = message.hexBody;
+           } else if (message.decimalDescr !== null) {
+              ctrl.displayAs = "decimal";
+              message.theDescr = message.decimalDescr;
+              message.theBody = message.decimalBody;
+           } else if (message.amqpDescr !== null) {
+              ctrl.displayAs = "amqp";
+              message.theDescr = message.amqpDescr;
+              message.theBody = message.amqpBody;
+           } else if (message.largeDescr !== null) {
+              ctrl.displayAs = "large";
+              message.theDescr = message.largeDescr;
+              message.theBody = message.largeBody;
+           } else if (message.compressedDescr !== null) {
+              ctrl.displayAs = "compressed";
+              message.theDescr = message.compressedDescr;
+              message.theBody = message.compressedBody;
+           } else {
+              message.theDescr = "unsupported";
+              message.theBody = "Unsupported message body type which cannot be displayed";
+           }
         }
 
         function createHeaders(message) {

@@ -765,6 +765,7 @@ public interface Message {
          if (value instanceof SimpleString) {
             value = value.toString();
          }
+         if (value == null) value = "***NULL***";
          value = JsonUtil.truncate(value, valueSizeLimit);
          map.put(name.toString(), value);
       }

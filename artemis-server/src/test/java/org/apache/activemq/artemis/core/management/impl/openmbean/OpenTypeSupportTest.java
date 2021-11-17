@@ -39,6 +39,6 @@ public class OpenTypeSupportTest {
 
       CompositeData cd = coreMessage.toCompositeData(256, 1);
 
-      Assert.assertEquals(bodyText, cd.get("text"));
+      Assert.assertEquals(bodyText, cd.get("textBody"));
    }
 }

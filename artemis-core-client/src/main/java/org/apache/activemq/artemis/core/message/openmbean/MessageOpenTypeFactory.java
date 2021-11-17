@@ -25,6 +25,7 @@ import javax.management.openmbean.TabularDataSupport;
 import javax.management.openmbean.TabularType;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -226,5 +227,53 @@ public class MessageOpenTypeFactory<M extends Message> {
       itemNamesList.add(name);
       itemDescriptionsList.add(description);
       itemTypesList.add(type);
+   }
+
+   protected String getTextBody(String str, int maxBytes) {
+      if (str == null)
+         return null;
+      return JsonUtil.truncateString(str, maxBytes);
+   }
+
+   protected String getTextDescr(String str, int maxBytes) {
+      if (str == null)
+         return null;
+      return String.format("%d characters", str.length());
+   }
+
+   protected byte[] getBytesBody(byte[] bytes, int maxBytes) {
+      if (bytes == null)
+         return null;
+      if (maxBytes < 0 || bytes.length <= maxBytes)
+         return bytes;
+      return Arrays.copyOf(bytes, maxBytes);
+   }
+
+   protected String getHexDescr(byte[] bytes, int maxBytes) {
+      if (bytes == null)
+         return null;
+      if (maxBytes < 0 || bytes.length <= maxBytes)
+         return String.format("%d bytes in hexadecimal", bytes.length);
+      return String.format("%d (of %d) bytes in hexadecimal", maxBytes, bytes.length);
+   }
+
+   protected String getDecimalDescr(byte[] bytes, int maxBytes) {
+      if (bytes == null)
+         return null;
+      if (maxBytes < 0 || bytes.length <= maxBytes)
+         return String.format("%d bytes in decimal", bytes.length);
+      return String.format("%d (of %d) bytes in decimal", maxBytes, bytes.length);
+   }
+
+   protected String getAmqpBody(String str, int maxBytes) {
+      if (str == null)
+         return null;
+      return JsonUtil.truncateString(str, maxBytes);
+   }
+
+   protected String getAmqpDescr(String str, int maxBytes) {
+      if (str == null)
+          return null;
+      return "simplified AMQP value";
    }
 }
