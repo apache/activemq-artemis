@@ -887,11 +887,11 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
          return false;
       if (maxSession != null ? !maxSession.equals(that.maxSession) : that.maxSession != null)
          return false;
-      if (singleConnection != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null)
+      if (useJNDI != null ? !useJNDI.equals(that.useJNDI) : that.useJNDI != null)
          return false;
       if (transactionTimeout != null ? !transactionTimeout.equals(that.transactionTimeout) : that.transactionTimeout != null)
          return false;
-      if (useJNDI != null ? !singleConnection.equals(that.singleConnection) : that.singleConnection != null)
+      if (singleConnection != null ? !singleConnection.equals(that.singleConnection) : that.singleConnection != null)
          return false;
       if (jndiParams != null ? !jndiParams.equals(that.jndiParams) : that.jndiParams != null)
          return false;
