@@ -23,7 +23,7 @@ package org.apache.activemq.artemis.utils;
  */
 public class XidPayloadException extends RuntimeException {
 
-    public XidPayloadException(String message) {
-        super(message, null, true, false);
-    }
+   public XidPayloadException(String message) {
+      super(message, null, true, false);
+   }
 }
