@@ -32,12 +32,24 @@ public class XidCodecSupport {
       out.writeBytes(xid.getGlobalTransactionId());
    }
 
+   private static byte[] safeReadBytes(final ActiveMQBuffer in) {
+      int claimedSize = in.readInt();
+      int bufferCapacity = in.capacity();
+      // We have to be defensive here and not try to allocate byte buffer straight from information available in the
+      // stream. Or else, an adversary may handcraft the packet causing OOM situation for a running JVM.
+      if (claimedSize > bufferCapacity) {
+         throw new IllegalStateException("Buffer size: " + claimedSize +
+                 " exceeds overall buffer size of: " + bufferCapacity);
+      }
+      byte[] byteBuffer = new byte[claimedSize];
+      in.readBytes(byteBuffer);
+      return byteBuffer;
+   }
+
    public static Xid decodeXid(final ActiveMQBuffer in) {
       int formatID = in.readInt();
-      byte[] bq = new byte[in.readInt()];
-      in.readBytes(bq);
-      byte[] gtxid = new byte[in.readInt()];
-      in.readBytes(gtxid);
+      byte[] bq = safeReadBytes(in);
+      byte[] gtxid = safeReadBytes(in);
       return new XidImpl(bq, formatID, gtxid);
    }
 
