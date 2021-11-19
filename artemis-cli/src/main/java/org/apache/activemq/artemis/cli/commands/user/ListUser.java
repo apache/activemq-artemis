@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -72,7 +72,8 @@ public class ListUser extends UserAction {
 
       // process the JSON results from the broker
       JsonArray array = JsonUtil.readJsonArray(result[0]);
-      for (JsonObject object : array.getValuesAs(JsonObject.class)) {
+      for (int arrayIndex = 0; arrayIndex < array.size(); arrayIndex++) {
+         JsonObject object = array.getJsonObject(arrayIndex);
          logMessage.append("\"").append(object.getString("username")).append("\"").append("(");
          JsonArray roles = object.getJsonArray("roles");
          for (int i = 0; i < roles.size(); i++) {

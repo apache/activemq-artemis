@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.smoke.jmx2;
 
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.remote.JMXConnector;

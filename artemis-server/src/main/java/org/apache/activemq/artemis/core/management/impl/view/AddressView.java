@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.AddressFilterPredicate;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;

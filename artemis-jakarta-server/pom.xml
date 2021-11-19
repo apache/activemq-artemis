@@ -32,7 +32,6 @@
         <jakarta.jms-api.version>3.0.0</jakarta.jms-api.version>
         <jakarta.transaction-api.version>2.0.0</jakarta.transaction-api.version>
         <jakarta.resource-api.version>2.0.0</jakarta.resource-api.version>
-        <jakarta.json-api.version>2.0.1</jakarta.json-api.version>
     </properties>
 
    <dependencies>
@@ -95,11 +94,6 @@
          <groupId>jakarta.transaction</groupId>
          <artifactId>jakarta.transaction-api</artifactId>
          <version>${jakarta.transaction-api.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>jakarta.json</groupId>
-         <artifactId>jakarta.json-api</artifactId>
-         <version>${jakarta.json-api.version}</version>
       </dependency>
    </dependencies>
 

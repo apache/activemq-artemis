@@ -16,8 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.security.cert.X509Certificate;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
@@ -91,6 +91,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction.State;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -101,8 +102,6 @@ import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.MaxSizeMap;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
-
-import static org.apache.activemq.artemis.api.core.JsonUtil.nullSafe;
 
 /**
  * Server side Session implementation
@@ -1964,7 +1963,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          if (entry.getValue().getA() != null) {
             uuid = entry.getValue().getA().toString();
          }
-         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder().add("connectionID", this.getConnectionID().toString()).add("sessionID", this.getName()).add("destination", entry.getKey().toString()).add("lastUUIDSent", nullSafe(uuid)).add("msgSent", entry.getValue().getB().longValue());
+         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder().add("connectionID", this.getConnectionID().toString()).add("sessionID", this.getName()).add("destination", entry.getKey().toString()).add("lastUUIDSent", uuid, JsonValue.NULL).add("msgSent", entry.getValue().getB().longValue());
          array.add(producerInfo);
       }
    }

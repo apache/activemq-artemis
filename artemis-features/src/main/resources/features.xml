@@ -53,9 +53,6 @@
 
 		<bundle dependency="true">mvn:org.jboss.logging/jboss-logging/${jboss.logging.version}</bundle>
 		<bundle dependency="true">mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
-
-		<bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.json-api-1.1/${servicemix.json-1.1.spec.version}</bundle>
-		<bundle>mvn:org.apache.johnzon/johnzon-core/${johnzon.version}</bundle>
 	</feature>
 
 	<feature name="artemis-core" version="${pom.version}" description="ActiveMQ Artemis broker libraries">

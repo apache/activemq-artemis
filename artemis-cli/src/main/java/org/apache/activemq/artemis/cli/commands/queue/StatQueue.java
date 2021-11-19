@@ -24,8 +24,8 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

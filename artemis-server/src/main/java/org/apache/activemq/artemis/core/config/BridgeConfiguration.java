@@ -16,16 +16,17 @@
  */
 package org.apache.activemq.artemis.core.config;
 
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
@@ -172,9 +173,11 @@ public final class BridgeConfiguration implements Serializable {
             setFilterString(value);
          } else if (key.equals(STATIC_CONNECTORS)) {
             // convert JSON array to string list
-            List<String> stringList = JsonLoader.readArray(new StringReader(value)).stream()
-                    .map(v -> ((JsonString) v).getString())
-                    .collect(Collectors.toList());
+            List<String> stringList = new ArrayList<>();
+            JsonArray staticConnectors = JsonLoader.readArray(new StringReader(value));
+            for (int i = 0; i < staticConnectors.size(); i++) {
+               stringList.add(staticConnectors.getString(i));
+            }
             setStaticConnectors(stringList);
          } else if (key.equals(DISCOVERY_GROUP_NAME)) {
             setDiscoveryGroupName(value);

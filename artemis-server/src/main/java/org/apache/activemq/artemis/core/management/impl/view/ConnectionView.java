@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;

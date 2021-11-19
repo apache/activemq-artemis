@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.management;
 
-import javax.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArray;
 import java.util.ArrayList;
 import java.util.List;
 

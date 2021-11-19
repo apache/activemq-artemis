@@ -17,10 +17,10 @@
 
 package org.apache.activemq.artemis.api.core;
 
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.junit.Assert;

@@ -30,7 +30,6 @@
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <jakarta.jms-api.version>3.0.0</jakarta.jms-api.version>
-      <jakarta.json-api.version>2.0.1</jakarta.json-api.version>
    </properties>
 
    <dependencies>
@@ -109,10 +108,6 @@
                         <relocation>
                            <pattern>com.google</pattern>
                            <shadedPattern>org.apache.activemq.artemis.shaded.com.google</shadedPattern>
-                        </relocation>
-                        <relocation>
-                           <pattern>org.apache.johnzon</pattern>
-                           <shadedPattern>org.apache.activemq.artemis.shaded.org.apache.johnzon</shadedPattern>
                         </relocation>
                         <relocation>
                            <pattern>org.apache.commons</pattern>

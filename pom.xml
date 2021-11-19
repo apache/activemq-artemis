@@ -105,6 +105,7 @@
       <errorprone.version>2.9.0</errorprone.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
+      <maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
       <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>8.43</checkstyle.version>
@@ -481,12 +482,6 @@
             <!-- License: EPL 2.0 -->
         </dependency>
         <dependency>
-           <groupId>jakarta.json</groupId>
-           <artifactId>jakarta.json-api</artifactId>
-           <version>${jakarta.json-api.version}</version>
-            <!-- License: EPL 2.0 -->
-        </dependency>
-        <dependency>
            <groupId>jakarta.ejb</groupId>
            <artifactId>jakarta.ejb-api</artifactId>
            <version>${jakarta.ejb-api.version}</version>
@@ -689,13 +684,6 @@
            <version>${slf4j.version}</version>
            <!-- License: MIT -->
          </dependency>
-         <!-- json -->
-         <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-core</artifactId>
-            <version>${johnzon.version}</version>
-         </dependency>
-
          <!--needed for the rest support-->
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -929,6 +917,29 @@
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper-jute</artifactId>
             <version>${zookeeper.version}</version>
+         </dependency>
+
+
+
+         <!-- johnzon and jakarta.json are shaded on artemis-commons.
+              However during internal builds and test phase original bits may be used,
+              and this library would still be needed for test phase.
+              I am declaring scope as test by default to avoid any accidental use.
+              The only place where we are allowed to use this library is within artemis-commons.
+              anything other than that need to be carefully thought.
+          -->
+         <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-core</artifactId>
+            <version>${johnzon.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>jakarta.json</groupId>
+            <artifactId>jakarta.json-api</artifactId>
+            <version>${jakarta.json-api.version}</version>
+            <scope>test</scope>
+            <!-- License: EPL 2.0 -->
          </dependency>
       </dependencies>
 
@@ -1441,7 +1452,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-shade-plugin</artifactId>
-               <version>3.2.0</version>
+               <version>${maven.shade.plugin.version}</version>
             </plugin>
             <plugin>
                <groupId>org.eclipse.jetty</groupId>

@@ -28,8 +28,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonValue;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.openmbean.CompositeData;

@@ -109,10 +109,6 @@
                            <shadedPattern>org.apache.activemq.artemis.shaded.com.google</shadedPattern>
                         </relocation>
                         <relocation>
-                           <pattern>org.apache.johnzon</pattern>
-                           <shadedPattern>org.apache.activemq.artemis.shaded.org.apache.johnzon</shadedPattern>
-                        </relocation>
-                        <relocation>
                            <pattern>org.apache.commons</pattern>
                            <shadedPattern>org.apache.activemq.artemis.shaded.org.apache.commons</shadedPattern>
                         </relocation>

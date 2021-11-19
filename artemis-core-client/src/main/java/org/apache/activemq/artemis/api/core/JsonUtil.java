@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core;
 
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonNumber;
-import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonString;
-import javax.json.JsonValue;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonNumber;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
 import java.io.ByteArrayInputStream;
@@ -264,7 +264,7 @@ public final class JsonUtil {
    public static Map<String, String> readJsonProperties(String jsonString) {
       Map<String, String> properties = new HashMap<>();
       if (jsonString != null) {
-         JsonUtil.readJsonObject(jsonString).forEach((k, v) -> properties.put(k, v.toString()));
+         JsonUtil.readJsonObject(jsonString).entrySet().forEach(e -> properties.put(e.getKey(), e.getValue().toString()));
       }
       return properties;
    }

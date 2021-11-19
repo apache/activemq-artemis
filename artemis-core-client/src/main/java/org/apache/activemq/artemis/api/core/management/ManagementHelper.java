@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
-import javax.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArray;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.JsonUtil;
