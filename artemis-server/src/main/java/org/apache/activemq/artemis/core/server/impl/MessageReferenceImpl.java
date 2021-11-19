@@ -319,11 +319,16 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
 
    @Override
    public String toString() {
-      return "Reference[" + getMessage().getMessageID() +
-         "]:" +
-         (getMessage().isDurable() ? "RELIABLE" : "NON-RELIABLE") +
-         ":" +
-         getMessage();
+      Message message = getMessage();
+      if (message != null) {
+         return "Reference[" + message.getMessageID() +
+            "]:" +
+            (message.isDurable() ? "RELIABLE" : "NON-RELIABLE") +
+            ":" +
+            message;
+      } else {
+         return "Reference[]";
+      }
    }
 
    @Override
