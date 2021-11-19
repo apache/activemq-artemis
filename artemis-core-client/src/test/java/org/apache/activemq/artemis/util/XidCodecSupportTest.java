@@ -29,6 +29,7 @@ import javax.transaction.xa.Xid;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.fail;
 
 public class XidCodecSupportTest {
 
@@ -47,14 +48,18 @@ public class XidCodecSupportTest {
       assertThat(readXid, equalTo(VALID_XID));
    }
 
-   @Test(expected = XidPayloadException.class)
+   @Test
    public void testNegativeLength() {
       final ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(0);
       XidCodecSupport.encodeXid(VALID_XID, buffer);
       // Alter branchQualifierLength to be negative
       buffer.setByte(4, (byte) 0xFF);
-
-      XidCodecSupport.decodeXid(buffer);
+      try {
+         XidCodecSupport.decodeXid(buffer);
+         fail("Should have thrown");
+      } catch (XidPayloadException ex) {
+         assertThat(ex.getStackTrace().length, equalTo(0));
+      }
    }
 
    @Test(expected = XidPayloadException.class)
