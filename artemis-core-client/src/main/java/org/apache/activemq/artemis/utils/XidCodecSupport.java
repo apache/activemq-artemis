@@ -33,15 +33,20 @@ public class XidCodecSupport {
    }
 
    private static byte[] safeReadBytes(final ActiveMQBuffer in) {
-      int claimedSize = in.readInt();
-      int bufferCapacity = in.capacity();
+      final int claimedSize = in.readInt();
+
+      if (claimedSize < 0) {
+         throw new XidPayloadException("Payload size cannot be negative");
+      }
+
+      final int readableBytes = in.readableBytes();
       // We have to be defensive here and not try to allocate byte buffer straight from information available in the
       // stream. Or else, an adversary may handcraft the packet causing OOM situation for a running JVM.
-      if (claimedSize > bufferCapacity) {
-         throw new IllegalStateException("Buffer size: " + claimedSize +
-                 " exceeds overall buffer size of: " + bufferCapacity);
+      if (claimedSize > readableBytes) {
+         throw new XidPayloadException("Attempted to read: " + claimedSize +
+                 " which exceeds overall readable buffer size of: " + readableBytes);
       }
-      byte[] byteBuffer = new byte[claimedSize];
+      final byte[] byteBuffer = new byte[claimedSize];
       in.readBytes(byteBuffer);
       return byteBuffer;
    }
