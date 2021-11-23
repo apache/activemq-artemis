@@ -74,7 +74,7 @@ public class BrokerBalancerTest {
 
    @Test
    public void getTarget() {
-      assertEquals( localTarget, underTest.getTarget("FOO_EE").target);
+      assertEquals( localTarget, underTest.getTarget("FOO_EE").getTarget());
       assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
    }
 

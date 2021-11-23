@@ -54,7 +54,7 @@ public abstract class RedirectHandler<T extends RedirectContext> {
 
       context.setResult(brokerBalancer.getTarget(transportConnection, context.getClientID(), context.getUsername()));
 
-      if (TargetResult.Status.OK != context.getResult().status) {
+      if (TargetResult.Status.OK != context.getResult().getStatus()) {
          ActiveMQServerLogger.LOGGER.cannotRedirectClientConnection(transportConnection);
 
          cannotRedirect(context);

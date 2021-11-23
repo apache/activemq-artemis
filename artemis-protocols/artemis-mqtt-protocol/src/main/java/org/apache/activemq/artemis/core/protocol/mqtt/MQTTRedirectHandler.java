@@ -37,7 +37,7 @@ public class MQTTRedirectHandler extends RedirectHandler<MQTTRedirectContext> {
 
    @Override
    protected void cannotRedirect(MQTTRedirectContext context) {
-      switch (context.getResult().status) {
+      switch (context.getResult().getStatus()) {
          case REFUSED_USE_ANOTHER:
             context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER);
             break;

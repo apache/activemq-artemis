@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -61,6 +62,7 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Source;
 import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
+import org.apache.qpid.proton.amqp.transport.AmqpError;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.Delivery;
@@ -108,6 +110,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    private final ScheduleOperator scheduleOp = new ScheduleOperator(new ScheduleRunnable());
    private final AtomicReference<Future<?>> scheduledFutureRef = new AtomicReference(VOID_FUTURE);
+
+   private String user;
+   private String password;
+   private String validatedUser;
 
    public AMQPConnectionContext(ProtonProtocolManager protocolManager,
                                 AMQPConnectionCallback connectionSP,
@@ -236,6 +242,18 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    public ProtonHandler getHandler() {
       return handler;
+   }
+
+   public String getUser() {
+      return user;
+   }
+
+   public String getPassword() {
+      return password;
+   }
+
+   public String getValidatedUser() {
+      return validatedUser;
    }
 
    public void destroy() {
@@ -530,8 +548,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          log.error("Error init connection", e);
       }
 
-      if ((connectionCallback.getTransportConnection().getRedirectTo() != null && protocolManager.getRedirectHandler()
-         .redirect(this, connection)) || !validateConnection(connection)) {
+      if (!validateUser(connection) || (connectionCallback.getTransportConnection().getRedirectTo() != null
+         && protocolManager.getRedirectHandler().redirect(this, connection)) || !validateConnection(connection)) {
          connection.close();
       } else {
          connection.setContext(AMQPConnectionContext.this);
@@ -555,6 +573,37 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
             scheduledFutureRef.getAndUpdate(scheduleOp);
          }
       }
+   }
+
+   private boolean validateUser(Connection connection) throws Exception {
+      user = null;
+      password = null;
+      validatedUser = null;
+
+      SASLResult saslResult = getSASLResult();
+      if (saslResult != null) {
+         user = saslResult.getUser();
+         if (saslResult instanceof PlainSASLResult) {
+            password = ((PlainSASLResult) saslResult).getPassword();
+         }
+      }
+
+      if (isIncomingConnection() && saslClientFactory == null && !isBridgeConnection()) {
+         try {
+            validatedUser = protocolManager.getServer().validateUser(user, password, connectionCallback.getProtonConnectionDelegate(), protocolManager.getSecurityDomain());
+         } catch (ActiveMQSecurityException e) {
+            log.warn(e.getMessage(), e);
+            ErrorCondition error = new ErrorCondition();
+            error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
+            error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
+            connection.setCondition(error);
+            connection.setProperties(Collections.singletonMap(AmqpSupport.CONNECTION_OPEN_FAILED, true));
+
+            return false;
+         }
+      }
+
+      return true;
    }
 
    class ScheduleOperator implements UnaryOperator<Future<?>> {

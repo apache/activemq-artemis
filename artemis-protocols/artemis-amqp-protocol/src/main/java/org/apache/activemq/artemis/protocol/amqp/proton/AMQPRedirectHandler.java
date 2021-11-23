@@ -44,7 +44,7 @@ public class AMQPRedirectHandler extends RedirectHandler<AMQPRedirectContext> {
    protected void cannotRedirect(AMQPRedirectContext context) {
       ErrorCondition error = new ErrorCondition();
       error.setCondition(ConnectionError.CONNECTION_FORCED);
-      switch (context.getResult().status) {
+      switch (context.getResult().getStatus()) {
          case REFUSED_USE_ANOTHER:
             error.setDescription(String.format("Broker balancer %s, rejected this connection", context.getConnection().getTransportConnection().getRedirectTo()));
             break;

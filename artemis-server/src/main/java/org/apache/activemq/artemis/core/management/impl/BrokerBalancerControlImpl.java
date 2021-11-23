@@ -61,9 +61,9 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
    @Override
    public CompositeData getTarget(String key) throws Exception {
       TargetResult result = balancer.getTarget(key);
-      if (TargetResult.Status.OK == result.status) {
+      if (TargetResult.Status.OK == result.getStatus()) {
          CompositeData connectorData = null;
-         TransportConfiguration connector = result.target.getConnector();
+         TransportConfiguration connector = result.getTarget().getConnector();
 
          if (connector != null) {
             TabularData paramsData = new TabularDataSupport(getParametersType());
@@ -79,7 +79,7 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
 
          return new CompositeDataSupport(getTargetCompositeType(),
                                          new String[]{"nodeID", "local", "connector"},
-                                         new Object[]{result.target.getNodeID(), result.target.isLocal(), connectorData});
+                                         new Object[]{result.getTarget().getNodeID(), result.getTarget().isLocal(), connectorData});
       }
 
       return null;
@@ -88,12 +88,12 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
    @Override
    public String getTargetAsJSON(String key) {
       TargetResult result = balancer.getTarget(key);
-      if (TargetResult.Status.OK == result.status) {
-         TransportConfiguration connector = result.target.getConnector();
+      if (TargetResult.Status.OK == result.getStatus()) {
+         TransportConfiguration connector = result.getTarget().getConnector();
 
          JsonObjectBuilder targetDataBuilder = JsonLoader.createObjectBuilder()
-            .add("nodeID", result.target.getNodeID())
-            .add("local", result.target.isLocal());
+            .add("nodeID", result.getTarget().getNodeID())
+            .add("local", result.getTarget().isLocal());
 
          if (connector == null) {
             targetDataBuilder.addNull("connector");

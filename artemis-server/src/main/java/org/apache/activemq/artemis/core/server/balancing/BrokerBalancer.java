@@ -68,7 +68,7 @@ public class BrokerBalancer implements ActiveMQComponent {
    }
 
    public Target getLocalTarget() {
-      return localTarget.target;
+      return localTarget.getTarget();
    }
 
    public String getLocalTargetFilter() {
@@ -168,16 +168,16 @@ public class BrokerBalancer implements ActiveMQComponent {
       }
 
       if (result != null) {
-         if (pool.isTargetReady(result.target)) {
+         if (pool.isTargetReady(result.getTarget())) {
             if (logger.isDebugEnabled()) {
-               logger.debug("The cache returns [" + result.target + "] ready for " + targetKey + "[" + key + "]");
+               logger.debug("The cache returns [" + result.getTarget() + "] ready for " + targetKey + "[" + key + "]");
             }
 
             return result;
          }
 
          if (logger.isDebugEnabled()) {
-            logger.debug("The cache returns [" + result.target + "] not ready for " + targetKey + "[" + key + "]");
+            logger.debug("The cache returns [" + result.getTarget() + "] not ready for " + targetKey + "[" + key + "]");
          }
       }
 

@@ -43,7 +43,7 @@ public class RedirectContext {
    }
 
    public Target getTarget() {
-      return result.target;
+      return result.getTarget();
    }
 
    public TargetResult getResult() {
