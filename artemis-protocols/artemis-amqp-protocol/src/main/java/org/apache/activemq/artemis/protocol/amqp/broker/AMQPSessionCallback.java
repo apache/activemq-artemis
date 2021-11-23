@@ -58,7 +58,6 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerReceiverContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonServerSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionHandler;
-import org.apache.activemq.artemis.protocol.amqp.sasl.PlainSASLResult;
 import org.apache.activemq.artemis.protocol.amqp.sasl.SASLResult;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -194,30 +193,20 @@ public class AMQPSessionCallback implements SessionCallback {
 
       String name = UUIDGenerator.getInstance().generateStringUUID();
 
-      String user = null;
-      String passcode = null;
-      if (saslResult != null) {
-         user = saslResult.getUser();
-         if (saslResult instanceof PlainSASLResult) {
-            passcode = ((PlainSASLResult) saslResult).getPassword();
-         }
-      }
-
       if (connection.isBridgeConnection())  {
          serverSession = manager.getServer().createInternalSession(name, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
                                                            false, // boolean autoCommitSends
                                                            false, // boolean autoCommitAcks,
                                                            false, // boolean preAcknowledge,
                                                            true, //boolean xa,
-                                                           (String) null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain());
+                                                           null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain());
       } else {
-         final String validatedUser = manager.getServer().validateUser(user, passcode, protonSPI.getProtonConnectionDelegate(), manager.getSecurityDomain());
-         serverSession = manager.getServer().createSession(name, user, passcode, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
+         serverSession = manager.getServer().createSession(name, connection.getUser(), connection.getPassword(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
                                                            false, // boolean autoCommitSends
                                                            false, // boolean autoCommitAcks,
                                                            false, // boolean preAcknowledge,
                                                            true, //boolean xa,
-                                                           (String) null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain(), validatedUser);
+                                                           null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain(), connection.getValidatedUser());
       }
    }
 

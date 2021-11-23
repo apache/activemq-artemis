@@ -22,16 +22,25 @@ public class TargetResult {
    public static final TargetResult REFUSED_UNAVAILABLE_RESULT = new TargetResult(Status.REFUSED_UNAVAILABLE);
    public static final TargetResult REFUSED_USE_ANOTHER_RESULT = new TargetResult(Status.REFUSED_USE_ANOTHER);
 
-   public Status status;
-   public Target target;
+   private final Status status;
+   private final Target target;
 
-   public TargetResult(Target t) {
-      this.target = t;
+   public Status getStatus() {
+      return status;
+   }
+
+   public Target getTarget() {
+      return target;
+   }
+
+   public TargetResult(Target target) {
       this.status = Status.OK;
+      this.target = target;
    }
 
    private TargetResult(Status s) {
       this.status = s;
+      this.target = null;
    }
 
    public enum Status {

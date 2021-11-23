@@ -1676,6 +1676,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                                       final Map<SimpleString, RoutingType> prefixes,
                                       final String securityDomain,
                                       String validatedUser) throws Exception {
+      if (validatedUser == null) {
+         validatedUser = validateUser(username, password, connection, securityDomain);
+      }
 
       checkSessionLimit(validatedUser);
 
