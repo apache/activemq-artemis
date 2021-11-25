@@ -144,6 +144,31 @@ public class BrokerBalancerControlTest extends BalancingTestBase {
    }
 
    @Test
+   public void testLocalTargetAccessors() throws Exception {
+      BrokerBalancerControl brokerBalancerControl = getBrokerBalancerControlForLocalTarget();
+
+      assertNull(brokerBalancerControl.getLocalTargetFilter());
+      final String v = "EQ";
+      brokerBalancerControl.setLocalTargetFilter(v);
+      assertEquals(v, brokerBalancerControl.getLocalTargetFilter());
+
+      brokerBalancerControl.setLocalTargetFilter("");
+      assertNull(brokerBalancerControl.getLocalTargetFilter());
+
+      brokerBalancerControl.setLocalTargetFilter(null);
+      assertNull(brokerBalancerControl.getLocalTargetFilter());
+
+      assertNull(brokerBalancerControl.getTargetKeyFilter());
+      brokerBalancerControl.setTargetKeyFilter(v);
+      assertEquals(v, brokerBalancerControl.getTargetKeyFilter());
+      brokerBalancerControl.setTargetKeyFilter("");
+      assertNull(brokerBalancerControl.getTargetKeyFilter());
+
+      brokerBalancerControl.setTargetKeyFilter(null);
+      assertNull(brokerBalancerControl.getTargetKeyFilter());
+   }
+
+   @Test
    public void testGetLocalTargetAsJSON() throws Exception {
       BrokerBalancerControl brokerBalancerControl = getBrokerBalancerControlForLocalTarget();
 

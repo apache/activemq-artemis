@@ -130,4 +130,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
       checkMemory(runWhenAvailable);
    }
 
+   default long getMaxSize() {
+      return 0;
+   }
 }

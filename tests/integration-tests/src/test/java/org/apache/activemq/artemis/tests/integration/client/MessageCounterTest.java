@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +71,7 @@ public class MessageCounterTest extends ActiveMQTestBase {
       session.commit();
       session.start();
 
-      Assert.assertEquals(100, getMessageCount(server.getPostOffice(), QUEUE.toString()));
+      Wait.waitFor(() -> 100 == getMessageCount(server.getPostOffice(), QUEUE.toString()), 500, 10);
 
       ClientConsumer consumer = session.createConsumer(QUEUE, null, false);
 

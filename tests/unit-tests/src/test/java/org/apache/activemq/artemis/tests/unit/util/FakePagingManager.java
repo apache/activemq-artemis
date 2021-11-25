@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 
-public final class FakePagingManager implements PagingManager {
+public class FakePagingManager implements PagingManager {
 
    @Override
    public void addBlockedStore(PagingStore store) {

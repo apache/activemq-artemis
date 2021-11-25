@@ -833,7 +833,9 @@ address, if it exists.
 `slow-consumer-threshold`. The minimum rate of message consumption allowed
 before a consumer is considered "slow." Measured in units specified by the
 slow-consumer-threshold-measurement-unit configuration option. Default is `-1`
- (i.e. disabled); any other valid value must be greater than 0. 
+ (i.e. disabled); any other value must be greater than 0 to ensure a queue
+has messages, and it is the actual consumer that is slow. A value of 0 will
+allow a consumer with no messages pending to be considered slow.
  Read more about [slow consumers](slow-consumers.md).
 
 `slow-consumer-threshold-measurement-unit`. The units used to measure the 

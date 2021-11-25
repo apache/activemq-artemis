@@ -2886,5 +2886,28 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601752, value = "User {0} failed to purge address {1}", format = Message.Format.MESSAGE_FORMAT)
    void purgeAddressFailure(String user, String queueName);
 
+   static void getAddressLimitPercent(Object source) {
+      BASE_LOGGER.getAddressLimitPercent(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601753, value = "User {0} is getting address limit %  on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAddressLimitPercent(String user, Object source, Object... args);
+
+   static void block(Object source) {
+      BASE_LOGGER.block(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601754, value = "User {0} is blocking target resource: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void block(String user, Object source);
+
+   static void unBlock(Object source) {
+      BASE_LOGGER.unBlock(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601755, value = "User {0} is unblocking target resource: {1}", format = Message.Format.MESSAGE_FORMAT)
+   void unBlock(String user, Object source);
 
 }

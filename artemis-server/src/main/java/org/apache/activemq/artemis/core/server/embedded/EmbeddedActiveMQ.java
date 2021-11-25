@@ -107,6 +107,10 @@ public class EmbeddedActiveMQ {
       return this;
    }
 
+   public Configuration getConfiguration() {
+      return configuration;
+   }
+
    public ActiveMQServer getActiveMQServer() {
       return activeMQServer;
    }

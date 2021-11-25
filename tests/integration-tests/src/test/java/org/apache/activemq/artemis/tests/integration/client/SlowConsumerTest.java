@@ -612,6 +612,41 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       Wait.assertEquals(0, queue::getConsumerCount);
    }
 
+
+   @Test
+   public void testKilledOnNoMessagesSoCanBeRebalanced() throws Exception {
+      AddressSettings addressSettings = new AddressSettings();
+      addressSettings.setSlowConsumerCheckPeriod(1);
+      addressSettings.setSlowConsumerThresholdMeasurementUnit(MESSAGES_PER_SECOND);
+      addressSettings.setSlowConsumerThreshold(0); // if there are no messages pending, kill me
+      addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
+
+      server.getAddressSettingsRepository().removeMatch(QUEUE.toString());
+      server.getAddressSettingsRepository().addMatch(QUEUE.toString(), addressSettings);
+
+      final Queue queue = server.locateQueue(QUEUE);
+
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = addClientSession(sf.createSession(false, true, true, false));
+
+      ClientProducer producer = addClientProducer(session.createProducer(QUEUE));
+
+      int messages = 1;
+
+      for (int i = 0; i < messages; i++) {
+         producer.send(session.createMessage(true));
+      }
+
+      ClientConsumer consumer = addClientConsumer(session.createConsumer(QUEUE));
+      session.start();
+      consumer.receive(500).individualAcknowledge();
+      assertEquals(1, queue.getConsumerCount());
+
+      // gets whacked!
+      Wait.assertEquals(0, queue::getConsumerCount, 2000, 100);
+   }
+
    /**
     * This test creates 3 consumers on one queue. A producer sends
     * messages at a rate of 2 messages per second. Each consumer

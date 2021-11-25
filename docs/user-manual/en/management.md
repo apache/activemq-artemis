@@ -127,12 +127,19 @@ Individual addresses can be managed using the `AddressControl` interface.
   `removeRole()` methods. You can list all the roles associated to the queue with
   the `getRoles()` method
 
-- Pausing and resuming Address
+- Pausing and resuming an Address
 
   The `AddressControl` can pause and resume an address and all the queues that
   are bound to it. Newly added queue will be paused too until the address is resumed.
   Thus all messages sent to the address will be received but not delivered. When it is
   resumed, delivering will occur again.
+
+- Blocking and un blocking an Address
+
+  The `AddressControl` can block and unblock an address. A blocked address will not issue
+  any more credit to existing producers. New producers will not be granted any credit.
+  When the address is unblocked, credit granting will resume. In this way, it is possible
+  to drain all the queues associated with an address to quiesce a broker in a managed way.
 
 ### Queue Management
 

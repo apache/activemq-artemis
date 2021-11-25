@@ -24,14 +24,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.jms.Connection;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.ResourceAllocationException;
 import javax.jms.Session;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -86,6 +90,39 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 60000)
+   public void testCreditIsNotGivenOnLinkCreationWhileBlockedAndIsGivenOnceThenUnblocked() throws Exception {
+      AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
+      AmqpConnection connection = addConnection(client.connect());
+
+      try {
+         AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.toSimpleString(getQueueName()), mBeanServer);
+         addressControl.block();
+         AmqpSession session = connection.createSession();
+         final AmqpSender sender = session.createSender(getQueueName());
+         assertTrue("Should get 0 credit", Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return 0 == sender.getSender().getCredit();
+            }
+         }, 5000, 20));
+
+         addressControl.unblock();
+         assertTrue("Should now get issued one credit", Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return 1 == sender.getSender().getCredit();
+            }
+         }, 5000, 20));
+         sender.close();
+
+         AmqpSender sender2 = session.createSender(getQueueName());
+         assertEquals("Should only be issued one credit", 1, sender2.getSender().getCredit());
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
    public void testCreditsAreNotAllocatedWhenAddressIsFull() throws Exception {
       AmqpClient client = createAmqpClient(new URI(singleCreditAcceptorURI));
       AmqpConnection connection = addConnection(client.connect());
@@ -109,7 +146,7 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
    }
 
    @Test(timeout = 60000)
-   public void testAddressIsBlockedForOtherProdudersWhenFull() throws Exception {
+   public void testAddressIsBlockedForOtherProducersWhenFull() throws Exception {
       Connection connection = createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       Destination d = session.createQueue(getQueueName());
@@ -128,6 +165,51 @@ public class AmqpFlowControlTest extends JMSClientTestSupport {
 
       long addressSize = server.getPagingManager().getPageStore(new SimpleString(getQueueName())).getAddressSize();
       assertTrue(addressSize >= MAX_SIZE_BYTES_REJECT_THRESHOLD);
+   }
+
+   @Test(timeout = 60000)
+   public void testSendBlocksWhenAddressBlockedAndCompletesAfterUnblocked() throws Exception {
+      Connection connection = createConnection(new URI(singleCreditAcceptorURI.replace("tcp", "amqp")), null, null, null, true);
+      final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Destination d = session.createQueue(getQueueName());
+      final MessageProducer p = session.createProducer(d);
+
+      final CountDownLatch running = new CountDownLatch(1);
+      final CountDownLatch done = new CountDownLatch(1);
+
+      AddressControl addressControl = ManagementControlHelper.createAddressControl(SimpleString.toSimpleString(getQueueName()), mBeanServer);
+
+      assertTrue("blocked ok", addressControl.block());
+
+      // one credit
+      p.send(session.createBytesMessage());
+
+      // this send will block, no credit
+      new Thread(new Runnable() {
+         @Override
+         public void run() {
+            try {
+               running.countDown();
+               p.send(session.createBytesMessage());
+            } catch (JMSException ignored) {
+            } finally {
+               done.countDown();
+            }
+         }
+      }).start();
+
+      assertTrue(running.await(5, TimeUnit.SECONDS));
+
+      assertFalse(done.await(200, TimeUnit.MILLISECONDS));
+
+      addressControl.unblock();
+
+      assertTrue(done.await(5, TimeUnit.SECONDS));
+
+      // good to go again
+      p.send(session.createBytesMessage());
+
+      assertEquals(3, addressControl.getMessageCount());
    }
 
    @Test(timeout = 60000)

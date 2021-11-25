@@ -193,4 +193,10 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    void enableCleanup();
 
    void destroy() throws Exception;
+
+   int getAddressLimitPercent();
+
+   void block();
+
+   void unblock();
 }
