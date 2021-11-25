@@ -7,8 +7,8 @@ If messages build up in the consumer's server-side queue then memory
 will begin filling up and the broker may enter paging mode which would
 impact performance negatively. However, criteria can be set so that
 consumers which don't acknowledge messages quickly enough can
-potentially be disconnected from the broker which in the case of a
-non-durable JMS subscriber would allow the broker to remove the
+potentially be disconnected from the broker, which in the case of a
+non-durable JMS subscriber, would allow the broker to remove the
 subscription and all of its messages freeing up valuable server
 resources.
 

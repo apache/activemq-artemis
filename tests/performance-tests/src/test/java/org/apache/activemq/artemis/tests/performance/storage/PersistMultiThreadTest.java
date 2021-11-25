@@ -477,5 +477,18 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       @Override
       public void destroy() throws Exception {
       }
+
+      @Override
+      public int getAddressLimitPercent() {
+         return 0;
+      }
+
+      @Override
+      public void block() {
+      }
+
+      @Override
+      public void unblock() {
+      }
    }
 }

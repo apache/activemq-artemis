@@ -28,4 +28,16 @@ public interface BrokerBalancerControl {
 
    @Operation(desc = "Get the target associated with key as JSON", impact = MBeanOperationInfo.INFO)
    String getTargetAsJSON(@Parameter(desc = "a key", name = "key") String key);
+
+   @Operation(desc = "Set the local target filter regular expression", impact = MBeanOperationInfo.ACTION)
+   void setLocalTargetFilter(@Parameter(desc = "the regular expression", name = "regExp") String regExp);
+
+   @Operation(desc = "Get the local target filter regular expression", impact = MBeanOperationInfo.INFO)
+   String getLocalTargetFilter();
+
+   @Operation(desc = "Set the target key filter regular expression", impact = MBeanOperationInfo.ACTION)
+   void setTargetKeyFilter(@Parameter(desc = "the regular expression", name = "regExp") String regExp);
+
+   @Operation(desc = "Get the target key filter regular expression", impact = MBeanOperationInfo.INFO)
+   String getTargetKeyFilter();
 }

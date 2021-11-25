@@ -49,7 +49,7 @@ public class BrokerBalancer implements ActiveMQComponent {
 
    private final TargetResult localTarget;
 
-   private final Pattern localTargetFilter;
+   private volatile Pattern localTargetFilter;
 
    private final Pool pool;
 
@@ -212,6 +212,18 @@ public class BrokerBalancer implements ActiveMQComponent {
       }
 
       return result != null ? result : TargetResult.REFUSED_UNAVAILABLE_RESULT;
+   }
+
+   public void setLocalTargetFilter(String regExp) {
+      if (regExp == null || regExp.trim().isEmpty()) {
+         this.localTargetFilter = null;
+      } else {
+         this.localTargetFilter = Pattern.compile(regExp);
+      }
+   }
+
+   public TargetKeyResolver getTargetKeyResolver() {
+      return targetKeyResolver;
    }
 
    private String transform(String key) {

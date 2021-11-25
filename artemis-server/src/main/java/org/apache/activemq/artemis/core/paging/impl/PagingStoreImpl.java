@@ -126,6 +126,8 @@ public class PagingStoreImpl implements PagingStore {
 
    private volatile boolean blocking = false;
 
+   private volatile boolean blockedViaAddressControl = false;
+
    private long rejectThreshold;
 
    public PagingStoreImpl(final SimpleString address,
@@ -695,6 +697,13 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public boolean checkMemory(boolean runOnFailure, final Runnable runWhenAvailable) {
 
+      if (blockedViaAddressControl) {
+         if (runWhenAvailable != null) {
+            onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+         }
+         return false;
+      }
+
       if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
          if (isFull()) {
             if (runOnFailure && runWhenAvailable != null) {
@@ -703,7 +712,7 @@ public class PagingStoreImpl implements PagingStore {
             return false;
          }
       } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
-         if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() > maxSize || pagingManager.isGlobalFull()) {
+         if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() >= maxSize || pagingManager.isGlobalFull()) {
 
             onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
 
@@ -711,7 +720,7 @@ public class PagingStoreImpl implements PagingStore {
             // has been added, but the check to execute was done before the element was added
             // NOTE! We do not fix this race by locking the whole thing, doing this check provides
             // MUCH better performance in a highly concurrent environment
-            if (!pagingManager.isGlobalFull() && (sizeInBytes.get() <= maxSize || maxSize < 0)) {
+            if (!pagingManager.isGlobalFull() && (sizeInBytes.get() < maxSize || maxSize < 0)) {
                // run it now
                runWhenAvailable.run();
             } else {
@@ -770,8 +779,8 @@ public class PagingStoreImpl implements PagingStore {
       return checkReleaseMemory(pagingManager.isGlobalFull(), sizeInBytes.get());
    }
 
-   public boolean checkReleaseMemory(boolean globalOversized, long newSize) {
-      if (!globalOversized && (newSize <= maxSize || maxSize < 0)) {
+   public boolean checkReleaseMemory(boolean globalFull, long newSize) {
+      if (!blockedViaAddressControl && !globalFull && (newSize < maxSize || maxSize < 0)) {
          if (!onMemoryFreedRunnables.isEmpty()) {
             executor.execute(this::memoryReleased);
             if (blocking) {
@@ -799,12 +808,6 @@ public class PagingStoreImpl implements PagingStore {
 
       if (addressFullMessagePolicy == AddressFullMessagePolicy.DROP || addressFullMessagePolicy == AddressFullMessagePolicy.FAIL) {
          if (full) {
-            if (!printedDropMessagesWarning) {
-               printedDropMessagesWarning = true;
-
-               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
-            }
-
             if (message.isLargeMessage()) {
                ((LargeServerMessage) message).deleteFile();
             }
@@ -814,6 +817,10 @@ public class PagingStoreImpl implements PagingStore {
             }
 
             // Address is full, we just pretend we are paging, and drop the data
+            if (!printedDropMessagesWarning) {
+               printedDropMessagesWarning = true;
+               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
+            }
             return true;
          } else {
             return false;
@@ -1150,7 +1157,36 @@ public class PagingStoreImpl implements PagingStore {
    // To be used on isDropMessagesWhenFull
    @Override
    public boolean isFull() {
-      return maxSize > 0 && getAddressSize() > maxSize || pagingManager.isGlobalFull();
+      return maxSize > 0 && getAddressSize() >= maxSize || pagingManager.isGlobalFull();
+   }
+
+
+   @Override
+   public int getAddressLimitPercent() {
+      final long currentUsage = getAddressSize();
+      if (maxSize > 0) {
+         return (int) (currentUsage * 100 / maxSize);
+      } else if (pagingManager.isUsingGlobalSize()) {
+         return (int) (currentUsage * 100 / pagingManager.getMaxSize());
+      }
+      return 0;
+   }
+
+   @Override
+   public void block() {
+      if (!blockedViaAddressControl) {
+         ActiveMQServerLogger.LOGGER.blockingViaControl(address);
+      }
+      blockedViaAddressControl = true;
+   }
+
+   @Override
+   public void unblock() {
+      if (blockedViaAddressControl) {
+         ActiveMQServerLogger.LOGGER.unblockingViaControl(address);
+      }
+      blockedViaAddressControl = false;
+      checkReleasedMemory();
    }
 
    @Override

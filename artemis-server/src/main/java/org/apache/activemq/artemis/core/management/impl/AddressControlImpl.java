@@ -322,6 +322,66 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public int getAddressLimitPercent() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAddressLimitPercent(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return 0;
+         }
+         return pagingStore.getAddressLimitPercent();
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to get address limit %", e);
+         return -1;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public boolean block() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.block(this.addressInfo);
+      }
+      clearIO();
+      boolean result = false;
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore != null) {
+            pagingStore.block();
+            result = true;
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to block", e);
+
+      } finally {
+         blockOnIO();
+      }
+      return result;
+   }
+
+   @Override
+   public void unblock() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.unBlock(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore != null) {
+            pagingStore.unblock();
+         }
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to unblock", e);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public int getNumberOfPages() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfPages(this.addressInfo);

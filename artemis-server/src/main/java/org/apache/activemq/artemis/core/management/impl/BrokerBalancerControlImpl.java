@@ -108,6 +108,26 @@ public class BrokerBalancerControlImpl extends AbstractControl implements Broker
    }
 
    @Override
+   public void setLocalTargetFilter(String regExp) {
+      balancer.setLocalTargetFilter(regExp);
+   }
+
+   @Override
+   public String getLocalTargetFilter() {
+      return balancer.getLocalTargetFilter();
+   }
+
+   @Override
+   public void setTargetKeyFilter(String regExp) {
+      balancer.getTargetKeyResolver().setKeyFilter(regExp);
+   }
+
+   @Override
+   public String getTargetKeyFilter() {
+      return balancer.getTargetKeyResolver().getKeyFilter();
+   }
+
+   @Override
    protected MBeanOperationInfo[] fillMBeanOperationInfo() {
       return MBeanInfoHelper.getMBeanOperationsInfo(BrokerBalancerControl.class);
    }

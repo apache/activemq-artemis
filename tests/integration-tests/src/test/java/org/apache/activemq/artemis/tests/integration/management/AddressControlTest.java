@@ -768,6 +768,7 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
 
       final long exactSizeValueBeforeRestart = addressControl.getAddressSize();
+      final int exactPercentBeforeRestart = addressControl.getAddressLimitPercent();
 
       // restart to reload journal
       server.stop();
@@ -776,6 +777,7 @@ public class AddressControlTest extends ManagementTestBase {
       addressControl = createManagementControl(address);
       Assert.assertTrue(addressControl.getAddressSize() > pageLimitNumberOfMessages * payLoadSize );
       Assert.assertEquals(exactSizeValueBeforeRestart, addressControl.getAddressSize());
+      Assert.assertEquals(exactPercentBeforeRestart, addressControl.getAddressLimitPercent());
    }
 
 

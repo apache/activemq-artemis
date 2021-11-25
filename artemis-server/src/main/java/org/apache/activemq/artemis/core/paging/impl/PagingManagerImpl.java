@@ -116,6 +116,7 @@ public final class PagingManagerImpl implements PagingManager {
       this.managementAddress = managementAddress;
    }
 
+   @Override
    public long getMaxSize() {
       return maxSize;
    }
@@ -276,7 +277,7 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public boolean isGlobalFull() {
-      return diskFull || maxSize > 0 && globalSizeBytes.get() > maxSize;
+      return diskFull || maxSize > 0 && globalSizeBytes.get() >= maxSize;
    }
 
    @Override

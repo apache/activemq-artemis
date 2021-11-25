@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.jboss.logging.Logger;
 import org.junit.After;
@@ -849,6 +850,216 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          Assert.assertTrue(findText("AMQ224108"));
       } finally {
          AssertionLoggerHandler.stopCapture();
+      }
+   }
+
+   @Test
+   public void testGetAddressLimitPercent() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
+                                                  createMockManager(), createStorageManagerMock(), factory, storeFactory,
+                                                  PagingStoreImplTest.destinationTestName,
+                                                  new AddressSettings()
+                                                     .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
+                                                  getExecutorFactory().getExecutor(), true);
+
+      store.start();
+      try {
+         assertEquals(0, store.getAddressLimitPercent());
+         store.addSize(100);
+
+         // no limit set
+         assertEquals(0, store.getAddressLimitPercent());
+
+         store.applySetting(new AddressSettings().setMaxSizeBytes(1000));
+         assertEquals(10, store.getAddressLimitPercent());
+
+         store.addSize(900);
+         assertEquals(100, store.getAddressLimitPercent());
+
+         store.addSize(900);
+         assertEquals(190, store.getAddressLimitPercent());
+
+         store.addSize(-900);
+         assertEquals(100, store.getAddressLimitPercent());
+
+         store.addSize(-1);
+         assertEquals(99, store.getAddressLimitPercent());
+
+      } finally {
+         store.stop();
+      }
+   }
+
+   @Test
+   public void testGetAddressLimitPercentGlobalSize() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      final AtomicLong limit = new AtomicLong();
+      AtomicLong globalSize = new AtomicLong();
+      PagingManager pagingManager = new FakePagingManager() {
+         @Override
+         public boolean isUsingGlobalSize() {
+            return limit.get() > 0;
+         }
+
+         @Override
+         public FakePagingManager addSize(int s) {
+            globalSize.addAndGet(s);
+            return this;
+         }
+
+         @Override
+         public long getGlobalSize() {
+            return globalSize.get();
+         }
+
+         @Override
+         public boolean isGlobalFull() {
+            return globalSize.get() >= limit.get();
+         }
+
+         @Override
+         public long getMaxSize() {
+            return limit.get();
+         }
+      };
+
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
+                                                  pagingManager, createStorageManagerMock(), factory, storeFactory,
+                                                  PagingStoreImplTest.destinationTestName,
+                                                  new AddressSettings()
+                                                     .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
+                                                  getExecutorFactory().getExecutor(), true);
+
+      store.start();
+      try {
+         // no usage yet
+         assertEquals(0, store.getAddressLimitPercent());
+
+         store.addSize(100);
+
+         // no global limit set
+         assertEquals(0, store.getAddressLimitPercent());
+
+         // set a global limit
+         limit.set(1000);
+         assertEquals(10, store.getAddressLimitPercent());
+
+         store.addSize(900);
+         assertEquals(100, store.getAddressLimitPercent());
+
+         store.addSize(900);
+         assertEquals(190, store.getAddressLimitPercent());
+
+         store.addSize(-900);
+         assertEquals(100, store.getAddressLimitPercent());
+
+         store.addSize(-1);
+         assertEquals(99, store.getAddressLimitPercent());
+
+      } finally {
+         store.stop();
+      }
+   }
+
+   @Test
+   public void testBlockUnblock() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
+                                                  createMockManager(), createStorageManagerMock(), factory, storeFactory,
+                                                  PagingStoreImplTest.destinationTestName,
+                                                  new AddressSettings()
+                                                     .setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
+                                                  getExecutorFactory().getExecutor(), true);
+
+      store.start();
+      try {
+         final  AtomicInteger calls = new AtomicInteger();
+         final Runnable trackMemoryChecks = new Runnable() {
+            @Override
+            public void run() {
+               calls.incrementAndGet();
+            }
+         };
+         store.applySetting(new AddressSettings().setMaxSizeBytes(1000).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK));
+         store.addSize(100);
+         store.checkMemory(trackMemoryChecks);
+         assertEquals(1, calls.get());
+
+         store.block();
+         store.checkMemory(trackMemoryChecks);
+         assertEquals(1, calls.get());
+
+         store.unblock();
+
+         assertTrue(Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return 2 == calls.get();
+            }
+         }, 1000, 50));
+
+         store.addSize(900);
+         assertEquals(100, store.getAddressLimitPercent());
+
+         // address full blocks
+         store.checkMemory(trackMemoryChecks);
+         assertEquals(2, calls.get());
+
+         store.block();
+
+         // release memory
+         store.addSize(-900);
+         assertEquals(10, store.getAddressLimitPercent());
+
+         // not yet released memory checks b/c of blocked
+         assertEquals(2, calls.get());
+
+         store.unblock();
+
+         // now released
+         assertTrue(Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return 3 == calls.get();
+            }
+         }, 1000, 50));
+
+         // reverse - unblock while full does not release
+         store.block();
+
+         store.addSize(900);
+         assertEquals(100, store.getAddressLimitPercent());
+
+         store.checkMemory(trackMemoryChecks);
+         assertEquals("no change", 3, calls.get());
+         assertEquals("no change to be sure to be sure!", 3, calls.get());
+
+         store.unblock();
+         assertEquals("no change after unblock", 3, calls.get());
+
+         store.addSize(-900);
+         assertEquals(10, store.getAddressLimitPercent());
+
+         assertTrue("change", Wait.waitFor(new Wait.Condition() {
+            @Override
+            public boolean isSatisfied() throws Exception {
+               return 4 == calls.get();
+            }
+         }, 1000, 50));
+
+
+      } finally {
+         store.stop();
       }
    }
 

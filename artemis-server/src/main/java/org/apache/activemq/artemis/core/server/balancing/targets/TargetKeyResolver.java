@@ -38,7 +38,7 @@ public class TargetKeyResolver {
 
    private final TargetKey key;
 
-   private final Pattern keyFilter;
+   private volatile Pattern keyFilter;
 
 
    public TargetKey getKey() {
@@ -51,8 +51,7 @@ public class TargetKeyResolver {
 
    public TargetKeyResolver(TargetKey key, String keyFilter) {
       this.key = key;
-
-      this.keyFilter = keyFilter != null ? Pattern.compile(keyFilter) : null;
+      setKeyFilter(keyFilter);
    }
 
    public String resolve(Connection connection, String clientID, String username) {
@@ -136,5 +135,13 @@ public class TargetKeyResolver {
 
 
       return keyValue;
+   }
+
+   public void setKeyFilter(String regExp) {
+      if (regExp == null || regExp.isBlank()) {
+         this.keyFilter = null;
+      } else {
+         this.keyFilter = Pattern.compile(regExp);
+      }
    }
 }

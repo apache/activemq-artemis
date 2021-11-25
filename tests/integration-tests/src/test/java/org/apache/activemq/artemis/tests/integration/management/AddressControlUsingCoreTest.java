@@ -92,6 +92,21 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
+         public int getAddressLimitPercent() throws Exception {
+            return (int)  proxy.retrieveAttributeValue("addressLimitPercent", Integer.class);
+         }
+
+         @Override
+         public boolean block() throws Exception {
+            return (boolean) proxy.invokeOperation("block");
+         }
+
+         @Override
+         public void unblock() throws Exception {
+            proxy.invokeOperation("unBlock");
+         }
+
+         @Override
          public long getNumberOfBytesPerPage() throws Exception {
             return (long) proxy.retrieveAttributeValue("numberOfBytesPerPage");
          }

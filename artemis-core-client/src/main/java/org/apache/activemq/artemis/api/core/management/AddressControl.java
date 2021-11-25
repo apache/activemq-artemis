@@ -106,6 +106,25 @@ public interface AddressControl {
    boolean isPaging() throws Exception;
 
    /**
+    * Returns the % of memory limit that is currently in use
+    *
+    * @throws Exception
+    */
+   @Attribute(desc = "the % of memory limit (global or local) that is in use by this address")
+   int getAddressLimitPercent() throws Exception;
+
+   /**
+    * Blocks message production to this address by limiting credit
+    * @return true if production is blocked
+    * @throws Exception
+    */
+   @Operation(desc = "Stops message production to this address, typically with flow control.", impact = MBeanOperationInfo.ACTION)
+   boolean block() throws Exception;
+
+   @Operation(desc = "Resumes message production to this address, if previously blocked.", impact = MBeanOperationInfo.ACTION)
+   void unblock() throws Exception;
+
+   /**
     * Returns the number of bytes used by each page for this address.
     */
    @Attribute(desc = "number of bytes used by each page for this address")
@@ -171,7 +190,7 @@ public interface AddressControl {
 
 
    /**
-    * Pauses all the queues bound to this address.Messages are no longer delivered to all its bounded queues.
+    * Pauses all the queues bound to this address. Messages are no longer delivered to all its bounded queues.
     * Newly added queue will be paused too until resume is called.
     * @throws java.lang.Exception
     */
@@ -179,7 +198,7 @@ public interface AddressControl {
    void pause() throws Exception;
 
    /**
-    * Pauses all the queues bound to this address.Messages are no longer delivered to all its bounded queues.Newly added queue will be paused too until resume is called.
+    * Pauses all the queues bound to this address. Messages are no longer delivered to all its bounded queues. Newly added queue will be paused too until resume is called.
     * @param persist if true, the pause state will be persisted.
     * @throws java.lang.Exception
     */
@@ -187,7 +206,7 @@ public interface AddressControl {
    void pause(@Parameter(name = "persist", desc = "if true, the pause state will be persisted.") boolean persist) throws Exception;
 
    /**
-    * Resume all the queues bound of this address.Messages are delivered again to all its bounded queues.
+    * Resume all the queues bound of this address. Messages are delivered again to all its bounded queues.
     * @throws java.lang.Exception
     */
    @Operation(desc = "Resumes the queues bound to this address", impact = MBeanOperationInfo.ACTION)
