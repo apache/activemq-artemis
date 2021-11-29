@@ -1779,16 +1779,11 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    @Override
    public String toString() {
-      MessageDataScanningStatus scanningStatus = getDataScanningStatus();
-      Map<String, Object> applicationProperties = scanningStatus == MessageDataScanningStatus.SCANNED ?
-         getApplicationPropertiesMap(false) : Collections.EMPTY_MAP;
-
       return this.getClass().getSimpleName() + "( [durable=" + isDurable() +
          ", messageID=" + getMessageID() +
          ", address=" + getAddress() +
          ", size=" + getEncodeSize() +
-         ", scanningStatus=" + scanningStatus +
-         ", applicationProperties=" + applicationProperties +
+         ", applicationProperties=" + getApplicationPropertiesMap(false) +
          ", messageAnnotations=" + getMessageAnnotationsMap(false) +
          ", properties=" + properties +
          ", extraProperties = " + getExtraProperties() +

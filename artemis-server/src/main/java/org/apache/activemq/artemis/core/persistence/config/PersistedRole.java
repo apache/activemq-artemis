@@ -24,8 +24,6 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 public class PersistedRole implements EncodingSupport {
 
    private long storeId;
@@ -38,9 +36,6 @@ public class PersistedRole implements EncodingSupport {
    }
 
    public PersistedRole(String username, List<String> roles) {
-      checkNotNull(username);
-      checkNotNull(roles);
-
       this.username = username;
       this.roles = roles;
    }
@@ -100,12 +95,10 @@ public class PersistedRole implements EncodingSupport {
       result.append("PersistedRole [storeId=").append(storeId);
       result.append(", username=").append(username);
       result.append(", roles [");
-      if (roles != null) {
-         for (int i = 0; i < roles.size(); i++) {
-            result.append(roles.get(i));
-            if (i < roles.size() - 1) {
-               result.append(", ");
-            }
+      for (int i = 0; i < roles.size(); i++) {
+         result.append(roles.get(i));
+         if (i < roles.size() - 1) {
+            result.append(", ");
          }
       }
       result.append("]]");

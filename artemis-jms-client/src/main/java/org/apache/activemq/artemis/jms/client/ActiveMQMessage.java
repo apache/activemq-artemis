@@ -54,7 +54,6 @@ import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.QUEUE_Q
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_QUEUE_QUALIFED_PREFIX;
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TEMP_TOPIC_QUALIFED_PREFIX;
 import static org.apache.activemq.artemis.jms.client.ActiveMQDestination.TOPIC_QUALIFIED_PREFIX;
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * ActiveMQ Artemis implementation of a JMS Message.
@@ -220,8 +219,6 @@ public class ActiveMQMessage implements javax.jms.Message {
     * Constructor for when receiving a message from the server
     */
    public ActiveMQMessage(final ClientMessage message, final ClientSession session) {
-      checkNotNull(message);
-
       this.message = message;
 
       readOnly = true;
@@ -856,14 +853,10 @@ public class ActiveMQMessage implements javax.jms.Message {
    @Override
    public String toString() {
       StringBuffer sb = new StringBuffer("ActiveMQMessage[");
-      if (message != null) {
-         sb.append(getJMSMessageID());
-         sb.append("]:");
-         sb.append(message.isDurable() ? "PERSISTENT" : "NON-PERSISTENT");
-         sb.append("/" + message.toString());
-      } else {
-         sb.append("]");
-      }
+      sb.append(getJMSMessageID());
+      sb.append("]:");
+      sb.append(message.isDurable() ? "PERSISTENT" : "NON-PERSISTENT");
+      sb.append("/" + message.toString());
       return sb.toString();
    }
 

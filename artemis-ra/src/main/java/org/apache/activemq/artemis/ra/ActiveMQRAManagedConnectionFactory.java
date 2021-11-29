@@ -332,7 +332,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       }
 
       int hash = mcfProperties.hashCode();
-      hash += 31 * (ra != null ? ra.hashCode() : 0);
+      hash += 31 * ra.hashCode();
 
       return hash;
    }

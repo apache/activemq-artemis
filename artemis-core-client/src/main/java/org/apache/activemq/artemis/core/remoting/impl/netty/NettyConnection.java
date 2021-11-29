@@ -45,8 +45,6 @@ import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.jboss.logging.Logger;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 public class NettyConnection implements Connection {
 
    private static final Logger logger = Logger.getLogger(NettyConnection.class);
@@ -76,8 +74,6 @@ public class NettyConnection implements Connection {
                           final BaseConnectionLifeCycleListener<?> listener,
                           boolean batchingEnabled,
                           boolean directDeliver) {
-      checkNotNull(channel);
-
       this.configuration = configuration;
 
       this.channel = channel;

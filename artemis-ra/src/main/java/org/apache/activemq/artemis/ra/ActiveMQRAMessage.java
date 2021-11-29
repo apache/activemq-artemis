@@ -22,8 +22,6 @@ import javax.jms.Message;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 /**
  * A wrapper for a message
  */
@@ -46,9 +44,6 @@ public class ActiveMQRAMessage implements Message {
     * @param session the session
     */
    public ActiveMQRAMessage(final Message message, final ActiveMQRASession session) {
-      checkNotNull(message);
-      checkNotNull(session);
-
       if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
          ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
       }

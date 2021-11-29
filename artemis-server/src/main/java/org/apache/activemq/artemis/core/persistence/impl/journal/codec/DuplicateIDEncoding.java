@@ -25,8 +25,6 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 
-import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
-
 public class DuplicateIDEncoding implements EncodingSupport {
 
    public SimpleString address;
@@ -34,9 +32,6 @@ public class DuplicateIDEncoding implements EncodingSupport {
    public byte[] duplID;
 
    public DuplicateIDEncoding(final SimpleString address, final byte[] duplID) {
-      checkNotNull(address);
-      checkNotNull(duplID);
-
       this.address = address;
 
       this.duplID = duplID;
@@ -83,7 +78,7 @@ public class DuplicateIDEncoding implements EncodingSupport {
 
       // The bridge will generate IDs on these terms:
       // This will make them easier to read
-      if (address != null && address.toString().startsWith("BRIDGE") && duplID.length == 24) {
+      if (address.toString().startsWith("BRIDGE") && duplID.length == 24) {
          try {
             ByteBuffer buff = ByteBuffer.wrap(duplID);
 
