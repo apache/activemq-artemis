@@ -12,7 +12,7 @@ In ActiveMQ, destinations are pre-defined in the `<destinations>` section of the
 </destinations>	
 ```
 
-Things looks a bit different in Artemis. We already explained that queues are `anycast` addresses and topics are `muticast` ones. We're not gonna go deep into the address settings details here and you're advised to look at the user manual for that. Let's just see what we need to do in order to replicate ActiveMQ configuration. 
+Things looks a bit different in Artemis. We already explained that queues are `anycast` addresses and topics are `multicast` ones. We're not gonna go deep into the address settings details here and you're advised to look at the user manual for that. Let's just see what we need to do in order to replicate ActiveMQ configuration.
 
 Addresses are defined in `<addresses>` section of the `etc/broker.xml` configuration file. So the corresponding Artemis configuration for the ActiveMQ example above, looks like this:
 
