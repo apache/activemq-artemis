@@ -73,6 +73,15 @@ public class PrintData extends DBOption {
    @Option(name = "--reclaimed", description = "This option will try to print as many records as possible from reclaimed files")
    private boolean reclaimed = false;
 
+   @Option(name = "--max-pages", description = "It will print your data structure without showing your data")
+   private int maxPages = -1;
+
+   @Option(name = "--skip-bindings", description = "It will ignore printing the bindings journal")
+   private boolean skipBindings = false;
+
+   @Option(name = "--skip-journal", description = "It will ignore printing the messages journal")
+   private boolean skipJournal = false;
+
    private static final String BINDINGS_BANNER = "B I N D I N G S  J O U R N A L";
    private static final String MESSAGES_BANNER = "M E S S A G E S   J O U R N A L";
    static {
@@ -89,7 +98,7 @@ public class PrintData extends DBOption {
          if (configuration.isJDBC()) {
             printDataJDBC(configuration, context.out);
          } else {
-            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out, safe, reclaimed);
+            printData(new File(getBinding()), new File(getJournal()), new File(getPaging()), context.out, safe, reclaimed, skipBindings, skipJournal, maxPages);
          }
       } catch (Exception e) {
          treatError(e, "data", "print");
@@ -111,7 +120,7 @@ public class PrintData extends DBOption {
 
       DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe);
 
-      printPages(describeJournal, storageManager, pagingmanager, out, safe);
+      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages);
 
       cleanup();
 
@@ -121,14 +130,19 @@ public class PrintData extends DBOption {
    }
 
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, boolean secret) throws Exception {
-      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out, secret, false);
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, System.out, secret, false, false, false, -1);
    }
 
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean secret) throws Exception {
-      printData(bindingsDirectory, messagesDirectory, pagingDirectory, out, secret, false);
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, out, secret, false, false, false, -1);
    }
 
    public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe, boolean reclaimed) throws Exception {
+      printData(bindingsDirectory, messagesDirectory, pagingDirectory, out, safe, reclaimed, false, false, -1);
+
+   }
+
+   public static void printData(File bindingsDirectory, File messagesDirectory, File pagingDirectory, PrintStream out, boolean safe, boolean reclaimed, boolean skipBindings, boolean skipJournal, int maxPages) throws Exception {
       // printing the banner and version
       Artemis.printBanner(out);
 
@@ -146,21 +160,33 @@ public class PrintData extends DBOption {
       }
 
       printBanner(out, BINDINGS_BANNER);
-
-      printBindings(bindingsDirectory, out, safe, true, true, reclaimed);
+      if (skipBindings) {
+         out.println(".... skipping");
+         out.println();
+      } else {
+         printBindings(bindingsDirectory, out, safe, true, true, reclaimed);
+      }
 
       printBanner(out, MESSAGES_BANNER);
-
+      if (skipJournal) {
+         out.println(".... skipping");
+         out.println();
+      }
       DescribeJournal describeJournal = null;
-      describeJournal = printMessages(messagesDirectory, out, safe, true, true, reclaimed);
+      describeJournal = printMessages(messagesDirectory, out, safe, !skipJournal, !skipJournal, reclaimed);
+
       if (describeJournal == null) {
          return;
       }
 
       try {
          printBanner(out, "P A G I N G");
-
-         printPages(pagingDirectory, describeJournal, out, safe);
+         if (maxPages == 0) {
+            out.println(".... skipping");
+            out.println();
+         } else {
+            printPages(pagingDirectory, describeJournal, out, safe, maxPages);
+         }
       } catch (Exception e) {
          e.printStackTrace();
          return;
@@ -195,6 +221,10 @@ public class PrintData extends DBOption {
    }
 
    private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe) {
+      printPages(pageDirectory, describeJournal, out, safe, -1);
+   }
+
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe, int maxPages) {
       ActiveMQThreadFactory daemonFactory = new ActiveMQThreadFactory("cli", true, PrintData.class.getClassLoader());
       final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, daemonFactory);
       final ExecutorService executor = Executors.newFixedThreadPool(10, daemonFactory);
@@ -212,7 +242,7 @@ public class PrintData extends DBOption {
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         printPages(describeJournal, sm, manager, out, safe);
+         printPages(describeJournal, sm, manager, out, safe, maxPages);
       } catch (Exception e) {
          e.printStackTrace();
       } finally {
@@ -225,7 +255,7 @@ public class PrintData extends DBOption {
                                   StorageManager sm,
                                   PagingManager manager,
                                   PrintStream out,
-                                  boolean safe) throws Exception {
+                                  boolean safe, int maxPages) throws Exception {
       PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
 
       Set<Long> pgTXs = cursorACKs.getPgTXs();
@@ -244,6 +274,10 @@ public class PrintData extends DBOption {
             out.println("Exploring store " + store + " folder = " + folder);
             int pgid = (int) pgStore.getFirstPage();
             for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
+               if (maxPages >= 0 && pg > maxPages) {
+                  out.println("******* Giving up at Page " + pgid + ", System has a total of " + pgStore.getNumberOfPages() + " pages");
+                  break;
+               }
                out.println("*******   Page " + pgid);
                Page page = pgStore.createPage(pgid);
                page.open();
@@ -265,6 +299,7 @@ public class PrintData extends DBOption {
                   }
                   out.print(",Queues = ");
                   long[] q = msg.getQueueIDs();
+                  int ackCount = 0;
                   for (int i = 0; i < q.length; i++) {
                      out.print(q[i]);
 
@@ -282,7 +317,12 @@ public class PrintData extends DBOption {
                      }
 
                      if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
+                        acked = true;
                         out.print(" (PG-COMPLETE)");
+                     }
+
+                     if (acked) {
+                        ackCount++;
                      }
 
                      if (i + 1 < q.length) {
@@ -293,6 +333,11 @@ public class PrintData extends DBOption {
                      out.print(", **PG_TX_NOT_FOUND**");
                   }
                   out.println();
+
+                  if (ackCount != q.length) {
+                     out.println("^^^ Previous record has " + ackCount + " acked queues and " + q.length + " queues routed");
+                     out.println();
+                  }
                   msgID++;
                }
                pgid++;
