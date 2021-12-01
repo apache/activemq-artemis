@@ -15,31 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.config.balancing;
+package org.apache.activemq.artemis.core.server.balancing.transformer;
 
-import java.io.Serializable;
-import java.util.Map;
-
-public class PolicyConfiguration implements Serializable {
-   private String name;
-
-   private Map<String, String> properties;
-
-   public String getName() {
-      return name;
-   }
-
-   public PolicyConfiguration setName(String name) {
-      this.name = name;
-      return this;
-   }
-
-   public Map<String, String> getProperties() {
-      return properties;
-   }
-
-   public PolicyConfiguration setProperties(Map<String, String> properties) {
-      this.properties = properties;
-      return this;
-   }
+public interface TransformerFactory {
+   KeyTransformer create();
 }

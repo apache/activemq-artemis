@@ -15,8 +15,16 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.balancing.policies;
+package org.apache.activemq.artemis.core.server.balancing.transformer;
 
-public interface PolicyFactory {
-   Policy create();
+import java.util.Map;
+
+public interface KeyTransformer {
+
+   default void init(Map<String, String> properties) {
+   }
+
+   default String transform(String key) {
+      return key;
+   }
 }

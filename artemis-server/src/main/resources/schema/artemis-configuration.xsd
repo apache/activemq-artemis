@@ -2136,6 +2136,13 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="local-target-key-transformer" type="brokerBalancerKeyTransformerType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the local target key transformer configuration
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:sequence>
       <xsd:attribute name="name" type="xsd:string" use="required">
          <xsd:annotation>
@@ -2162,6 +2169,26 @@
             <xsd:annotation>
                <xsd:documentation>
                   properties to configure a policy
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="name" type="xsd:ID" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               the name of the policy
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="brokerBalancerKeyTransformerType">
+      <xsd:sequence>
+         <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  properties to configure a key transformer
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>

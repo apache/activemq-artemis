@@ -149,6 +149,14 @@
             <target-key-filter>^[^.]+</target-key-filter>
             <local-target-filter>DEFAULT</local-target-filter>
          </broker-balancer>
+         <broker-balancer name="simple-local-with-transformer">
+            <target-key>CLIENT_ID</target-key>
+            <target-key-filter>^[^.]+</target-key-filter>
+            <local-target-filter>DEFAULT</local-target-filter>
+            <local-target-key-transformer name="CONSISTENT_HASH_MODULO">
+               <property key="modulo" value="2"></property>
+            </local-target-key-transformer>
+         </broker-balancer>
          <broker-balancer name="simple-balancer">
             <target-key>USER_NAME</target-key>
             <policy name="FIRST_ELEMENT"/>

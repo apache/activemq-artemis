@@ -1964,7 +1964,7 @@ public abstract class ActiveMQTestBase extends Assert {
             }
          }
 
-         if (bindingCount == expectedBindingCount && totConsumers == expectedConsumerCount) {
+         if (bindingCount == expectedBindingCount && (expectedConsumerCount == -1 || totConsumers == expectedConsumerCount)) {
             return true;
          }
 

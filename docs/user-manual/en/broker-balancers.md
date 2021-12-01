@@ -106,12 +106,19 @@ So a broker balancer with the cache enabled doesn't strictly follow the configur
 By default, the cache is enabled and will never timeout. See below
 for more details about setting the `cache-timeout` parameter.
 
+## Key transformers
+A `local-target-key-transformer` allows target key transformation before matching against any local-target-filter. One use case is
+CLIENT_ID sharding across a cluster of N brokers. With a consistent hash % N transformation, each client id
+can map exclusively to just one of the brokers. The included transformers are:
+* `CONSISTENT_HASH_MODULO` that takes a single `modulo` property to configure the bound.
+
 ## Defining broker balancers
 A broker balancer is defined by the `broker-balancer` element, it includes the following items:
 * the `name` attribute defines the name of the broker balancer and is used to reference the balancer from an acceptor;
 * the `target-key` element defines what key to select a target broker, the supported values are: `CLIENT_ID`, `SNI_HOST`, `SOURCE_IP`, `USER_NAME`, `ROLE_NAME`, default is `SOURCE_IP`, see [target key](#target-key) for further details;
 * the `target-key-filter` element defines a regular expression to filter the resolved keys;
 * the `local-target-filter` element defines a regular expression to match the keys that have to return a local target;
+* the `local-target-key-transformer` element defines a key transformer, see [key transformers](#key-transformers);
 * the `cache-timeout` element is the time period for a target broker to remain in the cache, measured in milliseconds, setting `0` will disable the cache, default is `-1`, meaning no expiration;
 * the `pool` element defines the pool to group the target brokers, see [pools](#pools).
 * the `policy` element defines the policy used to select the target brokers from the pool, see [policies](#policies);

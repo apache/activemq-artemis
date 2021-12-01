@@ -28,7 +28,8 @@ public class BrokerBalancerConfiguration implements Serializable {
    private String localTargetFilter = null;
    private int cacheTimeout = -1;
    private PoolConfiguration poolConfiguration = null;
-   private PolicyConfiguration policyConfiguration = null;
+   private NamedPropertyConfiguration policyConfiguration = null;
+   private NamedPropertyConfiguration transformerConfiguration = null;
 
    public String getName() {
       return name;
@@ -75,11 +76,11 @@ public class BrokerBalancerConfiguration implements Serializable {
       return this;
    }
 
-   public PolicyConfiguration getPolicyConfiguration() {
+   public NamedPropertyConfiguration getPolicyConfiguration() {
       return policyConfiguration;
    }
 
-   public BrokerBalancerConfiguration setPolicyConfiguration(PolicyConfiguration policyConfiguration) {
+   public BrokerBalancerConfiguration setPolicyConfiguration(NamedPropertyConfiguration policyConfiguration) {
       this.policyConfiguration = policyConfiguration;
       return this;
    }
@@ -91,5 +92,13 @@ public class BrokerBalancerConfiguration implements Serializable {
    public BrokerBalancerConfiguration setPoolConfiguration(PoolConfiguration poolConfiguration) {
       this.poolConfiguration = poolConfiguration;
       return this;
+   }
+
+   public void setTransformerConfiguration(NamedPropertyConfiguration configuration) {
+      this.transformerConfiguration = configuration;
+   }
+
+   public NamedPropertyConfiguration getTransformerConfiguration() {
+      return transformerConfiguration;
    }
 }

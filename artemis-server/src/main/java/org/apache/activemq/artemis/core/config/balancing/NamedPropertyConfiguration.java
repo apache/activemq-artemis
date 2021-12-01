@@ -15,8 +15,31 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.balancing.policies;
+package org.apache.activemq.artemis.core.config.balancing;
 
-public interface PolicyFactory {
-   Policy create();
+import java.io.Serializable;
+import java.util.Map;
+
+public class NamedPropertyConfiguration implements Serializable {
+   private String name;
+
+   private Map<String, String> properties;
+
+   public String getName() {
+      return name;
+   }
+
+   public NamedPropertyConfiguration setName(String name) {
+      this.name = name;
+      return this;
+   }
+
+   public Map<String, String> getProperties() {
+      return properties;
+   }
+
+   public NamedPropertyConfiguration setProperties(Map<String, String> properties) {
+      this.properties = properties;
+      return this;
+   }
 }

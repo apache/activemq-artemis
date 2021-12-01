@@ -14,9 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.activemq.artemis.core.server.balancing.policies;
 
-public interface PolicyFactory {
-   Policy create();
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class PolicyFactoryResolverTest {
+
+   @Test
+   public void resolveOk() throws Exception {
+      PolicyFactoryResolver instance = PolicyFactoryResolver.getInstance();
+      assertNotNull(instance.resolve(ConsistentHashPolicy.NAME));
+   }
+
+   @Test(expected = ClassNotFoundException.class)
+   public void resolveError() throws Exception {
+      PolicyFactoryResolver instance = PolicyFactoryResolver.getInstance();
+      assertNotNull(instance.resolve("NOT PRESENT"));
+   }
+
+   @Test
+   public void keyFromName() throws Exception {
+      PolicyFactoryResolver instance = PolicyFactoryResolver.getInstance();
+      assertEquals("New", instance.keyFromClassName("NewPolicyFactory"));
+   }
 }

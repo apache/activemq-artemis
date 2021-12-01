@@ -36,7 +36,10 @@ public class PolicyFactoryResolver {
    private final Map<String, PolicyFactory> policyFactories = new HashMap<>();
 
    private PolicyFactoryResolver() {
-      registerPolicyFactory(new DefaultPolicyFactory());
+      policyFactories.put(ConsistentHashPolicy.NAME, () -> new ConsistentHashPolicy());
+      policyFactories.put(FirstElementPolicy.NAME, () -> new FirstElementPolicy());
+      policyFactories.put(LeastConnectionsPolicy.NAME, () -> new LeastConnectionsPolicy());
+      policyFactories.put(RoundRobinPolicy.NAME, () -> new RoundRobinPolicy());
 
       loadPolicyFactories();
    }
@@ -56,19 +59,15 @@ public class PolicyFactoryResolver {
          PolicyFactory.class, BrokerBalancer.class.getClassLoader());
 
       for (PolicyFactory policyFactory : serviceLoader) {
-         registerPolicyFactory(policyFactory);
+         policyFactories.put(keyFromClassName(policyFactory.getClass().getName()), policyFactory);
       }
    }
 
-   public void registerPolicyFactory(PolicyFactory policyFactory) {
-      for (String policyName : policyFactory.getSupportedPolicies()) {
-         policyFactories.put(policyName, policyFactory);
-      }
+   public void registerPolicyFactory(String name, PolicyFactory policyFactory) {
+      policyFactories.put(name, policyFactory);
    }
 
-   public void unregisterPolicyFactory(PolicyFactory policyFactory) {
-      for (String policyName : policyFactory.getSupportedPolicies()) {
-         policyFactories.remove(policyName, policyFactory);
-      }
+   String keyFromClassName(String name) {
+      return name.substring(0, name.indexOf("PolicyFactory"));
    }
 }
