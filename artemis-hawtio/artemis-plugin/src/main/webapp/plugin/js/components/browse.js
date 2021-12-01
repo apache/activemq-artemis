@@ -826,6 +826,14 @@ var Artemis;
             return enc > -1 && enc < 9 ? amqpEncodingLabels[enc] : enc;
         }
 
+        var routingTypes = ["multicast", "anycast"];
+        function formatRoutingType(rt) {
+            if (isNaN(rt) || typeof rt !== "number") {
+                return enc;
+            }
+            return rt > -1 && rt < 2 ? routingTypes[rt] : rt;
+        }
+
         function createProperties(message) {
             var properties = [];
             angular.forEach(message, function (value, key) {
@@ -839,6 +847,10 @@ var Artemis;
                             v2 += " (" + formatAmqpEncoding(v2) + ")";
                         } else if(k2 === "_AMQ_NotifTimestamp") {
                             v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "_AMQ_ROUTING_TYPE") {
+                            v2 += " (" + formatRoutingType(v2) + ")";
+                        } else if(k2 === "_AMQ_ORIG_ROUTING_TYPE") {
+                            v2 += " (" + formatRoutingType(v2) + ")";
                         } else if(k2 === "extraProperties._AMQ_ACTUAL_EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-ACTUAL-EXPIRY") {
