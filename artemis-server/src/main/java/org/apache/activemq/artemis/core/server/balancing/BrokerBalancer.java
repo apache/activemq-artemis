@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.balancing.targets.Target;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKeyResolver;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetResult;
+import org.apache.activemq.artemis.core.server.balancing.transformer.KeyTransformer;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
 
@@ -39,7 +40,6 @@ public class BrokerBalancer implements ActiveMQComponent {
 
 
    public static final String CLIENT_ID_PREFIX = ActiveMQDefaultConfiguration.DEFAULT_INTERNAL_NAMING_PREFIX + "balancer.client.";
-
 
    private final String name;
 
@@ -54,6 +54,8 @@ public class BrokerBalancer implements ActiveMQComponent {
    private final Pool pool;
 
    private final Policy policy;
+
+   private final KeyTransformer transformer;
 
    private final Cache<String, TargetResult> cache;
 
@@ -93,10 +95,20 @@ public class BrokerBalancer implements ActiveMQComponent {
    }
 
 
-   public BrokerBalancer(final String name, final TargetKey targetKey, final String targetKeyFilter, final Target localTarget, final String localTargetFilter, final Pool pool, final Policy policy, final int cacheTimeout) {
+   public BrokerBalancer(final String name,
+                         final TargetKey targetKey,
+                         final String targetKeyFilter,
+                         final Target localTarget,
+                         final String localTargetFilter,
+                         final Pool pool,
+                         final Policy policy,
+                         KeyTransformer transformer,
+                         final int cacheTimeout) {
       this.name = name;
 
       this.targetKey = targetKey;
+
+      this.transformer = transformer;
 
       this.targetKeyResolver = new TargetKeyResolver(targetKey, targetKeyFilter);
 
@@ -149,7 +161,7 @@ public class BrokerBalancer implements ActiveMQComponent {
 
    public TargetResult getTarget(String key) {
 
-      if (this.localTargetFilter != null && this.localTargetFilter.matcher(key).matches()) {
+      if (this.localTargetFilter != null && this.localTargetFilter.matcher(transform(key)).matches()) {
          if (logger.isDebugEnabled()) {
             logger.debug("The " + targetKey + "[" + key + "] matches the localTargetFilter " + localTargetFilter.pattern());
          }
@@ -200,5 +212,16 @@ public class BrokerBalancer implements ActiveMQComponent {
       }
 
       return result != null ? result : TargetResult.REFUSED_UNAVAILABLE_RESULT;
+   }
+
+   private String transform(String key) {
+      String result = key;
+      if (transformer != null) {
+         result = transformer.transform(key);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Key: " + key + ", transformed to " + result);
+         }
+      }
+      return result;
    }
 }

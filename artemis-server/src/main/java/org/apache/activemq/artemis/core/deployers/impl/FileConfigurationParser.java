@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
-import org.apache.activemq.artemis.core.config.balancing.PolicyConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -93,6 +93,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
+import org.apache.activemq.artemis.core.server.balancing.transformer.TransformerFactoryResolver;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
@@ -2653,7 +2654,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       brokerBalancerConfiguration.setCacheTimeout(getInteger(e, "cache-timeout",
          brokerBalancerConfiguration.getCacheTimeout(), Validators.MINUS_ONE_OR_GE_ZERO));
 
-      PolicyConfiguration policyConfiguration = null;
+      NamedPropertyConfiguration policyConfiguration = null;
       PoolConfiguration poolConfiguration = null;
       NodeList children = e.getChildNodes();
 
@@ -2661,20 +2662,34 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          Node child = children.item(j);
 
          if (child.getNodeName().equals("policy")) {
-            policyConfiguration = new PolicyConfiguration();
-            parsePolicyConfiguration((Element)child, policyConfiguration);
+            policyConfiguration = new NamedPropertyConfiguration();
+            parsePolicyConfiguration((Element) child, policyConfiguration);
             brokerBalancerConfiguration.setPolicyConfiguration(policyConfiguration);
          } else if (child.getNodeName().equals("pool")) {
             poolConfiguration = new PoolConfiguration();
             parsePoolConfiguration((Element) child, config, poolConfiguration);
             brokerBalancerConfiguration.setPoolConfiguration(poolConfiguration);
+         } else if (child.getNodeName().equals("local-target-key-transformer")) {
+            policyConfiguration = new NamedPropertyConfiguration();
+            parseTransformerConfiguration((Element) child, policyConfiguration);
+            brokerBalancerConfiguration.setTransformerConfiguration(policyConfiguration);
          }
       }
 
       config.getBalancerConfigurations().add(brokerBalancerConfiguration);
    }
 
-   private void parsePolicyConfiguration(final Element e, final PolicyConfiguration policyConfiguration) throws ClassNotFoundException {
+   private void parseTransformerConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {
+      String name = e.getAttribute("name");
+
+      TransformerFactoryResolver.getInstance().resolve(name);
+
+      policyConfiguration.setName(name);
+
+      policyConfiguration.setProperties(getMapOfChildPropertyElements(e));
+   }
+
+   private void parsePolicyConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {
       String name = e.getAttribute("name");
 
       PolicyFactoryResolver.getInstance().resolve(name);

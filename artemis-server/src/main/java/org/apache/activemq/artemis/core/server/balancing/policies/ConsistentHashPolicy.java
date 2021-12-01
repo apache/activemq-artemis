@@ -31,10 +31,6 @@ public class ConsistentHashPolicy extends AbstractPolicy {
       super(NAME);
    }
 
-   protected ConsistentHashPolicy(String name) {
-      super(name);
-   }
-
    @Override
    public Target selectTarget(List<Target> targets, String key) {
       if (targets.size() > 1) {
@@ -60,7 +56,7 @@ public class ConsistentHashPolicy extends AbstractPolicy {
       return null;
    }
 
-   private int getHash(String str) {
+   public static int getHash(String str) {
       final int FNV_INIT = 0x811c9dc5;
       final int FNV_PRIME = 0x01000193;
 

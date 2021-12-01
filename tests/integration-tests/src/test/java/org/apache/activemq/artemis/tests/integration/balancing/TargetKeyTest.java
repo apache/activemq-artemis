@@ -88,15 +88,10 @@ public class TargetKeyTest extends BalancingTestBase {
 
    @Before
    public void setup() throws Exception {
-      PolicyFactoryResolver.getInstance().registerPolicyFactory(
+      PolicyFactoryResolver.getInstance().registerPolicyFactory(MOCK_POLICY_NAME,
          new PolicyFactory() {
             @Override
-            public String[] getSupportedPolicies() {
-               return new String[] {MOCK_POLICY_NAME};
-            }
-
-            @Override
-            public Policy createPolicy(String policyName) {
+            public Policy create() {
                return new FirstElementPolicy(MOCK_POLICY_NAME) {
                   @Override
                   public Target selectTarget(List<Target> targets, String key) {

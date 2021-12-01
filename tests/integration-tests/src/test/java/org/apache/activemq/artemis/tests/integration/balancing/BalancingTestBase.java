@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
-import org.apache.activemq.artemis.core.config.balancing.PolicyConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.balancing.PoolConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
@@ -88,7 +88,7 @@ public class BalancingTestBase extends ClusterTestBase {
       brokerBalancerConfiguration.setTargetKey(targetKey).setLocalTargetFilter(localTargetFilter)
          .setPoolConfiguration(new PoolConfiguration().setCheckPeriod(1000).setQuorumSize(quorumSize)
             .setLocalTargetEnabled(localTargetEnabled).setClusterConnection(clusterConnection))
-         .setPolicyConfiguration(new PolicyConfiguration().setName(policyName).setProperties(properties));
+         .setPolicyConfiguration(new NamedPropertyConfiguration().setName(policyName).setProperties(properties));
 
       configuration.setBalancerConfigurations(Collections.singletonList(brokerBalancerConfiguration));
 
@@ -105,7 +105,7 @@ public class BalancingTestBase extends ClusterTestBase {
       brokerBalancerConfiguration.setTargetKey(targetKey).setLocalTargetFilter(localTargetFilter)
          .setPoolConfiguration(new PoolConfiguration().setCheckPeriod(1000).setQuorumSize(quorumSize)
             .setLocalTargetEnabled(localTargetEnabled).setDiscoveryGroupName("dg1"))
-         .setPolicyConfiguration(new PolicyConfiguration().setName(policyName).setProperties(properties));
+         .setPolicyConfiguration(new NamedPropertyConfiguration().setName(policyName).setProperties(properties));
 
       configuration.setBalancerConfigurations(Collections.singletonList(brokerBalancerConfiguration));
 
@@ -129,7 +129,7 @@ public class BalancingTestBase extends ClusterTestBase {
       brokerBalancerConfiguration.setTargetKey(targetKey).setLocalTargetFilter(localTargetFilter)
          .setPoolConfiguration(new PoolConfiguration().setCheckPeriod(1000).setQuorumSize(quorumSize)
             .setLocalTargetEnabled(localTargetEnabled).setStaticConnectors(staticConnectors))
-         .setPolicyConfiguration(new PolicyConfiguration().setName(policyName).setProperties(properties));
+         .setPolicyConfiguration(new NamedPropertyConfiguration().setName(policyName).setProperties(properties));
 
       configuration.setBalancerConfigurations(Collections.singletonList(brokerBalancerConfiguration));
 
@@ -215,7 +215,7 @@ public class BalancingTestBase extends ClusterTestBase {
                urlBuilder.append(")");
             }
 
-            urlBuilder.append("?failover.startupMaxReconnectAttempts=" + retries);
+            urlBuilder.append("?failover.startupMaxReconnectAttempts=" + retries + "&failover.randomize=true");
 
             if (clientID != null) {
                urlBuilder.append("&jms.clientID=");

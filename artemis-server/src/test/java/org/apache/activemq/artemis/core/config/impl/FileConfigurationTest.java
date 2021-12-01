@@ -76,6 +76,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.core.server.balancing.transformer.ConsistentHashModulo.MODULO;
+
 public class FileConfigurationTest extends ConfigurationImplTest {
 
    @BeforeClass
@@ -265,13 +267,20 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          }
       }
 
-      Assert.assertEquals(4, conf.getBalancerConfigurations().size());
+      Assert.assertEquals(5, conf.getBalancerConfigurations().size());
       for (BrokerBalancerConfiguration bc : conf.getBalancerConfigurations()) {
          if (bc.getName().equals("simple-local")) {
             Assert.assertEquals(bc.getTargetKey(), TargetKey.CLIENT_ID);
             Assert.assertNotNull(bc.getLocalTargetFilter());
             Assert.assertNotNull(bc.getTargetKeyFilter());
             Assert.assertNull(bc.getPolicyConfiguration());
+         } else if (bc.getName().equals("simple-local-with-transformer")) {
+            Assert.assertEquals(bc.getTargetKey(), TargetKey.CLIENT_ID);
+            Assert.assertNotNull(bc.getLocalTargetFilter());
+            Assert.assertNotNull(bc.getTargetKeyFilter());
+            Assert.assertNull(bc.getPolicyConfiguration());
+            Assert.assertNotNull(bc.getTransformerConfiguration());
+            Assert.assertNotNull(bc.getTransformerConfiguration().getProperties().get(MODULO));
          } else if (bc.getName().equals("simple-balancer")) {
             Assert.assertEquals(bc.getTargetKey(), TargetKey.USER_NAME);
             Assert.assertNull(bc.getLocalTargetFilter());
