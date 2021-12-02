@@ -21,8 +21,9 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 
-public class XidCodecSupport {
+import static org.apache.activemq.artemis.utils.BufferHelper.safeReadBytes;
 
+public class XidCodecSupport {
 
    public static void encodeXid(final Xid xid, final ActiveMQBuffer out) {
       out.writeInt(xid.getFormatId());
@@ -34,10 +35,8 @@ public class XidCodecSupport {
 
    public static Xid decodeXid(final ActiveMQBuffer in) {
       int formatID = in.readInt();
-      byte[] bq = new byte[in.readInt()];
-      in.readBytes(bq);
-      byte[] gtxid = new byte[in.readInt()];
-      in.readBytes(gtxid);
+      byte[] bq = safeReadBytes(in);
+      byte[] gtxid = safeReadBytes(in);
       return new XidImpl(bq, formatID, gtxid);
    }
 
