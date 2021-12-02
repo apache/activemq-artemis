@@ -897,7 +897,6 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          targetLocator.setRetryInterval(retryInterval);
       }
 
-      targetLocator.disableFinalizeCheck();
       targetLocator.addIncomingInterceptor(new IncomingInterceptorLookingForExceptionMessage(manager, executorFactory.getExecutor()));
       MessageFlowRecordImpl record = new MessageFlowRecordImpl(targetLocator, eventUID, targetNodeID, connector, queueName, queue);
 

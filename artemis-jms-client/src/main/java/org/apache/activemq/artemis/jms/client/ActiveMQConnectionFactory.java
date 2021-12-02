@@ -94,6 +94,7 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private boolean cacheDestinations;
 
+   // keeping this field for serialization compatibility only. do not use it
    private boolean finalizeChecks;
 
    private boolean ignoreJTA;
@@ -164,16 +165,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
          this.protocolManagerFactoryStr = protocolManagerFactoryStr;
       }
    }
-
-   public ActiveMQConnectionFactory disableFinalizeChecks() {
-      this.finalizeChecks = false;
-      return this;
-   }
-
-   public boolean isFinalizeChecks() {
-      return finalizeChecks;
-   }
-
 
    @Override
    public String getDeserializationBlackList() {
@@ -265,8 +256,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    public ActiveMQConnectionFactory(final ServerLocator serverLocator) {
       this.serverLocator = serverLocator;
-
-      serverLocator.disableFinalizeCheck();
    }
 
    public ActiveMQConnectionFactory(final boolean ha, final DiscoveryGroupConfiguration groupConfiguration) {
@@ -275,8 +264,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       } else {
          serverLocator = ActiveMQClient.createServerLocatorWithoutHA(groupConfiguration);
       }
-
-      serverLocator.disableFinalizeCheck();
    }
 
    public ActiveMQConnectionFactory(final boolean ha, final TransportConfiguration... initialConnectors) {
@@ -285,8 +272,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       } else {
          serverLocator = ActiveMQClient.createServerLocatorWithoutHA(initialConnectors);
       }
-
-      serverLocator.disableFinalizeCheck();
    }
 
    @Override
@@ -948,19 +933,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       if (readOnly) {
          throw new IllegalStateException("Cannot set attribute on ActiveMQConnectionFactory after it has been used");
       }
-   }
-
-   @Override
-   protected void finalize() throws Throwable {
-      try {
-         if (serverLocator != null) {
-            serverLocator.close();
-         }
-      } catch (Exception e) {
-         e.printStackTrace();
-         //not much we can do here
-      }
-      super.finalize();
    }
 
    // this may need to be set by classes which extend this class

@@ -48,16 +48,6 @@ public interface ServerLocator extends AutoCloseable {
    boolean isClosed();
 
    /**
-    * This method will disable any checks when a GarbageCollection happens
-    * leaving connections open. The JMS Layer will make specific usage of this
-    * method, since the ConnectionFactory.finalize should release this.
-    * <p>
-    * Warning: You may leave resources unattended if you call this method and
-    * don't take care of cleaning the resources yourself.
-    */
-   void disableFinalizeCheck();
-
-   /**
     * Creates a ClientSessionFactory using whatever load balancing policy is in force
     *
     * @return The ClientSessionFactory

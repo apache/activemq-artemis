@@ -1299,12 +1299,6 @@ public class NettyConnector extends AbstractConnector {
       return false;
    }
 
-   @Override
-   public void finalize() throws Throwable {
-      close();
-      super.finalize();
-   }
-
    //for test purpose only
    public Bootstrap getBootStrap() {
       return bootstrap;
