@@ -557,17 +557,6 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return initialSession;
    }
 
-   @Override
-   protected final void finalize() throws Throwable {
-      if (!closed) {
-         if (this.factoryReference.isFinalizeChecks()) {
-            ActiveMQJMSClientLogger.LOGGER.connectionLeftOpen(creationStack);
-         }
-
-         close();
-      }
-   }
-
    protected boolean isXA() {
       return false;
    }

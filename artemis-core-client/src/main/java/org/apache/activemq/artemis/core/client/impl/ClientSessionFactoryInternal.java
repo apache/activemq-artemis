@@ -35,8 +35,6 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
 
    boolean waitForTopology(long timeout, TimeUnit unit);
 
-   void disableFinalizeCheck();
-
    String getLiveNodeId();
 
    // for testing

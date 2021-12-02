@@ -90,8 +90,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private ConnectorFactory connectorFactory;
 
-   private transient boolean finalizeCheck = true;
-
    private final long callTimeout;
 
    private final long callFailoverTimeout;
@@ -238,11 +236,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (connectorConfig.getB() != null) {
          this.backupConnectorConfig = connectorConfig.getB();
       }
-   }
-
-   @Override
-   public void disableFinalizeCheck() {
-      finalizeCheck = false;
    }
 
    @Override
@@ -1035,17 +1028,6 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          // to set up its TTL on the server side
          pingRunnable.run();
       }
-   }
-
-   @Override
-   protected void finalize() throws Throwable {
-      if (!closed && finalizeCheck) {
-         ActiveMQClientLogger.LOGGER.factoryLeftOpen(createTrace, System.identityHashCode(this));
-
-         close();
-      }
-
-      super.finalize();
    }
 
    protected ConnectorFactory instantiateConnectorFactory(final String connectorFactoryClassName) {

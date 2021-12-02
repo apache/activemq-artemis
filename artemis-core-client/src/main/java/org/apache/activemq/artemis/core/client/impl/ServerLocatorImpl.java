@@ -99,7 +99,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private final boolean ha;
 
-   private boolean finalizeCheck = true;
+   // this is not used... I'm only keeping it here because of Serialization compatibiity and Wildfly usage on JNDI.
+   private boolean finalizeCheck;
 
    private boolean clusterConnection;
 
@@ -410,7 +411,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private ServerLocatorImpl(ServerLocatorImpl locator) {
       ha = locator.ha;
-      finalizeCheck = locator.finalizeCheck;
       clusterConnection = locator.clusterConnection;
       initialConnectors = locator.initialConnectors;
       discoveryGroupConfiguration = locator.discoveryGroupConfiguration;
@@ -521,11 +521,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       this.protocolManagerFactory = protocolManagerFactory;
       protocolManagerFactory.setLocator(this);
       return this;
-   }
-
-   @Override
-   public void disableFinalizeCheck() {
-      finalizeCheck = false;
    }
 
    @Override
@@ -1311,15 +1306,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    @Override
-   protected void finalize() throws Throwable {
-      if (finalizeCheck) {
-         close();
-      }
-
-      super.finalize();
-   }
-
-   @Override
    public void cleanup() {
       doClose(false);
    }
@@ -1774,8 +1760,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             for (TransportConfiguration initialConnector : initialConnectors) {
                ClientSessionFactoryInternal factory = new ClientSessionFactoryImpl(ServerLocatorImpl.this, initialConnector, config, config.reconnectAttempts, threadPool, scheduledThreadPool, incomingInterceptors, outgoingInterceptors);
 
-               factory.disableFinalizeCheck();
-
                connectors.add(new Connector(initialConnector, factory));
             }
          }
@@ -1787,17 +1771,6 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                connector.disconnect();
             }
          }
-      }
-
-      @Override
-      protected void finalize() throws Throwable {
-         if (!isClosed() && finalizeCheck) {
-            ActiveMQClientLogger.LOGGER.serverLocatorNotClosed(traceException, System.identityHashCode(this));
-
-            close();
-         }
-
-         super.finalize();
       }
 
       private final class Connector {
