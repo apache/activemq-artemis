@@ -17,32 +17,25 @@
 
 package org.apache.activemq.artemis.tests.smoke.console;
 
-import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
+import org.apache.activemq.artemis.tests.smoke.console.pages.IndexPage;
 import org.junit.Test;
 import org.openqa.selenium.MutableCapabilities;
 
-public class LoginTest extends ConsoleTest {
+public class IndexTest extends ConsoleTest {
 
-   private static final String DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
+   protected static final String DEFAULT_CONSOLE_INDEX_LOGO_IMAGE = "/images/activemq-logo.png";
 
-   public LoginTest(MutableCapabilities browserOptions) {
+   public IndexTest(MutableCapabilities browserOptions) {
       super(browserOptions);
    }
 
    @Test
-   public void testLogin() {
-      driver.get(serverUrl + "/console");
-      LoginPage loginPage = new LoginPage(driver);
-      loginPage.loginValidUser(SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
-   }
+   public void testIndexLogo() {
+      String expectedLogoImage = serverUrl + System.getProperty(
+         "artemis.console.index.logo.image", DEFAULT_CONSOLE_INDEX_LOGO_IMAGE);
 
-   @Test
-   public void testLoginBrand() {
-      String expectedBrandImage = serverUrl + System.getProperty(
-         "artemis.console.login.brand.image", DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE);
-
-      driver.get(serverUrl + "/console");
-      LoginPage loginPage = new LoginPage(driver);
-      assertEquals(expectedBrandImage, loginPage.getBrandImage(DEFAULT_TIMEOUT));
+      driver.get(serverUrl);
+      IndexPage indexPage = new IndexPage(driver);
+      assertEquals(expectedLogoImage, indexPage.getLogoImage(DEFAULT_TIMEOUT));
    }
 }
