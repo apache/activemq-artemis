@@ -48,7 +48,6 @@ public abstract class ConsoleTest extends SmokeTestBase {
    protected static final int DEFAULT_TIMEOUT = 10000;
    protected static final String DEFAULT_SERVER_URL = "http://localhost:8161";
    protected static final String DEFAULT_CONTAINER_SERVER_URL = "http://host.testcontainers.internal:8161";
-   protected static final String DEFAULT_CONSOLE_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
 
    protected WebDriver driver;
    protected MutableCapabilities browserOptions;
@@ -88,12 +87,22 @@ public abstract class ConsoleTest extends SmokeTestBase {
       // [4] https://github.com/mozilla/geckodriver/
 
       try {
-         if (ChromeOptions.class.equals(browserOptions.getClass()) &&
+         if (browserOptions instanceof ChromeOptions &&
             System.getProperty("webdriver.chrome.driver") != null) {
-            driver = new ChromeDriver((ChromeOptions)browserOptions);
-         } else if (FirefoxOptions.class.equals(browserOptions.getClass()) &&
+            ChromeOptions chromeOptions = (ChromeOptions)browserOptions;
+            String arguments = System.getProperty("webdriver.chrome.driver.args");
+            if (arguments != null) {
+               chromeOptions.addArguments(arguments.split(","));
+            }
+            driver = new ChromeDriver(chromeOptions);
+         } else if (browserOptions instanceof FirefoxOptions &&
             System.getProperty("webdriver.gecko.driver") != null) {
-            driver = new FirefoxDriver((FirefoxOptions)browserOptions);
+            FirefoxOptions firefoxOptions = (FirefoxOptions)browserOptions;
+            String arguments = System.getProperty("webdriver.gecko.driver.args");
+            if (arguments != null) {
+               firefoxOptions.addArguments(arguments.split(","));
+            }
+            driver = new FirefoxDriver(firefoxOptions);
          } else {
             serverUrl = DEFAULT_CONTAINER_SERVER_URL;
             Testcontainers.exposeHostPorts(8161);
@@ -111,7 +120,7 @@ public abstract class ConsoleTest extends SmokeTestBase {
 
       loadWebDriverWait.until((Function<WebDriver, Object>) webDriver -> {
          try {
-            webDriver.get(serverUrl + "/console");
+            webDriver.get(serverUrl);
             return true;
          } catch (Exception ignore) {
             return false;
