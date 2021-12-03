@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+
 public class JournalFileImpl implements JournalFile {
 
    private final SequentialFile file;
@@ -65,6 +67,8 @@ public class JournalFileImpl implements JournalFile {
    private static final Logger logger = Logger.getLogger(JournalFileImpl.class);
 
    public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
+      checkNotNull(file);
+
       this.file = file;
 
       this.fileID = fileID;

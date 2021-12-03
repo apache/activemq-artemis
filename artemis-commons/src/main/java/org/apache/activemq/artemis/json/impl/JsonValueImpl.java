@@ -24,6 +24,8 @@ import org.apache.activemq.artemis.json.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+
 public class JsonValueImpl implements JsonValue {
 
    private Map<javax.json.JsonValue, JsonValue> cache = new HashMap<>();
@@ -77,6 +79,7 @@ public class JsonValueImpl implements JsonValue {
    }
 
    public JsonValueImpl(javax.json.JsonValue rawValue) {
+      checkNotNull(rawValue);
       this.rawValue = rawValue;
    }
 

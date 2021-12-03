@@ -25,6 +25,8 @@ import org.apache.activemq.artemis.json.JsonValue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
+
 public class JsonObjectBuilderImpl implements JsonObjectBuilder {
 
    private final javax.json.JsonObjectBuilder rawObjectBuilder;
@@ -34,6 +36,7 @@ public class JsonObjectBuilderImpl implements JsonObjectBuilder {
    }
 
    public JsonObjectBuilderImpl(javax.json.JsonObjectBuilder rawObjectBuilder) {
+      checkNotNull(rawObjectBuilder);
       this.rawObjectBuilder = rawObjectBuilder;
    }
 
