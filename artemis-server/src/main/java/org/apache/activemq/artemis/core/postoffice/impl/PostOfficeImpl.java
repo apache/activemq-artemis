@@ -315,6 +315,39 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                queueInfos.put(clusterName, info);
 
+               if (distance < 1) {
+                  //Binding added locally. If a matching remote binding with consumers exist, add a redistributor
+                  Binding binding = getBinding(routingName);
+
+                  if (binding != null) {
+
+                     Queue queue = (Queue) binding.getBindable();
+                     AddressSettings addressSettings = addressSettingsRepository.getMatch(binding.getAddress().toString());
+                     long redistributionDelay = addressSettings.getRedistributionDelay();
+
+                     if (redistributionDelay == -1) {
+                        //No need to keep looking since redistribution is not enabled
+                        break;
+                     }
+
+                     try {
+                        Bindings bindings = getBindingsForAddress(address);
+
+                        for (Binding bind : bindings.getBindings()) {
+                           if (bind.isConnected() && bind instanceof RemoteQueueBinding) {
+                              RemoteQueueBinding remoteBinding = (RemoteQueueBinding) bind;
+
+                              if (remoteBinding.consumerCount() > 0) {
+                                 queue.addRedistributor(redistributionDelay);
+                                 break;
+                              }
+                           }
+                        }
+                     } catch (Exception ignore) {
+                     }
+                  }
+               }
+
                break;
             }
             case BINDING_REMOVED: {
