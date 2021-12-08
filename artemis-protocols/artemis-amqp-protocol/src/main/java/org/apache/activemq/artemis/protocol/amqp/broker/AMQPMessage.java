@@ -971,6 +971,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       scanMessageData();
       messageDataScanned = MessageDataScanningStatus.SCANNED.code;
       modified = false;
+      // reinitialise memory estimate as message will already be on a queue
+      // and lazy decode will want to update
+      getMemoryEstimate();
    }
 
    @Override
