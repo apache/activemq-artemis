@@ -2050,7 +2050,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       if (registry == null) {
          for (String locatorClasse : RESOURCE_RECOVERY_CLASS_NAMES) {
             try {
-               ServiceLoader<ActiveMQRegistry> sl = ServiceLoader.load(ActiveMQRegistry.class);
+               ServiceLoader<ActiveMQRegistry> sl = ServiceLoader.load(ActiveMQRegistry.class, JMSBridgeImpl.class.getClassLoader());
                if (sl.iterator().hasNext()) {
                   registry = sl.iterator().next();
                }
