@@ -25,7 +25,7 @@ public class OpenSSLContextFactoryProvider {
    private static final OpenSSLContextFactory FACTORY;
    static {
       OpenSSLContextFactory factoryWithHighestPrio = null;
-      for (OpenSSLContextFactory factory : ServiceLoader.load(OpenSSLContextFactory.class)) {
+      for (OpenSSLContextFactory factory : ServiceLoader.load(OpenSSLContextFactory.class, OpenSSLContextFactoryProvider.class.getClassLoader())) {
          if (factoryWithHighestPrio == null || factory.getPriority() > factoryWithHighestPrio.getPriority()) {
             factoryWithHighestPrio = factory;
          }
