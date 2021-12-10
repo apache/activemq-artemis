@@ -691,11 +691,11 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public boolean checkMemory(final Runnable runWhenAvailable) {
-      return checkMemory(true, runWhenAvailable);
+      return checkMemory(true, runWhenAvailable, null);
    }
 
    @Override
-   public boolean checkMemory(boolean runOnFailure, final Runnable runWhenAvailable) {
+   public boolean checkMemory(boolean runOnFailure, final Runnable runWhenAvailable, Runnable runWhenBlocking) {
 
       if (blockedViaAddressControl) {
          if (runWhenAvailable != null) {
@@ -713,6 +713,9 @@ public class PagingStoreImpl implements PagingStore {
          }
       } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
          if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() >= maxSize || pagingManager.isGlobalFull()) {
+            if (runWhenBlocking != null) {
+               runWhenBlocking.run();
+            }
 
             onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
 
