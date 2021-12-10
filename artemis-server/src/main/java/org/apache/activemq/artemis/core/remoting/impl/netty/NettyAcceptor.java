@@ -396,6 +396,10 @@ public class NettyAcceptor extends AbstractAcceptor {
       }
    }
 
+   public int getTcpReceiveBufferSize() {
+      return tcpReceiveBufferSize;
+   }
+
    @Override
    public synchronized void start() throws Exception {
       if (channelClazz != null) {
