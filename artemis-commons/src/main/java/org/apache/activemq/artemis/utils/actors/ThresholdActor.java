@@ -67,8 +67,8 @@ public class ThresholdActor<T> extends ProcessorBase<Object> {
          listener.onMessage(theTask);
       } finally {
          if (estimateSize > 0) {
-            SIZE_UPDATER.getAndAdd(this, -size);
-         } else {
+            SIZE_UPDATER.getAndAdd(this, -estimateSize);
+         } else if (logger.isDebugEnabled()) {
             logger.debug("element " + theTask + " returned an invalid size over the Actor during release");
          }
       }
@@ -81,7 +81,7 @@ public class ThresholdActor<T> extends ProcessorBase<Object> {
          if (size > maxSize) {
             flush();
          }
-      } else {
+      } else if (logger.isDebugEnabled()) {
          logger.debug("element " + message + " returned an invalid size over the Actor");
       }
       task(message);
