@@ -121,7 +121,7 @@ public class ThresholdActorTest {
 
    public void block() {
       try {
-         if (!semaphore.tryAcquire(10, TimeUnit.SECONDS)) {
+         if (!semaphore.tryAcquire()) {
             errors.incrementAndGet();
             System.err.println("acquire failed");
          }
@@ -136,6 +136,20 @@ public class ThresholdActorTest {
 
    @Test
    public void testFlow() throws Exception {
+      testFlow(true);
+   }
+
+   /**
+    * This test will actually not respect the semaphore and keep going.
+    * The blockers and unblocks should still perform ok.
+    * @throws Exception
+    */
+   @Test
+   public void testFlow2() throws Exception {
+      testFlow(false);
+   }
+
+   public void testFlow(boolean respectSemaphore) throws Exception {
       final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
       try {
@@ -148,8 +162,10 @@ public class ThresholdActorTest {
          executorService.execute(() -> {
             for (int i = 0; i <= LAST_ELEMENT; i++) {
                try {
-                  semaphore.acquire();
-                  semaphore.release();
+                  if (respectSemaphore) {
+                     semaphore.acquire();
+                     semaphore.release();
+                  }
                   actor.act(new Element(i, i % 2 == 0 ? 20 : 1));
                } catch (Exception e) {
                   e.printStackTrace();
