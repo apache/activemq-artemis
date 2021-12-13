@@ -16,6 +16,11 @@
  */
 package org.apache.activemq.artemis.cli.commands.queue;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -23,17 +28,10 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
-@Command(name = "stat", description = "prints out basic stats associated with queues. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'."
-
-)
+@Command(name = "stat", description = "prints out basic stats associated with queues. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'.")
 public class StatQueue extends AbstractAction {
 
    public enum FIELD {
@@ -68,6 +66,8 @@ public class StatQueue extends AbstractAction {
 
    public static final int DEFAULT_MAX_ROWS = 50;
 
+   public static final int DEFAULT_MAX_COLUMN_SIZE = 25;
+
    @Option(name = "--queueName", description = "display queue stats for queue(s) with names containing this string.")
    private String queueName;
 
@@ -82,6 +82,9 @@ public class StatQueue extends AbstractAction {
 
    @Option(name = "--maxRows", description = "max number of queues displayed. Default is 50.")
    private int maxRows = DEFAULT_MAX_ROWS;
+
+   @Option(name = "--maxColumnSize", description = "max width of data column. Set to -1 for no limit. Default is 25.")
+   private int maxColumnSize = DEFAULT_MAX_COLUMN_SIZE;
 
    //easier for testing
    public StatQueue setQueueName(String queueName) {
@@ -106,6 +109,20 @@ public class StatQueue extends AbstractAction {
 
    public StatQueue setMaxRows(int maxRows) {
       this.maxRows = maxRows;
+      return this;
+   }
+
+   public StatQueue setMaxColumnSize(int maxColumnSize) {
+      int maxFieldSize = 0;
+      for (FIELD e : FIELD.values()) {
+         if (e.jsonId.length() > maxFieldSize) {
+            maxFieldSize = e.jsonId.length();
+         }
+      }
+      if (maxColumnSize != -1 && maxColumnSize < maxFieldSize) {
+         throw new IllegalArgumentException("maxColumnSize must be " + maxFieldSize + " or greater or -1 (i.e. no limit).");
+      }
+      this.maxColumnSize = maxColumnSize;
       return this;
    }
 
@@ -154,7 +171,6 @@ public class StatQueue extends AbstractAction {
    }
 
    private void printStats(String result) {
-      printHeadings();
 
       //should not happen but...
       if (result == null) {
@@ -168,8 +184,21 @@ public class StatQueue extends AbstractAction {
       int count = queuesAsJsonObject.getInt("count");
       JsonArray array = queuesAsJsonObject.getJsonArray("data");
 
+      int[] columnSizes = new int[FIELD.values().length];
+
+      FIELD[] fields = FIELD.values();
+      for (int i = 0; i < fields.length; i++) {
+         columnSizes[i] = fields[i].toString().length();
+      }
+
       for (int i = 0; i < array.size(); i++) {
-         printQueueStats(array.getJsonObject(i));
+         getColumnSizes(array.getJsonObject(i), columnSizes);
+      }
+
+      printHeadings(columnSizes);
+
+      for (int i = 0; i < array.size(); i++) {
+         printQueueStats(array.getJsonObject(i), columnSizes);
       }
 
       if (count > maxRows) {
@@ -177,14 +206,33 @@ public class StatQueue extends AbstractAction {
       }
    }
 
-   private void printHeadings() {
+   private void getColumnSizes(JsonObject jsonObject, int[] columnSizes) {
+      int i = 0;
+      for (FIELD e: FIELD.values()) {
+         if (jsonObject.getString(e.jsonId).length() > columnSizes[i]) {
+            columnSizes[i] = jsonObject.getString(e.jsonId).length();
+         }
+         // enforce max
+         if (columnSizes[i] > maxColumnSize && maxColumnSize != -1) {
+            columnSizes[i] = maxColumnSize;
+         }
+         i++;
+      }
+   }
 
-      StringBuilder stringBuilder = new StringBuilder(134).append('|').append(paddingString(new StringBuilder(FIELD.NAME.toString()), 25)).append('|').append(paddingString(new StringBuilder(FIELD.ADDRESS.toString()), 25)).append('|').append(paddingString(new StringBuilder(FIELD.CONSUMER_COUNT.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGE_COUNT.toString() + " "), 14)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGES_ADDED.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.DELIVERING_COUNT.toString() + " "), 17)).append('|').append(paddingString(new StringBuilder(FIELD.MESSAGES_ACKED.toString() + " "), 15)).append('|').append(paddingString(new StringBuilder(FIELD.SCHEDULED_COUNT.toString() + " "), 16)).append('|').append(paddingString(new StringBuilder(FIELD.ROUTING_TYPE.toString() + " "), 13)).append('|');
+   private void printHeadings(int[] columnSizes) {
+      // add 10 for the various '|' characters
+      StringBuilder stringBuilder = new StringBuilder(Arrays.stream(columnSizes).sum() + FIELD.values().length + 1).append('|');
+
+      int i = 0;
+      for (FIELD e: FIELD.values()) {
+         stringBuilder.append(paddingString(new StringBuilder(e.toString()), columnSizes[i++])).append('|');
+      }
 
       context.out.println(stringBuilder);
    }
 
-   private void printQueueStats(JsonObject jsonObject) {
+   private void printQueueStats(JsonObject jsonObject, int[] columnSizes) {
 
       //should not happen but just in case..
       if (jsonObject == null) {
@@ -194,16 +242,22 @@ public class StatQueue extends AbstractAction {
          return;
       }
 
-      StringBuilder stringBuilder = new StringBuilder(134).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.NAME.getJsonId())), 25)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.ADDRESS.getJsonId())), 25)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.CONSUMER_COUNT.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGE_COUNT.getJsonId())), 14)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGES_ADDED.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.DELIVERING_COUNT.getJsonId())), 17)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.MESSAGES_ACKED.getJsonId())), 15)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.SCHEDULED_COUNT.getJsonId())), 16)).append('|').append(paddingString(new StringBuilder(jsonObject.getString(FIELD.ROUTING_TYPE.getJsonId())), 13)).append('|');
+      // add 10 for the various '|' characters
+      StringBuilder stringBuilder = new StringBuilder(Arrays.stream(columnSizes).sum() + FIELD.values().length + 1).append('|');
+
+      int i = 0;
+      for (FIELD e: FIELD.values()) {
+         stringBuilder.append(paddingString(new StringBuilder(jsonObject.getString(e.jsonId)), columnSizes[i++])).append('|');
+      }
 
       context.out.println(stringBuilder);
    }
 
-   private StringBuilder paddingString(StringBuilder value, int size) {
+   private StringBuilder paddingString(StringBuilder value, int maxColumnSize) {
 
       //should not happen but just in case ...
       if (value == null) {
-         return new StringBuilder(size);
+         return new StringBuilder(maxColumnSize);
       }
 
       //would expect to have some data
@@ -212,12 +266,13 @@ public class StatQueue extends AbstractAction {
       }
 
       int length = value.length();
-      if (length >= size) {
-         //no padding required
-         return value;
+
+      if (length > maxColumnSize && this.maxColumnSize != -1) {
+         // truncate if necessary
+         return new StringBuilder(value.substring(0, maxColumnSize - 3) + "...");
       }
 
-      for (int i = 1; (i + length) <= size; i++) {
+      for (int i = 1; (i + length) <= maxColumnSize; i++) {
          value.append(' ');
       }
 
