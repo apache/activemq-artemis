@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -341,6 +342,10 @@ public class WebServerComponent implements ExternalComponent {
       webapp.setWar(warDirectory.resolve(warFile).toString());
 
       webapp.setAttribute("org.eclipse.jetty.webapp.basetempdir", temporaryWarDir.toFile().getAbsolutePath());
+
+      // Set the default authenticator factory to avoid NPE due to the following commit:
+      // https://github.com/eclipse/jetty.project/commit/7e91d34177a880ecbe70009e8f200d02e3a0c5dd
+      webapp.getSecurityHandler().setAuthenticatorFactory(new DefaultAuthenticatorFactory());
 
       handlers.addHandler(webapp);
       return webapp;
