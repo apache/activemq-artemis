@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -82,6 +83,7 @@ public class RestTestBase extends JMSTestBase {
          webapp.setContextPath("/" + contextPath);
       }
       webapp.setWar(warFile.getAbsolutePath());
+      webapp.getSecurityHandler().setAuthenticatorFactory(new DefaultAuthenticatorFactory());
 
       handlers.addHandler(webapp);
       return webapp;
