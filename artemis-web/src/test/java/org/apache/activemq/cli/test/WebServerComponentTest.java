@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +62,6 @@ import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
-import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
@@ -116,10 +114,8 @@ public class WebServerComponentTest extends Assert {
    }
 
    private void internalSimpleServer(boolean useCustomizer) throws Exception {
-      BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "http://localhost:0";
       WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.bind = "http://localhost:0";
       webServerDTO.path = "webapps";
       if (useCustomizer) {
          webServerDTO.customizer = TestCustomizer.class.getName();
@@ -166,10 +162,8 @@ public class WebServerComponentTest extends Assert {
 
    @Test
    public void testComponentStopBehavior() throws Exception {
-      BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "http://localhost:0";
       WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.bind = "http://localhost:0";
       webServerDTO.path = "webapps";
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -212,22 +206,20 @@ public class WebServerComponentTest extends Assert {
 
    @Test
    public void simpleSecureServer() throws Exception {
-      BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "https://localhost:0";
-      bindingDTO.keyStorePath = "./src/test/resources/server.keystore";
-      bindingDTO.setKeyStorePassword("password");
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "https://localhost:0";
+      webServerDTO.path = "webapps";
+      webServerDTO.keyStorePath = "./src/test/resources/server.keystore";
+      webServerDTO.setKeyStorePassword("password");
       if (System.getProperty("java.vendor").contains("IBM")) {
          //By default on IBM Java 8 JVM, org.eclipse.jetty.util.ssl.SslContextFactory doesn't include TLSv1.2
          // while it excludes all TLSv1 and TLSv1.1 cipher suites.
-         bindingDTO.setIncludedTLSProtocols("TLSv1.2");
+         webServerDTO.setIncludedTLSProtocols("TLSv1.2");
          // Remove excluded cipher suites matching the prefix `SSL` because the names of the IBM Java 8 JVM cipher suites
          // have the prefix `SSL` while the `DEFAULT_EXCLUDED_CIPHER_SUITES` of org.eclipse.jetty.util.ssl.SslContextFactory
          // includes "^SSL_.*$". So all IBM JVM cipher suites are excluded by SslContextFactory using the `DEFAULT_EXCLUDED_CIPHER_SUITES`.
-         bindingDTO.setExcludedCipherSuites(Arrays.stream(new SslContextFactory.Server().getExcludeCipherSuites()).filter(s -> !Pattern.matches(s, "SSL_")).toArray(String[]::new));
+         webServerDTO.setExcludedCipherSuites(Arrays.stream(new SslContextFactory.Server().getExcludeCipherSuites()).filter(s -> !Pattern.matches(s, "SSL_")).toArray(String[]::new));
       }
-      WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
-      webServerDTO.path = "webapps";
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -238,10 +230,10 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
 
       SSLContext context = new SSLSupport()
-         .setKeystorePath(bindingDTO.keyStorePath)
-         .setKeystorePassword(bindingDTO.getKeyStorePassword())
-         .setTruststorePath(bindingDTO.keyStorePath)
-         .setTruststorePassword(bindingDTO.getKeyStorePassword())
+         .setKeystorePath(webServerDTO.keyStorePath)
+         .setKeystorePassword(webServerDTO.getKeyStorePassword())
+         .setTruststorePath(webServerDTO.keyStorePath)
+         .setTruststorePassword(webServerDTO.getKeyStorePassword())
          .createContext();
 
       SSLEngine engine = context.createSSLEngine();
@@ -287,25 +279,23 @@ public class WebServerComponentTest extends Assert {
 
    @Test
    public void simpleSecureServerWithClientAuth() throws Exception {
-      BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "https://localhost:0";
-      bindingDTO.keyStorePath = "./src/test/resources/server.keystore";
-      bindingDTO.setKeyStorePassword("password");
-      bindingDTO.clientAuth = true;
-      bindingDTO.trustStorePath = "./src/test/resources/server.keystore";
-      bindingDTO.setTrustStorePassword("password");
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "https://localhost:0";
+      webServerDTO.path = "webapps";
+      webServerDTO.keyStorePath = "./src/test/resources/server.keystore";
+      webServerDTO.setKeyStorePassword("password");
+      webServerDTO.clientAuth = true;
+      webServerDTO.trustStorePath = "./src/test/resources/server.keystore";
+      webServerDTO.setTrustStorePassword("password");
       if (System.getProperty("java.vendor").contains("IBM")) {
          //By default on IBM Java 8 JVM, org.eclipse.jetty.util.ssl.SslContextFactory doesn't include TLSv1.2
          // while it excludes all TLSv1 and TLSv1.1 cipher suites.
-         bindingDTO.setIncludedTLSProtocols("TLSv1.2");
+         webServerDTO.setIncludedTLSProtocols("TLSv1.2");
          // Remove excluded cipher suites matching the prefix `SSL` because the names of the IBM Java 8 JVM cipher suites
          // have the prefix `SSL` while the `DEFAULT_EXCLUDED_CIPHER_SUITES` of org.eclipse.jetty.util.ssl.SslContextFactory
          // includes "^SSL_.*$". So all IBM JVM cipher suites are excluded by SslContextFactory using the `DEFAULT_EXCLUDED_CIPHER_SUITES`.
-         bindingDTO.setExcludedCipherSuites(Arrays.stream(new SslContextFactory.Server().getExcludeCipherSuites()).filter(s -> !Pattern.matches(s, "SSL_")).toArray(String[]::new));
+         webServerDTO.setExcludedCipherSuites(Arrays.stream(new SslContextFactory.Server().getExcludeCipherSuites()).filter(s -> !Pattern.matches(s, "SSL_")).toArray(String[]::new));
       }
-      WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
-      webServerDTO.path = "webapps";
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -316,10 +306,10 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
 
       SSLContext context = new SSLSupport()
-         .setKeystorePath(bindingDTO.keyStorePath)
-         .setKeystorePassword(bindingDTO.getKeyStorePassword())
-         .setTruststorePath(bindingDTO.trustStorePath)
-         .setTruststorePassword(bindingDTO.getTrustStorePassword())
+         .setKeystorePath(webServerDTO.keyStorePath)
+         .setKeystorePassword(webServerDTO.getKeyStorePassword())
+         .setTruststorePath(webServerDTO.trustStorePath)
+         .setTruststorePassword(webServerDTO.getTrustStorePassword())
          .createContext();
 
       SSLEngine engine = context.createSSLEngine();
@@ -368,7 +358,7 @@ public class WebServerComponentTest extends Assert {
       XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
       BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
       assertNotNull(broker.web);
-      assertNull(broker.web.getDefaultBinding().passwordCodec);
+      assertNull(broker.web.passwordCodec);
    }
 
    @Test
@@ -380,8 +370,8 @@ public class WebServerComponentTest extends Assert {
       XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
       BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
       assertNotNull(broker.web);
-      assertEquals(keyPassword, broker.web.getDefaultBinding().getKeyStorePassword());
-      assertEquals(trustPassword, broker.web.getDefaultBinding().getTrustStorePassword());
+      assertEquals(keyPassword, broker.web.getKeyStorePassword());
+      assertEquals(trustPassword, broker.web.getTrustStorePassword());
    }
 
    @Test
@@ -393,44 +383,24 @@ public class WebServerComponentTest extends Assert {
       XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
       BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
       assertNotNull(broker.web);
-      assertNotNull("password codec not picked up!", broker.web.getDefaultBinding().passwordCodec);
+      assertNotNull("password codec not picked up!", broker.web.passwordCodec);
 
-      assertEquals(keyPassword, broker.web.getDefaultBinding().getKeyStorePassword());
-      assertEquals(trustPassword, broker.web.getDefaultBinding().getTrustStorePassword());
-   }
-
-   @Test
-   public void testOldConfigurationStyle() throws Exception {
-      final String keyPassword = "keypass";
-      final String trustPassword = "trustpass";
-
-      File bootstrap = new File("./target/test-classes/bootstrap_web_old_config.xml");
-      File brokerHome = new File("./target");
-      XmlBrokerFactoryHandler xmlHandler = new XmlBrokerFactoryHandler();
-      BrokerDTO broker = xmlHandler.createBroker(bootstrap.toURI(), brokerHome.getAbsolutePath(), brokerHome.getAbsolutePath(), brokerHome.toURI());
-      assertNotNull(broker.web);
-      assertNotNull("password codec not picked up!", broker.web.getDefaultBinding().passwordCodec);
-
-      assertEquals("http://localhost:8161", broker.web.getDefaultBinding().uri);
-      assertEquals(keyPassword, broker.web.getDefaultBinding().getKeyStorePassword());
-      assertEquals(trustPassword, broker.web.getDefaultBinding().getTrustStorePassword());
+      assertEquals(keyPassword, broker.web.getKeyStorePassword());
+      assertEquals(trustPassword, broker.web.getTrustStorePassword());
    }
 
    @Test
    public void testServerCleanupBeforeStart() throws Exception {
       final String warName = "simple-app.war";
       createTestWar(warName);
-
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.bind = "http://localhost:0";
+      webServerDTO.path = "";
+      webServerDTO.apps = new ArrayList<>();
       AppDTO app = new AppDTO();
       app.url = "simple-app/";
       app.war = warName;
-      BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "http://localhost:0";
-      bindingDTO.apps = new ArrayList<>();
-      bindingDTO.apps.add(app);
-      WebServerDTO webServerDTO = new WebServerDTO();
-      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
-      webServerDTO.path = "";
+      webServerDTO.apps.add(app);
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       testedComponents.add(webServerComponent);

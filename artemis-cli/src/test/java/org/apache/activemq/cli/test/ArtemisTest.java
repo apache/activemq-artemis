@@ -254,9 +254,8 @@ public class ArtemisTest extends CliTestBase {
       assertTrue(bootstrapFile.exists());
       Document config = parseXml(bootstrapFile);
       Element webElem = (Element) config.getElementsByTagName("web").item(0);
-      Element bindingElem = (Element) webElem.getElementsByTagName("binding").item(0);
 
-      String bindAttr = bindingElem.getAttribute("uri");
+      String bindAttr = webElem.getAttribute("bind");
       String bindStr = "http://" + Create.HTTP_HOST + ":" + Create.HTTP_PORT;
 
       assertEquals(bindAttr, bindStr);
@@ -274,9 +273,8 @@ public class ArtemisTest extends CliTestBase {
       assertTrue(bootstrapFile.exists());
       config = parseXml(bootstrapFile);
       webElem = (Element) config.getElementsByTagName("web").item(0);
-      bindingElem = (Element) webElem.getElementsByTagName("binding").item(0);
 
-      bindAttr = bindingElem.getAttribute("uri");
+      bindAttr = webElem.getAttribute("bind");
       bindStr = "https://localhost:" + Create.HTTP_PORT;
       assertEquals(bindAttr, bindStr);
 
@@ -301,9 +299,8 @@ public class ArtemisTest extends CliTestBase {
 
       config = parseXml(bootstrapFile);
       webElem = (Element) config.getElementsByTagName("web").item(0);
-      bindingElem = (Element) webElem.getElementsByTagName("binding").item(0);
 
-      bindAttr = bindingElem.getAttribute("uri");
+      bindAttr = webElem.getAttribute("bind");
       bindStr = "https://localhost:" + Create.HTTP_PORT;
       assertEquals(bindAttr, bindStr);
 

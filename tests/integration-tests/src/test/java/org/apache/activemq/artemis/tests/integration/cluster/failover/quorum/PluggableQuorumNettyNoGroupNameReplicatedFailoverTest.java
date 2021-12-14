@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -36,7 +35,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
-import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
@@ -129,6 +127,7 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
 
    @Test
    public void testReplicatedFailbackBackupFromLiveBackToBackup() throws Exception {
+
       InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       HttpServer httpServer = HttpServer.create(address, 100);
       httpServer.start();
@@ -144,15 +143,13 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
                os.close();
             }
          });
+         WebServerDTO wdto = new WebServerDTO();
          AppDTO appDTO = new AppDTO();
          appDTO.war = "console.war";
          appDTO.url = "console";
-         BindingDTO bindingDTO = new BindingDTO();
-         bindingDTO.uri = "http://localhost:0";
-         bindingDTO.apps = new ArrayList<AppDTO>();
-         bindingDTO.apps.add(appDTO);
-         WebServerDTO wdto = new WebServerDTO();
-         wdto.setBindings(Collections.singletonList(bindingDTO));
+         wdto.apps = new ArrayList<AppDTO>();
+         wdto.apps.add(appDTO);
+         wdto.bind = "http://localhost:0";
          wdto.path = "console";
          WebServerComponent webServerComponent = new WebServerComponent();
          webServerComponent.configure(wdto, ".", ".");

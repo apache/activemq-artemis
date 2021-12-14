@@ -457,12 +457,10 @@ The `bootstrap.xml` file is very simple. Let's take a look at an example:
 
    <server configuration="file:/path/to/broker.xml"/>
 
-   <web path="web">
-      <binding uri="http://localhost:8161">
-         <app url="activemq-branding" war="activemq-branding.war"/>
-         <app url="artemis-plugin" war="artemis-plugin.war"/>
-         <app url="console" war="console.war"/>
-      </binding>
+   <web bind="http://localhost:8161" path="web">
+      <app url="activemq-branding" war="activemq-branding.war"/>
+      <app url="artemis-plugin" war="artemis-plugin.war"/>
+      <app url="console" war="console.war"/>
    </web>
 </broker>
 ```

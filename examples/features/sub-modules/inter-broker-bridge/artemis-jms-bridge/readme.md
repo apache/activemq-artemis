@@ -126,8 +126,7 @@ http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/came
 6) Edit `$ARTEMIS_INSTANCE/etc/bootstrap.xml` so that the embedded web broker runs on a different port that the 5.x broker (e.g. 8162):
 
 ```xml
-<web path="web">
-  <binding uri="http://localhost:8162"/>
+<web bind="http://localhost:8162" path="web">
 ```
 
 ## Testing

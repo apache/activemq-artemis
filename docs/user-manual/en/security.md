@@ -1363,10 +1363,8 @@ documentation via an embedded server. By default the web access is plain HTTP.
 It is configured in `bootstrap.xml`:
 
 ```xml
-<web path="web">
-    <binding uri="http://localhost:8161">
-        <app url="console" war="console.war"/>
-    </binding> 
+<web bind="http://localhost:8161" path="web">
+    <app url="console" war="console.war"/>
 </web>
 ```
 
@@ -1374,12 +1372,11 @@ Alternatively you can edit the above configuration to enable secure access
 using HTTPS protocol. e.g.:
 
 ```xml
-<web path="web">
-    <binding uri="https://localhost:8443"
-             keyStorePath="${artemis.instance}/etc/keystore.jks"
-             keyStorePassword="password">
-        <app url="jolokia" war="jolokia-war-1.3.5.war"/>
-    </binding>
+<web bind="https://localhost:8443"
+    path="web"
+    keyStorePath="${artemis.instance}/etc/keystore.jks"
+    keyStorePassword="password">
+    <app url="jolokia" war="jolokia-war-1.3.5.war"/>
 </web>
 ```
 
@@ -1428,15 +1425,14 @@ keytool -storetype pkcs12 -keystore client-truststore.p12 -storepass securepass 
 - Enable secure access using HTTPS protocol with client authentication,
 use the truststore file created in the previous step to set the trustStorePath and trustStorePassword:
 ```xml
-<web path="web">
-    <binding uri="https://localhost:8443"
-             keyStorePath="${artemis.instance}/etc/server-keystore.p12"
-             keyStorePassword="password"
-             clientAuth="true"
-             trustStorePath="${artemis.instance}/etc/client-truststore.p12"
-             trustStorePassword="password">
-        <app url="jolokia" war="jolokia-war-1.3.5.war"/>
-    </binding>
+<web bind="https://localhost:8443"
+    path="web"
+    keyStorePath="${artemis.instance}/etc/server-keystore.p12"
+    keyStorePassword="password"
+    clientAuth="true"
+    trustStorePath="${artemis.instance}/etc/client-truststore.p12"
+    trustStorePassword="password">
+    <app url="jolokia" war="jolokia-war-1.3.5.war"/>
 </web>
 ```
 
