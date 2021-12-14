@@ -368,6 +368,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public Object[] getAcceptors() throws Exception {
+            return (Object[]) proxy.retrieveAttributeValue("acceptors");
+         }
+
+         @Override
+         public String getAcceptorsAsJSON() throws Exception {
+            return (String) proxy.retrieveAttributeValue("acceptorsAsJSON");
+         }
+
+         @Override
          public int getAddressCount() {
             return (Integer) proxy.retrieveAttributeValue("addressCount", Integer.class);
          }

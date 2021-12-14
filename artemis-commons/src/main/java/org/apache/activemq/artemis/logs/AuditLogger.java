@@ -2910,4 +2910,19 @@ public interface AuditLogger extends BasicLogger {
    @Message(id = 601755, value = "User {0} is unblocking target resource: {1}", format = Message.Format.MESSAGE_FORMAT)
    void unBlock(String user, Object source);
 
+   static void getAcceptors(Object source) {
+      BASE_LOGGER.getAcceptors(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601756, value = "User {0} is getting acceptors on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAcceptors(String user, Object source, Object... args);
+
+   static void getAcceptorsAsJSON(Object source) {
+      BASE_LOGGER.getAcceptorsAsJSON(getCaller(), source);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601757, value = "User {0} is getting acceptors as json on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void getAcceptorsAsJSON(String user, Object source, Object... args);
 }

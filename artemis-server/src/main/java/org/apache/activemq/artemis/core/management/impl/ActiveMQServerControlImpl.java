@@ -2740,16 +2740,26 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getConnectors(this.server);
       }
+      return getNetworkConfigs(configuration.getConnectorConfigurations().values());
+   }
+
+   @Override
+   public Object[] getAcceptors() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAcceptors(this.server);
+      }
+      return getNetworkConfigs(configuration.getAcceptorConfigurations());
+   }
+
+   private Object[] getNetworkConfigs(Collection<TransportConfiguration> configs) throws Exception {
       checkStarted();
 
       clearIO();
       try {
-         Collection<TransportConfiguration> connectorConfigurations = configuration.getConnectorConfigurations().values();
-
-         Object[] ret = new Object[connectorConfigurations.size()];
+         Object[] ret = new Object[configs.size()];
 
          int i = 0;
-         for (TransportConfiguration config : connectorConfigurations) {
+         for (TransportConfiguration config : configs) {
             Object[] tc = new Object[3];
 
             tc[0] = config.getName();
@@ -2769,13 +2779,27 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getConnectorsAsJSON(this.server);
       }
+
+      return getNetworkConfigsAsJSON(configuration.getConnectorConfigurations().values());
+   }
+
+   @Override
+   public String getAcceptorsAsJSON() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAcceptorsAsJSON(this.server);
+      }
+
+      return getNetworkConfigsAsJSON(configuration.getAcceptorConfigurations());
+   }
+
+   private String getNetworkConfigsAsJSON(Collection<TransportConfiguration> configs) throws Exception {
       checkStarted();
 
       clearIO();
       try {
          JsonArrayBuilder array = JsonLoader.createArrayBuilder();
 
-         for (TransportConfiguration config : configuration.getConnectorConfigurations().values()) {
+         for (TransportConfiguration config : configs) {
             array.add(config.toJson());
          }
 
