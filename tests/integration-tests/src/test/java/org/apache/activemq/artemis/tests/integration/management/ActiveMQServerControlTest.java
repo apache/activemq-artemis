@@ -240,6 +240,21 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testGetAcceptors() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      Object[] acceptors = serverControl.getAcceptors();
+      Assert.assertNotNull(acceptors);
+      Assert.assertEquals(2, acceptors.length);
+
+      for (int i = 0; i < acceptors.length; i++) {
+         Object[] acceptor = (Object[]) acceptors[i];
+         String name = (String) acceptor[0];
+         assertTrue(name.equals("netty") || name.equals("invm"));
+      }
+   }
+
+   @Test
    public void testIsReplicaSync() throws Exception {
       Assert.assertFalse(createManagementControl().isReplicaSync());
    }
@@ -256,6 +271,20 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(connectorConfig.getName(), data.getString("name"));
       Assert.assertEquals(connectorConfig.getFactoryClassName(), data.getString("factoryClassName"));
       Assert.assertEquals(connectorConfig.getParams().size(), data.getJsonObject("params").size());
+   }
+
+   @Test
+   public void testGetAcceptorsAsJSON() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      String jsonString = serverControl.getAcceptorsAsJSON();
+      Assert.assertNotNull(jsonString);
+      JsonArray array = JsonUtil.readJsonArray(jsonString);
+      Assert.assertEquals(2, array.size());
+      for (int i = 0; i < array.size(); i++) {
+         String name = ((JsonObject)array.get(i)).getString("name");
+         assertTrue(name.equals("netty") || name.equals("invm"));
+      }
    }
 
    @Test

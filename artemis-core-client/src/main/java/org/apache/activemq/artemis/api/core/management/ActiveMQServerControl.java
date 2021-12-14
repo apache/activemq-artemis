@@ -409,6 +409,18 @@ public interface ActiveMQServerControl {
    String getConnectorsAsJSON() throws Exception;
 
    /**
+    * Returns the acceptors configured for this server.
+    */
+   @Attribute(desc = "Connectors configured for this server")
+   Object[] getAcceptors() throws Exception;
+
+   /**
+    * Returns the acceptors configured for this server using JSON serialization.
+    */
+   @Attribute(desc = "Acceptors configured for this server using JSON serialization")
+   String getAcceptorsAsJSON() throws Exception;
+
+   /**
     * Returns the number of addresses created on this server.
     */
    @Attribute(desc = "Number of addresses created on this server")
