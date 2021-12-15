@@ -173,6 +173,8 @@ public final class JsonUtil {
             addToArray(parameter, objectArrayBuilder);
          }
          jsonObjectBuilder.add(key, objectArrayBuilder);
+      } else if (param instanceof JsonValue) {
+         jsonObjectBuilder.add(key, (JsonValue)param);
       } else {
          jsonObjectBuilder.add(key, param.toString());
       }
@@ -218,6 +220,8 @@ public final class JsonUtil {
             addToArray(parameter, objectArrayBuilder);
          }
          jsonArrayBuilder.add(objectArrayBuilder);
+      } else if (param instanceof JsonValue) {
+         jsonArrayBuilder.add((JsonValue)param);
       } else {
          jsonArrayBuilder.add(param.toString());
       }
