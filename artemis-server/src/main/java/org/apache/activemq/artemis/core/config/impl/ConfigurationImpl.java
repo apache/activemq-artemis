@@ -348,6 +348,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private Long globalMaxSize;
 
+   private Long globalMaxMessages;
+
    private boolean amqpUseCoreSubscriptionNaming = ActiveMQDefaultConfiguration.getDefaultAmqpUseCoreSubscriptionNaming();
 
    private int maxDiskUsage = ActiveMQDefaultConfiguration.getDefaultMaxDiskUsage();
@@ -565,6 +567,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
          }
       }
       return globalMaxSize;
+   }
+
+
+   @Override
+   public ConfigurationImpl setGlobalMaxMessages(long maxMessages) {
+      this.globalMaxMessages = maxMessages;
+      return this;
+   }
+
+   @Override
+   public long getGlobalMaxMessages() {
+      if (globalMaxMessages == null) {
+         this.globalMaxMessages = ActiveMQDefaultConfiguration.getDefaultMaxGlobalMessages();
+      }
+      return globalMaxMessages;
    }
 
    @Override

@@ -128,7 +128,16 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    void stopPaging() throws Exception;
 
-   void addSize(int size);
+   /** *
+    *
+    * @param size
+    * @param sizeOnly if false we won't increment the number of messages. (add references for example)
+    */
+   void addSize(int size, boolean sizeOnly);
+
+   default void addSize(int size) {
+      addSize(size, false);
+   }
 
    boolean checkMemory(Runnable runnable);
 

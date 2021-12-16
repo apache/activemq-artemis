@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.ActiveMQConnection;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -58,7 +59,8 @@ public class ProducerFlowControlTest extends ProducerFlowControlBaseTest {
       pubishDoneToQeueuB = asyncSendTo(queueB, "Message 2");
       assertTrue(pubishDoneToQeueuB.await(2, TimeUnit.SECONDS));
 
-      msg = (TextMessage) consumer.receive();
+      msg = (TextMessage) consumer.receive(5000);
+      Assert.assertNotNull(msg);
       assertEquals("Message 2", msg.getText());
       msg.acknowledge();
 

@@ -894,6 +894,15 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="global-max-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Number of messages before all addresses will enter into their Full Policy configured.
+                  It works in conjunction with global-max-size, being watever value hits its maximum first.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="global-max-size" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -3930,6 +3939,14 @@
                   <xsd:documentation>
                      the maximum size (in bytes) for an address (-1 means no limits). This is used in PAGING, BLOCK and
                      FAIL policies. Supports byte notation like "K", "Mb", "GB", etc.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="max-size-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the maximum number of messages allowed on the address.  This is used in PAGING, BLOCK and FAIL policies. It does not support notations and it is a simple number of messages allowed.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>

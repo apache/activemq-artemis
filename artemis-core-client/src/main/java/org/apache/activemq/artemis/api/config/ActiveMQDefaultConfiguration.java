@@ -499,6 +499,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final long DEFAULT_GLOBAL_MAX_SIZE = Runtime.getRuntime().maxMemory() / 2;
 
+   public static final long DEFAULT_GLOBAL_MAX_MESSAGES = -1;
+
    public static final int DEFAULT_MAX_DISK_USAGE;
 
    static {
@@ -1493,6 +1495,10 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static long getDefaultMaxGlobalSize() {
       return DEFAULT_GLOBAL_MAX_SIZE;
+   }
+
+   public static long getDefaultMaxGlobalMessages() {
+      return DEFAULT_GLOBAL_MAX_MESSAGES;
    }
 
    public static int getDefaultMaxDiskUsage() {

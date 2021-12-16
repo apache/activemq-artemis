@@ -1236,6 +1236,10 @@ public interface Configuration {
 
    Configuration setGlobalMaxSize(long globalMaxSize);
 
+   Configuration setGlobalMaxMessages(long globalMaxMessages);
+
+   long getGlobalMaxMessages();
+
    int getMaxDiskUsage();
 
    Configuration setMaxDiskUsage(int maxDiskUsage);
