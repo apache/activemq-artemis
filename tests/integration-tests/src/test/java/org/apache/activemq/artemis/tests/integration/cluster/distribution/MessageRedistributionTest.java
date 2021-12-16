@@ -832,6 +832,39 @@ public class MessageRedistributionTest extends ClusterTestBase {
    }
 
    @Test
+   public void testRedistributionToRemoteMulticastConsumerLbOffWithRedistribution() throws Exception {
+
+      String address = "test.address";
+      String queue = "queue";
+      String clusterAddress = "test";
+      AddressSettings settings = new AddressSettings().setRedistributionDelay(0).setAutoCreateAddresses(true).setAutoCreateQueues(true);
+      RoutingType routingType = RoutingType.MULTICAST;
+
+      getServer(0).getAddressSettingsRepository().addMatch(address, settings);
+      getServer(1).getAddressSettingsRepository().addMatch(address, settings);
+
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster0", clusterAddress, MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, 1, isNetty(), 1, 0);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, address, queue, null, false, routingType);
+      addConsumer(0, 0, queue, null);
+      waitForBindings(0, address, 1, 1, true);
+      waitForBindings(1, address, 1, 1, false);
+
+      createAddressInfo(1, address, routingType, 0, false);
+
+      final int noMessages = 10;
+      send(1, address, noMessages, false, null, routingType, null);
+      verifyReceiveAll(noMessages, 0);
+
+   }
+
+   @Test
    public void testBackAndForth() throws Exception {
       for (int i = 0; i < 10; i++) {
          setupCluster(MessageLoadBalancingType.ON_DEMAND);
