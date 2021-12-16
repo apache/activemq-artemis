@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -39,6 +38,7 @@ import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.jboss.logging.Logger;
@@ -67,11 +67,18 @@ public final class PagingManagerImpl implements PagingManager {
 
    private PagingStoreFactory pagingStoreFactory;
 
-   private final AtomicLong globalSizeBytes = new AtomicLong(0);
+   private volatile boolean globalFull;
 
-   private final AtomicLong numberOfMessages = new AtomicLong(0);
+   private void setGlobalFull(boolean globalFull) {
+      synchronized (memoryCallback) {
+         this.globalFull = globalFull;
+         checkMemoryRelease();
+      }
+   }
 
-   private final long maxSize;
+   private final SizeAwareMetric globalSizeMetric;
+
+   private long maxSize;
 
    private volatile boolean cleanupEnabled = true;
 
@@ -91,9 +98,6 @@ public final class PagingManagerImpl implements PagingManager {
 
    private final SimpleString managementAddress;
 
-
-
-
    // for tests.. not part of the API
    public void replacePageStoreFactory(PagingStoreFactory factory) {
       this.pagingStoreFactory = factory;
@@ -107,13 +111,30 @@ public final class PagingManagerImpl implements PagingManager {
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                             final long maxSize,
+                            final long maxMessages,
                             final SimpleString managementAddress) {
       pagingStoreFactory = pagingSPI;
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
+      this.globalSizeMetric = new SizeAwareMetric(maxSize, maxSize, maxMessages, maxMessages);
+      globalSizeMetric.setSizeEnabled(maxSize >= 0);
+      globalSizeMetric.setElementsEnabled(maxMessages >= 0);
+      globalSizeMetric.setOverCallback(() -> setGlobalFull(true));
+      globalSizeMetric.setUnderCallback(() -> setGlobalFull(false));
       this.memoryExecutor = pagingSPI.newExecutor();
       this.managementAddress = managementAddress;
+   }
+
+   SizeAwareMetric getSizeAwareMetric() {
+      return globalSizeMetric;
+   }
+
+
+   /** To be used in tests only called through PagingManagerTestAccessor */
+   void resetMaxSize(long maxSize, long maxElements) {
+      this.maxSize = maxSize;
+      this.globalSizeMetric.setMax(maxSize, maxSize, maxElements, maxElements);
    }
 
    @Override
@@ -123,13 +144,13 @@ public final class PagingManagerImpl implements PagingManager {
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository) {
-      this(pagingSPI, addressSettingsRepository, -1, null);
+      this(pagingSPI, addressSettingsRepository, -1, -1, null);
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
                             final HierarchicalRepository<AddressSettings> addressSettingsRepository,
                             final SimpleString managementAddress) {
-      this(pagingSPI, addressSettingsRepository, -1, managementAddress);
+      this(pagingSPI, addressSettingsRepository, -1, -1, managementAddress);
    }
 
    @Override
@@ -150,33 +171,23 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    @Override
-   public PagingManagerImpl addSize(int size) {
-
-      if (size > 0) {
-         numberOfMessages.incrementAndGet();
-      } else {
-         numberOfMessages.decrementAndGet();
-      }
-
-      long newSize = globalSizeBytes.addAndGet(size);
+   public PagingManagerImpl addSize(int size, boolean sizeOnly) {
+      long newSize = globalSizeMetric.addSize(size, sizeOnly);
 
       if (newSize < 0) {
          ActiveMQServerLogger.LOGGER.negativeGlobalAddressSize(newSize);
       }
 
-      if (size < 0) {
-         checkMemoryRelease();
-      }
       return this;
    }
 
    @Override
    public long getGlobalSize() {
-      return globalSizeBytes.get();
+      return globalSizeMetric.getSize();
    }
 
    protected void checkMemoryRelease() {
-      if (!diskFull && (maxSize < 0 || globalSizeBytes.get() < maxSize) && !blockedStored.isEmpty()) {
+      if (!diskFull && (maxSize < 0 || !globalFull) && !blockedStored.isEmpty()) {
          if (!memoryCallback.isEmpty()) {
             if (memoryExecutor != null) {
                memoryExecutor.execute(this::memoryReleased);
@@ -277,7 +288,7 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public boolean isGlobalFull() {
-      return diskFull || maxSize > 0 && globalSizeBytes.get() >= maxSize;
+      return diskFull || maxSize > 0 && globalFull;
    }
 
    @Override
@@ -449,7 +460,7 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    public void debug() {
-      logger.info("size = " + globalSizeBytes + " bytes, messages = " + numberOfMessages);
+      logger.info("size = " + globalSizeMetric.getSize() + " bytes, messages = " + globalSizeMetric.getElements());
    }
 
    @Override

@@ -213,6 +213,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_SIZE_BYTES_NODE_NAME = "max-size-bytes";
 
+   private static final String MAX_MESSAGES_NODE_NAME = "max-size-messages";
+
    private static final String MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME = "max-size-bytes-reject-threshold";
 
    private static final String ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME = "address-full-policy";
@@ -304,6 +306,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String MAX_QUEUES_NODE_NAME = "max-queues";
 
    private static final String GLOBAL_MAX_SIZE = "global-max-size";
+
+   private static final String GLOBAL_MAX_MESSAGES = "global-max-messages";
 
    private static final String MAX_DISK_USAGE = "max-disk-usage";
 
@@ -445,6 +449,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          // We do it this way because it will be valid also on the case of embedded
          config.setGlobalMaxSize(globalMaxSize);
       }
+
+      long globalMaxMessages = getLong(e, GLOBAL_MAX_MESSAGES, -1, Validators.MINUS_ONE_OR_GT_ZERO);
+
+      if (globalMaxSize > 0) {
+         config.setGlobalMaxMessages(globalMaxMessages);
+      }
+
 
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE_OR_MINUS_ONE));
 
@@ -1245,6 +1256,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setMaxRedeliveryDelay(XMLUtil.parseLong(child));
          } else if (MAX_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytes(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
+         } else if (MAX_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setMaxSizeMessages(XMLUtil.parseInt(child));
          } else if (MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytesRejectThreshold(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
          } else if (PAGE_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {

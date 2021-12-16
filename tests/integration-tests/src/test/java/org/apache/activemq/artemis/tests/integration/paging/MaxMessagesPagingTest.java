@@ -1,0 +1,304 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.tests.integration.paging;
+
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.SizeAwareMetric;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class MaxMessagesPagingTest extends ActiveMQTestBase {
+
+   protected static final int PAGE_MAX = 100 * 1024;
+   protected static final int PAGE_SIZE = 10 * 1024;
+   protected ActiveMQServer server;
+
+   @Test
+   public void testGlobalMaxMessages() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("testGlobalMaxMessages");
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      final int PAGE_MAX = 100 * 1024;
+
+      final int PAGE_SIZE = 10 * 1024;
+
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+      server.getConfiguration().setGlobalMaxMessages(100);
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+
+      session.createQueue(new QueueConfiguration(ADDRESS).setAddress(ADDRESS));
+
+      ClientProducer producer = session.createProducer(ADDRESS);
+
+      ClientMessage message = null;
+
+      int messageSize = 1 * 1024;
+
+      for (int i = 0; i < 30; i++) {
+         message = session.createMessage(true);
+
+         message.getBodyBuffer().writerIndex(0);
+
+         message.getBodyBuffer().writeBytes(new byte[messageSize]);
+
+         for (int j = 1; j <= messageSize; j++) {
+            message.getBodyBuffer().writeInt(j);
+         }
+
+         producer.send(message);
+      }
+
+      Queue queue = server.locateQueue(ADDRESS);
+
+      Wait.assertTrue(queue.getPagingStore()::isPaging);
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+
+      session.start();
+
+      for (int i = 0; i < 30; i++) {
+         message = consumer.receive(5000);
+         Assert.assertNotNull(message);
+         message.acknowledge();
+      }
+      session.commit();
+
+      Wait.assertFalse(queue.getPagingStore()::isPaging);
+
+      messageSize = 1;
+
+      for (int i = 0; i < 102; i++) {
+         message = session.createMessage(true);
+
+         message.getBodyBuffer().writerIndex(0);
+
+         message.getBodyBuffer().writeBytes(new byte[messageSize]);
+
+         producer.send(message);
+         if (i == 30) {
+            // it should not kick based on the size of the address
+            Wait.assertFalse(queue.getPagingStore()::isPaging);
+         }
+      }
+
+      Wait.assertTrue(queue.getPagingStore()::isPaging);
+
+      SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
+
+      // this is validating the test is actually validating paging after over elements
+      Assert.assertTrue(globalSizeMetric.isOverElements());
+      Assert.assertFalse(globalSizeMetric.isOverSize());
+
+      session.close();
+   }
+
+   @Test
+   public void testGlobalMaxMessagesMultipleQueues() throws Exception {
+      final String baseAddress = "testGlobal";
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      final int PAGE_MAX = 100 * 1024;
+
+      final int PAGE_SIZE = 10 * 1024;
+
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+      server.getConfiguration().setGlobalMaxMessages(50);
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+
+      for (int adr = 1; adr <= 2; adr++) {
+         SimpleString address = new SimpleString(baseAddress + adr);
+         session.createQueue(new QueueConfiguration(address).setAddress(address));
+      }
+
+      for (int adr = 1; adr <= 2; adr++) {
+         SimpleString address = new SimpleString(baseAddress + adr);
+         ClientProducer producer = session.createProducer(address);
+
+         ClientMessage message = null;
+
+         for (int i = 0; i < 30; i++) {
+            message = session.createMessage(true);
+
+            message.getBodyBuffer().writerIndex(0);
+
+            message.getBodyBuffer().writeBytes(new byte[1]);
+
+            producer.send(message);
+         }
+
+         Queue queue = server.locateQueue(address);
+         if (adr == 1) {
+            // first address is fine
+            Wait.assertFalse(queue.getPagingStore()::isPaging);
+         } else {
+            // on second one we reach max
+            Wait.assertTrue(queue.getPagingStore()::isPaging);
+         }
+      }
+
+      SizeAwareMetric globalSizeMetric = PagingManagerTestAccessor.globalSizeAwareMetric(server.getPagingManager());
+
+      // this is validating the test is actually validating paging after over elements
+      Assert.assertTrue(globalSizeMetric.isOverElements());
+      Assert.assertFalse(globalSizeMetric.isOverSize());
+
+      session.close();
+   }
+
+   @Test
+   public void testMaxOnAddress() throws Exception {
+      final String baseAddress = "testMaxOnAddress";
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      final int PAGE_MAX = 100 * 1024;
+
+      final int PAGE_SIZE = 10 * 1024;
+
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+      server.getConfiguration().setGlobalMaxMessages(50);
+      server.start();
+
+      AddressSettings max5 = new AddressSettings().setMaxSizeMessages(5);
+      server.getAddressSettingsRepository().addMatch("#", max5);
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+
+      for (int adr = 1; adr <= 2; adr++) {
+         SimpleString address = new SimpleString(baseAddress + adr);
+         session.createQueue(new QueueConfiguration(address).setAddress(address));
+      }
+
+      for (int adr = 1; adr <= 1; adr++) {
+         SimpleString address = new SimpleString(baseAddress + adr);
+         ClientProducer producer = session.createProducer(address);
+
+         ClientMessage message = null;
+
+         Queue queue = server.locateQueue(address);
+         for (int i = 0; i < 10; i++) {
+            message = session.createMessage(true);
+
+            message.getBodyBuffer().writerIndex(0);
+
+            message.getBodyBuffer().writeBytes(new byte[1]);
+
+            producer.send(message);
+            if (i >= 4) {
+               Wait.assertTrue(queue.getPagingStore()::isPaging);
+            } else {
+               Assert.assertFalse(queue.getPagingStore().isPaging());
+            }
+         }
+      }
+   }
+
+   @Test
+   public void testMaxOnAddressHitGlobal() throws Exception {
+      final String baseAddress = "testMaxOnAddress";
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      final int PAGE_MAX = 100 * 1024;
+
+      final int PAGE_SIZE = 10 * 1024;
+
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+      server.getConfiguration().setGlobalMaxMessages(40);
+      server.start();
+
+      AddressSettings max5 = new AddressSettings().setMaxSizeMessages(5).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      server.getAddressSettingsRepository().addMatch("#", max5);
+
+      ServerLocator locator = createInVMNonHALocator();
+
+      locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(null, null, false, true, true, false, 0);
+
+      for (int adr = 0; adr < 11; adr++) {
+         SimpleString address = new SimpleString(baseAddress + adr);
+         session.createQueue(new QueueConfiguration(address).setAddress(address));
+         ClientProducer producer = session.createProducer(address);
+
+         ClientMessage message = null;
+
+         Queue queue = server.locateQueue(address);
+         for (int i = 0; i < 4; i++) {
+            message = session.createMessage(true);
+
+            message.getBodyBuffer().writerIndex(0);
+
+            message.getBodyBuffer().writeBytes(new byte[1]);
+
+            producer.send(message);
+         }
+
+         if (adr >= 9) {
+            Wait.assertTrue(queue.getPagingStore()::isPaging);
+         } else {
+            Assert.assertFalse(queue.getPagingStore().isPaging());
+         }
+      }
+   }
+
+}

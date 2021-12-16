@@ -515,7 +515,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          if (owner != null && memoryEstimate != -1) {
             // the memory has already been tracked and needs to be updated to reflect the new decoding
             int addition = unmarshalledApplicationPropertiesMemoryEstimateFromData(data);
-            ((PagingStore)owner).addSize(addition);
+            ((PagingStore)owner).addSize(addition, false);
             final int updatedEstimate = memoryEstimate + addition;
             memoryEstimate = updatedEstimate;
          }

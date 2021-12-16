@@ -210,7 +210,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private final AtomicInteger pagedReferences = new AtomicInteger(0);
 
    // The estimate of memory being consumed by this queue. Used to calculate instances of messages to depage
-   private final AtomicInteger queueMemorySize = new AtomicInteger(0);
+   final AtomicInteger queueMemorySize = new AtomicInteger(0);
 
    protected final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
 
@@ -1025,7 +1025,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       int count = messageReference.getMessage().refUp();
       if (count == 1) {
          if (messageReference.getMessage().getOwner() != null) {
-            ((PagingStore)messageReference.getMessage().getOwner()).addSize(messageReference.getMessageMemoryEstimate());
+            ((PagingStore)messageReference.getMessage().getOwner()).addSize(messageReference.getMessageMemoryEstimate(), false);
          }
       }
       if (pagingStore != null) {
@@ -1038,7 +1038,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       int count = messageReference.getMessage().refDown();
       if (count == 0) {
          if (messageReference.getMessage().getOwner() != null) {
-            ((PagingStore)messageReference.getMessage().getOwner()).addSize(-messageReference.getMessageMemoryEstimate());
+            ((PagingStore)messageReference.getMessage().getOwner()).addSize(-messageReference.getMessageMemoryEstimate(), false);
          }
       }
       if (pagingStore != null) {

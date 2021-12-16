@@ -357,6 +357,35 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testParseMaxSizeOnAddressSettings() throws Exception {
+      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-size-messages>123</max-size-messages>\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      AddressSettings settings = configuration.getAddressesSettings().get("foo");
+      Assert.assertEquals(123, settings.getMaxSizeMessages());
+   }
+
+   // you should not use K, M notations on address settings max-size-messages
+   @Test
+   public void testExpectedErrorOverMaxMessageNotation() throws Exception {
+      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-size-messages>123K</max-size-messages>\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      boolean valid = false;
+      try {
+         parser.parseMainConfig(input);
+      } catch (Throwable expected) {
+         valid = true;
+      }
+      Assert.assertTrue("Exception expected", valid);
+   }
+
    private static String bridgePart = "<bridges>\n" +
            "            <bridge name=\"my-bridge\">\n" +
            "               <queue-name>sausage-factory</queue-name>\n" +
@@ -414,6 +443,47 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
       FileConfigurationParser parser = new FileConfigurationParser();
       Configuration configuration = parser.parseMainConfig(inputStream);
+   }
+
+   @Test
+   public void testMaxSize() throws Exception {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<global-max-size>10M</global-max-size>");
+      stream.println("<global-max-messages>1000</global-max-messages>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = parser.parseMainConfig(inputStream);
+
+      Assert.assertEquals(10 * 1024 * 1024, configuration.getGlobalMaxSize());
+      Assert.assertEquals(1000, configuration.getGlobalMaxMessages());
+   }
+
+   @Test
+   public void testExceptionMaxSize() throws Exception {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<global-max-messages>1000K</global-max-messages>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      boolean exceptionHappened = false;
+
+      try {
+         parser.parseMainConfig(inputStream);
+      } catch (Throwable e) {
+         exceptionHappened = true;
+      }
+
+      Assert.assertTrue("Exception expected parsing notation for global-max-messages", exceptionHappened);
+
    }
 
    @Test
