@@ -20,6 +20,7 @@ import java.io.File;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -130,8 +131,6 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    private volatile boolean ackIndividually;
 
    private final ClassLoader contextClassLoader;
-
-
 
    public ClientConsumerImpl(final ClientSessionInternal session,
                              final ConsumerContext consumerContext,
@@ -997,29 +996,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                if (logger.isTraceEnabled()) {
                   logger.trace(this + "::Calling handler.onMessage");
                }
-               final ClassLoader originalLoader = AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-                  @Override
-                  public ClassLoader run() {
-                     ClassLoader originalLoader = Thread.currentThread().getContextClassLoader();
-
-                     Thread.currentThread().setContextClassLoader(contextClassLoader);
-
-                     return originalLoader;
-                  }
-               });
+               final ClassLoader originalLoader = safeInstallContextClassLoader();
 
                onMessageThread = Thread.currentThread();
                try {
                   theHandler.onMessage(message);
                } finally {
                   try {
-                     AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                        @Override
-                        public Object run() {
-                           Thread.currentThread().setContextClassLoader(originalLoader);
-                           return null;
-                        }
-                     });
+                     safeRestoreContextClassLoader(originalLoader);
                   } catch (Exception e) {
                      ActiveMQClientLogger.LOGGER.failedPerformPostActionsOnMessage(e);
                   }
@@ -1044,6 +1028,45 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             }
          }
       }
+   }
+
+   private ClassLoader unsafeInstallContextClassLoader() {
+      final Thread currentThread = Thread.currentThread();
+      final ClassLoader originalCl = currentThread.getContextClassLoader();
+      if (Objects.equals(originalCl, contextClassLoader)) {
+         return originalCl;
+      }
+      currentThread.setContextClassLoader(contextClassLoader);
+      return originalCl;
+   }
+
+   private ClassLoader safeInstallContextClassLoader() {
+      if (System.getSecurityManager() == null) {
+         try {
+            return unsafeInstallContextClassLoader();
+         } catch (SecurityException ignored) {
+            // racy security manager set
+         }
+      }
+      return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) this::unsafeInstallContextClassLoader);
+   }
+
+   private void safeRestoreContextClassLoader(final ClassLoader originalClassLoader) {
+      if (Objects.equals(originalClassLoader, contextClassLoader)) {
+         return;
+      }
+      if (System.getSecurityManager() == null) {
+         try {
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
+            return;
+         } catch (SecurityException ignored) {
+            // racy security manager set
+         }
+      }
+      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+         Thread.currentThread().setContextClassLoader(originalClassLoader);
+         return null;
+      });
    }
 
    /**
