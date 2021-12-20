@@ -451,7 +451,7 @@ further for additional details as appropriate.
 The `bootstrap.xml` file is very simple. Let's take a look at an example:
 
 ```xml
-<broker xmlns="http://activemq.org/schema">
+<broker xmlns="http://activemq.apache.org/schema">
 
    <jaas-security domain="activemq"/>
 

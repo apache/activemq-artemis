@@ -15,7 +15,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<management-context xmlns="http://activemq.org/schema">
+<management-context xmlns="http://activemq.apache.org/schema">
    <connector
          connector-port="1099"
          connector-host="localhost"

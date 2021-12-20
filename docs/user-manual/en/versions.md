@@ -508,7 +508,7 @@ Highlights:
 
 1. Create `<ARTEMIS_INSTANCE>/etc/management.xml`. At the very least, the file must contain this:
    ```xml
-   <management-context xmlns="http://activemq.org/schema"/>
+   <management-context xmlns="http://activemq.apache.org/schema"/>
    ```
    This configures role based authorisation for JMX. Read more in the [Management](management.md) documentation.
 1. If configured, remove the Jolokia war file from the `web` element in `<ARTEMIS_INSTANCE>/etc/bootstrap.xml`:

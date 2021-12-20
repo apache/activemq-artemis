@@ -98,7 +98,7 @@
                         <mkdir dir="${project.build.directory}/schema/org.apache.activemq/dto" />
                         <echo message="Generating XSD to: ${project.build.directory}/schema/org.apache.activemq/dto" />
                         <schemagen srcdir="${basedir}/src" destdir="${project.build.directory}/schema/org.apache.activemq/dto" includeantruntime="false">
-                           <schema namespace="http://activemq.org/schema" file="activemq.xsd" />
+                           <schema namespace="http://activemq.apache.org/schema" file="activemq.xsd" />
                            <classpath refid="maven.compile.classpath" />
                            <include name="**/package-info.java" />
                            <include name="**/*DTO.java" />

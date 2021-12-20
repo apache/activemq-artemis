@@ -1256,7 +1256,7 @@ either:
 Here's an example of the single bootstrap user configuration:
 
 ```xml
-<broker xmlns="http://activemq.org/schema">
+<broker xmlns="http://activemq.apache.org/schema">
 
    <security-manager class-name="org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager">
       <property key="bootstrapUser" value="myUser"/>
@@ -1276,7 +1276,7 @@ If your use-case requires *multiple* users to be available when the broker
 starts then you can use a configuration like this:
 
 ```xml
-<broker xmlns="http://activemq.org/schema">
+<broker xmlns="http://activemq.apache.org/schema">
 
    <security-manager class-name="org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager">
       <property key="bootstrapUserFile" value="artemis-users.properties"/>
@@ -1560,7 +1560,7 @@ provide JAAS integration, but users can provide their own implementation of
 configure it in `bootstrap.xml` using the `security-manager` element, e.g.:
 
 ```xml
-<broker xmlns="http://activemq.org/schema">
+<broker xmlns="http://activemq.apache.org/schema">
 
    <security-manager class-name="com.foo.MySecurityManager">
       <property key="myKey1" value="myValue1"/>

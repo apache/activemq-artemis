@@ -16,7 +16,7 @@
   ~ limitations under the License.
   -->
 
-<broker xmlns="http://activemq.org/schema">
+<broker xmlns="http://activemq.apache.org/schema">
 
    <jaas-security domain="activemq"/>
 

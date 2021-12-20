@@ -18,6 +18,6 @@
  * The JAXB POJOs for the XML configuration of ActiveMQ Artemis broker
  */
 @javax.xml.bind.annotation.XmlSchema(
-   namespace = "http://activemq.org/schema",
+   namespace = "http://activemq.apache.org/schema",
    elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
 package org.apache.activemq.artemis.dto;
