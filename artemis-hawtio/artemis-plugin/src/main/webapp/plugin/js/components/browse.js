@@ -481,7 +481,7 @@ var Artemis;
                    // "HH:mm:ss ago"
                    return hours + ":" + mins + ":" + secs + " ago";
                 }
-                // "in HH:mm:ss ago"
+                // "in HH:mm:ss"
                 return "in " + hours + ":" + mins + ":" + secs;
              }
              return formatTimestamp(timestamp);
@@ -490,6 +490,9 @@ var Artemis;
           function formatTimestamp(timestamp) {
              if (isNaN(timestamp) || typeof timestamp !== "number") {
                 return timestamp;
+             }
+             if (timestamp === 0) {
+                return "none";
              }
              var d = new Date(timestamp);
              // "yyyy-MM-dd HH:mm:ss"
