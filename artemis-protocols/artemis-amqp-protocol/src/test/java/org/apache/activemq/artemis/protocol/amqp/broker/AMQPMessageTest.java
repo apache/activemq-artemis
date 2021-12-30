@@ -2522,6 +2522,22 @@ public class AMQPMessageTest {
       assertEquals(org.apache.activemq.artemis.api.core.Message.TEXT_TYPE, cd.get(CompositeDataConstants.TYPE));
    }
 
+   @Test
+   public void testToPropertyMap() throws Exception {
+      Message protonMessage = Message.Factory.create();
+      AMQPStandardMessage decoded = encodeAndDecodeMessage(protonMessage);
+      TypedProperties props = decoded.createExtraProperties();
+      props.putSimpleStringProperty(new SimpleString("firstString"), new SimpleString("firstValue"));
+      props.putLongProperty(new SimpleString("secondLong"), 1234567);
+
+      // same as toPropertyMap(false,5)
+      Map<String, Object> map = decoded.toPropertyMap(-1);
+
+      assertEquals(2, map.size());
+      assertEquals(map.get("firstString"), "firstValue");
+      assertEquals(map.get("secondLong"), 1234567L);
+   }
+
    //----- Test Support ------------------------------------------------------//
 
    private MessageImpl createProtonMessage() {
