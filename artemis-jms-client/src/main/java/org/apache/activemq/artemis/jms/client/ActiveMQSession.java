@@ -745,7 +745,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
 
          QueueQuery subResponse = session.queueQuery(queueName);
 
-         if ((!subResponse.isExists() || !Objects.equals(subResponse.getAddress(), dest.getSimpleAddress()) || !Objects.equals(subResponse.getFilterString(), coreFilterString)) && !subResponse.isConfigurationManaged()) {
+         if ((!subResponse.isExists() || !Objects.equals(subResponse.getAddress(), dest.getSimpleAddress()) || !Objects.equals(subResponse.getFilterString(), coreFilterString)) && !Boolean.TRUE.equals(subResponse.isConfigurationManaged())) {
             try {
                createSharedQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, durability == ConsumerDurability.DURABLE, response);
             } catch (ActiveMQQueueExistsException ignored) {
