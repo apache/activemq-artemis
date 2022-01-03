@@ -18,6 +18,8 @@
 package org.apache.activemq.artemis.utils.critical;
 
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -35,11 +37,11 @@ public class MultiThreadCriticalMeasureTest {
 
    @Test
    public void testMultiThread() throws Throwable {
-      int THREADS = 100;
+      int THREADS = 20;
+      ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
       AtomicInteger errors = new AtomicInteger(0);
-      Thread[] threads = new Thread[THREADS];
       AtomicBoolean running = new AtomicBoolean(true);
-      ReusableLatch latch = new ReusableLatch(0);
+      AtomicBoolean load = new AtomicBoolean(true);
       ReusableLatch latchOnMeasure = new ReusableLatch(0);
       try {
          CriticalMeasure measure = new CriticalMeasure(null, 0);
@@ -48,12 +50,15 @@ public class MultiThreadCriticalMeasureTest {
 
          Runnable runnable = () -> {
             try {
-               logger.debug("Thread " + Thread.currentThread().getName() + " waiting to Star");
+               logger.debug("Thread " + Thread.currentThread().getName() + " waiting to Start");
                barrier.await();
                logger.debug("Thread " + Thread.currentThread().getName() + " Started");
                while (running.get()) {
-                  if (!latch.await(1, TimeUnit.NANOSECONDS)) {
-                     latch.await();
+                  if (!load.get()) {
+                     // 1st barrier will let the unit test do its job
+                     barrier.await();
+                     // 2nd barrier waiting the test to finish its job
+                     barrier.await();
                   }
 
                   try (AutoCloseable closeable = measure.measure()) {
@@ -67,47 +72,45 @@ public class MultiThreadCriticalMeasureTest {
          };
 
          for (int i = 0; i < THREADS; i++) {
-            threads[i] = new Thread(runnable, "t=" + i);
-            threads[i].start();
+            executorService.execute(runnable);
          }
 
          logger.debug("Going to release it now");
          barrier.await();
 
-         for (int i = 0; i < 50; i++) {
+         for (int i = 0; i < 5; i++) {
+            // Waiting some time to have load generated
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(10));
-            logger.debug("Count up " + i);
 
-            // simulating load down on the system... this will freeze load
-            latch.countUp();
+            // Disable load, so the measure threads will wait on the barrier
+            load.set(false);
+
+            // first barrier waiting the simulated load to stop
+            barrier.await(10, TimeUnit.SECONDS);
+
+            // waiting a few milliseconds as the bug was about measuring load after a no load
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(20));
             Assert.assertFalse(measure.checkExpiration(TimeUnit.MILLISECONDS.toNanos(10), false));
             logger.debug("Count down");
 
-            // this will resume load
-            latch.countDown();
+            // letting load to happen again
+            load.set(true);
+            // Leaving barrier out so test is back on generating load
+            barrier.await(10, TimeUnit.SECONDS);
          }
 
          latchOnMeasure.countUp();
-
          Assert.assertTrue(Wait.waitFor(() -> measure.checkExpiration(TimeUnit.MILLISECONDS.toNanos(100), false), 1_000, 1));
 
       } finally {
-         latch.countDown();
-         latchOnMeasure.countDown();
+         load.set(true);
          running.set(false);
+         latchOnMeasure.countDown();
 
          Assert.assertEquals(0, errors.get());
-
-         for (Thread t : threads) {
-            if (t != null) {
-               t.join(100);
-               if (t.isAlive()) {
-                  t.interrupt();
-               }
-            }
-         }
-
+         executorService.shutdown();
+         Wait.assertTrue(executorService::isShutdown);
+         Wait.assertTrue(executorService::isTerminated, 5000, 1);
       }
 
    }
