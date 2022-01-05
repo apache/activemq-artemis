@@ -844,5 +844,15 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       @Override
       public void setOwner(Object object) {
       }
+
+      @Override
+      public Object getUserContext(Object key) {
+         return null;
+      }
+
+      @Override
+      public void setUserContext(Object key, Object value) {
+
+      }
    }
 }

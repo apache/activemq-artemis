@@ -516,4 +516,14 @@ public class OpenwireMessage implements Message {
    public int usageDown() {
       return 0;
    }
+
+   @Override
+   public Object getUserContext(Object key) {
+      return null;
+   }
+
+   @Override
+   public void setUserContext(Object key, Object value) {
+
+   }
 }

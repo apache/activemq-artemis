@@ -723,4 +723,13 @@ public class MessageInternalImpl implements MessageInternal {
       message.setOwner(object);
    }
 
+   @Override
+   public Object getUserContext(Object key) {
+      return message.getUserContext(key);
+   }
+
+   @Override
+   public void setUserContext(Object key, Object value) {
+      message.setUserContext(key, value);
+   }
 }
