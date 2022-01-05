@@ -80,6 +80,7 @@ under the License.
             <module>message-priority</module>
             <module>netty-openssl</module>
             <module>no-consumer-buffering</module>
+            <module>opentracing</module>
             <module>paging</module>
             <module>pre-acknowledge</module>
             <module>producer-rate-limit</module>
@@ -156,6 +157,7 @@ under the License.
             <module>message-priority</module>
             <module>netty-openssl</module>
             <module>no-consumer-buffering</module>
+            <module>opentracing</module>
             <module>paging</module>
             <module>pre-acknowledge</module>
             <module>producer-rate-limit</module>

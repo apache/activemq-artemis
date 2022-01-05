@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.api.core;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 // import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet; -- #ifdef DEBUG
@@ -26,6 +27,8 @@ public class RefCountMessage {
    private static final AtomicIntegerFieldUpdater<RefCountMessage> DURABLE_REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "durableRefCount");
    private static final AtomicIntegerFieldUpdater<RefCountMessage> REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "refCount");
    private static final AtomicIntegerFieldUpdater<RefCountMessage> REF_USAGE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "usageCount");
+
+   private volatile HashMap userContext;
 
    private volatile int durableRefCount = 0;
 
@@ -168,6 +171,21 @@ public class RefCountMessage {
       int count = REF_COUNT_UPDATER.incrementAndGet(this);
       onUp();
       return count;
+   }
+
+   public Object getUserContext(Object key) {
+      if (userContext == null) {
+         return null;
+      } else {
+         return userContext.get(key);
+      }
+   }
+
+   public void setUserContext(Object key, Object value) {
+      if (userContext == null) {
+         userContext = new HashMap();
+      }
+      userContext.put(key, value);
    }
 
 }

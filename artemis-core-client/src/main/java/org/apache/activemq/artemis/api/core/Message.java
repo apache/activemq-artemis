@@ -801,4 +801,10 @@ public interface Message {
    default String getStringBody() {
       return null;
    }
+
+   /** Used for user context data. Useful on interceptors. */
+   Object getUserContext(Object key);
+
+   /** Used for user context data. Useful on interceptors. */
+   void setUserContext(Object key, Object value);
 }

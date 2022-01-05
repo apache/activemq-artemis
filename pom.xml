@@ -116,6 +116,10 @@
       <curator.version>5.2.0</curator.version>
       <zookeeper.version>3.6.3</zookeeper.version>
 
+      <!-- tracing -->
+      <opentelemetry.version>1.10.0</opentelemetry.version>
+      <opentelemetry-alpha.version>1.10.0-alpha</opentelemetry-alpha.version>
+
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.46.Final</netty-tcnative-version>
       <proton.version>0.33.10</proton.version>
@@ -546,6 +550,23 @@
              <version>${slf4j.version}</version>
          </dependency>
          <!-- ## End Examples Dependencies ## -->
+
+         <!-- ### START opentelemetry Dependencies ### -->
+         <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-bom</artifactId>
+            <version>${opentelemetry.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
+         <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-bom-alpha</artifactId>
+            <version>${opentelemetry-alpha.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+         </dependency>
+         <!-- ### END opentelemetry Dependencies ### -->
 
          <!--needed to compile the bootstrap jar-->
          <dependency>
