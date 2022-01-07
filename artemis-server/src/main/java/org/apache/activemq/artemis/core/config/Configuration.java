@@ -20,7 +20,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -87,9 +86,7 @@ public interface Configuration {
     */
    String getSystemPropertyPrefix();
 
-   Configuration parseSystemProperties() throws Exception;
-
-   Configuration parseSystemProperties(Properties properties) throws Exception;
+   Configuration parseProperties(String optionalUrlToPropertiesFile) throws Exception;
 
    boolean isCriticalAnalyzer();
 

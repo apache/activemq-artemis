@@ -2052,7 +2052,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       String uri = e.getAttribute("uri");
 
       int retryInterval = getAttributeInteger(e, "retry-interval", 5000, Validators.GT_ZERO);
-      int reconnectAttemps = getAttributeInteger(e, "reconnect-attempts", -1, Validators.MINUS_ONE_OR_GT_ZERO);
+      int reconnectAttempts = getAttributeInteger(e, "reconnect-attempts", -1, Validators.MINUS_ONE_OR_GT_ZERO);
       String user = getAttributeValue(e, "user");
       String password = getAttributeValue(e, "password");
       boolean autoStart = getBooleanAttribute(e, "auto-start", true);
@@ -2061,7 +2061,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       AMQPBrokerConnectConfiguration config = new AMQPBrokerConnectConfiguration(name, uri);
       config.parseURI();
-      config.setRetryInterval(retryInterval).setReconnectAttempts(reconnectAttemps).setUser(user).setPassword(password).setAutostart(autoStart);
+      config.setRetryInterval(retryInterval).setReconnectAttempts(reconnectAttempts).setUser(user).setPassword(password).setAutostart(autoStart);
 
       mainConfig.addAMQPConnection(config);
 

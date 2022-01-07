@@ -16,21 +16,27 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.beans.PropertyDescriptor;
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -38,12 +44,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -65,6 +73,8 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -89,7 +99,14 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
-import org.apache.activemq.artemis.utils.uri.BeanSupport;
+import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.MappedPropertyDescriptor;
+import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.beanutils.expression.DefaultResolver;
 import org.jboss.logging.Logger;
 
 public class ConfigurationImpl implements Configuration, Serializable {
@@ -338,6 +355,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private String systemPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix();
 
+   private String brokerPropertiesKeySurround = ActiveMQDefaultConfiguration.getDefaultBrokerPropertiesKeySurround();
+
    private String networkCheckList = ActiveMQDefaultConfiguration.getDefaultNetworkCheckList();
 
    private String networkURLList = ActiveMQDefaultConfiguration.getDefaultNetworkCheckURLList();
@@ -429,31 +448,73 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return systemPropertyPrefix;
    }
 
-   @Override
-   public Configuration parseSystemProperties() throws Exception {
-      parseSystemProperties(System.getProperties());
-      return this;
+   public String getBrokerPropertiesKeySurround() {
+      return brokerPropertiesKeySurround;
+   }
+
+   public void setBrokerPropertiesKeySurround(String brokerPropertiesKeySurround) {
+      this.brokerPropertiesKeySurround = brokerPropertiesKeySurround;
    }
 
    @Override
-   public Configuration parseSystemProperties(Properties properties) throws Exception {
+   public Configuration parseProperties(String fileUrlToProperties) throws Exception {
+      // system property overrides
+      fileUrlToProperties = System.getProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, fileUrlToProperties);
+      if (fileUrlToProperties != null) {
+         Properties brokerProperties = new Properties();
+         try (FileInputStream fileInputStream = new FileInputStream(fileUrlToProperties); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+            brokerProperties.load(reader);
+            parsePrefixedProperties(brokerProperties, null);
+         }
+      }
+      parsePrefixedProperties(System.getProperties(), systemPropertyPrefix);
+      return this;
+   }
+
+   public void parsePrefixedProperties(Properties properties, String prefix) throws Exception {
       Map<String, Object> beanProperties = new HashMap<>();
 
       synchronized (properties) {
+         String key = null;
          for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-            if (entry.getKey().toString().startsWith(systemPropertyPrefix)) {
-               String key = entry.getKey().toString().substring(systemPropertyPrefix.length());
-               logger.debug("Setting up config, " + key + "=" + entry.getValue());
-               beanProperties.put(key, entry.getValue());
+            key = entry.getKey().toString();
+            if (prefix != null) {
+               if (!key.startsWith(prefix)) {
+                  continue;
+               }
+               key = entry.getKey().toString().substring(prefix.length());
             }
+            logger.debug("Setting up config, " + key + "=" + entry.getValue());
+            beanProperties.put(key, entry.getValue());
          }
       }
 
       if (!beanProperties.isEmpty()) {
-         BeanSupport.setData(this, beanProperties);
+         populateWithProperties(beanProperties);
       }
+   }
 
-      return this;
+   public void populateWithProperties(Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
+      BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), new CollectionAutoFillPropertiesUtil());
+      // nested property keys delimited by . and enclosed by '"' if they key's themselves contain dots
+      beanUtils.getPropertyUtils().setResolver(new SurroundResolver(getBrokerPropertiesKeySurround(beanProperties)));
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            return (T) SimpleString.toSimpleString(value.toString());
+         }
+      }, SimpleString.class);
+      beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+
+      beanUtils.populate(this, beanProperties);
+   }
+
+   private String getBrokerPropertiesKeySurround(Map<String, Object> propertiesToApply) {
+      if (propertiesToApply.containsKey(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY)) {
+         return String.valueOf(propertiesToApply.get(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY));
+      } else {
+         return System.getProperty(getSystemPropertyPrefix() + ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY, getBrokerPropertiesKeySurround());
+      }
    }
 
    @Override
@@ -698,6 +759,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   public ConfigurationImpl addConnectorConfiguration(final TransportConfiguration info) {
+      connectorConfigs.put(info.getName(), info);
+      return this;
+   }
+
    @Override
    public ConfigurationImpl addConnectorConfiguration(final String name, final String uri) throws Exception {
 
@@ -792,6 +858,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public List<AMQPBrokerConnectConfiguration> getAMQPConnection() {
+      return this.amqpBrokerConnectConfigurations;
+   }
+
+   public List<AMQPBrokerConnectConfiguration> getAMQPConnections() {
       return this.amqpBrokerConnectConfigurations;
    }
 
@@ -1553,6 +1623,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public ConfigurationImpl addResourceLimitSettings(ResourceLimitSettings resourceLimitSettings) {
       this.resourceLimitSettings.put(resourceLimitSettings.getMatch().toString(), resourceLimitSettings);
       return this;
+   }
+
+   public ConfigurationImpl addResourceLimitSetting(ResourceLimitSettings resourceLimitSettings) {
+      return this.addResourceLimitSettings(resourceLimitSettings);
    }
 
    @Override
@@ -2603,4 +2677,190 @@ public class ConfigurationImpl implements Configuration, Serializable {
       return this;
    }
 
+   // extend property utils with ability to auto-fill and locate from collections
+   // collection entries are identified by the name() property
+   private static class CollectionAutoFillPropertiesUtil extends PropertyUtilsBean {
+
+      private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
+      final Stack<Pair<String, Object>> collections = new Stack<>();
+
+      @Override
+      public void setProperty(final Object bean, final String name, final Object value) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+         // any set will invalidate our collections stack
+         if (!collections.isEmpty()) {
+            Pair<String, Object> collectionInfo = collections.pop();
+         }
+         super.setProperty(bean, name, value);
+      }
+
+      // need to track collections such that we can locate or create entries on demand
+      @Override
+      public Object getProperty(final Object bean,
+                                final String name) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+
+         if (!collections.isEmpty()) {
+            final String key = getResolver().getProperty(name);
+            Pair<String, Object> collectionInfo = collections.pop();
+            if (bean instanceof Map) {
+               Map map = (Map) bean;
+               if (!map.containsKey(key)) {
+                  map.put(key, newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key));
+               }
+               return map.get(key);
+            } else { // collection
+               // locate on name property
+               for (Object candidate : (Collection) bean) {
+                  if (key.equals(getProperty(candidate, "name"))) {
+                     return candidate;
+                  }
+               }
+               // or create it
+               Object created = newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key);
+               ((Collection) bean).add(created);
+               return created;
+            }
+         }
+
+         Object resolved = getNestedProperty(bean, name);
+
+         if (resolved instanceof Collection || resolved instanceof Map) {
+            collections.push(new Pair<String, Object>(name, bean));
+         }
+         return resolved;
+      }
+
+      // allow finding beans in collections via name() such that a mapped key (key)
+      // can be used to access and *not* auto create entries
+      @Override
+      public Object getMappedProperty(final Object bean,
+                                      final String name, final String key)
+         throws IllegalAccessException, InvocationTargetException,
+         NoSuchMethodException {
+
+         if (bean == null) {
+            throw new IllegalArgumentException("No bean specified");
+         }
+         if (name == null) {
+            throw new IllegalArgumentException("No name specified for bean class '" +
+                                                  bean.getClass() + "'");
+         }
+         if (key == null) {
+            throw new IllegalArgumentException("No key specified for property '" +
+                                                  name + "' on bean class " + bean.getClass() + "'");
+         }
+
+         Object result = null;
+
+         final PropertyDescriptor descriptor = getPropertyDescriptor(bean, name);
+         if (descriptor == null) {
+            throw new NoSuchMethodException("Unknown property '" +
+                                               name + "'+ on bean class '" + bean.getClass() + "'");
+         }
+
+         if (descriptor instanceof MappedPropertyDescriptor) {
+            // Call the keyed getter method if there is one
+            Method readMethod = ((MappedPropertyDescriptor) descriptor).
+               getMappedReadMethod();
+            readMethod = MethodUtils.getAccessibleMethod(bean.getClass(), readMethod);
+            if (readMethod != null) {
+               final Object[] keyArray = new Object[1];
+               keyArray[0] = key;
+               result = readMethod.invoke(bean, keyArray);
+            } else {
+               throw new NoSuchMethodException("Property '" + name +
+                                                  "' has no mapped getter method on bean class '" +
+                                                  bean.getClass() + "'");
+            }
+         } else {
+            final Method readMethod = MethodUtils.getAccessibleMethod(bean.getClass(), descriptor.getReadMethod());
+            if (readMethod != null) {
+               final Object invokeResult = readMethod.invoke(bean, EMPTY_OBJECT_ARRAY);
+               if (invokeResult instanceof Map) {
+                  result = ((Map<?, ?>)invokeResult).get(key);
+               } else if (invokeResult instanceof Collection) {
+                  // locate on name property
+                  for (Object candidate : (Collection) invokeResult) {
+                     if (key.equals(getProperty(candidate, "name"))) {
+                        return candidate;
+                     }
+                  }
+               }
+            } else {
+               throw new NoSuchMethodException("Property '" + name +
+                                                  "' has no mapped getter method on bean class '" +
+                                                  bean.getClass() + "'");
+            }
+         }
+         return result;
+      }
+
+      private Object newNamedInstanceForCollection(String collectionPropertyName, Object hostingBean, String name) {
+         // find the add X and init an instance of the type with name=name
+
+         // expect an add... without the plural
+         String addPropertyName = "add" + Character.toUpperCase(collectionPropertyName.charAt(0)) + collectionPropertyName.substring(1, collectionPropertyName.length() - 1);
+
+         // we don't know the type, infer from add method add(X x) or add(String key, X x)
+         final Method[] methods = hostingBean.getClass().getMethods();
+         for (Method candidate : methods) {
+            if (candidate.getName().equals(addPropertyName) &&
+               (candidate.getParameterCount() == 1 ||
+                  (candidate.getParameterCount() == 2
+                     // has a String key
+                     && String.class.equals(candidate.getParameterTypes()[0])
+                     // but not initialised from a String form (eg: uri)
+                     && !String.class.equals(candidate.getParameterTypes()[1])))) {
+
+               // create one and initialise with name
+               try {
+                  Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance(null);
+                  try {
+                     setProperty(instance, "name", name);
+                  } catch (NoSuchMethodException okIgnore) {
+                  }
+
+                  // this is always going to be a little hacky b/c our config is not natively property friendly
+                  if (instance instanceof TransportConfiguration) {
+                     setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
+                  }
+                  return instance;
+
+               } catch (Exception e) {
+                  logger.debug("Failed to add entry for " + name + " with method: " + candidate, e);
+                  throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
+               }
+            }
+         }
+         throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
+      }
+   }
+
+   private static class SurroundResolver extends DefaultResolver {
+      final String surroundString;
+
+      SurroundResolver(String surroundString) {
+         this.surroundString = surroundString;
+      }
+
+      @Override
+      public String next(String expression) {
+         String result = super.next(expression);
+         if (result != null) {
+            if (result.startsWith(surroundString)) {
+               // we need to recompute to properly terminate this SURROUND
+               result = expression.substring(expression.indexOf(surroundString));
+               return result.substring(0, result.indexOf(surroundString, surroundString.length()) + surroundString.length());
+            }
+         }
+         return result;
+      }
+
+      @Override
+      public String getProperty(final String expression) {
+         if (expression.startsWith(surroundString) && expression.endsWith(surroundString)) {
+            return expression.substring(surroundString.length(), expression.length() - surroundString.length());
+         }
+         return super.getProperty(expression);
+      }
+   }
 }

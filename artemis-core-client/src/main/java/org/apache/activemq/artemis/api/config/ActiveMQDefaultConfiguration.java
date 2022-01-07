@@ -557,6 +557,12 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
 
+   public static final String BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME = "broker.properties";
+
+   public static final String BROKER_PROPERTIES_KEY_SURROUND = "\"";
+
+   public static final String BROKER_PROPERTIES_KEY_SURROUND_PROPERTY = "key.surround";
+
    public static String DEFAULT_NETWORK_CHECK_LIST = null;
 
    public static String DEFAULT_NETWORK_CHECK_URL_LIST = null;
@@ -1585,6 +1591,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultSystemPropertyPrefix() {
       return DEFAULT_SYSTEM_PROPERTY_PREFIX;
+   }
+
+   public static String getDefaultBrokerPropertiesKeySurround() {
+      return BROKER_PROPERTIES_KEY_SURROUND;
    }
 
    public static String getDefaultNetworkCheckList() {

@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl;
 
 public class AMQPBrokerConnectionElement implements Serializable {
+   String name;
    SimpleString matchAddress;
    SimpleString queueName;
    AMQPBrokerConnectionAddressType type;
@@ -84,4 +85,14 @@ public class AMQPBrokerConnectionElement implements Serializable {
       this.type = type;
       return this;
    }
+
+
+   public String getName() {
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
 }

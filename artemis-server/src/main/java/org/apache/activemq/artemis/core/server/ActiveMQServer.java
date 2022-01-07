@@ -961,4 +961,7 @@ public interface ActiveMQServer extends ServiceComponent {
    BrokerBalancerManager getBalancerManager();
 
    String validateUser(String username, String password, RemotingConnection connection, String securityDomain) throws Exception;
+
+   default void setProperties(String fileUrltoBrokerProperties) {
+   }
 }

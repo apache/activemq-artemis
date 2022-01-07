@@ -39,6 +39,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -1918,6 +1919,39 @@ public class ArtemisTest extends CliTestBase {
          stopServer();
       }
 
+   }
+
+   @Test
+   public void testRunPropertiesArgumentSetsAcceptorPort() throws Exception {
+      File instanceFile = new File(temporaryFolder.getRoot(), "testRunPropertiesArgumentSetsAcceptorPort");
+      setupAuth(instanceFile);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFile.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceFile.getAbsolutePath());
+
+      // configure
+      URL brokerPropertiesFromClasspath = this.getClass().getClassLoader().getResource(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME);
+      Artemis.internalExecute("run", "--properties", new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
+
+      // verify
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61618"); Connection connection = cf.createConnection("admin", "admin");) {
+         connection.start();
+      } finally {
+         stopServer();
+      }
+   }
+
+   @Test
+   public void testRunPropertiesDudArgument() throws Exception {
+      File instanceFile = new File(temporaryFolder.getRoot(), "testRunPropertiesDudArgument");
+      setupAuth(instanceFile);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFile.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceFile.getAbsolutePath());
+
+      // verify error
+      Object ret = Artemis.internalExecute("run", "--properties", "https://www.apache.org");
+      assertTrue(ret instanceof IllegalStateException);
    }
 
    @Test
