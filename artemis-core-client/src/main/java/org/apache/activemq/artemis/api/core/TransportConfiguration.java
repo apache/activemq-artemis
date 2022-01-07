@@ -164,6 +164,10 @@ public class TransportConfiguration implements Serializable {
       return name;
    }
 
+   public void setName(String name) {
+      this.name = name;
+   }
+
    /**
     * Returns the class name of ConnectorFactory being used by this TransportConfiguration
     *

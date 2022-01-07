@@ -48,6 +48,10 @@ public class ResourceLimitSettings implements Serializable, EncodingSupport {
 
    //   SimpleString queueNameRegex = null;
 
+   public void setName(String name) {
+      setMatch(SimpleString.toSimpleString(name));
+   }
+
    public SimpleString getMatch() {
       return match != null ? match : DEFAULT_MATCH;
    }

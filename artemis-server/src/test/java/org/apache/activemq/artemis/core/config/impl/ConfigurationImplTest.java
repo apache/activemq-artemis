@@ -24,7 +24,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
@@ -584,10 +588,125 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       properties.put(configuration.getSystemPropertyPrefix() + "fileDeployerScanPeriod", "1234");
       properties.put(configuration.getSystemPropertyPrefix() + "globalMaxSize", "4321");
 
-      configuration.parseSystemProperties(properties);
+      configuration.parsePrefixedProperties(properties, configuration.getSystemPropertyPrefix());
 
       Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
       Assert.assertEquals(4321, configuration.getGlobalMaxSize());
+   }
+
+   @Test
+   public void testSetNestedPropertyOnCollections() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+      properties.put("balancerConfigurations.joe.localTargetFilter", "LF");
+      properties.put("balancerConfigurations(joe).targetKeyFilter", "TF");
+
+      properties.put("acceptorConfigurations.tcp.params.HOST", "LOCALHOST");
+      properties.put("acceptorConfigurations.tcp.params.PORT", "61616");
+
+      properties.put("acceptorConfigurations.invm.params.ID", "0");
+
+      //   <amqp-connection uri="tcp://HOST:PORT" name="other-server" retry-interval="100" reconnect-attempts="-1" user="john" password="doe">
+      properties.put("AMQPConnections.other-server.uri", "tcp://HOST:PORT");
+      properties.put("AMQPConnections.other-server.retryInterval", "100");
+      properties.put("AMQPConnections.other-server.reconnectAttempts", "100");
+      properties.put("AMQPConnections.other-server.user", "john");
+      properties.put("AMQPConnections.other-server.password", "doe");
+
+      //   <amqp-connection uri="tcp://brokerB:5672" name="brokerB"> <mirror/> </amqp-connection>
+      properties.put("AMQPConnections.brokerB.uri", "tcp://brokerB:5672");
+      properties.put("AMQPConnections.brokerB.type", AMQPBrokerConnectionAddressType.MIRROR.toString());
+      properties.put("AMQPConnections.brokerB.connectionElements.mirror.mirrorSNF", "mirrorSNFQueue");
+
+      properties.put("resourceLimitSettings.joe.maxConnections", "100");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getBalancerConfigurations().size());
+      Assert.assertEquals("LF", configuration.getBalancerConfigurations().get(0).getLocalTargetFilter());
+      Assert.assertEquals("TF", configuration.getBalancerConfigurations().get(0).getTargetKeyFilter());
+
+      Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
+
+      for (TransportConfiguration acceptor : configuration.getAcceptorConfigurations()) {
+         if ("tcp".equals(acceptor.getName())) {
+            Assert.assertEquals("61616", acceptor.getParams().get("PORT"));
+         }
+         if ("invm".equals(acceptor.getName())) {
+            Assert.assertEquals("0", acceptor.getParams().get("ID"));
+         }
+      }
+
+      Assert.assertEquals(2, configuration.getAMQPConnection().size());
+      for (AMQPBrokerConnectConfiguration amqpBrokerConnectConfiguration : configuration.getAMQPConnection()) {
+         if ("brokerB".equals(amqpBrokerConnectConfiguration.getName())) {
+            Assert.assertEquals(AMQPBrokerConnectionAddressType.MIRROR.toString(), amqpBrokerConnectConfiguration.getConnectionElements().get(0).getType().toString());
+            Assert.assertEquals("mirrorSNFQueue", ((AMQPMirrorBrokerConnectionElement)amqpBrokerConnectConfiguration.getConnectionElements().get(0)).getMirrorSNF().toString());
+
+         } else if ("other-server".equals(amqpBrokerConnectConfiguration.getName())) {
+            Assert.assertEquals(100, amqpBrokerConnectConfiguration.getReconnectAttempts());
+         } else {
+            fail("unexpected amqp broker connection configuration: " + amqpBrokerConnectConfiguration.getName());
+         }
+      }
+
+      Assert.assertEquals(100, configuration.getResourceLimitSettings().get("joe").getMaxConnections());
+   }
+
+   @Test
+   public void testSetNestedPropertyOnExistingCollectionEntryViaMappedNotation() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+      properties.put("balancerConfigurations.joe.localTargetFilter", "LF");
+      // does not exist, ignored
+      properties.put("balancerConfigurations(bob).targetKeyFilter", "TF");
+      properties.put("balancerConfigurations(joe).targetKeyFilter", "TF");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getBalancerConfigurations().size());
+      Assert.assertEquals("LF", configuration.getBalancerConfigurations().get(0).getLocalTargetFilter());
+      Assert.assertEquals("TF", configuration.getBalancerConfigurations().get(0).getTargetKeyFilter());
+   }
+
+   @Test
+   public void testAddressSettingsViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("addressesSettings.#.expiryAddress", "sharedExpiry");
+      properties.put("addressesSettings.NeedToTrackExpired.expiryAddress", "important");
+      properties.put("addressesSettings.\"Name.With.Dots\".expiryAddress", "moreImportant");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(3, configuration.getAddressesSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressesSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressesSettings().get("NeedToTrackExpired").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressesSettings().get("Name.With.Dots").getExpiryAddress());
+   }
+
+   @Test
+   public void testNameWithDotsSurroundWithDollarDollar() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      // overrides the default surrounding string of '"' with '$$' using a property
+      properties.put(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY, "$$");
+      properties.put("addressesSettings.#.expiryAddress", "sharedExpiry");
+      properties.put("addressesSettings.NeedToTrackExpired.expiryAddress", "important");
+      properties.put("addressesSettings.$$Name.With.Dots$$.expiryAddress", "moreImportant");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(3, configuration.getAddressesSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressesSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressesSettings().get("NeedToTrackExpired").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressesSettings().get("Name.With.Dots").getExpiryAddress());
    }
 
    /**
@@ -632,7 +751,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          properties.put(configuration.getSystemPropertyPrefix() + "fileDeployerScanPeriod", "1234");
          properties.put(configuration.getSystemPropertyPrefix() + "globalMaxSize", "4321");
 
-         configuration.parseSystemProperties(properties);
+         configuration.parsePrefixedProperties(properties, configuration.getSystemPropertyPrefix());
 
 
       } finally {

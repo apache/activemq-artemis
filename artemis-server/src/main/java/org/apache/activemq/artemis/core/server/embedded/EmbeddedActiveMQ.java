@@ -17,8 +17,11 @@
 package org.apache.activemq.artemis.core.server.embedded;
 
 import javax.management.MBeanServer;
+import java.io.File;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
@@ -139,6 +142,11 @@ public class EmbeddedActiveMQ {
          activeMQServer = new ActiveMQServerImpl(configuration, securityManager);
       } else {
          activeMQServer = new ActiveMQServerImpl(configuration, mbeanServer, securityManager);
+      }
+
+      URL brokerPropertiesFromClasspath = this.getClass().getClassLoader().getResource(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME);
+      if (brokerPropertiesFromClasspath != null) {
+         activeMQServer.setProperties(new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
       }
    }
 

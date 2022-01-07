@@ -31,16 +31,17 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
 
    List<TransportConfiguration> transportConfigurations;
 
-   List<AMQPBrokerConnectionElement> connectionElements;
+   List<AMQPBrokerConnectionElement> connectionElements = new ArrayList<>();
+
+   public AMQPBrokerConnectConfiguration() {
+      super(null, null);
+   }
 
    public AMQPBrokerConnectConfiguration(String name, String uri) {
       super(name, uri);
    }
 
    public AMQPBrokerConnectConfiguration addElement(AMQPBrokerConnectionElement amqpBrokerConnectionElement) {
-      if (connectionElements == null) {
-         connectionElements = new ArrayList<>();
-      }
       amqpBrokerConnectionElement.setParent(this);
 
 
@@ -51,6 +52,10 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       connectionElements.add(amqpBrokerConnectionElement);
 
       return this;
+   }
+
+   public AMQPBrokerConnectConfiguration addConnectionElement(AMQPMirrorBrokerConnectionElement amqpBrokerConnectionElement) {
+      return addElement(amqpBrokerConnectionElement);
    }
 
    public List<AMQPBrokerConnectionElement> getConnectionElements() {

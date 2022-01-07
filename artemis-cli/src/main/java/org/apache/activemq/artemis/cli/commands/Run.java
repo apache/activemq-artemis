@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
@@ -46,6 +47,9 @@ public class Run extends LockAbstract {
 
    @Option(name = "--allow-kill", description = "This will allow the server to kill itself. Useful for tests (failover tests for instance)")
    boolean allowKill;
+
+   @Option(name = "--properties", description = "A file url to a properties file that is applied to the server's internal ConfigurationImpl bean")
+   String properties;
 
    private static boolean embedded = false;
 
@@ -112,6 +116,14 @@ public class Run extends LockAbstract {
 
          server.createComponents();
          server.getServer().registerActivationFailureListener(exception -> serverActivationFailed.set(exception));
+
+         if (properties == null) {
+            File propertiesFileFromEtc = new File(getBrokerEtc(), ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME);
+            if (propertiesFileFromEtc.exists()) {
+               properties = propertiesFileFromEtc.getAbsolutePath();
+            }
+         }
+         server.getServer().setProperties(properties);
          server.start();
          server.getServer().addExternalComponent(managementContext, false);
 
@@ -121,7 +133,7 @@ public class Run extends LockAbstract {
 
          for (ComponentDTO componentDTO : broker.components) {
             Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
-            ExternalComponent component = (ExternalComponent) clazz.newInstance();
+            ExternalComponent component = (ExternalComponent) clazz.getDeclaredConstructor(null).newInstance();
             component.configure(componentDTO, getBrokerInstance(), getBrokerHome());
             server.getServer().addExternalComponent(component, true);
             assert component.isStarted();
@@ -129,6 +141,7 @@ public class Run extends LockAbstract {
       } catch (Throwable t) {
          t.printStackTrace();
          serverActivationFailed.set(t);
+         latchRunning.countDown();
       }
 
       if (serverActivationFailed.get() != null) {

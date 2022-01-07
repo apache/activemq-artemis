@@ -369,6 +369,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private volatile FederationManager federationManager;
 
+   private String propertiesFileUrl;
+
    private final ActiveMQComponent networkCheckMonitor = new ActiveMQComponent() {
       @Override
       public void start() throws Exception {
@@ -593,13 +595,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       return this.analyzer;
    }
 
+   @Override
+   public void setProperties(String fileUrltoBrokerProperties) {
+      propertiesFileUrl = fileUrltoBrokerProperties;
+   }
+
    private void internalStart() throws Exception {
       if (state != SERVER_STATE.STOPPED) {
          logger.debug("Server already started!");
          return;
       }
 
-      configuration.parseSystemProperties();
+      configuration.parseProperties(propertiesFileUrl);
 
       initializeExecutorServices();
 
@@ -4323,6 +4330,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configuration.setQueueConfigs(config.getQueueConfigs());
       configurationReloadDeployed.set(false);
       if (isActive()) {
+         configuration.parseProperties(propertiesFileUrl);
          deployReloadableConfigFromConfiguration();
       }
    }

@@ -57,8 +57,6 @@ public final class FileConfiguration extends ConfigurationImpl implements Deploy
 
       setConfigurationUrl(url);
 
-      parseSystemProperties();
-
       parsed = true;
    }
 
