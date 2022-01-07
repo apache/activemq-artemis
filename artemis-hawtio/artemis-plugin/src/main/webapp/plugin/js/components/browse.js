@@ -848,6 +848,8 @@ var Artemis;
                             v2 += " (" + formatBindingType(v2) + ")";
                         } else if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
                             v2 += " (" + formatAmqpEncoding(v2) + ")";
+                        } else if(k2 === "_AMQ_ACTUAL_EXPIRY") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "_AMQ_NotifTimestamp") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "_AMQ_ROUTING_TYPE") {
@@ -859,6 +861,8 @@ var Artemis;
                         } else if(k2 === "messageAnnotations.x-opt-ACTUAL-EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "properties.creationTime") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "__HDR_BROKER_IN_TIME") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         }
                         properties.push({key: k2, value: v2});
