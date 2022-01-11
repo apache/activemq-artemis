@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.io.File;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -43,6 +42,7 @@ import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.jboss.logging.Logger;
@@ -710,10 +710,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       synchronized (this) {
          // Need to send credits for the messages in the buffer
 
-         Iterator<ClientMessageInternal> iter = buffer.iterator();
-
-         while (iter.hasNext()) {
-            try {
+         try (LinkedListIterator<ClientMessageInternal> iter = buffer.iterator()) {
+            while (iter.hasNext()) {
                ClientMessageInternal message = iter.next();
 
                if (message.isLargeMessage()) {
@@ -722,9 +720,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                }
 
                flowControlBeforeConsumption(message);
-            } catch (Exception e) {
-               ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
             }
+         } catch (Exception e) {
+            ActiveMQClientLogger.LOGGER.errorClearingMessages(e);
          }
 
          clearBuffer();
