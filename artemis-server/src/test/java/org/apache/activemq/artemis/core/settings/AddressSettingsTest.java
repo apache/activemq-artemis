@@ -20,6 +20,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,6 +69,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setRedeliveryDelay(1003);
       addressSettingsToMerge.setPageSizeBytes(1004);
       addressSettingsToMerge.setMaxSizeBytesRejectThreshold(10 * 1024);
+      addressSettingsToMerge.setConfigDeleteDiverts(DeletionPolicy.FORCE);
 
       addressSettings.merge(addressSettingsToMerge);
       Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
@@ -79,6 +81,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(addressSettings.getPageSizeBytes(), 1004);
       Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
       Assert.assertEquals(addressSettings.getMaxSizeBytesRejectThreshold(), 10 * 1024);
+      Assert.assertEquals(DeletionPolicy.FORCE, addressSettings.getConfigDeleteDiverts());
    }
 
    @Test

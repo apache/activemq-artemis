@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,6 +75,29 @@ public class AddressSettingsConfigurationStorageTest extends StorageManagerTestB
       setting = new AddressSettings().setDeadLetterAddress(new SimpleString("new-adddress"));
 
       // Replacing the first setting
+      addAddress(journal, "a1", setting);
+
+      journal.stop();
+
+      createStorage();
+
+      checkAddresses(journal);
+
+      journal.stop();
+
+      journal = null;
+
+   }
+
+   @Test
+   public void testStoreConfigDeleteSettings() throws Exception {
+      createStorage();
+
+      AddressSettings setting = new AddressSettings()
+         .setConfigDeleteDiverts(DeletionPolicy.FORCE)
+         .setConfigDeleteAddresses(DeletionPolicy.FORCE)
+         .setConfigDeleteQueues(DeletionPolicy.FORCE);
+
       addAddress(journal, "a1", setting);
 
       journal.stop();
