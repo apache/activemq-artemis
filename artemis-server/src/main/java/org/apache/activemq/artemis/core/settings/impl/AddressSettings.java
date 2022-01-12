@@ -318,6 +318,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.autoDeleteAddresses = other.autoDeleteAddresses;
       this.autoDeleteAddressesDelay = other.autoDeleteAddressesDelay;
       this.configDeleteAddresses = other.configDeleteAddresses;
+      this.configDeleteDiverts = other.configDeleteDiverts;
       this.managementBrowsePageSize = other.managementBrowsePageSize;
       this.queuePrefetch = other.queuePrefetch;
       this.maxSizeBytesRejectThreshold = other.maxSizeBytesRejectThreshold;
@@ -1084,6 +1085,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (configDeleteAddresses == null) {
          configDeleteAddresses = merged.configDeleteAddresses;
       }
+      if (configDeleteDiverts == null) {
+         configDeleteDiverts = merged.configDeleteDiverts;
+      }
       if (managementBrowsePageSize == null) {
          managementBrowsePageSize = merged.managementBrowsePageSize;
       }
@@ -1398,6 +1402,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          enableIngressTimestamp = BufferHelper.readNullableBoolean(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         policyStr = tryCompatible ? null : buffer.readNullableSimpleString();
+
+         if (policyStr != null) {
+            configDeleteDiverts = DeletionPolicy.valueOf(policyStr.toString());
+         } else {
+            configDeleteDiverts = null;
+         }
+      }
    }
 
    @Override
@@ -1433,6 +1447,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(autoDeleteQueues) + BufferHelper.sizeOfNullableSimpleString(configDeleteQueues != null ? configDeleteQueues.toString() : null) +
          BufferHelper.sizeOfNullableBoolean(autoCreateAddresses) +
          BufferHelper.sizeOfNullableBoolean(autoDeleteAddresses) + BufferHelper.sizeOfNullableSimpleString(configDeleteAddresses != null ? configDeleteAddresses.toString() : null) +
+         BufferHelper.sizeOfNullableSimpleString(configDeleteDiverts != null ? configDeleteDiverts.toString() : null) +
          BufferHelper.sizeOfNullableInteger(managementBrowsePageSize) +
          BufferHelper.sizeOfNullableLong(maxSizeBytesRejectThreshold) +
          BufferHelper.sizeOfNullableInteger(defaultMaxConsumers) +
@@ -1596,6 +1611,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableInteger(buffer, slowConsumerThresholdMeasurementUnit == null ? null : slowConsumerThresholdMeasurementUnit.getValue());
 
       BufferHelper.writeNullableBoolean(buffer, enableIngressTimestamp);
+
+      buffer.writeNullableSimpleString(configDeleteDiverts != null ? new SimpleString(configDeleteDiverts.toString()) : null);
    }
 
    /* (non-Javadoc)
