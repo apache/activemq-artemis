@@ -337,10 +337,6 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    }
 
    @Override
-   public void removeHandler(String name) {
-   }
-
-   @Override
    public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
    }
 

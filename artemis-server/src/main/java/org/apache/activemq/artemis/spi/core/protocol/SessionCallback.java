@@ -42,6 +42,14 @@ public interface SessionCallback {
    boolean hasCredits(ServerConsumer consumerID);
 
    /**
+    * This one includes the MessageReference for protocols like MQTT 5 (which only enforces flow control on durable
+    * messages (i.e. QoS 1 &amp; 2))
+    */
+   default boolean hasCredits(ServerConsumer consumerID, MessageReference ref) {
+      return hasCredits(consumerID);
+   }
+
+   /**
     * This can be used to complete certain operations outside of the lock,
     * like acks or other operations.
     */

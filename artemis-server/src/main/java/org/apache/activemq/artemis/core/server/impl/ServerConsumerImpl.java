@@ -390,7 +390,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    public HandleStatus handle(final MessageReference ref) throws Exception {
       // available credits can be set back to null with a flow control option.
       AtomicInteger checkInteger = availableCredits;
-      if (callback != null && !callback.hasCredits(this) || checkInteger != null && checkInteger.get() <= 0) {
+      if (callback != null && !callback.hasCredits(this, ref) || checkInteger != null && checkInteger.get() <= 0) {
          if (logger.isDebugEnabled()) {
             logger.debug(this + " is busy for the lack of credits. Current credits = " +
                             availableCredits +
@@ -517,6 +517,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
       }
 
+   }
+
+   @Override
+   public Binding getBinding() {
+      return binding;
    }
 
    @Override
@@ -1534,5 +1539,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public String getConnectionRemoteAddress() {
       return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+   }
+
+   public SessionCallback getCallback() {
+      return callback;
    }
 }

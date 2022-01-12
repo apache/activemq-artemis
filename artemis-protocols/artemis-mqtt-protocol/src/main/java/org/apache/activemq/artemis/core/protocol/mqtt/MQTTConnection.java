@@ -52,7 +52,12 @@ public class MQTTConnection implements RemotingConnection {
    private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
 
    private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
+
    private Subject subject;
+
+   private int receiveMaximum = -1;
+
+   private String protocolVersion;
 
    public MQTTConnection(Connection transportConnection) throws Exception {
       this.transportConnection = transportConnection;
@@ -189,7 +194,6 @@ public class MQTTConnection implements RemotingConnection {
 
    @Override
    public void destroy() {
-      //TODO(mtaylor) ensure this properly destroys this connection.
       destroyed = true;
       disconnect(false);
    }
@@ -282,7 +286,7 @@ public class MQTTConnection implements RemotingConnection {
     */
    @Override
    public String getProtocolName() {
-      return MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
+      return MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME + (protocolVersion != null ? protocolVersion : "");
    }
 
    /**
@@ -310,4 +314,15 @@ public class MQTTConnection implements RemotingConnection {
       return getTransportConnection().getLocalAddress();
    }
 
+   public int getReceiveMaximum() {
+      return receiveMaximum;
+   }
+
+   public void setReceiveMaximum(int maxReceive) {
+      this.receiveMaximum = maxReceive;
+   }
+
+   public void setProtocolVersion(String protocolVersion) {
+      this.protocolVersion = protocolVersion;
+   }
 }

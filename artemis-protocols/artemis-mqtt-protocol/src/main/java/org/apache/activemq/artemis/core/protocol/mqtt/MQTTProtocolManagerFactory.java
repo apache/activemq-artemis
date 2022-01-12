@@ -67,7 +67,6 @@ public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<M
       return MODULE_NAME;
    }
 
-
    @Override
    public void loadProtocolServices(ActiveMQServer server, List<ActiveMQComponent> services) {
       services.add(new MQTTPeriodicTasks(server, server.getScheduledPool()));
@@ -76,7 +75,7 @@ public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<M
    public class MQTTPeriodicTasks extends ActiveMQScheduledComponent {
       final ActiveMQServer server;
       public MQTTPeriodicTasks(ActiveMQServer server, ScheduledExecutorService scheduledExecutorService) {
-         super(scheduledExecutorService, null, 5, TimeUnit.SECONDS, false);
+         super(scheduledExecutorService, null, server.getConfiguration().getMqttSessionScanInterval(), TimeUnit.MILLISECONDS, false);
          this.server = server;
       }
       @Override

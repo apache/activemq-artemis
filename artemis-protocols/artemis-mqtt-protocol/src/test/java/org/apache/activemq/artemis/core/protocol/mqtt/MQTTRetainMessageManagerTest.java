@@ -253,7 +253,7 @@ public class MQTTRetainMessageManagerTest {
 
    private void logRetainedMessagesQueue() {
       final WildcardConfiguration wildcardConfiguration = new WildcardConfiguration();
-      final String retainAddress = MQTTUtil.convertMQTTAddressFilterToCoreRetain(topic, wildcardConfiguration);
+      final String retainAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, topic, wildcardConfiguration);
       final Queue queue = jmsServer.getDestinationQueue(retainAddress);
       final LinkedListIterator<MessageReference> browserIterator = queue.browserIterator();
       browserIterator.forEachRemaining(messageReference -> {

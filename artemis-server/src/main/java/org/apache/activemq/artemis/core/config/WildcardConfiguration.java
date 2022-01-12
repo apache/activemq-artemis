@@ -125,9 +125,13 @@ public class WildcardConfiguration implements Serializable {
    }
 
    public String convert(String filter, WildcardConfiguration to) {
-      return filter.replace(getDelimiter(), to.getDelimiter())
-              .replace(getSingleWord(), to.getSingleWord())
-              .replace(getAnyWords(), to.getAnyWords());
+      if (this.equals(to)) {
+         return filter;
+      } else {
+         return filter
+            .replace(getDelimiter(), to.getDelimiter())
+            .replace(getSingleWord(), to.getSingleWord())
+            .replace(getAnyWords(), to.getAnyWords());
+      }
    }
-
 }

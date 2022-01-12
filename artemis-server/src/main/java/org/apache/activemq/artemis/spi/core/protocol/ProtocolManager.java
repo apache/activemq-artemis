@@ -30,7 +30,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 /**
- * Info: ProtocolManager is loaded by {@link org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl#loadProtocolManagerFactories(Iterable)} */
+ * Info: ProtocolManager is loaded by {@link org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl#loadProtocolManagerFactories(Iterable)}
+ */
 public interface ProtocolManager<P extends BaseInterceptor, R extends RedirectHandler> {
 
    ProtocolManagerFactory<P> getFactory();
@@ -45,7 +46,8 @@ public interface ProtocolManager<P extends BaseInterceptor, R extends RedirectHa
 
    ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection);
 
-   void removeHandler(String name);
+   default void removeHandler(String name) {
+   }
 
    void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer);
 

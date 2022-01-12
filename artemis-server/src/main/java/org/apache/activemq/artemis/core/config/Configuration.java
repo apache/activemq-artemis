@@ -1380,4 +1380,17 @@ public interface Configuration {
 
    Configuration setTemporaryQueueNamespace(String temporaryQueueNamespace);
 
+   /**
+    * This is specific to MQTT, and it's necessary because the session scan interval is a broker-wide setting and can't
+    * be set on a per-connector basis like the rest of the MQTT-specific settings.
+    */
+   Configuration setMqttSessionScanInterval(long mqttSessionScanInterval);
+
+   /**
+    * @see Configuration#setMqttSessionScanInterval(long)
+    *
+    * @return
+    */
+   long getMqttSessionScanInterval();
+
 }

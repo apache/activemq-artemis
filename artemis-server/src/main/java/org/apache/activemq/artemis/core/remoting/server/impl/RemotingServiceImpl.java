@@ -512,6 +512,17 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       return conns;
    }
 
+   // for testing purposes to verify TTL has been set properly
+   public synchronized Set<ConnectionEntry> getConnectionEntries() {
+      Set<ConnectionEntry> conns = new HashSet<>(connections.size());
+
+      for (ConnectionEntry entry : connections.values()) {
+         conns.add(entry);
+      }
+
+      return conns;
+   }
+
    @Override
    public int getConnectionCount() {
       return connections.size();

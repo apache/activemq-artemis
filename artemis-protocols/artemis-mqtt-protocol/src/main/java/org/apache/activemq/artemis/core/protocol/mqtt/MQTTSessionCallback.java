@@ -23,13 +23,14 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.jboss.logging.Logger;
 
 public class MQTTSessionCallback implements SessionCallback {
 
    private final MQTTSession session;
    private final MQTTConnection connection;
 
-   private MQTTLogger log = MQTTLogger.LOGGER;
+   private static final Logger logger = Logger.getLogger(MQTTSessionCallback.class);
 
    public MQTTSessionCallback(MQTTSession session, MQTTConnection connection) throws Exception {
       this.session = session;
@@ -54,7 +55,7 @@ public class MQTTSessionCallback implements SessionCallback {
       try {
          session.getMqttPublishManager().sendMessage(message.toCore(), consumer, deliveryCount);
       } catch (Exception e) {
-         log.warn("Unable to send message: " + message.getMessageID() + " Cause: " + e.getMessage(), e);
+         MQTTLogger.LOGGER.unableToSendMessage(reference, e);
       }
       return 1;
    }
@@ -86,7 +87,7 @@ public class MQTTSessionCallback implements SessionCallback {
       try {
          consumer.removeItself();
       } catch (Exception e) {
-         log.error(e.getMessage());
+         MQTTLogger.LOGGER.errorDisconnectingConsumer(e);
       }
    }
 
@@ -102,7 +103,22 @@ public class MQTTSessionCallback implements SessionCallback {
 
    @Override
    public boolean hasCredits(ServerConsumer consumerID) {
-      return true;
+      return hasCredits(consumerID, null);
+   }
+
+   @Override
+   public boolean hasCredits(ServerConsumer consumerID, MessageReference ref) {
+      /*
+       * [MQTT-3.3.4-9] The Server MUST NOT send more than Receive Maximum QoS 1 and QoS 2 PUBLISH packets for which it
+       * has not received PUBACK, PUBCOMP, or PUBREC with a Reason Code of 128 or greater from the Client.
+       *
+       * Therefore, enforce flow-control based on the number of pending QoS 1 & 2 messages
+       */
+      if (ref != null && ref.isDurable() == true && connection.getReceiveMaximum() != -1 && session.getState().getOutboundStore().getPendingMessages() >= connection.getReceiveMaximum()) {
+         return false;
+      } else {
+         return true;
+      }
    }
 
    @Override

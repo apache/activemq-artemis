@@ -138,7 +138,7 @@ public class Wait {
       assertTrue(failureMessage, condition, duration, SLEEP_MILLIS);
    }
 
-   public static void assertTrue(Condition condition, final long duration, final long sleep) throws Exception {
+   public static void assertTrue(Condition condition, final long duration, final long sleep) {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }
 

@@ -45,21 +45,39 @@ public class Match<T> {
    public Match(final String match, final T value, final WildcardConfiguration wildcardConfiguration) {
       this.match = match;
       this.value = value;
+      pattern = createPattern(match, wildcardConfiguration, false);
+   }
+
+   /**
+    *
+    * @param match
+    * @param wildcardConfiguration
+    * @param direct setting true is useful for use-cases where you just want to know whether or not a message sent to
+    *               a particular address would match the pattern
+    * @return
+    */
+   public static Pattern createPattern(final String match, final WildcardConfiguration wildcardConfiguration, boolean direct) {
       String actMatch = match;
 
       if (wildcardConfiguration.getAnyWordsString().equals(match)) {
          // replace any regex characters
          actMatch = Match.WILDCARD_REPLACEMENT;
       } else {
-         // this is to match with what's documented
-         actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
+         if (!direct) {
+            // this is to match with what's documented
+            actMatch = actMatch.replace(wildcardConfiguration.getDelimiterString() + wildcardConfiguration.getAnyWordsString(), wildcardConfiguration.getAnyWordsString());
+         }
          actMatch = actMatch.replace(Match.DOT, Match.DOT_REPLACEMENT);
          actMatch = actMatch.replace(wildcardConfiguration.getSingleWordString(), String.format(WORD_WILDCARD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
 
-         // this one has to be done by last as we are using .* and it could be replaced wrongly if delimiter is '.'
-         actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
+         if (direct) {
+            actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), WILDCARD_REPLACEMENT);
+         } else {
+            // this one has to be done by last as we are using .* and it could be replaced wrongly if delimiter is '.'
+            actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
+         }
       }
-      pattern = Pattern.compile(actMatch);
+      return Pattern.compile(actMatch);
    }
 
    public final String getMatch() {
@@ -115,5 +133,4 @@ public class Match<T> {
    public String toString() {
       return value.toString();
    }
-
 }

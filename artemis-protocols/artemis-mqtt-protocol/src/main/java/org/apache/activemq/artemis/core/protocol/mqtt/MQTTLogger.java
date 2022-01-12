@@ -17,8 +17,12 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
+import org.jboss.logging.annotations.LogMessage;
+import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
 
 /**
@@ -33,11 +37,47 @@ import org.jboss.logging.annotations.MessageLogger;
  * TRACE 5
  * FATAL 6
  *
- * so an INFO message would be 101000 to 101999
+ * so an INFO message would be 831000 to 831999
  */
 
 @MessageLogger(projectCode = "AMQ")
 public interface MQTTLogger extends BasicLogger {
 
    MQTTLogger LOGGER = Logger.getMessageLogger(MQTTLogger.class, MQTTLogger.class.getPackage().getName());
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 832000, value = "Unable to send message: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void unableToSendMessage(MessageReference message, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 832001, value = "MQTT client({0}) attempted to ack already ack'd message: ", format = Message.Format.MESSAGE_FORMAT)
+   void failedToAckMessage(String clientId, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834000, value = "Error removing subscription.", format = Message.Format.MESSAGE_FORMAT)
+   void errorRemovingSubscription(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834001, value = "Error disconnecting client.", format = Message.Format.MESSAGE_FORMAT)
+   void errorDisconnectingClient(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834002, value = "Error processing control packet: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorProcessingControlPacket(String packet, @Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834003, value = "Error sending will message.", format = Message.Format.MESSAGE_FORMAT)
+   void errorSendingWillMessage(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834004, value = "Error disconnecting consumer.", format = Message.Format.MESSAGE_FORMAT)
+   void errorDisconnectingConsumer(@Cause Exception e);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834005, value = "Failed to cast property {0}.", format = Message.Format.MESSAGE_FORMAT)
+   void failedToCastProperty(String property);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834006, value = "Failed to publish MQTT message: {0}.", format = Message.Format.MESSAGE_FORMAT)
+   void failedToPublishMqttMessage(String exceptionMessage, @Cause Throwable t);
 }

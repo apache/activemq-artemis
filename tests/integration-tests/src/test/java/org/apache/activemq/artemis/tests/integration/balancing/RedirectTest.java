@@ -23,7 +23,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

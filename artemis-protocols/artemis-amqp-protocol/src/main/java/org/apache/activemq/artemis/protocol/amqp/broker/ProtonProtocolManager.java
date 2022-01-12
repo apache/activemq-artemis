@@ -253,11 +253,6 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    }
 
    @Override
-   public void removeHandler(String name) {
-
-   }
-
-   @Override
    public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
       ActiveMQProtonRemotingConnection protonConnection = (ActiveMQProtonRemotingConnection) connection;
 
