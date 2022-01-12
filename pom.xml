@@ -106,9 +106,9 @@
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
       <maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
-      <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
+      <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
-      <checkstyle.version>8.43</checkstyle.version>
+      <checkstyle.version>9.2.1</checkstyle.version>
       <mockito.version>3.12.4</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.72.Final</netty.version>

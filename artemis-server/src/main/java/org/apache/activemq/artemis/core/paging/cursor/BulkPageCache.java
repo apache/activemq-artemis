@@ -20,5 +20,5 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 
 public interface BulkPageCache extends PageCache {
 
-    PagedMessage[] getMessages();
+   PagedMessage[] getMessages();
 }
