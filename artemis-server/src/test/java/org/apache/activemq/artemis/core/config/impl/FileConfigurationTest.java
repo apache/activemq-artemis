@@ -160,6 +160,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(12345, conf.getGracefulShutdownTimeout());
       Assert.assertEquals(true, conf.isPopulateValidatedUser());
       Assert.assertEquals(false, conf.isRejectEmptyValidatedUser());
+      Assert.assertEquals(123456, conf.getMqttSessionScanInterval());
       Assert.assertEquals(98765, conf.getConnectionTtlCheckInterval());
       Assert.assertEquals(1234567, conf.getConfigurationFileRefreshPeriod());
       Assert.assertEquals("TEMP", conf.getTemporaryQueueNamespace());

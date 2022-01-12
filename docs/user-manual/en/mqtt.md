@@ -7,15 +7,18 @@ reason MQTT is ideally suited to constrained devices such as sensors and
 actuators and is quickly becoming the defacto standard communication protocol
 for IoT.
 
-Apache ActiveMQ Artemis supports MQTT v3.1.1 (and also the older v3.1 code
-message format). By default there are `acceptor` elements configured to accept
-MQTT connections on ports `61616` and `1883`.
+Apache ActiveMQ Artemis supports the following MQTT versions (with links to
+their respective specifications):
+
+ - [3.1](https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html)
+ - [3.1.1](https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html)
+ - [5.0](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html)
+
+By default there are `acceptor` elements configured to accept MQTT connections 
+on ports `61616` and `1883`.
 
 See the general [Protocols and Interoperability](protocols-interoperability.md)
 chapter for details on configuring an `acceptor` for MQTT.
-
-The best source of information on the MQTT protocol is in the [3.1.1
-specification](https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html).
 
 Refer to the MQTT examples for a look at some of this functionality in action.
 
@@ -85,19 +88,10 @@ deployment of devices.
 
 ## Debug Logging
 
-Detailed protocol logging (e.g. packets in/out) can be activated via the
-following steps:
-
-1. Open `<ARTEMIS_INSTANCE>/etc/logging.properties`
-
-2. Add `org.apache.activemq.artemis.core.protocol.mqtt` to the `loggers` list.
-
-3. Add this line to enable `TRACE` logging for this new logger: 
-   `logger.org.apache.activemq.artemis.core.protocol.mqtt.level=TRACE`
-
-4. Ensure the `level` for the `handler` you want to log the message doesn't 
-   block the `TRACE` logging. For example, modify the `level` of the `CONSOLE` 
-   `handler` like so: `handler.CONSOLE.level=TRACE`.
+Detailed protocol logging (e.g. packets in/out) can be activated by turning
+on `TRACE` logging for `org.apache.activemq.artemis.core.protocol.mqtt`. Follow
+[these steps](logging.md#activating-trace-for-a-specific-logger) to configure
+logging appropriately.
 
 The MQTT specification doesn't dictate the format of the payloads which clients
 publish. As far as the broker is concerned a payload is just an array of
@@ -106,34 +100,33 @@ UTF-8 strings and print them up to 256 characters. Payload logging is limited
 to avoid filling the logs with potentially hundreds of megabytes of unhelpful
 information.
 
-
-## Wild card subscriptions
+## Wildcard subscriptions
 
 MQTT addresses are hierarchical much like a file system, and they use a special
 character (i.e. `/` by default) to separate hierarchical levels. Subscribers
 are able to subscribe to specific topics or to whole branches of a hierarchy.
 
 To subscribe to branches of an address hierarchy a subscriber can use wild
-cards. These wild cards (including the aforementioned separator) are
-configurable. See the [Wildcard
-Syntax](wildcard-syntax.md#customizing-the-syntax) chapter for details about
-how to configure custom wild cards.
+cards. There are 2 types of wildcards in MQTT:
 
-There are 2 types of wild cards in MQTT:
+- **Multi level** (`#`)
 
-- **Multi level** (`#` by default)
-
-  Adding this wild card to an address would match all branches of the address
+  Adding this wildcard to an address would match all branches of the address
   hierarchy under a specified node.  For example: `/uk/#`  Would match
   `/uk/cities`, `/uk/cities/newcastle` and also `/uk/rivers/tyne`. Subscribing to
   an address `#` would result in subscribing to all topics in the broker.  This
   can be useful, but should be done so with care since it has significant
   performance implications.
 
-- **Single level** (`+` by default)
+- **Single level** (`+`)
 
   Matches a single level in the address hierarchy. For example `/uk/+/stores`
   would match `/uk/newcastle/stores` but not `/uk/cities/newcastle/stores`.
+
+These MQTT-specific wildcards are automatically *translated* into the wildcard
+syntax used by ActiveMQ Artemis. These wildcards are configurable. See the
+[Wildcard Syntax](wildcard-syntax.md#customizing-the-syntax) chapter for details about
+how to configure custom wildcards. 
 
 ## Web Sockets
 
@@ -160,9 +153,113 @@ However, the MQTT session meta-data is still present in memory and needs to be
 cleaned up as well. The URL parameter `defaultMqttSessionExpiryInterval` can be
 configured on the MQTT `acceptor` to deal with this situation.
 
-The default `defaultMqttSessionExpiryInterval` is `-1` which means no session
-state will be expired. Otherwise it represents the number of _milliseconds_
-which must elapse after the client has disconnected before the broker will
-remove the session state.
+MQTT 5 added a new [session expiry interval](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901048)
+property with the same basic semantics. The broker will use the client's value
+for this property if it is set. If it is not set then it will apply the
+`defaultMqttSessionExpiryInterval`.
 
-MQTT session state is scanned every 5 seconds.
+The default `defaultMqttSessionExpiryInterval` is `-1` which means no MQTT 3.x
+session states will be expired and no MQTT 5 session states which do not pass
+their own session expiry interval will be expired. Otherwise it represents the
+number of **seconds** which must elapse after the client has disconnected
+before the broker will remove the session state.
+
+MQTT session state is scanned every 5,000 milliseconds by default. This can be
+changed using the `mqtt-session-scan-interval` element set in the `core` section
+of `broker.xml`.
+
+## Flow Control
+
+MQTT 5 introduced a simple form of [flow control](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Flow_Control).
+In short, a broker can tell a client how many QoS 1 & 2 messages it can receive
+before being acknowledged and vice versa.
+
+This is controlled on the broker by setting the `receiveMaximum` URL parameter on
+the MQTT `acceptor` in `broker.xml`.
+
+The default value is `65535` (the maximum value of the 2-byte integer used by 
+MQTT). 
+
+A value of `0` is prohibited by the MQTT 5 specification.
+
+A value of `-1` will prevent the broker from informing the client of any receive
+maximum which means flow-control will be disabled from clients to the broker.
+This is effectively the same as setting the value to `65535`, but reduces the size
+of the `CONNACK` packet by a few bytes.
+
+## Topic Alias Maximum
+
+MQTT 5 introduced [topic aliasing](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Topic_Alias).
+This is an optimization for the size of `PUBLISH` control packets as a 2-byte
+integer value can now be substituted for the _name_ of the topic which can
+potentially be quite long.
+
+Both the client and the broker can inform each other about the _maximum_ alias
+value they support (i.e. how many different aliases they support). This is
+controlled on the broker using the `topicAliasMaximum` URL parameter on the
+`acceptor` used by the MQTT client.
+
+The default value is `65535` (the maximum value of the 2-byte integer used by
+MQTT). 
+
+A value of `0` will disable topic aliasing from clients to the broker.
+
+A value of `-1` will prevent the broker from informing the client of any topic
+alias maximum which means aliasing will be disabled from clients to the broker.
+This is effectively the same as setting the value to `0`, but reduces the size
+of the `CONNACK` packet by a few bytes.
+
+## Maximum Packet Size
+
+MQTT 5 introduced the [maximum packet size](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901086).
+This is the maximum packet size the server or client is willing to accept.
+
+This is controlled on the broker by setting the `maximumPacketSize` URL parameter
+on the MQTT `acceptor` in `broker.xml`.
+
+The default value is `268435455` (i.e. 256MB - the maximum value of the variable
+byte integer used by MQTT). 
+
+A value of `0` is prohibited by the MQTT 5 specification.
+
+A value of `-1` will prevent the broker from informing the client of any maximum
+packet size which means no limit will be enforced on the size of incoming packets.
+This also reduces the size of the `CONNACK` packet by a few bytes.
+
+## Server Keep Alive
+
+All MQTT versions support a connection keep alive value defined by the *client*.
+MQTT 5 introduced a [server keep alive](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901094)
+value so that a broker can define the value that the client should use. The 
+primary use of the server keep alive is for the server to inform the client that
+it will disconnect the client for inactivity sooner than the keep alive specified
+by the client.
+
+This is controlled on the broker by setting the `serverKeepAlive` URL parameter
+on the MQTT `acceptor` in `broker.xml`.
+
+The default value is `60` and is measured in **seconds**.
+
+A value of `0` completely disables keep alives no matter the client's keep alive
+value. This is **not recommended** because disabling keep alives is generally
+considered dangerous since it could lead to resource exhaustion.
+
+A value of `-1` means the broker will *always* accept the client's keep alive
+value (even if that value is `0`).
+
+Any other value means the `serverKeepAlive` will be applied if it is *less than*
+the client's keep alive value **unless** the client's keep alive value is `0` in
+which case the `serverKeepAlive` is applied. This is because a value of `0` would
+disable keep alives and disabling keep alives is generally considered dangerous
+since it could lead to resource exhaustion.
+
+## Enhanced Authentication
+
+MQTT 5 introduced [enhanced authentication](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901256)
+which extends the existing name & password authentication to include challenge /
+response style authentication.
+
+However, there are currently no challenge / response mechanisms implemented so if
+a client passes the "Authentication Method" property in its `CONNECT` packet it will
+receive a `CONNACK` with a reason code of `0x8C` (i.e. bad authentication method)
+and the network connection will be closed.

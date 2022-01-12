@@ -1,0 +1,113 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.activemq.artemis.tests.integration.mqtt5;
+
+import javax.jms.JMSConsumer;
+import javax.jms.JMSContext;
+import javax.jms.Message;
+
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
+import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.jboss.logging.Logger;
+import org.junit.Assume;
+import org.junit.Test;
+
+/*
+ * General tests for things not covered directly in the specification.
+ */
+public class MQTT5Test extends MQTT5TestSupport {
+
+   private static final Logger log = Logger.getLogger(MQTT5Test.class);
+
+   public MQTT5Test(String protocol) {
+      super(protocol);
+   }
+
+   /*
+    * Ensure that the broker adds a timestamp on the message when sending via MQTT
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testTimestamp() throws Exception {
+      final String DESTINATION = RandomUtil.randomString();
+
+      createJMSConnection();
+      JMSContext context = cf.createContext();
+      JMSConsumer consumer = context.createConsumer(context.createQueue(DESTINATION));
+
+      long time = System.currentTimeMillis();
+      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      producer.connect();
+      producer.publish(DESTINATION, new byte[0], 1, false);
+      producer.disconnect();
+      producer.close();
+
+      Message m = consumer.receive(200);
+      assertNotNull(m);
+      assertTrue(m.getJMSTimestamp() > time);
+      context.close();
+   }
+
+   /*
+    * Trying to reproduce error from https://issues.apache.org/jira/browse/ARTEMIS-1184
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testMaxMessageSize() throws Exception {
+      // this doesn't work with websockets because the websocket frame size is too low
+      Assume.assumeTrue(protocol.equals(TCP));
+
+      final String TOPIC = RandomUtil.randomString();
+      // subtract a little to leave room for the header
+      final int SIZE = MQTTUtil.MAX_PACKET_SIZE - 48;
+      StringBuilder builder = new StringBuilder(SIZE);
+
+      for (int i = 0; i < SIZE; i++) {
+         builder.append("=");
+      }
+      byte[] bytes = builder.toString().getBytes(StandardCharsets.UTF_8);
+
+      final CountDownLatch latch = new CountDownLatch(1);
+      MqttClient consumer = createPahoClient("consumer");
+      consumer.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            assertEqualsByteArrays(bytes.length, bytes, message.getPayload());
+            latch.countDown();
+         }
+      });
+      consumer.connect();
+      consumer.subscribe(TOPIC, 1);
+
+      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      producer.connect();
+      producer.publish(TOPIC, bytes, 1, false);
+      producer.disconnect();
+      producer.close();
+      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
+
+      assertTrue(latch.await(30, TimeUnit.SECONDS));
+      consumer.disconnect();
+      consumer.close();
+   }
+}

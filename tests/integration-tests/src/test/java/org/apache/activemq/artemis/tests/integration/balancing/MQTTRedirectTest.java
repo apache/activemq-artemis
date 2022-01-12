@@ -17,12 +17,21 @@
 
 package org.apache.activemq.artemis.tests.integration.balancing;
 
-import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.BrokerBalancerControl;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.balancing.policies.FirstElementPolicy;
@@ -37,15 +46,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-import java.lang.management.ManagementFactory;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class MQTTRedirectTest extends BalancingTestBase {
 
@@ -91,7 +91,7 @@ public class MQTTRedirectTest extends BalancingTestBase {
          client0.connect(connOpts);
          Assert.fail();
       } catch (MqttException e) {
-         Assert.assertEquals(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER, MqttConnectReturnCode.valueOf((byte) e.getReasonCode()));
+         Assert.assertEquals(MQTTReasonCodes.USE_ANOTHER_SERVER, (byte) e.getReasonCode());
       }
       client0.close();
 
@@ -151,7 +151,7 @@ public class MQTTRedirectTest extends BalancingTestBase {
          client0.connect(connOpts);
          fail("Expect to be rejected as not in role b");
       } catch (MqttException e) {
-         Assert.assertEquals(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER, MqttConnectReturnCode.valueOf((byte) e.getReasonCode()));
+         Assert.assertEquals(MQTTReasonCodes.USE_ANOTHER_SERVER, (byte) e.getReasonCode());
       }
       client0.close();
 

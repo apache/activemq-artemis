@@ -428,6 +428,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="mqtt-session-scan-interval" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how often (in ms) to scan for expired MQTT sessions
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

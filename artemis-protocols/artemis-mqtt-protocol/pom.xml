@@ -105,6 +105,11 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>org.eclipse.paho</groupId>
+         <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>com.github.javafaker</groupId>
          <artifactId>javafaker</artifactId>
          <version>0.15</version>

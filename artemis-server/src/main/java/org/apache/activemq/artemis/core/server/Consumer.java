@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.PriorityAware;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 
 public interface Consumer extends PriorityAware {
@@ -61,6 +62,10 @@ public interface Consumer extends PriorityAware {
     * @throws Exception
     */
    void proceedDeliver(MessageReference reference) throws Exception;
+
+   default Binding getBinding() {
+      return null;
+   }
 
    Filter getFilter();
 

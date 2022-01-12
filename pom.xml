@@ -153,7 +153,7 @@
       <junit.version>4.13.2</junit.version>
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
-      <paho.client.mqttv3.version>1.2.5</paho.client.mqttv3.version>
+      <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <!-- for JakrtaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
 
@@ -293,9 +293,14 @@
 
          <!-- ### For MQTT Tests && Examples -->
          <dependency>
-           <groupId>org.eclipse.paho</groupId>
-           <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-           <version>${paho.client.mqttv3.version}</version>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>${paho.client.mqtt.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+            <version>${paho.client.mqtt.version}</version>
          </dependency>
          <dependency>
             <groupId>org.fusesource.mqtt-client</groupId>

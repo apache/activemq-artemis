@@ -19,13 +19,19 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.UUID;
 
+import io.netty.handler.codec.mqtt.MqttMessageBuilders;
+import io.netty.handler.codec.mqtt.MqttPublishMessage;
+import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
+import org.jboss.logging.Logger;
 
 public class MQTTSession {
+
+   private static final Logger logger = Logger.getLogger(MQTTSession.class);
 
    private final String id = UUID.randomUUID().toString();
 
@@ -51,8 +57,6 @@ public class MQTTSession {
 
    private boolean stopped = false;
 
-   private MQTTLogger log = MQTTLogger.LOGGER;
-
    private MQTTProtocolManager protocolManager;
 
    private boolean clean;
@@ -60,6 +64,10 @@ public class MQTTSession {
    private WildcardConfiguration wildcardConfiguration;
 
    private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
+
+   private boolean five = false;
+
+   private boolean usingServerKeepAlive = false;
 
    public MQTTSession(MQTTProtocolHandler protocolHandler,
                       MQTTConnection connection,
@@ -79,7 +87,7 @@ public class MQTTSession {
 
       state = MQTTSessionState.DEFAULT;
 
-      log.debug("SESSION CREATED: " + id);
+      logger.debugf("MQTT session created: %s", id);
    }
 
    // Called after the client has Connected.
@@ -89,8 +97,9 @@ public class MQTTSession {
       stopped = false;
    }
 
-   // TODO ensure resources are cleaned up for GC.
-   synchronized void stop() throws Exception {
+   synchronized void stop(boolean failure) throws Exception {
+      state.setFailed(failure);
+
       if (!stopped) {
          protocolHandler.stop();
          subscriptionManager.stop();
@@ -111,9 +120,25 @@ public class MQTTSession {
             state.setDisconnectedTime(System.currentTimeMillis());
          }
 
-         if (isClean()) {
-            clean();
-            protocolManager.removeSessionState(connection.getClientID());
+         if (is5()) {
+            if (state.getClientSessionExpiryInterval() == 0) {
+               if (state.isWill() && failure) {
+                  // If the session expires the will message must be sent no matter the will delay
+                  sendWillMessage();
+               }
+               clean();
+               protocolManager.removeSessionState(connection.getClientID());
+            } else {
+               state.setDisconnectedTime(System.currentTimeMillis());
+            }
+         } else {
+            if (state.isWill() && failure) {
+               sendWillMessage();
+            }
+            if (isClean()) {
+               clean();
+               protocolManager.removeSessionState(connection.getClientID());
+            }
          }
       }
       stopped = true;
@@ -141,10 +166,6 @@ public class MQTTSession {
 
    MQTTConnectionManager getConnectionManager() {
       return mqttConnectionManager;
-   }
-
-   MQTTSessionState getSessionState() {
-      return state;
    }
 
    ServerSessionImpl getServerSession() {
@@ -178,8 +199,9 @@ public class MQTTSession {
 
    void setSessionState(MQTTSessionState state) {
       this.state = state;
-      state.setAttached(true);
+      this.state.setAttached(true);
       this.state.setDisconnectedTime(0);
+      this.state.setSession(this);
    }
 
    MQTTRetainMessageManager getRetainMessageManager() {
@@ -212,4 +234,42 @@ public class MQTTSession {
       return coreMessageObjectPools;
    }
 
+   public boolean is5() {
+      return five;
+   }
+
+   public void set5(boolean five) {
+      this.five = five;
+   }
+
+   public boolean isUsingServerKeepAlive() {
+      return usingServerKeepAlive;
+   }
+
+   public void setUsingServerKeepAlive(boolean usingServerKeepAlive) {
+      this.usingServerKeepAlive = usingServerKeepAlive;
+   }
+
+   public void sendWillMessage() {
+      try {
+         MqttPublishMessage publishMessage = MqttMessageBuilders.publish()
+            .messageId(0)
+            .qos(MqttQoS.valueOf(state.getWillQoSLevel()))
+            .retained(state.isWillRetain())
+            .topicName(state.getWillTopic())
+            .payload(state.getWillMessage())
+            .build();
+         logger.debugf("%s sending will message: %s", this, publishMessage);
+         getMqttPublishManager().sendToQueue(publishMessage, true);
+         state.setWillSent(true);
+         state.setWillMessage(null);
+      } catch (Exception e) {
+         MQTTLogger.LOGGER.errorSendingWillMessage(e);
+      }
+   }
+
+   @Override
+   public String toString() {
+      return "MQTTSession[coreSessionId: " + (serverSession != null ? serverSession.getName() : "null") + "]";
+   }
 }

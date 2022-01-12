@@ -45,11 +45,11 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
+import org.jboss.logging.Logger;
 
-/**
- * MQTTProtocolManager
- */
 public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection, MQTTRedirectHandler> implements NotificationListener {
+
+   private static final Logger logger = Logger.getLogger(MQTTProtocolManager.class);
 
    private static final List<String> websocketRegistryNames = Arrays.asList("mqtt", "mqttv3.1");
 
@@ -63,6 +63,14 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    private final Map<String, MQTTSessionState> sessionStates = new ConcurrentHashMap<>();
 
    private int defaultMqttSessionExpiryInterval = -1;
+
+   private int topicAliasMaximum = MQTTUtil.DEFAULT_TOPIC_ALIAS_MAX;
+
+   private int receiveMaximum = MQTTUtil.DEFAULT_RECEIVE_MAXIMUM;
+
+   private int serverKeepAlive = MQTTUtil.DEFAULT_SERVER_KEEP_ALIVE;
+
+   private int maximumPacketSize = MQTTUtil.DEFAULT_MAXIMUM_PACKET_SIZE;
 
    private final MQTTRedirectHandler redirectHandler;
 
@@ -84,6 +92,42 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       return this;
    }
 
+   public int getTopicAliasMaximum() {
+      return topicAliasMaximum;
+   }
+
+   public MQTTProtocolManager setTopicAliasMaximum(int topicAliasMaximum) {
+      this.topicAliasMaximum = topicAliasMaximum;
+      return this;
+   }
+
+   public int getReceiveMaximum() {
+      return receiveMaximum;
+   }
+
+   public MQTTProtocolManager setReceiveMaximum(int receiveMaximum) {
+      this.receiveMaximum = receiveMaximum;
+      return this;
+   }
+
+   public int getMaximumPacketSize() {
+      return maximumPacketSize;
+   }
+
+   public MQTTProtocolManager setMaximumPacketSize(int maximumPacketSize) {
+      this.maximumPacketSize = maximumPacketSize;
+      return this;
+   }
+
+   public int getServerKeepAlive() {
+      return serverKeepAlive;
+   }
+
+   public MQTTProtocolManager setServerKeepAlive(int serverKeepAlive) {
+      this.serverKeepAlive = serverKeepAlive;
+      return this;
+   }
+
    @Override
    public void onNotification(Notification notification) {
       if (!(notification.getType() instanceof CoreNotificationType))
@@ -98,7 +142,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       SimpleString protocolName = props.getSimpleStringProperty(ManagementHelper.HDR_PROTOCOL_NAME);
 
       //Only process SESSION_CREATED notifications for the MQTT protocol
-      if (protocolName == null || !protocolName.toString().equals(MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME))
+      if (protocolName == null || !protocolName.toString().startsWith(MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME))
          return;
 
       int distance = props.getIntProperty(ManagementHelper.HDR_DISTANCE);
@@ -133,29 +177,48 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    }
 
    public void scanSessions() {
-      if (defaultMqttSessionExpiryInterval == -1) {
-         log.debug("sessionExpiryInterval is -1 so skipping check");
-      } else {
-         for (Map.Entry<String, MQTTSessionState> entry : sessionStates.entrySet()) {
-            MQTTSessionState state = entry.getValue();
-            if (log.isDebugEnabled()) {
-               log.debug("Inspecting session state: " + state);
-            }
-            if (!state.getAttached() && state.getDisconnectedTime() + (defaultMqttSessionExpiryInterval * 1000) < System.currentTimeMillis()) {
-               if (log.isDebugEnabled()) {
-                  log.debug("Removing expired session state: " + state);
-               }
-               sessionStates.remove(entry.getKey());
-            }
+      List<String> toRemove = new ArrayList();
+      for (Map.Entry<String, MQTTSessionState> entry : sessionStates.entrySet()) {
+         MQTTSessionState state = entry.getValue();
+         logger.debugf("Inspecting session: %s", state);
+         int sessionExpiryInterval = getSessionExpiryInterval(state);
+         if (!state.isAttached() && sessionExpiryInterval > 0 && state.getDisconnectedTime() + (sessionExpiryInterval * 1000) < System.currentTimeMillis()) {
+            toRemove.add(entry.getKey());
+         }
+         if (!state.isAttached() && state.isFailed() && !state.isWillSent() && state.getWillDelayInterval() > 0 && state.getDisconnectedTime() + (state.getWillDelayInterval() * 1000) < System.currentTimeMillis()) {
+            state.getSession().sendWillMessage();
          }
       }
+
+      for (String key : toRemove) {
+         logger.debugf("Removing state for session: %s", key);
+         MQTTSessionState state = sessionStates.remove(key);
+         if (state != null && !state.isAttached() && state.isFailed() && !state.isWillSent()) {
+            state.getSession().sendWillMessage();
+         }
+      }
+   }
+
+   private int getSessionExpiryInterval(MQTTSessionState state) {
+      int sessionExpiryInterval;
+      if (state.getClientSessionExpiryInterval() == 0) {
+         sessionExpiryInterval = getDefaultMqttSessionExpiryInterval();
+      } else {
+         sessionExpiryInterval = state.getClientSessionExpiryInterval();
+      }
+      return sessionExpiryInterval;
    }
 
    @Override
    public ConnectionEntry createConnectionEntry(Acceptor acceptorUsed, Connection connection) {
       try {
          MQTTConnection mqttConnection = new MQTTConnection(connection);
-         ConnectionEntry entry = new ConnectionEntry(mqttConnection, null, System.currentTimeMillis(), MQTTUtil.DEFAULT_KEEP_ALIVE_FREQUENCY);
+         /*
+          * We must adjust the keep-alive because MQTT communicates keep-alive values in *seconds*, but the broker uses
+          * *milliseconds*. Also, the connection keep-alive is effectively "one and a half times" the configured
+          * keep-alive value. See [MQTT-3.1.2-22].
+          */
+         ConnectionEntry entry = new ConnectionEntry(mqttConnection, null, System.currentTimeMillis(), getServerKeepAlive() == -1 || getServerKeepAlive() == 0 ? -1 : getServerKeepAlive() * MQTTUtil.KEEP_ALIVE_ADJUSTMENT);
 
          NettyServerConnection nettyConnection = ((NettyServerConnection) connection);
          MQTTProtocolHandler protocolHandler = nettyConnection.getChannel().pipeline().get(MQTTProtocolHandler.class);
@@ -173,11 +236,6 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    }
 
    @Override
-   public void removeHandler(String name) {
-      // TODO add support for handlers
-   }
-
-   @Override
    public void handleBuffer(RemotingConnection connection, ActiveMQBuffer buffer) {
       connection.bufferReceived(connection.getID(), buffer);
    }
@@ -185,45 +243,63 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    @Override
    public void addChannelHandlers(ChannelPipeline pipeline) {
       pipeline.addLast(MqttEncoder.INSTANCE);
-      pipeline.addLast(new MqttDecoder(MQTTUtil.MAX_MESSAGE_SIZE));
+      /*
+       * If we use the value from getMaximumPacketSize() here anytime a client sends a packet that's too large it
+       * will receive a DISCONNECT with a reason code of 0x81 instead of 0x95 like it should according to the spec.
+       * See https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901086:
+       *
+       *   If a Server receives a packet whose size exceeds this limit, this is a Protocol Error, the Server uses
+       *   DISCONNECT with Reason Code 0x95 (Packet too large)...
+       *
+       * Therefore we check manually in org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolHandler.handlePublish
+       */
+      pipeline.addLast(new MqttDecoder(MQTTUtil.MAX_PACKET_SIZE));
 
       pipeline.addLast(new MQTTProtocolHandler(server, this));
    }
 
    /**
-    * The protocol handler passes us an 8 byte long array from the transport.  We sniff these first 8 bytes to see
-    * if they match the first 8 bytes from MQTT Connect packet.  In many other protocols the protocol name is the first
-    * thing sent on the wire.  However, in MQTT the protocol name doesn't come until later on in the CONNECT packet.
-    *
-    * In order to fully identify MQTT protocol via protocol name, we need up to 12 bytes.  However, we can use other
-    * information from the connect packet to infer that the MQTT protocol is being used.  This is enough to identify MQTT
-    * and add the Netty codec in the pipeline.  The Netty codec takes care of things from here.
-    *
-    * MQTT CONNECT PACKET: See MQTT 3.1.1 Spec for more info.
-    *
-    * Byte 1: Fixed Header Packet Type.  0b0001000 (16) = MQTT Connect
-    * Byte 2-[N]: Remaining length of the Connect Packet (encoded with 1-4 bytes).
-    *
-    * The next set of bytes represents the UTF8 encoded string MQTT (MQTT 3.1.1) or MQIsdp (MQTT 3.1)
-    * Byte N: UTF8 MSB must be 0
-    * Byte N+1: UTF8 LSB must be (4(MQTT) or 6(MQIsdp))
-    * Byte N+1: M (first char from the protocol name).
-    *
-    * Max no bytes used in the sequence = 8.
+    * Relevant portions of the specs we support:
+    * MQTT 3.1 - https://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#connect
+    * MQTT 3.1.1 - http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028
+    * MQTT 5 - https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901033
     */
    @Override
    public boolean isProtocol(byte[] array) {
       ByteBuf buf = Unpooled.wrappedBuffer(array);
 
-      if (!(buf.readByte() == 16 && validateRemainingLength(buf) && buf.readByte() == (byte) 0)) return false;
+      // Parse "fixed header"
+      if (!(readByte(buf) == 16 && validateRemainingLength(buf) && readByte(buf) == (byte) 0)) {
+         return false;
+      }
+
+      /*
+       * Parse the protocol name by looking at the length LSB and the next 2 bytes (which should be "MQ").
+       * This should be 4 for MQTT 5 & 3.1.1 because they both use "MQTT"
+       * This should be or 6 for MQTT 3.1 because it uses "MQIsdp"
+       */
+      byte b = readByte(buf);
+      if ((b == 4 || b == 6) &&
+         (readByte(buf) != 77 || // M
+         readByte(buf) != 81)) { // Q
+         return false;
+      }
+
+      return true;
+   }
+
+   byte readByte(ByteBuf buf) {
       byte b = buf.readByte();
-      return ((b == 4 || b == 6) && (buf.readByte() == 77));
+      if (log.isTraceEnabled()) {
+         log.trace(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'));
+      }
+      return b;
    }
 
    private boolean validateRemainingLength(ByteBuf buffer) {
       byte msb = (byte) 0b10000000;
       for (byte i = 0; i < 4; i++) {
-         if ((buffer.readByte() & msb) != msb)
+         if ((readByte(buffer) & msb) != msb)
             return true;
       }
       return false;
@@ -281,6 +357,9 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    }
 
    public MQTTSessionState removeSessionState(String clientId) {
+      if (clientId == null) {
+         return null;
+      }
       return sessionStates.remove(clientId);
    }
 

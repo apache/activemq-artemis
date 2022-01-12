@@ -434,6 +434,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setTemporaryQueueNamespace(getString(e, "temporary-queue-namespace", config.getTemporaryQueueNamespace(), Validators.NOT_NULL_OR_EMPTY));
 
+      config.setMqttSessionScanInterval(getLong(e, "mqtt-session-scan-interval", config.getMqttSessionScanInterval(), Validators.GT_ZERO));
+
       long globalMaxSize = getTextBytesAsLongBytes(e, GLOBAL_MAX_SIZE, -1, Validators.MINUS_ONE_OR_GT_ZERO);
 
       if (globalMaxSize > 0) {

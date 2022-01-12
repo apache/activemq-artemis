@@ -2017,6 +2017,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
+      /*
+       * This can be invoked from Netty (via channelInactive) when the connection has already been closed causing
+       * spurious logging about clearing up resources for failed client connections.
+       */
+      if (closed)
+         return;
+
       try {
          ActiveMQServerLogger.LOGGER.clientConnectionFailed(name);
 

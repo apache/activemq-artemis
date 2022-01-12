@@ -56,6 +56,7 @@
       <persist-id-cache>true</persist-id-cache>
       <populate-validated-user>true</populate-validated-user>
       <reject-empty-validated-user>false</reject-empty-validated-user>
+      <mqtt-session-scan-interval>123456</mqtt-session-scan-interval>
       <connection-ttl-check-interval>98765</connection-ttl-check-interval>
       <configuration-file-refresh-period>1234567</configuration-file-refresh-period>
       <temporary-queue-namespace>TEMP</temporary-queue-namespace>

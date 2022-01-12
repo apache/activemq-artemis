@@ -131,10 +131,6 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
 
    @Override
-   public void removeHandler(String name) {
-   }
-
-   @Override
    public void handleBuffer(final RemotingConnection connection, final ActiveMQBuffer buffer) {
       StompConnection conn = (StompConnection) connection;
 

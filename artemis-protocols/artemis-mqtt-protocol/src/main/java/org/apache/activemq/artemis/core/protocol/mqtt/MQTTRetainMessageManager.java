@@ -28,10 +28,12 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.jboss.logging.Logger;
 
 public class MQTTRetainMessageManager {
 
    private MQTTSession session;
+   private static final Logger logger = Logger.getLogger(MQTTRetainMessageManager.class);
 
    public MQTTRetainMessageManager(MQTTSession session) {
       this.session = session;
@@ -47,7 +49,7 @@ public class MQTTRetainMessageManager {
     * the retained queue and the previous retain message consumed to remove it from the queue.
     */
    void handleRetainedMessage(Message messageParameter, String address, boolean reset, Transaction tx) throws Exception {
-      SimpleString retainAddress = new SimpleString(MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration()));
+      SimpleString retainAddress = new SimpleString(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, address, session.getWildcardConfiguration()));
 
       Queue queue = session.getServer().locateQueue(retainAddress);
       if (queue == null) {
@@ -63,10 +65,9 @@ public class MQTTRetainMessageManager {
 
    }
 
-   // SEND to Queue.
    void addRetainedMessagesToQueue(Queue queue, String address) throws Exception {
       // The address filter that matches all retained message queues.
-      String retainAddress = MQTTUtil.convertMQTTAddressFilterToCoreRetain(address, session.getWildcardConfiguration());
+      String retainAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, address, session.getWildcardConfiguration());
       BindingQueryResult bindingQueryResult = session.getServerSession().executeBindingQuery(new SimpleString(retainAddress));
 
       // Iterate over all matching retain queues and add the queue

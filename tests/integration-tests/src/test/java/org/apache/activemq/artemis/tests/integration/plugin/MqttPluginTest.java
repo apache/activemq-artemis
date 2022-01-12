@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTClientProvider;
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
+import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
+import org.apache.activemq.artemis.tests.integration.mqtt.MQTTTestSupport;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.tests.integration.plugin.MethodCalledVerifier.AFTER_ADD_ADDRESS;

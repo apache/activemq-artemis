@@ -61,12 +61,12 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
 
 public final class StompConnection implements RemotingConnection {
 
    private static final Logger logger = Logger.getLogger(StompConnection.class);
 
-   protected static final String CONNECTION_ID_PROP = "__AMQ_CID";
    private static final String SERVER_NAME = "ActiveMQ-Artemis/" + VersionLoader.getVersion().getFullVersion() +
       " ActiveMQ Artemis Messaging Engine";
 
@@ -669,7 +669,7 @@ public final class StompConnection implements RemotingConnection {
          StompSession stompSession = getSession(txID);
 
          if (stompSession.isNoLocal()) {
-            message.putStringProperty(CONNECTION_ID_PROP, getID().toString());
+            message.putStringProperty(CONNECTION_ID_PROPERTY_NAME_STRING, getID().toString());
          }
          if (isEnableMessageID()) {
             message.putStringProperty("amqMessageId", "STOMP" + message.getMessageID());
@@ -734,7 +734,7 @@ public final class StompConnection implements RemotingConnection {
       checkDestination(destination);
       checkRoutingSemantics(destination, subscriptionType);
       if (noLocal) {
-         String noLocalFilter = CONNECTION_ID_PROP + " <> '" + getID().toString() + "'";
+         String noLocalFilter = CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + getID().toString() + "'";
          if (selector == null) {
             selector = noLocalFilter;
          } else {

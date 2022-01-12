@@ -18,12 +18,13 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
-import io.netty.handler.codec.mqtt.MqttConnectReturnCode;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.balancing.RedirectHandler;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+
+import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SERVER_REFERENCE;
 
 public class MQTTRedirectHandler extends RedirectHandler<MQTTRedirectContext> {
 
@@ -39,10 +40,10 @@ public class MQTTRedirectHandler extends RedirectHandler<MQTTRedirectContext> {
    protected void cannotRedirect(MQTTRedirectContext context) {
       switch (context.getResult().getStatus()) {
          case REFUSED_USE_ANOTHER:
-            context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER);
+            context.getMQTTSession().getProtocolHandler().sendConnack(MQTTReasonCodes.USE_ANOTHER_SERVER);
             break;
          case REFUSED_UNAVAILABLE:
-            context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_SERVER_UNAVAILABLE);
+            context.getMQTTSession().getProtocolHandler().sendConnack(MQTTReasonCodes.SERVER_UNAVAILABLE);
             break;
       }
       context.getMQTTSession().getProtocolHandler().disconnect(true);
@@ -54,9 +55,9 @@ public class MQTTRedirectHandler extends RedirectHandler<MQTTRedirectContext> {
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, context.getTarget().getConnector().getParams());
 
       MqttProperties mqttProperties = new MqttProperties();
-      mqttProperties.add(new MqttProperties.StringProperty(MqttProperties.MqttPropertyType.SERVER_REFERENCE.value(), String.format("%s:%d", host, port)));
+      mqttProperties.add(new MqttProperties.StringProperty(SERVER_REFERENCE.value(), String.format("%s:%d", host, port)));
 
-      context.getMQTTSession().getProtocolHandler().sendConnack(MqttConnectReturnCode.CONNECTION_REFUSED_USE_ANOTHER_SERVER, mqttProperties);
+      context.getMQTTSession().getProtocolHandler().sendConnack(MQTTReasonCodes.USE_ANOTHER_SERVER, mqttProperties);
       context.getMQTTSession().getProtocolHandler().disconnect(true);
    }
 }

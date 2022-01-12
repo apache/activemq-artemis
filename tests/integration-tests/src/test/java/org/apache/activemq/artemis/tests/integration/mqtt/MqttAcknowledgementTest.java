@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.mqtt;
 
 import java.util.LinkedList;
 
-import org.apache.activemq.artemis.tests.integration.mqtt.imported.MQTTTestSupport;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;

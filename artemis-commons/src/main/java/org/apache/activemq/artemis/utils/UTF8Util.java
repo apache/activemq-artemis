@@ -344,6 +344,7 @@ public final class UTF8Util {
       }
    }
 
+   // TODO look at replacing this with io.netty.buffer.ByteBufUtil.utf8Bytes(java.lang.CharSequence)
    public static int calculateUTFSize(final String str) {
       int calculatedLen = 0;
       for (int i = 0, stringLength = str.length(); i < stringLength; i++) {
