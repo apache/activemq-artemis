@@ -303,7 +303,7 @@ var Artemis;
                 itemField: 'expiration',
                 header: 'Expires',
                 templateFn: function(value) {
-                    return formatExpires(value);
+                    return formatExpires(value, false);
                 }
             },
             {
@@ -464,7 +464,7 @@ var Artemis;
             return (value < 10 ? '0' : '') + value;
         }
 
-        function formatExpires(timestamp) {
+        function formatExpires(timestamp, addTimestamp) {
              if (isNaN(timestamp) || typeof timestamp !== "number") {
                 return timestamp;
              }
@@ -477,12 +477,18 @@ var Artemis;
                 var hours = pad2(Math.floor((duration / MS_PER_HOUR) % 24));
                 var mins  = pad2(Math.floor((duration / MS_PER_MIN) % 60));
                 var secs  = pad2(Math.floor((duration / MS_PER_SEC) % 60));
+                var ret;
                 if (expiresIn < 0) {
                    // "HH:mm:ss ago"
-                   return hours + ":" + mins + ":" + secs + " ago";
+                   ret = hours + ":" + mins + ":" + secs + " ago";
+                } else {
+                   // "in HH:mm:ss"
+                   ret = "in " + hours + ":" + mins + ":" + secs;
                 }
-                // "in HH:mm:ss"
-                return "in " + hours + ":" + mins + ":" + secs;
+                if (addTimestamp) {
+                   ret += ", at " + formatTimestamp(timestamp);
+                }
+                return ret;
              }
              return formatTimestamp(timestamp);
           }
@@ -804,7 +810,7 @@ var Artemis;
             angular.forEach(message, function (value, key) {
                 if (!_.some(ignoreColumns, function (k) { return k === key; }) && !_.some(flattenColumns, function (k) { return k === key; })) {
                     if(key === "expiration") {
-                        value += " (" + formatExpires(value) + ")";
+                        value += " (" + formatExpires(value, true) + ")";
                     } else if(key === "persistentSize") {
                         value += " (" + formatPersistentSize(value) + ")";
                     } else if(key === "timestamp") {
