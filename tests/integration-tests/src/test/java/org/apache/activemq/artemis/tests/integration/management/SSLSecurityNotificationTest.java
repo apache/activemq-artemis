@@ -40,6 +40,8 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.plugin.impl.NotificationActiveMQServerPlugin;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -48,6 +50,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONNECTION_CREATED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.CONSUMER_CREATED;
 import static org.apache.activemq.artemis.api.core.management.CoreNotificationType.SECURITY_AUTHENTICATION_VIOLATION;
 
@@ -77,7 +80,6 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
 
    @Test
    public void testSECURITY_AUTHENTICATION_VIOLATION() throws Exception {
-      SSLSecurityNotificationTest.flush(notifConsumer);
 
       TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
       tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
@@ -89,6 +91,7 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
       ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
 
+      SSLSecurityNotificationTest.flush(notifConsumer);
       long start = System.currentTimeMillis();
       try {
          sf.createSession();
@@ -148,6 +151,36 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       guestSession.close();
    }
 
+   @Test
+   public void testCONNECTION_CREATED() throws Exception {
+      Role role = new Role("notif", true, true, true, true, false, true, true, true, true, true);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      server.getSecurityRepository().addMatch("#", roles);
+
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+
+      SSLSecurityNotificationTest.flush(notifConsumer);
+
+      long start = System.currentTimeMillis();
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientMessage notification = SecurityNotificationTest.consumeMessages(1, notifConsumer)[0];
+      Assert.assertEquals(CONNECTION_CREATED.toString(), notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      Assert.assertNotNull(notification.getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN));
+      Assert.assertEquals("CN=ActiveMQ Artemis Client, OU=Artemis, O=ActiveMQ, L=AMQ, ST=AMQ, C=AMQ", notification.getObjectProperty(ManagementHelper.HDR_CERT_SUBJECT_DN).toString());
+      Assert.assertTrue(notification.getObjectProperty(ManagementHelper.HDR_REMOTE_ADDRESS).toString().startsWith("/127.0.0.1"));
+      Assert.assertTrue(notification.getTimestamp() >= start);
+      Assert.assertTrue((long) notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
+      Assert.assertEquals(notification.getTimestamp(), (long) notification.getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
+   }
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -164,6 +197,12 @@ public class SSLSecurityNotificationTest extends ActiveMQTestBase {
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
       server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
+      ActiveMQServerPlugin plugin = new NotificationActiveMQServerPlugin();
+      Map init = new HashMap();
+      init.put(NotificationActiveMQServerPlugin.SEND_CONNECTION_NOTIFICATIONS, "true");
+      plugin.init(init);
+      server.registerBrokerPlugin(plugin);
 
       server.start();
 
