@@ -86,6 +86,7 @@
             <include>io.netty:netty-codec-socks</include>
             <include>io.netty:netty-common</include>
             <include>io.netty:netty-resolver</include>
+            <include>io.netty:netty-transport-native-unix-common</include>
             <include>io.netty:netty-transport-classes-epoll</include>
             <include>io.netty:netty-transport-native-epoll</include>
             <include>io.netty:netty-transport-classes-kqueue</include>
