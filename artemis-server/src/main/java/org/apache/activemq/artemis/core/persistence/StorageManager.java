@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
@@ -382,6 +383,12 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    void deleteRole(String role) throws Exception;
 
    Map<String, PersistedRole> getPersistedRoles();
+
+   void storeKeyValuePair(PersistedKeyValuePair persistedKeyValuePair) throws Exception;
+
+   void deleteKeyValuePair(String mapId, String key) throws Exception;
+
+   Map<String, PersistedKeyValuePair> getPersistedKeyValuePairs(String mapId);
 
    /**
     * @return The ID with the stored counter

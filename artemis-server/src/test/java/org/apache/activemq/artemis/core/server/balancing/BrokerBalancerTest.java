@@ -53,7 +53,7 @@ public class BrokerBalancerTest {
       Pool pool = null;
       Policy policy = null;
       underTest  = new BrokerBalancer("test", TargetKey.CLIENT_ID, "^.{3}",
-                                      localTarget, "^FOO.*", pool, policy, null, 0);
+                                      localTarget, "^FOO.*", null, pool, policy, null);
       assertEquals( localTarget, underTest.getTarget("FOO_EE").getTarget());
       assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
    }
@@ -69,7 +69,7 @@ public class BrokerBalancerTest {
          }
       };
       underTest  = new BrokerBalancer("test", TargetKey.CLIENT_ID, "^.{3}",
-                                      localTarget, "^FOO.*", pool, policy, keyTransformer, 0);
+                                      localTarget, "^FOO.*", null, pool, policy, keyTransformer);
       assertEquals( localTarget, underTest.getTarget("TRANSFORM_TO_FOO_EE").getTarget());
    }
 

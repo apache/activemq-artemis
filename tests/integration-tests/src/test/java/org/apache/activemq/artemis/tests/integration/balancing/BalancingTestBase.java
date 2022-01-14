@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.CacheConfiguration;
 import org.apache.activemq.artemis.core.config.balancing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.balancing.PoolConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
@@ -151,6 +152,16 @@ public class BalancingTestBase extends ClusterTestBase {
 
    }
 
+   protected void setupBalancerLocalCache(final int node, boolean persisted, int timeout) {
+
+      Configuration configuration = getServer(node).getConfiguration();
+      BrokerBalancerConfiguration brokerBalancerConfiguration = configuration.getBalancerConfigurations().stream()
+         .filter(brokerBalancerConfiguration1 -> brokerBalancerConfiguration1.getName().equals(BROKER_BALANCER_NAME)).findFirst().get();
+
+      brokerBalancerConfiguration.setCacheConfiguration(
+         new CacheConfiguration().setPersisted(persisted).setTimeout(timeout));
+   }
+
    protected ConnectionFactory createFactory(String protocol, boolean sslEnabled, String host, int port, String clientID, String user, String password) throws Exception {
       return createFactory(protocol, sslEnabled,  host, port, clientID, user, password, -1);
    }
@@ -215,7 +226,7 @@ public class BalancingTestBase extends ClusterTestBase {
                urlBuilder.append(")");
             }
 
-            urlBuilder.append("?failover.startupMaxReconnectAttempts=" + retries + "&failover.randomize=true");
+            urlBuilder.append("?failover.startupMaxReconnectAttempts=" + retries);
 
             if (clientID != null) {
                urlBuilder.append("&jms.clientID=");
@@ -243,7 +254,7 @@ public class BalancingTestBase extends ClusterTestBase {
                urlBuilder.append(")");
             }
 
-            urlBuilder.append("?startupMaxReconnectAttempts=" + retries + "&maxReconnectAttempts=" + retries);
+            urlBuilder.append("?randomize=false&startupMaxReconnectAttempts=" + retries + "&maxReconnectAttempts=" + retries);
 
             if (clientID != null) {
                urlBuilder.append("&jms.clientID=");

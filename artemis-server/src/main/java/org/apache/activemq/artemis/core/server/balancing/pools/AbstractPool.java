@@ -176,6 +176,27 @@ public abstract class AbstractPool implements Pool {
    }
 
    @Override
+   public Target getReadyTarget(String nodeId) {
+      int readyTargets;
+      long deadline = quorumTimeout > 0 ? System.nanoTime() + quorumTimeoutNanos : 0;
+
+      do {
+         readyTargets = 0;
+         for (TargetMonitor targetMonitor : targetMonitors) {
+            if (targetMonitor.isTargetReady()) {
+               readyTargets++;
+               if (nodeId.equals(targetMonitor.getTarget().getNodeID())) {
+                  return targetMonitor.getTarget();
+               }
+            }
+         }
+      }
+      while(readyTargets < quorumSize && deadline > 0 && (System.nanoTime() - deadline) < 0);
+
+      return null;
+   }
+
+   @Override
    public void addTargetProbe(TargetProbe probe) {
       targetProbes.add(probe);
    }

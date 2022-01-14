@@ -2123,7 +2123,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="cache-timeout" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+         <xsd:element name="cache" type="brokerBalancerCacheType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the time period for a cache entry to remain active
@@ -2170,6 +2170,26 @@
          <xsd:enumeration value="USER_NAME"/>
       </xsd:restriction>
    </xsd:simpleType>
+
+   <xsd:complexType name="brokerBalancerCacheType">
+      <xsd:sequence maxOccurs="unbounded">
+         <xsd:element name="persisted" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  true means that the cache entries are persisted
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="timeout" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the timeout (in milliseconds) before removing cache entries
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
 
    <xsd:complexType name="brokerBalancerPolicyType">
       <xsd:sequence>

@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.CacheConfiguration;
 import org.apache.activemq.artemis.core.config.balancing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
@@ -2653,9 +2654,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       brokerBalancerConfiguration.setLocalTargetFilter(getString(e, "local-target-filter", brokerBalancerConfiguration.getLocalTargetFilter(), Validators.NO_CHECK));
 
-      brokerBalancerConfiguration.setCacheTimeout(getInteger(e, "cache-timeout",
-         brokerBalancerConfiguration.getCacheTimeout(), Validators.MINUS_ONE_OR_GE_ZERO));
-
       NamedPropertyConfiguration policyConfiguration = null;
       PoolConfiguration poolConfiguration = null;
       NodeList children = e.getChildNodes();
@@ -2663,7 +2661,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
 
-         if (child.getNodeName().equals("policy")) {
+         if (child.getNodeName().equals("cache")) {
+            CacheConfiguration cacheConfiguration = new CacheConfiguration();
+            parseCacheConfiguration((Element) child, cacheConfiguration);
+            brokerBalancerConfiguration.setCacheConfiguration(cacheConfiguration);
+         } else if (child.getNodeName().equals("policy")) {
             policyConfiguration = new NamedPropertyConfiguration();
             parsePolicyConfiguration((Element) child, policyConfiguration);
             brokerBalancerConfiguration.setPolicyConfiguration(policyConfiguration);
@@ -2679,6 +2681,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       }
 
       config.getBalancerConfigurations().add(brokerBalancerConfiguration);
+   }
+
+   private void parseCacheConfiguration(final Element e, final CacheConfiguration cacheConfiguration) throws ClassNotFoundException {
+      cacheConfiguration.setPersisted(getBoolean(e, "persisted",
+         cacheConfiguration.isPersisted()));
+
+      cacheConfiguration.setTimeout(getInteger(e, "timeout",
+         cacheConfiguration.getTimeout(), Validators.GE_ZERO));
    }
 
    private void parseTransformerConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {

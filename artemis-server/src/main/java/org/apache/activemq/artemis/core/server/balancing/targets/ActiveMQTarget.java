@@ -69,6 +69,10 @@ public class ActiveMQTarget extends AbstractTarget implements FailureListener {
          false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE,
          BrokerBalancer.CLIENT_ID_PREFIX + UUIDGenerator.getInstance().generateStringUUID()).start());
 
+      if (getNodeID() == null) {
+         setNodeID(getAttribute(ResourceNames.BROKER, "NodeID", String.class, 3000));
+      }
+
       connected = true;
 
       fireConnectedEvent();
@@ -92,10 +96,6 @@ public class ActiveMQTarget extends AbstractTarget implements FailureListener {
    @Override
    public boolean checkReadiness() {
       try {
-         if (getNodeID() == null) {
-            setNodeID(getAttribute(ResourceNames.BROKER, "NodeID", String.class, 3000));
-         }
-
          return getAttribute(ResourceNames.BROKER, "Active", Boolean.class, 3000);
       } catch (Exception e) {
          logger.warn("Error on check readiness", e);

@@ -301,7 +301,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          } else {
             Assert.assertEquals(bc.getTargetKey(), TargetKey.SOURCE_IP);
             Assert.assertEquals("least-connections-balancer", bc.getName());
-            Assert.assertEquals(60000, bc.getCacheTimeout());
+            Assert.assertNotNull(bc.getCacheConfiguration());
+            Assert.assertEquals(true, bc.getCacheConfiguration().isPersisted());
+            Assert.assertEquals(60000, bc.getCacheConfiguration().getTimeout());
             Assert.assertEquals(bc.getPolicyConfiguration().getName(), LeastConnectionsPolicy.NAME);
             Assert.assertEquals(3000, bc.getPoolConfiguration().getCheckPeriod());
             Assert.assertEquals(2, bc.getPoolConfiguration().getQuorumSize());
