@@ -99,4 +99,5 @@ public final class JournalRecordIds {
    // Used to record the large message body on the journal when history is on
    public static final byte ADD_MESSAGE_BODY = 49;
 
+   public static final byte KEY_VALUE_PAIR_RECORD = 50;
 }

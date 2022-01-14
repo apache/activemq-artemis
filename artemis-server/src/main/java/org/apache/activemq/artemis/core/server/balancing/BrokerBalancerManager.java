@@ -21,11 +21,14 @@ import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
+import org.apache.activemq.artemis.core.config.balancing.CacheConfiguration;
 import org.apache.activemq.artemis.core.config.balancing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.balancing.PoolConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.balancing.caches.Cache;
+import org.apache.activemq.artemis.core.server.balancing.caches.LocalCache;
 import org.apache.activemq.artemis.core.server.balancing.policies.Policy;
 import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactory;
 import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactoryResolver;
@@ -53,6 +56,8 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public final class BrokerBalancerManager implements ActiveMQComponent {
    private static final Logger logger = Logger.getLogger(BrokerBalancerManager.class);
+
+   public static final String CACHE_ID_PREFIX = "$.BC.";
 
 
    private final Configuration config;
@@ -91,6 +96,13 @@ public final class BrokerBalancerManager implements ActiveMQComponent {
 
       Target localTarget = new LocalTarget(null, server);
 
+
+      Cache cache = null;
+      CacheConfiguration cacheConfiguration = config.getCacheConfiguration();
+      if (cacheConfiguration != null) {
+         cache = deployCache(cacheConfiguration, config.getName());
+      }
+
       Pool pool = null;
       final PoolConfiguration poolConfiguration = config.getPoolConfiguration();
       if (poolConfiguration != null) {
@@ -110,11 +122,18 @@ public final class BrokerBalancerManager implements ActiveMQComponent {
       }
 
       BrokerBalancer balancer = new BrokerBalancer(config.getName(), config.getTargetKey(), config.getTargetKeyFilter(),
-                                                   localTarget, config.getLocalTargetFilter(), pool, policy, transformer, config.getCacheTimeout());
+                                                   localTarget, config.getLocalTargetFilter(), cache, pool, policy, transformer);
 
       balancerControllers.put(balancer.getName(), balancer);
 
       server.getManagementService().registerBrokerBalancer(balancer);
+   }
+
+   private Cache deployCache(CacheConfiguration configuration, String name) throws ClassNotFoundException {
+      Cache cache = new LocalCache(CACHE_ID_PREFIX + name, configuration.isPersisted(),
+         configuration.getTimeout(), server.getStorageManager());
+
+      return cache;
    }
 
    private Pool deployPool(PoolConfiguration config, Target localTarget) throws Exception {

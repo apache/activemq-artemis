@@ -26,7 +26,7 @@ public class BrokerBalancerConfiguration implements Serializable {
    private TargetKey targetKey = TargetKey.SOURCE_IP;
    private String targetKeyFilter = null;
    private String localTargetFilter = null;
-   private int cacheTimeout = -1;
+   private CacheConfiguration cacheConfiguration = null;
    private PoolConfiguration poolConfiguration = null;
    private NamedPropertyConfiguration policyConfiguration = null;
    private NamedPropertyConfiguration transformerConfiguration = null;
@@ -67,12 +67,12 @@ public class BrokerBalancerConfiguration implements Serializable {
       return this;
    }
 
-   public int getCacheTimeout() {
-      return cacheTimeout;
+   public CacheConfiguration getCacheConfiguration() {
+      return cacheConfiguration;
    }
 
-   public BrokerBalancerConfiguration setCacheTimeout(int cacheTimeout) {
-      this.cacheTimeout = cacheTimeout;
+   public BrokerBalancerConfiguration setCacheConfiguration(CacheConfiguration cacheConfiguration) {
+      this.cacheConfiguration = cacheConfiguration;
       return this;
    }
 

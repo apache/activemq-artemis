@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
@@ -663,6 +664,21 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
       @Override
       public Map<String, PersistedRole> getPersistedRoles() {
+         return null;
+      }
+
+      @Override
+      public void storeKeyValuePair(PersistedKeyValuePair persistedKeyValuePair) throws Exception {
+
+      }
+
+      @Override
+      public void deleteKeyValuePair(String mapId, String key) throws Exception {
+
+      }
+
+      @Override
+      public Map<String, PersistedKeyValuePair> getPersistedKeyValuePairs(String mapId) {
          return null;
       }
 
