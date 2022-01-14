@@ -166,7 +166,7 @@ address with multiple queues:
 
 You may want to limit consumption from `q1` to one role and consumption from
 `q2` to another role. You can do this using the fully qualified queue name (i.e.
-fqqn") in the `match` of the `security-setting`, e.g.:
+FQQN) in the `match` of the `security-setting`, e.g.:
 
 ```xml
 <security-setting match="foo::q1">
@@ -176,6 +176,8 @@ fqqn") in the `match` of the `security-setting`, e.g.:
    <permission type="consume" roles="q2Role"/>
 </security-setting>
 ```
+**Note:** Wildcard matching doesn't work in conjuction with FQQN. The explicit
+goal of using FQQN here is to be *exact*.
 
 ## Security Setting Plugin
 
