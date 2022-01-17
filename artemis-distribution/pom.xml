@@ -59,11 +59,6 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-dto</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
@@ -80,16 +75,6 @@
      <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>artemis-ra</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-spring-integration</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq.rest</groupId>
-        <artifactId>artemis-rest</artifactId>
         <version>${project.version}</version>
      </dependency>
       <dependency>
@@ -143,63 +128,14 @@
          <version>${project.version}</version>
       </dependency>
       <!-- dependencies -->
-      <dependency>
-          <groupId>org.jboss.logmanager</groupId>
-          <artifactId>jboss-logmanager</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.jboss.slf4j</groupId>
-          <artifactId>slf4j-jboss-logmanager</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.wildfly.common</groupId>
-          <artifactId>wildfly-common</artifactId>
-      </dependency>
-       <dependency>
-           <groupId>io.airlift</groupId>
-           <artifactId>airline</artifactId>
-       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-client</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-jms_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
        <dependency>
            <groupId>org.apache.activemq</groupId>
            <artifactId>activemq-openwire-legacy</artifactId>
        </dependency>
        <dependency>
-          <groupId>org.eclipse.jetty.aggregate</groupId>
-          <artifactId>jetty-all</artifactId>
-          <type>jar</type>
-          <classifier>uber</classifier>
-       </dependency>
-       <dependency>
            <groupId>org.apache.tomcat</groupId>
            <artifactId>tomcat-servlet-api</artifactId>
        </dependency>
-
-      <!-- for artemis cli producer/consumer -->
-      <dependency>
-         <groupId>org.apache.qpid</groupId>
-         <artifactId>qpid-jms-client</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-jms_2.0_spec</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-
 
       <!-- Management Console Dependencies -->
        <dependency>
@@ -220,15 +156,6 @@
            <version>${project.version} </version>
            <type>war</type>
        </dependency>
-
-       <dependency>
-         <groupId>commons-beanutils</groupId>
-         <artifactId>commons-beanutils</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>commons-logging</groupId>
-         <artifactId>commons-logging</artifactId>
-      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-website</artifactId>
@@ -246,64 +173,8 @@
          <artifactId>artemis-quorum-ri</artifactId>
          <version>${project.version}</version>
       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-buffer</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-transport</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-handler</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-handler-proxy</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-codec</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-codec-http</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-codec-mqtt</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-codec-socks</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-common</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-resolver</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-transport-classes-epoll</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-transport-native-epoll</artifactId>
-           <classifier>${netty-transport-native-epoll-classifier}</classifier>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-transport-classes-kqueue</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>io.netty</groupId>
-           <artifactId>netty-transport-native-kqueue</artifactId>
-           <classifier>${netty-transport-native-kqueue-classifier}</classifier>
-       </dependency>
+
+      <!--TODO: no other modules seem to use this, is it equivalent to something else they do use ? -->
       <dependency>
          <groupId>jakarta.security.auth.message</groupId>
          <artifactId>jakarta.security.auth.message-api</artifactId>

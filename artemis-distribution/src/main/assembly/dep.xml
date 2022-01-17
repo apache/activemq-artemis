@@ -32,114 +32,48 @@
         </includes>
         <useProjectArtifact>false</useProjectArtifact>
       </dependencySet>
-
       <dependencySet>
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
          <includes>
-
-            <!-- modules -->
-            <include>org.apache.activemq:artemis-cli</include>
-            <include>org.apache.activemq:artemis-commons</include>
-            <include>org.apache.activemq:artemis-core-client</include>
-            <include>org.apache.activemq:artemis-dto</include>
-            <include>org.apache.activemq:artemis-jms-client</include>
-            <include>org.apache.activemq:artemis-jms-server</include>
-            <include>org.apache.activemq:artemis-journal</include>
-            <include>org.apache.activemq:artemis-jdbc-store</include>
-            <include>org.apache.activemq:activemq-artemis-native</include>
-            <include>org.apache.activemq:artemis-amqp-protocol</include>
-            <include>org.apache.activemq:artemis-openwire-protocol</include>
-            <include>org.apache.activemq:artemis-hornetq-protocol</include>
-            <include>org.apache.activemq:artemis-hqclient-protocol</include>
-            <include>org.apache.activemq:artemis-stomp-protocol</include>
-            <include>org.apache.activemq:artemis-mqtt-protocol</include>
-            <include>org.apache.activemq:artemis-ra</include>
-            <include>org.apache.activemq:artemis-selector</include>
-            <include>org.apache.activemq:artemis-server</include>
-            <include>org.apache.activemq:artemis-service-extensions</include>
-            <include>org.apache.activemq:artemis-web</include>
-            <include>org.apache.activemq.rest:artemis-rest</include>
-            <include>org.apache.qpid:qpid-jms-client</include>
-            <include>io.micrometer:micrometer-core</include>
-            <!-- quorum -->
-            <include>org.apache.activemq:artemis-quorum-api</include>
-            <include>org.apache.activemq:artemis-quorum-ri</include>
-
-            <!-- dependencies -->
-            <include>jakarta.jms:jakarta.jms-api</include>
-            <include>jakarta.transaction:jakarta.transaction-api</include>
-            <include>org.wildfly.common:wildfly-common</include>
-            <include>org.jboss.logmanager:jboss-logmanager</include>
-            <include>org.jboss.logging:jboss-logging</include>
-            <include>org.jboss.slf4j:slf4j-jboss-logmanager</include>
-            <include>org.jctools:jctools-core</include>
-            <include>org.apache.commons:commons-dbcp2</include>
-            <include>org.apache.commons:commons-pool2</include>
-            <include>io.netty:netty-buffer</include>
-            <include>io.netty:netty-transport</include>
-            <include>io.netty:netty-handler</include>
-            <include>io.netty:netty-handler-proxy</include>
-            <include>io.netty:netty-codec</include>
-            <include>io.netty:netty-codec-http</include>
-            <include>io.netty:netty-codec-mqtt</include>
-            <include>io.netty:netty-codec-socks</include>
-            <include>io.netty:netty-common</include>
-            <include>io.netty:netty-resolver</include>
-            <include>io.netty:netty-transport-native-unix-common</include>
-            <include>io.netty:netty-transport-classes-epoll</include>
-            <include>io.netty:netty-transport-native-epoll</include>
-            <include>io.netty:netty-transport-classes-kqueue</include>
-            <include>io.netty:netty-transport-native-kqueue</include>
-            <include>org.apache.qpid:proton-j</include>
-            <include>org.apache.activemq:activemq-client</include>
-            <include>org.apache.activemq:activemq-openwire-legacy</include>
-            <include>org.slf4j:slf4j-api</include>
-            <include>io.airlift:airline</include>
-            <include>com.google.guava:guava</include>
-            <include>jakarta.inject:jakarta.inject-api</include>
             <include>org.eclipse.jetty.aggregate:jetty-all:jar:uber</include>
-            <include>org.apache.tomcat:tomcat-servlet-api</include>
-            <include>commons-beanutils:commons-beanutils</include>
-            <include>commons-logging:commons-logging</include>
-            <include>commons-collections:commons-collections</include>
-            <include>org.apache.commons:commons-configuration2</include>
-            <include>org.apache.commons:commons-text</include>
-            <include>org.apache.commons:commons-lang3</include>
-            <include>org.fusesource.hawtbuf:hawtbuf</include>
-            <include>org.jgroups:jgroups</include>
-            <include>jakarta.xml.bind:jakarta.xml.bind-api</include>
-            <include>com.sun.xml.bind:jaxb-impl</include>
-            <include>jakarta.activation:jakarta.activation-api</include>
-            <include>jakarta.security.auth.message:jakarta.security.auth.message-api</include>
-            <!-- quorum -->
-            <include>org.apache.curator:curator-recipes</include>
-            <include>org.apache.curator:curator-client</include>
-            <include>org.apache.curator:curator-framework</include>
-            <include>org.apache.zookeeper:zookeeper</include>
-            <include>org.apache.zookeeper:zookeeper-jute</include>
          </includes>
-         <!--excludes>
-            <exclude>org.apache.activemq:artemis-website</exclude>
-         </excludes-->
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
          <useProjectArtifact>false</useProjectArtifact>
+      </dependencySet>
+
+      <dependencySet>
+         <directoryMode>0755</directoryMode>
+         <fileMode>0644</fileMode>
+         <excludes>
+            <!-- Handled above for now to avoid it bringing in duplicative transitive deps -->
+            <!-- Should not be using this according to the jetty folks: https://www.eclipse.org//lists/jetty-users/msg06029.html -->
+            <exclude>org.eclipse.jetty.aggregate:jetty-all:jar:uber</exclude>
+
+            <!-- Handled above -->
+            <exclude>org.apache.activemq:artemis-boot</exclude>
+
+            <!-- Handled later in lib/client subdir -->
+            <exclude>org.apache.activemq:artemis-jms-client-all</exclude>
+            <exclude>org.apache.activemq:artemis-jakarta-client-all</exclude>
+
+            <!-- Handled later in web subdir for console bits -->
+            <exclude>org.apache.activemq:artemis-console:war</exclude>
+            <exclude>org.apache.activemq:activemq-branding:war</exclude>
+            <exclude>org.apache.activemq:artemis-plugin:war</exclude>
+            <exclude>org.apache.activemq:artemis-website</exclude>
+         </excludes>
+         <outputDirectory>lib</outputDirectory>
+         <unpack>false</unpack>
+         <useProjectArtifact>false</useProjectArtifact>
+         <useTransitiveFiltering>true</useTransitiveFiltering>
       </dependencySet>
       <dependencySet>
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
          <includes>
             <include>org.apache.activemq:artemis-jms-client-all</include>
-         </includes>
-         <outputDirectory>lib/client</outputDirectory>
-         <unpack>false</unpack>
-         <useProjectArtifact>false</useProjectArtifact>
-      </dependencySet>
-      <dependencySet>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-         <includes>
             <include>org.apache.activemq:artemis-jakarta-client-all</include>
          </includes>
          <outputDirectory>lib/client</outputDirectory>
