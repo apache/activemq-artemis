@@ -24,7 +24,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -159,130 +157,6 @@ public class FailoverConsumerOutstandingCommitTest extends OpenwireArtemisBaseTe
       assertTrue("another message was received after failover", messagesReceived.await(20, TimeUnit.SECONDS));
 
       connection.close();
-   }
-
-   @Test
-   @BMRules(
-      rules = {@BMRule(
-         name = "set no return response",
-         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-         targetMethod = "processCommitTransactionOnePhase",
-         targetLocation = "ENTRY",
-         binding = "owconn:OpenWireConnection = $0; context = owconn.getContext()",
-         action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.holdResponse($0)"),
-
-         @BMRule(
-            name = "stop broker before commit",
-            targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-            targetMethod = "processCommitTransactionOnePhase",
-            targetLocation = "ENTRY",
-            action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.stopServerInTransaction();return null")})
-   public void TestFailoverConsumerOutstandingSendTxIncomplete() throws Exception {
-      doTestFailoverConsumerOutstandingSendTx(false);
-   }
-
-   @Test
-   @BMRules(
-      rules = {@BMRule(
-         name = "set no return response",
-         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-         targetMethod = "processCommitTransactionOnePhase",
-         targetLocation = "ENTRY",
-         action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.holdResponse($0)"), @BMRule(
-         name = "stop broker after commit",
-         targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
-         targetMethod = "processCommitTransactionOnePhase",
-         targetLocation = "AT EXIT",
-         action = "org.apache.activemq.transport.failover.FailoverConsumerOutstandingCommitTest.stopServerInTransaction()")})
-   public void TestFailoverConsumerOutstandingSendTxComplete() throws Exception {
-      doTestFailoverConsumerOutstandingSendTx(true);
-   }
-
-   public void doTestFailoverConsumerOutstandingSendTx(final boolean doActualBrokerCommit) throws Exception {
-      final boolean watchTopicAdvisories = true;
-      server = createBroker();
-      server.start();
-      brokerStopLatch = new CountDownLatch(1);
-
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(" + url + ")");
-      cf.setWatchTopicAdvisories(watchTopicAdvisories);
-      cf.setDispatchAsync(false);
-
-      final ActiveMQConnection connection = (ActiveMQConnection) cf.createConnection();
-      connection.start();
-
-      final Session producerSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      final Queue destination = producerSession.createQueue(QUEUE_NAME + "?consumer.prefetchSize=" + prefetch);
-
-      final Queue signalDestination = producerSession.createQueue(QUEUE_NAME + ".signal" + "?consumer.prefetchSize=" + prefetch);
-
-      final Session consumerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
-
-      final CountDownLatch commitDoneLatch = new CountDownLatch(1);
-      final CountDownLatch messagesReceived = new CountDownLatch(3);
-      final AtomicBoolean gotCommitException = new AtomicBoolean(false);
-      final ArrayList<TextMessage> receivedMessages = new ArrayList<>();
-      final MessageConsumer testConsumer = consumerSession.createConsumer(destination);
-      doByteman.set(true);
-      testConsumer.setMessageListener(new MessageListener() {
-
-         @Override
-         public void onMessage(Message message) {
-            LOG.info("consume one: " + message);
-            assertNotNull("got message", message);
-            receivedMessages.add((TextMessage) message);
-            try {
-               LOG.info("send one");
-               produceMessage(consumerSession, signalDestination, 1);
-               LOG.info("commit session");
-               consumerSession.commit();
-            } catch (JMSException e) {
-               LOG.info("commit exception", e);
-               gotCommitException.set(true);
-            }
-            commitDoneLatch.countDown();
-            messagesReceived.countDown();
-            LOG.info("done commit");
-         }
-      });
-
-      // may block if broker shutdown happens quickly
-      new Thread() {
-         @Override
-         public void run() {
-            LOG.info("producer started");
-            try {
-               produceMessage(producerSession, destination, prefetch * 2);
-            } catch (javax.jms.IllegalStateException SessionClosedExpectedOnShutdown) {
-            } catch (JMSException e) {
-               e.printStackTrace();
-               fail("unexpceted ex on producer: " + e);
-            }
-            LOG.info("producer done");
-         }
-      }.start();
-
-      // will be stopped by the plugin
-      brokerStopLatch.await();
-      doByteman.set(false);
-      server.stop();
-      server = createBroker();
-      server.start();
-
-      assertTrue("commit done through failover", commitDoneLatch.await(20, TimeUnit.SECONDS));
-      assertTrue("commit failed", gotCommitException.get());
-      assertTrue("another message was received after failover", messagesReceived.await(20, TimeUnit.SECONDS));
-      int receivedIndex = 0;
-      assertEquals("get message 0 first", MESSAGE_TEXT + "0", receivedMessages.get(receivedIndex++).getText());
-      if (!doActualBrokerCommit) {
-         // it will be redelivered and not tracked as a duplicate
-         assertEquals("get message 0 second", MESSAGE_TEXT + "0", receivedMessages.get(receivedIndex++).getText());
-      }
-      assertTrue("another message was received", messagesReceived.await(20, TimeUnit.SECONDS));
-      assertEquals("get message 1 eventually", MESSAGE_TEXT + "1", receivedMessages.get(receivedIndex++).getText());
-
-      connection.close();
-      server.stop();
    }
 
    @Test

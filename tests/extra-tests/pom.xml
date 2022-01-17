@@ -32,7 +32,6 @@
    <name>ActiveMQ Artemis Extra Tests</name>
 
    <properties>
-      <byteman.version>4.0.11</byteman.version>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <jboss-jts.version>4.17.13.Final</jboss-jts.version>
       <hornetq.version>2.4.7.Final</hornetq.version>

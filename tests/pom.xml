@@ -29,6 +29,7 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
+      <byteman.version>4.0.18</byteman.version>
    </properties>
 
    <dependencyManagement>

@@ -232,7 +232,6 @@ public class FailoverTransactionTest extends OpenwireArtemisBaseTest {
          targetClass = "org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection$CommandProcessor",
          targetMethod = "processMessage",
          targetLocation = "EXIT",
-         binding = "owconn:OpenWireConnection = $0; context = owconn.getContext()",
          action = "org.apache.activemq.transport.failover.FailoverTransactionTest.holdResponseAndStopBroker($0)")})
    public void testFailoverSendReplyLost() throws Exception {
       LOG.info(this + " running test testFailoverSendReplyLost");
