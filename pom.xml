@@ -210,6 +210,7 @@
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/${logging.config}"
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
+         -Djdk.attach.allowAttachSelf=true
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipOWASP>true</skipOWASP>
