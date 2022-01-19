@@ -326,7 +326,7 @@ with `/news/politics/` will be automatically created by the broker.
 
 - Edit the file `<broker-instance>/etc/broker.xml` and add the
   `auto-delete-addresses` element to the `address-setting` you want the broker to
-  automatically create.
+  automatically delete.
 
 - (Optional) Add the `address-setting` if it does not exist. Use the match
   parameter and the [wildcard syntax](wildcard-syntax.md) to match more than one
