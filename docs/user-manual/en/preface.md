@@ -16,7 +16,7 @@ Why use Apache ActiveMQ Artemis? Here are just a few of the reasons:
 
 - Apache ActiveMQ Artemis is designed with usability in mind.
 
-- Written in Java. Runs on any platform with a Java 8+ runtime, that's
+- Written in Java. Runs on any platform with a Java 11+ runtime, that's
   everything from Windows desktops to IBM mainframes.
 
 - Amazing performance. Our ground-breaking high performance journal
