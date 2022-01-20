@@ -79,13 +79,13 @@ jobs:
         if: matrix.java == '11'
         run: |
           cd examples
-          mvn -s ../.github/maven-settings.xml verify -Prelease
+          mvn -s ../.github/maven-settings.xml install -Prelease
 
       - name: Build Examples (JDK >11 / -Pexamples,noRun)
         if: matrix.java != '11'
         run: |
           cd examples
-          mvn -s ../.github/maven-settings.xml verify -Pexamples,noRun
+          mvn -s ../.github/maven-settings.xml install -Pexamples,noRun
 
       - name: Javadoc Check (JDK11 / -Prelease)
         if: matrix.java == '11'
