@@ -402,7 +402,7 @@ script, but with the `stop` argument.  Example:
 /var/lib/mybroker/bin/artemis stop
 ```
 
-Please note that Apache ActiveMQ Artemis requires a Java 8 or later.
+Please note that Apache ActiveMQ Artemis requires a Java 11 or later.
 
 By default the `etc/bootstrap.xml` configuration is used. The configuration can
 be changed e.g. by running `./artemis run -- xml:path/to/bootstrap.xml` or
