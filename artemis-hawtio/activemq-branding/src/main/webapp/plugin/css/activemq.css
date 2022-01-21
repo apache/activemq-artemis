@@ -44,8 +44,8 @@ svg text {
    font-family: PatternFlyIcons-webfont;
 }
 
-.pf-topology-svg g.ThisBroker circle {
-   stroke: #801944;
+.pf-topology-svg g.ThisMasterBroker circle {
+   stroke: black;
    fill: #c12766;
 }
 
@@ -54,9 +54,18 @@ svg text {
    fill: #c12766;
 }
 
+.pf-topology-svg g.ThisSlaveBroker circle {
+   stroke: black;
+   fill: #cf242a;
+}
+
 .pf-topology-svg g.SlaveBroker circle {
    stroke: #82171b;
    fill: #cf242a;
+}
+
+.pf-topology-svg g.OtherBroker circle {
+   stroke: #82171b;
 }
 
 .pf-topology-svg g.Address circle {
