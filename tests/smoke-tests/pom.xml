@@ -29,6 +29,7 @@
    <properties>
       <activemq.basedir>${project.basedir}/../../</activemq.basedir>
       <sts-surefire-extra-args />
+      <artemis-distribuiton-lib-dir>-Ddistribution.lib="${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}/lib"</artemis-distribuiton-lib-dir>
    </properties>
 
    <dependencies>
@@ -1209,7 +1210,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipSmokeTests}</skipTests>
-               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline}</argLine>
+               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline} ${artemis-distribuiton-lib-dir}</argLine>
             </configuration>
          </plugin>
       </plugins>
