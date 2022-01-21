@@ -34,26 +34,26 @@ var Artemis;
                 <label style="margin-right: 1em">Show labels:
                     <input type="checkbox" ng-model="$ctrl.showLabels">
                 </label>
-                 <label style="margin-right: 1em">Show addresses:
+                 <label style="margin-right: 1em" ng-show="$ctrl.cntAddresses">Show addresses:
                     <input type="checkbox" ng-model="$ctrl.showAddresses">
                 </label>
-                <label style="margin-right: 1em">Show queues:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntQueues">Show queues:
                     <input type="checkbox" ng-model="$ctrl.showQueues">
                 </label>
-                <label style="margin-right: 1em">Show internal addresses:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntInternalAddresses">Show internal addresses:
                     <input type="checkbox" ng-model="$ctrl.showInternalAddresses">
                 </label>
-                <label style="margin-right: 1em">Show internal queues:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntInternalQueues">Show internal queues:
                     <input type="checkbox" ng-model="$ctrl.showInternalQueues">
                 </label>
 
-                <label style="margin-right: 1em">Show Live Brokers:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Live Brokers:
                     <input type="checkbox" ng-model="$ctrl.showLiveBrokers">
                 </label>
-                <label style="margin-right: 1em">Show Backup Brokers:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Backup Brokers:
                     <input type="checkbox" ng-model="$ctrl.showBackupBrokers">
                 </label>
-                <label style="margin-right: 1em">Show Connectors:
+                <label style="margin-right: 1em" ng-show="$ctrl.relations.length">Show Connectors:
                     <input type="checkbox" ng-model="$ctrl.showConnectors">
                 </label>
                 <button type="submit" class="btn btn-primary"
@@ -97,6 +97,13 @@ var Artemis;
         ctrl.showLiveBrokers = true;
         ctrl.showBackupBrokers = true;
         ctrl.showConnectors = true;
+        ctrl.cntLiveBrokers = 0;
+        ctrl.cntBackupBrokers = 0;
+        ctrl.cntAddresses = 0;
+        ctrl.cntInternalAddresses = 0;
+        ctrl.cntQueues = 0;
+        ctrl.cntInternalQueues = 0;
+
         ctrl.hiddenRelations = [];
         function updateAddressKind() {
             if(ctrl.kinds.Address && !ctrl.showAddresses) {
@@ -139,10 +146,10 @@ var Artemis;
             updateInternalQueueKind();
         });
         function updateLiveBrokerKind() {
-            if(ctrl.kinds.ThisBroker && !ctrl.showLiveBrokers) {
-               delete ctrl.kinds.ThisBroker;
-            } else if (!ctrl.kinds.ThisBroker && ctrl.showLiveBrokers) {
-                ctrl.kinds.ThisBroker = true;
+            if(ctrl.kinds.ThisMasterBroker && !ctrl.showLiveBrokers) {
+               delete ctrl.kinds.ThisMasterBroker;
+            } else if (!ctrl.kinds.ThisMasterBroker && ctrl.showLiveBrokers) {
+                ctrl.kinds.ThisMasterBroker = true;
             }
             if(ctrl.kinds.MasterBroker && !ctrl.showLiveBrokers) {
                delete ctrl.kinds.MasterBroker;
@@ -154,10 +161,20 @@ var Artemis;
             updateLiveBrokerKind();
         });
         function updateBackupBrokerKind() {
+            if(ctrl.kinds.ThisSlaveBroker && !ctrl.showBackupBrokers) {
+               delete ctrl.kinds.ThisSlaveBroker;
+            } else if (!ctrl.kinds.ThisSlaveBroker && ctrl.showBackupBrokers) {
+                ctrl.kinds.ThisSlaveBroker = true;
+            }
             if(ctrl.kinds.SlaveBroker && !ctrl.showBackupBrokers) {
                delete ctrl.kinds.SlaveBroker;
             } else if (!ctrl.kinds.SlaveBroker && ctrl.showBackupBrokers) {
                 ctrl.kinds.SlaveBroker = true;
+            }
+            if(ctrl.kinds.OtherBroker && !ctrl.showBackupBrokers) {
+               delete ctrl.kinds.OtherBroker;
+            } else if (!ctrl.kinds.OtherBroker && ctrl.showBackupBrokers) {
+                ctrl.kinds.OtherBroker = true;
             }
         }
         $scope.$watch('$ctrl.showBackupBrokers', function () {
@@ -175,15 +192,14 @@ var Artemis;
         });
         ctrl.datasets = [];
         //icons can be found at https://www.patternfly.org/v3/styles/icons/index.html
-        ctrl.serverIcon = "\ue90d";
+        ctrl.serverIcon = "\ue90d"; // pficon-server
         Artemis.log.debug(ctrl.serverIcon);
-        ctrl.addressIcon = "";//\ue91a";
-        ctrl.queueIcon = "";//\ue90a";
+        ctrl.addressIcon = "";
+        ctrl.queueIcon = "";
         ctrl.icons = {
-            "ThisBroker": {
+            "ThisMasterBroker": {
               "type": "glyph",
               "icon": ctrl.serverIcon,
-              "background": "#456BD9",
               "fontfamily": "PatternFlyIcons-webfont"
             },
             "MasterBroker": {
@@ -191,7 +207,17 @@ var Artemis;
               "icon": ctrl.serverIcon,
               "fontfamily": "PatternFlyIcons-webfont"
             },
+            "ThisSlaveBroker": {
+              "type": "glyph",
+              "icon": ctrl.serverIcon,
+              "fontfamily": "PatternFlyIcons-webfont"
+            },
             "SlaveBroker": {
+              "type": "glyph",
+              "icon": ctrl.serverIcon,
+              "fontfamily": "PatternFlyIcons-webfont"
+            },
+            "OtherBroker": {
               "type": "glyph",
               "icon": ctrl.serverIcon,
               "fontfamily": "PatternFlyIcons-webfont"
@@ -208,13 +234,11 @@ var Artemis;
             },
             "Queue": {
                 "type": "glyph",
-                "background": "#456BD9",
                 "icon": ctrl.queueIcon,
                 "fontfamily": "PatternFlyIcons-webfont"
             },
             "InternalQueue": {
                 "type": "glyph",
-                "background": "#456BD9",
                 "icon": ctrl.queueIcon,
                 "fontfamily": "PatternFlyIcons-webfont"
             }
@@ -240,9 +264,11 @@ var Artemis;
             ctrl.data.url = "fooBar";
 
             ctrl.kinds = {
-                "ThisBroker": true,
+                "ThisMasterBroker": true,
                 "MasterBroker": true,
+                "ThisSlaveBroker": true,
                 "SlaveBroker": true,
+                "OtherBroker": true,
                 "Address": true,
                 "Queue": true
             };
@@ -250,17 +276,16 @@ var Artemis;
             ctrl.icons = ctrl.data.icons;
 
             ctrl.nodes = {
-                "ThisBroker": {
-                     "name": "ThisBroker",
-                     "title": "hello",
+                "ThisMasterBroker": {
+                     "name": "ThisMasterBroker",
                      "enabled": true,
                      "radius": 28,
                      "textX": 0,
                      "textY": 5,
                      "height": 30,
                      "width": 30,
-                     "icon": ctrl.icons["ThisBroker"].icon,
-                     "fontFamily": ctrl.icons["ThisBroker"].fontfamily
+                     "icon": ctrl.icons["ThisMasterBroker"].icon,
+                     "fontFamily": ctrl.icons["ThisMasterBroker"].fontfamily
                    },
                 "MasterBroker": {
                     "name": "MasterBroker",
@@ -273,6 +298,17 @@ var Artemis;
                     "icon": ctrl.icons["MasterBroker"].icon,
                     "fontFamily": ctrl.icons["MasterBroker"].fontfamily
                 },
+                "ThisSlaveBroker": {
+                    "name": "ThisSlaveBroker",
+                    "enabled": true,
+                    "radius": 28,
+                    "textX": 0,
+                    "textY": 5,
+                    "height": 30,
+                    "width": 30,
+                    "icon": ctrl.icons["ThisSlaveBroker"].icon,
+                    "fontFamily": ctrl.icons["ThisSlaveBroker"].fontfamily
+                },
                 "SlaveBroker": {
                     "name": "SlaveBroker",
                     "enabled": true,
@@ -280,8 +316,20 @@ var Artemis;
                     "textX": 0,
                     "textY": 5,
                     "height": 30,
+                    "width": 30,
                     "icon": ctrl.icons["SlaveBroker"].icon,
                     "fontFamily": ctrl.icons["SlaveBroker"].fontfamily
+                },
+                "OtherBroker": {
+                    "name": "OtherBroker",
+                    "enabled": true,
+                    "radius": 28,
+                    "textX": 0,
+                    "textY": 5,
+                    "height": 30,
+                    "width": 30,
+                    "icon": ctrl.icons["OtherBroker"].icon,
+                    "fontFamily": ctrl.icons["OtherBroker"].fontfamily
                 },
                 "Address": {
                     "name": "Address",
@@ -372,6 +420,9 @@ var Artemis;
             var val = atts.value;
             var details = Core.parseMBean(mBean);
 
+            var cntLiveBrokers = 0;
+            var cntBackupBrokers = 0;
+
             if (details) {
                 var properties = details['attributes'];
                 Artemis.log.debug("Got broker: " + mBean + " properties: " + angular.toJson(properties, true));
@@ -387,40 +438,42 @@ var Artemis;
                     var remoteBrokers = angular.fromJson(responseValue);
                     var thisBroker = remoteBrokers.find(broker => broker.nodeID == nodeId);
                     if(!thisBroker) {
-                        if(isBackup) {
-                            thisBroker = {
-                                backup: "broker"
-                            };
-                        } else {
-                            thisBroker = {
-                                live: "broker"
-                            };
-                        }
+                        // use the broker-name when nothing else is available
+                        thisBroker = {
+                            backup: isBackup ? properties.broker.replace(/["]+/g, "") : undefined,
+                            live: isBackup ? undefined : properties.broker.replace(/["]+/g, "")
+                        };
+                        // prevent confusion between this thisBroker and one of the brokers
+                        // listed in the connectors-list that we expand below
+                        val.Connectors = [];
                     }
                     if (thisBroker.live) {
                         ctrl.items[thisBroker.live] = {
-                            "name": thisBroker.live,
-                            "kind": "ThisBroker",
+                            "name": thisBroker.live.replace(/:6161[67]$/, ""),
+                            "kind": isBackup ? "MasterBroker" : "ThisMasterBroker",
                             "brokerKind": "master",
                             "status": "broker",
                             "display_kind": "Server",
-                            "mbean": mBean
+                            "mbean": isBackup ? undefined : mBean
                         }
+                        cntLiveBrokers += 1;
                     }
                     if (thisBroker.backup) {
                         ctrl.items[thisBroker.backup] = {
-                            "name": thisBroker.backup,
-                            "kind": "SlaveBroker",
+                            "name": thisBroker.backup.replace(/:6161[67]$/, ""),
+                            "kind": isBackup ? "ThisSlaveBroker" : "SlaveBroker",
                             "brokerKind": "slave",
                             "status": "broker",
-                            "display_kind": "Server"
+                            "display_kind": "Server",
+                            "mbean": isBackup ? mBean : undefined
                         };
-                        if (thisBroker.live) {
-                            ctrl.relations.push({
-                                "source": thisBroker.live,
-                                "target": thisBroker.backup
-                            });
-                        }
+                        cntBackupBrokers += 1;
+                    }
+                    if (thisBroker.live && thisBroker.backup) {
+                        ctrl.relations.push({
+                            "source": thisBroker.live,
+                            "target": thisBroker.backup
+                        });
                     }
                     createAddresses(mBean, thisBroker.live)
                 }
@@ -429,12 +482,13 @@ var Artemis;
                     if (nodeId != remoteBroker.nodeID) {
                        if (remoteBroker.live) {
                           ctrl.items[remoteBroker.live] = {
-                              "name": remoteBroker.live,
+                              "name": remoteBroker.live.replace(/:6161[67]$/, ""),
                               "kind": "MasterBroker",
                               "brokerKind": "master",
                               "status": "broker",
                               "display_kind": "Server"
                           };
+                          cntLiveBrokers += 1;
                           //if we arent a backup then connect to it as we are in the cluster
                           if(!isBackup) {}
                               ctrl.relations.push({
@@ -444,12 +498,13 @@ var Artemis;
                           }
                           if (remoteBroker.backup) {
                               ctrl.items[remoteBroker.backup] = {
-                                  "name": remoteBroker.backup,
+                                  "name": remoteBroker.backup.replace(/:6161[67]$/, ""),
                                   "kind": "SlaveBroker",
                                   "brokerKind": "slave",
                                   "status": "broker",
                                   "display_kind": "Server"
                               };
+                              cntBackupBrokers += 1;
                               ctrl.relations.push({
                                  "source": remoteBroker.backup,
                                  "target": remoteBroker.live
@@ -457,7 +512,37 @@ var Artemis;
                           }
                     }
                 });
+
+                angular.forEach(val.Connectors, function (connector) {
+                    // each connector entry is like: [connectorname, connectorfactoryclassname, properties]
+                    var nodeId = connector[2].host + ":" + connector[2].port;
+                    if (ctrl.items[nodeId]) {
+                       // already connected to this one
+                       return;
+                    }
+                    ctrl.items[nodeId] = {
+                        "name": nodeId.replace(/:6161[67]$/, ""),
+                        "kind": "OtherBroker",
+                        "brokerKind": "slave",
+                        "status": "broker",
+                        "display_kind": "Server"
+                      };
+                    cntBackupBrokers += 1;
+                });
             }
+
+            // reduce the checkbox-list by updating their visibility
+            ctrl.cntLiveBrokers = cntLiveBrokers;
+            ctrl.cntBackupBrokers = cntBackupBrokers;
+            ctrl.cntAddresses = val.AddressNames.filter(name => !isInternalName(name, 0)).length;
+            ctrl.cntInternalAddresses = val.AddressNames.filter(name => isInternalName(name, 0)).length;
+            ctrl.cntQueues = val.QueueNames.filter(name => !isInternalName(name, 0)).length;
+            ctrl.cntInternalQueues = val.QueueNames.filter(name => isInternalName(name, 0)).length;
+        }
+        
+        function isInternalName(name, start=1) {
+            // starts at position 1 when the name is surrounded with quotes
+            return name.startsWith("$", start) || name.startsWith("notif", start);
         }
 
         function createAddresses(brokerMBean, brokerId) {
@@ -470,9 +555,9 @@ var Artemis;
                         if (!properties.subcomponent) {
 
                            Artemis.log.debug("Got Address: " + objectName + " properties: " + angular.toJson(properties, true));
-                           addressKind = properties.address.startsWith("$", 1) || properties.address.startsWith("notif", 1) ? "InternalAddress" : "Address";
+                           addressKind = isInternalName(properties.address) ? "InternalAddress" : "Address";
                            ctrl.items[properties.address] = {
-                               "name": properties.address,
+                               "name": properties.address.replace(/["]+/g, ""),
                                "kind": addressKind,
                                "brokerKind": "address",
                                "status": "Valid",
@@ -486,9 +571,9 @@ var Artemis;
                         }
                         if (properties.queue) {
                             Artemis.log.debug("Got Queue: " + objectName + " properties: " + angular.toJson(properties, true));
-                            queueKind = properties.queue.startsWith("$", 1) || properties.queue.startsWith("notif", 1) ? "InternalQueue" : "Queue";
+                            queueKind = isInternalName(properties.queue) ? "InternalQueue" : "Queue";
                             ctrl.items["queue." + properties.queue] = {
-                               "name": properties.queue,
+                               "name": properties.queue.replace(/["]+/g, ""),
                                "kind": queueKind,
                                "brokerKind": "queue",
                                "status": "Valid",
