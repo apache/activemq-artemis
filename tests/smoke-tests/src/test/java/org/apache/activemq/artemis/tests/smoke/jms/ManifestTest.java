@@ -14,10 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.unit.jms.misc;
+package org.apache.activemq.artemis.tests.smoke.jms;
 
 import javax.jms.ConnectionMetaData;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -25,42 +28,43 @@ import java.util.jar.Manifest;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
-import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ManifestTest extends ActiveMQTestBase {
+public class ManifestTest extends SmokeTestBase {
 
    private static final Logger log = Logger.getLogger(ManifestTest.class);
-
-
+   private static List<String> jarFiles = new ArrayList<>(Arrays.asList(
+           "artemis-jms-client-", "artemis-jms-server-"));
 
    @Test
    public void testManifestEntries() throws Exception {
+
       Properties props = System.getProperties();
-      String userDir = props.getProperty("build.lib");
-
-      log.trace("userDir is " + userDir);
-
-      // The jar must be there
-      File file = new File("build/jars", "activemq-core.jar");
-      Assert.assertTrue(file.exists());
-
-      // Open the jar and load MANIFEST.MF
-      JarFile jar = new JarFile(file);
-      Manifest manifest = jar.getManifest();
+      String distributionLibDir = props.getProperty("distribution.lib");
 
       ActiveMQServer server = ActiveMQServers.newActiveMQServer(createBasicConfig());
+      Version serverVersion = server.getVersion();
+      String serverFullVersion = serverVersion.getFullVersion();
+      ConnectionMetaData meta = new ActiveMQConnectionMetaData(serverVersion);
 
-      ConnectionMetaData meta = new ActiveMQConnectionMetaData(server.getVersion());
+      for (String jarFile : jarFiles) {
+         // The jar must be there
+         File file = new File(distributionLibDir, jarFile + serverFullVersion + ".jar");
+         Assert.assertTrue(file.exists());
 
-      // Compare the value from ConnectionMetaData and MANIFEST.MF
-      Attributes attrs = manifest.getMainAttributes();
+         // Open the jar and load MANIFEST.MF
+         JarFile jar = new JarFile(file);
+         Manifest manifest = jar.getManifest();
 
-      Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("ActiveMQ-Version"));
+         // Compare the value from ConnectionMetaData and MANIFEST.MF
+         Attributes attrs = manifest.getMainAttributes();
+         Assert.assertEquals(meta.getProviderVersion(), attrs.getValue("Implementation-Version"));
+      }
    }
-
 
 }
