@@ -16,7 +16,7 @@ API is simpler than the JMS API, since we remove distinctions between queues,
 topics and subscriptions. We'll discuss each of the major core messaging
 concepts in turn, but to see the API in detail please consult the Javadoc.
 
-Also refer to the [addressing model](address-model.md) chapter for a high-level
+Also refer to the [address model](address-model.md) chapter for a high-level
 overview of these concepts as well as configuration details.
 
 ### Message

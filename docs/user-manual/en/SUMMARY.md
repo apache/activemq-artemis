@@ -9,7 +9,9 @@
 * [Architecture](architecture.md)
 * [Using the Server](using-server.md)
 * [Upgrading](upgrading.md)
-* [Address Model](address-model.md)
+* Address
+    * [Model](address-model.md)
+    * [Settings](address-settings.md)
 * [Protocols and Interoperability](protocols-interoperability.md)
 * [AMQP](amqp.md)
     * [Broker Connections](amqp-broker-connections.md)
@@ -40,6 +42,7 @@
 * [Paging](paging.md)
 * [Scheduled Messages](scheduled-messages.md)
 * [Last-Value Queues](last-value-queues.md)
+* [Non-Destructive Queues](non-destructive-queues.md)
 * [Ring Queues](ring-queues.md)
 * [Retroactive Addresses](retroactive-addresses.md)
 * [Exclusive Queues](exclusive-queues.md)

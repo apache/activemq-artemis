@@ -97,7 +97,7 @@ Name | Description | Default
 [acceptors](configuring-transports.md#acceptors) | a list of remoting acceptors | n/a
 [acceptors.acceptor](configuring-transports.md#acceptors) | Each acceptor is composed for just an URL | n/a
 [addresses](address-model.md#basic-address-configuration) | [a list of addresses](#address-type) | n/a
-[address-settings](address-model.md#configuring-addresses-and-queues-via-address-settings) | [a list of address-setting](#address-setting-type) | n/a
+[address-settings](address-settings.md) | [a list of address-setting](#address-setting-type) | n/a
 [allow-failback](ha.md#failing-back-to-live-server)| Should stop backup on live restart. | `true`
 [amqp-use-core-subscription-naming](amqp.md) | If true uses CORE queue naming convention for AMQP. | `false`
 [async-connection-execution-enabled](connection-ttl.md) | If False delivery would be always asynchronous. | `true`
@@ -158,7 +158,7 @@ log-delegate-factory-class-name | **deprecated** the name of the factory class t
 [message-expiry-scan-period](message-expiry.md#configuring-the-expiry-reaper-thread) | how often (in ms) to scan for expired messages. | 30000
 [message-expiry-thread-priority](message-expiry.md#configuring-the-expiry-reaper-thread)| **deprecated** the priority of the thread expiring messages. | 3
 [metrics-plugin](metrics.md) | [a plugin to export metrics](#metrics-plugin-type) | n/a
-[address-queue-scan-period](address-model.md#configuring-addresses-and-queues-via-address-settings) | how often (in ms) to scan for addresses & queues that should be removed. | 30000
+[address-queue-scan-period](address-settings.md) | how often (in ms) to scan for addresses & queues that should be removed. | 30000
 name | node name; used in topology notifications if set. | n/a
 [password-codec](masking-passwords.md) | the name of the class (and optional configuration properties) used to decode masked passwords. Only valid when `mask-password` is `true`. | n/a
 [page-max-concurrent-io](paging.md) | The max number of concurrent reads allowed on paging. | 5
@@ -235,19 +235,19 @@ Name | Description | Default
 [slow-consumer-threshold](slow-consumers.md) | Min rate of msgs/sec consumed before a consumer is considered "slow" | -1
 [slow-consumer-policy](slow-consumers.md) | What to do when "slow" consumer is detected | `NOTIFY`
 [slow-consumer-check-period](slow-consumers.md) | How often to check for "slow" consumers | 5
-[auto-create-jms-queues](address-model.md#configuring-addresses-and-queues-via-address-settings)| **deprecated** Create JMS queues automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
-[auto-delete-jms-queues](address-model.md#configuring-addresses-and-queues-via-address-settings)| **deprecated** Delete JMS queues automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
-[auto-create-jms-topics](address-model.md#configuring-addresses-and-queues-via-address-settings)| **deprecated** Create JMS topics automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
-[auto-delete-jms-topics](address-model.md#configuring-addresses-and-queues-via-address-settings)| **deprecated** Delete JMS topics automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
-[auto-create-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Create queues automatically | `true`
-[auto-delete-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created queues automatically | `true`
-[auto-delete-created-queues](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete created queues automatically | `false`
-[auto-delete-queues-delay](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delay for deleting auto-created queues | 0
-[auto-delete-queues-message-count](address-model.md#configuring-addresses-and-queues-via-address-settings) | Message count the queue must be at or below before it can be auto deleted | 0
+[auto-create-jms-queues](address-settings.md)| **deprecated** Create JMS queues automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
+[auto-delete-jms-queues](address-settings.md)| **deprecated** Delete JMS queues automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
+[auto-create-jms-topics](address-settings.md)| **deprecated** Create JMS topics automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
+[auto-delete-jms-topics](address-settings.md)| **deprecated** Delete JMS topics automatically; see `auto-create-queues` & `auto-create-addresses` | `true`
+[auto-create-queues](address-settings.md) | Create queues automatically | `true`
+[auto-delete-queues](address-settings.md) | Delete auto-created queues automatically | `true`
+[auto-delete-created-queues](address-settings.md) | Delete created queues automatically | `false`
+[auto-delete-queues-delay](address-settings.md) | Delay for deleting auto-created queues | 0
+[auto-delete-queues-message-count](address-settings.md) | Message count the queue must be at or below before it can be auto deleted | 0
 [config-delete-queues](config-reload.md)| How to deal with queues deleted from XML at runtime| `OFF`
-[auto-create-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Create addresses automatically | `true`
-[auto-delete-addresses](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delete auto-created addresses automatically | `true`
-[auto-delete-addresses-delay](address-model.md#configuring-addresses-and-queues-via-address-settings) | Delay for deleting auto-created addresses | 0
+[auto-create-addresses](address-settings.md) | Create addresses automatically | `true`
+[auto-delete-addresses](address-settings.md) | Delete auto-created addresses automatically | `true`
+[auto-delete-addresses-delay](address-settings.md) | Delay for deleting auto-created addresses | 0
 [config-delete-addresses](config-reload.md) | How to deal with addresses deleted from XML at runtime | `OFF`
 [config-delete-diverts](config-reload.md) | How to deal with diverts deleted from XML at runtime | `OFF`
 [management-browse-page-size]() | Number of messages a management resource can browse| 200
