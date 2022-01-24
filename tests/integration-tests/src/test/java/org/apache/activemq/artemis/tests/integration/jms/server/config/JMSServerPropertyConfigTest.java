@@ -45,7 +45,7 @@ public class JMSServerPropertyConfigTest extends ActiveMQTestBase {
 
       try (PrintStream out = new PrintStream(new BufferedOutputStream(new FileOutputStream(propertiesInBindingsDir)))) {
          // use the same name property as from the classpath broker.properties to verify precedence of system prop
-         out.println("name=nameFromCopiedPropertiesRefViaSystemProp");
+         out.println("gracefulShutdownTimeout=-3");
       }
 
       System.setProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, propertiesInBindingsDir.getAbsolutePath());
@@ -54,7 +54,7 @@ public class JMSServerPropertyConfigTest extends ActiveMQTestBase {
          server.setConfiguration(configuration);
          server.start();
 
-         assertEquals("nameFromCopiedPropertiesRefViaSystemProp", server.getActiveMQServer().getConfiguration().getName());
+         assertEquals(-3, server.getActiveMQServer().getConfiguration().getGracefulShutdownTimeout());
 
       } finally {
          System.getProperties().remove(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME);
@@ -78,7 +78,31 @@ public class JMSServerPropertyConfigTest extends ActiveMQTestBase {
          server.setConfiguration(configuration);
          server.start();
 
-         assertEquals("ConfiguredViaProperties", server.getActiveMQServer().getConfiguration().getName());
+         assertEquals(-2, server.getActiveMQServer().getConfiguration().getGracefulShutdownTimeout());
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testIgnoreConfigViaBrokerPropertiesFromClasspath() throws Exception {
+
+      EmbeddedActiveMQ server = new EmbeddedActiveMQ();
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      configuration.setJournalDirectory(new File(getTestDir(), "./journal").getAbsolutePath()).
+         setPagingDirectory(new File(getTestDir(), "./paging").getAbsolutePath()).
+         setLargeMessagesDirectory(new File(getTestDir(), "./largemessages").getAbsolutePath()).
+         setBindingsDirectory(new File(getTestDir(), "./bindings").getAbsolutePath()).setPersistenceEnabled(true);
+
+      try {
+
+         server.setPropertiesResourcePath(null);
+         server.setConfiguration(configuration);
+         server.start();
+
+         assertEquals(ActiveMQDefaultConfiguration.getDefaultGracefulShutdownTimeout(), server.getActiveMQServer().getConfiguration().getGracefulShutdownTimeout());
 
       } finally {
          server.stop();
