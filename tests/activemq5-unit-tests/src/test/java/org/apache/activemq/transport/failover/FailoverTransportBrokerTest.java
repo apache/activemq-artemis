@@ -272,42 +272,6 @@ public class FailoverTransportBrokerTest extends OpenwireArtemisBaseTest {
 
    }
 
-   public void testNoBrokersInBrokerInfo() throws Exception {
-      final BrokerInfo info[] = new BrokerInfo[1];
-      TransportListener listener = new TransportListener() {
-         @Override
-         public void onCommand(Object command) {
-            LOG.info("Got command: " + command);
-            if (command instanceof BrokerInfo) {
-               info[0] = (BrokerInfo) command;
-            }
-         }
-
-         @Override
-         public void onException(IOException error) {
-            //To change body of implemented methods use File | Settings | File Templates.
-         }
-
-         @Override
-         public void transportInterupted() {
-            //To change body of implemented methods use File | Settings | File Templates.
-         }
-
-         @Override
-         public void transportResumed() {
-            //To change body of implemented methods use File | Settings | File Templates.
-         }
-      };
-      @SuppressWarnings("unused")
-      StubConnection c = createFailoverConnection(listener);
-      int count = 0;
-      while (count++ < 20 && info[0] == null) {
-         TimeUnit.SECONDS.sleep(1);
-      }
-      Assert.assertNotNull("got a valid brokerInfo after 20 secs", info[0]);
-      Assert.assertNull("no peer brokers present", info[0].getPeerBrokerInfos());
-   }
-
    protected StubConnection createFailoverConnection(TransportListener listener) throws Exception {
       URI failoverURI = new URI("failover://" + newURI(0) + "," + newURI(1) + "");
       Transport transport = TransportFactory.connect(failoverURI);

@@ -328,8 +328,4 @@ public class JmsTempDestinationTest {
          Assert.assertTrue("failed to throw an exception", true);
       }
    }
-
-   //removed. the original test is only for vm transport. tcp transport will block anyway.
-   public void testSlowConsumerDoesNotBlockFastTempUsers() throws Exception {
-   }
 }

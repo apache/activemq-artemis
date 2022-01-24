@@ -152,34 +152,6 @@ public class ConfigTest {
       adapter.stop();
    }
 
-   public void testJdbcLockConfigDefault() throws Exception {
-
-      JDBCPersistenceAdapter adapter = new JDBCPersistenceAdapter();
-      Mockery context = new Mockery();
-      final DataSource dataSource = context.mock(DataSource.class);
-      final Connection connection = context.mock(Connection.class);
-      final DatabaseMetaData metadata = context.mock(DatabaseMetaData.class);
-      final ResultSet result = context.mock(ResultSet.class);
-      adapter.setDataSource(dataSource);
-      adapter.setCreateTablesOnStartup(false);
-
-      context.checking(new Expectations() {{
-         allowing(dataSource).getConnection();
-         will(returnValue(connection));
-         allowing(connection).getMetaData();
-         will(returnValue(metadata));
-         allowing(connection);
-         allowing(metadata).getDriverName();
-         will(returnValue("Some_Unknown_driver"));
-         allowing(result).next();
-         will(returnValue(true));
-      }});
-
-      adapter.start();
-      assertEquals("has the default locker", adapter.getLocker().getClass(), DefaultDatabaseLocker.class);
-      adapter.stop();
-   }
-
    /*
     * This tests configuring the different broker properties using
     * xbeans-spring
