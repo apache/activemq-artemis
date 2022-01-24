@@ -90,8 +90,18 @@ public class AllClassesTest {
 
       Assume.assumeTrue("Cannot create " + targetClass.getName(), targetInstance != null);
 
-      String targetOutput = targetInstance.toString();
-      log.debug("targetOutput: " + targetOutput);
+      try {
+         String targetOutput = targetInstance.toString();
+         log.debug("targetOutput: " + targetOutput);
+      } finally {
+         if (targetInstance instanceof AutoCloseable) {
+            try {
+               ((AutoCloseable)targetInstance).close();
+            } catch (Throwable t) {
+               log.debug("Error closing the instance of " + targetClass.getName() + ": " + t);
+            }
+         }
+      }
    }
 
    private Object newInstance(Class targetClass) {
