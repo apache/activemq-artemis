@@ -54,9 +54,11 @@ mvn compile assembly:single
 
 java -jar ./target/jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis ../../.. ../cherry-pick-report.html  2.19.0 main ${USE_REST} 2.19.x 2.19.0
 
+java -jar ./target/jira-git-0.1.SNAPSHOT-jar-with-dependencies.jar artemis ../../.. ../commit-report-2.19.x.html  2.19.0 2.19.x ${USE_REST}
 
 echo "=============================================================================================================================="
 echo " Report generated at ./target/cherry-pick-report/cherry-pick-report.html"
+echo " Report generated at ./target/cherry-pick-report/commit-report-2.19.x.html"
 echo "=============================================================================================================================="
 
 
