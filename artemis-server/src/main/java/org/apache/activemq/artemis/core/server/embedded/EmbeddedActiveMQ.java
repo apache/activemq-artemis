@@ -42,6 +42,7 @@ public class EmbeddedActiveMQ {
    protected Configuration configuration;
    protected ActiveMQServer activeMQServer;
    protected MBeanServer mbeanServer;
+   protected String propertiesResourcePath = ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME;
 
    /**
     * Classpath resource for activemq server config.  Defaults to 'broker.xml'.
@@ -50,6 +51,16 @@ public class EmbeddedActiveMQ {
     */
    public EmbeddedActiveMQ setConfigResourcePath(String filename) {
       configResourcePath = filename;
+      return this;
+   }
+
+   /**
+    * Classpath resource for broker properties file.  Defaults to 'broker.properties'.
+    *
+    * @param filename
+    */
+   public EmbeddedActiveMQ setPropertiesResourcePath(String filename) {
+      propertiesResourcePath = filename;
       return this;
    }
 
@@ -144,9 +155,11 @@ public class EmbeddedActiveMQ {
          activeMQServer = new ActiveMQServerImpl(configuration, mbeanServer, securityManager);
       }
 
-      URL brokerPropertiesFromClasspath = this.getClass().getClassLoader().getResource(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME);
-      if (brokerPropertiesFromClasspath != null) {
-         activeMQServer.setProperties(new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
+      if (propertiesResourcePath != null) {
+         URL brokerPropertiesFromClasspath = this.getClass().getClassLoader().getResource(propertiesResourcePath);
+         if (brokerPropertiesFromClasspath != null) {
+            activeMQServer.setProperties(new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
+         }
       }
    }
 
