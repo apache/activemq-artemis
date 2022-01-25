@@ -35,16 +35,25 @@ import org.apache.commons.beanutils.Converter;
 public class BeanSupport {
 
    private static final BeanUtilsBean beanUtils = new BeanUtilsBean();
+   private static final Map<Converter, Class> customConverters = new HashMap<>();
 
    static {
-      // This is to customize the BeanUtils to use Fluent Proeprties as well
+      // This is to customize the BeanUtils to use Fluent Properties as well
       beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
    }
 
    public static void registerConverter(Converter converter, Class type) {
       synchronized (beanUtils) {
          beanUtils.getConvertUtils().register(converter, type);
+         customConverters.put(converter, type);
       }
+   }
+
+   public static void customise(BeanUtilsBean bean) {
+      synchronized (beanUtils) {
+         customConverters.forEach((key, value) -> bean.getConvertUtils().register(key, value));
+      }
+      bean.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
    }
 
    public static <P> P copyData(P source, P target) throws Exception {

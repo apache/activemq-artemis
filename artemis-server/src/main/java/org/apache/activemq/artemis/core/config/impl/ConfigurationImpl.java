@@ -99,7 +99,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
-import org.apache.activemq.artemis.utils.uri.FluentPropertyBeanIntrospectorWithIgnores;
+import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
@@ -504,7 +504,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return (T) SimpleString.toSimpleString(value.toString());
          }
       }, SimpleString.class);
-      beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+      BeanSupport.customise(beanUtils);
 
       beanUtils.populate(this, beanProperties);
    }
