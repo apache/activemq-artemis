@@ -92,10 +92,6 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-         <groupId>com.google.errorprone</groupId>
-         <artifactId>error_prone_core</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
       </dependency>

@@ -37,10 +37,6 @@
 
    <dependencies>
       <dependency>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_core</artifactId>
-      </dependency>
-      <dependency>
          <groupId>jakarta.jms</groupId>
          <artifactId>jakarta.jms-api</artifactId>
          <scope>test</scope>

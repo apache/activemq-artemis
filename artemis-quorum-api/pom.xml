@@ -31,10 +31,4 @@
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
 
-   <dependencies>
-      <dependency>
-         <groupId>com.google.errorprone</groupId>
-         <artifactId>error_prone_core</artifactId>
-      </dependency>
-   </dependencies>
 </project>

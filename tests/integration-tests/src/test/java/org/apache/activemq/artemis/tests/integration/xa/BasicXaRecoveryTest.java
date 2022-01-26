@@ -91,11 +91,12 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
    @Override
    @Before
+   @SuppressWarnings("unused")
    public void setUp() throws Exception {
       super.setUp();
 
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
+         Object unused = Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
       }
 
       addressSettings.clear();

@@ -66,10 +66,6 @@
          <optional>true</optional>
       </dependency>
       <dependency>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_core</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.jboss.logmanager</groupId>
          <artifactId>jboss-logmanager</artifactId>
          <scope>test</scope>

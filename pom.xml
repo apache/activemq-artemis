@@ -103,7 +103,7 @@
       <jboss.logging.version>3.4.2.Final</jboss.logging.version>
       <jetty.version>9.4.44.v20210927</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
-      <errorprone.version>2.9.0</errorprone.version>
+      <errorprone.version>2.10.0</errorprone.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
       <maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
@@ -390,7 +390,6 @@
              <artifactId>error_prone_core</artifactId>
              <version>${errorprone.version}</version>
              <scope>provided</scope>
-            <optional>true</optional>
          </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
@@ -1008,6 +1007,12 @@
                   <name>errorprone</name>
               </property>
           </activation>
+          <dependencies>
+              <dependency>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_core</artifactId>
+              </dependency>
+          </dependencies>
           <build>
               <plugins>
                   <plugin>
@@ -1034,6 +1039,12 @@
                   <name>errorprone</name>
               </property>
           </activation>
+          <dependencies>
+              <dependency>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_core</artifactId>
+              </dependency>
+          </dependencies>
           <build>
               <plugins>
                   <plugin>

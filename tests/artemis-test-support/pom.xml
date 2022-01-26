@@ -89,10 +89,6 @@
          <groupId>org.fusesource.hawtbuf</groupId>
          <artifactId>hawtbuf</artifactId>
       </dependency>
-      <dependency>
-         <groupId>com.google.errorprone</groupId>
-         <artifactId>error_prone_core</artifactId>
-      </dependency>
    </dependencies>
 
 </project>

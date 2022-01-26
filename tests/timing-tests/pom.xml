@@ -102,10 +102,6 @@
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
-      <dependency>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_core</artifactId>
-      </dependency>
    </dependencies>
 
    <build>

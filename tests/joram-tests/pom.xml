@@ -102,10 +102,6 @@
           <groupId>org.wildfly.common</groupId>
           <artifactId>wildfly-common</artifactId>
       </dependency>
-      <dependency>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_core</artifactId>
-      </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,
            However maven can still need them during tests, which run against

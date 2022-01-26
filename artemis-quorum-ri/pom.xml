@@ -74,10 +74,7 @@
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
-      <dependency>
-         <groupId>com.google.errorprone</groupId>
-         <artifactId>error_prone_core</artifactId>
-      </dependency>
+
       <!-- tests -->
       <dependency>
          <groupId>junit</groupId>

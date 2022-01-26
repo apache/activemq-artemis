@@ -112,10 +112,6 @@
           <groupId>org.wildfly.common</groupId>
           <artifactId>wildfly-common</artifactId>
       </dependency>
-      <dependency>
-          <groupId>com.google.errorprone</groupId>
-          <artifactId>error_prone_core</artifactId>
-      </dependency>
    </dependencies>
 
    <build>
