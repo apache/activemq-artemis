@@ -33,7 +33,6 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -354,16 +353,6 @@ public class ConnectionFactoryURITest {
    }
 
    @Test
-   public void testJGroupsKeyValue() throws Exception {
-      ActiveMQConnectionFactory factory = parser.newObject(new URI("jgroups://channel-name?properties=param=value;param2=value2&test=33"), null);
-
-      Assert.assertTrue(ActiveMQJMSConnectionFactory.class.getName().equals(factory.getClass().getName()));
-      JGroupsPropertiesBroadcastEndpointFactory broadcastEndpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) factory.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
-      Assert.assertEquals(broadcastEndpointFactory.getProperties(), "param=value;param2=value2");
-      Assert.assertEquals(broadcastEndpointFactory.getChannelName(), "channel-name");
-   }
-
-   @Test
    public void testJGroupsAllProperties() throws Exception {
       StringBuilder sb = new StringBuilder();
       sb.append("jgroups://?file=param=value;param=value&channelName=channelName&ha=true");
@@ -393,30 +382,6 @@ public class ConnectionFactoryURITest {
       JGroupsFileBroadcastEndpointFactory fileBroadcastEndpointFactory = (JGroupsFileBroadcastEndpointFactory) befc;
       Assert.assertEquals(fileBroadcastEndpointFactory.getFile(), "channel-file.xml");
       Assert.assertEquals(fileBroadcastEndpointFactory.getChannelName(), "channel-name");
-
-      BeanUtilsBean bean = new BeanUtilsBean();
-      checkEquals(bean, connectionFactoryWithHA, factory);
-   }
-
-   @Test
-   public void testJGroupsPropertiesURI() throws Exception {
-      DiscoveryGroupConfiguration discoveryGroupConfiguration = new DiscoveryGroupConfiguration();
-      JGroupsPropertiesBroadcastEndpointFactory endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName("channel-name").setProperties("param=val,param2-val2");
-      discoveryGroupConfiguration.setName("foo").setRefreshTimeout(12345).setDiscoveryInitialWaitTimeout(5678).setBroadcastEndpointFactory(endpointFactory);
-      ActiveMQConnectionFactory connectionFactoryWithHA = ActiveMQJMSClient.createConnectionFactoryWithHA(discoveryGroupConfiguration, JMSFactoryType.CF);
-      URI tcp = parser.createSchema("jgroups", connectionFactoryWithHA);
-      ActiveMQConnectionFactory factory = parser.newObject(tcp, null);
-      DiscoveryGroupConfiguration dgc = factory.getDiscoveryGroupConfiguration();
-      Assert.assertNotNull(dgc);
-      BroadcastEndpointFactory broadcastEndpointFactory = dgc.getBroadcastEndpointFactory();
-      Assert.assertNotNull(broadcastEndpointFactory);
-      Assert.assertTrue(broadcastEndpointFactory instanceof JGroupsPropertiesBroadcastEndpointFactory);
-      Assert.assertEquals(dgc.getName(), "foo");
-      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5678);
-      Assert.assertEquals(dgc.getRefreshTimeout(), 12345);
-      JGroupsPropertiesBroadcastEndpointFactory propertiesBroadcastEndpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
-      Assert.assertEquals(propertiesBroadcastEndpointFactory.getProperties(), "param=val,param2-val2");
-      Assert.assertEquals(propertiesBroadcastEndpointFactory.getChannelName(), "channel-name");
 
       BeanUtilsBean bean = new BeanUtilsBean();
       checkEquals(bean, connectionFactoryWithHA, factory);

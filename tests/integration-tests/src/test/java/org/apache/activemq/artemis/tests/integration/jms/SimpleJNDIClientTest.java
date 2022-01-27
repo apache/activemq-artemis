@@ -39,11 +39,9 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
-import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpoint;
-import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -257,50 +255,6 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       BroadcastEndpoint broadcastEndpoint = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory().createBroadcastEndpoint();
       Assert.assertTrue(broadcastEndpoint instanceof JGroupsFileBroadcastEndpoint);
       broadcastEndpoint.close(false);
-   }
-
-   @Test
-   public void testRemoteCFWithJgroupsWithTransportConfigProps() throws Exception {
-      Hashtable<String, String> props = new Hashtable<>();
-      props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-      props.put("connectionFactory.ConnectionFactory", "jgroups://testChannelName?properties=param=value&" +
-         ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
-         ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
-      Context ctx = new InitialContext(props);
-
-      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("ConnectionFactory");
-
-      DiscoveryGroupConfiguration discoveryGroupConfiguration = cf.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
-      Assert.assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
-
-      BroadcastEndpointFactory broadcastEndpointFactory = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
-      Assert.assertTrue(broadcastEndpointFactory instanceof JGroupsPropertiesBroadcastEndpointFactory);
-      JGroupsPropertiesBroadcastEndpointFactory endpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
-      Assert.assertEquals(endpointFactory.getProperties(), "param=value");
-      Assert.assertEquals(endpointFactory.getChannelName(), "testChannelName");
-   }
-
-   @Test
-   public void testRemoteCFWithJgroupsWithTransportConfigNullProps() throws Exception {
-      Hashtable<String, String> props = new Hashtable<>();
-      props.put(Context.INITIAL_CONTEXT_FACTORY, ActiveMQInitialContextFactory.class.getCanonicalName());
-      props.put("connectionFactory.ConnectionFactory", "jgroups://testChannelName?" +
-         ActiveMQInitialContextFactory.REFRESH_TIMEOUT + "=5000&" +
-         ActiveMQInitialContextFactory.DISCOVERY_INITIAL_WAIT_TIMEOUT + "=6000");
-      Context ctx = new InitialContext(props);
-
-      ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("ConnectionFactory");
-
-      DiscoveryGroupConfiguration discoveryGroupConfiguration = cf.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
-      Assert.assertEquals(6000, discoveryGroupConfiguration.getDiscoveryInitialWaitTimeout());
-
-      BroadcastEndpointFactory broadcastEndpointFactory = cf.getDiscoveryGroupConfiguration().getBroadcastEndpointFactory();
-      Assert.assertTrue(broadcastEndpointFactory instanceof JGroupsPropertiesBroadcastEndpointFactory);
-      JGroupsPropertiesBroadcastEndpointFactory endpointFactory = (JGroupsPropertiesBroadcastEndpointFactory) broadcastEndpointFactory;
-      Assert.assertEquals(endpointFactory.getProperties(), null);
-      Assert.assertEquals(endpointFactory.getChannelName(), "testChannelName");
    }
 
    @Test

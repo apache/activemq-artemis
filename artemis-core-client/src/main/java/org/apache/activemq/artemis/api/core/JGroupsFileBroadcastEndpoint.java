@@ -43,6 +43,6 @@ public final class JGroupsFileBroadcastEndpoint extends JGroupsBroadcastEndpoint
          throw new RuntimeException("couldn't find JGroups configuration " + file);
       }
 
-      return new JChannel(configURL);
+      return new JChannel(configURL.openStream());
    }
 }

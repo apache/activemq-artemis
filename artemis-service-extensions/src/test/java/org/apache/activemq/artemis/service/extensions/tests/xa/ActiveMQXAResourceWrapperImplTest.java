@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapp
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapperImpl;
 import org.junit.Test;
 
-import static org.jgroups.util.Util.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 public class ActiveMQXAResourceWrapperImplTest {
 

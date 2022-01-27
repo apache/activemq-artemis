@@ -22,13 +22,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.logging.Logger;
-import org.jgroups.ReceiverAdapter;
+import org.jgroups.Receiver;
 
 /**
  * This class is used to receive messages from a JGroups channel.
  * Incoming messages are put into a queue.
  */
-public class JGroupsReceiver extends ReceiverAdapter {
+public class JGroupsReceiver implements Receiver {
 
    private static final Logger logger = Logger.getLogger(JGroupsReceiver.class);
 
@@ -38,7 +38,7 @@ public class JGroupsReceiver extends ReceiverAdapter {
    public void receive(org.jgroups.Message msg) {
       if (logger.isTraceEnabled())
          logger.trace("sending message " + msg);
-      dequeue.add(msg.getBuffer());
+      dequeue.add(msg.getArray());
    }
 
    public byte[] receiveBroadcast() throws Exception {

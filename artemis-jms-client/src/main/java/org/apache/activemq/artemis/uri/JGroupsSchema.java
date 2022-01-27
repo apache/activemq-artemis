@@ -24,7 +24,6 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.uri.schema.serverLocator.JGroupsServerLocatorSchema;
@@ -62,8 +61,6 @@ public class JGroupsSchema extends AbstractCFSchema {
       String auth;
       if (endpoint instanceof JGroupsFileBroadcastEndpointFactory) {
          auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
-      } else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory) {
-         auth = ((JGroupsPropertiesBroadcastEndpointFactory) endpoint).getChannelName();
       } else {
          throw new NotSerializableException(endpoint + "not serializable");
       }

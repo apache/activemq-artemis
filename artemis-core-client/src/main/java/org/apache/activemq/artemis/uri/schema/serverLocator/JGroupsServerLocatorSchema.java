@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
@@ -56,8 +55,6 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
       String auth;
       if (endpoint instanceof JGroupsFileBroadcastEndpointFactory) {
          auth = ((JGroupsFileBroadcastEndpointFactory) endpoint).getChannelName();
-      } else if (endpoint instanceof JGroupsPropertiesBroadcastEndpointFactory) {
-         auth = ((JGroupsPropertiesBroadcastEndpointFactory) endpoint).getChannelName();
       } else {
          throw new NotSerializableException(endpoint + "not serializable");
       }
@@ -70,12 +67,7 @@ public class JGroupsServerLocatorSchema extends AbstractServerLocatorSchema {
                                                                             Map<String, String> query,
                                                                             String name) throws Exception {
       BroadcastEndpointFactory endpointFactory;
-      if (query.containsKey("file")) {
-         endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(uri.getAuthority());
-      } else {
-         endpointFactory = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName(uri.getAuthority());
-      }
-
+      endpointFactory = new JGroupsFileBroadcastEndpointFactory().setChannelName(uri.getAuthority());
       BeanSupport.setData(uri, endpointFactory, query);
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName(name).setBroadcastEndpointFactory(endpointFactory);

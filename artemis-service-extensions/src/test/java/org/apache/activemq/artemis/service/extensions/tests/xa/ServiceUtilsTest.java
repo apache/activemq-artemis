@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.junit.Test;
 
-import static org.jgroups.util.Util.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 public class ServiceUtilsTest {
 

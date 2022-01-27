@@ -53,9 +53,9 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
       if (logger.isTraceEnabled())
          logger.trace("Broadcasting: BroadCastOpened=" + broadcastOpened + ", channelOPen=" + channel.getChannel().isOpen());
       if (broadcastOpened) {
-         org.jgroups.Message msg = new org.jgroups.Message();
+         org.jgroups.Message msg = new org.jgroups.BytesMessage();
 
-         msg.setBuffer(data);
+         msg.setArray(data);
 
          channel.send(msg);
       }
