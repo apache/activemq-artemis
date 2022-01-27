@@ -167,12 +167,11 @@ The `udp` scheme supports 4 properties:
   connection. The default value for this parameter is 10000 milliseconds.
 
 Lastly, the `jgroups` scheme is supported which provides an alternative to the
-`udp` scheme for server discovery. The URL pattern is either
+`udp` scheme for server discovery. The URL pattern is
 `jgroups://channelName?file=jgroups-xml-conf-filename`
 where`jgroups-xml-conf-filename` refers to an XML file on the classpath that
-contains the JGroups configuration or it can be
-`jgroups://channelName?properties=some-jgroups-properties`. In both instance
-the `channelName` is the name given to the jgroups channel created.
+contains the JGroups configuration. The `channelName` is the name given to the
+jgroups channel created.
 
 The `refreshTimeout` and `discoveryInitialWaitTimeout` properties are supported
 just like with `udp`.

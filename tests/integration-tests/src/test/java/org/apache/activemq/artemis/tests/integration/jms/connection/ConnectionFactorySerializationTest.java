@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.JGroupsFileBroadcastEndpointFactory;
-import org.apache.activemq.artemis.api.core.JGroupsPropertiesBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
@@ -102,26 +101,6 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       JGroupsFileBroadcastEndpointFactory befc = (JGroupsFileBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
       Assert.assertEquals("myChannel", befc.getChannelName());
       Assert.assertEquals("/META-INF/myfile.xml", befc.getFile());
-   }
-
-   @Test
-   public void testConnectionFactoryJgroupsProperties() throws Exception {
-      createDiscoveryFactoryJGroupsProperties();
-      cf = (ActiveMQConnectionFactory) namingContext.lookup("/MyConnectionFactory");
-
-      // apparently looking up the connection factory with the org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory
-      // is not enough to actually serialize it so we serialize it manually
-      byte[] x = serialize(cf);
-      ActiveMQConnectionFactory y = deserialize(x, ActiveMQConnectionFactory.class);
-      checkEquals(cf, y);
-      DiscoveryGroupConfiguration dgc = y.getDiscoveryGroupConfiguration();
-      Assert.assertEquals(dgc.getName(), "dg1");
-      Assert.assertEquals(dgc.getDiscoveryInitialWaitTimeout(), 5000);
-      Assert.assertEquals(dgc.getRefreshTimeout(), 5000);
-      Assert.assertTrue(dgc.getBroadcastEndpointFactory() instanceof JGroupsPropertiesBroadcastEndpointFactory);
-      JGroupsPropertiesBroadcastEndpointFactory befc = (JGroupsPropertiesBroadcastEndpointFactory) dgc.getBroadcastEndpointFactory();
-      Assert.assertEquals("myChannel", befc.getChannelName());
-      Assert.assertEquals("param=1,param2=2", befc.getProperties());
    }
 
    @Test
@@ -205,20 +184,6 @@ public class ConnectionFactorySerializationTest extends JMSTestBase {
       bindings.add("MyConnectionFactory");
 
       JGroupsFileBroadcastEndpointFactory config = new JGroupsFileBroadcastEndpointFactory().setChannelName("myChannel").setFile("/META-INF/myfile.xml");
-
-      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(5000).setDiscoveryInitialWaitTimeout(5000).setBroadcastEndpointFactory(config);
-
-      jmsServer.getActiveMQServer().getConfiguration().getDiscoveryGroupConfigurations().put(dcConfig.getName(), dcConfig);
-
-      jmsServer.createConnectionFactory("MyConnectionFactory", false, JMSFactoryType.CF, dcConfig.getName(), "/MyConnectionFactory");
-   }
-
-   private void createDiscoveryFactoryJGroupsProperties() throws Exception {
-      // Deploy a connection factory with discovery
-      List<String> bindings = new ArrayList<>();
-      bindings.add("MyConnectionFactory");
-
-      JGroupsPropertiesBroadcastEndpointFactory config = new JGroupsPropertiesBroadcastEndpointFactory().setChannelName("myChannel").setProperties("param=1,param2=2");
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(5000).setDiscoveryInitialWaitTimeout(5000).setBroadcastEndpointFactory(config);
 

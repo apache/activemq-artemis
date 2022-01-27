@@ -23,7 +23,7 @@ import java.util.List;
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
-import org.jgroups.ReceiverAdapter;
+import org.jgroups.Receiver;
 
 /**
  * This class wraps a JChannel with a reference counter. The reference counter
@@ -52,7 +52,7 @@ public class JChannelWrapper {
       }
 
       //we always add this for the first ref count
-      channel.setReceiver(new ReceiverAdapter() {
+      channel.setReceiver(new Receiver() {
 
          @Override
          public String toString() {
@@ -139,7 +139,7 @@ public class JChannelWrapper {
       if (logger.isTraceEnabled())
          logger.trace(this + "::Sending JGroups Message: Open=" + channel.isOpen() + " on channel " + channelName + " msg=" + msg);
       if (!manager.isLoopbackMessages()) {
-         msg.setTransientFlag(Message.TransientFlag.DONT_LOOPBACK);
+         msg.setFlag(Message.TransientFlag.DONT_LOOPBACK);
       }
       channel.send(msg);
    }
