@@ -46,12 +46,14 @@ public class RequestLogDTO {
    /**
     * logging of the request cookies
     */
+   @Deprecated
    @XmlAttribute
    public Boolean logCookies;
 
    /**
     * the output file name of the request log
     */
+   @Deprecated
    @XmlAttribute
    public String logTimeZone;
 
@@ -76,30 +78,41 @@ public class RequestLogDTO {
    /**
     * the timestamp format string for request log entries
     */
+   @Deprecated
    @XmlAttribute
    public String logDateFormat;
 
    /**
     * the locale of the request log
     */
+   @Deprecated
    @XmlAttribute
    public String logLocale;
 
    /**
     * logging of request processing time
     */
+   @Deprecated
    @XmlAttribute
    public Boolean logLatency;
 
    /**
     * logging of the request hostname
     */
+   @Deprecated
    @XmlAttribute
    public Boolean logServer;
 
    /**
     * whether the actual IP address of the connection or the IP address from the X-Forwarded-For header will be logged
     */
+   @Deprecated
    @XmlAttribute
    public Boolean preferProxiedForAddress;
+
+   /**
+    * the format to use for logging; see https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html
+    */
+   @XmlAttribute
+   public String format;
 }

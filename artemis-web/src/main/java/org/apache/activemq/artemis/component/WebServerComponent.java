@@ -16,6 +16,17 @@
  */
 package org.apache.activemq.artemis.component;
 
+import javax.servlet.DispatcherType;
+import java.io.File;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.apache.activemq.artemis.ActiveMQWebLogger;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
@@ -24,9 +35,10 @@ import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
+import org.eclipse.jetty.server.CustomRequestLog;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.NCSARequestLog;
+import org.eclipse.jetty.server.RequestLogWriter;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -40,18 +52,6 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.logging.Logger;
-
-import javax.servlet.DispatcherType;
-import java.io.File;
-import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 public class WebServerComponent implements ExternalComponent {
 
@@ -209,34 +209,30 @@ public class WebServerComponent implements ExternalComponent {
    }
 
    private RequestLogHandler getLogHandler() {
-      RequestLogHandler requestLogHandler = new RequestLogHandler();
-      NCSARequestLog requestLog = new NCSARequestLog();
+      RequestLogWriter requestLogWriter = new RequestLogWriter();
+      CustomRequestLog requestLog;
 
       // required via config so no check necessary
-      requestLog.setFilename(webServerConfig.requestLog.filename);
+      requestLogWriter.setFilename(webServerConfig.requestLog.filename);
 
       if (webServerConfig.requestLog.append != null) {
-         requestLog.setAppend(webServerConfig.requestLog.append);
-      }
-
-      if (webServerConfig.requestLog.extended != null) {
-         requestLog.setExtended(webServerConfig.requestLog.extended);
-      }
-
-      if (webServerConfig.requestLog.logCookies != null) {
-         requestLog.setLogCookies(webServerConfig.requestLog.logCookies);
-      }
-
-      if (webServerConfig.requestLog.logTimeZone != null) {
-         requestLog.setLogTimeZone(webServerConfig.requestLog.logTimeZone);
+         requestLogWriter.setAppend(webServerConfig.requestLog.append);
       }
 
       if (webServerConfig.requestLog.filenameDateFormat != null) {
-         requestLog.setFilenameDateFormat(webServerConfig.requestLog.filenameDateFormat);
+         requestLogWriter.setFilenameDateFormat(webServerConfig.requestLog.filenameDateFormat);
       }
 
       if (webServerConfig.requestLog.retainDays != null) {
-         requestLog.setRetainDays(webServerConfig.requestLog.retainDays);
+         requestLogWriter.setRetainDays(webServerConfig.requestLog.retainDays);
+      }
+
+      if (webServerConfig.requestLog.format != null) {
+         requestLog = new CustomRequestLog(requestLogWriter, webServerConfig.requestLog.format);
+      } else if (webServerConfig.requestLog.extended != null && webServerConfig.requestLog.extended) {
+         requestLog = new CustomRequestLog(requestLogWriter, CustomRequestLog.EXTENDED_NCSA_FORMAT);
+      } else {
+         requestLog = new CustomRequestLog(requestLogWriter, CustomRequestLog.NCSA_FORMAT);
       }
 
       if (webServerConfig.requestLog.ignorePaths != null && webServerConfig.requestLog.ignorePaths.length() > 0) {
@@ -248,28 +244,8 @@ public class WebServerComponent implements ExternalComponent {
          requestLog.setIgnorePaths(ignorePaths);
       }
 
-      if (webServerConfig.requestLog.logDateFormat != null) {
-         requestLog.setLogDateFormat(webServerConfig.requestLog.logDateFormat);
-      }
-
-      if (webServerConfig.requestLog.logLocale != null) {
-         requestLog.setLogLocale(Locale.forLanguageTag(webServerConfig.requestLog.logLocale));
-      }
-
-      if (webServerConfig.requestLog.logLatency != null) {
-         requestLog.setLogLatency(webServerConfig.requestLog.logLatency);
-      }
-
-      if (webServerConfig.requestLog.logServer != null) {
-         requestLog.setLogServer(webServerConfig.requestLog.logServer);
-      }
-
-      if (webServerConfig.requestLog.preferProxiedForAddress != null) {
-         requestLog.setPreferProxiedForAddress(webServerConfig.requestLog.preferProxiedForAddress);
-      }
-
+      RequestLogHandler requestLogHandler = new RequestLogHandler();
       requestLogHandler.setRequestLog(requestLog);
-
       return requestLogHandler;
    }
 

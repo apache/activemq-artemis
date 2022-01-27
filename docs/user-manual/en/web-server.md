@@ -68,23 +68,30 @@ It's also possible to configure HTTP/S request logging via the `request-log`
 element which has the following attributes:
 
 - `filename` The full path of the request log. This attribute is required.
-- `append` Whether or not to append to the existing log or truncate it. Boolean flag.
-- `extended` Whether or not to use the extended request log format. Boolean flag.
-- `logCookies` Logging of the request cookies. Boolean flag.
-- `logTimeZone` The output file name of the request log.
+- `append` Whether or not to append to the existing log or truncate it. Boolean
+  flag.
+- `extended` Whether or not to use the extended request log format. Boolean
+  flag. If `true` will use the format `%{client}a - %u %t "%r" %s %O 
+  "%{Referer}i" "%{User-Agent}i"`. If `false` will use the format `%{client}a -
+  %u %t "%r" %s %O`. Default is `false`. See the [format 
+  specification](https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html)
+  for more details.
 - `filenameDateFormat` The log file name date format.
 - `retainDays` The number of days before rotated log files are deleted.
 - `ignorePaths` Request paths that will not be logged. Comma delimited list.
-- `logDateFormat` The timestamp format string for request log entries.
-- `logLocale` The locale of the request log.
-- `logLatency` Logging of request processing time. Boolean flag.
-- `logServer` Logging of the request hostname. Boolean flag.
-- `preferProxiedForAddress` Whether the actual IP address of the connection or
-  the IP address from the `X-Forwarded-For` header will be logged. Boolean flag.
+- `format` Custom format to use. If set this will override `extended`. See the
+  [format specification](https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html)
+  for more details.
+
+The following options were previously supported, but they were replaced by the
+`format`: `logCookie`, `logTimeZone`, `logDateFormat`, `logLocale`,
+`logLatency`, `logServer`, `preferProxiedForAddress`. All these options are now
+deprecated and ignored.
 
 These attributes are essentially passed straight through to the underlying
-[`org.eclipse.jetty.server.NCSARequestLog`](https://www.eclipse.org/jetty/javadoc/current/org/eclipse/jetty/server/NCSARequestLog.html)
-instance. Default values are based on this implementation.
+[`org.eclipse.jetty.server.CustomRequestLog`](https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/CustomRequestLog.html)
+and [`org.eclipse.jetty.server.RequestLogWriter`](https://www.eclipse.org/jetty/javadoc/jetty-9/org/eclipse/jetty/server/RequestLogWriter.html)
+instances. Default values are based on these implementations.
 
 Here is an example configuration:
 
