@@ -1189,8 +1189,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       public Response processAddConnection(ConnectionInfo info) throws Exception {
          try {
             protocolManager.validateUser(OpenWireConnection.this, info);
-            if (transportConnection.getRedirectTo() != null) {
-               if (protocolManager.getRedirectHandler().redirect(OpenWireConnection.this, info)) {
+            if (transportConnection.getRouter() != null) {
+               if (protocolManager.getRoutingHandler().route(OpenWireConnection.this, info)) {
                   shutdown(true);
                   return null;
                }

@@ -44,7 +44,7 @@ public final class ResourceNames {
 
    public static final String BROADCAST_GROUP = "broadcastgroup.";
 
-   public static final String BROKER_BALANCER = "brokerbalancer.";
+   public static final String CONNECTION_ROUTER = "connectionrouter.";
 
    public static final String RETROACTIVE_SUFFIX = "retro";
 

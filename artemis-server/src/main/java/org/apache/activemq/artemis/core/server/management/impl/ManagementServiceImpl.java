@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BaseBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
-import org.apache.activemq.artemis.api.core.management.BrokerBalancerControl;
+import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
@@ -63,7 +63,7 @@ import org.apache.activemq.artemis.core.management.impl.AddressControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BaseBroadcastGroupControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BridgeControlImpl;
 import org.apache.activemq.artemis.core.management.impl.BroadcastGroupControlImpl;
-import org.apache.activemq.artemis.core.management.impl.BrokerBalancerControlImpl;
+import org.apache.activemq.artemis.core.management.impl.ConnectionRouterControlImpl;
 import org.apache.activemq.artemis.core.management.impl.ClusterConnectionControlImpl;
 import org.apache.activemq.artemis.core.management.impl.DivertControlImpl;
 import org.apache.activemq.artemis.core.management.impl.JGroupsChannelBroadcastGroupControlImpl;
@@ -85,7 +85,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
-import org.apache.activemq.artemis.core.server.balancing.BrokerBalancer;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouter;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.BroadcastGroup;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -486,22 +486,22 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public synchronized void registerBrokerBalancer(final BrokerBalancer balancer) throws Exception {
-      ObjectName objectName = objectNameBuilder.getBrokerBalancerObjectName(balancer.getName());
-      BrokerBalancerControl brokerBalancerControl = new BrokerBalancerControlImpl(balancer, storageManager);
-      registerInJMX(objectName, brokerBalancerControl);
-      registerInRegistry(ResourceNames.BROKER_BALANCER + balancer.getName(), brokerBalancerControl);
+   public synchronized void registerConnectionRouter(final ConnectionRouter router) throws Exception {
+      ObjectName objectName = objectNameBuilder.getConnectionRouterObjectName(router.getName());
+      ConnectionRouterControl connectionRouterControl = new ConnectionRouterControlImpl(router, storageManager);
+      registerInJMX(objectName, connectionRouterControl);
+      registerInRegistry(ResourceNames.CONNECTION_ROUTER + router.getName(), connectionRouterControl);
 
       if (logger.isDebugEnabled()) {
-         logger.debug("registered broker balancer " + objectName);
+         logger.debug("registered connection router " + objectName);
       }
    }
 
    @Override
-   public synchronized void unregisterBrokerBalancer(final String name) throws Exception {
-      ObjectName objectName = objectNameBuilder.getBrokerBalancerObjectName(name);
+   public synchronized void unregisterConnectionRouter(final String name) throws Exception {
+      ObjectName objectName = objectNameBuilder.getConnectionRouterObjectName(name);
       unregisterFromJMX(objectName);
-      unregisterFromRegistry(ResourceNames.BROKER_BALANCER + name);
+      unregisterFromRegistry(ResourceNames.CONNECTION_ROUTER + name);
    }
 
    @Override

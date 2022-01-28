@@ -46,9 +46,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
-import org.apache.activemq.artemis.core.config.balancing.CacheConfiguration;
-import org.apache.activemq.artemis.core.config.balancing.NamedPropertyConfiguration;
+import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
+import org.apache.activemq.artemis.core.config.routing.CacheConfiguration;
+import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -65,7 +65,7 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
-import org.apache.activemq.artemis.core.config.balancing.PoolConfiguration;
+import org.apache.activemq.artemis.core.config.routing.PoolConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
@@ -92,9 +92,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
-import org.apache.activemq.artemis.core.server.balancing.policies.PolicyFactoryResolver;
-import org.apache.activemq.artemis.core.server.balancing.targets.TargetKey;
-import org.apache.activemq.artemis.core.server.balancing.transformer.TransformerFactoryResolver;
+import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
+import org.apache.activemq.artemis.core.server.routing.KeyType;
+import org.apache.activemq.artemis.core.server.routing.transformer.TransformerFactoryResolver;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
@@ -634,16 +634,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          parseDivertConfiguration(dvNode, config);
       }
 
-      NodeList ccBalancers = e.getElementsByTagName("broker-balancers");
+      NodeList ccConnectionRouters = e.getElementsByTagName("connection-routers");
 
-      if (ccBalancers != null) {
-         NodeList ccBalancer = e.getElementsByTagName("broker-balancer");
+      if (ccConnectionRouters != null) {
+         NodeList ccConnectionRouter = e.getElementsByTagName("connection-router");
 
-         if (ccBalancer != null) {
-            for (int i = 0; i < ccBalancer.getLength(); i++) {
-               Element ccNode = (Element) ccBalancer.item(i);
+         if (ccConnectionRouter != null) {
+            for (int i = 0; i < ccConnectionRouter.getLength(); i++) {
+               Element ccNode = (Element) ccConnectionRouter.item(i);
 
-               parseBalancerConfiguration(ccNode, config);
+               parseConnectionRouterConfiguration(ccNode, config);
             }
          }
       }
@@ -2646,16 +2646,16 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       mainConfig.getDivertConfigurations().add(config);
    }
 
-   private void parseBalancerConfiguration(final Element e, final Configuration config) throws Exception {
-      BrokerBalancerConfiguration brokerBalancerConfiguration = new BrokerBalancerConfiguration();
+   private void parseConnectionRouterConfiguration(final Element e, final Configuration config) throws Exception {
+      ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration();
 
-      brokerBalancerConfiguration.setName(e.getAttribute("name"));
+      connectionRouterConfiguration.setName(e.getAttribute("name"));
 
-      brokerBalancerConfiguration.setTargetKey(TargetKey.valueOf(getString(e, "target-key", brokerBalancerConfiguration.getTargetKey().name(), Validators.TARGET_KEY)));
+      connectionRouterConfiguration.setKeyType(KeyType.valueOf(getString(e, "key-type", connectionRouterConfiguration.getKeyType().name(), Validators.KEY_TYPE)));
 
-      brokerBalancerConfiguration.setTargetKeyFilter(getString(e, "target-key-filter", brokerBalancerConfiguration.getTargetKeyFilter(), Validators.NO_CHECK));
+      connectionRouterConfiguration.setKeyFilter(getString(e, "key-filter", connectionRouterConfiguration.getKeyFilter(), Validators.NO_CHECK));
 
-      brokerBalancerConfiguration.setLocalTargetFilter(getString(e, "local-target-filter", brokerBalancerConfiguration.getLocalTargetFilter(), Validators.NO_CHECK));
+      connectionRouterConfiguration.setLocalTargetFilter(getString(e, "local-target-filter", connectionRouterConfiguration.getLocalTargetFilter(), Validators.NO_CHECK));
 
       NamedPropertyConfiguration policyConfiguration = null;
       PoolConfiguration poolConfiguration = null;
@@ -2667,23 +2667,23 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (child.getNodeName().equals("cache")) {
             CacheConfiguration cacheConfiguration = new CacheConfiguration();
             parseCacheConfiguration((Element) child, cacheConfiguration);
-            brokerBalancerConfiguration.setCacheConfiguration(cacheConfiguration);
+            connectionRouterConfiguration.setCacheConfiguration(cacheConfiguration);
          } else if (child.getNodeName().equals("policy")) {
             policyConfiguration = new NamedPropertyConfiguration();
             parsePolicyConfiguration((Element) child, policyConfiguration);
-            brokerBalancerConfiguration.setPolicyConfiguration(policyConfiguration);
+            connectionRouterConfiguration.setPolicyConfiguration(policyConfiguration);
          } else if (child.getNodeName().equals("pool")) {
             poolConfiguration = new PoolConfiguration();
             parsePoolConfiguration((Element) child, config, poolConfiguration);
-            brokerBalancerConfiguration.setPoolConfiguration(poolConfiguration);
+            connectionRouterConfiguration.setPoolConfiguration(poolConfiguration);
          } else if (child.getNodeName().equals("local-target-key-transformer")) {
             policyConfiguration = new NamedPropertyConfiguration();
             parseTransformerConfiguration((Element) child, policyConfiguration);
-            brokerBalancerConfiguration.setTransformerConfiguration(policyConfiguration);
+            connectionRouterConfiguration.setTransformerConfiguration(policyConfiguration);
          }
       }
 
-      config.getBalancerConfigurations().add(brokerBalancerConfiguration);
+      config.getConnectionRouters().add(connectionRouterConfiguration);
    }
 
    private void parseCacheConfiguration(final Element e, final CacheConfiguration cacheConfiguration) throws ClassNotFoundException {

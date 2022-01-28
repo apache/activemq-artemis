@@ -25,14 +25,14 @@ import org.apache.activemq.artemis.api.core.BaseInterceptor;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyServerConnection;
-import org.apache.activemq.artemis.core.server.balancing.RedirectHandler;
+import org.apache.activemq.artemis.core.server.routing.RoutingHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 /**
  * Info: ProtocolManager is loaded by {@link org.apache.activemq.artemis.core.remoting.server.impl.RemotingServiceImpl#loadProtocolManagerFactories(Iterable)}
  */
-public interface ProtocolManager<P extends BaseInterceptor, R extends RedirectHandler> {
+public interface ProtocolManager<P extends BaseInterceptor, R extends RoutingHandler> {
 
    ProtocolManagerFactory<P> getFactory();
 
@@ -82,5 +82,5 @@ public interface ProtocolManager<P extends BaseInterceptor, R extends RedirectHa
 
    String getSecurityDomain();
 
-   R getRedirectHandler();
+   R getRoutingHandler();
 }

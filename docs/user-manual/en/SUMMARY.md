@@ -67,7 +67,7 @@
     * [Address Federation](federation-address.md)
     * [Queue Federation](federation-queue.md)
 * [High Availability and Failover](ha.md)
-* [Broker Balancers](broker-balancers.md)
+* [Connection Routers](connection-routers.md)
 * [Graceful Server Shutdown](graceful-shutdown.md)
 * [Libaio Native Libraries](libaio.md)
 * [Thread management](thread-pooling.md)

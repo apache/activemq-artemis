@@ -143,7 +143,6 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
-import org.apache.activemq.artemis.core.server.balancing.BrokerBalancerManager;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
@@ -174,6 +173,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.core.server.replay.ReplayManager;
@@ -294,7 +294,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private volatile RemotingService remotingService;
 
-   private volatile BrokerBalancerManager balancerManager;
+   private volatile ConnectionRouterManager connectionRouterManager;
 
    private final List<ProtocolManagerFactory> protocolManagerFactories = new ArrayList<>();
 
@@ -1236,7 +1236,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
 
-         stopComponent(balancerManager);
+         stopComponent(connectionRouterManager);
 
          stopComponent(connectorsService);
 
@@ -1677,8 +1677,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public BrokerBalancerManager getBalancerManager() {
-      return balancerManager;
+   public ConnectionRouterManager getConnectionRouterManager() {
+      return connectionRouterManager;
    }
 
    public BackupManager getBackupManager() {
@@ -3165,9 +3165,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       federationManager.deploy();
 
-      balancerManager = new BrokerBalancerManager(configuration, this, scheduledPool);
+      connectionRouterManager = new ConnectionRouterManager(configuration, this, scheduledPool);
 
-      balancerManager.deploy();
+      connectionRouterManager.deploy();
 
       remotingService = new RemotingServiceImpl(clusterManager, configuration, this, managementService, scheduledPool, protocolManagerFactories, executorFactory.getExecutor(), serviceRegistry);
 
@@ -3332,7 +3332,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             federationManager.start();
          }
 
-         balancerManager.start();
+         connectionRouterManager.start();
 
          startProtocolServices();
 

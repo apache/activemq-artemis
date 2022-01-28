@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageException;
 import org.apache.activemq.artemis.api.core.ActiveMQLargeMessageInterruptedException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
 import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
-import org.apache.activemq.artemis.api.core.ActiveMQRedirectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQRoutingException;
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionOutcomeUnknownException;
 import org.apache.activemq.artemis.api.core.ActiveMQTransactionRolledBackException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnBlockedException;
@@ -240,5 +240,5 @@ public interface ActiveMQClientMessageBundle {
    RuntimeException failedToHandlePacket(@Cause Exception e);
 
    @Message(id = 219066, value = "The connection was redirected")
-   ActiveMQRedirectedException redirected();
+   ActiveMQRoutingException redirected();
 }

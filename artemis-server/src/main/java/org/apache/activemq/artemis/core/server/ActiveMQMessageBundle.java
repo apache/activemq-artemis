@@ -39,7 +39,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQInvalidTransientQueueUseExce
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
-import org.apache.activemq.artemis.api.core.ActiveMQRedirectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQRoutingException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQReplicationTimeooutException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -508,18 +508,18 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229235, value = "Incompatible binding with name {0} already exists: {1}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQIllegalStateException bindingAlreadyExists(String name, String binding);
 
-   @Message(id = 229236, value = "Invalid target key {0}", format = Message.Format.MESSAGE_FORMAT)
-   IllegalArgumentException invalidTargetKey(String val);
+   @Message(id = 229236, value = "Invalid connection router key {0}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException invalidConnectionRouterKey(String val);
 
-   @Message(id = 229237, value = "Connection redirected to {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQRedirectedException redirectConnection(TransportConfiguration connector);
+   @Message(id = 229237, value = "Connection router {0} redirected the connection to {1}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQRoutingException connectionRedirected(String connectionRouter, TransportConfiguration connector);
 
-   @Message(id = 229238, value = "No target to redirect the connection")
-   ActiveMQRedirectedException cannotRedirect();
+   @Message(id = 229238, value = "Connection router {0} not ready", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQRoutingException connectionRouterNotReady(String connectionRouter);
 
    @Message(id = 229239, value = "There is no retention configured. In order to use the replay method you must specify journal-retention-directory element on the broker.xml")
    IllegalArgumentException noRetention();
 
-   @Message(id = 229240, value = "Balancer rejected the connection")
-   ActiveMQRemoteDisconnectException balancerReject();
+   @Message(id = 229240, value = "Connection router {0} rejected the connection", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQRemoteDisconnectException connectionRejected(String connectionRouter);
 }

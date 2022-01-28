@@ -49,7 +49,7 @@ under the License.
          <modules>
             <module>clustered</module>
             <module>broker-connection</module>
-            <module>broker-balancer</module>
+            <module>connection-router</module>
             <module>federation</module>
             <module>ha</module>
             <module>standard</module>
@@ -62,7 +62,7 @@ under the License.
          <modules>
             <module>clustered</module>
             <module>broker-connection</module>
-            <module>broker-balancer</module>
+            <module>connection-router</module>
             <module>federation</module>
             <module>ha</module>
             <module>standard</module>

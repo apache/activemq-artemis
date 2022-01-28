@@ -599,8 +599,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
       Properties properties = new Properties();
-      properties.put("balancerConfigurations.joe.localTargetFilter", "LF");
-      properties.put("balancerConfigurations(joe).targetKeyFilter", "TF");
+      properties.put("connectionRouters.joe.localTargetFilter", "LF");
+      properties.put("connectionRouters.joe.keyFilter", "TF");
 
       properties.put("acceptorConfigurations.tcp.params.HOST", "LOCALHOST");
       properties.put("acceptorConfigurations.tcp.params.PORT", "61616");
@@ -623,9 +623,9 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getBalancerConfigurations().size());
-      Assert.assertEquals("LF", configuration.getBalancerConfigurations().get(0).getLocalTargetFilter());
-      Assert.assertEquals("TF", configuration.getBalancerConfigurations().get(0).getTargetKeyFilter());
+      Assert.assertEquals(1, configuration.getConnectionRouters().size());
+      Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
+      Assert.assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
 
       Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
 
@@ -659,16 +659,22 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
       Properties properties = new Properties();
-      properties.put("balancerConfigurations.joe.localTargetFilter", "LF");
+      properties.put("connectionRouters.joe.localTargetFilter", "LF");
       // does not exist, ignored
-      properties.put("balancerConfigurations(bob).targetKeyFilter", "TF");
-      properties.put("balancerConfigurations(joe).targetKeyFilter", "TF");
+      properties.put("connectionRouters(bob).keyFilter", "TF");
+
+      // apply twice b/c there is no guarantee of order, this may be a problem
+      configuration.parsePrefixedProperties(properties, null);
+
+      properties = new Properties();
+      // update existing
+      properties.put("connectionRouters(joe).keyFilter", "TF");
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(1, configuration.getBalancerConfigurations().size());
-      Assert.assertEquals("LF", configuration.getBalancerConfigurations().get(0).getLocalTargetFilter());
-      Assert.assertEquals("TF", configuration.getBalancerConfigurations().get(0).getTargetKeyFilter());
+      Assert.assertEquals(1, configuration.getConnectionRouters().size());
+      Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
+      Assert.assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
    }
 
    @Test
