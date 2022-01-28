@@ -55,7 +55,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.config.balancing.BrokerBalancerConfiguration;
+import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
@@ -182,7 +182,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected List<DivertConfiguration> divertConfigurations = new ArrayList<>();
 
-   protected List<BrokerBalancerConfiguration> brokerBalancerConfigurations = new ArrayList<>();
+   protected List<ConnectionRouterConfiguration> connectionRouters = new ArrayList<>();
 
    protected List<ClusterConnectionConfiguration> clusterConfigurations = new ArrayList<>();
 
@@ -901,19 +901,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public List<BrokerBalancerConfiguration> getBalancerConfigurations() {
-      return brokerBalancerConfigurations;
+   public List<ConnectionRouterConfiguration> getConnectionRouters() {
+      return connectionRouters;
    }
 
    @Override
-   public ConfigurationImpl setBalancerConfigurations(final List<BrokerBalancerConfiguration> configs) {
-      brokerBalancerConfigurations = configs;
+   public ConfigurationImpl setConnectionRouters(final List<ConnectionRouterConfiguration> configs) {
+      connectionRouters = configs;
       return this;
    }
 
    @Override
-   public ConfigurationImpl addBalancerConfiguration(final BrokerBalancerConfiguration config) {
-      brokerBalancerConfigurations.add(config);
+   public ConfigurationImpl addConnectionRouter(final ConnectionRouterConfiguration config) {
+      connectionRouters.add(config);
       return this;
    }
 

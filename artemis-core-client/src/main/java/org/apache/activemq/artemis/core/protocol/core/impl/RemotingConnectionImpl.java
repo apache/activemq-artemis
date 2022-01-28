@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.ActiveMQRedirectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQRoutingException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.DisconnectReason;
 import org.apache.activemq.artemis.api.core.Interceptor;
@@ -208,7 +208,7 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRedirectedException)) {
+      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRoutingException)) {
          ActiveMQClientLogger.LOGGER.connectionFailureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
       }
 

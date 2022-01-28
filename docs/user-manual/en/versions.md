@@ -37,7 +37,7 @@ Highlights:
   support improving capabilities on AMQP Mirror for Disaster Recovery
 - [Journal Retention](persistence.md#journal-retention)
 - [Replication integrated with Zookeeper](ha.md#pluggable-quorum-vote-replication-configurations)
-- [Broker load balancer](broker-balancers.md)
+- [Connection Routers](connection-routers.md)
 - [Concurrency](core-bridges.md#configuring-bridges) configuration for core
   bridges.
 - [XPath filter expressions](filter-expressions.md#xpath) (for parity with

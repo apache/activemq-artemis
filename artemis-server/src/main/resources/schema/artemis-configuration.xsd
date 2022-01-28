@@ -627,15 +627,15 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="broker-balancers" maxOccurs="1" minOccurs="0">
+         <xsd:element name="connection-routers" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  A list of balancers
+                  A list of connection routers
                </xsd:documentation>
             </xsd:annotation>
             <xsd:complexType>
                <xsd:sequence>
-                  <xsd:element name="broker-balancer" type="brokerBalancerType" maxOccurs="unbounded" minOccurs="0"/>
+                  <xsd:element name="connection-router" type="connectionRouterType" maxOccurs="unbounded" minOccurs="0"/>
                </xsd:sequence>
                <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
@@ -2110,16 +2110,16 @@
       </xsd:sequence>
    </xsd:complexType>
 
-   <xsd:complexType name="brokerBalancerType">
+   <xsd:complexType name="connectionRouterType">
       <xsd:sequence maxOccurs="unbounded">
-         <xsd:element name="target-key" type="brokerBalancerTargetKeyType" maxOccurs="1" minOccurs="0">
+         <xsd:element name="key-type" type="connectionRouterKeyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the optional target key
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="target-key-filter" type="xsd:string" maxOccurs="1" minOccurs="0">
+         <xsd:element name="key-filter" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the filter for the target key
@@ -2133,28 +2133,28 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="cache" type="brokerBalancerCacheType" maxOccurs="1" minOccurs="0">
+         <xsd:element name="cache" type="connectionRouterCacheType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the time period for a cache entry to remain active
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="policy" type="brokerBalancerPolicyType" maxOccurs="1" minOccurs="0">
+         <xsd:element name="policy" type="connectionRouterPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the policy configuration
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="pool" type="brokerBalancerPoolType" maxOccurs="1" minOccurs="0">
+         <xsd:element name="pool" type="connectionRouterPoolType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the pool configuration
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="local-target-key-transformer" type="brokerBalancerKeyTransformerType" maxOccurs="1" minOccurs="0">
+         <xsd:element name="local-target-key-transformer" type="connectionRouterKeyTransformerType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   the local target key transformer configuration
@@ -2165,14 +2165,14 @@
       <xsd:attribute name="name" type="xsd:string" use="required">
          <xsd:annotation>
             <xsd:documentation>
-               a unique name for the broker balancer
+               a unique name for the connection router
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:simpleType name="brokerBalancerTargetKeyType">
+   <xsd:simpleType name="connectionRouterKeyType">
       <xsd:restriction base="xsd:string">
          <xsd:enumeration value="CLIENT_ID"/>
          <xsd:enumeration value="SNI_HOST"/>
@@ -2181,7 +2181,7 @@
       </xsd:restriction>
    </xsd:simpleType>
 
-   <xsd:complexType name="brokerBalancerCacheType">
+   <xsd:complexType name="connectionRouterCacheType">
       <xsd:sequence maxOccurs="unbounded">
          <xsd:element name="persisted" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -2201,7 +2201,7 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="brokerBalancerPolicyType">
+   <xsd:complexType name="connectionRouterPolicyType">
       <xsd:sequence>
          <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
             <xsd:annotation>
@@ -2221,7 +2221,7 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="brokerBalancerKeyTransformerType">
+   <xsd:complexType name="connectionRouterKeyTransformerType">
       <xsd:sequence>
          <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
             <xsd:annotation>
@@ -2241,7 +2241,7 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="brokerBalancerPoolType">
+   <xsd:complexType name="connectionRouterPoolType">
       <xsd:sequence maxOccurs="unbounded">
          <xsd:element name="username" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>

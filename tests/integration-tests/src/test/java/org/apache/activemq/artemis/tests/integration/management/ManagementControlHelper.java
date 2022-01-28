@@ -27,14 +27,14 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.api.core.management.BroadcastGroupControl;
-import org.apache.activemq.artemis.api.core.management.BrokerBalancerControl;
 import org.apache.activemq.artemis.api.core.management.ClusterConnectionControl;
+import org.apache.activemq.artemis.api.core.management.ConnectionRouterControl;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.DivertControl;
 import org.apache.activemq.artemis.api.core.management.JGroupsChannelBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.JGroupsFileBroadcastGroupControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.api.core.RoutingType;
 
 public class ManagementControlHelper {
 
@@ -96,9 +96,9 @@ public class ManagementControlHelper {
    }
 
 
-   public static BrokerBalancerControl createBrokerBalancerControl(final String name,
-                                                                   final MBeanServer mbeanServer) throws Exception {
-      return (BrokerBalancerControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getBrokerBalancerObjectName(name), BrokerBalancerControl.class, mbeanServer);
+   public static ConnectionRouterControl createConnectionRouterControl(final String name,
+                                                                       final MBeanServer mbeanServer) throws Exception {
+      return (ConnectionRouterControl) ManagementControlHelper.createProxy(ObjectNameBuilder.DEFAULT.getConnectionRouterObjectName(name), ConnectionRouterControl.class, mbeanServer);
    }
 
 

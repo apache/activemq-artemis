@@ -268,10 +268,10 @@ public enum ActiveMQExceptionType {
          return new ActiveMQDivertDoesNotExistException(msg);
       }
    },
-   REDIRECTED(222) {
+   ROUTING_EXCEPTION(222) {
       @Override
       public ActiveMQException createException(String msg) {
-         return new ActiveMQRedirectedException(msg);
+         return new ActiveMQRoutingException(msg);
       }
    };
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;

@@ -145,12 +145,12 @@ public final class ObjectNameBuilder {
    }
 
    /**
-    * Returns the ObjectName used by BrokerBalancerControl.
+    * Returns the ObjectName used by ConnectionRouterControl.
     *
-    * @see BrokerBalancerControl
+    * @see ConnectionRouterControl
     */
-   public ObjectName getBrokerBalancerObjectName(final String name) throws Exception {
-      return createObjectName("broker-balancer", name);
+   public ObjectName getConnectionRouterObjectName(final String name) throws Exception {
+      return createObjectName("connection-router", name);
    }
 
    private ObjectName createObjectName(final String type, final String name) throws Exception {

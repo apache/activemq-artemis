@@ -43,7 +43,7 @@ public class OperationAnnotationTest {
                                           {AcceptorControl.class},
                                           {ClusterConnectionControl.class},
                                           {BroadcastGroupControl.class},
-                                          {BrokerBalancerControl.class}});
+                                          {ConnectionRouterControl.class}});
    }
 
    private Class<?> managementClass;

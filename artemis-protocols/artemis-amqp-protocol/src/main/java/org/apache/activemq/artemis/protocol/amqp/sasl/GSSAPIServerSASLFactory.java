@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.sasl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.protocol.amqp.broker.AmqpInterceptor;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRedirectHandler;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRoutingHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -35,7 +35,7 @@ public class GSSAPIServerSASLFactory implements ServerSASLFactory {
    }
 
    @Override
-   public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRedirectHandler> manager, Connection connection,
+   public ServerSASL create(ActiveMQServer server, ProtocolManager<AmqpInterceptor, AMQPRoutingHandler> manager, Connection connection,
                             RemotingConnection remotingConnection) {
       if (manager instanceof ProtonProtocolManager) {
          GSSAPIServerSASL gssapiServerSASL = new GSSAPIServerSASL();

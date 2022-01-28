@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
 
-public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection, MQTTRedirectHandler> implements NotificationListener {
+public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection, MQTTRoutingHandler> implements NotificationListener {
 
    private static final Logger logger = Logger.getLogger(MQTTProtocolManager.class);
 
@@ -72,7 +72,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    private int maximumPacketSize = MQTTUtil.DEFAULT_MAXIMUM_PACKET_SIZE;
 
-   private final MQTTRedirectHandler redirectHandler;
+   private final MQTTRoutingHandler routingHandler;
 
    MQTTProtocolManager(ActiveMQServer server,
                        List<BaseInterceptor> incomingInterceptors,
@@ -80,7 +80,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       this.server = server;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
       server.getManagementService().addNotificationListener(this);
-      redirectHandler = new MQTTRedirectHandler(server);
+      routingHandler = new MQTTRoutingHandler(server);
    }
 
    public int getDefaultMqttSessionExpiryInterval() {
@@ -315,8 +315,8 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    }
 
    @Override
-   public MQTTRedirectHandler getRedirectHandler() {
-      return redirectHandler;
+   public MQTTRoutingHandler getRoutingHandler() {
+      return routingHandler;
    }
 
    public String invokeIncoming(MqttMessage mqttMessage, MQTTConnection connection) {

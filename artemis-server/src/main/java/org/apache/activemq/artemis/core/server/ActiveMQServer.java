@@ -68,7 +68,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
-import org.apache.activemq.artemis.core.server.balancing.BrokerBalancerManager;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -958,7 +958,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void reloadConfigurationFile() throws Exception;
 
-   BrokerBalancerManager getBalancerManager();
+   ConnectionRouterManager getConnectionRouterManager();
 
    String validateUser(String username, String password, RemotingConnection connection, String securityDomain) throws Exception;
 

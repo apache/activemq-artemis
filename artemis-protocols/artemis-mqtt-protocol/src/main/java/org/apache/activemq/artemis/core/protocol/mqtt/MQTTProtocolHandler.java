@@ -241,7 +241,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
 
-      if (connection.getTransportConnection().getRedirectTo() == null || !protocolManager.getRedirectHandler().redirect(connection, session, connect)) {
+      if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
          /* [MQTT-3.1.2-2] Reject unsupported clients. */
          int packetVersion = connect.variableHeader().version();
          if (packetVersion != MqttVersion.MQTT_3_1.protocolLevel() &&

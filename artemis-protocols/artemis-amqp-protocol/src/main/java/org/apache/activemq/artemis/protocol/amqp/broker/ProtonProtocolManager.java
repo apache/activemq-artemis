@@ -36,7 +36,7 @@ import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientProtocolMana
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.ReferenceNodeStore;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConstants;
-import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRedirectHandler;
+import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRoutingHandler;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASLFactory;
 import org.apache.activemq.artemis.protocol.amqp.sasl.MechanismFinder;
@@ -54,7 +54,7 @@ import org.jboss.logging.Logger;
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
-public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection, AMQPRedirectHandler> implements NotificationListener {
+public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection, AMQPRoutingHandler> implements NotificationListener {
 
    private static final Logger logger = Logger.getLogger(ProtonProtocolManager.class);
 
@@ -106,7 +106,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
 
    private boolean directDeliver = true;
 
-   private final AMQPRedirectHandler redirectHandler;
+   private final AMQPRoutingHandler routingHandler;
 
    /*
    * used when you want to treat senders as a subscription on an address rather than consuming from the actual queue for
@@ -120,7 +120,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
       this.factory = factory;
       this.server = server;
       this.updateInterceptors(incomingInterceptors, outgoingInterceptors);
-      redirectHandler = new AMQPRedirectHandler(server);
+      routingHandler = new AMQPRoutingHandler(server);
    }
 
    public synchronized ReferenceNodeStore getReferenceIDSupplier() {
@@ -348,8 +348,8 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    }
 
    @Override
-   public AMQPRedirectHandler getRedirectHandler() {
-      return redirectHandler;
+   public AMQPRoutingHandler getRoutingHandler() {
+      return routingHandler;
    }
 
    public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {

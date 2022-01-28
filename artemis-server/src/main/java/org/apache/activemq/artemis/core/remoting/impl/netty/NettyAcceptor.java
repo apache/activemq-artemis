@@ -233,7 +233,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean autoStart;
 
-   private final String redirectTo;
+   private final String router;
 
    final AtomicBoolean warningPrinted = new AtomicBoolean(false);
 
@@ -375,7 +375,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
       autoStart = ConfigurationHelper.getBooleanProperty(TransportConstants.AUTO_START, TransportConstants.DEFAULT_AUTO_START, configuration);
 
-      redirectTo = ConfigurationHelper.getStringProperty(TransportConstants.REDIRECT_TO, TransportConstants.DEFAULT_REDIRECT_TO, configuration);
+      router = ConfigurationHelper.getStringProperty(TransportConstants.ROUTER, TransportConstants.DEFAULT_ROUTER, configuration);
    }
 
    private Object loadSSLContext() {
@@ -911,7 +911,7 @@ public class NettyAcceptor extends AbstractAcceptor {
             super.channelActive(ctx);
             Listener connectionListener = new Listener();
 
-            NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver, redirectTo);
+            NettyServerConnection nc = new NettyServerConnection(configuration, ctx.channel(), connectionListener, !httpEnabled && batchDelay > 0, directDeliver, router);
 
             connectionListener.connectionCreated(NettyAcceptor.this, nc, protocolHandler.getProtocol(protocol));
 
