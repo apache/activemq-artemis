@@ -29,7 +29,6 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
-      <activemq5.project.version>5.14.0</activemq5.project.version>
       <jmdns-version>3.4.1</jmdns-version>
       <ftpserver-version>1.0.6</ftpserver-version>
       <jmock-version>2.5.1</jmock-version>
@@ -39,7 +38,6 @@
       <xbean-version>3.18</xbean-version>
       <hamcrest-version>1.3</hamcrest-version>
       <jasypt-version>1.9.3</jasypt-version>
-      <directory-version>2.0.0-M6</directory-version>
       <activeio-core-version>3.1.4</activeio-core-version>
    </properties>
 
@@ -59,7 +57,6 @@
          <type>test-jar</type>
       </dependency>
 
-      <!-- I imported this to get a mock of a class -->
       <dependency>
          <groupId>org.mockito</groupId>
          <artifactId>mockito-core</artifactId>
@@ -69,31 +66,31 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-client</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-jaas</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-jdbc-store</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-kahadb-store</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-leveldb-store</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
          <exclusions>
              <exclusion>
                  <groupId>commons-beanutils</groupId>
@@ -105,31 +102,31 @@
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-pool</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-spring</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-partition</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-stomp</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-console</artifactId>
-         <version>${activemq5.project.version}</version>
+         <version>${activemq5-version}</version>
       </dependency>
 
       <dependency>
@@ -141,7 +138,6 @@
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
-         <version>4.11</version>
          <scope>compile</scope>
       </dependency>
 
@@ -242,19 +238,6 @@
          <groupId>org.apache.directory.server</groupId>
          <artifactId>apacheds-core-integ</artifactId>
          <version>${directory-version}</version>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>bouncycastle</groupId>
-               <artifactId>bcprov-jdk15</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-
-      <dependency>
-         <groupId>org.bouncycastle</groupId>
-         <artifactId>bcprov-jdk15</artifactId>
-         <version>1.46</version>
          <scope>test</scope>
       </dependency>
 
@@ -381,37 +364,8 @@
    <build>
       <plugins>
          <plugin>
-            <groupId>org.apache.rat</groupId>
-            <artifactId>apache-rat-plugin</artifactId>
-            <version>0.12</version>
-            <configuration>
-               <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
-               <skip>${skipLicenseCheck}</skip>
-               <excludes>
-                  <exclude>**/*.data</exclude>
-                  <exclude>**/*.bin</exclude>
-                  <exclude>**/*.log</exclude>
-                  <exclude>**/*.redo</exclude>
-                  <exclude>**/src/test/resources/keystore</exclude>
-                  <exclude>**/META-INF/services/*</exclude>
-                  <exclude>**/*/*.txt</exclude>
-                  <exclude>**/*.md</exclude>
-               </excludes>
-            </configuration>
-            <executions>
-               <execution>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>check</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
-
-         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.17</version>
             <configuration>
                <skip>true</skip>
             </configuration>
@@ -446,11 +400,7 @@
                <systemPropertyVariables>
                   <org.apache.activemq.AutoFailTestSupport.disableSystemExit>true</org.apache.activemq.AutoFailTestSupport.disableSystemExit>
                </systemPropertyVariables>
-<!--
-               <additionalClasspathElements>
-                  <additionalClasspathElement>src/main/resources/stomp</additionalClasspathElement>
-               </additionalClasspathElements>
--->
+               <argLine>${activemq-surefire-argline} -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.lang,javax.security,java.util,org.apache.activemq,org.fusesource.hawtbuf"</argLine>
                <includes>
                   <!-- included packages -->
                   <include>**/org/apache/activemq/*Test.java</include>

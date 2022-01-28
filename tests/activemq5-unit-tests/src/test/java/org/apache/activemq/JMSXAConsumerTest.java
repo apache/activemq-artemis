@@ -17,6 +17,7 @@
 package org.apache.activemq;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.Session;
 
 import junit.framework.Test;
 
@@ -32,7 +33,9 @@ public class JMSXAConsumerTest extends JMSConsumerTest {
 
    @Override
    protected ConnectionFactory createConnectionFactory() throws Exception {
-      return new ActiveMQXAConnectionFactory("vm://localhost");
+      ActiveMQXAConnectionFactory activeMQXAConnectionFactory = new ActiveMQXAConnectionFactory("vm://localhost?jms.xaAckMode=1");
+      activeMQXAConnectionFactory.setXaAckMode(Session.AUTO_ACKNOWLEDGE);
+      return activeMQXAConnectionFactory;
    }
 
    // some tests use transactions, these will not work unless an XA transaction is in place

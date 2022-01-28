@@ -33,6 +33,7 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.management.CountStatisticImpl;
 import org.apache.activemq.store.MessageStore;
 import org.apache.activemq.usage.MemoryUsage;
+import org.apache.activemq.usage.TempUsage;
 import org.apache.activemq.usage.Usage;
 import org.apache.activemq.usage.UsageCapacity;
 import org.apache.activemq.usage.UsageListener;
@@ -353,6 +354,11 @@ public class DestinationProxy implements Destination {
    }
 
    @Override
+   public TempUsage getTempUsage() {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
    public void dispose(ConnectionContext context) throws IOException {
       throw new UnsupportedOperationException("Not implemented yet");
 
@@ -640,7 +646,7 @@ public class DestinationProxy implements Destination {
    }
 
    @Override
-   public void clearPendingMessages() {
+   public void clearPendingMessages(int pendingAdditionsCount) {
       throw new UnsupportedOperationException("Not implemented yet");
 
    }
