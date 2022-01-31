@@ -149,7 +149,7 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
       }
    }
 
-   private void fireActions(CriticalComponent component) {
+   protected void fireActions(CriticalComponent component) {
       for (CriticalAction action : actions) {
          try {
             action.run(component);
