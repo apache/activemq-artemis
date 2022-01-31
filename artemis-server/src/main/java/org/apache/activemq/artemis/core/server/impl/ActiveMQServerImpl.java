@@ -704,7 +704,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
-   private void initializeCriticalAnalyzer() throws Exception {
+
+   private void takingLongToStart(Object criticalComponent) {
+      ActiveMQServerLogger.LOGGER.tooLongToStart(criticalComponent);
+      threadDump();
+   }
+
+   protected void initializeCriticalAnalyzer() throws Exception {
 
       // Some tests will play crazy frequenceistop/start
       CriticalAnalyzer analyzer = this.getCriticalAnalyzer();
@@ -735,49 +741,61 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          case HALT:
             criticalAction = criticalComponent -> {
 
-               checkCriticalAnalyzerLogging();
-               ActiveMQServerLogger.LOGGER.criticalSystemHalt(criticalComponent);
+               if (ActiveMQServerImpl.this.state == SERVER_STATE.STARTING) {
+                  takingLongToStart(criticalComponent);
+               } else {
+                  checkCriticalAnalyzerLogging();
+                  ActiveMQServerLogger.LOGGER.criticalSystemHalt(criticalComponent);
 
-               threadDump();
-               sendCriticalNotification(criticalComponent);
+                  threadDump();
+                  sendCriticalNotification(criticalComponent);
 
-               Runtime.getRuntime().halt(70); // Linux systems will have /usr/include/sysexits.h showing 70 as internal software error
+                  Runtime.getRuntime().halt(70); // Linux systems will have /usr/include/sysexits.h showing 70 as internal software error
+               }
 
             };
             break;
          case SHUTDOWN:
             criticalAction = criticalComponent -> {
 
-               checkCriticalAnalyzerLogging();
-               ActiveMQServerLogger.LOGGER.criticalSystemShutdown(criticalComponent);
+               if (ActiveMQServerImpl.this.state == SERVER_STATE.STARTING) {
+                  takingLongToStart(criticalComponent);
+               } else {
+                  checkCriticalAnalyzerLogging();
+                  ActiveMQServerLogger.LOGGER.criticalSystemShutdown(criticalComponent);
 
-               threadDump();
+                  threadDump();
 
-               // on the case of a critical failure, -1 cannot simply means forever.
-               // in case graceful is -1, we will set it to 30 seconds
-               sendCriticalNotification(criticalComponent);
+                  // on the case of a critical failure, -1 cannot simply means forever.
+                  // in case graceful is -1, we will set it to 30 seconds
+                  sendCriticalNotification(criticalComponent);
 
-               // you can't stop from the check thread,
-               // nor can use an executor
-               Thread stopThread = new Thread() {
-                  @Override
-                  public void run() {
-                     try {
-                        ActiveMQServerImpl.this.stop();
-                     } catch (Throwable e) {
-                        logger.warn(e.getMessage(), e);
+                  // you can't stop from the check thread,
+                  // nor can use an executor
+                  Thread stopThread = new Thread() {
+                     @Override
+                     public void run() {
+                        try {
+                           ActiveMQServerImpl.this.stop();
+                        } catch (Throwable e) {
+                           logger.warn(e.getMessage(), e);
+                        }
                      }
-                  }
-               };
-               stopThread.start();
+                  };
+                  stopThread.start();
+               }
             };
             break;
          case LOG:
             criticalAction = criticalComponent -> {
-               checkCriticalAnalyzerLogging();
-               ActiveMQServerLogger.LOGGER.criticalSystemLog(criticalComponent);
-               threadDump();
-               sendCriticalNotification(criticalComponent);
+               if (ActiveMQServerImpl.this.state == SERVER_STATE.STARTING) {
+                  takingLongToStart(criticalComponent);
+               } else {
+                  checkCriticalAnalyzerLogging();
+                  ActiveMQServerLogger.LOGGER.criticalSystemLog(criticalComponent);
+                  threadDump();
+                  sendCriticalNotification(criticalComponent);
+               }
             };
             break;
       }

@@ -2216,4 +2216,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224115, value = "Address control unblock of address ''{0}''. Clients will be granted credit as normal.", format = Message.Format.MESSAGE_FORMAT)
    void unblockingViaControl(SimpleString addressName);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224116, value = "The component {0} is not responsive during start up. The Server may be taking too long to start", format = Message.Format.MESSAGE_FORMAT)
+   void tooLongToStart(Object component);
+
 }
