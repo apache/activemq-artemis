@@ -127,8 +127,6 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <address-full-policy>${full-policy}</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
             <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
          </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
@@ -141,8 +139,6 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <address-full-policy>${full-policy}</address-full-policy>
             <auto-create-queues>${auto-create}</auto-create-queues>
             <auto-create-addresses>${auto-create}</auto-create-addresses>
-            <auto-create-jms-queues>${auto-create}</auto-create-jms-queues>
-            <auto-create-jms-topics>${auto-create}</auto-create-jms-topics>
             <auto-delete-queues>${auto-delete}</auto-delete-queues>
             <auto-delete-addresses>${auto-delete}</auto-delete-addresses>
          </address-setting>

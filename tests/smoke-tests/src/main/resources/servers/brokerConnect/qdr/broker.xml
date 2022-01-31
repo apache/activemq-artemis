@@ -54,7 +54,7 @@ under the License.
       <journal-device-block-size>4096</journal-device-block-size>
 
       <journal-file-size>10M</journal-file-size>
-      
+
       <!--
        This value was determined through a calculation.
        Your system could perform 25 writes per millisecond
@@ -115,7 +115,7 @@ under the License.
 
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
-      
+
       <page-sync-timeout>40000</page-sync-timeout>
 
 
@@ -165,8 +165,6 @@ under the License.
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>false</auto-create-queues>
             <auto-create-addresses>false</auto-create-addresses>
-            <auto-create-jms-queues>false</auto-create-jms-queues>
-            <auto-create-jms-topics>false</auto-create-jms-topics>
          </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
@@ -179,8 +177,6 @@ under the License.
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>false</auto-create-queues>
             <auto-create-addresses>false</auto-create-addresses>
-            <auto-create-jms-queues>false</auto-create-jms-queues>
-            <auto-create-jms-topics>false</auto-create-jms-topics>
          </address-setting>
       </address-settings>
 

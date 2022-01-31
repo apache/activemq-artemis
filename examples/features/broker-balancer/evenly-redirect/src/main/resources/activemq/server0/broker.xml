@@ -98,8 +98,6 @@ under the License.
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
             <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
          </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
@@ -112,8 +110,6 @@ under the License.
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
             <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
          </address-setting>
       </address-settings>
 
