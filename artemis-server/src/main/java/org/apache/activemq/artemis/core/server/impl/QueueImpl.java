@@ -4395,7 +4395,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
    }
 
-   private void incDelivering(MessageReference ref) {
+   public void incDelivering(MessageReference ref) {
       deliveringMetrics.incrementMetrics(ref);
    }
 

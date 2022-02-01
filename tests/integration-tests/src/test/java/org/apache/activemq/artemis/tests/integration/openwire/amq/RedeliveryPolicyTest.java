@@ -29,7 +29,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -393,6 +396,86 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       assertNotNull(m);
       assertEquals("2nd", m.getText());
       session.commit();
+
+   }
+
+   /**
+    * @throws Exception
+    */
+   @Test
+   public void testRedeliveredMessageNotOverflowingPrefetch() throws Exception {
+      final int prefetchSize = 10;
+      final int messageCount = 2 * prefetchSize;
+
+      connection.getPrefetchPolicy().setAll(prefetchSize);
+      connection.start();
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+
+      ActiveMQQueue destination = new ActiveMQQueue("TEST");
+      this.makeSureCoreQueueExist("TEST");
+
+      QueueControl queueControl = (QueueControl)server.getManagementService().
+              getResource(ResourceNames.QUEUE + "TEST");
+
+      MessageProducer producer = session.createProducer(destination);
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(session.createTextMessage("MSG" + i));
+         session.commit();
+      }
+
+      Message m;
+      MessageConsumer consumer = session.createConsumer(destination);
+      Wait.assertEquals(prefetchSize, () -> queueControl.getDeliveringCount(), 3000, 100);
+
+      for (int i = 0; i < messageCount; i++) {
+         m = consumer.receive(2000);
+         assertNotNull(m);
+         if (i == 3) {
+            session.rollback();
+            continue;
+         }
+         session.commit();
+         assertTrue(queueControl.getDeliveringCount() <= prefetchSize);
+      }
+
+      m = consumer.receive(2000);
+      assertNotNull(m);
+      session.commit();
+
+   }
+
+   /**
+    * @throws Exception
+    */
+   @Test
+   public void testCountersAreCorrectAfterSendToDLQ() throws Exception {
+      RedeliveryPolicy policy = connection.getRedeliveryPolicy();
+      policy.setMaximumRedeliveries(0);
+      policy.setInitialRedeliveryDelay(0);
+
+      connection.start();
+      Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+
+      ActiveMQQueue destination = new ActiveMQQueue("TEST");
+      this.makeSureCoreQueueExist("TEST");
+
+      QueueControl queueControl = (QueueControl)server.getManagementService().
+              getResource(ResourceNames.QUEUE + "TEST");
+
+      MessageProducer producer = session.createProducer(destination);
+      producer.send(session.createTextMessage("The Message"));
+      session.commit();
+
+      Message m;
+      MessageConsumer consumer = session.createConsumer(destination);
+      m = consumer.receive(2000);
+      assertNotNull(m);
+      session.rollback();
+
+      Wait.assertEquals(0, () -> queueControl.getMessageCount());
+      session.close();
+
+      assertEquals(0L, queueControl.getPersistentSize());
 
    }
 
