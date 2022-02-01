@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -347,7 +348,9 @@ public class AMQConsumer {
                for (MessageReference ref : ackList) {
                   Throwable poisonCause = ack.getPoisonCause();
                   if (poisonCause != null) {
+                     ((QueueImpl) ref.getQueue()).decDelivering(ref);
                      ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
+                     ((QueueImpl) ref.getQueue()).incDelivering(ref);
                   }
                   ref.getQueue().sendToDeadLetterAddress(transaction, ref);
                }
@@ -483,6 +486,7 @@ public class AMQConsumer {
    }
 
    public void addRolledback(MessageReference messageReference) {
+      currentWindow.decrementAndGet();
       getRolledbackMessageRefsOrCreate().add(messageReference);
    }
 
