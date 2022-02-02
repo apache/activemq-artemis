@@ -163,16 +163,21 @@
          <version>2.21.0-SNAPSHOT</version>
       </dependency>
       <dependency>
-         <groupId>org.codehaus.groovy</groupId>
+         <groupId>org.apache.groovy</groupId>
          <artifactId>groovy-all</artifactId>
          <version>${groovy.version}</version>
          <type>pom</type>
          <exclusions>
             <exclusion>
-               <groupId>org.codehaus.groovy</groupId>
+               <groupId>org.apache.groovy</groupId>
                <artifactId>groovy-test-junit5</artifactId>
             </exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.groovy</groupId>
+         <artifactId>groovy-testng</artifactId>
+         <version>${groovy.version}</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -342,7 +347,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:${project.version}</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -364,7 +369,7 @@
                         <arg>org.apache.activemq:artemis-server:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-journal:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:${project.version}</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>jakarta.jms:jakarta.jms-api:3.0.0</arg>
@@ -392,7 +397,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.6.3</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.6.3</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.6.3</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -416,7 +421,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.7.0</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.7.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.7.0</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -441,7 +446,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.10.0</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.10.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.10.0</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                         <arg>org.jboss.marshalling:jboss-marshalling-river:2.0.9.Final</arg>
                      </libListWithDeps>
                      <libList>
@@ -467,7 +472,7 @@
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.4.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.4.0</arg>
                         <arg>org.apache.qpid:qpid-jms-client:0.26.0</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -492,7 +497,7 @@
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.1.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.1.0</arg>
                         <arg>org.apache.qpid:qpid-jms-client:0.22.0</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -517,7 +522,7 @@
                         <arg>org.apache.activemq:artemis-amqp-protocol:2.0.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:2.0.0</arg>
                         <arg>org.apache.qpid:qpid-jms-client:0.20.0</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -541,7 +546,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:1.4.0</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:1.4.0</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:1.4.0</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -565,7 +570,7 @@
                         <arg>org.apache.activemq:artemis-hornetq-protocol:1.5.5</arg>
                         <arg>org.apache.activemq:artemis-amqp-protocol:1.5.5</arg>
                         <arg>org.apache.activemq:artemis-hornetq-protocol:1.5.5</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                         <arg>org.jboss.marshalling:jboss-marshalling-river:2.0.9.Final</arg>
                      </libListWithDeps>
                      <libList>
@@ -591,7 +596,7 @@
                      </extraRepositories>
                      <libListWithDeps>
                         <arg>org.hornetq:hornetq-jms-server:2.3.5.Final</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
@@ -616,7 +621,7 @@
                      </extraRepositories>
                      <libListWithDeps>
                         <arg>org.hornetq:hornetq-jms-server:2.4.7.Final</arg>
-                        <arg>org.codehaus.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
