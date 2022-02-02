@@ -154,6 +154,7 @@
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
+      <postgresql.version>42.3.2</postgresql.version>
       <!-- for JakrtaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
 
@@ -325,7 +326,7 @@
          <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.19</version>
+            <version>${postgresql.version}</version>
             <scope>provided</scope>
             <!-- postgresql license -->
          </dependency>
