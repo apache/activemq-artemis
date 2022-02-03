@@ -3,14 +3,14 @@
 Apache ActiveMQ Artemis allows you to configure objects called *diverts* with some
 simple server configuration.
 
-Diverts allow you to transparently divert messages routed to one address
-to some other address, without making any changes to any client
-application logic.
+Diverts allow you to transparently divert messages routed to one address to one
+or more other addresses, without making any changes to any client application
+logic.
 
 Diverts can be *exclusive*, meaning that the message is diverted to the
-new address, and does not go to the old address at all, or they can be
+new address(es), and does not go to the old address at all, or they can be
 *non-exclusive* which means the message continues to go the old address,
-and a *copy* of it is also sent to the new address. Non-exclusive
+and a *copy* of it is also sent to the new address(es). Non-exclusive
 diverts can therefore be used for *splitting* message flows, e.g. there
 may be a requirement to monitor every order sent to an order queue.
 
@@ -133,3 +133,17 @@ non-exclusive divert, again from the divert example:
 The above divert example takes a copy of every message sent to the
 address '`orders`' and sends it to a local address called
 '`spyTopic`'.
+
+## Composite Divert
+
+A _composite_ divert is one which forwards messages to multiple addresses. This
+pattern is sometimes referred to as _fan-out_. Configuration is simple. Just
+use a comma separated list in `forwarding-address`, e.g.:
+
+```xml
+<divert name="shipping-divert">
+   <address>shipping</address>
+   <forwarding-address>dallas, chicago, denver</forwarding-address>
+   <exclusive>false</exclusive>
+</divert>
+```

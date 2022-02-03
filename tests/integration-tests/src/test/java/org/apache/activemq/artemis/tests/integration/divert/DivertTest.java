@@ -32,8 +32,8 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
-
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -49,11 +49,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.Divert;
-import org.apache.activemq.artemis.api.core.RoutingType;
-
-import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServiceRegistryImpl;
+import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -763,6 +761,74 @@ public class DivertTest extends ActiveMQTestBase {
       Assert.assertNull(consumer3.receiveImmediate());
 
       Assert.assertNull(consumer4.receiveImmediate());
+   }
+
+   @Test
+   public void testCompositeDivert() throws Exception {
+      final String testAddress = "testAddress";
+      final String forwardAddress1 = "forwardAddress1";
+      final String forwardAddress2 = "forwardAddress2";
+      final String forwardAddress3 = "forwardAddress3";
+      final String forwardAddresses = forwardAddress1 + ", " + forwardAddress2 + ", " + forwardAddress3;
+
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(new DivertConfiguration()
+                                                                                 .setName("divert1")
+                                                                                 .setRoutingName("divert1")
+                                                                                 .setAddress(testAddress)
+                                                                                 .setForwardingAddress(forwardAddresses)
+                                                                                 .setExclusive(true));
+
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, false));
+
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      ClientSession session = sf.createSession(false, true, true);
+
+      final SimpleString queueName1 = new SimpleString("queue1");
+      final SimpleString queueName2 = new SimpleString("queue2");
+      final SimpleString queueName3 = new SimpleString("queue3");
+
+      session.createQueue(new QueueConfiguration(queueName1).setAddress(forwardAddress1).setDurable(false));
+      session.createQueue(new QueueConfiguration(queueName2).setAddress(forwardAddress2).setDurable(false));
+      session.createQueue(new QueueConfiguration(queueName3).setAddress(forwardAddress3).setDurable(false));
+
+      session.start();
+
+      ClientProducer producer = session.createProducer(new SimpleString(testAddress));
+
+      final int numMessages = 10;
+
+      final SimpleString propKey = new SimpleString("testkey");
+
+      for (int i = 0; i < numMessages; i++) {
+         ClientMessage message = session.createMessage(false);
+         message.putIntProperty(propKey, i);
+         producer.send(message);
+      }
+
+      ClientConsumer consumer1 = session.createConsumer(queueName1);
+      ClientConsumer consumer2 = session.createConsumer(queueName2);
+      ClientConsumer consumer3 = session.createConsumer(queueName3);
+
+      ClientConsumer[] consumers = new ClientConsumer[] {consumer1, consumer2, consumer3};
+
+      for (int i = 0; i < numMessages; i++) {
+         for (int j = 0; j < consumers.length; j++) {
+            ClientMessage message = consumers[j].receive(DivertTest.TIMEOUT);
+            Assert.assertNotNull(message);
+            Assert.assertEquals(i, message.getObjectProperty(propKey));
+            Assert.assertEquals("forwardAddress" + (j + 1), message.getAddress());
+            Assert.assertEquals("testAddress", message.getStringProperty(Message.HDR_ORIGINAL_ADDRESS));
+            message.acknowledge();
+         }
+      }
+
+      Assert.assertNull(consumer1.receiveImmediate());
+      Assert.assertNull(consumer2.receiveImmediate());
+      Assert.assertNull(consumer3.receiveImmediate());
    }
 
    @Test
