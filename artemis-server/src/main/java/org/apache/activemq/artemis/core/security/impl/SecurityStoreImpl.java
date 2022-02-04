@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.security.impl;
 
 import javax.security.auth.Subject;
-import java.security.cert.X509Certificate;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -203,15 +202,6 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       return null;
    }
 
-   public String getCertSubjectDN(RemotingConnection connection) {
-      String certSubjectDN = "unavailable";
-      X509Certificate[] certs = CertificateUtil.getCertsFromConnection(connection);
-      if (certs != null && certs.length > 0 && certs[0] != null) {
-         certSubjectDN = certs[0].getSubjectDN().getName();
-      }
-      return certSubjectDN;
-   }
-
    @Override
    public void check(final SimpleString address,
                      final CheckType checkType,
@@ -356,7 +346,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    private void authenticationFailed(String user, RemotingConnection connection) throws Exception {
-      String certSubjectDN = getCertSubjectDN(connection);
+      String certSubjectDN = CertificateUtil.getCertSubjectDN(connection);
 
       if (notificationService != null) {
          TypedProperties props = new TypedProperties();
@@ -429,7 +419,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    private String createAuthenticationCacheKey(String username, String password, RemotingConnection connection) {
-      return username + password + getCertSubjectDN(connection);
+      return username + password + CertificateUtil.getCertSubjectDN(connection);
    }
 
    private String createAuthorizationCacheKey(String user, CheckType checkType) {

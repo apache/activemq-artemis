@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -170,8 +171,10 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
       if (managementService != null && sendConnectionNotifications) {
          try {
+            String certSubjectDN = CertificateUtil.getCertSubjectDN(connection);
             final TypedProperties props = new TypedProperties();
             props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(connection.getID().toString()));
+            props.putSimpleStringProperty(ManagementHelper.HDR_CERT_SUBJECT_DN, SimpleString.toSimpleString(certSubjectDN));
             props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, SimpleString.toSimpleString(connection.getRemoteAddress()));
 
             managementService.sendNotification(new Notification(null, type, props));
