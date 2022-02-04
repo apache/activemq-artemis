@@ -150,7 +150,7 @@ deadLetterQueue after 3 unsuccessful delivery attempts -->
 </address-setting>
 ```
 
-If a `dead-letter-address` is not specified, messages will removed after
+If a `dead-letter-address` is not specified, messages will be removed after
 `max-delivery-attempts` unsuccessful attempts.
 
 By default, messages are redelivered 10 times at the maximum. Set
