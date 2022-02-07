@@ -164,7 +164,9 @@ public class EmbeddedActiveMQ {
    }
 
    public EmbeddedActiveMQ stop() throws Exception {
-      activeMQServer.stop();
+      if (activeMQServer != null) {
+         activeMQServer.stop();
+      }
       return this;
    }
 }
