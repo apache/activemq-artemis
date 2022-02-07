@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.jboss.logging.Logger;
@@ -105,6 +106,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       System.out.println("Encoded password (without quotes): \"" + encode + "\"");
    }
 
+   @Override
    public boolean verify(char[] inputValue, String storedValue) {
       return algorithm.verify(inputValue, storedValue);
    }
@@ -187,6 +189,16 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          byte[] encoding = cipher.doFinal(secret.getBytes());
          BigInteger n = new BigInteger(encoding);
          return n.toString(16);
+      }
+
+      @Override
+      public boolean verify(char[] inputValue, String storedValue) {
+         try {
+            return Objects.equals(storedValue, encode(String.valueOf(inputValue)));
+         } catch (Exception e) {
+            logger.debug("Exception on verifying: " + e);
+            return false;
+         }
       }
    }
 

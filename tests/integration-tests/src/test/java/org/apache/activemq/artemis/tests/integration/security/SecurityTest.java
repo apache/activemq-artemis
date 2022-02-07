@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.junit.Assert;
@@ -122,6 +123,22 @@ public class SecurityTest extends ActiveMQTestBase {
 
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
+         session.close();
+      } catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception");
+      }
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthenticationWithPasswordCodec() throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLoginWithPasswordCodec");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.start();
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try {
+         ClientSession session = cf.createSession("test","password", false, true, true, false, 0);
          session.close();
       } catch (ActiveMQException e) {
          e.printStackTrace();
@@ -2562,6 +2579,23 @@ public class SecurityTest extends ActiveMQTestBase {
          //ok
       } catch (ActiveMQException e) {
          fail("Invalid Exception type:" + e.getType());
+      }
+   }
+
+   public static class DummySensitiveDataCodec implements SensitiveDataCodec<String> {
+      @Override
+      public String decode(Object encodedValue) throws Exception {
+         throw new IllegalStateException("Decoding not supported");
+      }
+
+      @Override
+      public String encode(Object value) throws Exception {
+         return new StringBuffer((String)value).reverse().toString();
+      }
+
+      @Override
+      public boolean verify(char[] value, String encodedValue) {
+         return encodedValue.equals(new StringBuffer(String.valueOf(value)).reverse().toString());
       }
    }
 }
