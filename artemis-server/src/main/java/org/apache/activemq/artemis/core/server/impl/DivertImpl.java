@@ -41,7 +41,7 @@ public class DivertImpl implements Divert {
 
    private volatile SimpleString forwardAddress;
 
-   private final SimpleString[] forwardAddresses;
+   private volatile SimpleString[] forwardAddresses;
 
    private final SimpleString uniqueName;
 
@@ -69,13 +69,7 @@ public class DivertImpl implements Divert {
                      final ComponentConfigurationRoutingType routingType) {
       this.address = address;
 
-      this.forwardAddress = forwardAddress;
-
-      String[] split = forwardAddress.toString().split(",");
-      forwardAddresses = new SimpleString[split.length];
-      for (int i = 0; i < split.length; i++) {
-         forwardAddresses[i] = new SimpleString(split[i].trim());
-      }
+      this.setForwardAddress(forwardAddress);
 
       this.uniqueName = uniqueName;
 
@@ -206,6 +200,14 @@ public class DivertImpl implements Divert {
    @Override
    public void setForwardAddress(SimpleString forwardAddress) {
       this.forwardAddress = forwardAddress;
+
+      String[] split = forwardAddress.toString().split(",");
+      SimpleString[] forwardAddresses = new SimpleString[split.length];
+      for (int i = 0; i < split.length; i++) {
+         forwardAddresses[i] = new SimpleString(split[i].trim());
+      }
+
+      this.forwardAddresses = forwardAddresses;
    }
 
    @Override
