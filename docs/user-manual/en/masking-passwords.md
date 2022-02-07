@@ -259,7 +259,26 @@ codec other than the default one. For example
 With this configuration, both passwords in ra.xml and all of its MDBs will have
 to be in masked form.
 
-### login.config
+### PropertiesLoginModule
+Artemis supports Properties login module to be configured in JAAS configuration file
+(default name is `login.config`). By default, the passwords of the users are in plain text
+or masked with the [the default codec](#the-default-codec).
+
+To use a custom codec class, set the `org.apache.activemq.jaas.properties.password.codec` property to the class name
+e.g. to use the `com.example.MySensitiveDataCodecImpl` codec class:
+
+```
+PropertiesLoginWithPasswordCodec {
+    org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule required
+        debug=true
+        org.apache.activemq.jaas.properties.user="users.properties"
+        org.apache.activemq.jaas.properties.role="roles.properties"
+        org.apache.activemq.jaas.properties.password.codec="com.example.MySensitiveDataCodecImpl";
+};
+```
+
+
+### LDAPLoginModule
 
 Artemis supports LDAP login modules to be configured in JAAS configuration file
 (default name is `login.config`). When connecting to an LDAP server usually you
@@ -429,22 +448,8 @@ using the new defined codec.
 
 To use a different codec than the built-in one, you either pick one from
 existing libraries or you implement it yourself. All codecs must implement
-the `org.apache.activemq.artemis.utils.SensitiveDataCodec<T>` interface:
-
-```java
-public interface SensitiveDataCodec<T> {
-
-   T decode(Object mask) throws Exception;
-
-   T encode(Object secret) throws Exception;
-
-   default void init(Map<String, String> params) throws Exception {
-   };
-}
-```
-
-This is a generic type interface but normally for a password you just need
-String type. So a new codec would be defined like
+the `org.apache.activemq.artemis.utils.SensitiveDataCodec<String>` interface.
+So a new codec would be defined like
 
 ```java
 public class MyCodec implements SensitiveDataCodec<String> {
@@ -463,6 +468,12 @@ public class MyCodec implements SensitiveDataCodec<String> {
    @Override
    public void init(Map<String, String> params) {
       // Initialization done here. It is called right after the codec has been created.
+   }
+
+   @Override
+   public boolean verify(char[] value, String encodedValue) {
+      // Return true if the value matches the encodedValue.
+      return checkValueMatchesEncoding(value, encodedValue);
    }
 }
 ```

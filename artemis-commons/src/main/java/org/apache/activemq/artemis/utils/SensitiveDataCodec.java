@@ -27,10 +27,14 @@ import java.util.Map;
  */
 public interface SensitiveDataCodec<T> {
 
-   T decode(Object mask) throws Exception;
+   T decode(Object encodedValue) throws Exception;
 
-   T encode(Object secret) throws Exception;
+   T encode(Object value) throws Exception;
 
    default void init(Map<String, String> params) throws Exception {
+   }
+
+   default boolean verify(char[] value, T encodedValue) {
+      return false;
    }
 }

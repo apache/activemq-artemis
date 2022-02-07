@@ -32,7 +32,9 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.activemq.artemis.utils.HashProcessor;
+import org.apache.activemq.artemis.utils.LazyHashProcessor;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SecureHashProcessor;
 import org.jboss.logging.Logger;
 
 public class PropertiesLoginModule extends PropertiesLoader implements AuditLoginModule {
@@ -41,6 +43,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements AuditLogi
 
    public static final String USER_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.user";
    public static final String ROLE_FILE_PROP_NAME = "org.apache.activemq.jaas.properties.role";
+   public static final String PASSWORD_CODEC_PROP_NAME = "org.apache.activemq.jaas.properties.password.codec";
 
    private Subject subject;
    private CallbackHandler callbackHandler;
@@ -64,10 +67,21 @@ public class PropertiesLoginModule extends PropertiesLoader implements AuditLogi
       init(options);
       users = load(USER_FILE_PROP_NAME, "user", options).getProps();
       roles = load(ROLE_FILE_PROP_NAME, "role", options).invertedPropertiesValuesMap();
+
+      String passwordCodec = (String)options.get(PASSWORD_CODEC_PROP_NAME);
+      if (passwordCodec != null) {
+         hashProcessor = new LazyHashProcessor() {
+            @Override
+            protected HashProcessor createHashProcessor() throws Exception {
+               return new SecureHashProcessor(PasswordMaskingUtil.getCodec(passwordCodec));
+            }
+         };
+      }
    }
 
    @Override
    public boolean login() throws LoginException {
+      HashProcessor userHashProcessor;
       Callback[] callbacks = new Callback[2];
 
       callbacks[0] = new NameCallback("Username: ");
@@ -94,12 +108,12 @@ public class PropertiesLoginModule extends PropertiesLoader implements AuditLogi
       }
 
       try {
-         hashProcessor = PasswordMaskingUtil.getHashProcessor(password);
+         userHashProcessor = PasswordMaskingUtil.getHashProcessor(password, hashProcessor);
       } catch (Exception e) {
          throw new FailedLoginException("Failed to get hash processor");
       }
 
-      if (!hashProcessor.compare(tmpPassword, password)) {
+      if (!userHashProcessor.compare(tmpPassword, password)) {
          throw new FailedLoginException("Password does not match for user: " + user);
       }
       loginSucceeded = true;
