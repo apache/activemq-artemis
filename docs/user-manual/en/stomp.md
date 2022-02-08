@@ -362,8 +362,9 @@ description).
 The payload length of Web Socket frames can vary between client
 implementations. By default the broker will accept frames with a payload length
 of 65,536. If the client needs to send payloads longer than this in a single
-frame this length can be adjusted by using the `stompMaxFramePayloadLength` URL
-parameter on the acceptor.
+frame this length can be adjusted by using the `webSocketMaxFramePayloadLength` URL
+parameter on the acceptor. In previous version this was configured via the
+similarly named `stompMaxFramePayloadLength` acceptor URL parameter.
 
 The `stomp-websockets` example shows how to configure an Apache ActiveMQ
 Artemis broker to have web browsers and Java applications exchanges messages.
