@@ -122,9 +122,16 @@ public final class PasswordMaskingUtil {
 
    //stored password takes 2 forms, ENC() or plain text
    public static HashProcessor getHashProcessor(String storedPassword) {
+      return getHashProcessor(storedPassword, null);
+   }
+
+   public static HashProcessor getHashProcessor(String storedPassword, HashProcessor secureHashProcessor) {
 
       if (!isEncoded(storedPassword)) {
          return LazyPlainTextProcessorHolder.INSTANCE;
+      }
+      if (secureHashProcessor != null) {
+         return secureHashProcessor;
       }
       final Exception secureProcessorException = LazySecureProcessorHolder.EXCEPTION;
       if (secureProcessorException != null) {

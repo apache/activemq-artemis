@@ -567,6 +567,10 @@ integration with LDAP is preferable. It is implemented by
 - `org.apache.activemq.jaas.properties.role` - the path to the file which
   contains user and role properties
 
+- `org.apache.activemq.jaas.properties.password.codec` - the fully qualified
+  class name of the password codec to use. See the [password masking](masking-passwords.md)
+  documentation for more details on how this works.
+
 - `reload` - boolean flag; whether or not to reload the properties files when a
   modification occurs; default is `false`
 

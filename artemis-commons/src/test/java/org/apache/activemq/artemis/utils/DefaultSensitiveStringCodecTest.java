@@ -39,20 +39,33 @@ public class DefaultSensitiveStringCodecTest {
 
    @Test
    public void testOnewayAlgorithm() throws Exception {
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      Map<String, String> params = new HashMap<>();
-      params.put(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.ONE_WAY);
-      codec.init(params);
+      testAlgorithm(DefaultSensitiveStringCodec.ONE_WAY);
+   }
+
+   @Test
+   public void testTwowayAlgorithm() throws Exception {
+      testAlgorithm(DefaultSensitiveStringCodec.TWO_WAY);
+   }
+
+   private void testAlgorithm(String algorithm) throws Exception {
+      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(algorithm);
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
       log.debug("encoded value: " + maskedText);
 
-      //one way can't decode
-      try {
-         codec.decode(maskedText);
-         fail("one way algorithm can't decode");
-      } catch (IllegalArgumentException expected) {
+      if (algorithm.equals(DefaultSensitiveStringCodec.ONE_WAY)) {
+         //one way can't decode
+         try {
+            codec.decode(maskedText);
+            fail("one way algorithm can't decode");
+         } catch (IllegalArgumentException expected) {
+         }
+      } else {
+         String decoded = codec.decode(maskedText);
+         log.debug("encoded value: " + maskedText);
+
+         assertEquals("decoded result not match: " + decoded, decoded, plainText);
       }
 
       assertTrue(codec.verify(plainText.toCharArray(), maskedText));
@@ -62,19 +75,34 @@ public class DefaultSensitiveStringCodecTest {
    }
 
    @Test
-   public void testTwowayAlgorithm() throws Exception {
-      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
-      Map<String, String> params = new HashMap<>();
-      params.put(DefaultSensitiveStringCodec.ALGORITHM, DefaultSensitiveStringCodec.TWO_WAY);
-      codec.init(params);
+   public void testCompareWithOnewayAlgorithm() throws Exception {
+      testCompareWithAlgorithm(DefaultSensitiveStringCodec.ONE_WAY);
+   }
+
+   @Test
+   public void testCompareWithTwowayAlgorithm() throws Exception {
+      testCompareWithAlgorithm(DefaultSensitiveStringCodec.TWO_WAY);
+   }
+
+   private void testCompareWithAlgorithm(String algorithm) throws Exception {
+      DefaultSensitiveStringCodec codec = getDefaultSensitiveStringCodec(algorithm);
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
       log.debug("encoded value: " + maskedText);
 
-      String decoded = codec.decode(maskedText);
-      log.debug("encoded value: " + maskedText);
+      assertTrue(codec.verify(plainText.toCharArray(), maskedText));
 
-      assertEquals("decoded result not match: " + decoded, decoded, plainText);
+      String otherPassword = "some_other_password";
+      assertFalse(codec.verify(otherPassword.toCharArray(), maskedText));
+   }
+
+   private DefaultSensitiveStringCodec getDefaultSensitiveStringCodec(String algorithm) throws Exception {
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+      Map<String, String> params = new HashMap<>();
+      params.put(DefaultSensitiveStringCodec.ALGORITHM, algorithm);
+      codec.init(params);
+
+      return codec;
    }
 }
