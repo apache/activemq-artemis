@@ -140,15 +140,27 @@ public class RedirectTest extends BalancingTestBase {
 
    @Test
    public void testRoundRobinRedirect() throws Exception {
-      testEvenlyRedirect(RoundRobinPolicy.NAME, null);
+      testEvenlyRedirect(RoundRobinPolicy.NAME, null, false);
    }
 
    @Test
    public void testLeastConnectionsRedirect() throws Exception {
-      testEvenlyRedirect(LeastConnectionsPolicy.NAME, Collections.singletonMap(LeastConnectionsPolicy.CONNECTION_COUNT_THRESHOLD, String.valueOf(30)));
+      testEvenlyRedirect(LeastConnectionsPolicy.NAME, Collections.singletonMap(
+         LeastConnectionsPolicy.CONNECTION_COUNT_THRESHOLD, String.valueOf(30)), false);
    }
 
-   private void testEvenlyRedirect(final String policyName, final Map<String, String> properties) throws Exception {
+   @Test
+   public void testRoundRobinRedirectWithFailure() throws Exception {
+      testEvenlyRedirect(RoundRobinPolicy.NAME, null, true);
+   }
+
+   @Test
+   public void testLeastConnectionsRedirectWithFailure() throws Exception {
+      testEvenlyRedirect(LeastConnectionsPolicy.NAME, Collections.singletonMap(
+         LeastConnectionsPolicy.CONNECTION_COUNT_THRESHOLD, String.valueOf(30)), true);
+   }
+
+   private void testEvenlyRedirect(final String policyName, final Map<String, String> properties, final boolean withFailure) throws Exception {
       final String queueName = "RedirectTestQueue";
       final int targets = MULTIPLE_TARGETS;
       int[] nodes = new int[targets + 1];
@@ -172,6 +184,10 @@ public class RedirectTest extends BalancingTestBase {
          setupBalancerServerWithDiscovery(0, TargetKey.USER_NAME, policyName, properties, false, null, targets);
       } else {
          setupBalancerServerWithStaticConnectors(0, TargetKey.USER_NAME, policyName, properties, false, null, targets, 1, 2, 3);
+      }
+
+      if (withFailure) {
+         setupBalancerLocalCache(0, true, 0);
       }
 
       startServers(nodes);
@@ -212,6 +228,12 @@ public class RedirectTest extends BalancingTestBase {
       Assert.assertEquals(0, queueControls[0].countMessages());
       for (int targetNode : targetNodes) {
          Assert.assertEquals("Messages of node " + targetNode, 1, queueControls[targetNode].countMessages());
+      }
+
+      if (withFailure) {
+         crashAndWaitForFailure(getServer(0));
+
+         startServers(0);
       }
 
       for (int i = 0; i < targets; i++) {

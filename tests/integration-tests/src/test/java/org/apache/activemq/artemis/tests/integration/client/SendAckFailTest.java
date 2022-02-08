@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
@@ -754,6 +755,21 @@ public class SendAckFailTest extends SpawnedTestBase {
       @Override
       public Map<String, PersistedRole> getPersistedRoles() {
          return manager.getPersistedRoles();
+      }
+
+      @Override
+      public void storeKeyValuePair(PersistedKeyValuePair persistedKeyValuePair) throws Exception {
+         manager.storeKeyValuePair(persistedKeyValuePair);
+      }
+
+      @Override
+      public void deleteKeyValuePair(String mapId, String key) throws Exception {
+         manager.deleteKeyValuePair(mapId, key);
+      }
+
+      @Override
+      public Map<String, PersistedKeyValuePair> getPersistedKeyValuePairs(String mapId) {
+         return manager.getPersistedKeyValuePairs(mapId);
       }
 
       @Override

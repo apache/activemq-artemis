@@ -76,6 +76,7 @@ import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedUser;
@@ -219,6 +220,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected final Map<String, PersistedUser> mapPersistedUsers = new ConcurrentHashMap<>();
 
    protected final Map<String, PersistedRole> mapPersistedRoles = new ConcurrentHashMap<>();
+
+   protected final Map<String, Map<String, PersistedKeyValuePair>> mapPersistedKeyValuePairs = new ConcurrentHashMap<>();
 
    protected final ConcurrentLongHashMap<LargeServerMessage> largeMessagesToDelete = new ConcurrentLongHashMap<>();
 
@@ -816,6 +819,41 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    @Override
    public Map<String, PersistedRole> getPersistedRoles() {
       return new HashMap<>(mapPersistedRoles);
+   }
+
+   @Override
+   public void storeKeyValuePair(PersistedKeyValuePair persistedKeyValuePair) throws Exception {
+      deleteKeyValuePair(persistedKeyValuePair.getMapId(), persistedKeyValuePair.getKey());
+      try (ArtemisCloseable lock = closeableReadLock()) {
+         final long id = idGenerator.generateID();
+         persistedKeyValuePair.setStoreId(id);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.KEY_VALUE_PAIR_RECORD, persistedKeyValuePair, true);
+         Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(persistedKeyValuePair.getMapId());
+         if (persistedKeyValuePairs == null) {
+            persistedKeyValuePairs = new HashMap<>();
+            mapPersistedKeyValuePairs.put(persistedKeyValuePair.getMapId(), persistedKeyValuePairs);
+         }
+         persistedKeyValuePairs.put(persistedKeyValuePair.getKey(), persistedKeyValuePair);
+      }
+   }
+
+   @Override
+   public void deleteKeyValuePair(String mapId, String key) throws Exception {
+      Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(mapId);
+      if (persistedKeyValuePairs != null) {
+         PersistedKeyValuePair oldMapStringEntry = persistedKeyValuePairs.remove(key);
+         if (oldMapStringEntry != null) {
+            try (ArtemisCloseable lock = closeableReadLock()) {
+               bindingsJournal.tryAppendDeleteRecord(oldMapStringEntry.getStoreId(), this::recordNotFoundCallback, false);
+            }
+         }
+      }
+   }
+
+   @Override
+   public Map<String, PersistedKeyValuePair> getPersistedKeyValuePairs(String mapId) {
+      Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(mapId);
+      return persistedKeyValuePairs != null ? new HashMap<>(persistedKeyValuePairs) : new HashMap<>();
    }
 
    @Override
@@ -1534,6 +1572,14 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             } else if (rec == JournalRecordIds.ROLE_RECORD) {
                PersistedRole role = newRoleEncoding(id, buffer);
                mapPersistedRoles.put(role.getUsername(), role);
+            } else if (rec == JournalRecordIds.KEY_VALUE_PAIR_RECORD) {
+               PersistedKeyValuePair keyValuePair = newKeyValuePairEncoding(id, buffer);
+               Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(keyValuePair.getMapId());
+               if (persistedKeyValuePairs == null) {
+                  persistedKeyValuePairs = new HashMap<>();
+                  mapPersistedKeyValuePairs.put(keyValuePair.getMapId(), persistedKeyValuePairs);
+               }
+               persistedKeyValuePairs.put(keyValuePair.getKey(), keyValuePair);
             } else {
                // unlikely to happen
                ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
@@ -2044,6 +2090,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       persistedRole.decode(buffer);
       persistedRole.setStoreId(id);
       return persistedRole;
+   }
+
+   static PersistedKeyValuePair newKeyValuePairEncoding(long id, ActiveMQBuffer buffer) {
+      PersistedKeyValuePair persistedKeyValuePair = new PersistedKeyValuePair();
+      persistedKeyValuePair.decode(buffer);
+      persistedKeyValuePair.setStoreId(id);
+      return persistedKeyValuePair;
    }
 
    /**

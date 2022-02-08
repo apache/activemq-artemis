@@ -103,8 +103,19 @@ A policy is defined by the `policy` element. Let's take a look at a policy examp
 The broker balancer provides a cache with a timeout to improve the stickiness of the target broker selected,
 returning the same target broker for a target key as long as it is present in the cache and is ready.
 So a broker balancer with the cache enabled doesn't strictly follow the configured policy.
-By default, the cache is enabled and will never timeout. See below
-for more details about setting the `cache-timeout` parameter.
+By default, the cache is not enabled.
+
+A cache is defined by the `cache` element that includes the following items:
+* the `persisted` element defines whether the cache has to persist entries, default is `false`;
+* the `timeout` element defines the timeout before removing entries, measured in milliseconds, setting 0 will disable the timeout, default is `0`.
+
+Let's take a look at a cache example from broker.xml:
+```xml
+<cache>
+  <persisted>true</persisted>
+  <timeout>60000</timeout>
+</cache>
+```
 
 ## Key transformers
 A `local-target-key-transformer` allows target key transformation before matching against any local-target-filter. One use case is
@@ -119,9 +130,8 @@ A broker balancer is defined by the `broker-balancer` element, it includes the f
 * the `target-key-filter` element defines a regular expression to filter the resolved keys;
 * the `local-target-filter` element defines a regular expression to match the keys that have to return a local target;
 * the `local-target-key-transformer` element defines a key transformer, see [key transformers](#key-transformers);
-* the `cache-timeout` element is the time period for a target broker to remain in the cache, measured in milliseconds, setting `0` will disable the cache, default is `-1`, meaning no expiration;
-* the `pool` element defines the pool to group the target brokers, see [pools](#pools).
-* the `policy` element defines the policy used to select the target brokers from the pool, see [policies](#policies);
+* the `pool` element defines the pool to group the target brokers, see [pools](#pools);
+* the `policy` element defines the policy used to select the target brokers from the pool, see [policies](#policies).
 
 Let's take a look at some broker balancer examples from broker.xml:
 ```xml

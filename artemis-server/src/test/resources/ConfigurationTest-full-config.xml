@@ -188,7 +188,10 @@
             </pool>
          </broker-balancer>
          <broker-balancer name="least-connections-balancer">
-            <cache-timeout>60000</cache-timeout>
+            <cache>
+               <persisted>true</persisted>
+               <timeout>60000</timeout>
+            </cache>
             <policy name="LEAST_CONNECTIONS"/>
             <pool>
                <check-period>3000</check-period>

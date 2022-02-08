@@ -17,10 +17,9 @@
 
 package org.apache.activemq.artemis.core.server.balancing;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
+import org.apache.activemq.artemis.core.server.balancing.caches.Cache;
 import org.apache.activemq.artemis.core.server.balancing.policies.Policy;
 import org.apache.activemq.artemis.core.server.balancing.pools.Pool;
 import org.apache.activemq.artemis.core.server.balancing.targets.Target;
@@ -32,7 +31,6 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class BrokerBalancer implements ActiveMQComponent {
@@ -57,7 +55,7 @@ public class BrokerBalancer implements ActiveMQComponent {
 
    private final KeyTransformer transformer;
 
-   private final Cache<String, TargetResult> cache;
+   private final Cache cache;
 
    private volatile boolean started = false;
 
@@ -85,7 +83,7 @@ public class BrokerBalancer implements ActiveMQComponent {
       return policy;
    }
 
-   public Cache<String, TargetResult> getCache() {
+   public Cache getCache() {
       return cache;
    }
 
@@ -100,10 +98,10 @@ public class BrokerBalancer implements ActiveMQComponent {
                          final String targetKeyFilter,
                          final Target localTarget,
                          final String localTargetFilter,
+                         final Cache cache,
                          final Pool pool,
                          final Policy policy,
-                         KeyTransformer transformer,
-                         final int cacheTimeout) {
+                         KeyTransformer transformer) {
       this.name = name;
 
       this.targetKey = targetKey;
@@ -120,17 +118,15 @@ public class BrokerBalancer implements ActiveMQComponent {
 
       this.policy = policy;
 
-      if (cacheTimeout == -1) {
-         this.cache = CacheBuilder.newBuilder().build();
-      } else if (cacheTimeout > 0) {
-         this.cache = CacheBuilder.newBuilder().expireAfterAccess(cacheTimeout, TimeUnit.MILLISECONDS).build();
-      } else {
-         this.cache = null;
-      }
+      this.cache = cache;
    }
 
    @Override
    public void start() throws Exception {
+      if (cache != null) {
+         cache.start();
+      }
+
       if (pool != null) {
          pool.start();
       }
@@ -144,6 +140,10 @@ public class BrokerBalancer implements ActiveMQComponent {
 
       if (pool != null) {
          pool.stop();
+      }
+
+      if (cache != null) {
+         cache.stop();
       }
    }
 
@@ -176,20 +176,25 @@ public class BrokerBalancer implements ActiveMQComponent {
       TargetResult result = null;
 
       if (cache != null) {
-         result = cache.getIfPresent(key);
-      }
-
-      if (result != null) {
-         if (pool.isTargetReady(result.getTarget())) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("The cache returns [" + result.getTarget() + "] ready for " + targetKey + "[" + key + "]");
-            }
-
-            return result;
-         }
+         String nodeId = cache.get(key);
 
          if (logger.isDebugEnabled()) {
-            logger.debug("The cache returns [" + result.getTarget() + "] not ready for " + targetKey + "[" + key + "]");
+            logger.debug("The cache returns target [" + nodeId + "] for " + targetKey + "[" + key + "]");
+         }
+
+         if (nodeId != null) {
+            Target target = pool.getReadyTarget(nodeId);
+            if (target != null) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("The target [" + nodeId + "] is ready for " + targetKey + "[" + key + "]");
+               }
+
+               return new TargetResult(target);
+            }
+
+            if (logger.isDebugEnabled()) {
+               logger.debug("The target [" + nodeId + "] is not ready for " + targetKey + "[" + key + "]");
+            }
          }
       }
 
@@ -207,7 +212,7 @@ public class BrokerBalancer implements ActiveMQComponent {
             if (logger.isDebugEnabled()) {
                logger.debug("Caching " + targetKey + "[" + key + "] for [" + target + "]");
             }
-            cache.put(key, result);
+            cache.put(key, target.getNodeID());
          }
       }
 
