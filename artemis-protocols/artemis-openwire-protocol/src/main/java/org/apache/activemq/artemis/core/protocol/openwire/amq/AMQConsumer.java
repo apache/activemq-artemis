@@ -113,7 +113,7 @@ public class AMQConsumer {
       return rolledbackMessageRefs;
    }
 
-   private Set<MessageReference> getRolledbackMessageRefs() {
+   protected Set<MessageReference> getRolledbackMessageRefs() {
       return this.rolledbackMessageRefs;
    }
 
@@ -343,6 +343,7 @@ public class AMQConsumer {
             if (ack.isIndividualAck() || ack.isStandardAck()) {
                for (MessageReference ref : ackList) {
                   ref.acknowledge(transaction, serverConsumer);
+                  removeRolledback(ref);
                }
             } else if (ack.isPoisonAck()) {
                for (MessageReference ref : ackList) {
@@ -353,6 +354,7 @@ public class AMQConsumer {
                      ((QueueImpl) ref.getQueue()).incDelivering(ref);
                   }
                   ref.getQueue().sendToDeadLetterAddress(transaction, ref);
+                  removeRolledback(ref);
                }
             }
 
