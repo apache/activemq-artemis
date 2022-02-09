@@ -387,6 +387,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private long mqttSessionScanInterval = ActiveMQDefaultConfiguration.getMqttSessionScanInterval();
 
+   private boolean suppressSessionNotifications = ActiveMQDefaultConfiguration.getDefaultSuppressSessionNotifications();
 
    /**
     * Parent folder for all data folders.
@@ -2687,6 +2688,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration setMqttSessionScanInterval(long mqttSessionScanInterval) {
       this.mqttSessionScanInterval = mqttSessionScanInterval;
+      return this;
+   }
+
+   @Override
+   public boolean isSuppressSessionNotifications() {
+      return suppressSessionNotifications;
+   }
+
+   @Override
+   public Configuration setSuppressSessionNotifications(boolean suppressSessionNotifications) {
+      this.suppressSessionNotifications = suppressSessionNotifications;
       return this;
    }
 

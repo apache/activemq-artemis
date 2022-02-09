@@ -1000,6 +1000,15 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="suppress-session-notifications" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Whether suppression of session-notifications is enabled for this server.
+                  Can improve performance but some protocols such as MQTT need the notifications
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

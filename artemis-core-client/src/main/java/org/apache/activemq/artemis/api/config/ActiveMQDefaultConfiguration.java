@@ -647,6 +647,9 @@ public final class ActiveMQDefaultConfiguration {
    // How often (in ms) to scan for expired MQTT sessions
    private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
 
+   // If SESSION-notifications should be suppressed or not
+   public static boolean DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS = false;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1772,4 +1775,9 @@ public final class ActiveMQDefaultConfiguration {
    public static long getMqttSessionScanInterval() {
       return DEFAULT_MQTT_SESSION_SCAN_INTERVAL;
    }
+
+   public static boolean getDefaultSuppressSessionNotifications() {
+      return DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS;
+   }
+
 }

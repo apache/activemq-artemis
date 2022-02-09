@@ -194,6 +194,32 @@ public class NotificationTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testSuppressSessionNotifications() throws Exception {
+      server.getConfiguration().setSuppressSessionNotifications(false);
+      ClientSessionFactory sf = createSessionFactory(locator);
+
+      NotificationTest.flush(notifConsumer);
+      ClientSession mySession = sf.createSession("myUser", "myPassword", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+
+      mySession.start();
+      ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
+      Assert.assertEquals(SESSION_CREATED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+      mySession.close();
+      notifications = NotificationTest.consumeMessages(1, notifConsumer);
+      Assert.assertEquals(SESSION_CLOSED.toString(), notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TYPE).toString());
+
+      NotificationTest.flush(notifConsumer);
+      server.getConfiguration().setSuppressSessionNotifications(true);
+      mySession = sf.createSession("myUser", "myPassword", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+
+      mySession.start();
+      NotificationTest.consumeMessages(0, notifConsumer);
+      mySession.close();
+      NotificationTest.consumeMessages(0, notifConsumer);
+
+   }
+
+   @Test
    public void testCONSUMER_CLOSED() throws Exception {
       ClientSessionFactory sf = createSessionFactory(locator);
       ClientSession mySession = sf.createSession("myUser", "myPassword", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());

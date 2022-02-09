@@ -1393,4 +1393,12 @@ public interface Configuration {
     */
    long getMqttSessionScanInterval();
 
+   /**
+    * Returns whether suppression of session-notifications is enabled for this server. <br>
+    * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS}.
+    */
+   boolean isSuppressSessionNotifications();
+
+   Configuration setSuppressSessionNotifications(boolean suppressSessionNotifications);
+
 }
