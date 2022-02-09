@@ -136,6 +136,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals("somedir", conf.getBindingsDirectory());
       Assert.assertEquals(false, conf.isCreateBindingsDir());
       Assert.assertEquals(true, conf.isAmqpUseCoreSubscriptionNaming());
+      Assert.assertEquals(false, conf.isSuppressSessionNotifications());
 
       Assert.assertEquals("max concurrent io", 17, conf.getPageMaxConcurrentIO());
       Assert.assertEquals(true, conf.isReadWholePage());

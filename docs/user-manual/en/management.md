@@ -723,6 +723,21 @@ configured in `broker.xml`:
 
 By default, the address is `activemq.notifications`.
 
+#### Suppressing Session Notifications
+
+Some messaging patterns can generate a lot of `SESSION_CREATED` and 
+`SESSION_CLOSED` notifications. In a clustered environment this will come with
+some computational overhead. If these notifications are not otherwise used they
+can be disabled through:
+
+```xml
+<suppress-session-notifications>true</suppress-session-notifications>
+```
+
+The only time these notifications are *required* is in a cluster with MQTT
+clients where unique client ID utilization needs to be enforced. Default value
+is `false`
+
 #### Receiving Notification Messages
 
 Apache ActiveMQ Artemis's Core JMS Client can be used to receive notifications:

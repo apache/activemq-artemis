@@ -1000,6 +1000,16 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="suppress-session-notifications" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Whether or not to suppress SESSION_CREATED and SESSION_CLOSED notifications.
+                  Set to true to reduce notification overhead. However, these are required to
+                  enforce unique client ID utilization in a cluster for MQTT clients.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>

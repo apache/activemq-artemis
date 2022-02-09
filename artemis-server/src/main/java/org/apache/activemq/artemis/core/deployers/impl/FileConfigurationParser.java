@@ -323,6 +323,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ENABLE_INGRESS_TIMESTAMP = "enable-ingress-timestamp";
 
+   private static final String SUPPRESS_SESSION_NOTIFICATIONS = "suppress-session-notifications";
 
    private boolean validateAIO = false;
 
@@ -768,6 +769,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.valueOf(getString(e, "critical-analyzer-policy", config.getCriticalAnalyzerPolicy().name(), Validators.NOT_NULL_OR_EMPTY)));
 
       config.setPageSyncTimeout(getInteger(e, "page-sync-timeout", config.getJournalBufferTimeout_NIO(), Validators.GE_ZERO));
+
+      config.setSuppressSessionNotifications(getBoolean(e, "suppress-session-notifications", config.isSuppressSessionNotifications()));
 
       parseAddressSettings(e, config);
 
