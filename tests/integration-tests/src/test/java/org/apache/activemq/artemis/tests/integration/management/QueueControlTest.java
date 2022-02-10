@@ -3730,6 +3730,26 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testBrowseWithNullPropertyValue() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      ClientProducer producer = session.createProducer(address);
+      ClientMessage m = session.createMessage(true);
+      m.putStringProperty(RandomUtil.randomString(), null);
+      producer.send(m);
+      producer.close();
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      assertEquals(1, queueControl.browse().length);
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testResetGroups() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();

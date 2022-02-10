@@ -1410,7 +1410,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
                rc.put(CompositeDataConstants.TEXT_BODY, "[compressed]");
             } else {
                SimpleString text = m.getReadOnlyBodyBuffer().readNullableSimpleString();
-               rc.put(CompositeDataConstants.TEXT_BODY, text != null ? JsonUtil.truncate(text.toString(), valueSizeLimit) : "");
+               rc.put(CompositeDataConstants.TEXT_BODY, JsonUtil.truncate(text != null ? text.toString() : text, valueSizeLimit));
             }
          } else {
             rc.put(CompositeDataConstants.TEXT_BODY, "[large message]");
