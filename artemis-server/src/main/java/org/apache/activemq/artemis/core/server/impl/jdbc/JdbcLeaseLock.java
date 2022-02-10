@@ -21,8 +21,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -43,6 +44,7 @@ final class JdbcLeaseLock implements LeaseLock {
    private final String renewLock;
    private final String isLocked;
    private final String currentDateTime;
+   private final TimeZone currentDateTimeTimeZone;
    private final long expirationMillis;
    private final int queryTimeout;
    private boolean maybeAcquired;
@@ -60,6 +62,7 @@ final class JdbcLeaseLock implements LeaseLock {
                  String renewLock,
                  String isLocked,
                  String currentDateTime,
+                 String currentDateTimeTimeZoneId,
                  long expirationMIllis,
                  long queryTimeoutMillis,
                  String lockName) {
@@ -72,6 +75,7 @@ final class JdbcLeaseLock implements LeaseLock {
       this.renewLock = renewLock;
       this.isLocked = isLocked;
       this.currentDateTime = currentDateTime;
+      this.currentDateTimeTimeZone = currentDateTimeTimeZoneId == null ? null : TimeZone.getTimeZone(currentDateTimeTimeZoneId);
       this.expirationMillis = expirationMIllis;
       this.maybeAcquired = false;
       this.connectionProvider = connectionProvider;
@@ -86,7 +90,6 @@ final class JdbcLeaseLock implements LeaseLock {
          }
       }
       this.queryTimeout = expectedTimeout;
-
    }
 
    public String holderId() {
@@ -114,14 +117,14 @@ final class JdbcLeaseLock implements LeaseLock {
          final boolean autoCommit = connection.getAutoCommit();
          connection.setAutoCommit(false);
          try (PreparedStatement preparedStatement = connection.prepareStatement(this.isLocked)) {
+            final long currentTimestamp = dbCurrentTimeMillis(connection);
             final String lockStatus;
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                if (!resultSet.next()) {
                   lockStatus = null;
                } else {
                   final String currentHolderId = resultSet.getString(1);
-                  final Timestamp expirationTime = resultSet.getTimestamp(2);
-                  final Timestamp currentTimestamp = resultSet.getTimestamp(3);
+                  final long expirationTime = resultSet.getLong(2);
                   lockStatus = "holderId = " + currentHolderId + " expirationTime = " + expirationTime + " currentTimestamp = " + currentTimestamp;
                }
             }
@@ -138,8 +141,40 @@ final class JdbcLeaseLock implements LeaseLock {
       }
    }
 
+   public long dbCurrentTimeMillis() {
+      SQLException suppressed = null;
+      try (Connection connection = connectionProvider.getConnection()) {
+         connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+         final boolean autoCommit = connection.getAutoCommit();
+         connection.setAutoCommit(false);
+         try {
+            return dbCurrentTimeMillis(connection);
+         } catch (SQLException e) {
+            suppressed = e;
+            connection.rollback();
+            suppressed = null;
+            throw new IllegalStateException(e);
+         } finally {
+            connection.setAutoCommit(autoCommit);
+         }
+      } catch (SQLException e) {
+         final RuntimeException stateEx = new IllegalStateException(e);
+         if (suppressed != null) {
+            stateEx.addSuppressed(suppressed);
+         }
+         throw stateEx;
+      }
+   }
+
    private long dbCurrentTimeMillis(Connection connection) throws SQLException {
-      try (PreparedStatement currentDateTime = connection.prepareStatement(this.currentDateTime)) {
+      return dbCurrentTimeMillis(connection, queryTimeout, currentDateTime, currentDateTimeTimeZone);
+   }
+
+   public static long dbCurrentTimeMillis(final Connection connection,
+                                          final int queryTimeout,
+                                          final String currentDateTimeSql,
+                                          final TimeZone currentDateTimeTimeZone) throws SQLException {
+      try (PreparedStatement currentDateTime = connection.prepareStatement(currentDateTimeSql)) {
          if (queryTimeout >= 0) {
             currentDateTime.setQueryTimeout(queryTimeout);
          }
@@ -147,14 +182,16 @@ final class JdbcLeaseLock implements LeaseLock {
          try (ResultSet resultSet = currentDateTime.executeQuery()) {
             resultSet.next();
             final long endTime = stripMilliseconds(System.currentTimeMillis());
-            final Timestamp currentTimestamp = resultSet.getTimestamp(1);
-            final long currentTime = currentTimestamp.getTime();
-            final long currentTimeMillis = stripMilliseconds(currentTime);
-            if (currentTimeMillis < startTime) {
-               LOGGER.warnf("[%s] %s query currentTimestamp = %s on database should happen AFTER %s on broker", lockName, holderId, currentTimestamp, new Timestamp(startTime));
+
+            final long currentTime = (currentDateTimeTimeZone == null ?
+               resultSet.getTimestamp(1) :
+               resultSet.getTimestamp(1, Calendar.getInstance(currentDateTimeTimeZone))).getTime();
+            final long currentTimeNoMillis = stripMilliseconds(currentTime);
+            if (currentTimeNoMillis < startTime) {
+               LOGGER.warnf("currentTimestamp = %d on database should happen AFTER %d on broker", currentTimeNoMillis, startTime);
             }
-            if (currentTimeMillis > endTime) {
-               LOGGER.warnf("[%s] %s query currentTimestamp = %s on database should happen BEFORE %s on broker", lockName, holderId, currentTimestamp, new Timestamp(endTime));
+            if (currentTimeNoMillis > endTime) {
+               LOGGER.warnf("currentTimestamp = %d on database should happen BEFORE %d on broker", currentTimeNoMillis, endTime);
             }
             return currentTime;
          }
@@ -170,15 +207,13 @@ final class JdbcLeaseLock implements LeaseLock {
          try (PreparedStatement preparedStatement = connection.prepareStatement(this.renewLock)) {
             final long now = dbCurrentTimeMillis(connection);
             final long localExpirationTime = now + expirationMillis;
-            final Timestamp expirationTime = new Timestamp(localExpirationTime);
             if (LOGGER.isDebugEnabled()) {
                LOGGER.debugf("[%s] %s is renewing lock with expirationTime = %s",
-                             lockName, holderId, expirationTime);
+                             lockName, holderId, localExpirationTime);
             }
-            preparedStatement.setTimestamp(1, expirationTime);
+            preparedStatement.setLong(1, localExpirationTime);
             preparedStatement.setString(2, holderId);
-            preparedStatement.setTimestamp(3, expirationTime);
-            preparedStatement.setTimestamp(4, expirationTime);
+            preparedStatement.setLong(3, localExpirationTime);
             final int updatedRows = preparedStatement.executeUpdate();
             final boolean renewed = updatedRows == 1;
             connection.commit();
@@ -218,11 +253,10 @@ final class JdbcLeaseLock implements LeaseLock {
             final long now = dbCurrentTimeMillis(connection);
             preparedStatement.setString(1, holderId);
             final long localExpirationTime = now + expirationMillis;
-            final Timestamp expirationTime = new Timestamp(localExpirationTime);
-            preparedStatement.setTimestamp(2, expirationTime);
-            preparedStatement.setTimestamp(3, expirationTime);
-            LOGGER.debugf("[%s] %s is trying to acquire lock with expirationTime %s",
-                          lockName, holderId, expirationTime);
+            preparedStatement.setLong(2, localExpirationTime);
+            preparedStatement.setLong(3, now);
+            LOGGER.debugf("[%s] %s is trying to acquire lock with expirationTime %l",
+                          lockName, holderId, localExpirationTime);
             final boolean acquired = preparedStatement.executeUpdate() == 1;
             connection.commit();
             if (acquired) {
@@ -263,6 +297,7 @@ final class JdbcLeaseLock implements LeaseLock {
          final boolean autoCommit = connection.getAutoCommit();
          connection.setAutoCommit(false);
          try (PreparedStatement preparedStatement = connection.prepareStatement(this.isLocked)) {
+            final long currentTimestampMillis = dbCurrentTimeMillis(connection);
             boolean result;
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                if (!resultSet.next()) {
@@ -270,12 +305,9 @@ final class JdbcLeaseLock implements LeaseLock {
                } else {
                   final String currentHolderId = resultSet.getString(1);
                   result = holderIdFilter.test(currentHolderId);
-                  final Timestamp expirationTime = resultSet.getTimestamp(2);
-                  final Timestamp currentTimestamp = resultSet.getTimestamp(3);
-                  final long currentTimestampMillis = currentTimestamp.getTime();
+                  final long lockExpirationTime = resultSet.getLong(2);
                   boolean zombie = false;
-                  if (expirationTime != null) {
-                     final long lockExpirationTime = expirationTime.getTime();
+                  if (lockExpirationTime > 0) {
                      final long expiredBy = currentTimestampMillis - lockExpirationTime;
                      if (expiredBy > 0) {
                         result = false;
@@ -285,7 +317,7 @@ final class JdbcLeaseLock implements LeaseLock {
                   if (LOGGER.isDebugEnabled()) {
                      LOGGER.debugf("[%s] %s has found %s with holderId = %s expirationTime = %s currentTimestamp = %s",
                                    lockName, holderId, zombie ? "zombie lock" : "lock",
-                                   currentHolderId, expirationTime, currentTimestamp);
+                                   currentHolderId, lockExpirationTime, currentTimestampMillis);
                   }
                }
             }

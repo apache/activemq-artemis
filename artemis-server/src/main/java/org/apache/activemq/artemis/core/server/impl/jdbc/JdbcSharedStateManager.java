@@ -97,7 +97,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireLiveLockSQL(),
                                sqlProvider.tryReleaseLiveLockSQL(), sqlProvider.renewLiveLockSQL(),
                                sqlProvider.isLiveLockedSQL(), sqlProvider.currentTimestampSQL(),
-                               expirationMillis, queryTimeoutMillis, "LIVE");
+                               sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis, "LIVE");
    }
 
    static JdbcLeaseLock createBackupLock(String holderId,
@@ -108,7 +108,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireBackupLockSQL(),
                                sqlProvider.tryReleaseBackupLockSQL(), sqlProvider.renewBackupLockSQL(),
                                sqlProvider.isBackupLockedSQL(), sqlProvider.currentTimestampSQL(),
-                               expirationMillis, queryTimeoutMillis, "BACKUP");
+                               sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis, "BACKUP");
    }
 
    @Override

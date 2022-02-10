@@ -259,6 +259,11 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
+   public String currentTimestampTimeZoneId() {
+      return sql("current-timestamp-timezone-id");
+   }
+
+   @Override
    public String writeStateSQL() {
       return format(sql("write-state"), tableName, STATE_ROW_ID);
    }

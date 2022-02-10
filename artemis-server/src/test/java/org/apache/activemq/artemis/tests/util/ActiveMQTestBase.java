@@ -531,6 +531,8 @@ public abstract class ActiveMQTestBase extends Assert {
       dbStorageConfiguration.setMessageTableName("MESSAGE");
       dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
       dbStorageConfiguration.setPageStoreTableName("PAGE_STORE");
+      dbStorageConfiguration.setJdbcPassword(getJDBCPassword());
+      dbStorageConfiguration.setJdbcUser(getJDBCUser());
       dbStorageConfiguration.setJdbcDriverClassName(getJDBCClassName());
       dbStorageConfiguration.setJdbcLockAcquisitionTimeoutMillis(getJdbcLockAcquisitionTimeoutMillis());
       dbStorageConfiguration.setJdbcLockExpirationMillis(getJdbcLockExpirationMillis());
@@ -865,6 +867,14 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final String getJDBCClassName() {
       return System.getProperty("jdbc.driver.class", "org.apache.derby.jdbc.EmbeddedDriver");
+   }
+
+   protected String getJDBCUser() {
+      return System.getProperty("jdbc.user", null);
+   }
+
+   protected String getJDBCPassword() {
+      return System.getProperty("jdbc.password", null);
    }
 
    protected final File getTestDirfile() {
