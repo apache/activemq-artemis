@@ -338,6 +338,9 @@ public final class JsonUtil {
    }
 
    public static Object truncate(final Object value, final int valueSizeLimit) {
+      if (value == null) {
+         return "";
+      }
       Object result = value;
       if (valueSizeLimit >= 0) {
          if (String.class.equals(value.getClass())) {
