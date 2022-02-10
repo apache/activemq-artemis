@@ -865,8 +865,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          if (value instanceof Binary) {
             value = ((Binary)value).getArray();
          }
-         value = JsonUtil.truncate(value, valueSizeLimit);
-         map.put(applicationPropertiesPrefix + name, value);
+         map.put(applicationPropertiesPrefix + name, JsonUtil.truncate(value, valueSizeLimit));
       }
 
       TypedProperties extraProperties = getExtraProperties();
@@ -876,7 +875,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
                // keep fields like _AMQ_ACTUAL_EXPIRY in their original type
                map.put(extraPropertiesPrefix + s.toString(), o);
             } else {
-               map.put(extraPropertiesPrefix + s.toString(), JsonUtil.truncate(o.toString(), valueSizeLimit));
+               map.put(extraPropertiesPrefix + s.toString(), JsonUtil.truncate(o != null ? o.toString() : o, valueSizeLimit));
             }
          });
       }
