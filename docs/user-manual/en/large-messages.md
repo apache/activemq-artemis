@@ -60,9 +60,9 @@ JMS connection factory.
 ## Compressed Large Messages on Core Protocol
 
 You can choose to send large messages in compressed form using
-`compressLargeMessages` URL parameter.
+`compressLargeMessage` URL parameter.
 
-If you specify the boolean URL parameter `compressLargeMessages` as true, The
+If you specify the boolean URL parameter `compressLargeMessage` as true, the
 system will use the ZIP algorithm to compress the message body as the message
 is transferred to the server's side. Notice that there's no special treatment
 at the server's side, all the compressing and uncompressing is done at the
