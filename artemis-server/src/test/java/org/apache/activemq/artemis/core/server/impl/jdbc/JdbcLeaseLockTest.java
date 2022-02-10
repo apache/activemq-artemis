@@ -38,8 +38,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
+import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +49,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 @RunWith(Parameterized.class)
 public class JdbcLeaseLockTest extends ActiveMQTestBase {
@@ -85,6 +89,20 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       }
    }
 
+   private LeaseLock lock(long acquireMillis, long queryTimeoutMillis) {
+      try {
+         return JdbcSharedStateManager
+            .createLiveLock(
+               UUID.randomUUID().toString(),
+               jdbcSharedStateManager.getJdbcConnectionProvider(),
+               sqlProvider,
+               acquireMillis,
+               queryTimeoutMillis);
+      } catch (Exception e) {
+         throw new IllegalStateException(e);
+      }
+   }
+
    @Before
    public void createLockTable() throws Exception {
       dbConf = createDefaultDatabaseStorageConfiguration();
@@ -96,8 +114,8 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       if (withExistingTable) {
          TestJDBCDriver testDriver = TestJDBCDriver
             .usingDbConf(
-                dbConf,
-                sqlProvider);
+               dbConf,
+               sqlProvider);
          testDriver.start();
          testDriver.stop();
       }
@@ -292,7 +310,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       };
       final ScheduledLeaseLock scheduledLeaseLock = ScheduledLeaseLock
          .of(scheduledExecutorService, artemisExecutor,
-         "test", lock(), dbConf.getJdbcLockRenewPeriodMillis(), lockListener);
+             "test", lock(), dbConf.getJdbcLockRenewPeriodMillis(), lockListener);
 
       Assert.assertTrue(scheduledLeaseLock.lock().tryAcquire());
       scheduledLeaseLock.start();
@@ -328,10 +346,23 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       scheduledLeaseLock.lock().release();
       Assert.assertFalse(scheduledLeaseLock.lock().isHeldByCaller());
       TimeUnit.MILLISECONDS.sleep(3 * scheduledLeaseLock.renewPeriodMillis());
-      Assert.assertThat(lostLock.get(), is(greaterThanOrEqualTo(2L)));
+      MatcherAssert.assertThat(lostLock.get(), is(greaterThanOrEqualTo(2L)));
       scheduledLeaseLock.stop();
       executorService.shutdown();
       scheduledExecutorService.shutdown();
+   }
+
+   @Test
+   public void shouldJdbcAndSystemTimeToBeAligned() throws InterruptedException {
+      final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(10), TimeUnit.SECONDS.toMillis(10));
+      Assume.assumeThat(lock, instanceOf(JdbcLeaseLock.class));
+      final JdbcLeaseLock jdbcLock = JdbcLeaseLock.class.cast(lock);
+      final long utcSystemTime = System.currentTimeMillis();
+      TimeUnit.SECONDS.sleep(1);
+      final long utcJdbcTime = jdbcLock.dbCurrentTimeMillis();
+      final long millisDiffJdbcSystem = utcJdbcTime - utcSystemTime;
+      MatcherAssert.assertThat(millisDiffJdbcSystem, greaterThanOrEqualTo(0L));
+      MatcherAssert.assertThat(millisDiffJdbcSystem, lessThan(TimeUnit.SECONDS.toMillis(10)));
    }
 
    @Test

@@ -92,6 +92,8 @@ public interface SQLProvider {
 
    String currentTimestampSQL();
 
+   String currentTimestampTimeZoneId();
+
    String writeStateSQL();
 
    String readStateSQL();
