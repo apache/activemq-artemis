@@ -16,12 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
-import java.io.EOFException;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.MQTTException;
+import org.fusesource.mqtt.codec.CONNACK;
 import org.junit.Test;
 
 public class MQTTSecurityTest extends MQTTTestSupport {
@@ -52,7 +53,7 @@ public class MQTTSecurityTest extends MQTTTestSupport {
       }
    }
 
-   @Test(timeout = 30000, expected = EOFException.class)
+   @Test(timeout = 30000)
    public void testConnectionWithNullPassword() throws Exception {
       for (String version : Arrays.asList("3.1", "3.1.1")) {
 
@@ -66,8 +67,13 @@ public class MQTTSecurityTest extends MQTTTestSupport {
             connection = mqtt.blockingConnection();
             connection.connect();
             fail("Connect should fail");
+         } catch (MQTTException e) {
+            assertEquals(CONNACK.Code.CONNECTION_REFUSED_NOT_AUTHORIZED, e.connack.code());
+         } catch (Exception e) {
+            fail("Should have caught an MQTTException");
          } finally {
-            if (connection != null && connection.isConnected()) connection.disconnect();
+            if (connection != null && connection.isConnected())
+               connection.disconnect();
          }
       }
    }

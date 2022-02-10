@@ -234,6 +234,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       } catch (ActiveMQSecurityException e) {
          if (session.is5()) {
             session.getProtocolHandler().sendConnack(MQTTReasonCodes.BAD_USER_NAME_OR_PASSWORD);
+         } else {
+            session.getProtocolHandler().sendConnack(MQTTReasonCodes.NOT_AUTHORIZED_3);
          }
          disconnect(true);
          return;
