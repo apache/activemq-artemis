@@ -749,11 +749,6 @@
             <classifier>uber</classifier>
             <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
         </dependency>
-         <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>8.5.5</version>
-         </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 
          <!-- for URL reflection. Using Populate on URI Factory at activemq-commons -->
