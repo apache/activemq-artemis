@@ -83,7 +83,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    }
 
    @Override
-   public void afterRollback(final Transaction tx) {
+   public synchronized void afterRollback(final Transaction tx) {
       Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<>();
 
       long timeBase = System.currentTimeMillis();
@@ -170,7 +170,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    }
 
    @Override
-   public void afterCommit(final Transaction tx) {
+   public synchronized void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
          clearLingerRef(ref);
 
