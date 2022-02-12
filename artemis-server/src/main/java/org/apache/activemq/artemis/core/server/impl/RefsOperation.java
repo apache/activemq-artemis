@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
@@ -40,10 +41,9 @@ public class RefsOperation extends TransactionOperationAbstract {
    private final AckReason reason;
 
    private final StorageManager storageManager;
-   private Queue queue;
-   List<MessageReference> refsToAck = new ArrayList<>();
-
-   List<MessageReference> pagedMessagesToPostACK = null;
+   private final Queue queue;
+   private final List<MessageReference> refsToAck = new CopyOnWriteArrayList<>();
+   private List<MessageReference> pagedMessagesToPostACK = null;
 
    /**
     * It will ignore redelivery check, which is used during consumer.close
@@ -53,7 +53,7 @@ public class RefsOperation extends TransactionOperationAbstract {
 
    private String lingerSessionId = null;
 
-   public RefsOperation(Queue queue, AckReason reason, StorageManager storageManager) {
+   public RefsOperation(final Queue queue, final AckReason reason, final StorageManager storageManager) {
       this.queue = queue;
       this.reason = reason;
       this.storageManager = storageManager;
@@ -65,11 +65,11 @@ public class RefsOperation extends TransactionOperationAbstract {
       ignoreRedeliveryCheck = true;
    }
 
-   synchronized void addOnlyRefAck(final MessageReference ref) {
+   void addOnlyRefAck(final MessageReference ref) {
       refsToAck.add(ref);
    }
 
-   synchronized void addAck(final MessageReference ref) {
+   void addAck(final MessageReference ref) {
       refsToAck.add(ref);
       if (ref.isPaged()) {
          if (pagedMessagesToPostACK == null) {
@@ -83,7 +83,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    }
 
    @Override
-   public synchronized void afterRollback(final Transaction tx) {
+   public void afterRollback(final Transaction tx) {
       Map<QueueImpl, LinkedList<MessageReference>> queueMap = new HashMap<>();
 
       long timeBase = System.currentTimeMillis();
@@ -154,7 +154,7 @@ public class RefsOperation extends TransactionOperationAbstract {
       }
    }
 
-   protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
+   protected void rollbackRedelivery(final Transaction tx, final MessageReference ref, final long timeBase, final Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
       // if ignore redelivery check, we just perform redelivery straight
       if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck).getA()) {
          LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());
@@ -170,7 +170,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    }
 
    @Override
-   public synchronized void afterCommit(final Transaction tx) {
+   public void afterCommit(final Transaction tx) {
       for (MessageReference ref : refsToAck) {
          clearLingerRef(ref);
 
@@ -189,14 +189,14 @@ public class RefsOperation extends TransactionOperationAbstract {
       }
    }
 
-   private void clearLingerRef(MessageReference ref) {
+   private void clearLingerRef(final MessageReference ref) {
       if (!ref.hasConsumerId() && lingerSessionId != null) {
          ref.getQueue().removeLingerSession(lingerSessionId);
       }
    }
 
    @Override
-   public synchronized List<MessageReference> getRelatedMessageReferences() {
+   public List<MessageReference> getRelatedMessageReferences() {
       List<MessageReference> listRet = new LinkedList<>();
 
       if (refsToAck != null && !refsToAck.isEmpty()) {
@@ -207,7 +207,7 @@ public class RefsOperation extends TransactionOperationAbstract {
    }
 
    @Override
-   public synchronized List<MessageReference> getListOnConsumer(long consumerID) {
+   public List<MessageReference> getListOnConsumer(final long consumerID) {
       List<MessageReference> list = new LinkedList<>();
       for (MessageReference ref : refsToAck) {
          if (ref.hasConsumerId() && ref.getConsumerId() == consumerID) {
@@ -222,7 +222,7 @@ public class RefsOperation extends TransactionOperationAbstract {
       return refsToAck;
    }
 
-   public synchronized List<MessageReference> getLingerMessages() {
+   public List<MessageReference> getLingerMessages() {
       List<MessageReference> list = new LinkedList<>();
       for (MessageReference ref : refsToAck) {
          if (!ref.hasConsumerId() && lingerSessionId != null) {
@@ -233,7 +233,7 @@ public class RefsOperation extends TransactionOperationAbstract {
       return list;
    }
 
-   public void setLingerSession(String lingerSessionId) {
+   public void setLingerSession(final String lingerSessionId) {
       this.lingerSessionId = lingerSessionId;
    }
 }
