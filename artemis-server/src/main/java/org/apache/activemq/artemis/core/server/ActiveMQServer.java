@@ -705,7 +705,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    ConnectorsService getConnectorsService();
 
-   void deployBridge(BridgeConfiguration config) throws Exception;
+   boolean deployBridge(BridgeConfiguration config) throws Exception;
 
    void destroyBridge(String name) throws Exception;
 

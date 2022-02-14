@@ -2897,10 +2897,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
-   public void deployBridge(BridgeConfiguration config) throws Exception {
+   public boolean deployBridge(BridgeConfiguration config) throws Exception {
       if (clusterManager != null) {
-         clusterManager.deployBridge(config);
+         return clusterManager.deployBridge(config);
       }
+      return false;
    }
 
    @Override
