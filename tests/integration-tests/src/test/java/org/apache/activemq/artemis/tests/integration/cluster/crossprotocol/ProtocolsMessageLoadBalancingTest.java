@@ -123,7 +123,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       } else if (protocol.equals("CORE")) {
          return new ActiveMQConnectionFactory("tcp://localhost:" + (61616 + node));
       } else {
-         Assert.fail("Protocol " + protocol + " unkown");
+         Assert.fail("Protocol " + protocol + " unknown");
          return null;
       }
    }
