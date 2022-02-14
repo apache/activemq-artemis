@@ -285,7 +285,7 @@ var Artemis;
             var item = ctrl.queues[idx];
             var nid = getQueuesNid(item, $location);
             artemisQueue.queue = { queue: item.name };
-            $location.path("artemis/artemisConsumers").search({"tab": "artemis", "nid": nid});;
+            $location.path("artemis/artemisConsumers").search({"tab": "artemis", "nid": nid});
         };
         browseQueue = function (idx) {
             var item = ctrl.queues[idx];

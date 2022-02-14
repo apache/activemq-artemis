@@ -51,8 +51,8 @@ public class OpenWireManagementTest extends OpenWireTestBase {
 
    private ActiveMQServerControl serverControl;
    private SimpleString queueName1 = new SimpleString("queue1");
-   private SimpleString queueName2 = new SimpleString("queue2");;
-   private SimpleString queueName3 = new SimpleString("queue3");;
+   private SimpleString queueName2 = new SimpleString("queue2");
+   private SimpleString queueName3 = new SimpleString("queue3");
 
    private ConnectionFactory factory;
 
