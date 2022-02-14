@@ -225,7 +225,7 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
       SCRAM scram = Arrays.stream(SCRAM.values())
                           .filter(v -> v.getName().equals(type))
                           .findFirst()
-                          .orElseThrow(() -> new IllegalArgumentException("unkown type " + type +
+                          .orElseThrow(() -> new IllegalArgumentException("unknown type " + type +
                                    ", supported ones are " + getSupportedTypes()));
       return scram;
    }

@@ -152,7 +152,7 @@ public class AmqpNoHearbeatsTest extends AmqpClientTestSupport {
             System.exit(-1);
          }
       } else {
-         System.err.println("Test " + arg[0] + " unkown");
+         System.err.println("Test " + arg[0] + " unknown");
          System.exit(-2);
       }
    }

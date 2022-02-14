@@ -87,7 +87,7 @@ public class BridgeTransferingTest extends SmokeTestBase {
       } else if (protocol.toUpperCase().equals("CORE") || protocol.toUpperCase().equals("ARTEMIS")) {
          return new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(uri);
       } else {
-         throw new IllegalStateException("Unkown:" + protocol);
+         throw new IllegalStateException("Unknown:" + protocol);
       }
    }
 
