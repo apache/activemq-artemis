@@ -378,17 +378,17 @@ public class ClusterManager implements ActiveMQComponent {
       this.clusterLocators.remove(serverLocator);
    }
 
-   public synchronized void deployBridge(final BridgeConfiguration config) throws Exception {
+   public synchronized boolean deployBridge(final BridgeConfiguration config) throws Exception {
       if (config.getName() == null) {
          ActiveMQServerLogger.LOGGER.bridgeNotUnique();
 
-         return;
+         return false;
       }
 
       if (config.getQueueName() == null) {
          ActiveMQServerLogger.LOGGER.bridgeNoQueue(config.getName());
 
-         return;
+         return false;
       }
 
       if (config.getForwardingAddress() == null) {
@@ -398,7 +398,7 @@ public class ClusterManager implements ActiveMQComponent {
       if (bridges.containsKey(config.getName())) {
          ActiveMQServerLogger.LOGGER.bridgeAlreadyDeployed(config.getName());
 
-         return;
+         return false;
       }
 
       Transformer transformer = server.getServiceRegistry().getBridgeTransformer(config.getName(), config.getTransformerConfiguration());
@@ -408,7 +408,7 @@ public class ClusterManager implements ActiveMQComponent {
       if (binding == null) {
          ActiveMQServerLogger.LOGGER.bridgeQueueNotFound(config.getQueueName(), config.getName());
 
-         return;
+         return false;
       }
 
       if (server.hasBrokerBridgePlugins()) {
@@ -424,7 +424,7 @@ public class ClusterManager implements ActiveMQComponent {
          if (discoveryGroupConfiguration == null) {
             ActiveMQServerLogger.LOGGER.bridgeNoDiscoveryGroup(config.getDiscoveryGroupName());
 
-            return;
+            return false;
          }
 
          if (config.isHA()) {
@@ -438,7 +438,7 @@ public class ClusterManager implements ActiveMQComponent {
 
          if (tcConfigs == null) {
             ActiveMQServerLogger.LOGGER.bridgeCantFindConnectors(config.getName());
-            return;
+            return false;
          }
 
          if (config.isHA()) {
@@ -497,6 +497,7 @@ public class ClusterManager implements ActiveMQComponent {
             server.callBrokerBridgePlugins(plugin -> plugin.afterDeployBridge(bridge));
          }
       }
+      return true;
    }
 
    public static class IncomingInterceptorLookingForExceptionMessage implements Interceptor {
