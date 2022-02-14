@@ -102,6 +102,13 @@ public class JsonUtilTest {
    }
 
    @Test
+   public void testTruncateWithoutNullValue() {
+      Object result = JsonUtil.truncate(null, -1);
+
+      Assert.assertEquals("", result);
+   }
+
+   @Test
    public void testTruncateStringWithValueSizeLimit() {
       String prefix = "12345";
       int valueSizeLimit = prefix.length();
