@@ -489,6 +489,83 @@ public class RedeployTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testRedeployBridge() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-bridge.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-bridge-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      Runnable tick = latch::countDown;
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            Queue queue = session.createQueue("a-from");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createMessage());
+            Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-to").getMessageCount());
+         }
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            Queue queue = session.createQueue("b-from");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createMessage());
+            Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("b-to").getMessageCount());
+         }
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(tick);
+         latch.await(10, TimeUnit.SECONDS);
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            Queue queue = session.createQueue("a-from");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createMessage());
+            Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-new").getMessageCount());
+            Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-to").getMessageCount());
+         }
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            Queue queue = session.createQueue("b-from");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createMessage());
+            assertFalse(Wait.waitFor(() -> embeddedActiveMQ.getActiveMQServer().locateQueue("b-to").getMessageCount() == 2, 2000, 100));
+         }
+
+         try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+              Connection connection = factory.createConnection();
+              Session session = connection.createSession(Session.AUTO_ACKNOWLEDGE)) {
+            Queue queue = session.createQueue("c-from");
+            MessageProducer producer = session.createProducer(queue);
+            producer.send(session.createMessage());
+            Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("c-to").getMessageCount());
+         }
+
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
+
    private void deployBrokerConfig(EmbeddedActiveMQ server, URL configFile) throws Exception {
 
       Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");

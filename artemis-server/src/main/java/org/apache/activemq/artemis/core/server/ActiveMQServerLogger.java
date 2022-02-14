@@ -216,11 +216,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221029, value = "stopped bridge {0}", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeStopped(SimpleString name);
+   void bridgeStopped(String name);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221030, value = "paused bridge {0}", format = Message.Format.MESSAGE_FORMAT)
-   void bridgePaused(SimpleString name);
+   void bridgePaused(String name);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221031, value = "backup announced", format = Message.Format.MESSAGE_FORMAT)
@@ -843,16 +843,16 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222096, value = "Error on querying binding on bridge {0}. Retrying in 100 milliseconds", format = Message.Format.MESSAGE_FORMAT)
-   void errorQueryingBridge(@Cause Throwable t, SimpleString name);
+   void errorQueryingBridge(@Cause Throwable t, String name);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222097, value = "Address {0} does not have any bindings, retry #({1})",
       format = Message.Format.MESSAGE_FORMAT)
-   void errorQueryingBridge(SimpleString address, Integer retryCount);
+   void errorQueryingBridge(String address, Integer retryCount);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222098, value = "Server is starting, retry to create the session for bridge {0}", format = Message.Format.MESSAGE_FORMAT)
-   void errorStartingBridge(SimpleString name);
+   void errorStartingBridge(String name);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222099, value = "Bridge {0} is unable to connect to destination. It will be disabled.", format = Message.Format.MESSAGE_FORMAT)
@@ -865,7 +865,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222101, value = "Bridge {0} achieved {1} maxattempts={2} it will stop retrying to reconnect", format = Message.Format.MESSAGE_FORMAT)
-   void bridgeAbortStart(SimpleString name, Integer retryCount, Integer reconnectAttempts);
+   void bridgeAbortStart(String name, Integer retryCount, Integer reconnectAttempts);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222102, value = "Unexpected exception while trying to reconnect", format = Message.Format.MESSAGE_FORMAT)

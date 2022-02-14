@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.cluster;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -55,4 +56,6 @@ public interface Bridge extends Consumer, ActiveMQComponent {
    boolean isConnected();
 
    BridgeMetrics getMetrics();
+
+   BridgeConfiguration getConfiguration();
 }

@@ -143,7 +143,9 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.ServiceRegistry;
+import org.apache.activemq.artemis.core.server.balancing.BrokerBalancerManager;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
@@ -172,7 +174,6 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
-import org.apache.activemq.artemis.core.server.balancing.BrokerBalancerManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
 import org.apache.activemq.artemis.core.server.replay.ReplayManager;
@@ -4347,6 +4348,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configuration.setDivertConfigurations(config.getDivertConfigurations());
       configuration.setAddressConfigurations(config.getAddressConfigurations());
       configuration.setQueueConfigs(config.getQueueConfigs());
+      configuration.setBridgeConfigurations(config.getBridgeConfigurations());
       configurationReloadDeployed.set(false);
       if (isActive()) {
          configuration.parseProperties(propertiesFileUrl);
@@ -4415,6 +4417,25 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          undeployAddressesAndQueueNotInConfiguration(configuration);
          deployAddressesFromConfiguration(configuration);
          deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs());
+
+         ActiveMQServerLogger.LOGGER.reloadingConfiguration("bridges");
+         for (BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
+            Bridge existingBridge = clusterManager.getBridges().get(newBridgeConfig.getName());
+            if (existingBridge != null && !existingBridge.getConfiguration().equals(newBridgeConfig)) {
+               // this is an existing bridge but the config changed so stop the current bridge and deploy the new one
+               destroyBridge(existingBridge.getName().toString());
+               deployBridge(newBridgeConfig);
+            } else if (existingBridge == null) {
+               // this is a new bridge
+               deployBridge(newBridgeConfig);
+            }
+         }
+         for (final Bridge runningBridge: clusterManager.getBridges().values()) {
+            if (!configuration.getBridgeConfigurations().contains(runningBridge.getConfiguration())) {
+               // this bridge is running but it isn't in the new config which means it was removed so destroy it
+               destroyBridge(runningBridge.getName().toString());
+            }
+         }
       }
    }
 

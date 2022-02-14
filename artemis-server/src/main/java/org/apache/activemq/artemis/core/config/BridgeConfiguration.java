@@ -119,6 +119,34 @@ public final class BridgeConfiguration implements Serializable {
    public BridgeConfiguration() {
    }
 
+   public BridgeConfiguration(BridgeConfiguration other) {
+      name = other.name;
+      queueName = other.queueName;
+      forwardingAddress = other.forwardingAddress;
+      filterString = other.filterString;
+      staticConnectors = other.staticConnectors;
+      discoveryGroupName = other.discoveryGroupName;
+      ha = other.ha;
+      transformerConfiguration = other.transformerConfiguration;
+      retryInterval = other.retryInterval;
+      retryIntervalMultiplier = other.retryIntervalMultiplier;
+      initialConnectAttempts = other.initialConnectAttempts;
+      reconnectAttempts = other.reconnectAttempts;
+      reconnectAttemptsOnSameNode = other.reconnectAttemptsOnSameNode;
+      useDuplicateDetection = other.useDuplicateDetection;
+      confirmationWindowSize = other.confirmationWindowSize;
+      producerWindowSize = other.producerWindowSize;
+      clientFailureCheckPeriod = other.clientFailureCheckPeriod;
+      user = other.user;
+      password = other.password;
+      connectionTTL = other.connectionTTL;
+      maxRetryInterval = other.maxRetryInterval;
+      minLargeMessageSize = other.minLargeMessageSize;
+      callTimeout = other.callTimeout;
+      routingType = other.routingType;
+      concurrency = other.concurrency;
+   }
+
    public BridgeConfiguration(String name) {
       setName(name);
    }
