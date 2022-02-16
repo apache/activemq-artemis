@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.BridgeControl;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.TransformerConfiguration;
@@ -2042,6 +2043,41 @@ public class BridgeTest extends ActiveMQTestBase {
       session.start();
       producer.send(session.createMessage(true));
       Assert.assertNotNull(consumer.receive(200));
+   }
+
+   @Test
+   public void testManagementLeak() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("myAddress");
+      final SimpleString QUEUE = new SimpleString("myQueue");
+      final SimpleString FORWARDING_ADDRESS = new SimpleString("myForwardingAddress");
+      final SimpleString FORWARDING_QUEUE = new SimpleString("myForwardingQueue");
+      final String BRIDGE = "myBridge";
+
+      ActiveMQServer server = addServer(new ActiveMQServerImpl(createDefaultConfig(0, isNetty()).addConnectorConfiguration("myConnector", new TransportConfiguration(getConnector()))));
+      server.start();
+      server.waitForActivation(100, TimeUnit.MILLISECONDS);
+      server.createQueue(new QueueConfiguration(QUEUE)
+                            .setAddress(ADDRESS)
+                            .setRoutingType(RoutingType.ANYCAST)
+                            .setDurable(false));
+      server.createQueue(new QueueConfiguration(FORWARDING_QUEUE)
+                            .setAddress(FORWARDING_ADDRESS)
+                            .setRoutingType(RoutingType.ANYCAST)
+                            .setDurable(false));
+      ArrayList<String> connectors = new ArrayList<>();
+      connectors.add("myConnector");
+      final int concurrency = 20;
+      BridgeConfiguration config = new BridgeConfiguration()
+         .setName(BRIDGE)
+         .setQueueName(QUEUE.toString())
+         .setForwardingAddress(FORWARDING_ADDRESS.toString())
+         .setStaticConnectors(connectors)
+         .setConcurrency(concurrency);
+      server.deployBridge(config);
+      assertEquals(concurrency, server.getManagementService().getResources(BridgeControl.class).length);
+      server.destroyBridge(config.getName());
+
+      assertEquals(0, server.getManagementService().getResources(BridgeControl.class).length);
    }
 
    /**
