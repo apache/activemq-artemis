@@ -690,6 +690,19 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testValuePostFixModifier() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("globalMaxSize", "25K");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(25 * 1024, configuration.getGlobalMaxSize());
+   }
+
+   @Test
    public void testNameWithDotsSurroundWithDollarDollar() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
