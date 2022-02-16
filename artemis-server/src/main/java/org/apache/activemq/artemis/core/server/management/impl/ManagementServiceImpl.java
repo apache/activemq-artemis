@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.management.impl;
 
-import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
-
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
@@ -57,7 +55,6 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.management.impl.AcceptorControlImpl;
@@ -110,6 +107,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.jboss.logging.Logger;
+
+import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
 public class ManagementServiceImpl implements ManagementService {
 
@@ -455,13 +454,12 @@ public class ManagementServiceImpl implements ManagementService {
    }
 
    @Override
-   public synchronized void registerBridge(final Bridge bridge,
-                                           final BridgeConfiguration configuration) throws Exception {
+   public synchronized void registerBridge(final Bridge bridge) throws Exception {
       bridge.setNotificationService(this);
-      ObjectName objectName = objectNameBuilder.getBridgeObjectName(configuration.getName());
-      BridgeControl control = new BridgeControlImpl(bridge, storageManager, configuration);
+      ObjectName objectName = objectNameBuilder.getBridgeObjectName(bridge.getName().toString());
+      BridgeControl control = new BridgeControlImpl(bridge, storageManager);
       registerInJMX(objectName, control);
-      registerInRegistry(ResourceNames.BRIDGE + configuration.getName(), control);
+      registerInRegistry(ResourceNames.BRIDGE + bridge.getName(), control);
    }
 
    @Override

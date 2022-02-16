@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -480,7 +481,7 @@ public class ClusterManager implements ActiveMQComponent {
          String name = config.getConcurrency() > 1 ? (config.getName() + "-" + i) : config.getName();
          Bridge bridge = new BridgeImpl(serverLocator, new BridgeConfiguration(config).setName(name), nodeManager.getUUID(), queue, executorFactory.getExecutor(), scheduledExecutor, server);
          bridges.put(name, bridge);
-         managementService.registerBridge(bridge, config);
+         managementService.registerBridge(bridge);
          bridge.start();
 
          if (server.hasBrokerBridgePlugins()) {
@@ -529,16 +530,24 @@ public class ClusterManager implements ActiveMQComponent {
    }
 
    public void destroyBridge(final String name) throws Exception {
-      Bridge bridge;
+      List<Bridge> bridgesToRemove = new ArrayList<>();
 
       synchronized (this) {
-         bridge = bridges.remove(name);
-         if (bridge != null) {
-            bridge.stop();
-            managementService.unregisterBridge(name);
+         for (Bridge bridge : bridges.values()) {
+            if (bridge.getName().toString().matches(name + "|" + name + "-\\d+")) {
+               bridge = bridges.get(bridge.getName().toString());
+               if (bridge != null) {
+                  bridgesToRemove.add(bridge);
+               }
+            }
+         }
+         for (Bridge bridgeToRemove : bridgesToRemove) {
+            bridges.remove(bridgeToRemove.getName().toString());
+            bridgeToRemove.stop();
+            managementService.unregisterBridge(bridgeToRemove.getName().toString());
          }
       }
-      if (bridge != null) {
+      for (Bridge bridge : bridgesToRemove) {
          bridge.flushExecutor();
       }
    }

@@ -31,7 +31,6 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
@@ -306,7 +305,7 @@ public class ClusteredResetMockTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void registerBridge(Bridge bridge, BridgeConfiguration configuration) throws Exception {
+      public void registerBridge(Bridge bridge) throws Exception {
 
       }
 
