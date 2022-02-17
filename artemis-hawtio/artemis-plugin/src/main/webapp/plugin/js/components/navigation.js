@@ -158,13 +158,13 @@ var Artemis;
                 if (shouldShowDeleteQueueTab()) {
                     tabs.push(new Nav.HawtioTab(TAB_CONFIG.deleteQueue.title, TAB_CONFIG.deleteQueue.route));
                 }
-                if (shouldShowSendMessageTab(workspace)) {
+                if (shouldShowSendMessageTab()) {
                     tabs.push(new Nav.HawtioTab(TAB_CONFIG.sendMessage.title, TAB_CONFIG.sendMessage.route));
                 }
-                if (shouldShowAddressSendMessageTab(workspace)) {
+                if (shouldShowAddressSendMessageTab()) {
                     tabs.push(new Nav.HawtioTab(TAB_CONFIG.addressSendMessage.title, TAB_CONFIG.addressSendMessage.route));
                 }
-                if (shouldShowBrowseMessageTab(workspace)) {
+                if (shouldShowBrowseMessageTab()) {
                     tabs.push(new Nav.HawtioTab(TAB_CONFIG.browseQueue.title, TAB_CONFIG.browseQueue.route));
                 }
                 tabs.push(new Nav.HawtioTab(TAB_CONFIG.brokerDiagram.title, TAB_CONFIG.brokerDiagram.route));
@@ -173,31 +173,53 @@ var Artemis;
         }
 
         function shouldShowCreateAddressTab() {
-            return workspace.selectionHasDomainAndLastFolderName(artemisJmxDomain, 'addresses') && ctrl.showCreateAddress;
+            if (!workspace.selectionHasDomainAndLastFolderName(artemisJmxDomain, 'addresses')) return false;
+            if (!ctrl.showCreateAddress) return false;
+            return true;
         }
 
         function shouldShowDeleteAddressTab() {
-            return workspace.hasDomainAndProperties(artemisJmxDomain, {'component': 'addresses'}) && !workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && !workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'diverts'}) && ctrl.showDeleteAddress;
+            if (!workspace.hasDomainAndProperties(artemisJmxDomain, {'component': 'addresses'})) return false;
+            if (workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'})) return false;
+            if (workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'diverts'})) return false;
+            if (!ctrl.showDeleteAddress) return false;
+            return true;
         }
 
         function shouldShowCreateQueueTab() {
-            return workspace.hasDomainAndProperties(artemisJmxDomain, {'component': 'addresses'}) && !workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && !workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'diverts'}) && ctrl.showCreateQueue;
+            if (!workspace.selection) return false;
+            if (!workspace.selection.folderNames) return false;
+            if (workspace.selection.folderNames.length < 4 || workspace.selection.folderNames.length > 6) return false;
+            if (workspace.selection.folderNames[2] !== "addresses") return false;
+            if (workspace.selection.folderNames.length >= 5 && workspace.selection.folderNames[4] !== "queues") return false;
+            if (!ctrl.showCreateQueue) return false;
+            return true;
         }
 
         function shouldShowDeleteQueueTab() {
-            return workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && ctrl.showDeleteQueue;
+            if (!workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'})) return false;
+            if (!ctrl.showDeleteQueue) return false;
+            return true;
         }
 
-        function shouldShowSendMessageTab(workspace) {
-            return workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && hasQueueinvokeRights(workspace, "sendMessage");
+        function shouldShowSendMessageTab() {
+            if (!workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'})) return false;
+            if (!hasQueueinvokeRights(workspace, "sendMessage")) return false;
+            return true;
         }
 
-        function shouldShowAddressSendMessageTab(workspace) {
-            return workspace.hasDomainAndProperties(artemisJmxDomain, {'component': 'addresses'}) && !workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && hasQueueinvokeRights(workspace, "sendMessage");
+        function shouldShowAddressSendMessageTab() {
+            if (!workspace.hasDomainAndProperties(artemisJmxDomain, {'component': 'addresses'})) return false;
+            if (workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'})) return false;
+            if (!hasQueueinvokeRights(workspace, "sendMessage")) return false;
+            return true;
         }
 
-        function shouldShowBrowseMessageTab(workspace) {
-            return workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'}) && hasQueueinvokeRights(workspace, "browse") && hasQueueinvokeRights(workspace, "countMessages");
+        function shouldShowBrowseMessageTab() {
+            if (!workspace.hasDomainAndProperties(artemisJmxDomain, {'subcomponent': 'queues'})) return false;
+            if (!hasQueueinvokeRights(workspace, "browse")) return false;
+            if (!hasQueueinvokeRights(workspace, "countMessages")) return false;
+            return true;
         }
 
         function hasInvokeRights(jolokia, mbean, operation) {
