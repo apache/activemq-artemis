@@ -29,6 +29,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.RedeliveryPolicy;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumer;
+import org.apache.activemq.artemis.core.protocol.openwire.amq.AMQConsumerAccessor;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
@@ -476,6 +480,53 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       session.close();
 
       assertEquals(0L, queueControl.getPersistentSize());
+
+   }
+
+   /**
+    * @throws Exception
+    */
+   @Test
+   public void testRedeliveryRefCleanup() throws Exception {
+
+      // Receive a message with the JMS API
+      RedeliveryPolicy policy = connection.getRedeliveryPolicy();
+      policy.setUseExponentialBackOff(false);
+      policy.setMaximumRedeliveries(-1);
+      policy.setRedeliveryDelay(50);
+
+      connection.start();
+      Session pSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      Session cSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQQueue destination = new ActiveMQQueue("TEST");
+      this.makeSureCoreQueueExist("TEST");
+      MessageProducer producer = pSession.createProducer(destination);
+      MessageConsumer consumer = cSession.createConsumer(destination);
+
+      TextMessage m;
+
+      for (int i = 0; i < 5; ++i) {
+         producer.send(pSession.createTextMessage("MessageText"));
+         pSession.commit();
+         m = (TextMessage) consumer.receive(2000);
+         assertNotNull(m);
+         cSession.rollback();
+         m = (TextMessage) consumer.receive(2000);
+         assertNotNull(m);
+         cSession.commit();
+      }
+
+      ServerConsumer serverConsumer = null;
+      for (ServerSession session : server.getSessions()) {
+         for (ServerConsumer sessionConsumer : session.getServerConsumers()) {
+            if (sessionConsumer.getQueue().getName().toString() == "TEST") {
+               serverConsumer = sessionConsumer;
+            }
+         }
+      }
+
+      AMQConsumer amqConsumer = (AMQConsumer) serverConsumer.getProtocolData();
+      assertTrue(AMQConsumerAccessor.getRolledbackMessageRefs(amqConsumer).isEmpty());
 
    }
 
