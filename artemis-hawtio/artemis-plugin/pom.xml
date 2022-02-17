@@ -62,10 +62,6 @@
     <schema-outdir>${basedir}/src/main/webapp/lib</schema-outdir>
     <appjs-outfile>${webapp-outdir}/app/app.js</appjs-outfile>
 
-<!--
-    <angular.version>1.7.9</angular.version>
--->
-
   </properties>
 
   <dependencies>
@@ -119,7 +115,6 @@
 
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
-        <version>${maven-antrun-plugin-version}</version>
         <executions>
 
           <execution>
@@ -160,7 +155,6 @@
 
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>${maven-resources-plugin-version}</version>
         <executions>
           <execution>
             <!-- defining this maven plugin in the same phase as the
@@ -182,7 +176,6 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>${maven-bundle-plugin-version}</version>
         <executions>
           <execution>
             <id>bundle-manifest</id>
