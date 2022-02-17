@@ -32,25 +32,9 @@
     <packaging>pom</packaging>
 
     <properties>
-
         <activemq.basedir>${project.basedir}/..</activemq.basedir>
 
-        <hawtio.version>2.14.2</hawtio.version>
-        <jline.version>3.2.0</jline.version>
-        <junit-version>4.11</junit-version>
-        <log4j-version>1.2.17</log4j-version>
-        <maven-version>3.0.4</maven-version>
-        <maven-antrun-plugin-version>1.7</maven-antrun-plugin-version>
-        <maven-bundle-plugin-version>3.0.1</maven-bundle-plugin-version>
-        <maven-plugin-version>3.3</maven-plugin-version>
-        <maven-source-plugin-version>2.1.2</maven-source-plugin-version>
-        <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
         <geronimo.servlet.3.0.spec.version>1.0</geronimo.servlet.3.0.spec.version>
-
-        <!-- use slf4j-api 1.6.x to be easy compatible with older Karaf/Camel releases -->
-        <slf4j-api-version>1.6.6</slf4j-api-version>
-        <slf4j-version>1.7.21</slf4j-version>
-
     </properties>
 
     <dependencyManagement>
@@ -76,7 +60,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${slf4j-version}</version>
+                <version>${slf4j.version}</version>
                 <scope>provided</scope>
             </dependency>
 
