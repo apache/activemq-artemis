@@ -474,6 +474,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    private void sendSessionNotification(final CoreNotificationType type) throws Exception {
+      if (server.getConfiguration().isSuppressSessionNotifications()) {
+         return;
+      }
       final TypedProperties props = new TypedProperties();
       if (this.getConnectionID() != null) {
          props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, SimpleString.toSimpleString(this.getConnectionID().toString()));
