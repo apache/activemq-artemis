@@ -28,7 +28,6 @@
   <artifactId>artemis-console</artifactId>
   <name>ActiveMQ Artemis Console</name>
 
-  <!-- hawtio plugins are almost always war files -->
   <packaging>war</packaging>
 
   <properties>
@@ -46,10 +45,6 @@
       <groupId>io.hawt</groupId>
       <artifactId>hawtio-war</artifactId>
       <version>${hawtio.version}</version>
-      <!--
-        NOTE this WAR dependency type which enables this WAR to
-        inherit all the plugins and content from the core hawtio-base WAR
-      -->
       <type>war</type>
     </dependency>
 
@@ -63,7 +58,6 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>${guava.version}</version>
       <!-- License: Apache 2.0 -->
       <!-- see https://github.com/google/guava/issues/3006: checker-compat-qual could be excluded -->
       <exclusions>
@@ -106,7 +100,7 @@
                 <exclude>img/icons/**/*</exclude>
                 <exclude>img/**/*</exclude>
                 <exclude>fonts/glyphicons**</exclude>
-                <excluse>WEB-INF/lib/guava*.jar</excluse>
+                <exclude>WEB-INF/lib/guava*.jar</exclude>
               </excludes>
             </overlay>
           </overlays>
@@ -145,7 +139,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
-        <version>2.5</version>
         <configuration>
           <filesets>
             <fileset>
