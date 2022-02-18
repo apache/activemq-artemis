@@ -32,6 +32,10 @@ import org.apache.activemq.artemis.utils.uri.SchemaConstants;
 
 public abstract class ActionAbstract implements Action {
 
+   public static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
+
+   public static final String DEFAULT_BROKER_ACCEPTOR = "artemis";
+
    @Option(name = "--verbose", description = "Adds more information on the execution")
    public boolean verbose;
 
@@ -76,13 +80,17 @@ public abstract class ActionAbstract implements Action {
       return brokerInstance;
    }
 
-
-   protected String getBrokerURLInstance() {
+   public String getBrokerURLInstance(String acceptor) {
       if (getBrokerInstance() != null) {
          try {
             Configuration brokerConfiguration = getBrokerConfiguration();
+
+            if (acceptor == null) {
+               acceptor = DEFAULT_BROKER_ACCEPTOR;
+            }
+
             for (TransportConfiguration acceptorConfiguration: brokerConfiguration.getAcceptorConfigurations()) {
-               if (acceptorConfiguration.getName().equals("artemis")) {
+               if (acceptorConfiguration.getName().equals(acceptor)) {
                   Map<String, Object> acceptorParams = acceptorConfiguration.getParams();
                   String scheme = ConfigurationHelper.getStringProperty(TransportConstants.SCHEME_PROP_NAME, SchemaConstants.TCP, acceptorParams);
                   String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", acceptorParams);
