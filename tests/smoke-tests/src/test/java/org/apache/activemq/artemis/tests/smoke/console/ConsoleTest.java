@@ -17,9 +17,11 @@
 
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
@@ -35,6 +37,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
@@ -72,14 +75,16 @@ public abstract class ConsoleTest extends SmokeTestBase {
 
 
       // The ConsoleTest checks the web console using the selenium framework[1].
-      // The tests can be executed using the local browsers or the webdriver testcontainers[2].
+      // The tests can be executed using a remote server, local browsers or testcontainers[2].
+      // To use a remote server set the `webdriver.remote.server` property with the URL
+      // of the server, ie -Dwebdriver.remote.server=http://localhost:4444/wd/hub
       // To use your local Google Chrome browser download the WebDriver for Chrome[3] and set
       // the `webdriver.chrome.driver` property with the WebDriver path, ie
       // -Dwebdriver.chrome.driver=/home/developer/chromedriver_linux64/chromedriver
       // To use your local Firefox browser download the WebDriver for Firefox[4] and set
       // the `webdriver.gecko.driver` property with the WebDriver path, ie
       // -Dwebdriver.gecko.driver=/home/developer/geckodriver-v0.28.0-linux64/geckodriver
-      // To use the webdriver testcontainers[2] install docker.
+      // To use the testcontainers[2] install docker.
       //
       // [1] https://github.com/SeleniumHQ/selenium
       // [2] https://www.testcontainers.org/modules/webdriver_containers
@@ -87,22 +92,41 @@ public abstract class ConsoleTest extends SmokeTestBase {
       // [4] https://github.com/mozilla/geckodriver/
 
       try {
-         if (browserOptions instanceof ChromeOptions &&
-            System.getProperty("webdriver.chrome.driver") != null) {
-            ChromeOptions chromeOptions = (ChromeOptions)browserOptions;
-            String arguments = System.getProperty("webdriver.chrome.driver.args");
-            if (arguments != null) {
-               chromeOptions.addArguments(arguments.split(","));
-            }
-            driver = new ChromeDriver(chromeOptions);
-         } else if (browserOptions instanceof FirefoxOptions &&
-            System.getProperty("webdriver.gecko.driver") != null) {
-            FirefoxOptions firefoxOptions = (FirefoxOptions)browserOptions;
-            String arguments = System.getProperty("webdriver.gecko.driver.args");
-            if (arguments != null) {
-               firefoxOptions.addArguments(arguments.split(","));
-            }
-            driver = new FirefoxDriver(firefoxOptions);
+         String webdriverName;
+         String webdriverLocation;
+         String webdriverArguments;
+         String webdriverRemoteServer;
+         Function<MutableCapabilities, WebDriver> webDriverConstructor;
+         BiConsumer<MutableCapabilities, String[]> webdriverArgumentsSetter;
+
+         if (browserOptions instanceof ChromeOptions) {
+            webdriverName = "chrome";
+            webDriverConstructor = browserOptions -> new ChromeDriver((ChromeOptions)browserOptions);
+            webdriverArgumentsSetter = (browserOptions, arguments) -> ((ChromeOptions) browserOptions).addArguments(arguments);
+         } else if (browserOptions instanceof FirefoxOptions) {
+            webdriverName = "gecko";
+            webDriverConstructor = browserOptions -> new FirefoxDriver((FirefoxOptions)browserOptions);
+            webdriverArgumentsSetter = (browserOptions, arguments) -> ((FirefoxOptions) browserOptions).addArguments(arguments);
+         } else {
+            throw new IllegalStateException("Unexpected browserOptions: " + browserOptions);
+         }
+
+         webdriverArguments = System.getProperty("webdriver." + webdriverName + ".driver.args");
+         if (webdriverArguments != null) {
+            webdriverArgumentsSetter.accept(browserOptions, webdriverArguments.split(","));
+         }
+
+         webdriverLocation = System.getProperty("webdriver." + webdriverName + ".driver");
+
+         webdriverRemoteServer = System.getProperty("webdriver." + webdriverName + ".remote.server");
+         if (webdriverRemoteServer == null) {
+            webdriverRemoteServer = System.getProperty("webdriver.remote.server");
+         }
+
+         if (webdriverRemoteServer != null) {
+            driver = new RemoteWebDriver(new URL(webdriverRemoteServer), browserOptions);
+         } else if (webdriverLocation != null) {
+            driver = webDriverConstructor.apply(browserOptions);
          } else {
             serverUrl = DEFAULT_CONTAINER_SERVER_URL;
             Testcontainers.exposeHostPorts(8161);
