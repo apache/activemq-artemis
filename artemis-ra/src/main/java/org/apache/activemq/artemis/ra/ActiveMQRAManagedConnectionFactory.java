@@ -717,6 +717,22 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    public void setHA(Boolean ha) {
       mcfProperties.setHA(ha);
    }
+   
+   public Boolean isCompressLargeMessage() {
+      return mcfProperties.isCompressLargeMessage();
+   }
+
+   public void setCompressLargeMessage(final Boolean compressLargeMessage) {
+      mcfProperties.setCompressLargeMessage(compressLargeMessage);
+   }
+
+   public Integer getInitialConnectAttempts() {
+      return mcfProperties.getInitialConnectAttempts();
+   }
+
+   public void setInitialConnectAttempts(final Integer initialConnectAttempts) {
+      mcfProperties.setInitialConnectAttempts(initialConnectAttempts);
+   }
 
 
    /**
