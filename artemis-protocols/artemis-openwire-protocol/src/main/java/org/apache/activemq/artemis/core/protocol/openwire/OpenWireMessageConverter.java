@@ -68,7 +68,6 @@ import org.apache.activemq.command.Message;
 import org.apache.activemq.command.MessageDispatch;
 import org.apache.activemq.command.MessageId;
 import org.apache.activemq.command.ProducerId;
-import org.apache.activemq.command.TransactionId;
 import org.apache.activemq.util.ByteArrayInputStream;
 import org.apache.activemq.util.ByteSequence;
 import org.apache.activemq.util.ByteSequenceData;
@@ -77,6 +76,7 @@ import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
 
 import static org.apache.activemq.artemis.api.core.Message.HDR_INGRESS_TIMESTAMP;
+import static org.apache.activemq.command.ActiveMQDestination.QUEUE_TYPE;
 
 public final class OpenWireMessageConverter {
 
@@ -92,11 +92,9 @@ public final class OpenWireMessageConverter {
    private static final SimpleString AMQ_MSG_CLUSTER = new SimpleString(AMQ_PREFIX + "CLUSTER");
    private static final SimpleString AMQ_MSG_COMMAND_ID = new SimpleString(AMQ_PREFIX + "COMMAND_ID");
    private static final SimpleString AMQ_MSG_DATASTRUCTURE = new SimpleString(AMQ_PREFIX + "DATASTRUCTURE");
-   private static final SimpleString AMQ_MSG_MESSAGE_ID = new SimpleString(AMQ_PREFIX + "MESSAGE_ID");
+   public static final SimpleString AMQ_MSG_MESSAGE_ID = new SimpleString(AMQ_PREFIX + "MESSAGE_ID");
    private static final SimpleString AMQ_MSG_ORIG_DESTINATION =  new SimpleString(AMQ_PREFIX + "ORIG_DESTINATION");
-   private static final SimpleString AMQ_MSG_ORIG_TXID = new SimpleString(AMQ_PREFIX + "ORIG_TXID");
-   private static final SimpleString AMQ_MSG_PRODUCER_ID =  new SimpleString(AMQ_PREFIX + "PRODUCER_ID");
-   private static final SimpleString AMQ_MSG_MARSHALL_PROP = new SimpleString(AMQ_PREFIX + "MARSHALL_PROP");
+   public static final SimpleString AMQ_MSG_PRODUCER_ID =  new SimpleString(AMQ_PREFIX + "PRODUCER_ID");
    private static final SimpleString AMQ_MSG_REPLY_TO = new SimpleString(AMQ_PREFIX + "REPLY_TO");
 
    private static final SimpleString AMQ_MSG_USER_ID = new SimpleString(AMQ_PREFIX + "USER_ID");
@@ -186,23 +184,18 @@ public final class OpenWireMessageConverter {
       coreMessage.setGroupSequence(messageSend.getGroupSequence());
 
       final MessageId messageId = messageSend.getMessageId();
-
-      final ByteSequence midBytes = marshaller.marshal(messageId);
-      midBytes.compact();
-      coreMessage.putBytesProperty(AMQ_MSG_MESSAGE_ID, midBytes.data);
+      if (messageId != null) {
+         coreMessage.putStringProperty(AMQ_MSG_MESSAGE_ID, SimpleString.toSimpleString(messageId.toString()));
+      }
 
       coreMessage.setUserID(UUIDGenerator.getInstance().generateUUID());
 
       final ProducerId producerId = messageSend.getProducerId();
       if (producerId != null) {
-         final ByteSequence producerIdBytes = marshaller.marshal(producerId);
-         producerIdBytes.compact();
-         coreMessage.putBytesProperty(AMQ_MSG_PRODUCER_ID, producerIdBytes.data);
+         coreMessage.putStringProperty(AMQ_MSG_PRODUCER_ID, SimpleString.toSimpleString(producerId.toString()));
       }
-      final ByteSequence propBytes = messageSend.getMarshalledProperties();
-      if (propBytes != null) {
-         putMsgMarshalledProperties(propBytes, messageSend, coreMessage);
-      }
+
+      putMsgProperties(messageSend, coreMessage);
 
       final ActiveMQDestination replyTo = messageSend.getReplyTo();
       if (replyTo != null) {
@@ -228,7 +221,7 @@ public final class OpenWireMessageConverter {
 
       final ActiveMQDestination origDest = messageSend.getOriginalDestination();
       if (origDest != null) {
-         putMsgOriginalDestination(origDest, marshaller, coreMessage);
+         coreMessage.putStringProperty(AMQ_MSG_ORIG_DESTINATION, origDest.getQualifiedName());
       }
 
       return coreMessage;
@@ -440,12 +433,8 @@ public final class OpenWireMessageConverter {
       coreMessage.putBytesProperty(AMQ_MSG_DATASTRUCTURE, dsBytes.data);
    }
 
-   private static void putMsgMarshalledProperties(final ByteSequence propBytes,
-                                                  final Message messageSend,
-                                                  final CoreMessage coreMessage) throws IOException {
-      propBytes.compact();
-      coreMessage.putBytesProperty(AMQ_MSG_MARSHALL_PROP, propBytes.data);
-      //unmarshall properties to core so selector will work
+   private static void putMsgProperties(final Message messageSend,
+                                        final CoreMessage coreMessage) throws IOException {
       final Map<String, Object> props = messageSend.getProperties();
       if (!props.isEmpty()) {
          props.forEach((key, value) -> {
@@ -456,14 +445,6 @@ public final class OpenWireMessageConverter {
             }
          });
       }
-   }
-
-   private static void putMsgOriginalDestination(final ActiveMQDestination origDest,
-                                                 final WireFormat marshaller,
-                                                 final CoreMessage coreMessage) throws IOException {
-      final ByteSequence origDestBytes = marshaller.marshal(origDest);
-      origDestBytes.compact();
-      coreMessage.putBytesProperty(AMQ_MSG_ORIG_DESTINATION, origDestBytes.data);
    }
 
    private static void loadMapIntoProperties(TypedProperties props, Map<String, Object> map) {
@@ -629,11 +610,10 @@ public final class OpenWireMessageConverter {
 
       amqMsg.setGroupSequence(coreMessage.getGroupSequence());
 
-      final byte[] midBytes = getObjectProperty(coreMessage, byte[].class, AMQ_MSG_MESSAGE_ID);
+      final SimpleString midString = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_MESSAGE_ID);
       final MessageId mid;
-      if (midBytes != null) {
-         ByteSequence midSeq = new ByteSequence(midBytes);
-         mid = (MessageId) marshaller.unmarshal(midSeq);
+      if (midString != null) {
+         mid = new MessageId(midString.toString());
       } else {
          //JMSMessageID should be started with "ID:" and needs to be globally unique (node + journal id)
          String midd = "ID:" + serverNodeUUID + ":-1:-1:-1";
@@ -642,32 +622,21 @@ public final class OpenWireMessageConverter {
 
       amqMsg.setMessageId(mid);
 
-      final byte[] origDestBytes = getObjectProperty(coreMessage, byte[].class, AMQ_MSG_ORIG_DESTINATION);
+      final SimpleString origDestBytes = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_ORIG_DESTINATION);
       if (origDestBytes != null) {
-         setAMQMsgOriginalDestination(amqMsg, marshaller, origDestBytes);
+         amqMsg.setOriginalDestination(ActiveMQDestination.createDestination(origDestBytes.toString(), QUEUE_TYPE));
       }
 
-      final byte[] origTxIdBytes = getObjectProperty(coreMessage, byte[].class, AMQ_MSG_ORIG_TXID);
-      if (origTxIdBytes != null) {
-         setAMQMsgOriginalTransactionId(amqMsg, marshaller, origTxIdBytes);
-      }
-
-      final byte[] producerIdBytes = getObjectProperty(coreMessage, byte[].class, AMQ_MSG_PRODUCER_ID);
-      if (producerIdBytes != null) {
-         ProducerId producerId = (ProducerId) marshaller.unmarshal(new ByteSequence(producerIdBytes));
-         amqMsg.setProducerId(producerId);
-      }
-
-      final byte[] marshalledBytes = getObjectProperty(coreMessage, byte[].class, AMQ_MSG_MARSHALL_PROP);
-      if (marshalledBytes != null) {
-         amqMsg.setMarshalledProperties(new ByteSequence(marshalledBytes));
+      final SimpleString producerId = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_PRODUCER_ID);
+      if (producerId != null && producerId.length() > 0) {
+         amqMsg.setProducerId(new ProducerId(producerId.toString()));
       }
 
       amqMsg.setRedeliveryCounter(reference.getDeliveryCount() - 1);
 
-      final byte[] replyToBytes = getObjectProperty(coreMessage, byte[].class, AMQ_MSG_REPLY_TO);
+      final SimpleString replyToBytes = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_REPLY_TO);
       if (replyToBytes != null) {
-         setAMQMsgReplyTo(amqMsg, marshaller, replyToBytes);
+         amqMsg.setReplyTo(ActiveMQDestination.createDestination(replyToBytes.toString(), QUEUE_TYPE));
       }
 
       final SimpleString userId = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_USER_ID);
@@ -921,27 +890,6 @@ public final class OpenWireMessageConverter {
       ByteSequence seq = new ByteSequence(dsBytes);
       DataStructure ds = (DataStructure) marshaller.unmarshal(seq);
       amqMsg.setDataStructure(ds);
-   }
-
-   private static void setAMQMsgOriginalDestination(final ActiveMQMessage amqMsg,
-                                                    final WireFormat marshaller,
-                                                    final byte[] origDestBytes) throws IOException {
-      ActiveMQDestination origDest = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(origDestBytes));
-      amqMsg.setOriginalDestination(origDest);
-   }
-
-   private static void setAMQMsgOriginalTransactionId(final ActiveMQMessage amqMsg,
-                                                      final WireFormat marshaller,
-                                                      final byte[] origTxIdBytes) throws IOException {
-      TransactionId origTxId = (TransactionId) marshaller.unmarshal(new ByteSequence(origTxIdBytes));
-      amqMsg.setOriginalTransactionId(origTxId);
-   }
-
-   private static void setAMQMsgReplyTo(final ActiveMQMessage amqMsg,
-                                        final WireFormat marshaller,
-                                        final byte[] replyToBytes) throws IOException {
-      ActiveMQDestination replyTo = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence(replyToBytes));
-      amqMsg.setReplyTo(replyTo);
    }
 
    private static void setAMQMsgDlqDeliveryFailureCause(final ActiveMQMessage amqMsg,
