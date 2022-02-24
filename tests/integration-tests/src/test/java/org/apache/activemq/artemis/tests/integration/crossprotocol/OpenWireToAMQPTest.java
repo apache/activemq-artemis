@@ -17,9 +17,11 @@
 package org.apache.activemq.artemis.tests.integration.crossprotocol;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageFormatException;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Queue;
@@ -110,6 +112,56 @@ public class OpenWireToAMQPTest extends ActiveMQTestBase {
          assertEquals(list.get(0), "aString");
          connection.close();
       } catch (Exception e) {
+         e.printStackTrace();
+         fail("Failed to receive message via AMQP: " + e.getMessage());
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @SuppressWarnings("unchecked")
+   @Test(timeout = 60000)
+   public void testByteArrayProperties() throws Exception {
+      Connection connection = null;
+      try {
+         connection = factory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+         MessageProducer producer = session.createProducer(queue);
+         ArrayList<String> list = new ArrayList<>();
+         list.add("aString");
+         ObjectMessage objectMessage = session.createObjectMessage(list);
+         producer.send(objectMessage);
+         connection.close();
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail("Failed to send message via OpenWire: " + e.getMessage());
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+
+      try {
+         connection = qpidfactory.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(queueName);
+         MessageConsumer consumer = session.createConsumer(queue);
+         connection.start();
+         ObjectMessage receive = (ObjectMessage) consumer.receive(5000);
+         assertNotNull(receive);
+
+         /*
+          * As noted in section 3.5.4 of the JMS 2 specification all properties can be converted to String
+          */
+         Enumeration<String> propertyNames = receive.getPropertyNames();
+         while (propertyNames.hasMoreElements()) {
+            receive.getStringProperty(propertyNames.nextElement());
+         }
+         connection.close();
+      } catch (MessageFormatException e) {
          e.printStackTrace();
          fail("Failed to receive message via AMQP: " + e.getMessage());
       } finally {
