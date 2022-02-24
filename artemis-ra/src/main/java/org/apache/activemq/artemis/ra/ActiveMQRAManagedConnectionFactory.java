@@ -717,7 +717,7 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
    public void setHA(Boolean ha) {
       mcfProperties.setHA(ha);
    }
-   
+
    public Boolean isCompressLargeMessage() {
       return mcfProperties.isCompressLargeMessage();
    }
