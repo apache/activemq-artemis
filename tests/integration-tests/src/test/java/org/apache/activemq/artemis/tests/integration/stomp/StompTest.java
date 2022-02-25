@@ -57,7 +57,9 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.integration.mqtt.FuseMQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -242,6 +244,21 @@ public class StompTest extends StompTestBase {
       long tnow = System.currentTimeMillis();
       long tmsg = message.getJMSTimestamp();
       Assert.assertTrue(Math.abs(tnow - tmsg) < 1000);
+   }
+
+   @Test
+   public void testNullCorrelationIDandTypeProperties() throws Exception {
+
+      MessageConsumer consumer = session.createConsumer(queue);
+
+      conn.connect(defUser, defPass);
+
+      send(conn, getQueuePrefix() + getQueueName(), null, "Hello World");
+
+      TextMessage message = (TextMessage) consumer.receive(1000);
+      Assert.assertNotNull(message);
+      Assert.assertFalse(((ActiveMQMessage)message).getCoreMessage().getPropertyNames().contains(MessageUtil.CORRELATIONID_HEADER_NAME));
+      Assert.assertFalse(((ActiveMQMessage)message).getCoreMessage().getPropertyNames().contains(MessageUtil.TYPE_HEADER_NAME));
    }
 
    @Test

@@ -47,10 +47,14 @@ public class StompUtils {
       if (persistent != null) {
          msg.setDurable(Boolean.parseBoolean(persistent));
       }
-
-      msg.putObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME, headers.remove(Stomp.Headers.Send.CORRELATION_ID));
-      msg.putObjectProperty(MessageUtil.TYPE_HEADER_NAME, headers.remove(Stomp.Headers.Send.TYPE));
-
+      String correlationID = headers.remove(Stomp.Headers.Send.CORRELATION_ID);
+      if (correlationID != null) {
+         msg.putObjectProperty(MessageUtil.CORRELATIONID_HEADER_NAME, correlationID);
+      }
+      String type = headers.remove(Stomp.Headers.Send.TYPE);
+      if (type != null) {
+         msg.putObjectProperty(MessageUtil.TYPE_HEADER_NAME, type);
+      }
       String groupID = headers.remove(MessageUtil.JMSXGROUPID);
       if (groupID != null) {
          msg.putStringProperty(Message.HDR_GROUP_ID, SimpleString.toSimpleString(groupID));
