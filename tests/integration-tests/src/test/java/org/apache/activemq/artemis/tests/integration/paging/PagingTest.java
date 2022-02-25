@@ -2041,58 +2041,67 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Test
    public void testInabilityToCreateDirectoryDuringPaging() throws Exception {
-      // this test only applies to file-based stores
-      Assume.assumeTrue(storeType == StoreConfiguration.StoreType.FILE);
 
-      clearDataRecreateServerDirs();
+      AssertionLoggerHandler.startCapture();
 
-      Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setPagingDirectory("/" + UUID.randomUUID().toString());
+      try {
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+         // this test only applies to file-based stores
+         Assume.assumeTrue(storeType == StoreConfiguration.StoreType.FILE);
 
-      server.start();
+         clearDataRecreateServerDirs();
 
-      final int numberOfMessages = 100;
+         Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setPagingDirectory("/" + UUID.randomUUID().toString());
 
-      locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
+         server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 
-      sf = createSessionFactory(locator);
+         server.start();
 
-      ClientSession session = sf.createSession(false, true, true);
+         final int numberOfMessages = 100;
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+         locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+         sf = createSessionFactory(locator);
 
-      ClientMessage message = null;
+         ClientSession session = sf.createSession(false, true, true);
 
-      byte[] body = new byte[MESSAGE_SIZE];
+         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
 
-      ByteBuffer bb = ByteBuffer.wrap(body);
+         ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
-      for (int j = 1; j <= MESSAGE_SIZE; j++) {
-         bb.put(getSamplebyte(j));
-      }
+         ClientMessage message = null;
 
-      for (int i = 0; i < numberOfMessages; i++) {
-         message = session.createMessage(true);
+         byte[] body = new byte[MESSAGE_SIZE];
 
-         ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+         ByteBuffer bb = ByteBuffer.wrap(body);
 
-         bodyLocal.writeBytes(body);
-
-         message.putIntProperty(new SimpleString("id"), i);
-
-         try {
-            producer.send(message);
-         } catch (Exception e) {
-            // ignore
+         for (int j = 1; j <= MESSAGE_SIZE; j++) {
+            bb.put(getSamplebyte(j));
          }
+
+         for (int i = 0; i < numberOfMessages; i++) {
+            message = session.createMessage(true);
+
+            ActiveMQBuffer bodyLocal = message.getBodyBuffer();
+
+            bodyLocal.writeBytes(body);
+
+            message.putIntProperty(new SimpleString("id"), i);
+
+            try {
+               producer.send(message);
+            } catch (Exception e) {
+               // ignore
+            }
+         }
+         assertTrue(Wait.waitFor(() -> server.getState() == ActiveMQServer.SERVER_STATE.STOPPED, 5000, 200));
+         session.close();
+         sf.close();
+         locator.close();
+      } finally {
+         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ144010"));
+         AssertionLoggerHandler.stopCapture();
       }
-      assertTrue(Wait.waitFor(() -> server.getState() == ActiveMQServer.SERVER_STATE.STOPPED, 5000, 200));
-      session.close();
-      sf.close();
-      locator.close();
    }
 
    /**

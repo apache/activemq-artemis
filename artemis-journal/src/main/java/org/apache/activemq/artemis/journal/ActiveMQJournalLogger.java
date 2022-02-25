@@ -288,4 +288,10 @@ public interface ActiveMQJournalLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 144009, value = "Could not get a file in {0} seconds, System will retry the open but you may see increased latency in your system", format = Message.Format.MESSAGE_FORMAT)
    void cantOpenFileTimeout(long timeout);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 144010, value = "Critical IO Exception happened: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void criticalIO(String message, @Cause Exception error);
+
+
 }

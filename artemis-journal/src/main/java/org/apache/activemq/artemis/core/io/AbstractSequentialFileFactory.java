@@ -184,10 +184,9 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
    @Override
    public void onIOError(Exception exception, String message, SequentialFile file) {
+      ActiveMQJournalLogger.LOGGER.criticalIO(message, exception);
       if (critialErrorListener != null) {
          critialErrorListener.onIOException(exception, message, file);
-      } else {
-         logger.warn("Critical IO Error Called.  No Critical IO Error Handler Registered::" + message + " at file " + file, exception);
       }
    }
 
