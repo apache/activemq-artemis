@@ -186,13 +186,19 @@ Let's take a look at all the parameters in turn:
   flexibility to deal with any situation. Valid values are `ANYCAST`,
   `MULTICAST`, `PASS`, & `STRIP`. The default is `PASS`.
 
-- `concurrency`. For bridging high latency networks, and particularly for destinations
-  with a high throughput, more workers might have to be commited to the bridge. This is 
-  done with the concurrency parameter. Increasing the concurrency will get reflected 
-  by more consumers and producers showing up on the bridged destination, allowing
-  for increased parallelism across high latency networks.
+- `concurrency`. For bridging high latency networks, and particularly for
+  destinations with a high throughput, more workers might have to be commited
+  to the bridge. This is done with the `concurrency` parameter. Increasing the
+  concurrency will get reflected by more consumers and producers showing up on
+  the bridged destination, allowing for increased parallelism across high
+  latency networks. The default is `1`.
 
-  Default=1
+  When using a `concurrency` value greater than 1 multiple bridges will be
+  created and named with an index. For example, if a bridge named `myBridge`
+  was configured with a `concurrency` of `3` then actually 3 bridges would
+  be created named `myBridge-0`, `myBridge-1`, and `myBridge-2`. This is
+  important to note for management operations as each bridge will have its
+  own associated `BridgeControl`.
  
 - `static-connectors` or `discovery-group-ref`. Pick either of these options to
   connect the bridge to the target server.

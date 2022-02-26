@@ -24,7 +24,6 @@ import javax.management.MBeanOperationInfo;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.BridgeControl;
-import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.logs.AuditLogger;
@@ -34,15 +33,11 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
 
    private final Bridge bridge;
 
-   private final BridgeConfiguration configuration;
-
 
    public BridgeControlImpl(final Bridge bridge,
-                            final StorageManager storageManager,
-                            final BridgeConfiguration configuration) throws Exception {
+                            final StorageManager storageManager) throws Exception {
       super(BridgeControl.class, storageManager);
       this.bridge = bridge;
-      this.configuration = configuration;
    }
 
    // BridgeControlMBean implementation ---------------------------
@@ -54,7 +49,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         List<String> staticConnectors = configuration.getStaticConnectors();
+         List<String> staticConnectors = bridge.getConfiguration().getStaticConnectors();
          return staticConnectors.toArray(new String[staticConnectors.size()]);
       } finally {
          blockOnIO();
@@ -68,7 +63,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getForwardingAddress();
+         return bridge.getConfiguration().getForwardingAddress();
       } finally {
          blockOnIO();
       }
@@ -81,7 +76,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getQueueName();
+         return bridge.getConfiguration().getQueueName();
       } finally {
          blockOnIO();
       }
@@ -94,7 +89,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getDiscoveryGroupName();
+         return bridge.getConfiguration().getDiscoveryGroupName();
       } finally {
          blockOnIO();
       }
@@ -107,7 +102,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getFilterString();
+         return bridge.getConfiguration().getFilterString();
       } finally {
          blockOnIO();
       }
@@ -120,7 +115,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getReconnectAttempts();
+         return bridge.getConfiguration().getReconnectAttempts();
       } finally {
          blockOnIO();
       }
@@ -133,7 +128,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getName();
+         return bridge.getConfiguration().getName();
       } finally {
          blockOnIO();
       }
@@ -146,7 +141,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getRetryInterval();
+         return bridge.getConfiguration().getRetryInterval();
       } finally {
          blockOnIO();
       }
@@ -159,7 +154,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getRetryIntervalMultiplier();
+         return bridge.getConfiguration().getRetryIntervalMultiplier();
       } finally {
          blockOnIO();
       }
@@ -172,7 +167,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getMaxRetryInterval();
+         return bridge.getConfiguration().getMaxRetryInterval();
       } finally {
          blockOnIO();
       }
@@ -185,7 +180,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getClassName();
+         return bridge.getConfiguration().getTransformerConfiguration() == null ? null : bridge.getConfiguration().getTransformerConfiguration().getClassName();
       } finally {
          blockOnIO();
       }
@@ -206,7 +201,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.getTransformerConfiguration() == null ? null : configuration.getTransformerConfiguration().getProperties();
+         return bridge.getConfiguration().getTransformerConfiguration() == null ? null : bridge.getConfiguration().getTransformerConfiguration().getProperties();
       } finally {
          blockOnIO();
       }
@@ -232,7 +227,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.isUseDuplicateDetection();
+         return bridge.getConfiguration().isUseDuplicateDetection();
       } finally {
          blockOnIO();
       }
@@ -245,7 +240,7 @@ public class BridgeControlImpl extends AbstractControl implements BridgeControl 
       }
       clearIO();
       try {
-         return configuration.isHA();
+         return bridge.getConfiguration().isHA();
       } finally {
          blockOnIO();
       }
