@@ -1,10 +1,10 @@
 # Exclusive Queues
 
-Exclusive queues are special queues which route all messages to only one 
+Exclusive queues are special queues which dispatch all messages to only one 
 consumer at a time.
 
-This is useful when you want all messages to be processed serially by the same 
-consumer, when a producer does not specify [Message Grouping](message-grouping.md).
+This is useful when you want all messages to be processed _serially_ but you
+can't or don't want to use [Message Grouping](message-grouping.md).
 
 An example might be orders sent to an address and you need to consume them 
 in the exact same order they were produced.
@@ -12,7 +12,6 @@ in the exact same order they were produced.
 Obviously exclusive queues have a draw back that you cannot scale out the 
 consumers to improve consumption as only one consumer would technically be active. 
 Here we advise that you look at message groups first.
-
 
 ## Configuring Exclusive Queues
 

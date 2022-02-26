@@ -128,58 +128,8 @@ System.out.format("Received message: %s\n", messageReceived.getText());
 
 ## Forcing all consumers to be non-destructive
 
-When a consumer attaches to a queue, the normal behaviour is that messages are
-sent to that consumer are acquired exclusively by that consumer, and when the
-consumer acknowledges them, the messages are removed from the queue.
-
-Another common pattern is to have queue "browsers" which send all messages to
-the browser, but do not prevent other consumers from receiving the messages,
-and do not remove them from the queue when the browser is done with them. Such
-a browser is an instance of a "non-destructive" consumer.
-
-If every consumer on a queue is non destructive then we can obtain some
-interesting behaviours. In the case of a LVQ then the queue will always contain
-the most up to date value for every key. 
-
-A queue can be created to enforce all consumers are non-destructive for last
-value queue. This can be achieved using the following queue configuration:
-
-```xml
-<address name="foo.bar">
-   <multicast>
-      <queue name="orders1" last-value-key="reuters_code" non-destructive="true" />
-   </multicast>
-</address>
-```
-
-Or on auto-create when using the JMS Client by using address parameters when 
-creating the destination used by the consumer.
-
-```java
-Queue queue = session.createQueue("my.destination.name?last-value-key=reuters_code&non-destructive=true");
-Topic topic = session.createTopic("my.destination.name?last-value-key=reuters_code&non-destructive=true");
-```
-
-Also the default for all queues under and address can be defaulted using the 
-`address-setting` configuration:
-
-```xml
-<address-setting match="lastValueQueue">
-   <default-last-value-key>reuters_code</default-last-value-key>
-   <default-non-destructive>true</default-non-destructive>
-</address-setting>
-```
-
-By default, `default-non-destructive` is `false`.
-
-#### Bounding size using `expiry-delay`
-
-For queues other than LVQs, having only non-destructive consumers could mean
-that messages would never get deleted, leaving the queue to grow unconstrained.
-To prevent this you can use the ability to set a default `expiry-delay`.
-
-See [expiry-delay](message-expiry.md#configuring-expiry-delay) for more details
-on this.
+It's common to combine last-value queues with [non-destructive](non-destructive-queues.md)
+semantics.
 
 ## Clustering
 
