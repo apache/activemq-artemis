@@ -191,6 +191,10 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    @Override
    public Transformer getBridgeTransformer(String name, TransformerConfiguration transformerConfiguration) {
+      if (transformerConfiguration == null) {
+         return null;
+      }
+
       Transformer transformer = bridgeTransformers.get(name);
 
       if (transformer == null && transformerConfiguration != null && transformerConfiguration.getClassName() != null) {

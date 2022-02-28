@@ -122,6 +122,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
                                   final String storeAndForwardPrefix,
                                   final StorageManager storageManager) throws ActiveMQException {
       super(targetLocator, new BridgeConfiguration()
+         .setName(name == null ? null : name.toString())
          .setInitialConnectAttempts(initialConnectAttempts)
          .setReconnectAttempts(reconnectAttempts)
          .setReconnectAttemptsOnSameNode(0) // reconnectAttemptsOnSameNode means nothing on the clustering bridge since we always try the same
@@ -129,7 +130,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
          .setRetryIntervalMultiplier(retryMultiplier)
          .setMaxRetryInterval(maxRetryInterval)
          .setFilterString(filterString == null ? null : filterString.toString())
-         .setForwardingAddress(forwardingAddress.toString())
+         .setForwardingAddress(forwardingAddress == null ? null : forwardingAddress.toString())
          .setUseDuplicateDetection(useDuplicateDetection)
          .setUser(user)
          .setPassword(password)
