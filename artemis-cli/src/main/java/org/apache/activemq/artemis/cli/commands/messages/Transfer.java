@@ -40,10 +40,11 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 @Command(name = "transfer", description = "Moves Messages from one destination towards another destination")
 public class Transfer extends InputAbstract {
 
-   private static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
-
-   @Option(name = "--source-url", description = "URL towards the broker. (default: Read from current broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
+   @Option(name = "--source-url", description = "URL towards the broker. (default: Build URL from acceptors defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
    protected String sourceURL = DEFAULT_BROKER_URL;
+
+   @Option(name = "--source-acceptor", description = "Acceptor used to build URL towards the broker")
+   protected String sourceAcceptor;
 
    @Option(name = "--source-user", description = "User used to connect")
    protected String sourceUser;
@@ -114,6 +115,15 @@ public class Transfer extends InputAbstract {
 
    public Transfer setSourceURL(String sourceURL) {
       this.sourceURL = sourceURL;
+      return this;
+   }
+
+   public String getSourceAcceptor() {
+      return sourceAcceptor;
+   }
+
+   public Transfer setSourceAcceptor(String sourceAcceptor) {
+      this.sourceAcceptor = sourceAcceptor;
       return this;
    }
 
@@ -319,7 +329,7 @@ public class Transfer extends InputAbstract {
       // and still honor the one passed by parameter.
       // SupressWarnings was added to this method to supress the false positive here from error-prone.
       if (sourceURL == DEFAULT_BROKER_URL) {
-         String brokerURLInstance = getBrokerURLInstance();
+         String brokerURLInstance = getBrokerURLInstance(sourceAcceptor);
 
          if (brokerURLInstance != null) {
             sourceURL = brokerURLInstance;

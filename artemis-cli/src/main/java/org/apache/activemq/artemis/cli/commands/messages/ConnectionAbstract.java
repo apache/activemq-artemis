@@ -30,10 +30,11 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class ConnectionAbstract extends InputAbstract {
 
-   private static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
-
-   @Option(name = "--url", description = "URL towards the broker. (default: Read from current broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
+   @Option(name = "--url", description = "URL towards the broker. (default: Build URL from acceptors defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
    protected String brokerURL = DEFAULT_BROKER_URL;
+
+   @Option(name = "--acceptor", description = "Acceptor used to build URL towards the broker")
+   protected String acceptor;
 
    @Option(name = "--user", description = "User used to connect")
    protected String user;
@@ -46,6 +47,23 @@ public class ConnectionAbstract extends InputAbstract {
 
    @Option(name = "--protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
    String protocol = "core";
+
+   public String getBrokerURL() {
+      return brokerURL;
+   }
+
+   public void setBrokerURL(String brokerURL) {
+      this.brokerURL = brokerURL;
+   }
+
+   public String getAcceptor() {
+      return acceptor;
+   }
+
+   public ConnectionAbstract setAcceptor(String acceptor) {
+      this.acceptor = acceptor;
+      return this;
+   }
 
    public String getUser() {
       return user;
@@ -95,7 +113,7 @@ public class ConnectionAbstract extends InputAbstract {
       // and still honor the one passed by parameter.
       // SupressWarnings was added to this method to supress the false positive here from error-prone.
       if (brokerURL == DEFAULT_BROKER_URL) {
-         String brokerURLInstance = getBrokerURLInstance();
+         String brokerURLInstance = getBrokerURLInstance(acceptor);
 
          if (brokerURLInstance != null) {
             brokerURL = brokerURLInstance;
