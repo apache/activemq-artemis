@@ -2041,14 +2041,12 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Test
    public void testInabilityToCreateDirectoryDuringPaging() throws Exception {
+      // this test only applies to file-based stores
+      Assume.assumeTrue(storeType == StoreConfiguration.StoreType.FILE);
 
       AssertionLoggerHandler.startCapture();
 
       try {
-
-         // this test only applies to file-based stores
-         Assume.assumeTrue(storeType == StoreConfiguration.StoreType.FILE);
-
          clearDataRecreateServerDirs();
 
          Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setPagingDirectory("/" + UUID.randomUUID().toString());
