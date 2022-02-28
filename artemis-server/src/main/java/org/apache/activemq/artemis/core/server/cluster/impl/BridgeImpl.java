@@ -162,6 +162,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       this.configuration = configuration;
 
+      this.reconnectAttemptsInUse = configuration.getInitialConnectAttempts();
+
       this.serverLocator = serverLocator;
 
       this.nodeUUID = nodeUUID;
