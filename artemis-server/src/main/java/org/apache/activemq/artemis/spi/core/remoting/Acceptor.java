@@ -83,4 +83,15 @@ public interface Acceptor extends ActiveMQComponent {
    default ProtocolHandler getProtocolHandler() {
       return null;
    }
+
+   /**
+    * This is a utility method for Socket-based acceptor implementations to get the actual port used.
+    * This is useful for configurations which specify a port number of 0 which allows the JVM to select
+    * an ephemeral port.
+    *
+    * @return the actual port used if using a Socket-based acceptor implementation; -1 otherwise
+    */
+   default int getActualPort() {
+      return -1;
+   }
 }
