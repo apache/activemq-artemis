@@ -22,6 +22,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,17 +63,15 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
 
 
    Queue[] queues = new Queue[NUMBER_OF_QUEUES];
-   Thread[] peskyExpires = new Thread[NUMBER_OF_QUEUES];
+   ExecutorService expiresExecutor;
 
 
    @After
    @Override
    public void tearDown() throws Exception {
       running.set(false);
-      for (Thread t : peskyExpires) {
-         t.join(5000);
-         Assert.assertFalse(t.isAlive());
-      }
+      expiresExecutor.shutdown();
+      Assert.assertTrue(expiresExecutor.awaitTermination(10, TimeUnit.SECONDS));
       super.tearDown();
    }
 
@@ -79,6 +79,7 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
    @Override
    public void setUp() throws Exception {
       super.setUp();
+      expiresExecutor = Executors.newFixedThreadPool(NUMBER_OF_QUEUES);
 
       Configuration config = createDefaultConfig(0, true).setJournalSyncNonTransactional(false);
 
@@ -100,7 +101,8 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
       for (int i = 0; i < NUMBER_OF_QUEUES; i++) {
          Queue queue = server.createQueue(new QueueConfiguration("q" + i).setRoutingType(RoutingType.MULTICAST).setAddress(ADDRESS));
          queues[i] = queue;
-         peskyExpires[i] = new Thread(() -> {
+         expiresExecutor.execute(() -> {
+            Thread.currentThread().setName("Expiry on " + queue.getName() + ".." + Thread.currentThread().getName());
             while (running.get()) {
                try {
                   // I am exagerating calls into expireReferences
