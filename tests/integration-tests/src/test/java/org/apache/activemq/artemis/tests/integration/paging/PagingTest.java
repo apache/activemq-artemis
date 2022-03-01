@@ -2099,7 +2099,9 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
          locator.close();
       } finally {
-         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ144010"));
+         if (storeType != StoreConfiguration.StoreType.DATABASE) {
+            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ144010"));
+         }
          AssertionLoggerHandler.stopCapture();
       }
    }
