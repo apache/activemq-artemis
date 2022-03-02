@@ -85,5 +85,6 @@
 * [Maven Plugin](maven-plugin.md)
 * [Unit Testing](unit-testing.md)
 * [Troubleshooting and Performance Tuning](perf-tuning.md)
+* [Performance Tools](perf-tools.md)
 * [Configuration Reference](configuration-index.md)
 * [Restart Sequence](restart-sequence.md)

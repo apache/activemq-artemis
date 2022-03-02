@@ -281,6 +281,12 @@ This product bundles jakarta.xml.bind-api, which is available under the
 Eclipse Distribution License (EDL) 1.0. For details, see licenses/EDL-1.0.txt
 
 ==============================================================================
+For HdrHistogram:
+==============================================================================
+This product bundles HdrHistogram, which is available under the
+"2-clause BSD" license. For details, see licences/LICENSE-hdrhistogram.txt.
+
+==============================================================================
 Apache ActiveMQ Artemis Subcomponents:
 
 The Apache ActiveMQ Artemis project contains subcomponents with separate copyright

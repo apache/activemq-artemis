@@ -43,10 +43,10 @@ public class ConnectionAbstract extends InputAbstract {
    protected String password;
 
    @Option(name = "--clientID", description = "ClientID to be associated with connection")
-   String clientID;
+   protected String clientID;
 
    @Option(name = "--protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
-   String protocol = "core";
+   protected String protocol = "core";
 
    public String getBrokerURL() {
       return brokerURL;
@@ -126,16 +126,27 @@ public class ConnectionAbstract extends InputAbstract {
    }
 
    protected ConnectionFactory createConnectionFactory() throws Exception {
+      return createConnectionFactory(brokerURL, user, password, clientID, protocol);
+   }
+
+   protected ConnectionFactory createConnectionFactory(String brokerURL,
+                                                       String user,
+                                                       String password,
+                                                       String clientID,
+                                                       String protocol) throws Exception {
       if (protocol.equals("core")) {
-         return createCoreConnectionFactory();
+         return createCoreConnectionFactory(brokerURL, user, password, clientID);
       } else if (protocol.equals("amqp")) {
-         return createAMQPConnectionFactory();
+         return createAMQPConnectionFactory(brokerURL, user, password, clientID);
       } else {
          throw new IllegalStateException("protocol " + protocol + " not supported");
       }
    }
 
-   private ConnectionFactory createAMQPConnectionFactory() {
+   private ConnectionFactory createAMQPConnectionFactory(String brokerURL,
+                                                         String user,
+                                                         String password,
+                                                         String clientID) {
       if (brokerURL.startsWith("tcp://")) {
          // replacing tcp:// by amqp://
          brokerURL = "amqp" + brokerURL.substring(3);
@@ -172,8 +183,14 @@ public class ConnectionAbstract extends InputAbstract {
    }
 
    protected ActiveMQConnectionFactory createCoreConnectionFactory() {
-      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(brokerURL, user, password);
+      return createCoreConnectionFactory(brokerURL, user, password, clientID);
+   }
 
+   protected ActiveMQConnectionFactory createCoreConnectionFactory(String brokerURL,
+                                                                   String user,
+                                                                   String password,
+                                                                   String clientID) {
+      ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory(brokerURL, user, password);
       if (clientID != null) {
          System.out.println("Consumer:: clientID = " + clientID);
          cf.setClientID(clientID);

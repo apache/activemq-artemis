@@ -1,0 +1,154 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.cli.commands.messages.perf;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.Session;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+
+import io.airlift.airline.Arguments;
+import io.airlift.airline.Option;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
+import org.apache.activemq.artemis.cli.commands.messages.DestAbstract;
+
+import static java.util.Collections.singletonList;
+
+public abstract class PerfCommand extends ConnectionAbstract {
+
+   @Option(name = "--show-latency", description = "Show latencies at interval on output (Default is disabled)")
+   protected boolean showLatency = false;
+
+   @Option(name = "--json", description = "Report file name (Default is none)")
+   protected String reportFileName = null;
+
+   @Option(name = "--hdr", description = "HDR Histogram Report file name (Default is none)")
+   protected String hdrFileName = null;
+
+   @Option(name = "--duration", description = "Test duration in seconds (Default: 0)")
+   protected int duration = 0;
+
+   @Option(name = "--warmup", description = "Warmup in seconds (Default: 0)")
+   protected int warmup = 0;
+
+   @Option(name = "--message-count", description = "Total number of messages (Default: 0)")
+   protected long messageCount = 0;
+
+   @Option(name = "--num-destinations", description = "If present, generate --num-destinations for each destination name, using it as a prefix and adding a number [0,--num-destinations) as suffix. (Default: none)")
+   protected int numDestinations = 1;
+
+   @Arguments(description = "List of destination names. Each name can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
+   protected List<String> destinations;
+
+   private final CountDownLatch completed = new CountDownLatch(1);
+
+   @Override
+   public Object execute(ActionContext context) throws Exception {
+      super.execute(context);
+      final ConnectionFactory factory = createConnectionFactory(brokerURL, user, password, null, getProtocol());
+      final Destination[] jmsDestinations = lookupDestinations(factory, destinations, numDestinations);
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+         onInterruptBenchmark();
+         try {
+            completed.await();
+         } catch (InterruptedException ignored) {
+
+         }
+      }));
+      try {
+         onExecuteBenchmark(factory, jmsDestinations, context);
+      } finally {
+         completed.countDown();
+      }
+      return null;
+   }
+
+   protected abstract void onExecuteBenchmark(ConnectionFactory factory,
+                                              Destination[] jmsDestinations,
+                                              ActionContext context) throws Exception;
+
+   protected abstract void onInterruptBenchmark();
+
+   protected boolean collectAndReportStatisticsWhileRunning(boolean warmingUp,
+                                                            final LiveStatistics statistics,
+                                                            final StringBuilder skratchBuffer,
+                                                            final long endWarmup,
+                                                            final long end,
+                                                            final BenchmarkService benchmark) throws IOException {
+      while (benchmark.isRunning()) {
+         if (end != 0) {
+            final long tick = System.currentTimeMillis();
+            if (tick - end >= 0) {
+               break;
+            }
+         }
+         if (endWarmup != 0 && warmingUp) {
+            final long tick = System.currentTimeMillis();
+            if (tick - endWarmup >= 0) {
+               warmingUp = false;
+            }
+         }
+         statistics.sampleMetrics(warmingUp);
+         skratchBuffer.setLength(0);
+         statistics.outAtInterval(warmingUp, skratchBuffer, LiveStatistics.ReportInterval.sec, showLatency);
+         if (!isSilentInput()) {
+            context.out.println(skratchBuffer);
+         }
+         LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1));
+      }
+      return warmingUp;
+   }
+
+   protected final Destination[] lookupDestinations(final ConnectionFactory factory) throws Exception {
+      return lookupDestinations(factory, destinations, numDestinations);
+   }
+
+   private static Destination[] lookupDestinations(final ConnectionFactory factory,
+                                                   final List<String> destinations,
+                                                   final int numDestinations) throws Exception {
+      final List<String> destinationNames;
+      if (destinations == null || destinations.isEmpty()) {
+         destinationNames = singletonList("queue://TEST");
+      } else {
+         destinationNames = destinations;
+      }
+      final Destination[] jmsDestinations = new Destination[destinationNames.size() * numDestinations];
+      try (Connection connection = factory.createConnection();
+           Session session = connection.createSession()) {
+         int i = 0;
+         for (String destinationName : destinationNames) {
+            if (numDestinations == 1) {
+               jmsDestinations[i] = DestAbstract.getDestination(session, destinationName);
+               i++;
+            } else {
+               for (int suffix = 0; suffix < numDestinations; suffix++) {
+                  jmsDestinations[i] = DestAbstract.getDestination(session, destinationName + suffix);
+                  i++;
+               }
+            }
+         }
+      }
+      return jmsDestinations;
+   }
+
+}
