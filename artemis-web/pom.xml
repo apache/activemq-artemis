@@ -102,10 +102,20 @@
          <artifactId>netty-handler</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.eclipse.jetty.aggregate</groupId>
-         <artifactId>jetty-all</artifactId>
-         <type>jar</type>
-         <classifier>uber</classifier>
+         <groupId>org.apache.tomcat</groupId>
+         <artifactId>tomcat-servlet-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-server</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-servlet</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-webapp</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>

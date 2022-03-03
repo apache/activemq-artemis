@@ -33,8 +33,6 @@
 
     <properties>
         <activemq.basedir>${project.basedir}/..</activemq.basedir>
-
-        <geronimo.servlet.3.0.spec.version>1.0</geronimo.servlet.3.0.spec.version>
     </properties>
 
     <dependencyManagement>
@@ -46,14 +44,6 @@
                 <groupId>io.hawt</groupId>
                 <artifactId>hawtio-plugin-mbean</artifactId>
                 <version>${hawtio.version}</version>
-            </dependency>
-
-            <!-- servlet API is provided by the container -->
-            <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                <version>${geronimo.servlet.3.0.spec.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- logging -->

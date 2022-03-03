@@ -57,10 +57,12 @@
          <artifactId>jboss-logmanager</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.eclipse.jetty.aggregate</groupId>
-         <artifactId>jetty-all</artifactId>
-         <type>jar</type>
-         <classifier>uber</classifier>
+         <groupId>org.apache.tomcat</groupId>
+         <artifactId>tomcat-servlet-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-server</artifactId>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
@@ -94,6 +96,12 @@
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>tjws</artifactId>
          <scope>provided</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>javax.servlet</groupId>
+               <artifactId>servlet-api</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>

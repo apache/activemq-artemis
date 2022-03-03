@@ -103,6 +103,7 @@
       <jsr305.version>3.0.2</jsr305.version>
       <jboss.logging.version>3.4.2.Final</jboss.logging.version>
       <jetty.version>9.4.44.v20210927</jetty.version>
+      <tomcat.servlet-api.version>8.5.76</tomcat.servlet-api.version>
       <jgroups.version>5.2.0.Final</jgroups.version>
       <errorprone.version>2.10.0</errorprone.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
@@ -750,13 +751,30 @@
 
          <!-- ## Jetty web Dependencies ##-->
          <dependency>
-            <groupId>org.eclipse.jetty.aggregate</groupId>
-            <artifactId>jetty-all</artifactId>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
             <version>${jetty.version}</version>
-            <type>jar</type>
-            <classifier>uber</classifier>
+            <exclusions>
+               <exclusion>
+                  <groupId>javax.servlet</groupId>
+                  <artifactId>javax.servlet-api</artifactId>
+               </exclusion>
+            </exclusions>
             <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
-        </dependency>
+         </dependency>
+         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-bom</artifactId>
+            <version>${jetty.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+            <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
+         </dependency>
+         <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>${tomcat.servlet-api.version}</version>
+         </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 
          <!-- for URL reflection. Using Populate on URI Factory at activemq-commons -->

@@ -32,25 +32,11 @@
         </includes>
         <useProjectArtifact>false</useProjectArtifact>
       </dependencySet>
-      <dependencySet>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-         <includes>
-            <include>org.eclipse.jetty.aggregate:jetty-all:jar:uber</include>
-         </includes>
-         <outputDirectory>lib</outputDirectory>
-         <unpack>false</unpack>
-         <useProjectArtifact>false</useProjectArtifact>
-      </dependencySet>
 
       <dependencySet>
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
          <excludes>
-            <!-- Handled above for now to avoid it bringing in duplicative transitive deps -->
-            <!-- Should not be using this according to the jetty folks: https://www.eclipse.org//lists/jetty-users/msg06029.html -->
-            <exclude>org.eclipse.jetty.aggregate:jetty-all:jar:uber</exclude>
-
             <!-- Handled above -->
             <exclude>org.apache.activemq:artemis-boot</exclude>
 
