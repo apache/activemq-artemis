@@ -362,10 +362,12 @@
 
       <!-- rest test -->
       <dependency>
-         <groupId>org.eclipse.jetty.aggregate</groupId>
-         <artifactId>jetty-all</artifactId>
-         <type>jar</type>
-         <classifier>uber</classifier>
+         <groupId>org.apache.tomcat</groupId>
+         <artifactId>tomcat-servlet-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-server</artifactId>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>

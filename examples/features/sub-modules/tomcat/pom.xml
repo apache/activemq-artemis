@@ -35,8 +35,6 @@ under the License.
         <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <projectBaseUri>${project.baseUri}</projectBaseUri>
-
-        <geronimo.servlet.3.0.spec.version>1.0</geronimo.servlet.3.0.spec.version>
     </properties>
 
     <dependencies>
@@ -58,7 +56,6 @@ under the License.
             <version>${spring.version}</version>
         </dependency>
         
-        
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-jms-client</artifactId>
@@ -66,9 +63,8 @@ under the License.
         </dependency>
 
         <dependency>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-servlet_3.0_spec</artifactId>
-            <version>${geronimo.servlet.3.0.spec.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>
