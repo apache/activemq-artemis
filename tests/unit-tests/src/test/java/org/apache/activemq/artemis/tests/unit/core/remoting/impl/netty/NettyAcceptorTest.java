@@ -34,8 +34,10 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ServerConnectionLifeCycleListener;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.PortCheckRule;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -122,5 +124,24 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       assertTrue(server.getRemotingService().getAcceptor("default").isStarted());
       assertTrue(server.getRemotingService().getAcceptor("start").isStarted());
       assertFalse(server.getRemotingService().getAcceptor("noStart").isStarted());
+   }
+
+   @Test
+   public void testActualPort() throws Exception {
+      String firstPort0 = RandomUtil.randomString();
+      String secondPort0 = RandomUtil.randomString();
+      String normal = RandomUtil.randomString();
+      String invm = RandomUtil.randomString();
+      ActiveMQServer server = createServer(false, createDefaultInVMConfig());
+      server.getConfiguration().addAcceptorConfiguration(firstPort0, "tcp://127.0.0.1:0");
+      server.getConfiguration().addAcceptorConfiguration(secondPort0, "tcp://127.0.0.1:0");
+      server.getConfiguration().addAcceptorConfiguration(normal, "tcp://127.0.0.1:61616");
+      server.getConfiguration().addAcceptorConfiguration(invm, "vm://1");
+      server.start();
+      Wait.assertTrue(() -> server.getRemotingService().getAcceptor(firstPort0).getActualPort() > 0);
+      Wait.assertTrue(() -> server.getRemotingService().getAcceptor(secondPort0).getActualPort() > 0);
+      Wait.assertTrue(() -> server.getRemotingService().getAcceptor(firstPort0).getActualPort() != server.getRemotingService().getAcceptor(secondPort0).getActualPort());
+      Wait.assertEquals(61616, () -> server.getRemotingService().getAcceptor(normal).getActualPort());
+      Wait.assertEquals(-1, () -> server.getRemotingService().getAcceptor(invm).getActualPort());
    }
 }
