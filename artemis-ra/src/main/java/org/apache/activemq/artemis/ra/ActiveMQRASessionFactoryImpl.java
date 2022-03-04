@@ -115,8 +115,6 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    private final Set<TemporaryTopic> tempTopics = new HashSet<>();
 
-   private boolean allowLocalTransaction;
-
    /**
     * Constructor
     *
