@@ -84,7 +84,6 @@ public class FileIOUtilTest {
             file.close(true, false);
          }
       } finally {
-         file.waitNotPending();
          factory.stop();
       }
 

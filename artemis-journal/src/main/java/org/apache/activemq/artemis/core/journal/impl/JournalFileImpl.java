@@ -115,7 +115,7 @@ public class JournalFileImpl implements JournalFile {
 
    @Override
    public boolean isCanReclaim() {
-      return reclaimable && posReclaimCriteria && negReclaimCriteria && !file.isPending();
+      return reclaimable && posReclaimCriteria && negReclaimCriteria;
    }
 
    @Override

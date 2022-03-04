@@ -2050,10 +2050,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       }
 
       processBackup();
-
-      for (JournalFile file : dataFilesToProcess) {
-         file.getFile().waitNotPending();
-      }
       return dataFilesToProcess;
    }
 
