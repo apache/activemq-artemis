@@ -16,18 +16,17 @@
  */
 package org.apache.activemq.artemis.ra.inflow;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import javax.jms.MessageListener;
 import javax.resource.ResourceException;
 import javax.resource.spi.endpoint.MessageEndpoint;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -88,7 +87,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
    private final int sessionNr;
 
-   private final TransactionManager tm;
+   private final TransactionSynchronizationRegistry tsr;
 
    private ClientSessionFactory cf;
 
@@ -98,7 +97,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
 
    public ActiveMQMessageHandler(final ConnectionFactoryOptions options,
                                  final ActiveMQActivation activation,
-                                 final TransactionManager tm,
+                                 final TransactionSynchronizationRegistry tsr,
                                  final ClientSessionInternal session,
                                  final ClientSessionFactory cf,
                                  final int sessionNr) {
@@ -107,7 +106,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       this.session = session;
       this.cf = cf;
       this.sessionNr = sessionNr;
-      this.tm = tm;
+      this.tsr = tsr;
    }
 
    public void setup() throws Exception {
@@ -299,10 +298,6 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       boolean beforeDelivery = false;
 
       try {
-         if (activation.getActivationSpec().getTransactionTimeout() > 0 && tm != null) {
-            tm.setTransactionTimeout(activation.getActivationSpec().getTransactionTimeout());
-         }
-
          logger.trace("ActiveMQMessageHandler::calling beforeDelivery on message {}", message);
 
          endpoint.beforeDelivery(ActiveMQActivation.ONMESSAGE);
@@ -342,27 +337,16 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          ActiveMQRALogger.LOGGER.errorDeliveringMessage(e);
          // we need to call before/afterDelivery as a pair
          int status = Status.STATUS_NO_TRANSACTION;
-         if (useXA && tm != null) {
-            try {
-               status = tm.getStatus();
-            } catch (SystemException e1) {
-               //not sure we can do much more here
-            }
+         if (useXA && tsr != null) {
+            status = tsr.getTransactionStatus();
          }
          if (beforeDelivery || status != Status.STATUS_NO_TRANSACTION) {
-            if (useXA && tm != null) {
+            if (useXA && tsr != null) {
                // This is the job for the container,
                // however if the container throws an exception because of some other errors,
                // there are situations where the container is not setting the rollback only
                // this is to avoid a scenario where afterDelivery would kick in
-               try {
-                  Transaction tx = tm.getTransaction();
-                  if (tx != null) {
-                     tx.setRollbackOnly();
-                  }
-               } catch (Exception e1) {
-                  ActiveMQRALogger.LOGGER.unableToClearTheTransaction(e1);
-               }
+               tsr.setRollbackOnly();
             }
 
             MessageEndpoint endToUse = endpoint;
