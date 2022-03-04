@@ -84,8 +84,11 @@ public class MQTTPublishManager {
 
    private MQTTSessionState.OutboundStore outboundStore;
 
-   public MQTTPublishManager(MQTTSession session) {
+   private boolean closeMqttConnectionOnPublishAuthorizationFailure;
+
+   public MQTTPublishManager(MQTTSession session, boolean closeMqttConnectionOnPublishAuthorizationFailure) {
       this.session = session;
+      this.closeMqttConnectionOnPublishAuthorizationFailure = closeMqttConnectionOnPublishAuthorizationFailure;
    }
 
    synchronized void start() {
@@ -173,7 +176,7 @@ public class MQTTPublishManager {
    void sendToQueue(MqttPublishMessage message, boolean internal) throws Exception {
       synchronized (lock) {
          String topic = message.variableHeader().topicName();
-         if (session.is5()) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
             Integer alias = MQTTUtil.getProperty(Integer.class, message.variableHeader().properties(), TOPIC_ALIAS);
             Integer topicAliasMax = session.getProtocolManager().getTopicAliasMaximum();
             if (alias != null) {
@@ -222,18 +225,40 @@ public class MQTTPublishManager {
                tx.commit();
             } catch (ActiveMQSecurityException e) {
                tx.rollback();
-               if (session.is5()) {
+               if (session.getVersion() == MQTTVersion.MQTT_5) {
                   sendMessageAck(internal, qos, messageId, MQTTReasonCodes.NOT_AUTHORIZED);
                   return;
-               } else {
+               } else if (session.getVersion() == MQTTVersion.MQTT_3_1_1) {
                   /*
-                   * For MQTT 3.x clients:
+                   * For MQTT 3.1.1 clients:
                    *
                    * [MQTT-3.3.5-2] If a Server implementation does not authorize a PUBLISH to be performed by a Client;
                    * it has no way of informing that Client. It MUST either make a positive acknowledgement, according
                    * to the normal QoS rules, or close the Network Connection
+                   *
+                   * Throwing an exception here will ultimately close the connection. This is the default behavior.
                    */
-                  throw e;
+                  if (closeMqttConnectionOnPublishAuthorizationFailure) {
+                     throw e;
+                  } else {
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("MQTT 3.1.1 client not authorized to publish message.");
+                     }
+                  }
+               } else {
+                  /*
+                   * For MQTT 3.1 clients:
+                   *
+                   * Note that if a server implementation does not authorize a PUBLISH to be made by a client, it has no
+                   * way of informing that client. It must therefore make a positive acknowledgement, according to the
+                   * normal QoS rules, and the client will *not* be informed that it was not authorized to publish the
+                   * message.
+                   *
+                   * Log the failure since we have to just swallow it.
+                   */
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("MQTT 3.1 client not authorized to publish message.");
+                  }
                }
             } catch (Throwable t) {
                MQTTLogger.LOGGER.failedToPublishMqttMessage(t.getMessage(), t);
@@ -365,7 +390,7 @@ public class MQTTPublishManager {
       boolean isRetain = message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY);
       MqttProperties mqttProperties = getPublishProperties(message);
 
-      if (session.is5()) {
+      if (session.getVersion() == MQTTVersion.MQTT_5) {
          if (session.getState().getSubscription(message.getAddress()) != null && !session.getState().getSubscription(message.getAddress()).option().isRetainAsPublished()) {
             isRetain = false;
          }
@@ -393,7 +418,7 @@ public class MQTTPublishManager {
       MqttPublishMessage publish = new MqttPublishMessage(header, varHeader, payload);
 
       int maxSize = session.getState().getClientMaxPacketSize();
-      if (session.is5() && maxSize != 0) {
+      if (session.getVersion() == MQTTVersion.MQTT_5 && maxSize != 0) {
          int size = MQTTUtil.calculateMessageSize(publish);
          if (size > maxSize) {
             /*

@@ -16,14 +16,19 @@
  */
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
+import java.io.EOFException;
 import java.util.Arrays;
 
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.MQTTException;
+import org.fusesource.mqtt.client.QoS;
+import org.fusesource.mqtt.client.Topic;
 import org.fusesource.mqtt.codec.CONNACK;
 import org.junit.Test;
+
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
 
 public class MQTTSecurityTest extends MQTTTestSupport {
 
@@ -76,5 +81,109 @@ public class MQTTSecurityTest extends MQTTTestSupport {
                connection.disconnect();
          }
       }
+   }
+
+   @Test(timeout = 30000)
+   public void testPublishAuthorizationFailOn311WithDisconnect() throws Exception {
+      String version = "3.1.1";
+
+      BlockingConnection connection = null;
+      try {
+         MQTT mqtt = createMQTTConnection("test-" + version, true);
+         mqtt.setUserName(noprivUser);
+         mqtt.setPassword(noprivPass);
+         mqtt.setConnectAttemptsMax(1);
+         mqtt.setVersion(version);
+         connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.publish("foo", new byte[0], QoS.EXACTLY_ONCE, false);
+         fail("Should have triggered an exception");
+      } catch (EOFException e) {
+         // OK
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail("Should not have caught an Exception");
+      } finally {
+         if (connection != null && connection.isConnected())
+            connection.disconnect();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testPublishAuthorizationFailOn311WithoutDisconnect() throws Exception {
+      setAcceptorProperty("closeMqttConnectionOnPublishAuthorizationFailure=false");
+      String version = "3.1.1";
+
+      BlockingConnection connection = null;
+      try {
+         MQTT mqtt = createMQTTConnection("test-" + version, true);
+         mqtt.setUserName(noprivUser);
+         mqtt.setPassword(noprivPass);
+         mqtt.setConnectAttemptsMax(1);
+         mqtt.setVersion(version);
+         connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.publish("foo", new byte[0], QoS.EXACTLY_ONCE, false);
+         assertTrue(connection.isConnected());
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail("Should not have caught an Exception");
+      } finally {
+         if (connection != null && connection.isConnected())
+            connection.disconnect();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testPublishAuthorizationFailOn31() throws Exception {
+      String version = "3.1";
+
+      BlockingConnection connection = null;
+      try {
+         MQTT mqtt = createMQTTConnection("test-" + version, true);
+         mqtt.setUserName(noprivUser);
+         mqtt.setPassword(noprivPass);
+         mqtt.setConnectAttemptsMax(1);
+         mqtt.setVersion(version);
+         connection = mqtt.blockingConnection();
+         connection.connect();
+         connection.publish("foo", new byte[0], QoS.EXACTLY_ONCE, false);
+         assertTrue(connection.isConnected());
+      } catch (Exception e) {
+         e.printStackTrace();
+         fail("Should not have caught an Exception");
+      } finally {
+         if (connection != null && connection.isConnected())
+            connection.disconnect();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testSubscribeAuthorizationFail() throws Exception {
+      for (String version : Arrays.asList("3.1", "3.1.1")) {
+         BlockingConnection connection = null;
+         try {
+            MQTT mqtt = createMQTTConnection("test-" + version, true);
+            mqtt.setUserName(noprivUser);
+            mqtt.setPassword(noprivPass);
+            mqtt.setConnectAttemptsMax(1);
+            mqtt.setVersion(version);
+            connection = mqtt.blockingConnection();
+            connection.connect();
+            connection.subscribe(new Topic[]{new Topic("foo", QoS.AT_MOST_ONCE)});
+            assertTrue(connection.isConnected());
+         } catch (Exception e) {
+            e.printStackTrace();
+            fail("Should not have caught an Exception");
+         } finally {
+            if (connection != null && connection.isConnected())
+               connection.disconnect();
+         }
+      }
+   }
+
+   protected void setAcceptorProperty(String property) throws Exception {
+      server.getRemotingService().getAcceptor(MQTT_PROTOCOL_NAME).stop();
+      server.getRemotingService().createAcceptor(MQTT_PROTOCOL_NAME, "tcp://localhost:" + port + "?protocols=MQTT;" + property).start();
    }
 }

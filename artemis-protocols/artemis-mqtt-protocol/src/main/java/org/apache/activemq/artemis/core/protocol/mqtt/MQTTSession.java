@@ -65,7 +65,7 @@ public class MQTTSession {
 
    private CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
-   private boolean five = false;
+   private MQTTVersion version = null;
 
    private boolean usingServerKeepAlive = false;
 
@@ -80,7 +80,7 @@ public class MQTTSession {
       this.connection = connection;
 
       mqttConnectionManager = new MQTTConnectionManager(this);
-      mqttPublishManager = new MQTTPublishManager(this);
+      mqttPublishManager = new MQTTPublishManager(this, protocolManager.isCloseMqttConnectionOnPublishAuthorizationFailure());
       sessionCallback = new MQTTSessionCallback(this, connection);
       subscriptionManager = new MQTTSubscriptionManager(this);
       retainMessageManager = new MQTTRetainMessageManager(this);
@@ -120,7 +120,7 @@ public class MQTTSession {
             state.setDisconnectedTime(System.currentTimeMillis());
          }
 
-         if (is5()) {
+         if (getVersion() == MQTTVersion.MQTT_5) {
             if (state.getClientSessionExpiryInterval() == 0) {
                if (state.isWill() && failure) {
                   // If the session expires the will message must be sent no matter the will delay
@@ -234,12 +234,12 @@ public class MQTTSession {
       return coreMessageObjectPools;
    }
 
-   public boolean is5() {
-      return five;
+   public void setVersion(MQTTVersion version) {
+      this.version = version;
    }
 
-   public void set5(boolean five) {
-      this.five = five;
+   public MQTTVersion getVersion() {
+      return this.version;
    }
 
    public boolean isUsingServerKeepAlive() {

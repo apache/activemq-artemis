@@ -72,6 +72,8 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    private int maximumPacketSize = MQTTUtil.DEFAULT_MAXIMUM_PACKET_SIZE;
 
+   private boolean closeMqttConnectionOnPublishAuthorizationFailure = true;
+
    private final MQTTRoutingHandler routingHandler;
 
    MQTTProtocolManager(ActiveMQServer server,
@@ -126,6 +128,14 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
    public MQTTProtocolManager setServerKeepAlive(int serverKeepAlive) {
       this.serverKeepAlive = serverKeepAlive;
       return this;
+   }
+
+   public boolean isCloseMqttConnectionOnPublishAuthorizationFailure() {
+      return closeMqttConnectionOnPublishAuthorizationFailure;
+   }
+
+   public void setCloseMqttConnectionOnPublishAuthorizationFailure(boolean closeMqttConnectionOnPublishAuthorizationFailure) {
+      this.closeMqttConnectionOnPublishAuthorizationFailure = closeMqttConnectionOnPublishAuthorizationFailure;
    }
 
    @Override
