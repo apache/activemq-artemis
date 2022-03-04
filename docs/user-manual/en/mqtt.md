@@ -263,3 +263,23 @@ However, there are currently no challenge / response mechanisms implemented so i
 a client passes the "Authentication Method" property in its `CONNECT` packet it will
 receive a `CONNACK` with a reason code of `0x8C` (i.e. bad authentication method)
 and the network connection will be closed.
+
+## Publish Authorization Failures
+
+The MQTT 3.1.1 specification is ambiguous regarding the broker's behavior when
+a `PUBLISH` packet fails due to a lack of authorization. In [section 3.3.5](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718042)
+it says:
+
+> If a Server implementation does not authorize a PUBLISH to be performed by a
+> Client; it has no way of informing that Client. It MUST either make a positive
+> acknowledgement, according to the normal QoS rules, or close the Network
+> Connection
+
+By default the broker will close the network connection. However if you'd rather
+have the broker make a positive acknowledgement then set the URL parameter
+`closeMqttConnectionOnPublishAuthorizationFailure` to `false` on the relevant
+MQTT `acceptor` in `broker.xml`, e.g.:
+
+```xml
+<acceptor name="mqtt">tcp://0.0.0:1883?protocols=MQTT;closeMqttConnectionOnPublishAuthorizationFailure=false</acceptor>
+```

@@ -58,9 +58,8 @@ public class MQTTConnectionManager {
    }
 
    void connect(MqttConnectMessage connect, String validatedUser) throws Exception {
-      int packetVersion = connect.variableHeader().version();
-      if (packetVersion == MqttVersion.MQTT_5.protocolLevel()) {
-         session.set5(true);
+      session.setVersion(MQTTVersion.getVersion(connect.variableHeader().version()));
+      if (session.getVersion() == MQTTVersion.MQTT_5) {
          session.getConnection().setProtocolVersion(Byte.toString(MqttVersion.MQTT_5.protocolLevel()));
          String authenticationMethod = MQTTUtil.getProperty(String.class, connect.variableHeader().properties(), AUTHENTICATION_METHOD);
 
@@ -121,7 +120,7 @@ public class MQTTConnectionManager {
             session.getState().setWillRetain(connect.variableHeader().isWillRetain());
             session.getState().setWillTopic(connect.payload().willTopic());
 
-            if (session.is5()) {
+            if (session.getVersion() == MQTTVersion.MQTT_5) {
                MqttProperties willProperties = connect.payload().willProperties();
                if (willProperties != null) {
                   MqttProperties.MqttProperty willDelayInterval = willProperties.getProperty(WILL_DELAY_INTERVAL.value());
@@ -133,7 +132,7 @@ public class MQTTConnectionManager {
          }
 
          MqttProperties connackProperties;
-         if (session.is5()) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
             session.getConnection().setReceiveMaximum(MQTTUtil.getProperty(Integer.class, connect.variableHeader().properties(), RECEIVE_MAXIMUM, -1));
 
             sessionState.setClientSessionExpiryInterval(MQTTUtil.getProperty(Integer.class, connect.variableHeader().properties(), SESSION_EXPIRY_INTERVAL, 0));
@@ -241,7 +240,7 @@ public class MQTTConnectionManager {
 
          if (connection != null) {
             MQTTSession existingSession = session.getProtocolManager().getSessionState(clientId).getSession();
-            if (session.is5()) {
+            if (session.getVersion() == MQTTVersion.MQTT_5) {
                existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
             }
             // [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST disconnect the existing client

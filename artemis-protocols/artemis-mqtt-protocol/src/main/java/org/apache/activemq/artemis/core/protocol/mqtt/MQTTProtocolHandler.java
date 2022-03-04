@@ -99,7 +99,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttMessage message = (MqttMessage) msg;
 
       if (stopped) {
-         if (session.is5()) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
             sendDisconnect(MQTTReasonCodes.IMPLEMENTATION_SPECIFIC_ERROR);
          }
          disconnect(true);
@@ -109,7 +109,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       // Disconnect if Netty codec failed to decode the stream.
       if (message.decoderResult().isFailure()) {
          logger.debugf(message.decoderResult().cause(), "Disconnecting client due to message decoding failure.");
-         if (session.is5()) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
             sendDisconnect(MQTTReasonCodes.MALFORMED_PACKET);
          }
          disconnect(true);
@@ -186,7 +186,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          }
       } catch (Exception e) {
          MQTTLogger.LOGGER.errorProcessingControlPacket(message.toString(), e);
-         if (session.is5()) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
             sendDisconnect(MQTTReasonCodes.IMPLEMENTATION_SPECIFIC_ERROR);
          }
          disconnect(true);
@@ -232,7 +232,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       try {
          validatedUser = session.getServer().validateUser(username, password, session.getConnection(), session.getProtocolManager().getSecurityDomain());
       } catch (ActiveMQSecurityException e) {
-         if (session.is5()) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
             session.getProtocolHandler().sendConnack(MQTTReasonCodes.BAD_USER_NAME_OR_PASSWORD);
          } else {
             session.getProtocolHandler().sendConnack(MQTTReasonCodes.NOT_AUTHORIZED_3);
@@ -314,7 +314,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handlePublish(MqttPublishMessage message) throws Exception {
-      if (session.is5() && session.getProtocolManager().getMaximumPacketSize() != -1 && MQTTUtil.calculateMessageSize(message) > session.getProtocolManager().getMaximumPacketSize()) {
+      if (session.getVersion() == MQTTVersion.MQTT_5 && session.getProtocolManager().getMaximumPacketSize() != -1 && MQTTUtil.calculateMessageSize(message) > session.getProtocolManager().getMaximumPacketSize()) {
          sendDisconnect(MQTTReasonCodes.PACKET_TOO_LARGE);
          disconnect(true);
          return;
@@ -353,7 +353,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       MqttFixedHeader fixedHeader = new MqttFixedHeader(messageType, false, (messageType == MqttMessageType.PUBREL) ? MqttQoS.AT_LEAST_ONCE : MqttQoS.AT_MOST_ONCE, false, 0);
 
       MqttMessageIdVariableHeader variableHeader;
-      if (session.is5()) {
+      if (session.getVersion() == MQTTVersion.MQTT_5) {
          variableHeader = new MqttPubReplyMessageVariableHeader(messageId, reasonCode, MqttProperties.NO_PROPERTIES);
       } else {
          variableHeader = MqttMessageIdVariableHeader.from(messageId);
@@ -391,7 +391,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       short[] reasonCodes = session.getSubscriptionManager().removeSubscriptions(message.payload().topics());
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttUnsubAckMessage unsubAck;
-      if (session.is5()) {
+      if (session.getVersion() == MQTTVersion.MQTT_5) {
          unsubAck = new MqttUnsubAckMessage(header, message.variableHeader(), new MqttUnsubAckPayload(reasonCodes));
       } else {
          unsubAck = new MqttUnsubAckMessage(header, message.variableHeader());

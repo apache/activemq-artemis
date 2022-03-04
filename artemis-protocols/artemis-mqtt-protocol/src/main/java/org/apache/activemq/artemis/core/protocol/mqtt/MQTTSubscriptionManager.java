@@ -309,13 +309,30 @@ public class MQTTSubscriptionManager {
                qos[i] = subscriptions.get(i).qualityOfService().value();
             } catch (ActiveMQSecurityException e) {
                // user is not authorized to create subsription
-               if (session.is5()) {
+               if (session.getVersion() == MQTTVersion.MQTT_5) {
                   qos[i] = MQTTReasonCodes.NOT_AUTHORIZED;
-               } else {
+               } else if (session.getVersion() == MQTTVersion.MQTT_3_1_1) {
                   qos[i] = MQTTReasonCodes.UNSPECIFIED_ERROR;
+               } else {
+                  /*
+                   * For MQTT 3.1 clients:
+                   *
+                   * Note that if a server implementation does not authorize a SUBSCRIBE request to be made by a client,
+                   * it has no way of informing that client. It must therefore make a positive acknowledgement with a
+                   * SUBACK, and the client will not be informed that it was not authorized to subscribe.
+                   *
+                   *
+                   * For MQTT 3.1.1 clients:
+                   *
+                   * The 3.1.1 spec doesn't directly address the situation where the server does not authorize a
+                   * SUBSCRIBE. It really just says this:
+                   *
+                   * [MQTT-3.8.4-1] When the Server receives a SUBSCRIBE Packet from a Client, the Server MUST respond
+                   *  with a SUBACK Packet.
+                   */
+                  qos[i] = subscriptions.get(i).qualityOfService().value();
                }
             }
-
          }
          return qos;
       }
