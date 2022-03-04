@@ -1810,9 +1810,6 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
          connection.start();
          TextMessage messageReceived = (TextMessage) messageConsumer.receive(5000);
          assertNotNull(messageReceived);
-         assertEquals(BROKER_PATH, messageReceived.getStringProperty("__HDR_BROKER_PATH"));
-         assertEquals(CLUSTER, messageReceived.getStringProperty("__HDR_CLUSTER"));
-         assertEquals(USER_ID, messageReceived.getStringProperty("__HDR_USER_ID"));
       }
    }
 
