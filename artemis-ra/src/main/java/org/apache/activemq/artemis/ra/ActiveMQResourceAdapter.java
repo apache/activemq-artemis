@@ -24,7 +24,7 @@ import javax.resource.spi.ResourceAdapter;
 import javax.resource.spi.ResourceAdapterInternalException;
 import javax.resource.spi.endpoint.MessageEndpointFactory;
 import javax.resource.spi.work.WorkManager;
-import javax.transaction.TransactionManager;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -57,7 +57,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
-import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
@@ -110,7 +109,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
    private ActiveMQConnectionFactory recoveryActiveMQConnectionFactory;
 
-   private TransactionManager tm;
+   private TransactionSynchronizationRegistry tsr;
 
    private String unparsedJndiParams;
 
@@ -147,8 +146,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       recoveryManager = new RecoveryManager();
    }
 
-   public TransactionManager getTM() {
-      return tm;
+   public TransactionSynchronizationRegistry getTSR() {
+      return tsr;
    }
 
    /**
@@ -238,7 +237,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          logger.trace("start(" + ctx + ")");
       }
 
-      tm = ServiceUtils.getTransactionManager();
+      tsr = ctx.getTransactionSynchronizationRegistry();
 
       recoveryManager.start(useAutoRecovery);
 
