@@ -54,6 +54,7 @@
       <module>artemis-journal</module>
       <module>artemis-ra</module>
       <module>artemis-jakarta-ra</module>
+      <module>artemis-jakarta-ra-rar</module>
       <module>artemis-rest</module>
       <module>artemis-service-extensions</module>
       <module>artemis-jakarta-service-extensions</module>
