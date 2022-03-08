@@ -132,6 +132,7 @@ under the License.
                      <spawn>true</spawn>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server0</location>
+                     <testClientID>$.artemis.internal.router.client.test</testClientID>
                      <testURI>tcp://localhost:61616</testURI>
                      <args>
                         <param>run</param>

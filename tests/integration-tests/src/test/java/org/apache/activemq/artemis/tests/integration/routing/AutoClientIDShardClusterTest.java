@@ -41,8 +41,8 @@ import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguratio
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.routing.KeyResolver;
-import org.apache.activemq.artemis.core.server.routing.transformer.ConsistentHashModulo;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManagerFactory;
 import org.apache.activemq.artemis.utils.Wait;
@@ -275,13 +275,13 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
       for (int node = 0; node < numberOfNodes; node++) {
          Configuration configuration = servers[node].getConfiguration();
          ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration().setName(CONNECTION_ROUTER_NAME);
-         connectionRouterConfiguration.setKeyType(KeyType.CLIENT_ID).setLocalTargetFilter(KeyResolver.DEFAULT_KEY_VALUE + "|" + node);
-         NamedPropertyConfiguration transformerConfig = new NamedPropertyConfiguration();
-         transformerConfig.setName(ConsistentHashModulo.NAME);
+         connectionRouterConfiguration.setKeyType(KeyType.CLIENT_ID).setLocalTargetFilter(KeyResolver.NULL_KEY_VALUE + "|" + node);
+         NamedPropertyConfiguration polocyConfig = new NamedPropertyConfiguration();
+         polocyConfig.setName(ConsistentHashModuloPolicy.NAME);
          HashMap<String, String> properties = new HashMap<>();
-         properties.put(ConsistentHashModulo.MODULO, String.valueOf(numberOfNodes));
-         transformerConfig.setProperties(properties);
-         connectionRouterConfiguration.setTransformerConfiguration(transformerConfig);
+         properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(numberOfNodes));
+         polocyConfig.setProperties(properties);
+         connectionRouterConfiguration.setPolicyConfiguration(polocyConfig);
 
          configuration.setConnectionRouters(Collections.singletonList(connectionRouterConfiguration));
 

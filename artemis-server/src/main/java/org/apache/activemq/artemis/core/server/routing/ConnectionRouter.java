@@ -24,7 +24,6 @@ import org.apache.activemq.artemis.core.server.routing.policies.Policy;
 import org.apache.activemq.artemis.core.server.routing.pools.Pool;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetResult;
-import org.apache.activemq.artemis.core.server.routing.transformer.KeyTransformer;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.jboss.logging.Logger;
 
@@ -51,8 +50,6 @@ public class ConnectionRouter implements ActiveMQComponent {
 
    private final Policy policy;
 
-   private final KeyTransformer transformer;
-
    private final Cache cache;
 
    private volatile boolean started = false;
@@ -61,8 +58,12 @@ public class ConnectionRouter implements ActiveMQComponent {
       return name;
    }
 
-   public KeyType getTargetKey() {
+   public KeyType getKey() {
       return keyType;
+   }
+
+   public KeyResolver getKeyResolver() {
+      return keyResolver;
    }
 
    public Target getLocalTarget() {
@@ -71,6 +72,14 @@ public class ConnectionRouter implements ActiveMQComponent {
 
    public String getLocalTargetFilter() {
       return localTargetFilter != null ? localTargetFilter.pattern() : null;
+   }
+
+   public void setLocalTargetFilter(String regExp) {
+      if (regExp == null || regExp.trim().isEmpty()) {
+         this.localTargetFilter = null;
+      } else {
+         this.localTargetFilter = Pattern.compile(regExp);
+      }
    }
 
    public Pool getPool() {
@@ -98,13 +107,10 @@ public class ConnectionRouter implements ActiveMQComponent {
                            final String localTargetFilter,
                            final Cache cache,
                            final Pool pool,
-                           final Policy policy,
-                           KeyTransformer transformer) {
+                           final Policy policy) {
       this.name = name;
 
       this.keyType = keyType;
-
-      this.transformer = transformer;
 
       this.keyResolver = new KeyResolver(keyType, targetKeyFilter);
 
@@ -158,8 +164,11 @@ public class ConnectionRouter implements ActiveMQComponent {
    }
 
    public TargetResult getTarget(String key) {
+      if (policy != null && !KeyResolver.NULL_KEY_VALUE.equals(key)) {
+         key = policy.transformKey(key);
+      }
 
-      if (this.localTargetFilter != null && this.localTargetFilter.matcher(transform(key)).matches()) {
+      if (this.localTargetFilter != null && this.localTargetFilter.matcher(key).matches()) {
          if (logger.isDebugEnabled()) {
             logger.debug("The " + keyType + "[" + key + "] matches the localTargetFilter " + localTargetFilter.pattern());
          }
@@ -215,28 +224,5 @@ public class ConnectionRouter implements ActiveMQComponent {
       }
 
       return result != null ? result : TargetResult.REFUSED_UNAVAILABLE_RESULT;
-   }
-
-   public void setLocalTargetFilter(String regExp) {
-      if (regExp == null || regExp.trim().isEmpty()) {
-         this.localTargetFilter = null;
-      } else {
-         this.localTargetFilter = Pattern.compile(regExp);
-      }
-   }
-
-   public KeyResolver getTargetKeyResolver() {
-      return keyResolver;
-   }
-
-   private String transform(String key) {
-      String result = key;
-      if (transformer != null) {
-         result = transformer.transform(key);
-         if (logger.isDebugEnabled()) {
-            logger.debug("Key: " + key + ", transformed to " + result);
-         }
-      }
-      return result;
    }
 }

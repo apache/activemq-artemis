@@ -86,6 +86,7 @@ under the License.
                      <spawn>true</spawn>
                      <ignore>${noServer}</ignore>
                      <location>${basedir}/target/server0</location>
+                     <testClientID>$.artemis.internal.router.client.test</testClientID>
                      <testURI>tcp://localhost:61616</testURI>
                      <args>
                         <param>run</param>
@@ -102,6 +103,7 @@ under the License.
                      <ignore>${noServer}</ignore>
                      <spawn>true</spawn>
                      <location>${basedir}/target/server1</location>
+                     <testClientID>$.artemis.internal.router.client.test</testClientID>
                      <testURI>tcp://localhost:61617</testURI>
                      <args>
                         <param>run</param>

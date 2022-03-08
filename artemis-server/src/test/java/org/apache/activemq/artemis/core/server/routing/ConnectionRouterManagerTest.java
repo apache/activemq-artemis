@@ -17,15 +17,15 @@
 
 package org.apache.activemq.artemis.core.server.routing;
 
-import java.util.HashMap;
+import java.util.Collections;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.routing.PoolConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
-import org.apache.activemq.artemis.core.server.routing.transformer.ConsistentHashModulo;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.junit.After;
 import org.junit.Before;
@@ -96,12 +96,10 @@ public class ConnectionRouterManagerTest {
 
       ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration();
       connectionRouterConfiguration.setName("partition-local-consistent-hash").setKeyType(KeyType.CLIENT_ID).setLocalTargetFilter(String.valueOf(2));
-      NamedPropertyConfiguration policyConfig = new NamedPropertyConfiguration();
-      policyConfig.setName(ConsistentHashModulo.NAME);
-      HashMap<String, String> properties = new HashMap<>();
-      properties.put(ConsistentHashModulo.MODULO, String.valueOf(2));
-      policyConfig.setProperties(properties);
-      connectionRouterConfiguration.setTransformerConfiguration(policyConfig);
+      NamedPropertyConfiguration policyConfig = new NamedPropertyConfiguration()
+         .setName(ConsistentHashModuloPolicy.NAME)
+         .setProperties(Collections.singletonMap(ConsistentHashModuloPolicy.MODULO, String.valueOf(2)));
+      connectionRouterConfiguration.setPolicyConfiguration(policyConfig);
 
 
       underTest.deployConnectionRouter(connectionRouterConfiguration);

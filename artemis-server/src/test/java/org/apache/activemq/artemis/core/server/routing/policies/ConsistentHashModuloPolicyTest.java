@@ -15,37 +15,37 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.routing.transformer;
+package org.apache.activemq.artemis.core.server.routing.policies;
 
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.server.routing.KeyResolver;
+import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ConsistentHashModuloTest {
+public class ConsistentHashModuloPolicyTest {
 
    @Test
-   public void transform() {
-      ConsistentHashModulo underTest = new ConsistentHashModulo();
+   public void transformKey() {
+      ConsistentHashModuloPolicy underTest = new ConsistentHashModuloPolicy();
 
-      assertEquals(KeyResolver.DEFAULT_KEY_VALUE, underTest.transform(KeyResolver.DEFAULT_KEY_VALUE));
+      Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, underTest.transformKey(KeyResolver.NULL_KEY_VALUE));
 
-      assertEquals("AA", underTest.transform("AA")); // default modulo 0 does nothing
+      Assert.assertEquals("AA", underTest.transformKey("AA")); // default modulo 0 does nothing
 
       HashMap<String, String> properties = new HashMap<>();
 
       final int modulo = 2;
-      properties.put(ConsistentHashModulo.MODULO, String.valueOf(modulo));
+      properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
       underTest.init(properties);
 
-      String hash1 = underTest.transform("AAA");
+      String hash1 = underTest.transformKey("AAA");
       int v1 = Integer.parseInt(hash1);
 
-      String hash2 = underTest.transform("BBB");
+      String hash2 = underTest.transformKey("BBB");
       int v2 = Integer.parseInt(hash2);
 
       assertNotEquals(hash1, hash2);

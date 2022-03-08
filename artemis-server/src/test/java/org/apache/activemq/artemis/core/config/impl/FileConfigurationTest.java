@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
+import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.LeastConnectionsPolicy;
@@ -75,8 +76,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.apache.activemq.artemis.core.server.routing.transformer.ConsistentHashModulo.MODULO;
 
 public class FileConfigurationTest extends ConfigurationImplTest {
 
@@ -280,9 +279,8 @@ public class FileConfigurationTest extends ConfigurationImplTest {
             Assert.assertEquals(bc.getKeyType(), KeyType.CLIENT_ID);
             Assert.assertNotNull(bc.getLocalTargetFilter());
             Assert.assertNotNull(bc.getKeyFilter());
-            Assert.assertNull(bc.getPolicyConfiguration());
-            Assert.assertNotNull(bc.getTransformerConfiguration());
-            Assert.assertNotNull(bc.getTransformerConfiguration().getProperties().get(MODULO));
+            Assert.assertNotNull(bc.getPolicyConfiguration());
+            Assert.assertNotNull(bc.getPolicyConfiguration().getProperties().get(ConsistentHashModuloPolicy.MODULO));
          } else if (bc.getName().equals("simple-router")) {
             Assert.assertEquals(bc.getKeyType(), KeyType.USER_NAME);
             Assert.assertNull(bc.getLocalTargetFilter());

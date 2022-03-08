@@ -42,9 +42,6 @@ import org.apache.activemq.artemis.core.server.routing.targets.ActiveMQTargetFac
 import org.apache.activemq.artemis.core.server.routing.targets.LocalTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetFactory;
-import org.apache.activemq.artemis.core.server.routing.transformer.KeyTransformer;
-import org.apache.activemq.artemis.core.server.routing.transformer.TransformerFactory;
-import org.apache.activemq.artemis.core.server.routing.transformer.TransformerFactoryResolver;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.jboss.logging.Logger;
 
@@ -115,14 +112,8 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
          policy = deployPolicy(policyConfiguration, pool);
       }
 
-      KeyTransformer transformer = null;
-      NamedPropertyConfiguration transformerConfiguration = config.getTransformerConfiguration();
-      if (transformerConfiguration != null) {
-         transformer = deployTransformer(transformerConfiguration);
-      }
-
       ConnectionRouter connectionRouter = new ConnectionRouter(config.getName(), config.getKeyType(),
-         config.getKeyFilter(), localTarget, config.getLocalTargetFilter(), cache, pool, policy, transformer);
+         config.getKeyFilter(), localTarget, config.getLocalTargetFilter(), cache, pool, policy);
 
       connectionRouters.put(connectionRouter.getName(), connectionRouter);
 
@@ -200,16 +191,6 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
       }
 
       return policy;
-   }
-
-   private KeyTransformer deployTransformer(NamedPropertyConfiguration configuration) throws Exception {
-      TransformerFactory factory = TransformerFactoryResolver.getInstance().resolve(configuration.getName());
-
-      KeyTransformer transformer = factory.create();
-
-      transformer.init(configuration.getProperties());
-
-      return transformer;
    }
 
    public ConnectionRouter getRouter(String name) {
