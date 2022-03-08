@@ -38,6 +38,7 @@ import java.util.zip.InflaterInputStream;
 import java.util.zip.InflaterOutputStream;
 
 import com.google.common.io.BaseEncoding;
+import org.apache.activemq.ScheduledMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -222,6 +223,13 @@ public final class OpenWireMessageConverter {
       final ActiveMQDestination origDest = messageSend.getOriginalDestination();
       if (origDest != null) {
          coreMessage.putStringProperty(AMQ_MSG_ORIG_DESTINATION, origDest.getQualifiedName());
+      }
+
+      final Object scheduledDelay = messageSend.getProperties().get(ScheduledMessage.AMQ_SCHEDULED_DELAY);
+      if (scheduledDelay instanceof Long) {
+         coreMessage.putLongProperty(org.apache.activemq.artemis.api.core.Message.HDR_SCHEDULED_DELIVERY_TIME, System.currentTimeMillis() + ((Long) scheduledDelay));
+         // this property may have already been copied, but we don't need it anymore
+         coreMessage.removeProperty(ScheduledMessage.AMQ_SCHEDULED_DELAY);
       }
 
       return coreMessage;
