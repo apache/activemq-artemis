@@ -164,9 +164,9 @@
             <key-type>CLIENT_ID</key-type>
             <key-filter>^[^.]+</key-filter>
             <local-target-filter>DEFAULT</local-target-filter>
-            <local-target-key-transformer name="CONSISTENT_HASH_MODULO">
-               <property key="modulo" value="2"></property>
-            </local-target-key-transformer>
+            <policy name="CONSISTENT_HASH_MODULO">
+               <property key="MODULO" value="2"></property>
+            </policy>
          </connection-router>
          <connection-router name="simple-router">
             <key-type>USER_NAME</key-type>

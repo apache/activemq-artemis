@@ -84,13 +84,15 @@ Let's take a look at a pool example from broker.xml:
 ```
 
 ## Policies
-The policy define how to select a broker from a pool. The included policies are:
+The policy defines how to select a broker from a pool and allows [key values](#key-values) transformation. The included policies are:
 * `FIRST_ELEMENT` to select the first target broker from the pool which is ready. It is useful to select the ready target brokers
   according to the priority defined with their sequence order, ie supposing there are 2 target brokers
   this policy selects the second target broker only when the first target broker isn't ready.
 * `ROUND_ROBIN` to select a target sequentially from a pool, this policy is useful to evenly distribute;
 * `CONSISTENT_HASH` to select a target by a key. This policy always selects the same target broker for the same key until it is removed from the pool.
 * `LEAST_CONNECTIONS` to select the targets with the fewest active connections. This policy helps you maintain an equal distribution of active connections with the target brokers.
+* `CONSISTENT_HASH_MODULO` to transform a key value to a number from 0 to N-1, it takes a single `modulo` property to configure the bound N. One use case is `CLIENT_ID`
+  sharding across a cluster of N brokers. With a consistent hash % N transformation, each client id can map exclusively to just one of the brokers.
 
 A policy is defined by the `policy` element. Let's take a look at a policy example from broker.xml:
 ```xml
@@ -115,19 +117,14 @@ Let's take a look at a cache example from broker.xml:
 </cache>
 ```
 
-## Key transformers
-A `local-target-key-transformer` allows key value transformation before matching against any local-target-filter. One use case is
-CLIENT_ID sharding across a cluster of N brokers. With a consistent hash % N transformation, each client id
-can map exclusively to just one of the brokers. The included transformers are:
-* `CONSISTENT_HASH_MODULO` that takes a single `modulo` property to configure the bound.
-
 ## Defining connection routers
 A connection router is defined by the `connection-router` element, it includes the following items:
 * the `name` attribute defines the name of the connection router and is used to reference the router from an acceptor;
 * the `key-type` element defines what type of key to select a target broker, the supported values are: `CLIENT_ID`, `SNI_HOST`, `SOURCE_IP`, `USER_NAME`, `ROLE_NAME`, default is `SOURCE_IP`, see [Keys](#keys) for further details;
-* the `key-filter` element defines a regular expression to filter the resolved keys;
-* the `local-target-filter` element defines a regular expression to match the keys that have to return a local target;
-* the `local-target-key-transformer` element defines a key transformer, see [key transformers](#key-transformers);
+* the `key-filter` element defines a regular expression to filter the resolved [key values](#key-values);
+* the `local-target-filter` element defines a regular expression to match the [key values](#key-values)
+  that have to return a local target, the [key value](#key-values) could be equal to the special string `NULL`
+  if the value of the key is undefined or it doesn't match the `key-filter`;
 * the `pool` element defines the pool to group the target brokers, see [pools](#pools);
 * the `policy` element defines the policy used to select the target brokers from the pool, see [policies](#policies).
 
@@ -172,15 +169,23 @@ Let's take a look at some connection router examples from broker.xml:
 </connection-routers>
 ```
 
+## Key values
+The key value is retrieved from the incoming client connection.
+If the incoming client connection has no value for the key type used, the key value is set to the special string `NULL`.
+If the incoming client connection has a value for the key type used, the key value retrieved can be sequentially manipulated using a `key-filter` and a `policy`.
+If a `key-filter` is defined and the filter fails to match, the value is set to the special string `NULL`.
+If a `policy` with a key transformation is defined, the key value is set to the transformed value.
+
+
 ## Connection Router Workflow
 The connection router workflow include the following steps:
-* Retrieve the key value from the incoming connection;
+* Retrieve the [key value](#key-values) from the incoming connection;
 * Return the local target broker if the key value matches the local filter;
-* Delegate to the pool:
+* Delegate to the [pool](#pools):
 * Return the cached target broker if it is ready;
 * Get ready/active target brokers from the pool;
-* Select one target broker using the policy;
-* Add the selected broker in the cache;
+* Select one target broker using the [policy](#policies);
+* Add the selected broker in the [cache](#cache);
 * Return the selected broker.
 
 Let's take a look at flowchart of the connection router workflow:

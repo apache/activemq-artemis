@@ -94,7 +94,6 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
-import org.apache.activemq.artemis.core.server.routing.transformer.TransformerFactoryResolver;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
@@ -2686,10 +2685,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             poolConfiguration = new PoolConfiguration();
             parsePoolConfiguration((Element) child, config, poolConfiguration);
             connectionRouterConfiguration.setPoolConfiguration(poolConfiguration);
-         } else if (child.getNodeName().equals("local-target-key-transformer")) {
-            policyConfiguration = new NamedPropertyConfiguration();
-            parseTransformerConfiguration((Element) child, policyConfiguration);
-            connectionRouterConfiguration.setTransformerConfiguration(policyConfiguration);
          }
       }
 
@@ -2702,16 +2697,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       cacheConfiguration.setTimeout(getInteger(e, "timeout",
          cacheConfiguration.getTimeout(), Validators.GE_ZERO));
-   }
-
-   private void parseTransformerConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {
-      String name = e.getAttribute("name");
-
-      TransformerFactoryResolver.getInstance().resolve(name);
-
-      policyConfiguration.setName(name);
-
-      policyConfiguration.setProperties(getMapOfChildPropertyElements(e));
    }
 
    private void parsePolicyConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {

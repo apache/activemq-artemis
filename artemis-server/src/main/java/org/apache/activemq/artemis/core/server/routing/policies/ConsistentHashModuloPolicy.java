@@ -15,16 +15,40 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.routing.transformer;
+package org.apache.activemq.artemis.core.server.routing.policies;
 
+import org.apache.activemq.artemis.core.server.routing.targets.Target;
+
+import java.util.List;
 import java.util.Map;
 
-public interface KeyTransformer {
+public class ConsistentHashModuloPolicy extends ConsistentHashPolicy {
+   public static final String NAME = "CONSISTENT_HASH_MODULO";
 
-   default void init(Map<String, String> properties) {
+   public static final String MODULO = "MODULO";
+
+   int modulo = 0;
+
+   public ConsistentHashModuloPolicy() {
+      super(NAME);
    }
 
-   default String transform(String key) {
+   @Override
+   public void init(Map<String, String> properties) {
+      modulo = Integer.parseInt(properties.get(MODULO));
+   }
+
+   @Override
+   public String transformKey(String key) {
+      if (modulo > 0) {
+         return String.valueOf(getHash(key) % modulo);
+      }
+
       return key;
+   }
+
+   @Override
+   public Target selectTarget(List<Target> targets, String key) {
+      return null;
    }
 }

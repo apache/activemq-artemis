@@ -40,6 +40,7 @@ public class PolicyFactoryResolver {
       policyFactories.put(FirstElementPolicy.NAME, () -> new FirstElementPolicy());
       policyFactories.put(LeastConnectionsPolicy.NAME, () -> new LeastConnectionsPolicy());
       policyFactories.put(RoundRobinPolicy.NAME, () -> new RoundRobinPolicy());
+      policyFactories.put(ConsistentHashModuloPolicy.NAME, () -> new ConsistentHashModuloPolicy());
 
       loadPolicyFactories();
    }

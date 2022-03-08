@@ -29,7 +29,6 @@ public class ConnectionRouterConfiguration implements Serializable {
    private CacheConfiguration cacheConfiguration = null;
    private PoolConfiguration poolConfiguration = null;
    private NamedPropertyConfiguration policyConfiguration = null;
-   private NamedPropertyConfiguration transformerConfiguration = null;
 
    public String getName() {
       return name;
@@ -92,13 +91,5 @@ public class ConnectionRouterConfiguration implements Serializable {
    public ConnectionRouterConfiguration setPoolConfiguration(PoolConfiguration poolConfiguration) {
       this.poolConfiguration = poolConfiguration;
       return this;
-   }
-
-   public void setTransformerConfiguration(NamedPropertyConfiguration configuration) {
-      this.transformerConfiguration = configuration;
-   }
-
-   public NamedPropertyConfiguration getTransformerConfiguration() {
-      return transformerConfiguration;
    }
 }
