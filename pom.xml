@@ -1718,7 +1718,7 @@
                      <exclude>**/node/**</exclude>
                      <exclude>**/node_modules/**</exclude>
                      <exclude>**/package.json</exclude>
-                     <exclude>**/npm-shrinkwrap.json</exclude>
+                     <exclude>**/package-lock.json</exclude>
 
                      <!-- Build time overlay folder -->
                      <exclude>**/overlays/**</exclude>
