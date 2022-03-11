@@ -18,6 +18,8 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.SingleServerTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -28,14 +30,21 @@ public class TempQueueNamespaceTest extends SingleServerTestBase {
    @Test
    public void testTempQueueNamespace() throws Exception {
       final String TEMP_QUEUE_NAMESPACE = "temp";
+      final SimpleString DLA = RandomUtil.randomSimpleString();
+      final SimpleString EA = RandomUtil.randomSimpleString();
+      final int RING_SIZE = 10;
+
       server.getConfiguration().setTemporaryQueueNamespace(TEMP_QUEUE_NAMESPACE);
-      server.getAddressSettingsRepository().addMatch(TEMP_QUEUE_NAMESPACE + ".#", new AddressSettings().setDefaultRingSize(10));
+      server.getAddressSettingsRepository().addMatch(TEMP_QUEUE_NAMESPACE + ".#", new AddressSettings().setDefaultRingSize(RING_SIZE).setDeadLetterAddress(DLA).setExpiryAddress(EA));
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
 
       session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
 
-      assertEquals(10, (long) server.locateQueue(queue).getQueueConfiguration().getRingSize());
+      QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue);
+      assertEquals(RING_SIZE, queueControl.getRingSize());
+      assertEquals(DLA.toString(), queueControl.getDeadLetterAddress());
+      assertEquals(EA.toString(), queueControl.getExpiryAddress());
 
       session.close();
    }

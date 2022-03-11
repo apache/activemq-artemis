@@ -16,9 +16,6 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import org.apache.activemq.artemis.json.JsonArray;
-import org.apache.activemq.artemis.json.JsonArrayBuilder;
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.openmbean.CompositeData;
@@ -56,8 +53,11 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
-import org.apache.activemq.artemis.selector.filter.Filterable;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.jboss.logging.Logger;
@@ -545,12 +545,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
-
-         if (addressSettings != null && addressSettings.getDeadLetterAddress() != null) {
-            return addressSettings.getDeadLetterAddress().toString();
-         }
-         return null;
+         return queue.getDeadLetterAddress() == null ? null : queue.getDeadLetterAddress().toString();
       } finally {
          blockOnIO();
       }
@@ -565,13 +560,7 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
-
-         if (addressSettings != null && addressSettings.getExpiryAddress() != null) {
-            return addressSettings.getExpiryAddress().toString();
-         } else {
-            return null;
-         }
+         return queue.getExpiryAddress() == null ? null : queue.getExpiryAddress().toString();
       } finally {
          blockOnIO();
       }
