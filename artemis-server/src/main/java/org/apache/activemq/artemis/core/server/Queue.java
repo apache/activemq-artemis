@@ -431,6 +431,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    SimpleString getExpiryAddress();
 
+   SimpleString getDeadLetterAddress();
+
    /**
     * Pauses the queue. It will receive messages but won't give them to the consumers until resumed.
     * If a queue is paused, pausing it again will only throw a warning.

@@ -1534,6 +1534,11 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public SimpleString getDeadLetterAddress() {
+         return null;
+      }
+
+      @Override
       public void pause() {
 
       }

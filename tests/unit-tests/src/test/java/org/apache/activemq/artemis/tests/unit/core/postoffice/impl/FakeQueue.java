@@ -842,6 +842,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public SimpleString getDeadLetterAddress() {
+      return null;
+   }
+
+   @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
       // no-op
 
