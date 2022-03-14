@@ -72,6 +72,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.apache.activemq.artemis.logs.AssertionLoggerHandler.findText;
 
@@ -1192,6 +1193,63 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       }
 
       public void freeDirectuffer(final ByteBuffer buffer) {
+      }
+   }
+
+   private static final class CountingRunnable implements Runnable {
+      final AtomicInteger calls = new AtomicInteger();
+
+      @Override
+      public void run() {
+         calls.incrementAndGet();
+      }
+
+      public int getCount() {
+         return calls.get();
+      }
+   }
+
+   @Test(timeout = 10000)
+   public void testCheckExecutionIsNotRepeated() throws Exception {
+      SequentialFileFactory factory = new FakeSequentialFileFactory();
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingManager mockManager = Mockito.mock(PagingManager.class);
+
+      ArtemisExecutor sameThreadExecutor = Runnable::run;
+      PagingStoreImpl store = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100,
+                                                  mockManager, createStorageManagerMock(), factory, storeFactory,
+                                                  PagingStoreImplTest.destinationTestName,
+                                                  new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK),
+                                                  sameThreadExecutor, true);
+
+      store.start();
+      try {
+         store.applySetting(new AddressSettings().setMaxSizeBytes(1000).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK));
+
+         Mockito.when(mockManager.addSize(Mockito.anyInt())).thenReturn(mockManager);
+         store.addSize(100);
+
+         // Do an initial check
+         final CountingRunnable trackMemoryCheck1 = new CountingRunnable();
+         assertEquals(0, trackMemoryCheck1.getCount());
+         store.checkMemory(trackMemoryCheck1);
+         assertEquals(1, trackMemoryCheck1.getCount());
+
+         // Do another check, this time indicate the disk is full during the first couple
+         // requests, making the task initially be retained for later but then executed.
+         final CountingRunnable trackMemoryCheck2 = new CountingRunnable();
+         Mockito.when(mockManager.isDiskFull()).thenReturn(true, true, false);
+         assertEquals(0, trackMemoryCheck2.getCount());
+         store.checkMemory(trackMemoryCheck2);
+         assertEquals(1, trackMemoryCheck2.getCount());
+
+         // Now run the released memory checks. The task should NOT execute again, verify it doesnt.
+         store.checkReleasedMemory();
+         assertEquals(1, trackMemoryCheck2.getCount());
+      } finally {
+         store.stop();
       }
    }
 }
