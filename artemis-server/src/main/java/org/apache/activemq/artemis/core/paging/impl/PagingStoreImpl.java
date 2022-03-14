@@ -717,7 +717,8 @@ public class PagingStoreImpl implements PagingStore {
                runWhenBlocking.run();
             }
 
-            onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
+            AtomicRunnable atomicRunWhenAvailable = AtomicRunnable.checkAtomic(runWhenAvailable);
+            onMemoryFreedRunnables.add(atomicRunWhenAvailable);
 
             // We check again to avoid a race condition where the size can come down just after the element
             // has been added, but the check to execute was done before the element was added
@@ -725,7 +726,7 @@ public class PagingStoreImpl implements PagingStore {
             // MUCH better performance in a highly concurrent environment
             if (!pagingManager.isGlobalFull() && (sizeInBytes.get() < maxSize || maxSize < 0)) {
                // run it now
-               runWhenAvailable.run();
+               atomicRunWhenAvailable.run();
             } else {
                if (usingGlobalMaxSize || pagingManager.isDiskFull()) {
                   pagingManager.addBlockedStore(this);
@@ -740,6 +741,7 @@ public class PagingStoreImpl implements PagingStore {
                   blocking = true;
                }
             }
+
             return true;
          }
       }
