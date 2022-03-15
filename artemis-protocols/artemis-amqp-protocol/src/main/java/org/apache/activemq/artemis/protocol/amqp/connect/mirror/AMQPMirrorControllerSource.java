@@ -218,8 +218,6 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          }
          snfQueue.refUp(ref);
          refs.add(ref);
-         message.usageUp();
-
 
          if (message.isDurable() && snfQueue.isDurable()) {
             PostOfficeImpl.storeDurableReference(server.getStorageManager(), message, context.getTransaction(), snfQueue, true);
