@@ -4525,6 +4525,7 @@
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="group-rebalance" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="group-rebalance-pause-dispatch" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="group-buckets" type="xsd:int" use="optional"/>
       <xsd:attribute name="group-first-key" type="xsd:string" use="optional"/>
       <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>
