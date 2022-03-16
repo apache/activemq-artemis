@@ -1,0 +1,59 @@
+<server description="asyncAppServer">
+
+	<featureManager>
+		<feature>jakartaee-9.1</feature>
+		<feature>localConnector-1.0</feature>
+	</featureManager>
+
+	<variable name="defaultHostName" value="localhost" />
+
+	<!-- Define an Administrator and non-Administrator -->
+	<basicRegistry id="basic">
+		<user name="admin" password="admin" />
+	</basicRegistry>
+
+	<!-- Assign 'admin' to Administrator -->
+	<administrator-role>
+		<user>admin</user>
+	</administrator-role>
+
+	<keyStore id="defaultKeyStore" password="{xor}bW5sa2pp" />
+
+	<httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" />
+
+	<applicationManager autoExpand="true" />
+
+	<applicationMonitor updateTrigger="mbean" />
+	
+	<wasJmsEndpoint enabled="false" />
+
+	<resourceAdapter id="artemis" location="${wlp.user.dir}shared/lib/artemis.rar">
+		<properties.artemis ConnectionParameters="host=localhost;port=61616" />
+	</resourceAdapter>
+
+	<connectionFactory id="sampleConnectionFactory" jndiName="jms/sampleConnectionFactory">
+		<properties.artemis />
+	</connectionFactory>
+
+	<jmsActivationSpec id="wlp-resource-adapter-sample/QueueMessageConsumer">
+		<properties.artemis useJndi="true" destination="jms/sampleQueue" destinationType="jakarta.jms.Queue" />
+	</jmsActivationSpec>
+
+	<jmsActivationSpec id="wlp-resource-adapter-sample/TopicMessageConsumer">
+		<properties.artemis clientId="wlp-resource-adapter-sample" useJndi="true" destination="jms/sampleTopic"
+			destinationType="jakarta.jms.Topic" subscriptionDurability="Durable" subscriptionName="wlp-resource-adapter-sample" />
+	</jmsActivationSpec>
+
+	<jmsTopic jndiName="jms/sampleTopic">
+		<properties.artemis Address="another_sample_address" />
+	</jmsTopic>
+
+	<jmsQueue jndiName="jms/sampleQueue">
+		<properties.artemis Address="a_sample_address" />
+	</jmsQueue>
+
+	<logging traceSpecification="*=info:com.ibm.ws.jca17.*=all:com.ibm.ws.jca.*=all:org.apache.activemq.artemis.*=info" />
+
+	<webApplication id="wlp-resource-adapter-sample" location="wlp-resource-adapter-sample.war" name="wlp-resource-adapter-sample" />
+
+</server>
