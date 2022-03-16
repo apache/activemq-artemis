@@ -53,6 +53,8 @@ under the License.
             <module>artemis-ra-rar</module>
             <module>inter-broker-bridge</module>
             <module>tomcat</module>
+            <module>wlp</module>
+            <module>wlp-jakarta</module>
          </modules>
       </profile>
    </profiles>
