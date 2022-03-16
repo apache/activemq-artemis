@@ -145,7 +145,8 @@ public class QueueConfiguration implements Serializable {
     * <li>user: {@link #USER}
     * <li>max-consumers: {@link #MAX_CONSUMERS}
     * <li>exclusive: {@link #EXCLUSIVE}
-    * <li>group-rebalance: {@link #GROUP_BUCKETS}
+    * <li>group-rebalance: {@link #GROUP_REBALANCE}
+    * <li>group-rebalance-pause-dispatch: {@link #GROUP_REBALANCE_PAUSE_DISPATCH}
     * <li>group-buckets: {@link #GROUP_BUCKETS}
     * <li>group-first-key: {@link #GROUP_FIRST_KEY}
     * <li>last-value: {@link #LAST_VALUE}
@@ -194,6 +195,8 @@ public class QueueConfiguration implements Serializable {
             setExclusive(Boolean.valueOf(value));
          } else if (key.equals(GROUP_REBALANCE)) {
             setGroupRebalance(Boolean.valueOf(value));
+         } else if (key.equals(GROUP_REBALANCE_PAUSE_DISPATCH)) {
+            setGroupRebalancePauseDispatch(Boolean.valueOf(value));
          } else if (key.equals(GROUP_BUCKETS)) {
             setGroupBuckets(Integer.valueOf(value));
          } else if (key.equals(GROUP_FIRST_KEY)) {

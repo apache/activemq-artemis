@@ -580,6 +580,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals("addr1", queueConfiguration.getAddress().toString());
       // If null, then default will be taken from address-settings (which defaults to ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers())
       assertEquals(null, queueConfiguration.getMaxConsumers());
+      assertEquals(null, queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 1 Queue 2
       queueConfiguration = addressConfiguration.getQueueConfigs().get(1);
@@ -591,6 +592,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(Queue.MAX_CONSUMERS_UNLIMITED, queueConfiguration.getMaxConsumers().intValue());
       assertFalse(queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr1", queueConfiguration.getAddress().toString());
+      assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 2
       addressConfiguration = conf.getAddressConfigurations().get(1);
@@ -609,6 +611,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(10, queueConfiguration.getMaxConsumers().intValue());
       assertEquals(ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers(), queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress().toString());
+      assertEquals(null, queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 2 Queue 2
       queueConfiguration = addressConfiguration.getQueueConfigs().get(1);
@@ -620,6 +623,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(null, queueConfiguration.getMaxConsumers());
       assertTrue(queueConfiguration.isPurgeOnNoConsumers());
       assertEquals("addr2", queueConfiguration.getAddress().toString());
+      assertEquals(true, queueConfiguration.isGroupRebalancePauseDispatch());
 
       // Addr 3
       addressConfiguration = conf.getAddressConfigurations().get(2);
