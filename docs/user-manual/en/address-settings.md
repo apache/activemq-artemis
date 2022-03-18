@@ -22,6 +22,7 @@ that would be found in the `broker.xml` file.
       <max-redelivery-delay>10000</max-redelivery-delay>
       <max-delivery-attempts>3</max-delivery-attempts>
       <max-size-bytes>100000</max-size-bytes>
+      <max-size-messages>1000</max-size-messages>
       <max-size-bytes-reject-threshold>-1</max-size-bytes-reject-threshold>
       <page-size-bytes>20000</page-size-bytes>
       <page-max-cache-size></page-max-cache-size>
@@ -138,7 +139,7 @@ calculate an adjustment to the `redelivery-delay` (up or down). Default is
 `0.0`. Valid values are between 0.0 and 1.0. Read more about [undelivered
 messages](undelivered-messages.md#configuring-delayed-redelivery).
 
-`max-size-bytes`, `page-size-bytes`, & `page-max-cache-size` are used to
+`max-size-bytes`, `max-size-messages`, `page-size-bytes`, & `page-max-cache-size` are used to
 configure paging on an address. This is explained
 [here](paging.md#configuration).
 
