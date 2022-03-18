@@ -53,15 +53,15 @@ You can configure the location of the paging folder in `broker.xml`.
 ## Paging Mode
 
 As soon as messages delivered to an address exceed the configured size,
-that address alone goes into page mode. If max-size-bytes == 0, an address
-will immediately enter into page mode.
+that address alone goes into page mode. If max-size-bytes == 0 or max-size-messages == 0, an address
+will always use paging to route messages.
 
 > **Note:**
 >
-> Paging is done individually per address. If you configure a max-size-bytes
+> Paging is done individually per address. If you configure a max-size-bytes or max-messages
 > for an address, that means each matching address will have a maximum size
 > that you specified. It DOES NOT mean that the total overall size of all
-> matching addresses is limited to max-size-bytes. Use [global-max-size](#global-max-size) for that!
+> matching addresses is limited to max-size-bytes. Use [global-max-size](#global-max-size) or [global-max-messages](#global-max-messages) for that!
 
 ### Configuration
 
@@ -71,6 +71,7 @@ Configuration is done at the address settings in `broker.xml`.
 <address-settings>
    <address-setting match="jms.someaddress">
       <max-size-bytes>104857600</max-size-bytes>
+      <max-size-messages>1000</max-size-messages>
       <page-size-bytes>10485760</page-size-bytes>
       <address-full-policy>PAGE</address-full-policy>
    </address-setting>
@@ -92,9 +93,14 @@ This is the list of available parameters on the address settings.
 Property Name|Description|Default
 ---|---|---
 `max-size-bytes`|What's the max memory the address could have before entering on page mode.|-1 (disabled)
+`max-size-messages`|The max number of messages the address could have before entering on page mode.| -1 (disabled)
 `page-size-bytes`|The size of each page file used on the paging system|10MB
 `address-full-policy`|This must be set to `PAGE` for paging to enable. If the value is `PAGE` then further messages will be paged to disk. If the value is `DROP` then further messages will be silently dropped. If the value is `FAIL` then the messages will be dropped and the client message producers will receive an exception. If the value is `BLOCK` then client message producers will block when they try and send further messages.|`PAGE`
 `page-max-cache-size`|The system will keep up to `page-max-cache-size` page files in memory to optimize IO during paging navigation.|5
+
+### max-size-bytes and max-size-messages simultaneous usage
+
+It is possible to define max-size-messages (as the maximum number of messages) and max-messages-size (as the max number of estimated memory used by the address) concurrently. The configured policy will start based on the first value to reach its mark.
 
 ## Global Max Size
 
@@ -102,11 +108,18 @@ Beyond the `max-size-bytes` on the address you can also set the global-max-size
 on the main configuration. If you set `max-size-bytes` = `-1` on paging the
 `global-max-size` can still be used.
 
+## Global Max Messages
+
+You can also specify `global-max-messages` on the main configuration, specifying how many messages the system would accept before entering into the configured full policy mode configured.
+
 When you have more messages than what is configured `global-max-size` any new
 produced message will make that destination to go through its paging policy. 
 
 `global-max-size` is calculated as half of the max memory available to the Java
 Virtual Machine, unless specified on the `broker.xml` configuration.
+
+By default `global-max-messages` = `-1` meaning it's disabled.
+
 
 ## Dropping messages
 
