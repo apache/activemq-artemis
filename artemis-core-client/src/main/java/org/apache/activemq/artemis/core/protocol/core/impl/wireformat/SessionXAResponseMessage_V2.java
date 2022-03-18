@@ -48,6 +48,8 @@ public class SessionXAResponseMessage_V2 extends SessionXAResponseMessage {
       super.decodeRest(buffer);
       if (buffer.readableBytes() >= DataConstants.SIZE_LONG) {
          correlationID = buffer.readLong();
+      } else {
+         correlationID = -1;
       }
    }
 

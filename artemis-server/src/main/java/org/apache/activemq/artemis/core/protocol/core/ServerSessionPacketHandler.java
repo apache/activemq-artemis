@@ -660,7 +660,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private boolean requireNullResponseMessage_V1(Packet packet) {
-      return !packet.isResponseAsync() || channel.getConnection().isVersionBeforeAsyncResponseChange();
+      return channel.getConnection().isVersionBeforeAsyncResponseChange();
    }
 
    private NullResponseMessage createNullResponseMessage_V1(Packet packet) {

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -131,6 +132,8 @@ public final class ChannelImpl implements Channel {
    private volatile boolean transferring;
 
    private final List<Interceptor> interceptors;
+
+   private final AtomicLong blockingCorrelationID = new AtomicLong(-1);
 
    public ChannelImpl(final CoreRemotingConnection connection,
                       final long id,
@@ -481,6 +484,8 @@ public final class ChannelImpl implements Channel {
       synchronized (sendBlockingLock) {
          packet.setChannelID(id);
 
+         packet.setCorrelationID(blockingCorrelationID.decrementAndGet());
+
          final ActiveMQBuffer buffer = packet.encode(connection);
 
          lock.lock();
@@ -508,7 +513,7 @@ public final class ChannelImpl implements Channel {
 
             long start = System.currentTimeMillis();
 
-            while (!closed && (response == null || (response.getType() != PacketImpl.EXCEPTION && response.getType() != expectedPacket)) && toWait > 0) {
+            while (!closed && (response == null || (response.getType() != PacketImpl.EXCEPTION && (response.getType() != expectedPacket || response.getCorrelationID() != packet.getCorrelationID()))) && toWait > 0) {
                try {
                   sendCondition.await(toWait, TimeUnit.MILLISECONDS);
                } catch (InterruptedException e) {
