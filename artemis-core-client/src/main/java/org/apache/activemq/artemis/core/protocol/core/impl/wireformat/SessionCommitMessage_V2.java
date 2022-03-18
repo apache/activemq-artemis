@@ -19,18 +19,9 @@ package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.utils.DataConstants;
 
-public class NullResponseMessage_V2 extends NullResponseMessage {
+public class SessionCommitMessage_V2 extends SessionCommitMessage {
 
    private long correlationID;
-
-   public NullResponseMessage_V2(final long correlationID) {
-      super();
-      this.correlationID = correlationID;
-   }
-
-   public NullResponseMessage_V2() {
-      super();
-   }
 
    @Override
    public long getCorrelationID() {
@@ -40,6 +31,11 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
    @Override
    public void setCorrelationID(long correlationID) {
       this.correlationID = correlationID;
+   }
+
+   @Override
+   public boolean isResponseAsync() {
+      return true;
    }
 
    @Override
@@ -64,16 +60,6 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
    }
 
    @Override
-   public final boolean isResponse() {
-      return true;
-   }
-
-   @Override
-   public final boolean isResponseAsync() {
-      return true;
-   }
-
-   @Override
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
@@ -89,19 +75,13 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
       if (!super.equals(obj)) {
          return false;
       }
-      if (!(obj instanceof NullResponseMessage_V2)) {
+      if (!(obj instanceof SessionCommitMessage_V2)) {
          return false;
       }
-      NullResponseMessage_V2 other = (NullResponseMessage_V2) obj;
+      SessionCommitMessage_V2 other = (SessionCommitMessage_V2) obj;
       if (correlationID != other.correlationID) {
          return false;
       }
       return true;
-   }
-
-   @Override
-   public void reset() {
-      super.reset();
-      correlationID = 0;
    }
 }

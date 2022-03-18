@@ -85,6 +85,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBin
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V4;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
@@ -443,13 +445,17 @@ public class ActiveMQSessionContext extends SessionContext {
 
    @Override
    public void simpleCommit() throws ActiveMQException {
-      sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_COMMIT), PacketImpl.NULL_RESPONSE);
+      simpleCommit(true);
    }
 
    @Override
    public void simpleCommit(boolean block) throws ActiveMQException {
       if (block) {
-         sessionChannel.sendBlocking(new PacketImpl(PacketImpl.SESS_COMMIT), PacketImpl.NULL_RESPONSE);
+         if (!sessionChannel.getConnection().isVersionSupportCommitV2()) {
+            sessionChannel.sendBlocking(new SessionCommitMessage(), PacketImpl.NULL_RESPONSE);
+         } else {
+            sessionChannel.sendBlocking(new SessionCommitMessage_V2(), PacketImpl.NULL_RESPONSE);
+         }
       } else {
          sessionChannel.sendBatched(new PacketImpl(PacketImpl.SESS_COMMIT));
       }

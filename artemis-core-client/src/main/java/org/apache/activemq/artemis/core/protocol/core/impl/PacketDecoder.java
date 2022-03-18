@@ -61,6 +61,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBin
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionBindingQueryResponseMessage_V4;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCommitMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerCloseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionConsumerFlowCreditMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionCreateConsumerMessage;
@@ -252,7 +253,11 @@ public abstract class PacketDecoder implements Serializable {
             break;
          }
          case SESS_COMMIT: {
-            packet = new SessionCommitMessage();
+            if (!connection.isVersionSupportCommitV2()) {
+               packet = new SessionCommitMessage();
+            } else {
+               packet = new SessionCommitMessage_V2();
+            }
             break;
          }
          case SESS_ROLLBACK: {
