@@ -1711,15 +1711,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void metricsPluginElementIgnored();
 
    @LogMessage(level = Logger.Level.WARN) // I really want emphasis on this logger, so adding the stars
-   @Message(id = 222294, value = "\n**************************************************************************************************************************************************************************************************************************************************************\n" +
-                                 "There is a possible split brain on nodeID {0}, coming from connectors {1}. Topology update ignored.\n" +
-                                 "**************************************************************************************************************************************************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222294, value = "There is a possible split brain on nodeID {0}, coming from connectors {1}. Topology update ignored.", format = Message.Format.MESSAGE_FORMAT)
    void possibleSplitBrain(String nodeID, String connectionPairInformation);
 
    @LogMessage(level = Logger.Level.WARN) // I really want emphasis on this logger, so adding the stars
-   @Message(id = 222295, value = "\n**************************************************************************************************************************************************************************************************************************************************************\n" +
-                                 "There is a possible split brain on nodeID {0}. Topology update ignored.\n" +
-                                 "**************************************************************************************************************************************************************************************************************************************************************", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222295, value = "There is a possible split brain on nodeID {0}. Topology update ignored", format = Message.Format.MESSAGE_FORMAT)
    void possibleSplitBrain(String nodeID);
 
 
