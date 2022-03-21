@@ -516,7 +516,7 @@
          <xsd:element name="queues" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  a list of pre configured queues to create
+                  DEPRECATED: a list of pre configured queues to create
                </xsd:documentation>
             </xsd:annotation>
             <xsd:complexType>

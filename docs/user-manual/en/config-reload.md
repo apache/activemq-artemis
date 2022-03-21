@@ -212,14 +212,13 @@ Operation | Add | Delete | Update
 `<address>` | A new address will be deployed in the running broker | The corresponding address will be undeployed. | N/A
 attribute `name` | N/A | X | After reloading the address of the old name will be undeployed and the new will be deployed.
 `<anycast>` | X(no more than one is present) | The anycast routing type will be undeployed from this address, as well as its containing queues after reloading | N/A
-`<queue>`(under `<anycast>`) | An anycast queue will be deployed after reloading | The anycast queue will be undeployed | For updating queues please see next section `<queues>`
+`<queue>`(under `<anycast>`) | An anycast queue will be deployed after reloading | The anycast queue will be undeployed | For updating queues please see next section `<queue>`
 `<multicast>` | X(no more than one is present) | The multicast routing type will be undeployed from this address, as well as its containing queues after reloading | N/A
-`<queue>`(under `<multicast>`) | A multicast queue will be deployed after reloading | The multicast queue will be undeployed | For updating queues please see next section `<queues>`
+`<queue>`(under `<multicast>`) | A multicast queue will be deployed after reloading | The multicast queue will be undeployed | For updating queues please see next section `<queue>`
 
-#### `<queues>`
+#### `<queue>`
 
-The `<queues>` element contains a list `<queue>` elements. Once changed, all
-`<queue>` elements in `<queues>` will be reloaded.
+Changes to any `<queue>` elements will be reloaded to the running broker.
 
 > **Note:**
 >
@@ -234,52 +233,32 @@ The `<queues>` element contains a list `<queue>` elements. Once changed, all
 > `config-delete-queues` as described in this doc.
 
 Below lists the effects of adding, deleting and updating of an
-element/attribute within the `<queues>` element, and whether a change can be
+element/attribute within the `<queue>` element, and whether a change can be
 done or can’t be done.
 
 Operation | Add | Delete | Update
 ---|---|---|---
-`<queues>` | X(no more than one is present) | Deleting it means delete  (undeploy) all queues from running broker. | N/A
 `<queue>` | A new queue is deployed after reloading | The queue will be undeployed after reloading. | N/A
 attribute `name` | N/A | X | A queue with new name will be deployed and the queue with old name will be updeployed after reloading (see Note above).
 attribute `max-consumers` | If max-consumers > current consumers max-consumers will update on reload | max-consumers will be set back to the default `-1` | If max-consumers > current consumers max-consumers will update on reload
 attribute `purge-on-no-consumers` | On reload purge-on-no-consumers will be updated | Will be set back to the default `false` | On reload purge-on-no-consumers will be updated
-attribute `address` | N/A | No effect unless starting broker | No effect unless starting broker
-attribute `filter` | The filter will be added after reloading | The filter will be removed after reloading | The filter will be updated after reloading
-attribute `durable` | The queue durability will be set to the given value after reloading | The queue durability will be set to the default `true` after reloading | The queue durability will be set to the new value after reloading
+attribute `enabled` | On reload enabled will be updated | Will be set back to the default `true` | On reload enabled will be updated
+attribute `exclusive` | On reload exclusive will be updated | Will be set back to the default `false` | On reload exclusive will be updated
+attribute `group-rebalance` | On reload group-rebalance will be updated | Will be set back to the default `false` | On reload group-rebalance will be updated
+attribute `group-rebalance-pause-dispatch` | On reload group-rebalance-pause-dispatch will be updated | Will be set back to the default `false` | On reload group-rebalance-pause-dispatch will be updated
+attribute `group-buckets` | On reload group-buckets will be updated | Will be set back to the default `-1` | On reload group-buckets will be updated
+attribute `group-first-key` | On reload group-first-key will be updated | Will be set back to the default `null` | On reload group-first-key will be updated
+attribute `last-value` | On reload last-value will be updated | Will be set back to the default `false` | On reload last-value will be updated
+attribute `last-value-key` | On reload last-value-key will be updated | Will be set back to the default `null` | On reload last-value-key will be updated
+attribute `non-destructive` | On reload non-destructive will be updated | Will be set back to the default `false` | On reload non-destructive will be updated
+attribute `consumers-before-dispatch` | On reload consumers-before-dispatch will be updated | Will be set back to the default `0` | On reload consumers-before-dispatch will be updated
+attribute `delay-before-dispatch` | On reload delay-before-dispatch will be updated | Will be set back to the default `-1` | On reload delay-before-dispatch will be updated
+attribute `ring-size` | On reload ring-size will be updated | Will be set back to the default `-1` | On reload ring-size will be updated
+`<filter>` | The filter will be added after reloading | The filter will be removed after reloading | The filter will be updated after reloading
+`<durable>` | The queue durability will be set to the given value after reloading | The queue durability will be set to the default `true` after reloading | The queue durability will be set to the new value after reloading
+`<user>` | The queue user will be set to the given value after reloading | The queue user will be set to the default `null` after reloading | The queue user will be set to the new value after reloading
+
 
 ### `<jms>` *(Deprecated)*
 
-#### `<queue>`
-
-Changes to any `<queue>` elements will be reloaded to the running broker.
-
-> **Note:**
->
-> Once reloaded, new queues defined in the new changes will be deployed to the
-> running broker. However existing queues won’t get undeployed even if the
-> matching element is deleted/missing. Also new queue elements matching
-> existing queues won’t get re-created – they remain unchanged.
-
-Operation | Add | Delete | Update
----|---|---|---
-`<queue>` | A new jms queue will be deployed after reloading | No effect unless starting broker | No effect unless starting broker
-attribute `<name>` | N/A | X | A jms queue of the new name will be deployed after reloading
-`<selector>` | X(no more than one is present) | No effect unless starting broker | No effect unless starting broker
-`<durable>` | X(no more than one is present) | No effect unless starting broker | No effect unless starting broker
-
-#### `<topic>`
-
-Changes to any `<topic>` elements will be reloaded to the running broker.
-
-> **Note:**
->
-> Once reloaded, new topics defined in the new changes will be deployed to the
-> running broker. However existing topics won’t get undeployed even if the
-> matching element is deleted/missing. Also any `<topic>` elements matching
-> existing topics won’t get re-deployed – they remain unchanged.
-
-Operation | Add | Delete | Update
----|---|---|---
-`<topic>` | A new jms topic will be deployed after reloading | No effect unless starting broker | No effect unless starting broker
-attribute `name` | N/A | X | A jms topic of the new name will be deployed after reloading
+### `<queues>` *(Deprecated)*
