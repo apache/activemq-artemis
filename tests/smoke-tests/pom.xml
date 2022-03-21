@@ -909,7 +909,6 @@
                   </goals>
                   <configuration>
                      <!-- this makes it easier in certain envs -->
-                     <configuration>${basedir}/target/classes/servers/pagingGlobalMaxMessages</configuration>
                      <allowAnonymous>true</allowAnonymous>
                      <user>admin</user>
                      <password>admin</password>
@@ -918,6 +917,8 @@
                         <!-- this is needed to run the server remotely -->
                         <arg>--java-options</arg>
                         <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--global-max-messages</arg>
+                        <arg>1000</arg>
                      </args>
                   </configuration>
                </execution>

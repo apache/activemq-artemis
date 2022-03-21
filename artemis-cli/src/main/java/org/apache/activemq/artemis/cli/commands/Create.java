@@ -287,6 +287,9 @@ public class Create extends InputAbstract {
    @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume (Default: Undefined, half of the system's memory)")
    private String globalMaxSize;
 
+   @Option(name = "--global-max-messages", description = "Maximum number of messages that will be accepted in memory before using address full policy mode.(Default: Undefined)")
+   private long globalMaxMessages = -1;
+
    @Option(name = "--jdbc", description = "It will activate jdbc")
    boolean jdbc;
 
@@ -668,6 +671,8 @@ public class Create extends InputAbstract {
       filters.put("${role}", role);
       filters.put("${encoded.role}", role.replaceAll(" ", "\\\\ "));
 
+
+      filters.put("${global-max-messages}", Long.toString(globalMaxMessages));
 
       if (globalMaxSize == null || globalMaxSize.trim().equals("")) {
          filters.put("${global-max-section}", readTextFile(ETC_GLOBAL_MAX_DEFAULT_TXT, filters));
