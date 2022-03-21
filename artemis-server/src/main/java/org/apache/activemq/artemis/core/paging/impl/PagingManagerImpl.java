@@ -80,6 +80,8 @@ public final class PagingManagerImpl implements PagingManager {
 
    private long maxSize;
 
+   private long maxMessages;
+
    private volatile boolean cleanupEnabled = true;
 
    private volatile boolean diskFull = false;
@@ -117,6 +119,7 @@ public final class PagingManagerImpl implements PagingManager {
       this.addressSettingsRepository = addressSettingsRepository;
       addressSettingsRepository.registerListener(this);
       this.maxSize = maxSize;
+      this.maxMessages = maxMessages;
       this.globalSizeMetric = new SizeAwareMetric(maxSize, maxSize, maxMessages, maxMessages);
       globalSizeMetric.setSizeEnabled(maxSize >= 0);
       globalSizeMetric.setElementsEnabled(maxMessages >= 0);
@@ -132,14 +135,20 @@ public final class PagingManagerImpl implements PagingManager {
 
 
    /** To be used in tests only called through PagingManagerTestAccessor */
-   void resetMaxSize(long maxSize, long maxElements) {
+   void resetMaxSize(long maxSize, long maxMessages) {
       this.maxSize = maxSize;
-      this.globalSizeMetric.setMax(maxSize, maxSize, maxElements, maxElements);
+      this.maxMessages = maxMessages;
+      this.globalSizeMetric.setMax(maxSize, maxSize, maxMessages, maxMessages);
    }
 
    @Override
    public long getMaxSize() {
       return maxSize;
+   }
+
+   @Override
+   public long getMaxMessages() {
+      return maxMessages;
    }
 
    public PagingManagerImpl(final PagingStoreFactory pagingSPI,
@@ -184,6 +193,11 @@ public final class PagingManagerImpl implements PagingManager {
    @Override
    public long getGlobalSize() {
       return globalSizeMetric.getSize();
+   }
+
+   @Override
+   public long getGlobalMessages() {
+      return globalSizeMetric.getElements();
    }
 
    protected void checkMemoryRelease() {
