@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.brokerConnection;
+package org.apache.activemq.artemis.tests.e2e.brokerConnection;
 
 import java.io.File;
 
-import org.apache.activemq.artemis.tests.smoke.common.ContainerService;
+import org.apache.activemq.artemis.tests.e2e.common.ContainerService;
 import org.junit.Assume;
 
 /** The purpose of this class is to validate if "artemis-centos" and docker (or an equivalent) is available on the environment.

@@ -140,6 +140,12 @@
             <skipExtraTests>true</skipExtraTests>
          </properties>
       </profile>
+      <profile>
+         <id>e2e-tests</id>
+         <properties>
+            <skipE2ETests>false</skipE2ETests>
+         </properties>
+      </profile>
    </profiles>
 
    <modules>
@@ -155,5 +161,6 @@
       <module>performance-tests</module>
       <module>artemis-test-support</module>
       <module>smoke-tests</module>
+      <module>e2e-tests</module>
    </modules>
 </project>
