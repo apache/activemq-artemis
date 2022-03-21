@@ -288,8 +288,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void switchingNIO();
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 221046, value = "Unblocking message production on address ''{0}''; size is currently: {1} bytes; max-size-bytes: {2}", format = Message.Format.MESSAGE_FORMAT)
-   void unblockingMessageProduction(SimpleString addressName, long currentSize, long maxSize);
+   @Message(id = 221046, value = "Unblocking message production on address ''{0}''; {1}", format = Message.Format.MESSAGE_FORMAT)
+   void unblockingMessageProduction(SimpleString addressName, String sizeInfo);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 221047, value = "Backup Server has scaled down to live server", format = Message.Format.MESSAGE_FORMAT)
@@ -615,12 +615,12 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void pageStoreStartIOError(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222038, value = "Starting paging on address ''{0}''; size is currently: {1} bytes; max-size-bytes: {2}; global-size-bytes: {3}", format = Message.Format.MESSAGE_FORMAT)
-   void pageStoreStart(SimpleString storeName, long addressSize, long maxSize, long globalMaxSize);
+   @Message(id = 222038, value = "Starting paging on address ''{0}''; {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pageStoreStart(SimpleString storeName, String sizeInfo);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222039, value = "Messages sent to address ''{0}'' are being dropped; size is currently: {1} bytes; max-size-bytes: {2}; global-size-bytes: {3}", format = Message.Format.MESSAGE_FORMAT)
-   void pageStoreDropMessages(SimpleString storeName, long addressSize, long maxSize, long globalMaxSize);
+   @Message(id = 222039, value = "Messages sent to address ''{0}'' are being dropped; {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pageStoreDropMessages(SimpleString storeName, String sizeInfo);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222040, value = "Server is stopped", format = Message.Format.MESSAGE_FORMAT)
@@ -1218,8 +1218,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void missingClusterConfigForScaleDown(String scaleDownCluster);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222183, value = "Blocking message production on address ''{0}''; size is currently: {1} bytes; max-size-bytes on address: {2}, global-max-size is {3}", format = Message.Format.MESSAGE_FORMAT)
-   void blockingMessageProduction(SimpleString addressName, long currentSize, long maxSize, long globalMaxSize);
+   @Message(id = 222183, value = "Blocking message production on address ''{0}''; {1}", format = Message.Format.MESSAGE_FORMAT)
+   void blockingMessageProduction(SimpleString addressName, String pageInfo);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222184,
@@ -2181,8 +2181,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void enableTraceForCriticalAnalyzer();
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 224108, value = "Stopped paging on address ''{0}''; size is currently: {1} bytes; max-size-bytes: {2}; global-size-bytes: {3}", format = Message.Format.MESSAGE_FORMAT)
-   void pageStoreStop(SimpleString storeName, long addressSize, long maxSize, long globalMaxSize);
+   @Message(id = 224108, value = "Stopped paging on address ''{0}''; {1}", format = Message.Format.MESSAGE_FORMAT)
+   void pageStoreStop(SimpleString storeName, String pageInfo);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224109, value = "ConnectionRouter {0} not found", format = Message.Format.MESSAGE_FORMAT)

@@ -530,12 +530,16 @@ public class PagingStoreImpl implements PagingStore {
          final boolean isPaging = this.paging;
          if (isPaging) {
             paging = false;
-            ActiveMQServerLogger.LOGGER.pageStoreStop(storeName, size.getSize(), maxSize, pagingManager.getGlobalSize());
+            ActiveMQServerLogger.LOGGER.pageStoreStop(storeName, getPageInfo());
          }
          this.cursorProvider.onPageModeCleared();
       } finally {
          lock.writeLock().unlock();
       }
+   }
+
+   private String getPageInfo() {
+      return String.format("size=%d bytes (%d messages); maxSize=%d bytes (%d messages); globalSize=%d bytes (%d messages); globalMaxSize=%d bytes (%d messages);", size.getSize(), size.getElements(), maxSize, maxMessages, pagingManager.getGlobalSize(), pagingManager.getGlobalMessages(), pagingManager.getMaxSize(), pagingManager.getMaxMessages());
    }
 
    @Override
@@ -575,7 +579,7 @@ public class PagingStoreImpl implements PagingStore {
             }
          }
          paging = true;
-         ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, size.getSize(), maxSize, pagingManager.getGlobalSize());
+         ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, getPageInfo());
 
          return true;
       } finally {
@@ -764,7 +768,7 @@ public class PagingStoreImpl implements PagingStore {
                   if (pagingManager.isDiskFull()) {
                      ActiveMQServerLogger.LOGGER.blockingDiskFull(address);
                   } else {
-                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, size.getSize(), maxSize, pagingManager.getGlobalSize());
+                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, getPageInfo());
                   }
                   blocking = true;
                }
@@ -813,7 +817,7 @@ public class PagingStoreImpl implements PagingStore {
          if (!onMemoryFreedRunnables.isEmpty()) {
             executor.execute(this::memoryReleased);
             if (blocking) {
-               ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, size.getSize(), maxSize);
+               ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, getPageInfo());
                blocking = false;
                return true;
             }
@@ -848,7 +852,7 @@ public class PagingStoreImpl implements PagingStore {
             // Address is full, we just pretend we are paging, and drop the data
             if (!printedDropMessagesWarning) {
                printedDropMessagesWarning = true;
-               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, size.getSize(), maxSize, pagingManager.getGlobalSize());
+               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, getPageInfo());
             }
             return true;
          } else {
