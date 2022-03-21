@@ -1769,6 +1769,9 @@ public interface ActiveMQServerLogger extends BasicLogger {
       format = Message.Format.MESSAGE_FORMAT)
    void failedToLoadPreparedTX(@Cause Throwable e, String message);
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222307, value = "The queues element is deprecated and replaced by the addresses element")
+   void queuesElementDeprecated();
 
 
 

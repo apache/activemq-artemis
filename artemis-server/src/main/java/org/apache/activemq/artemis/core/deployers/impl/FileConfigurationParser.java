@@ -991,6 +991,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseQueues(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("queues");
       if (elements.getLength() != 0) {
+         ActiveMQServerLogger.LOGGER.queuesElementDeprecated();
          Element node = (Element) elements.item(0);
          config.setQueueConfigs(parseQueueConfigurations(node, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE));
       }
