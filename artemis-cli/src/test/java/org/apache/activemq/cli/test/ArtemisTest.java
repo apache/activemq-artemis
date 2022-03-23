@@ -24,6 +24,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
+import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import javax.xml.parsers.DocumentBuilder;
@@ -1735,6 +1737,33 @@ public class ArtemisTest extends CliTestBase {
          stopServer();
       }
 
+   }
+
+   @Test
+   public void testHugeQstat() throws Exception {
+
+      File instanceQstat = new File(temporaryFolder.getRoot(), "instanceQStat");
+      setupAuth(instanceQstat);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceQstat.getAbsolutePath(), "--silent", "--no-fsync", "--no-autotune", "--no-web", "--require-login");
+      System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
+      Object result = Artemis.internalExecute("run");
+      ActiveMQServer activeMQServer = ((Pair<ManagementContext, ActiveMQServer>)result).getB();
+
+      try {
+         final int COUNT = 20_000;
+         for (int i = 0; i < COUNT; i++) {
+            activeMQServer.createQueue(new QueueConfiguration("" + i));
+         }
+         TestActionContext context = new TestActionContext();
+         StatQueue statQueue = new StatQueue();
+         statQueue.setUser("admin");
+         statQueue.setPassword("admin");
+         statQueue.setMaxRows(COUNT);
+         statQueue.execute(context);
+      } finally {
+         stopServer();
+      }
    }
 
    @Test

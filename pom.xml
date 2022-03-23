@@ -129,7 +129,7 @@
       <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.36</slf4j.version>
       <qpid.jms.version>1.5.0</qpid.jms.version>
-      <johnzon.version>0.9.5</johnzon.version>
+      <johnzon.version>1.2.16</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
       <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
