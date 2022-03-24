@@ -34,8 +34,10 @@ public class SecurityManagerHandler implements SecurityHandler {
       SecurityManagerDTO customSecurity = (SecurityManagerDTO) security;
       String clazz = customSecurity.className;
       Map<String, String> properties = new HashMap<>();
-      for (PropertyDTO property : customSecurity.properties) {
-         properties.put(property.key, property.value);
+      if (customSecurity.properties != null) {
+         for (PropertyDTO property : customSecurity.properties) {
+            properties.put(property.key, property.value);
+         }
       }
       return AccessController.doPrivileged((PrivilegedAction<ActiveMQSecurityManager>) () -> (ActiveMQSecurityManager) ClassloadingUtil.newInstanceFromClassLoader(SecurityManagerHandler.class, clazz)).init(properties);
    }
