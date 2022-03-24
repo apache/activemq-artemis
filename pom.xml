@@ -162,6 +162,9 @@
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <postgresql.version>42.3.3</postgresql.version>
+      <testcontainers.version>1.16.3</testcontainers.version>
+      <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+
       <!-- for JakrtaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
 
@@ -194,7 +197,9 @@
       <skipPerformanceTests>true</skipPerformanceTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
-      <skipE2ETests>true</skipE2ETests>
+
+      <e2e-tests.skipTests>true</e2e-tests.skipTests>
+      <e2e-tests.skipImageBuild>true</e2e-tests.skipImageBuild>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -1031,6 +1036,19 @@
             <scope>test</scope>
             <!-- License: EPL 2.0 -->
          </dependency>
+
+         <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>selenium</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+         </dependency>
       </dependencies>
 
    </dependencyManagement>
@@ -1741,6 +1759,11 @@
                      <exclude>examples/protocols/amqp/**/readme.md</exclude>
                   </excludes>
                </configuration>
+            </plugin>
+            <plugin>
+               <groupId>org.codehaus.mojo</groupId>
+               <artifactId>exec-maven-plugin</artifactId>
+               <version>${exec-maven-plugin.version}</version>
             </plugin>
          </plugins>
       </pluginManagement>

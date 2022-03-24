@@ -28,16 +28,40 @@
    <name>End-to-End Tests</name>
 
    <properties>
-      <activemq.basedir>${project.basedir}/../../</activemq.basedir>
-      <e2ets-surefire-extra-args />
+      <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+      <e2e-tests.surefire-extra-args/>
+      <e2e-tests.dockerfile>Dockerfile-centos</e2e-tests.dockerfile>
+      <e2e-tests.skipImageBuild>true</e2e-tests.skipImageBuild>
+      <e2e-tests.skipTests>true</e2e-tests.skipTests>
+      <distributionDir>${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}</distributionDir>
+      <container-service-argline>-DContainerService.artemis-image.version=${project.version} -DContainerService.artemis-image.userid="1000"</container-service-argline>
    </properties>
 
    <dependencies>
       <dependency>
+         <!-- this dependency is here to make sure this module is only executed
+              after the distribution is created.
+              Otherwise it will get here before the build eventually.
+              e.g if you use mvn install -T 20 -->
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>apache-artemis</artifactId>
+         <version>${project.version}</version>
+         <scope>compile</scope>
+         <type>pom</type>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-jms-client-all</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-jakarta-client-all</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
          <groupId>org.testcontainers</groupId>
          <artifactId>testcontainers</artifactId>
-         <version>1.16.2</version>
-         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -75,6 +99,50 @@
 
    <build>
       <plugins>
+         <plugin>
+            <!-- TODO: Review Codehaus usage...ARTEMIS-3750 -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>prepare-container-image</id>
+                  <phase>generate-test-resources</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                     <skip>${e2e-tests.skipImageBuild}</skip>
+                     <executable>./prepare-docker.sh</executable>
+                     <workingDirectory>${activemq.basedir}/artemis-docker</workingDirectory>
+                     <arguments>
+                        <argument>--from-local-dist</argument>
+                        <argument>--local-dist-path</argument>
+                        <argument>${distributionDir}</argument>
+                     </arguments>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>build-container-image</id>
+                  <phase>generate-test-resources</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                     <skip>${e2e-tests.skipImageBuild}</skip>
+                     <executable>docker</executable>
+                     <workingDirectory>${distributionDir}</workingDirectory>
+                     <arguments>
+                        <argument>build</argument>
+                        <argument>--file</argument>
+                        <argument>${distributionDir}/docker/${e2e-tests.dockerfile}</argument>
+                        <argument>--tag</argument>
+                        <argument>activemq-artemis:${project.version}</argument>
+                        <argument>${distributionDir}</argument>
+                     </arguments>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-maven-plugin</artifactId>
@@ -289,8 +357,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <skipTests>${skipE2ETests}</skipTests>
-               <argLine>${e2ets-surefire-extra-args} ${activemq-surefire-argline} -Dorg.apache.activemq.artemis.tests.e2e.common.ContainerService.service.userid="1000"</argLine>
+               <skipTests>${e2e-tests.skipTests}</skipTests>
+               <argLine>${e2e-tests.surefire-extra-args} ${activemq-surefire-argline} ${container-service-argline}</argLine>
             </configuration>
          </plugin>
       </plugins>
