@@ -76,7 +76,7 @@ public class Wait {
          if (printThreadDump) {
             System.out.println(ThreadDumpUtil.threadDump("thread dump"));
          }
-         Assert.fail(size + " != " + condition.getCount());
+         Assert.assertEquals(size.longValue(), condition.getCount());
       }
    }
 
@@ -102,7 +102,7 @@ public class Wait {
       boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis);
 
       if (!result) {
-         Assert.fail(size + " != " + condition.getCount());
+         Assert.assertEquals(size, condition.getCount());
       }
    }
 
