@@ -67,6 +67,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private long jdbcJournalSyncPeriodMillis = ActiveMQDefaultConfiguration.getDefaultJdbcJournalSyncPeriodMillis();
 
+   private long jdbcAllowedTimeDiff = ActiveMQDefaultConfiguration.getDefaultJdbcAllowedTimeDiffMillis();
+
    @Override
    public StoreType getStoreType() {
       return StoreType.DATABASE;
@@ -142,6 +144,10 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public String getJdbcDriverClassName() {
       return jdbcDriverClassName;
+   }
+
+   public long getJdbcAllowedTimeDiff() {
+      return jdbcAllowedTimeDiff;
    }
 
    /**
@@ -295,5 +301,9 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public void setJdbcJournalSyncPeriodMillis(long jdbcJournalSyncPeriodMillis) {
       this.jdbcJournalSyncPeriodMillis = jdbcJournalSyncPeriodMillis;
+   }
+
+   public void setJdbcAllowedTimeDiff(long jdbcAllowedTimeDiff) {
+      this.jdbcAllowedTimeDiff = jdbcAllowedTimeDiff;
    }
 }

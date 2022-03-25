@@ -50,6 +50,7 @@ final class JdbcLeaseLock implements LeaseLock {
    private boolean maybeAcquired;
    private final String lockName;
    private long localExpirationTime;
+   private long allowedTimeDiff;
 
    /**
     * The lock will be responsible (ie {@link #close()}) of all the {@link PreparedStatement}s used by it, but not of the {@link Connection},
@@ -65,7 +66,8 @@ final class JdbcLeaseLock implements LeaseLock {
                  String currentDateTimeTimeZoneId,
                  long expirationMIllis,
                  long queryTimeoutMillis,
-                 String lockName) {
+                 String lockName,
+                 long allowedTimeDiff) {
       if (holderId.length() > MAX_HOLDER_ID_LENGTH) {
          throw new IllegalArgumentException("holderId length must be <=" + MAX_HOLDER_ID_LENGTH);
       }
@@ -77,6 +79,7 @@ final class JdbcLeaseLock implements LeaseLock {
       this.currentDateTime = currentDateTime;
       this.currentDateTimeTimeZone = currentDateTimeTimeZoneId == null ? null : TimeZone.getTimeZone(currentDateTimeTimeZoneId);
       this.expirationMillis = expirationMIllis;
+      this.allowedTimeDiff = allowedTimeDiff;
       this.maybeAcquired = false;
       this.connectionProvider = connectionProvider;
       this.lockName = lockName;
@@ -167,31 +170,31 @@ final class JdbcLeaseLock implements LeaseLock {
    }
 
    private long dbCurrentTimeMillis(Connection connection) throws SQLException {
-      return dbCurrentTimeMillis(connection, queryTimeout, currentDateTime, currentDateTimeTimeZone);
+      return dbCurrentTimeMillis(connection, queryTimeout, currentDateTime, currentDateTimeTimeZone, allowedTimeDiff);
    }
 
    public static long dbCurrentTimeMillis(final Connection connection,
                                           final int queryTimeout,
                                           final String currentDateTimeSql,
-                                          final TimeZone currentDateTimeTimeZone) throws SQLException {
+                                          final TimeZone currentDateTimeTimeZone,
+                                          final long allowedTimeDiff) throws SQLException {
       try (PreparedStatement currentDateTime = connection.prepareStatement(currentDateTimeSql)) {
          if (queryTimeout >= 0) {
             currentDateTime.setQueryTimeout(queryTimeout);
          }
-         final long startTime = stripMilliseconds(System.currentTimeMillis());
+         final long startTime = System.currentTimeMillis() - allowedTimeDiff;
          try (ResultSet resultSet = currentDateTime.executeQuery()) {
             resultSet.next();
-            final long endTime = stripMilliseconds(System.currentTimeMillis());
+            final long endTime = System.currentTimeMillis() + allowedTimeDiff;
 
             final long currentTime = (currentDateTimeTimeZone == null ?
                resultSet.getTimestamp(1) :
                resultSet.getTimestamp(1, Calendar.getInstance(currentDateTimeTimeZone))).getTime();
-            final long currentTimeNoMillis = stripMilliseconds(currentTime);
-            if (currentTimeNoMillis < startTime) {
-               LOGGER.warnf("currentTimestamp = %d on database should happen AFTER %d on broker", currentTimeNoMillis, startTime);
+            if (currentTime < startTime) {
+               LOGGER.warnf("currentTimestamp = %d on database should happen AFTER %d on broker", currentTime, startTime);
             }
-            if (currentTimeNoMillis > endTime) {
-               LOGGER.warnf("currentTimestamp = %d on database should happen BEFORE %d on broker", currentTimeNoMillis, endTime);
+            if (currentTime > endTime) {
+               LOGGER.warnf("currentTimestamp = %d on database should happen BEFORE %d on broker", currentTime, endTime);
             }
             return currentTime;
          }
