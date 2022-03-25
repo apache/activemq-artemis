@@ -564,6 +564,7 @@ public abstract class ActiveMQTestBase extends Assert {
       dbStorageConfiguration.setJdbcLockExpirationMillis(getJdbcLockExpirationMillis());
       dbStorageConfiguration.setJdbcLockRenewPeriodMillis(getJdbcLockRenewPeriodMillis());
       dbStorageConfiguration.setJdbcNetworkTimeout(-1);
+      dbStorageConfiguration.setDataSourceTimeMargin(1250L);
       return dbStorageConfiguration;
    }
 

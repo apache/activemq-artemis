@@ -83,7 +83,8 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
                UUID.randomUUID().toString(),
                jdbcSharedStateManager.getJdbcConnectionProvider(),
                sqlProvider,
-               acquireMillis);
+               acquireMillis,
+               dbConf.getDataSourceTimeMargin());
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
@@ -97,7 +98,8 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
                jdbcSharedStateManager.getJdbcConnectionProvider(),
                sqlProvider,
                acquireMillis,
-               queryTimeoutMillis);
+               queryTimeoutMillis,
+               dbConf.getDataSourceTimeMargin());
       } catch (Exception e) {
          throw new IllegalStateException(e);
       }
@@ -124,6 +126,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
          .usingConnectionProvider(
             UUID.randomUUID().toString(),
             dbConf.getJdbcLockExpirationMillis(),
+            dbConf.getDataSourceTimeMargin(),
             dbConf.getConnectionProvider(),
             sqlProvider);
    }
@@ -362,7 +365,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       final long utcJdbcTime = jdbcLock.dbCurrentTimeMillis();
       final long millisDiffJdbcSystem = utcJdbcTime - utcSystemTime;
       MatcherAssert.assertThat(millisDiffJdbcSystem, greaterThanOrEqualTo(0L));
-      MatcherAssert.assertThat(millisDiffJdbcSystem, lessThan(TimeUnit.SECONDS.toMillis(10)));
+      MatcherAssert.assertThat(millisDiffJdbcSystem, lessThan(dbConf.getDataSourceTimeMargin()));
    }
 
    @Test

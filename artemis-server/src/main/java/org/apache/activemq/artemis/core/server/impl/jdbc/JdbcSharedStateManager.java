@@ -40,6 +40,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    private final String holderId;
    private final long lockExpirationMillis;
    private final long queryTimeoutMillis;
+   private final long timeMargin;
    private JdbcLeaseLock liveLock;
    private JdbcLeaseLock backupLock;
    private String readNodeId;
@@ -50,18 +51,20 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
 
    public static JdbcSharedStateManager usingConnectionProvider(String holderId,
                                                                 long locksExpirationMillis,
+                                                                long timeMargin,
                                                                 JDBCConnectionProvider connectionProvider,
                                                                 SQLProvider provider) {
-      return usingConnectionProvider(holderId, locksExpirationMillis, -1, connectionProvider, provider);
+      return usingConnectionProvider(holderId, locksExpirationMillis, timeMargin, -1, connectionProvider, provider);
    }
 
    public static JdbcSharedStateManager usingConnectionProvider(String holderId,
                                                                 long locksExpirationMillis,
                                                                 long queryTimeoutMillis,
+                                                                long timeMargin,
                                                                 JDBCConnectionProvider connectionProvider,
                                                                 SQLProvider provider) {
       final JdbcSharedStateManager sharedStateManager = new JdbcSharedStateManager(holderId, locksExpirationMillis,
-                                                                                   queryTimeoutMillis);
+                                                                                   queryTimeoutMillis, timeMargin);
       sharedStateManager.setJdbcConnectionProvider(connectionProvider);
       sharedStateManager.setSqlProvider(provider);
       try {
@@ -85,36 +88,41 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    static JdbcLeaseLock createLiveLock(String holderId,
                                        JDBCConnectionProvider connectionProvider,
                                        SQLProvider sqlProvider,
-                                       long expirationMillis) {
-      return createLiveLock(holderId, connectionProvider, sqlProvider, expirationMillis, -1);
+                                       long expirationMillis,
+                                       long timeMargin) {
+      return createLiveLock(holderId, connectionProvider, sqlProvider, expirationMillis, -1, timeMargin);
    }
 
    static JdbcLeaseLock createLiveLock(String holderId,
                                        JDBCConnectionProvider connectionProvider,
                                        SQLProvider sqlProvider,
                                        long expirationMillis,
-                                       long queryTimeoutMillis) {
+                                       long queryTimeoutMillis,
+                                       long timeMargin) {
       return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireLiveLockSQL(),
                                sqlProvider.tryReleaseLiveLockSQL(), sqlProvider.renewLiveLockSQL(),
                                sqlProvider.isLiveLockedSQL(), sqlProvider.currentTimestampSQL(),
-                               sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis, "LIVE");
+                               sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis,
+                               "LIVE", timeMargin);
    }
 
    static JdbcLeaseLock createBackupLock(String holderId,
                                          JDBCConnectionProvider connectionProvider,
                                          SQLProvider sqlProvider,
                                          long expirationMillis,
-                                         long queryTimeoutMillis) {
+                                         long queryTimeoutMillis,
+                                         long timeMargin) {
       return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireBackupLockSQL(),
                                sqlProvider.tryReleaseBackupLockSQL(), sqlProvider.renewBackupLockSQL(),
                                sqlProvider.isBackupLockedSQL(), sqlProvider.currentTimestampSQL(),
-                               sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis, "BACKUP");
+                               sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis,
+                               "BACKUP", timeMargin);
    }
 
    @Override
    protected void prepareStatements() {
-      this.liveLock = createLiveLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis);
-      this.backupLock = createBackupLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis);
+      this.liveLock = createLiveLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis, timeMargin);
+      this.backupLock = createBackupLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis, timeMargin);
       this.readNodeId = sqlProvider.readNodeIdSQL();
       this.writeNodeId = sqlProvider.writeNodeIdSQL();
       this.initializeNodeId = sqlProvider.initializeNodeIdSQL();
@@ -122,10 +130,11 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       this.readState = sqlProvider.readStateSQL();
    }
 
-   private JdbcSharedStateManager(String holderId, long lockExpirationMillis, long queryTimeoutMillis) {
+   private JdbcSharedStateManager(String holderId, long lockExpirationMillis, long queryTimeoutMillis, long timeMargin) {
       this.holderId = holderId;
       this.lockExpirationMillis = lockExpirationMillis;
       this.queryTimeoutMillis = queryTimeoutMillis;
+      this.timeMargin = timeMargin;
    }
 
    @Override
