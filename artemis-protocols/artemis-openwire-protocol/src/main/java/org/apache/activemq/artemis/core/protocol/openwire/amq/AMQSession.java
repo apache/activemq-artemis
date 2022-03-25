@@ -200,8 +200,8 @@ public class AMQSession implements SessionCallback {
       //lazy allocation of the cache
       if (existingQueuesCache == null) {
          //16 means 64 bytes with 32 bit references or 128 bytes with 64 bit references -> 1 or 2 cache lines with common archs
-         existingQueuesCache = new String[16];
-         assert (Integer.bitCount(existingQueuesCache.length) == 1) : "existingQueuesCache.length must be power of 2";
+         existingQueuesCache = new String[protocolManager.getOpenWireDestinationCacheSize()];
+         assert (Integer.bitCount(existingQueuesCache.length) == 1) : "openWireDestinationCacheSize must be a power of 2";
          this.existingQueuesCache = existingQueuesCache;
       }
       final int hashCode = physicalName.hashCode();
