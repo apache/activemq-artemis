@@ -27,13 +27,14 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.jboss.logging.Logger;
 
 /**
  * JDBC implementation of a {@link LeaseLock} with a {@code String} defined {@link #holderId()}.
  */
-final class JdbcLeaseLock implements LeaseLock {
+class JdbcLeaseLock implements LeaseLock {
 
    private static final Logger LOGGER = Logger.getLogger(JdbcLeaseLock.class);
    private static final int MAX_HOLDER_ID_LENGTH = 128;
@@ -50,6 +51,7 @@ final class JdbcLeaseLock implements LeaseLock {
    private boolean maybeAcquired;
    private final String lockName;
    private long localExpirationTime;
+   private long allowedTimeDiff;
 
    /**
     * The lock will be responsible (ie {@link #close()}) of all the {@link PreparedStatement}s used by it, but not of the {@link Connection},
@@ -65,7 +67,8 @@ final class JdbcLeaseLock implements LeaseLock {
                  String currentDateTimeTimeZoneId,
                  long expirationMIllis,
                  long queryTimeoutMillis,
-                 String lockName) {
+                 String lockName,
+                 long allowedTimeDiff) {
       if (holderId.length() > MAX_HOLDER_ID_LENGTH) {
          throw new IllegalArgumentException("holderId length must be <=" + MAX_HOLDER_ID_LENGTH);
       }
@@ -77,6 +80,7 @@ final class JdbcLeaseLock implements LeaseLock {
       this.currentDateTime = currentDateTime;
       this.currentDateTimeTimeZone = currentDateTimeTimeZoneId == null ? null : TimeZone.getTimeZone(currentDateTimeTimeZoneId);
       this.expirationMillis = expirationMIllis;
+      this.allowedTimeDiff = allowedTimeDiff;
       this.maybeAcquired = false;
       this.connectionProvider = connectionProvider;
       this.lockName = lockName;
@@ -167,33 +171,29 @@ final class JdbcLeaseLock implements LeaseLock {
    }
 
    private long dbCurrentTimeMillis(Connection connection) throws SQLException {
-      return dbCurrentTimeMillis(connection, queryTimeout, currentDateTime, currentDateTimeTimeZone);
+      final long currentTime = System.currentTimeMillis();
+      final long allowedStartTime = currentTime - allowedTimeDiff;
+      final long allowedEndTime = currentTime + allowedTimeDiff;
+      final long dbTime = fetchDatabaseTime(connection);
+      if (dbTime < allowedStartTime || dbTime > allowedEndTime) {
+         ActiveMQServerLogger.LOGGER.dbReturnedTimeOffClock(dbTime, currentTime, allowedTimeDiff);
+      }
+      return dbTime;
    }
 
-   public static long dbCurrentTimeMillis(final Connection connection,
-                                          final int queryTimeout,
-                                          final String currentDateTimeSql,
-                                          final TimeZone currentDateTimeTimeZone) throws SQLException {
-      try (PreparedStatement currentDateTime = connection.prepareStatement(currentDateTimeSql)) {
+   protected long fetchDatabaseTime(Connection connection) throws SQLException {
+      try (PreparedStatement currentDateTimeStatement = connection.prepareStatement(currentDateTime)) {
          if (queryTimeout >= 0) {
-            currentDateTime.setQueryTimeout(queryTimeout);
+            currentDateTimeStatement.setQueryTimeout(queryTimeout);
          }
-         final long startTime = stripMilliseconds(System.currentTimeMillis());
-         try (ResultSet resultSet = currentDateTime.executeQuery()) {
+         try (ResultSet resultSet = currentDateTimeStatement.executeQuery()) {
             resultSet.next();
-            final long endTime = stripMilliseconds(System.currentTimeMillis());
 
-            final long currentTime = (currentDateTimeTimeZone == null ?
+            final long dbTime = (currentDateTimeTimeZone == null ?
                resultSet.getTimestamp(1) :
                resultSet.getTimestamp(1, Calendar.getInstance(currentDateTimeTimeZone))).getTime();
-            final long currentTimeNoMillis = stripMilliseconds(currentTime);
-            if (currentTimeNoMillis < startTime) {
-               LOGGER.warnf("currentTimestamp = %d on database should happen AFTER %d on broker", currentTimeNoMillis, startTime);
-            }
-            if (currentTimeNoMillis > endTime) {
-               LOGGER.warnf("currentTimestamp = %d on database should happen BEFORE %d on broker", currentTimeNoMillis, endTime);
-            }
-            return currentTime;
+
+            return dbTime;
          }
       }
    }

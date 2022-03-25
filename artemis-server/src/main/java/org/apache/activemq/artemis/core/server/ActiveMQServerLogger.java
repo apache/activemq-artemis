@@ -2224,4 +2224,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224117, value = "\"page-max-cache-size\" being used on broker.xml. This configuration attribute is no longer used and it will be ignored.", format = Message.Format.MESSAGE_FORMAT)
    void pageMaxSizeUsed();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 224118, value = "The SQL Database is returning a current time too far from this system current time. Adjust clock on the SQL Database server. DatabaseTime={0}, CurrentTime={1}, allowed variance={2}", format = Message.Format.MESSAGE_FORMAT)
+   void dbReturnedTimeOffClock(long dbTime, long systemTime, long variance);
+
 }
