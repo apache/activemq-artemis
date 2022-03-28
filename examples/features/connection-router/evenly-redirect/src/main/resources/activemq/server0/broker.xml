@@ -58,7 +58,6 @@ under the License.
          <connection-router name="evenly-balance">
             <key-type>CLIENT_ID</key-type>
             <key-filter>^.{3}</key-filter>
-            <local-target-filter>DEFAULT</local-target-filter>
             <cache/>
             <policy name="LEAST_CONNECTIONS"/>
             <pool>

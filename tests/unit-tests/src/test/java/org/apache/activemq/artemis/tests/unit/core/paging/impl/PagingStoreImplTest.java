@@ -910,7 +910,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          }
 
          @Override
-         public FakePagingManager addSize(int s) {
+         public FakePagingManager addSize(int s, boolean sizeOnly) {
             globalSize.addAndGet(s);
             return this;
          }

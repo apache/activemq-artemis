@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class KeyResolver {
-   public static final String DEFAULT_KEY_VALUE = "DEFAULT";
+   public static final String NULL_KEY_VALUE = "NULL";
 
 
    private static final Logger logger = Logger.getLogger(KeyResolver.class);
@@ -120,7 +120,7 @@ public class KeyResolver {
       }
 
       if (keyValue == null) {
-         keyValue = DEFAULT_KEY_VALUE;
+         keyValue = NULL_KEY_VALUE;
       } else if (keyFilter != null) {
          Matcher keyMatcher = keyFilter.matcher(keyValue);
 
@@ -128,11 +128,16 @@ public class KeyResolver {
             keyValue = keyMatcher.group();
 
             if (logger.isDebugEnabled()) {
-               logger.debugf("keyValue with filter %s: %s", keyFilter, keyValue);
+               logger.debugf("keyValue for %s matches filter %s: %s", key, keyFilter, keyValue);
+            }
+         } else {
+            keyValue = NULL_KEY_VALUE;
+
+            if (logger.isDebugEnabled()) {
+               logger.debugf("keyValue for %s doesn't matches filter %s", key, keyFilter);
             }
          }
       }
-
 
       return keyValue;
    }

@@ -94,7 +94,7 @@ public class Transfer extends InputAbstract {
    @Option(name = "--target-protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
    String targetProtocol = "core";
 
-   @Option(name = "--commit-interval", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
+   @Option(name = "--commit-interval", description = "Transaction batch interval.")
    int commitInterval = 1000;
 
    @Option(name = "--copy", description = "If this option is chosen we will perform a copy of the queue by rolling back the original TX on the source.")

@@ -119,12 +119,12 @@ public class ConnectionRouterControlImpl extends AbstractControl implements Conn
 
    @Override
    public void setTargetKeyFilter(String regExp) {
-      connectionRouter.getTargetKeyResolver().setKeyFilter(regExp);
+      connectionRouter.getKeyResolver().setKeyFilter(regExp);
    }
 
    @Override
    public String getTargetKeyFilter() {
-      return connectionRouter.getTargetKeyResolver().getKeyFilter();
+      return connectionRouter.getKeyResolver().getKeyFilter();
    }
 
    @Override

@@ -133,8 +133,14 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
-            <!-- with -1 only the global-max-size is in use for limiting -->
+
+
+            <!-- if max-size-bytes and max-size-messages were both enabled, the system will enter into paging
+                 based on the first attribute to hits the maximum value -->
+            <!-- limit for the address in bytes, -1 means unlimited -->
             <max-size-bytes>-1</max-size-bytes>
+            <!-- limit for the address in messages, -1 means unlimited -->
+            <max-size-messages>-1</max-size-messages>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>${full-policy}</address-full-policy>
             <auto-create-queues>${auto-create}</auto-create-queues>

@@ -74,7 +74,6 @@ under the License.
          <connection-router name="symmetric-router">
             <key-type>CLIENT_ID</key-type>
             <key-filter>^.{3}</key-filter>
-            <local-target-filter>DEFAULT</local-target-filter>
             <policy name="CONSISTENT_HASH"/>
             <pool>
                <username>guest</username>

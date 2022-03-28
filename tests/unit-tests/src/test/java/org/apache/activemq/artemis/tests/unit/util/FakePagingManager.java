@@ -81,7 +81,7 @@ public class FakePagingManager implements PagingManager {
    }
 
    @Override
-   public FakePagingManager addSize(int size) {
+   public FakePagingManager addSize(int size, boolean sizeOnly) {
       return this;
    }
 

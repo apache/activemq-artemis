@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NoRouteToHostException;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -951,7 +952,7 @@ public class NettyConnector extends AbstractConnector {
       } else {
          Throwable t = future.cause();
 
-         if (t != null && !(t instanceof ConnectException)) {
+         if (t != null && !(t instanceof ConnectException) && !(t instanceof NoRouteToHostException)) {
             ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(future.cause());
          }
 

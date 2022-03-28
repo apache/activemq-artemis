@@ -184,7 +184,6 @@ public class MessagesExpiredPagingTest extends ActiveMQTestBase {
          for (int i = 0; i < numberOfMessages; i++) {
             if (i > 0 && i % pagingInterval == 0) {
                for (Consumer c : consumers) {
-                  Wait.assertFalse(queues[0].getPagingStore()::isPaging, 5000, 100);
                   producer.setTimeToLive(TimeUnit.HOURS.toMillis(1));
                   producer.send(session.createTextMessage("hello" + extraBody));
                   Wait.assertTrue(() -> c.consumedDelta.get() > 0);

@@ -46,7 +46,7 @@ https://id.apache.org/. Note: this is just the key id, not the whole fingerprint
 Before starting make sure you clone a brand new git as follows as the release plugin will use the upstream for pushing the tags:
 
 ```sh
-git clone git://github.com/apache/activemq-artemis.git
+git clone https://github.com/apache/activemq-artemis.git
 cd activemq-artemis
 git remote add upstream https://gitbox.apache.org/repos/asf/activemq-artemis.git
 ```

@@ -53,6 +53,8 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
       super.decodeRest(buffer);
       if (buffer.readableBytes() >= DataConstants.SIZE_LONG) {
          correlationID = buffer.readLong();
+      } else {
+         correlationID = -1;
       }
    }
 
@@ -69,11 +71,6 @@ public class NullResponseMessage_V2 extends NullResponseMessage {
    @Override
    public final boolean isResponseAsync() {
       return true;
-   }
-
-   @Override
-   protected String getPacketString() {
-      return super.getPacketString() + ", correlationID=" + correlationID;
    }
 
    @Override

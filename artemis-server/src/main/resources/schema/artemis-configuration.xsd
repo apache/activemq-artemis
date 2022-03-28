@@ -516,7 +516,7 @@
          <xsd:element name="queues" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  a list of pre configured queues to create
+                  DEPRECATED: a list of pre configured queues to create
                </xsd:documentation>
             </xsd:annotation>
             <xsd:complexType>
@@ -890,6 +890,15 @@
             <xsd:annotation>
                <xsd:documentation>
                   Interval to log server specific information (e.g. memory usage etc)
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="global-max-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Number of messages before all addresses will enter into their Full Policy configured.
+                  It works in conjunction with global-max-size, being watever value hits its maximum first.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2154,10 +2163,10 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="local-target-key-transformer" type="connectionRouterKeyTransformerType" maxOccurs="1" minOccurs="0">
+         <xsd:element name="key-transformer" type="connectionRouterKeyTransformerType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the local target key transformer configuration
+                  the key transformer configuration
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3934,6 +3943,14 @@
                </xsd:annotation>
             </xsd:element>
 
+            <xsd:element name="max-size-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     the maximum number of messages allowed on the address.  This is used in PAGING, BLOCK and FAIL policies. It does not support notations and it is a simple number of messages allowed.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
             <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1"
                          minOccurs="0">
                <xsd:annotation>
@@ -4508,6 +4525,7 @@
       <xsd:attribute name="purge-on-no-consumers" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="exclusive" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="group-rebalance" type="xsd:boolean" use="optional"/>
+      <xsd:attribute name="group-rebalance-pause-dispatch" type="xsd:boolean" use="optional"/>
       <xsd:attribute name="group-buckets" type="xsd:int" use="optional"/>
       <xsd:attribute name="group-first-key" type="xsd:string" use="optional"/>
       <xsd:attribute name="last-value" type="xsd:boolean" use="optional"/>

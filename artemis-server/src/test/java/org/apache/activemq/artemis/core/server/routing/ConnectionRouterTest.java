@@ -22,12 +22,11 @@ import static org.mockito.Mockito.mock;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.routing.policies.AbstractPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.Policy;
-import org.apache.activemq.artemis.core.server.routing.pools.Pool;
 import org.apache.activemq.artemis.core.server.routing.targets.LocalTarget;
 import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetResult;
-import org.apache.activemq.artemis.core.server.routing.transformer.KeyTransformer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,26 +48,24 @@ public class ConnectionRouterTest {
 
    @Test
    public void getTarget() {
-      Pool pool = null;
       Policy policy = null;
       underTest  = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
-                                      localTarget, "^FOO.*", null, pool, policy, null);
+                                      localTarget, "^FOO.*", null, null, policy);
       assertEquals( localTarget, underTest.getTarget("FOO_EE").getTarget());
       assertEquals(TargetResult.REFUSED_USE_ANOTHER_RESULT, underTest.getTarget("BAR_EE"));
    }
 
    @Test
    public void getLocalTargetWithTransformer() throws Exception {
-      Pool pool = null;
-      Policy policy = null;
-      KeyTransformer keyTransformer = new KeyTransformer() {
+      Policy policy = new AbstractPolicy("TEST") {
          @Override
-         public String transform(String key) {
+         public String transformKey(String key) {
             return key.substring("TRANSFORM_TO".length() + 1);
          }
       };
+
       underTest  = new ConnectionRouter("test", KeyType.CLIENT_ID, "^.{3}",
-                                      localTarget, "^FOO.*", null, pool, policy, keyTransformer);
+                                      localTarget, "^FOO.*", null, null, policy);
       assertEquals( localTarget, underTest.getTarget("TRANSFORM_TO_FOO_EE").getTarget());
    }
 

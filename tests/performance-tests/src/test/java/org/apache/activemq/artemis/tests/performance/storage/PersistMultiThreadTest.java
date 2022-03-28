@@ -405,6 +405,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void addSize(int size, boolean sizeOnly) {
+      }
+
+      @Override
       public void addSize(int size) {
 
       }

@@ -19,7 +19,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.21.0-SNAPSHOT</version>
+      <version>2.22.0-SNAPSHOT</version>
    </parent>
 
    <artifactId>smoke-tests</artifactId>
@@ -29,6 +29,7 @@
    <properties>
       <activemq.basedir>${project.basedir}/../../</activemq.basedir>
       <sts-surefire-extra-args />
+      <artemis-distribuiton-lib-dir>-Ddistribution.lib="${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}/lib"</artemis-distribuiton-lib-dir>
    </properties>
 
    <dependencies>
@@ -146,16 +147,11 @@
          <version>3.141.59</version>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>org.testcontainers</groupId>
-         <artifactId>testcontainers</artifactId>
-         <version>1.15.3</version>
-         <scope>test</scope>
-      </dependency>
+
       <dependency>
          <groupId>org.testcontainers</groupId>
          <artifactId>selenium</artifactId>
-         <version>1.15.3</version>
+         <version>1.16.2</version>
          <scope>test</scope>
       </dependency>
       <!-- this dependency is needed for CFUtil and other tools from integration-tests -->
@@ -866,7 +862,6 @@
                      </args>
                   </configuration>
                </execution>
-               <!-- END JmxReplicatedMultipleFailbackTest -->
                <execution>
                   <phase>test-compile</phase>
                   <id>create-paging</id>
@@ -884,6 +879,47 @@
                         <!-- this is needed to run the server remotely -->
                         <arg>--java-options</arg>
                         <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-paging-address-messages</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/pagingAddressMaxMessages</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/pagingAddressMaxMessages</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-paging-global-messages</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <instance>${basedir}/target/pagingGlobalMaxMessages</instance>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--global-max-messages</arg>
+                        <arg>1000</arg>
                      </args>
                   </configuration>
                </execution>
@@ -1042,38 +1078,6 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
-                  <id>create-dualMirror-serverA</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <role>amq</role>
-                     <user>artemis</user>
-                     <password>artemis</password>
-                     <allowAnonymous>false</allowAnonymous>
-                     <noWeb>false</noWeb>
-                     <instance>${basedir}/target/brokerConnect/serverA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/serverA</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-dualMirror-serverB</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <role>amq</role>
-                     <user>artemis</user>
-                     <password>artemis</password>
-                     <allowAnonymous>false</allowAnonymous>
-                     <noWeb>false</noWeb>
-                     <instance>${basedir}/target/brokerConnect/serverB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/serverB</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
                   <id>create-brokerConnection-paged-serverA</id>
                   <goals>
                      <goal>create</goal>
@@ -1102,132 +1106,6 @@
                      <noWeb>true</noWeb>
                      <instance>${basedir}/target/brokerConnect/pagedB</instance>
                      <configuration>${basedir}/target/classes/servers/brokerConnect/pagedB</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-qdr</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <role>amq</role>
-                     <user>artemis</user>
-                     <password>artemis</password>
-                     <allowAnonymous>false</allowAnonymous>
-                     <noWeb>false</noWeb>
-                     <instance>${basedir}/target/brokerConnect/qdr</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/qdr</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-replica-main-A</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/replicaMainServerA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/replicaMainServerA</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-replica-backup-A</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/replicaBackupServerA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/replicaBackupServerA</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-replica-main-B</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/replicaMainServerB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/replicaMainServerB</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-replica-backup-B</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/replicaBackupServerB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/replicaBackupServerB</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-dual-root</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/splitMirror/serverRoot</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/splitMirror/serverRoot</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-dual-A</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/splitMirror/serverA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/splitMirror/serverA</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-dual-B</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/splitMirror/serverB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/splitMirror/serverB</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-chained-root</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/chainedMirror/serverRoot</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/chainedMirror/serverRoot</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-chained-A</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/chainedMirror/serverA</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/chainedMirror/serverA</configuration>
-                  </configuration>
-               </execution>
-               <execution>
-                  <phase>test-compile</phase>
-                  <id>create-bc-chained-B</id>
-                  <goals>
-                     <goal>create</goal>
-                  </goals>
-                  <configuration>
-                     <instance>${basedir}/target/brokerConnect/chainedMirror/serverB</instance>
-                     <configuration>${basedir}/target/classes/servers/brokerConnect/chainedMirror/serverB</configuration>
                   </configuration>
                </execution>
                <execution>
@@ -1332,7 +1210,7 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
                <skipTests>${skipSmokeTests}</skipTests>
-               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline}</argLine>
+               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline} ${artemis-distribuiton-lib-dir}</argLine>
             </configuration>
          </plugin>
       </plugins>

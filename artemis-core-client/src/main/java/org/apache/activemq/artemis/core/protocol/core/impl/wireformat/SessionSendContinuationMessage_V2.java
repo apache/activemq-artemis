@@ -64,6 +64,8 @@ public class SessionSendContinuationMessage_V2 extends SessionSendContinuationMe
       super.decodeRest(buffer);
       if (buffer.readableBytes() >= DataConstants.SIZE_LONG) {
          correlationID = buffer.readLong();
+      } else {
+         correlationID = -1;
       }
    }
 

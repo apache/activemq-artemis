@@ -48,6 +48,13 @@ public interface ServerLocator extends AutoCloseable {
    boolean isClosed();
 
    /**
+    * Just kept for compatibility.
+    */
+   @Deprecated
+   default void disableFinalizeCheck() {
+   }
+
+   /**
     * Creates a ClientSessionFactory using whatever load balancing policy is in force
     *
     * @return The ClientSessionFactory

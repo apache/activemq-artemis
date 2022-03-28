@@ -32,5 +32,11 @@ public interface Policy {
 
    void init(Map<String, String> properties);
 
-   Target selectTarget(List<Target> targets, String key);
+   default String transformKey(String key) {
+      return key;
+   }
+
+   default Target selectTarget(List<Target> targets, String key) {
+      return null;
+   }
 }

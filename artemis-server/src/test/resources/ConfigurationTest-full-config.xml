@@ -164,9 +164,9 @@
             <key-type>CLIENT_ID</key-type>
             <key-filter>^[^.]+</key-filter>
             <local-target-filter>DEFAULT</local-target-filter>
-            <local-target-key-transformer name="CONSISTENT_HASH_MODULO">
-               <property key="modulo" value="2"></property>
-            </local-target-key-transformer>
+            <policy name="CONSISTENT_HASH_MODULO">
+               <property key="MODULO" value="2"></property>
+            </policy>
          </connection-router>
          <connection-router name="simple-router">
             <key-type>USER_NAME</key-type>
@@ -587,7 +587,7 @@
                   <durable>${falseProp}</durable>
                   <filter string="color='blue'"/>
                </queue>
-               <queue name="q2" max-consumers="-1" purge-on-no-consumers="${falseProp}">
+               <queue name="q2" max-consumers="-1" purge-on-no-consumers="${falseProp}" group-rebalance-pause-dispatch="true">
                   <durable>${trueProp}</durable>
                   <filter string="color='green'"/>
                </queue>
@@ -598,7 +598,7 @@
                <queue name="q3" max-consumers="10" >
                   <filter string="color='red'"/>
                </queue>
-               <queue name="q4" purge-on-no-consumers="${trueProp}">
+               <queue name="q4" purge-on-no-consumers="${trueProp}" group-rebalance-pause-dispatch="true">
                   <durable>${trueProp}</durable>
                </queue>
             </multicast>

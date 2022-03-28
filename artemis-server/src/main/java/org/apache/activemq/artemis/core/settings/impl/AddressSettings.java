@@ -40,6 +40,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
     */
    public static final long DEFAULT_MAX_SIZE_BYTES = -1;
 
+   public static final long DEFAULT_MAX_SIZE_MESSAGES = -1;
+
    public static final AddressFullMessagePolicy DEFAULT_ADDRESS_FULL_MESSAGE_POLICY = AddressFullMessagePolicy.PAGE;
 
    public static final int DEFAULT_PAGE_SIZE = 10 * 1024 * 1024;
@@ -138,6 +140,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
+
+   private Long maxSizeMessages = null;
 
    private Integer pageSizeBytes = null;
 
@@ -276,6 +280,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    public AddressSettings(AddressSettings other) {
       this.addressFullMessagePolicy = other.addressFullMessagePolicy;
       this.maxSizeBytes = other.maxSizeBytes;
+      this.maxSizeMessages = other.maxSizeMessages;
       this.pageSizeBytes = other.pageSizeBytes;
       this.pageMaxCache = other.pageMaxCache;
       this.dropMessagesWhenFull = other.dropMessagesWhenFull;
@@ -607,6 +612,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public long getMaxSizeBytes() {
       return maxSizeBytes != null ? maxSizeBytes : AddressSettings.DEFAULT_MAX_SIZE_BYTES;
+   }
+
+   public long getMaxSizeMessages() {
+      return maxSizeMessages != null ? maxSizeMessages : AddressSettings.DEFAULT_MAX_SIZE_MESSAGES;
+   }
+
+   public AddressSettings setMaxSizeMessages(final long maxSizeMessages) {
+      this.maxSizeMessages = maxSizeMessages;
+      return this;
    }
 
    public AddressSettings setMaxSizeBytes(final long maxSizeBytes) {
@@ -985,6 +999,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (maxSizeBytes == null) {
          maxSizeBytes = merged.maxSizeBytes;
+      }
+      if (maxSizeMessages == null) {
+         maxSizeMessages = merged.maxSizeMessages;
       }
       if (pageMaxCache == null) {
          pageMaxCache = merged.pageMaxCache;
@@ -1412,6 +1429,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
             configDeleteDiverts = null;
          }
       }
+
+      if (buffer.readableBytes() > 0) {
+         maxSizeMessages = BufferHelper.readNullableLong(buffer);
+      }
    }
 
    @Override
@@ -1479,7 +1500,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(defaultGroupRebalancePauseDispatch) +
          BufferHelper.sizeOfNullableInteger(managementMessageAttributeSizeLimit) +
          BufferHelper.sizeOfNullableInteger(slowConsumerThresholdMeasurementUnit.getValue()) +
-         BufferHelper.sizeOfNullableBoolean(enableIngressTimestamp);
+         BufferHelper.sizeOfNullableBoolean(enableIngressTimestamp) +
+         BufferHelper.sizeOfNullableLong(maxSizeMessages);
    }
 
    @Override
@@ -1613,6 +1635,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, enableIngressTimestamp);
 
       buffer.writeNullableSimpleString(configDeleteDiverts != null ? new SimpleString(configDeleteDiverts.toString()) : null);
+
+      BufferHelper.writeNullableLong(buffer, maxSizeMessages);
    }
 
    /* (non-Javadoc)
@@ -1688,6 +1712,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((managementMessageAttributeSizeLimit == null) ? 0 : managementMessageAttributeSizeLimit.hashCode());
       result = prime * result + ((slowConsumerThresholdMeasurementUnit == null) ? 0 : slowConsumerThresholdMeasurementUnit.hashCode());
       result = prime * result + ((enableIngressTimestamp == null) ? 0 : enableIngressTimestamp.hashCode());
+      result = prime * result + ((maxSizeMessages == null) ? 0 : maxSizeMessages.hashCode());
       return result;
    }
 
@@ -2052,6 +2077,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          if (other.enableIngressTimestamp != null)
             return false;
       } else if (!enableIngressTimestamp.equals(other.enableIngressTimestamp))
+         return false;
+
+      if (maxSizeMessages == null) {
+         if (other.maxSizeMessages != null)
+            return false;
+      } else if (!maxSizeMessages.equals(other.maxSizeMessages))
          return false;
 
       return true;

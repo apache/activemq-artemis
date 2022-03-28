@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
@@ -59,6 +58,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.utils.FutureLatch;
+import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.jboss.logging.Logger;
@@ -91,6 +91,8 @@ public class PagingStoreImpl implements PagingStore {
 
    private long maxSize;
 
+   private long maxMessages;
+
    private int pageSize;
 
    private volatile AddressFullMessagePolicy addressFullMessagePolicy;
@@ -104,7 +106,9 @@ public class PagingStoreImpl implements PagingStore {
    private final ArtemisExecutor executor;
 
    // Bytes consumed by the queue on the memory
-   private final AtomicLong sizeInBytes = new AtomicLong();
+   private final SizeAwareMetric size;
+
+   private volatile boolean full;
 
    private int numberOfPages;
 
@@ -166,6 +170,10 @@ public class PagingStoreImpl implements PagingStore {
 
       this.storeName = storeName;
 
+      this.size = new SizeAwareMetric(maxSize, maxSize, -1, -1).
+         setUnderCallback(this::underSized).setOverCallback(this::overSized).
+         setOnSizeCallback(pagingManager::addSize);
+
       applySetting(addressSettings);
 
       this.executor = executor;
@@ -189,12 +197,32 @@ public class PagingStoreImpl implements PagingStore {
       this.usingGlobalMaxSize = pagingManager.isUsingGlobalSize();
    }
 
+   private void overSized() {
+      full = true;
+   }
+
+   private void underSized() {
+      full = false;
+      checkReleasedMemory();
+   }
+
+   private void configureSizeMetric() {
+      size.setMax(maxSize, maxSize, maxMessages, maxMessages);
+      size.setSizeEnabled(maxSize >= 0);
+      size.setElementsEnabled(maxMessages >= 0);
+
+   }
+
    /**
     * @param addressSettings
     */
    @Override
    public void applySetting(final AddressSettings addressSettings) {
       maxSize = addressSettings.getMaxSizeBytes();
+
+      maxMessages = addressSettings.getMaxSizeMessages();
+
+      configureSizeMetric();
 
       pageSize = addressSettings.getPageSizeBytes();
 
@@ -247,7 +275,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public long getAddressSize() {
-      return sizeInBytes.get();
+      return size.getSize();
    }
 
    @Override
@@ -502,12 +530,16 @@ public class PagingStoreImpl implements PagingStore {
          final boolean isPaging = this.paging;
          if (isPaging) {
             paging = false;
-            ActiveMQServerLogger.LOGGER.pageStoreStop(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
+            ActiveMQServerLogger.LOGGER.pageStoreStop(storeName, getPageInfo());
          }
          this.cursorProvider.onPageModeCleared();
       } finally {
          lock.writeLock().unlock();
       }
+   }
+
+   private String getPageInfo() {
+      return String.format("size=%d bytes (%d messages); maxSize=%d bytes (%d messages); globalSize=%d bytes (%d messages); globalMaxSize=%d bytes (%d messages);", size.getSize(), size.getElements(), maxSize, maxMessages, pagingManager.getGlobalSize(), pagingManager.getGlobalMessages(), pagingManager.getMaxSize(), pagingManager.getMaxMessages());
    }
 
    @Override
@@ -547,7 +579,7 @@ public class PagingStoreImpl implements PagingStore {
             }
          }
          paging = true;
-         ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
+         ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, getPageInfo());
 
          return true;
       } finally {
@@ -712,7 +744,7 @@ public class PagingStoreImpl implements PagingStore {
             return false;
          }
       } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
-         if (pagingManager.isDiskFull() || maxSize > 0 && sizeInBytes.get() >= maxSize || pagingManager.isGlobalFull()) {
+         if (pagingManager.isDiskFull() || maxSize > 0 && this.full || pagingManager.isGlobalFull()) {
             if (runWhenBlocking != null) {
                runWhenBlocking.run();
             }
@@ -724,7 +756,7 @@ public class PagingStoreImpl implements PagingStore {
             // has been added, but the check to execute was done before the element was added
             // NOTE! We do not fix this race by locking the whole thing, doing this check provides
             // MUCH better performance in a highly concurrent environment
-            if (!pagingManager.isGlobalFull() && (sizeInBytes.get() < maxSize || maxSize < 0)) {
+            if (!pagingManager.isGlobalFull() && (!full || maxSize < 0)) {
                // run it now
                atomicRunWhenAvailable.run();
             } else {
@@ -736,7 +768,7 @@ public class PagingStoreImpl implements PagingStore {
                   if (pagingManager.isDiskFull()) {
                      ActiveMQServerLogger.LOGGER.blockingDiskFull(address);
                   } else {
-                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
+                     ActiveMQServerLogger.LOGGER.blockingMessageProduction(address, getPageInfo());
                   }
                   blocking = true;
                }
@@ -754,9 +786,9 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public void addSize(final int size) {
-      boolean globalFull = pagingManager.addSize(size).isGlobalFull();
-      long newSize = sizeInBytes.addAndGet(size);
+   public void addSize(final int size, boolean sizeOnly) {
+      long newSize = this.size.addSize(size, sizeOnly);
+      boolean globalFull = pagingManager.isGlobalFull();
 
       if (newSize < 0) {
          ActiveMQServerLogger.LOGGER.negativeAddressSize(newSize, address.toString());
@@ -764,13 +796,13 @@ public class PagingStoreImpl implements PagingStore {
 
       if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK || addressFullMessagePolicy == AddressFullMessagePolicy.FAIL) {
          if (usingGlobalMaxSize && !globalFull || maxSize != -1) {
-            checkReleaseMemory(globalFull, newSize);
+            checkReleasedMemory();
          }
 
          return;
       } else if (addressFullMessagePolicy == AddressFullMessagePolicy.PAGE) {
          if (size > 0) {
-            if (maxSize != -1 && newSize > maxSize || globalFull) {
+            if (globalFull || full) {
                startPaging();
             }
          }
@@ -781,15 +813,11 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public boolean checkReleasedMemory() {
-      return checkReleaseMemory(pagingManager.isGlobalFull(), sizeInBytes.get());
-   }
-
-   public boolean checkReleaseMemory(boolean globalFull, long newSize) {
-      if (!blockedViaAddressControl && !globalFull && (newSize < maxSize || maxSize < 0)) {
+      if (!blockedViaAddressControl && !pagingManager.isGlobalFull() && (!full || maxSize < 0)) {
          if (!onMemoryFreedRunnables.isEmpty()) {
             executor.execute(this::memoryReleased);
             if (blocking) {
-               ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, sizeInBytes.get(), maxSize);
+               ActiveMQServerLogger.LOGGER.unblockingMessageProduction(address, getPageInfo());
                blocking = false;
                return true;
             }
@@ -824,7 +852,7 @@ public class PagingStoreImpl implements PagingStore {
             // Address is full, we just pretend we are paging, and drop the data
             if (!printedDropMessagesWarning) {
                printedDropMessagesWarning = true;
-               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, sizeInBytes.get(), maxSize, pagingManager.getGlobalSize());
+               ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, getPageInfo());
             }
             return true;
          } else {
@@ -979,7 +1007,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void refUp(Message message, int count) {
-      this.addSize(MessageReferenceImpl.getMemoryEstimate());
+      this.addSize(MessageReferenceImpl.getMemoryEstimate(), true);
    }
 
    @Override
@@ -988,7 +1016,7 @@ public class PagingStoreImpl implements PagingStore {
          // this could happen on paged messages since they are not routed and refUp is never called
          return;
       }
-      this.addSize(-MessageReferenceImpl.getMemoryEstimate());
+      this.addSize(-MessageReferenceImpl.getMemoryEstimate(), true);
    }
 
    private void installPageTransaction(final Transaction tx, final RouteContextList listCtx) throws Exception {

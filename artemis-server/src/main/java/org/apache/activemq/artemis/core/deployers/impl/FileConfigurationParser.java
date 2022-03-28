@@ -94,7 +94,6 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
 import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactoryResolver;
 import org.apache.activemq.artemis.core.server.routing.KeyType;
-import org.apache.activemq.artemis.core.server.routing.transformer.TransformerFactoryResolver;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.impl.GroupingHandlerConfiguration;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
@@ -213,6 +212,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_SIZE_BYTES_NODE_NAME = "max-size-bytes";
 
+   private static final String MAX_MESSAGES_NODE_NAME = "max-size-messages";
+
    private static final String MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME = "max-size-bytes-reject-threshold";
 
    private static final String ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME = "address-full-policy";
@@ -304,6 +305,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String MAX_QUEUES_NODE_NAME = "max-queues";
 
    private static final String GLOBAL_MAX_SIZE = "global-max-size";
+
+   private static final String GLOBAL_MAX_MESSAGES = "global-max-messages";
 
    private static final String MAX_DISK_USAGE = "max-disk-usage";
 
@@ -445,6 +448,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          // We do it this way because it will be valid also on the case of embedded
          config.setGlobalMaxSize(globalMaxSize);
       }
+
+      long globalMaxMessages = getLong(e, GLOBAL_MAX_MESSAGES, -1, Validators.MINUS_ONE_OR_GT_ZERO);
+
+      config.setGlobalMaxMessages(globalMaxMessages);
 
       config.setMaxDiskUsage(getInteger(e, MAX_DISK_USAGE, config.getMaxDiskUsage(), Validators.PERCENTAGE_OR_MINUS_ONE));
 
@@ -984,6 +991,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private void parseQueues(final Element e, final Configuration config) {
       NodeList elements = e.getElementsByTagName("queues");
       if (elements.getLength() != 0) {
+         ActiveMQServerLogger.LOGGER.queuesElementDeprecated();
          Element node = (Element) elements.item(0);
          config.setQueueConfigs(parseQueueConfigurations(node, ActiveMQDefaultConfiguration.DEFAULT_ROUTING_TYPE));
       }
@@ -1245,6 +1253,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setMaxRedeliveryDelay(XMLUtil.parseLong(child));
          } else if (MAX_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytes(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
+         } else if (MAX_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setMaxSizeMessages(XMLUtil.parseInt(child));
          } else if (MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytesRejectThreshold(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
          } else if (PAGE_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
@@ -2676,10 +2686,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             poolConfiguration = new PoolConfiguration();
             parsePoolConfiguration((Element) child, config, poolConfiguration);
             connectionRouterConfiguration.setPoolConfiguration(poolConfiguration);
-         } else if (child.getNodeName().equals("local-target-key-transformer")) {
-            policyConfiguration = new NamedPropertyConfiguration();
-            parseTransformerConfiguration((Element) child, policyConfiguration);
-            connectionRouterConfiguration.setTransformerConfiguration(policyConfiguration);
          }
       }
 
@@ -2692,16 +2698,6 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       cacheConfiguration.setTimeout(getInteger(e, "timeout",
          cacheConfiguration.getTimeout(), Validators.GE_ZERO));
-   }
-
-   private void parseTransformerConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {
-      String name = e.getAttribute("name");
-
-      TransformerFactoryResolver.getInstance().resolve(name);
-
-      policyConfiguration.setName(name);
-
-      policyConfiguration.setProperties(getMapOfChildPropertyElements(e));
    }
 
    private void parsePolicyConfiguration(final Element e, final NamedPropertyConfiguration policyConfiguration) throws ClassNotFoundException {
