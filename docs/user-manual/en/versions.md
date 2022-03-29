@@ -28,7 +28,7 @@ be updated:
  2. `etc/management.xml`
 
 In both files change the XML namespace from `activemq.org` to `activemq.apache.org`,
-e.g. in `bootsrap.xml` use:q:
+e.g. in `bootsrap.xml` use:
 ```xml
 <broker xmlns="http://activemq.apache.org/schema">
 ```
