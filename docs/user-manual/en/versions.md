@@ -8,6 +8,35 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.21.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351083&projectId=12315920).
+
+Highlights:
+- [MQTT 5](mqtt.md) is now supported.
+- A new set of [performance tools](perf-tools.md) are now available to evaluate
+  throughput and Response Under Load performance of Artemis
+- Diverts now support [multiple addresses](diverts.md#composite-divert)
+- [Runtime configuration reloading](config-reload.md) now supports bridges.
+- [Paging](paging.md#paging-mode) can now be configured by message count.
+
+#### Upgrading from older versions
+
+Due to XML schema changes to correct an inaccurate domain name 2 files will need to
+be updated:
+
+ 1. `etc/bootstrap.xml`
+ 2. `etc/management.xml`
+
+In both files change the XML namespace from `activemq.org` to `activemq.apache.org`,
+e.g. in `bootsrap.xml` use:
+```xml
+<broker xmlns="http://activemq.apache.org/schema">
+```
+And in `management.xml` use:
+```xml
+<management-context xmlns="http://activemq.apache.org/schema">
+```
+
 ## 2.20.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12350581&projectId=12315920).
 
