@@ -28,6 +28,10 @@
     <packaging>war</packaging>
     <name>Artemis Websphere Liberty RA Example</name>
 
+    <properties>
+        <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>jakarta.jms</groupId>
