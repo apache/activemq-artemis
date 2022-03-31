@@ -61,7 +61,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * Naming reference
     */
    private Reference reference;
-   
+
    private TransactionSynchronizationRegistry tsr;
 
    /**
@@ -76,7 +76,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       }
 
       this.mcf = mcf;
-      this.tsr=((ActiveMQResourceAdapter) mcf.getResourceAdapter()).getTSR();
+      this.tsr = ((ActiveMQResourceAdapter) mcf.getResourceAdapter()).getTSR();
 
       if (cm == null) {
          // This is standalone usage, no appserver

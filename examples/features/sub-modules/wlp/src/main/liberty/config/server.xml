@@ -1,59 +1,75 @@
+<!--
+~ Licensed to the Apache Software Foundation (ASF) under one or more
+~ contributor license agreements. See the NOTICE file distributed with
+~ this work for additional information regarding copyright ownership.
+~ The ASF licenses this file to You under the Apache License, Version 2.0
+~ (the "License"); you may not use this file except in compliance with
+~ the License. You may obtain a copy of the License at
+~
+~     http://www.apache.org/licenses/LICENSE-2.0
+~
+~ Unless required by applicable law or agreed to in writing, software
+~ distributed under the License is distributed on an "AS IS" BASIS,
+~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+~ See the License for the specific language governing permissions and
+~ limitations under the License.
+-->
 <server description="asyncAppServer">
 
-	<featureManager>
-		<feature>javaee-8.0</feature>
-		<feature>localConnector-1.0</feature>
-	</featureManager>
+    <featureManager>
+        <feature>javaee-8.0</feature>
+        <feature>localConnector-1.0</feature>
+    </featureManager>
 
-	<variable name="defaultHostName" value="localhost" />
+    <variable name="defaultHostName" value="localhost" />
 
-	<!-- Define an Administrator and non-Administrator -->
-	<basicRegistry id="basic">
-		<user name="admin" password="admin" />
-	</basicRegistry>
+    <!-- Define an Administrator and non-Administrator -->
+    <basicRegistry id="basic">
+        <user name="admin" password="admin" />
+    </basicRegistry>
 
-	<!-- Assign 'admin' to Administrator -->
-	<administrator-role>
-		<user>admin</user>
-	</administrator-role>
+    <!-- Assign 'admin' to Administrator -->
+    <administrator-role>
+        <user>admin</user>
+    </administrator-role>
 
-	<keyStore id="defaultKeyStore" password="{xor}bW5sa2pp" />
+    <keyStore id="defaultKeyStore" password="{xor}bW5sa2pp" />
 
-	<httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" />
+    <httpEndpoint host="*" httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint" />
 
-	<applicationManager autoExpand="true" />
+    <applicationManager autoExpand="true" />
 
-	<applicationMonitor updateTrigger="mbean" />
+    <applicationMonitor updateTrigger="mbean" />
 	
-	<wasJmsEndpoint enabled="false" />
+    <wasJmsEndpoint enabled="false" />
 
-	<resourceAdapter id="artemis" location="${wlp.user.dir}shared/lib/artemis.rar">
-		<properties.artemis ConnectionParameters="host=localhost;port=61616" />
-	</resourceAdapter>
+    <resourceAdapter id="artemis" location="${wlp.user.dir}shared/lib/artemis.rar">
+        <properties.artemis ConnectionParameters="host=localhost;port=61616" />
+    </resourceAdapter>
 
-	<connectionFactory id="sampleConnectionFactory" jndiName="jms/sampleConnectionFactory">
-		<properties.artemis />
-	</connectionFactory>
+    <connectionFactory id="sampleConnectionFactory" jndiName="jms/sampleConnectionFactory">
+        <properties.artemis />
+    </connectionFactory>
 
-	<jmsActivationSpec id="wlp-resource-adapter-javax-sample/QueueMessageConsumer">
-		<properties.artemis useJndi="true" destination="jms/sampleQueue" destinationType="javax.jms.Queue" />
-	</jmsActivationSpec>
+    <jmsActivationSpec id="wlp-resource-adapter-javax-sample/QueueMessageConsumer">
+        <properties.artemis useJndi="true" destination="jms/sampleQueue" destinationType="javax.jms.Queue" />
+    </jmsActivationSpec>
 
-	<jmsActivationSpec id="wlp-resource-adapter-javax-sample/TopicMessageConsumer">
-		<properties.artemis clientId="wlp-resource-adapter-sample" useJndi="true" destination="jms/sampleTopic"
-			destinationType="javax.jms.Topic" subscriptionDurability="Durable" subscriptionName="wlp-resource-adapter-sample" />
-	</jmsActivationSpec>
+    <jmsActivationSpec id="wlp-resource-adapter-javax-sample/TopicMessageConsumer">
+        <properties.artemis clientId="wlp-resource-adapter-sample" useJndi="true" destination="jms/sampleTopic"
+                                    destinationType="javax.jms.Topic" subscriptionDurability="Durable" subscriptionName="wlp-resource-adapter-sample" />
+    </jmsActivationSpec>
 
-	<jmsTopic jndiName="jms/sampleTopic">
-		<properties.artemis Address="another_sample_address" />
-	</jmsTopic>
+    <jmsTopic jndiName="jms/sampleTopic">
+        <properties.artemis Address="another_sample_address" />
+    </jmsTopic>
 
-	<jmsQueue jndiName="jms/sampleQueue">
-		<properties.artemis Address="a_sample_address" />
-	</jmsQueue>
+    <jmsQueue jndiName="jms/sampleQueue">
+        <properties.artemis Address="a_sample_address" />
+    </jmsQueue>
 
-	<logging traceSpecification="*=info:com.ibm.ws.jca17.*=all:com.ibm.ws.jca.*=all:org.apache.activemq.artemis.*=info" />
+    <logging traceSpecification="*=info:com.ibm.ws.jca17.*=all:com.ibm.ws.jca.*=all:org.apache.activemq.artemis.*=info" />
 
-	<webApplication id="wlp-resource-adapter-javax-sample" location="wlp-resource-adapter-javax-sample.war" name="wlp-resource-adapter-javax-sample" />
+    <webApplication id="wlp-resource-adapter-javax-sample" location="wlp-resource-adapter-javax-sample.war" name="wlp-resource-adapter-javax-sample" />
 
 </server>
