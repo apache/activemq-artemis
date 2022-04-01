@@ -1773,6 +1773,11 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222307, value = "The queues element is deprecated and replaced by the addresses element")
    void queuesElementDeprecated();
 
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 222308, value = "Unable to listen for incoming fail-back request because {0} is null. Ensure the broker has the proper cluster-connection configuration.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void failBackCheckerFailure(String component);
+
 
 
    @LogMessage(level = Logger.Level.ERROR)
