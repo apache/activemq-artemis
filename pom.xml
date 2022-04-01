@@ -174,7 +174,7 @@
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
 
       <owasp.version>6.1.0</owasp.version>
-      <spring.version>5.1.7.RELEASE</spring.version>
+      <spring.version>5.3.18</spring.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
