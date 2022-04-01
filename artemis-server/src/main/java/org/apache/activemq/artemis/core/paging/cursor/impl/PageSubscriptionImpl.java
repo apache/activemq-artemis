@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.ToIntFunction;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -42,6 +43,7 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.cursor.ConsumedPage;
 import org.apache.activemq.artemis.core.paging.cursor.PageCache;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
@@ -824,6 +826,14 @@ public final class PageSubscriptionImpl implements PageSubscription {
    }
 
    @Override
+   public void forEachConsumedPage(Consumer<ConsumedPage> pageCleaner) {
+      synchronized (consumedPages) {
+         consumedPages.values().forEach(pageCleaner);
+      }
+   }
+
+
+   @Override
    public boolean isComplete(long page) {
       logger.tracef("%s isComplete %d", this, page);
       synchronized (consumedPages) {
@@ -967,6 +977,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public void onDeletePage(Page deletedPage) throws Exception {
+      logger.tracef("removing page %s", deletedPage);
       PageCursorInfo info;
       synchronized (consumedPages) {
          info = consumedPages.remove(Long.valueOf(deletedPage.getPageId()));
@@ -1154,7 +1165,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
     * This instance will be released as soon as the entire page is consumed, releasing the memory at
     * that point The ref counts are increased also when a message is ignored for any reason.
     */
-   public final class PageCursorInfo {
+   public final class PageCursorInfo implements ConsumedPage {
 
       // Number of messages existent on this page
       private int numberOfMessages;
@@ -1254,6 +1265,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          return completePage;
       }
 
+      @Override
       public boolean isDone() {
          if (logger.isTraceEnabled()) {
             logger.trace(PageSubscriptionImpl.this + "::PageCursorInfo(" + pageId + ")::isDone checking with completePage!=null->" + (completePage != null) + " getNumberOfMessages=" + getNumberOfMessages() + ", confirmed=" + confirmed.get() + " and pendingTX=" + pendingTX.get());
@@ -1273,6 +1285,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       /**
        * @return the pageId
        */
+      @Override
       public long getPageId() {
          return pageId;
       }

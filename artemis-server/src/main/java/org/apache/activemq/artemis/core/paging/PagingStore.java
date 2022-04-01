@@ -117,6 +117,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     */
    Page depage() throws Exception;
 
+   Page removePage(int pageId);
+
    void forceAnotherPage() throws Exception;
 
    Page getCurrentPage();

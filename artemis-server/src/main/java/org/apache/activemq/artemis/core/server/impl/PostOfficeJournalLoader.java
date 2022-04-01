@@ -381,7 +381,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             if (store != null && store.checkPageFileExists(pageId.intValue())) {
                // on this case we need to recalculate the records
                Page pg = store.createPage(pageId.intValue());
-               pg.open();
+               pg.open(true);
 
                List<PagedMessage> pgMessages = pg.read(storageManager);
                pg.close(false, false);

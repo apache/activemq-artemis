@@ -267,6 +267,11 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public Page removePage(int pageId) {
+         return null;
+      }
+
+      @Override
       public SimpleString getAddress() {
          return null;
       }

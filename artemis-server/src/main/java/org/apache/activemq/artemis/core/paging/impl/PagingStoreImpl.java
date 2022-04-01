@@ -497,7 +497,7 @@ public class PagingStoreImpl implements PagingStore {
 
    protected void reloadLivePage(int pageId) throws Exception {
       Page page = createPage(pageId);
-      page.open();
+      page.open(true);
 
       final List<PagedMessage> messages = page.read(storageManager);
 
@@ -568,15 +568,20 @@ public class PagingStoreImpl implements PagingStore {
             return false;
          }
 
-         if (currentPage == null) {
-            try {
+         try {
+            if (currentPage == null) {
                openNewPage();
-            } catch (Exception e) {
-               // If not possible to starting page due to an IO error, we will just consider it non paging.
-               // This shouldn't happen anyway
-               ActiveMQServerLogger.LOGGER.pageStoreStartIOError(e);
-               return false;
+            } else {
+               if (!currentPage.getFile().exists() || !currentPage.getFile().isOpen()) {
+                  currentPage.getFile().open();
+               }
             }
+         } catch (Exception e) {
+            // If not possible to starting page due to an IO error, we will just consider it non paging.
+            // This shouldn't happen anyway
+            ActiveMQServerLogger.LOGGER.pageStoreStartIOError(e);
+            storageManager.criticalError(e);
+            return false;
          }
          paging = true;
          ActiveMQServerLogger.LOGGER.pageStoreStart(storeName, getPageInfo());
@@ -619,14 +624,12 @@ public class PagingStoreImpl implements PagingStore {
 
       Page page = new Page(storeName, storageManager, factory, file, pageNumber);
 
-      // To create the file
-      file.open();
-
-      file.position(0);
-
-      file.close(false, false);
-
       return page;
+   }
+
+   protected SequentialFileFactory getFileFactory() throws Exception {
+      checkFileFactory();
+      return fileFactory;
    }
 
    private SequentialFileFactory checkFileFactory() throws Exception {
@@ -641,6 +644,60 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public void forceAnotherPage() throws Exception {
       openNewPage();
+   }
+
+
+   /**
+    * Returns a Page out of the Page System without reading it.
+    * <p>
+    * The method calling this method will remove the page and will start reading it outside of any
+    * locks. This method could also replace the current file by a new file, and that process is done
+    * through acquiring a writeLock on currentPageLock.
+    * </p>
+    * <p>
+    * Observation: This method is used internally as part of the regular depage process, but
+    * externally is used only on tests, and that's why this method is part of the Testable Interface
+    * </p>
+    */
+   @Override
+   public Page removePage(int pageId) {
+      try {
+         lock.writeLock().lock(); // Make sure no checks are done on currentPage while we are depaging
+         try {
+            if (!running) {
+               return null;
+            }
+
+            if (currentPageId == pageId) {
+               logger.debugf("Ignoring remove(%d) as this is the current writing page", pageId);
+               // we don't deal with the current page, we let that one to be cleared from the regular depage
+               return null;
+            }
+
+            Page page = createPage(pageId);
+
+            if (page.getFile().exists()) {
+               // we only decrement numberOfPages if the file existed
+               // it could have been removed by a previous delete
+               // on this case we just need to ignore this and move on
+               numberOfPages--;
+            }
+
+            assert numberOfPages >= 0 : "numberOfPages should never be negative. on removePage(" + pageId + "). numberOfPages=" + numberOfPages;
+
+            return page;
+         } finally {
+            lock.writeLock().unlock();
+         }
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+         if (e instanceof AssertionError) {
+            // this will give a chance to callers log an AssertionError if assertion flag is enabled
+            throw (AssertionError)e;
+         }
+         storageManager.criticalError(e);
+         return null;
+      }
    }
 
    /**
@@ -666,14 +723,15 @@ public class PagingStoreImpl implements PagingStore {
          if (numberOfPages == 0) {
             return null;
          } else {
-            numberOfPages--;
-
             final Page returnPage;
+
+            numberOfPages--;
 
             // We are out of old pages, all that is left now is the current page.
             // On that case we need to replace it by a new empty page, and return the current page immediately
             if (currentPageId == firstPageId) {
                firstPageId = Integer.MAX_VALUE;
+               logger.tracef("Setting up firstPageID=MAX_VALUE");
 
                if (currentPage == null) {
                   // sanity check... it shouldn't happen!
@@ -687,7 +745,7 @@ public class PagingStoreImpl implements PagingStore {
                // The current page is empty... which means we reached the end of the pages
                if (returnPage.getNumberOfMessages() == 0) {
                   stopPaging();
-                  returnPage.open();
+                  returnPage.open(true);
                   returnPage.delete(null);
 
                   // This will trigger this address to exit the page mode,
@@ -697,11 +755,20 @@ public class PagingStoreImpl implements PagingStore {
                   // We need to create a new page, as we can't lock the address until we finish depaging.
                   openNewPage();
                }
-
-               return returnPage;
             } else {
+               logger.tracef("firstPageId++ = beforeIncrement=%d", firstPageId);
                returnPage = createPage(firstPageId++);
             }
+
+            if (!returnPage.getFile().exists()) {
+               // if the file does not exist, we will just increment back to where it was before
+               numberOfPages++;
+            }
+
+            // we make this assertion after checking the file existed before.
+            // this could be eventually negative for a short period of time
+            // but after compensating the non existent file the assertion should still hold true
+            assert numberOfPages >= 0 : "numberOfPages should never be negative. on depage(). currentPageId=" + currentPageId + ", firstPageId=" + firstPageId + "";
 
             return returnPage;
          }
@@ -1140,7 +1207,7 @@ public class PagingStoreImpl implements PagingStore {
          final int newPageId = currentPageId + 1;
 
          if (logger.isTraceEnabled()) {
-            logger.trace("new pageNr=" + newPageId, new Exception("trace"));
+            logger.trace("new pageNr=" + newPageId);
          }
 
          final Page oldPage = currentPage;
@@ -1160,11 +1227,12 @@ public class PagingStoreImpl implements PagingStore {
 
          currentPageSize = 0;
 
-         newPage.open();
+         newPage.open(true);
 
          currentPageId = newPageId;
 
          if (newPageId < firstPageId) {
+            logger.debugf("open new page, setting firstPageId = %s, it was %s before", newPageId, firstPageId);
             firstPageId = newPageId;
          }
       } finally {

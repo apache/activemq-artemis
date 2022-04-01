@@ -125,7 +125,7 @@ public class PageTest extends ActiveMQTestBase {
 
       Assert.assertEquals(10, page.getPageId());
 
-      page.open();
+      page.open(true);
 
       Assert.assertEquals(1, factory.listFiles("page").size());
 
@@ -180,7 +180,7 @@ public class PageTest extends ActiveMQTestBase {
 
       Assert.assertEquals(10, page.getPageId());
 
-      page.open();
+      page.open(true);
 
       Assert.assertEquals(1, factory.listFiles("page").size());
 

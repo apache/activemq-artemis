@@ -280,7 +280,7 @@ public class PrintData extends DBOption {
                }
                out.println("*******   Page " + pgid);
                Page page = pgStore.createPage(pgid);
-               page.open();
+               page.open(false);
                List<PagedMessage> msgs = page.read(sm);
                page.close(false, false);
 

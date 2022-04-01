@@ -169,7 +169,7 @@ public class PageReaderTest extends ActiveMQTestBase {
       SequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1);
       SequentialFile file = factory.createSequentialFile("00010.page");
       Page page = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
-      page.open();
+      page.open(true);
       SimpleString simpleDestination = new SimpleString("Test");
       final int msgSize = 100;
       final byte[] content = new byte[msgSize];
@@ -205,7 +205,7 @@ public class PageReaderTest extends ActiveMQTestBase {
       SequentialFile file = factory.createSequentialFile("00010.page");
       file.open();
       Page page = new Page(new SimpleString("something"), new NullStorageManager(), factory, file, 10);
-      page.open();
+      page.open(true);
       page.read(new NullStorageManager());
       PageReader pageReader = new PageReader(page, page.getNumberOfMessages());
       return pageReader;
