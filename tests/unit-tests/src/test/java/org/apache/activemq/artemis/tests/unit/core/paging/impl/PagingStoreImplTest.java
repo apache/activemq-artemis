@@ -45,6 +45,9 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
@@ -60,6 +63,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessagePersister;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequentialFileFactory;
+import org.apache.activemq.artemis.tests.unit.core.postoffice.impl.FakeQueue;
 import org.apache.activemq.artemis.tests.unit.util.FakePagingManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
@@ -225,7 +229,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Page page = storeImpl.depage();
 
-      page.open();
+      page.open(true);
 
       List<PagedMessage> msg = page.read(new NullStorageManager());
 
@@ -252,8 +256,195 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testRemoveInTheMiddle() throws Exception {
+      SequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1);
+
+      SimpleString destination = new SimpleString("test");
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), getExecutorFactory().getExecutor(), true);
+      PageSubscription subscription = storeImpl.getCursorProvider().createSubscription(1, null, true);
+      FakeQueue fakeQueue = new FakeQueue(destination, 1).setDurable(true).setPageSubscription(subscription);
+
+      storeImpl.getCursorProvider().disableCleanup();
+      storeImpl.start();
+
+      for (int repeat = 0; repeat < 5; repeat++) {
+
+         storeImpl.startPaging();
+
+         int numMessages = 100;
+         {
+            int page = 1;
+
+            for (int i = 0; i < numMessages; i++) {
+               ActiveMQBuffer buffer = createRandomBuffer(i + 1L, 10);
+
+               Message msg = createMessage(i, storeImpl, destination, buffer);
+               msg.putIntProperty("i", i);
+               msg.putIntProperty("page", page);
+               final RoutingContextImpl ctx = new RoutingContextImpl(null);
+               ctx.addQueue(fakeQueue.getName(), fakeQueue);
+               Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName()), lock));
+               if (i > 0 && i % 10 == 0) {
+                  storeImpl.forceAnotherPage();
+                  page++;
+               }
+            }
+         }
+
+         Assert.assertEquals(numMessages / 10, storeImpl.getNumberOfPages());
+
+         PageIterator iterator = subscription.iterator();
+         for (int i = 0; i < numMessages; i++) {
+            Assert.assertTrue(iterator.hasNext());
+            PagedReference reference = iterator.next();
+            Assert.assertNotNull(reference);
+            Assert.assertEquals(i, reference.getPagedMessage().getMessage().getIntProperty("i").intValue());
+            int pageOnMsg = reference.getMessage().getIntProperty("page").intValue();
+            if (pageOnMsg > 2 && pageOnMsg < 10) {
+               subscription.ack(reference);
+            }
+         }
+         iterator.close();
+
+         storeImpl.getCursorProvider().cleanup();
+
+         Assert.assertTrue(storeImpl.isPaging());
+
+         int messagesRead = 0;
+         iterator = subscription.iterator();
+         while (iterator.hasNext()) {
+            PagedReference reference = iterator.next();
+            if (reference == null) {
+               break;
+            }
+            messagesRead++;
+            int pageOnMsg = reference.getMessage().getIntProperty("page");
+            Assert.assertTrue(pageOnMsg <= 2 || pageOnMsg >= 10);
+
+            subscription.ack(reference);
+         }
+         iterator.close();
+
+         Assert.assertEquals(30, messagesRead);
+
+         storeImpl.getCursorProvider().cleanup();
+
+         Assert.assertFalse(storeImpl.isPaging());
+
+         Assert.assertEquals(1, storeImpl.getNumberOfPages());
+      }
+   }
+
+
+   @Test
+   public void testRemoveCurrentPage() throws Exception {
+      SequentialFileFactory factory = new NIOSequentialFileFactory(getTestDirfile(), 1);
+
+      SimpleString destination = new SimpleString("test");
+
+      PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
+
+      PagingStoreImpl storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE), getExecutorFactory().getExecutor(), true);
+      PageSubscription subscription = storeImpl.getCursorProvider().createSubscription(1, null, true);
+      FakeQueue fakeQueue = new FakeQueue(destination, 1).setDurable(true).setPageSubscription(subscription);
+
+      storeImpl.getCursorProvider().disableCleanup();
+      storeImpl.start();
+
+      for (int repeat = 0; repeat < 5; repeat++) {
+
+         System.out.println("#repeat " + repeat);
+
+         storeImpl.startPaging();
+
+         int numMessages = 97;
+         {
+            int page = 1;
+
+            for (int i = 1; i <= numMessages; i++) {
+               ActiveMQBuffer buffer = createRandomBuffer(i + 1L, 10);
+
+               Message msg = createMessage(i, storeImpl, destination, buffer);
+               msg.putIntProperty("i", i);
+               msg.putIntProperty("page", page);
+               final RoutingContextImpl ctx = new RoutingContextImpl(null);
+               ctx.addQueue(fakeQueue.getName(), fakeQueue);
+               Assert.assertTrue(storeImpl.page(msg, ctx.getTransaction(), ctx.getContextListing(storeImpl.getStoreName()), lock));
+               if (i > 0 && i % 10 == 0) {
+                  storeImpl.forceAnotherPage();
+                  page++;
+               }
+            }
+         }
+
+         Assert.assertEquals(10, storeImpl.getNumberOfPages());
+
+         Assert.assertEquals(10, factory.listFiles("page").size());
+
+         int messagesRead = 0;
+         PageIterator iterator = subscription.iterator();
+         for (int i = 1; i <= numMessages; i++) {
+            Assert.assertTrue(iterator.hasNext());
+            PagedReference reference = iterator.next();
+            Assert.assertNotNull(reference);
+            Assert.assertEquals(i, reference.getPagedMessage().getMessage().getIntProperty("i").intValue());
+            int pageOnMsg = reference.getMessage().getIntProperty("page").intValue();
+            if (pageOnMsg == 10) {
+               messagesRead++;
+               subscription.ack(reference);
+            }
+         }
+         iterator.close();
+
+         Assert.assertEquals(7, messagesRead);
+
+         storeImpl.getCursorProvider().cleanup();
+
+         Assert.assertEquals(10, factory.listFiles("page").size());
+
+         Assert.assertTrue(storeImpl.isPaging());
+
+         storeImpl.forceAnotherPage();
+
+         Assert.assertEquals(11, factory.listFiles("page").size());
+
+         storeImpl.getCursorProvider().cleanup();
+
+         Assert.assertEquals(10, factory.listFiles("page").size());
+
+         Assert.assertEquals(10, storeImpl.getNumberOfPages());
+
+         Assert.assertEquals(11 + 10 * repeat, storeImpl.getCurrentWritingPage());
+
+         messagesRead = 0;
+         iterator = subscription.iterator();
+         while (iterator.hasNext()) {
+            PagedReference reference = iterator.next();
+            if (reference == null) {
+               break;
+            }
+            messagesRead++;
+            int pageOnMsg = reference.getMessage().getIntProperty("page");
+            Assert.assertTrue(pageOnMsg != 10);
+
+            subscription.ack(reference);
+         }
+         iterator.close();
+
+         Assert.assertEquals(90, messagesRead);
+
+         storeImpl.getCursorProvider().cleanup();
+
+         Assert.assertFalse(storeImpl.isPaging());
+      }
+   }
+
+   @Test
    public void testDepageMultiplePages() throws Exception {
-      SequentialFileFactory factory = new FakeSequentialFileFactory();
+      SequentialFileFactory factory = new NIOSequentialFileFactory(new File(getPageDir()), 1).setDatasync(false);
       SimpleString destination = new SimpleString("test");
 
       PagingStoreFactory storeFactory = new FakeStoreFactory(factory);
@@ -297,7 +488,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          log.debug("numberOfPages = " + store.getNumberOfPages());
 
-         page.open();
+         page.open(true);
 
          List<PagedMessage> msg = page.read(new NullStorageManager());
 
@@ -322,7 +513,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Page newPage = store.depage();
 
-      newPage.open();
+      newPage.open(true);
 
       Assert.assertEquals(1, newPage.read(new NullStorageManager()).size());
 
@@ -350,7 +541,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Page page = store.depage();
 
-      page.open();
+      page.open(true);
 
       List<PagedMessage> msgs = page.read(new NullStorageManager());
 
@@ -368,7 +559,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(0, store.getNumberOfPages());
 
-      page.open();
+      page.open(true);
       page.close(false);
 
    }
@@ -498,7 +689,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       final ConcurrentMap<Long, Message> buffers2 = new ConcurrentHashMap<>();
 
       for (Page page : readPages) {
-         page.open();
+         page.open(true);
          List<PagedMessage> msgs = page.read(new NullStorageManager());
          page.close(false, false);
 
@@ -557,7 +748,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
          lastPage = page;
 
-         page.open();
+         page.open(true);
 
          List<PagedMessage> msgs = page.read(new NullStorageManager());
 
@@ -573,7 +764,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
          }
       }
 
-      lastPage.open();
+      lastPage.open(true);
       List<PagedMessage> lastMessages = lastPage.read(new NullStorageManager());
       lastPage.close(false, false);
       Assert.assertEquals(1, lastMessages.size());
@@ -697,7 +888,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                while (msgsRead < NUMBER_OF_MESSAGES) {
                   Page page = store.depage();
                   if (page != null) {
-                     page.open();
+                     page.open(true);
                      List<PagedMessage> messages = page.read(new NullStorageManager());
 
                      for (PagedMessage pgmsg : messages) {
@@ -792,7 +983,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
       while (msgsRead < num1 + num2) {
          page = storeImpl.depage();
          assertNotNull("no page after read " + msgsRead + " msg", page);
-         page.open();
+         page.open(true);
          List<PagedMessage> messages = page.read(new NullStorageManager());
 
          for (PagedMessage pgmsg : messages) {

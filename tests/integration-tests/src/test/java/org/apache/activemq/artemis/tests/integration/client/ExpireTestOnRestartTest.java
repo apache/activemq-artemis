@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,9 +50,8 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       server.start();
    }
 
-   // The biggest problem on this test was the exceptions that happened. I couldn't find any wrong state beyond the exceptions
    @Test
-   public void testRestartWithExpire() throws Exception {
+   public void testRestartWithExpireAndPaging() throws Exception {
       int NUMBER_OF_EXPIRED_MESSAGES = 1000;
       ServerLocator locator = createInVMNonHALocator();
       locator.setBlockOnDurableSend(false);
@@ -65,14 +65,16 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       for (int i = 0; i < 10; i++) {
          ClientMessage message = session.createMessage(true);
          message.getBodyBuffer().writeBytes(new byte[1024 * 10]);
+         message.putStringProperty("expiryStatus", "not Expiring");
          prod.send(message);
       }
 
       for (int i = 0; i < NUMBER_OF_EXPIRED_MESSAGES; i++) {
          ClientMessage message = session.createMessage(true);
          message.putIntProperty("i", i);
+         message.putStringProperty("expiryStatus", "Will Expire");
          message.getBodyBuffer().writeBytes(new byte[1024 * 10]);
-         message.setExpiration(System.currentTimeMillis() + 5000);
+         message.setExpiration(System.currentTimeMillis() + 1000);
          prod.send(message);
       }
 
@@ -83,7 +85,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       server.stop();
       server.getConfiguration().setMessageExpiryScanPeriod(1);
 
-      Thread.sleep(5500); // enough time for expiration of the messages
+      Thread.sleep(1500); // enough time for expiration of the messages
 
       server.start();
 
@@ -99,15 +101,12 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
          assertNotNull(msg);
          msg.acknowledge();
       }
+      session.commit();
 
       assertNull(cons.receiveImmediate());
       cons.close();
 
-      long timeout = System.currentTimeMillis() + 60000;
-      while (queue.getPageSubscription().getPagingStore().isPaging() && timeout > System.currentTimeMillis()) {
-         Thread.sleep(1);
-      }
-      assertFalse(queue.getPageSubscription().getPagingStore().isPaging());
+      Wait.assertFalse(queue.getPagingStore()::isPaging, 5000, 100);
 
       cons = session.createConsumer("exp");
       for (int i = 0; i < NUMBER_OF_EXPIRED_MESSAGES; i++) {

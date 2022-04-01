@@ -74,7 +74,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       Page page = store.depage();
 
-      page.open();
+      page.open(true);
 
       List<PagedMessage> msgs = page.read(new NullStorageManager());
 

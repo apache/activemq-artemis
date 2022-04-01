@@ -120,6 +120,9 @@ public final class Page implements Comparable<Page> {
       assert startMessageNumber <= targetMessageNumber;
 
       if (!file.isOpen()) {
+         if (!file.exists()) {
+            return null;
+         }
          throw ActiveMQMessageBundle.BUNDLE.invalidPageIO();
       }
       final int fileSize = (int) file.size();
@@ -256,6 +259,9 @@ public final class Page implements Comparable<Page> {
       }
 
       if (!file.isOpen()) {
+         if (!file.exists()) {
+            return Collections.emptyList();
+         }
          throw ActiveMQMessageBundle.BUNDLE.invalidPageIO();
       }
 
@@ -482,12 +488,14 @@ public final class Page implements Comparable<Page> {
       file.sync();
    }
 
-   public void open() throws Exception {
-      if (!file.isOpen()) {
+   public void open(boolean createFile) throws Exception {
+      if (!file.isOpen() && (createFile || file.exists())) {
          file.open();
       }
-      size.set((int) file.size());
-      file.position(0);
+      if (file.isOpen()) {
+         size.set((int) file.size());
+         file.position(0);
+      }
    }
 
    public void close(boolean sendEvent) throws Exception {

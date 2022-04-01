@@ -357,6 +357,8 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    private final Long id;
 
+   private boolean durable;
+
    private long messageCount;
 
    public FakeQueue(final SimpleString name) {
@@ -719,7 +721,12 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    @Override
    public boolean isDurableMessage() {
       // no-op
-      return false;
+      return durable;
+   }
+
+   public FakeQueue setDurable(boolean durable) {
+      this.durable = durable;
+      return this;
    }
 
    @Override
@@ -889,11 +896,12 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
 
    }
 
-   public void setPageSubscription(PageSubscription sub) {
+   public FakeQueue setPageSubscription(PageSubscription sub) {
       this.subs = sub;
       if (subs != null) {
          sub.setQueue(this);
       }
+      return this;
    }
 
    @Override

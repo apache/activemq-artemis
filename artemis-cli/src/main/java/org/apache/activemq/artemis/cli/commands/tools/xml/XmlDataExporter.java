@@ -401,7 +401,7 @@ public final class XmlDataExporter extends DBOption {
                for (int i = 0; i < pageStore.getNumberOfPages(); i++) {
                   ActiveMQServerLogger.LOGGER.debug("Reading page " + pageId);
                   Page page = pageStore.createPage(pageId);
-                  page.open();
+                  page.open(false);
                   List<PagedMessage> messages = page.read(storageManager);
                   page.close(false, false);
 
