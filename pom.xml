@@ -167,6 +167,15 @@
       <!-- for JakartaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
 
+      <!-- for example -->
+      <version.liberty.plugin>3.5.1</version.liberty.plugin>
+      <version.liberty.runtime>20.0.0.2</version.liberty.runtime>
+      <!-- for wlp jakarta example -->
+      <version.jakarta.jms-api>3.0.0</version.jakarta.jms-api>
+      <version.jakarta.annotation-api>2.0.0</version.jakarta.annotation-api>
+      <version.jakarta.ws.rs-api>3.0.0</version.jakarta.ws.rs-api>
+      <version.jakarta.ejb-api>4.0.0</version.jakarta.ejb-api>
+
       <!-- used on tests -->
       <groovy.version>4.0.0</groovy.version>
       <vertx.version>3.9.4</vertx.version>
@@ -523,6 +532,26 @@
            <version>${jakarta.resource-api.version}</version>
             <!-- License: EPL 2.0 -->
         </dependency>
+         <dependency>
+            <groupId>jakarta.jms</groupId>
+            <artifactId>jakarta.jms-api</artifactId>
+            <version>${version.jakarta.jms-api}</version>
+         </dependency>
+         <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+            <version>${version.jakarta.annotation-api}</version>
+         </dependency>
+         <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>${version.jakarta.ws.rs-api}</version>
+         </dependency>
+         <dependency>
+            <groupId>jakarta.ejb</groupId>
+            <artifactId>${version.jakarta.ejb-api}</artifactId>
+            <version>${version.jakarta.ejb-api}</version>
+         </dependency>
          <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -1572,7 +1601,12 @@
               <groupId>org.wildfly.extras.batavia</groupId>
               <artifactId>transformer-tools-mvn</artifactId>
               <version>${version.batavia}</version>
-          </plugin>
+            </plugin>
+            <plugin>
+               <groupId>io.openliberty.tools</groupId>
+               <artifactId>liberty-maven-plugin</artifactId>
+               <version>${version.liberty.plugin}</version>
+            </plugin>
 
             <plugin>
                <inherited>true</inherited>
