@@ -26,7 +26,7 @@
 
     <artifactId>wlp-jakarta-resource-adapter-sample</artifactId>
     <packaging>war</packaging>
-    <name>Artemis Websphere Liberty RA Example</name>
+    <name>Artemis Websphere Liberty RA Jakarta Example</name>
 
     <properties>
         <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
@@ -69,7 +69,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>wlp-resource-adapter-sample</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
