@@ -36,25 +36,25 @@
         <dependency>
             <groupId>jakarta.jms</groupId>
             <artifactId>jakarta.jms-api</artifactId>
-            <version>3.0.0</version>
+            <version>${version.jakarta.jms-api}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
             <artifactId>jakarta.annotation-api</artifactId>
-            <version>2.0.0</version>
+            <version>${version.jakarta.annotation-api}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.0.0</version>
+            <version>${version.jakarta.ws.rs-api}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.ejb</groupId>
             <artifactId>jakarta.ejb-api</artifactId>
-            <version>4.0.0</version>
+            <version>${version.jakarta.ejb-api}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -101,14 +101,13 @@
             <plugin>
                 <groupId>io.openliberty.tools</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
-                <version>3.5.1</version>
                 <configuration>
                     <stripVersion>true</stripVersion>
                     <serverStartTimeout>60</serverStartTimeout>
                     <runtimeArtifact>
                         <groupId>com.ibm.websphere.appserver.runtime</groupId>
                         <artifactId>wlp-jakartaee9</artifactId>
-                        <version>22.0.0.2</version>
+                        <version>${version.liberty.runtime}</version>
                         <type>zip</type>
                     </runtimeArtifact>
                 </configuration>
