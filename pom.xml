@@ -169,7 +169,7 @@
 
       <!-- for example -->
       <version.liberty.plugin>3.5.1</version.liberty.plugin>
-      <version.liberty.runtime>20.0.0.2</version.liberty.runtime>
+      <version.liberty.runtime>22.0.0.2</version.liberty.runtime>
       <!-- for wlp jakarta example -->
       <version.jakarta.jms-api>3.0.0</version.jakarta.jms-api>
       <version.jakarta.annotation-api>2.0.0</version.jakarta.annotation-api>
