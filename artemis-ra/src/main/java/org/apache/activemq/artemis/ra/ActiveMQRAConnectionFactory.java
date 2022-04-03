@@ -16,11 +16,13 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.io.Serializable;
-
 import javax.jms.XAQueueConnectionFactory;
 import javax.jms.XATopicConnectionFactory;
 import javax.resource.Referenceable;
+import javax.resource.ResourceException;
+import java.io.Serializable;
+
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 /**
  * An aggregate interface for the JMS connection factories
@@ -57,4 +59,7 @@ public interface ActiveMQRAConnectionFactory extends XAQueueConnectionFactory, X
     */
    int XA_TOPIC_CONNECTION = 5;
 
+   ActiveMQConnectionFactory getDefaultFactory() throws ResourceException;
+
+   ActiveMQResourceAdapter getResourceAdapter();
 }
