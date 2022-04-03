@@ -31,9 +31,11 @@ import javax.jms.XAQueueConnection;
 import javax.jms.XATopicConnection;
 import javax.naming.NamingException;
 import javax.naming.Reference;
+import javax.resource.ResourceException;
 import javax.resource.spi.ConnectionManager;
 import javax.transaction.TransactionSynchronizationRegistry;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.ra.referenceable.ActiveMQRAConnectionFactoryObjectFactory;
 import org.apache.activemq.artemis.ra.referenceable.SerializableObjectRefAddr;
 
@@ -477,4 +479,13 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
       session.close();
    }
 
+   @Override
+   public ActiveMQConnectionFactory getDefaultFactory() throws ResourceException {
+      return ((ActiveMQResourceAdapter) mcf.getResourceAdapter()).getDefaultActiveMQConnectionFactory();
+   }
+
+   @Override
+   public ActiveMQResourceAdapter getResourceAdapter() {
+      return (ActiveMQResourceAdapter) mcf.getResourceAdapter();
+   }
 }
