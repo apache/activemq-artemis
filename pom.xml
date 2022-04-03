@@ -167,7 +167,7 @@
       <!-- for JakartaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
 
-      <!-- for example -->
+      <!-- for wlp examples -->
       <version.liberty.plugin>3.5.1</version.liberty.plugin>
       <version.liberty.runtime>22.0.0.2</version.liberty.runtime>
       <!-- for wlp jakarta example -->
