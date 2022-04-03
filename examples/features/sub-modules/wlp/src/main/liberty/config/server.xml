@@ -51,11 +51,11 @@
         <properties.artemis />
     </connectionFactory>
 
-    <jmsActivationSpec id="wlp-resource-adapter-javax-sample/QueueMessageConsumer">
+    <jmsActivationSpec id="wlp-resource-adapter-sample/QueueMessageConsumer">
         <properties.artemis useJndi="true" destination="jms/sampleQueue" destinationType="javax.jms.Queue" />
     </jmsActivationSpec>
 
-    <jmsActivationSpec id="wlp-resource-adapter-javax-sample/TopicMessageConsumer">
+    <jmsActivationSpec id="wlp-resource-adapter-sample/TopicMessageConsumer">
         <properties.artemis clientId="wlp-resource-adapter-sample" useJndi="true" destination="jms/sampleTopic"
                                     destinationType="javax.jms.Topic" subscriptionDurability="Durable" subscriptionName="wlp-resource-adapter-sample" />
     </jmsActivationSpec>
@@ -70,6 +70,6 @@
 
     <logging traceSpecification="*=info:com.ibm.ws.jca17.*=all:com.ibm.ws.jca.*=all:org.apache.activemq.artemis.*=info" />
 
-    <webApplication id="wlp-resource-adapter-javax-sample" location="wlp-resource-adapter-javax-sample.war" name="wlp-resource-adapter-javax-sample" />
+    <webApplication id="wlp-resource-adapter-sample" location="wlp-resource-adapter-sample.war" name="wlp-resource-adapter-sample" />
 
 </server>
