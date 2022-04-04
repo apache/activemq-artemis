@@ -139,7 +139,8 @@
       <profile>
          <id>e2e-tests</id>
          <properties>
-            <skipE2ETests>false</skipE2ETests>
+            <e2e-tests.skipTests>false</e2e-tests.skipTests>
+            <e2e-tests.skipImageBuild>false</e2e-tests.skipImageBuild>
          </properties>
       </profile>
    </profiles>

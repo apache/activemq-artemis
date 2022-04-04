@@ -136,6 +136,8 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    //to management service
    private boolean suppressInternalManagementObjects = true;
 
+   private int openWireDestinationCacheSize = 16;
+
    private final OpenWireFormat wireFormat;
 
    private final Map<SimpleString, RoutingType> prefixes = new HashMap<>();
@@ -716,6 +718,14 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    public void setSuppressInternalManagementObjects(boolean suppressInternalManagementObjects) {
       this.suppressInternalManagementObjects = suppressInternalManagementObjects;
+   }
+
+   public int getOpenWireDestinationCacheSize() {
+      return this.openWireDestinationCacheSize;
+   }
+
+   public void setOpenWireDestinationCacheSize(int openWireDestinationCacheSize) {
+      this.openWireDestinationCacheSize = openWireDestinationCacheSize;
    }
 
    public void setVirtualTopicConsumerWildcards(String virtualTopicConsumerWildcards) {

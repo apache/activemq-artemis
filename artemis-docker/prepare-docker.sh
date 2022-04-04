@@ -73,7 +73,7 @@ tag names for the purpose of this guide
 For more info read the readme.md
 
 HERE
-  exit 1
+  exit 0
 }
 
 while [ "$#" -ge 1 ]

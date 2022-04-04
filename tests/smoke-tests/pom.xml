@@ -151,8 +151,6 @@
       <dependency>
          <groupId>org.testcontainers</groupId>
          <artifactId>selenium</artifactId>
-         <version>1.16.2</version>
-         <scope>test</scope>
       </dependency>
       <!-- this dependency is needed for CFUtil and other tools from integration-tests -->
       <dependency>

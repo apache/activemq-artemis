@@ -1897,7 +1897,7 @@ public interface ActiveMQServerControl {
    String[] getClusterConnectionNames();
 
    /**
-    * Add a user (only applicable when using the JAAS PropertiesLoginModule)
+    * Add a user (only applicable when using the JAAS PropertiesLoginModule or the ActiveMQBasicSecurityManager)
     *
     * @param username
     * @param password

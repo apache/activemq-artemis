@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.tests.e2e.common;
 
 import javax.jms.ConnectionFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,8 +26,10 @@ import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.junit.Assert;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.SelinuxContext;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy;
 import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
@@ -183,7 +184,13 @@ public abstract class ContainerService {
 
       @Override
       public Object newBrokerImage() {
-         return new GenericContainer<>(DockerImageName.parse("artemis-centos"));
+         String imageVersion = System.getProperty("ContainerService.artemis-image.version", "latest");
+         GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse("activemq-artemis:" + imageVersion));
+         String userId = System.getProperty("ContainerService.artemis-image.userid", "");
+         if (!userId.isEmpty()) {
+            container.withCreateContainerCmdModifier(cmd -> cmd.withUser(userId));
+         }
+         return container;
       }
 
       @Override
@@ -206,7 +213,7 @@ public abstract class ContainerService {
          File file = new File(hostPath);
          Assert.assertTrue(file.exists());
          Assert.assertFalse(file.isDirectory());
-         ((GenericContainer)container).withFileSystemBind(hostPath, containerPath);
+         ((GenericContainer)container).addFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE, SelinuxContext.SHARED);
       }
 
       @Override
@@ -214,7 +221,7 @@ public abstract class ContainerService {
          File file = new File(hostPath);
          Assert.assertTrue(file.exists());
          Assert.assertTrue(file.isDirectory());
-         ((GenericContainer)container).withFileSystemBind(hostPath, containerPath);
+         ((GenericContainer)container).addFileSystemBind(hostPath, containerPath, BindMode.READ_WRITE, SelinuxContext.SHARED);
       }
 
       @Override
@@ -233,13 +240,8 @@ public abstract class ContainerService {
       @Override
       public void start(Object containerObj) {
          GenericContainer<?> container = (GenericContainer) containerObj;
-         String userId = System.getProperty(ContainerService.class.getName() + ".service.userid", "");
-         if (!userId.isEmpty()) {
-            container.withCreateContainerCmdModifier(cmd -> cmd.withUser(userId));
-         }
-
-         ((GenericContainer)container).setStartupCheckStrategy(new IsRunningStartupCheckStrategy());
-         ((GenericContainer)container).start();
+         container.setStartupCheckStrategy(new IsRunningStartupCheckStrategy());
+         container.start();
       }
 
       @Override

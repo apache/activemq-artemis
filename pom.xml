@@ -105,7 +105,7 @@
       <jsr305.version>3.0.2</jsr305.version>
       <jboss.logging.version>3.4.2.Final</jboss.logging.version>
       <jetty.version>9.4.45.v20220203</jetty.version>
-      <tomcat.servlet-api.version>8.5.76</tomcat.servlet-api.version>
+      <tomcat.servlet-api.version>8.5.78</tomcat.servlet-api.version>
       <jgroups.version>5.2.0.Final</jgroups.version>
       <errorprone.version>2.10.0</errorprone.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
@@ -131,7 +131,7 @@
       <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.36</slf4j.version>
       <qpid.jms.version>1.5.0</qpid.jms.version>
-      <johnzon.version>0.9.5</johnzon.version>
+      <johnzon.version>1.2.16</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
       <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
@@ -164,6 +164,9 @@
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <postgresql.version>42.3.3</postgresql.version>
+      <testcontainers.version>1.16.3</testcontainers.version>
+      <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+
       <!-- for JakrtaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
 
@@ -182,7 +185,7 @@
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
 
       <owasp.version>6.1.0</owasp.version>
-      <spring.version>5.1.7.RELEASE</spring.version>
+      <spring.version>5.3.18</spring.version>
 
       <activemq.version.versionName>${project.version}</activemq.version.versionName>
       <activemq.version.majorVersion>1</activemq.version.majorVersion>
@@ -205,7 +208,9 @@
       <skipPerformanceTests>true</skipPerformanceTests>
       <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
-      <skipE2ETests>true</skipE2ETests>
+
+      <e2e-tests.skipTests>true</e2e-tests.skipTests>
+      <e2e-tests.skipImageBuild>true</e2e-tests.skipImageBuild>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -1062,6 +1067,19 @@
             <scope>test</scope>
             <!-- License: EPL 2.0 -->
          </dependency>
+
+         <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+         </dependency>
+         <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>selenium</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+         </dependency>
       </dependencies>
 
    </dependencyManagement>
@@ -1777,6 +1795,11 @@
                      <exclude>examples/protocols/amqp/**/readme.md</exclude>
                   </excludes>
                </configuration>
+            </plugin>
+            <plugin>
+               <groupId>org.codehaus.mojo</groupId>
+               <artifactId>exec-maven-plugin</artifactId>
+               <version>${exec-maven-plugin.version}</version>
             </plugin>
          </plugins>
       </pluginManagement>

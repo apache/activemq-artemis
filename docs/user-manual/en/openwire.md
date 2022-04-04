@@ -81,6 +81,18 @@ The two parameters are configured on an OpenWire `acceptor`, e.g.:
 <acceptor name="artemis">tcp://localhost:61616?protocols=OPENWIRE;supportAdvisory=true;suppressInternalManagementObjects=false</acceptor>
 ```
 
+## OpenWire Destination Cache
+For improved performance of the broker we keep a cache of recently used destinations, so that when new messages are dispatched to them,
+we do not have to do a lookup every time. By default, this cache holds up to `16` destinations. If additional destinations are added 
+they will overwrite older records.
+If you are dealing with a large amount of queues you might want to increase this value, which is done via configuration option:
+`openWireDestinationCacheSize` set on the OpenWire `acceptor` like this:
+```xml
+<acceptor name="artemis">tcp://localhost:61616?protocols=OPENWIRE;openWireDestinationCacheSize=64</acceptor>
+```
+
+This cache has to be set to a power of 2, i.e.: `2`, `16`, `128` and so on.
+
 ## Virtual Topic Consumer Destination Translation
 
 For existing OpenWire consumers of virtual topic destinations it is possible to
