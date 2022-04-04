@@ -113,6 +113,12 @@
          <version>${karaf.version}</version>
          <scope>test</scope>
          <type>tar.gz</type>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.karaf.features</groupId>
+               <artifactId>spring</artifactId>
+            </exclusion>
+         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.karaf.shell</groupId>
