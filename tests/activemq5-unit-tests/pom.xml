@@ -32,7 +32,7 @@
       <jmdns-version>3.4.1</jmdns-version>
       <ftpserver-version>1.0.6</ftpserver-version>
       <jmock-version>2.5.1</jmock-version>
-      <spring-version>3.2.11.RELEASE</spring-version>
+      <spring-version>5.3.18</spring-version>
       <org-apache-derby-version>10.11.1.1</org-apache-derby-version>
       <commons-net-version>3.3</commons-net-version>
       <xbean-version>3.18</xbean-version>
@@ -223,6 +223,13 @@
          <groupId>org.hamcrest</groupId>
          <artifactId>hamcrest-all</artifactId>
          <version>${hamcrest-version}</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context</artifactId>
+         <version>${spring-version}</version>
          <scope>test</scope>
       </dependency>
 
