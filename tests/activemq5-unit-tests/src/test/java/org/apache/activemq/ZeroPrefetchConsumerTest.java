@@ -35,7 +35,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ConsumerControl;
 import org.apache.activemq.command.ExceptionResponse;
-import org.apache.activemq.spring.SpringConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,9 +53,8 @@ public class ZeroPrefetchConsumerTest extends EmbeddedBrokerTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageConsumer consumer = session.createConsumer(queue);
 
-      MessageListener listener = new SpringConsumer();
       try {
-         consumer.setMessageListener(listener);
+         consumer.setMessageListener(msg -> {});
          fail("Should have thrown JMSException as we cannot use MessageListener with zero prefetch");
       } catch (JMSException e) {
          LOG.info("Received expected exception : " + e);

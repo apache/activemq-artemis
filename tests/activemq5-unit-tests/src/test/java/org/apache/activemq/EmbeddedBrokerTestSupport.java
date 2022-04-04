@@ -32,7 +32,6 @@ import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.rules.TemporaryFolder;
-import org.springframework.jms.core.JmsTemplate;
 
 /**
  * A useful base class which creates and closes an embedded broker
@@ -45,7 +44,6 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
    protected ConnectionFactory connectionFactory;
    protected boolean useTopic;
    protected ActiveMQDestination destination;
-   protected JmsTemplate template;
    protected boolean disableWrapper = false;
 
    public TemporaryFolder temporaryFolder;
@@ -68,11 +66,6 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
       connectionFactory = createConnectionFactory();
 
       destination = createDestination();
-
-      template = createJmsTemplate();
-      template.setDefaultDestination(destination);
-      template.setPubSubDomain(useTopic);
-      template.afterPropertiesSet();
    }
 
    @Override
@@ -113,15 +106,6 @@ public abstract class EmbeddedBrokerTestSupport extends CombinationTestSupport {
 
    protected static String newURI(String localhostAddress, int serverID) {
       return "tcp://" + localhostAddress + ":" + (61616 + serverID);
-   }
-
-   /**
-    * Factory method to create a new {@link JmsTemplate}
-    *
-    * @return a newly created JmsTemplate
-    */
-   protected JmsTemplate createJmsTemplate() {
-      return new JmsTemplate(connectionFactory);
    }
 
    /**
