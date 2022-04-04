@@ -62,6 +62,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          .add(ProducerField.SESSION.getName(), toString(session.getName()))
          .add(ProducerField.CLIENT_ID.getName(), toString(sessionClientID))
          .add(ProducerField.USER.getName(), toString(session.getUsername()))
+         .add(ProducerField.VALIDATED_USER.getName(), toString(session.getValidatedUser()))
          .add(ProducerField.PROTOCOL.getName(), toString(session.getRemotingConnection().getProtocolName()))
          .add(ProducerField.ADDRESS.getName(), toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
          .add(ProducerField.LOCAL_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
@@ -88,6 +89,8 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
             return session.getName();
          case USER:
             return session.getUsername();
+         case VALIDATED_USER:
+            return session.getValidatedUser();
          case CLIENT_ID:
             return session.getRemotingConnection().getClientID();
          case PROTOCOL:

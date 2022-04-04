@@ -24,6 +24,7 @@ public enum ProducerField {
    SESSION("session"),
    CONNECTION_ID("connectionID"),
    ADDRESS("address"), USER("user"),
+   VALIDATED_USER("validatedUser"),
    PROTOCOL("protocol"),
    CLIENT_ID("clientID"),
    LOCAL_ADDRESS("localAddress"),

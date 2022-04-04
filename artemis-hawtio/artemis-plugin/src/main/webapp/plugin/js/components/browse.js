@@ -244,7 +244,7 @@ var Artemis;
                 {name: "Large", visible: true},
                 {name: "Persistent Size", visible: true},
                 {name: "User ID", visible: true},
-                {name: "Validated User", visible: true},
+                {name: "Validated User", visible: false},
                 {name: "Original Queue (Expiry/DLQ's only)", visible: true}
            ]
         };
@@ -326,7 +326,7 @@ var Artemis;
                 header: 'User ID'
             },
             {
-                itemField: 'StringProperties',
+                itemField: 'validatedUser',
                 header: 'Validated User',
                 templateFn: function(value) {
                     return value._AMQ_VALIDATED_USER;

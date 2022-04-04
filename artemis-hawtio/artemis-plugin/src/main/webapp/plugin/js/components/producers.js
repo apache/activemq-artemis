@@ -73,6 +73,7 @@ var Artemis;
                 {name: "Client ID", visible: true},
                 {name: "Protocol", visible: true},
                 {name: "User", visible: true},
+                {name: "Validated User", visible: false},
                 {name: "Address", visible: true},
                 {name: "Remote Address", visible: true},
                 {name: "Local Address", visible: true}
@@ -102,6 +103,7 @@ var Artemis;
                 {id: 'session', name: 'Session'},
                 {id: 'clientID', name: 'Client ID'},
                 {id: 'user', name: 'User'},
+                {id: 'validatedUser', name: 'Validated User'},
                 {id: 'address', name: 'Address'},
                 {id: 'protocol', name: 'Protocol'},
                 {id: 'localAddress', name: 'Local Address'},
@@ -139,6 +141,7 @@ var Artemis;
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Protocol', itemField: 'protocol' },
             { header: 'User', itemField: 'user' },
+            { header: 'Validated User', name: 'validatedUser'},
             { header: 'Address', itemField: 'address', templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' }

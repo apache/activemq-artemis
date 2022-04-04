@@ -26,6 +26,7 @@ public enum ConsumerField {
    FILTER("filter"),
    ADDRESS("address"),
    USER("user"),
+   VALIDATED_USER("validatedUser"),
    PROTOCOL("protocol"),
    CLIENT_ID("clientID"),
    LOCAL_ADDRESS("localAddress"),
