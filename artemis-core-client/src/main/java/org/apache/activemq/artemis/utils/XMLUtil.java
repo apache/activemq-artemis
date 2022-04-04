@@ -52,6 +52,12 @@ public final class XMLUtil {
       // Utility class
    }
 
+   public static String CONSIDER_OS_ENV_PROP = "org.apache.activemq.artemis.utils.considerOsEnv";
+   private static final boolean considerOsEnv;
+   static {
+      considerOsEnv = Boolean.parseBoolean(System.getProperty(CONSIDER_OS_ENV_PROP, "true"));
+   }
+
    public static Element streamToElement(InputStream inputStream) throws Exception {
       try (Reader reader = new InputStreamReader(inputStream)) {
          return XMLUtil.readerToElement(reader);
@@ -271,7 +277,14 @@ public final class XMLUtil {
             val = parts[1].trim();
          }
 
-         String sysProp = System.getProperty(prop, val);
+         String sysProp = System.getProperty(prop);
+         if (sysProp == null && considerOsEnv) {
+            sysProp = System.getenv(prop);
+         }
+         if (sysProp == null) {
+            sysProp = val;
+         }
+         // interesting choice to replace with val == "" with no match!
          logger.debug("replacing " + subString + " with " + sysProp);
          xml = xml.replace(subString, sysProp);
       }

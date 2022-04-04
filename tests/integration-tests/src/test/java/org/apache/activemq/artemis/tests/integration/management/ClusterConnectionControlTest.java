@@ -75,7 +75,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       Assert.assertEquals(clusterConnectionConfig1.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
       Assert.assertEquals(clusterConnectionConfig1.getRetryInterval(), clusterConnectionControl.getRetryInterval());
       Assert.assertEquals(clusterConnectionConfig1.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
-      Assert.assertEquals(clusterConnectionConfig1.getMessageLoadBalancingType().getType(), clusterConnectionControl.getMessageLoadBalancingType());
+      Assert.assertEquals(clusterConnectionConfig1.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
       Assert.assertEquals(clusterConnectionConfig1.getMaxHops(), clusterConnectionControl.getMaxHops());
       Assert.assertEquals(0L, clusterConnectionControl.getMessagesPendingAcknowledgement());
       Assert.assertEquals(0L, clusterConnectionControl.getMessagesAcknowledged());
@@ -111,7 +111,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
       Assert.assertEquals(clusterConnectionConfig2.getDiscoveryGroupName(), clusterConnectionControl.getDiscoveryGroupName());
       Assert.assertEquals(clusterConnectionConfig2.getRetryInterval(), clusterConnectionControl.getRetryInterval());
       Assert.assertEquals(clusterConnectionConfig2.isDuplicateDetection(), clusterConnectionControl.isDuplicateDetection());
-      Assert.assertEquals(clusterConnectionConfig2.getMessageLoadBalancingType().getType(), clusterConnectionControl.getMessageLoadBalancingType());
+      Assert.assertEquals(clusterConnectionConfig2.getMessageLoadBalancingType().toString(), clusterConnectionControl.getMessageLoadBalancingType());
       Assert.assertEquals(clusterConnectionConfig2.getMaxHops(), clusterConnectionControl.getMaxHops());
 
       Object[] connectorPairs = clusterConnectionControl.getStaticConnectors();

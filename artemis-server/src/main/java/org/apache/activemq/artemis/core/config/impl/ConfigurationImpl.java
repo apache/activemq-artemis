@@ -99,6 +99,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -464,13 +465,27 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration parseProperties(String fileUrlToProperties) throws Exception {
-      // system property overrides
+      // system property overrides location of file(s)
       fileUrlToProperties = System.getProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, fileUrlToProperties);
       if (fileUrlToProperties != null) {
-         Properties brokerProperties = new Properties();
-         try (FileInputStream fileInputStream = new FileInputStream(fileUrlToProperties); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
-            brokerProperties.load(reader);
-            parsePrefixedProperties(brokerProperties, null);
+         for (String fileUrl : fileUrlToProperties.split(",")) {
+            Properties brokerProperties = new Properties() {
+               final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
+
+               @Override
+               public Object put(Object key, Object value) {
+                  return orderedMap.put(key.toString(), value.toString());
+               }
+
+               @Override
+               public Set<Map.Entry<Object, Object>> entrySet() {
+                  return orderedMap.entrySet();
+               }
+            };
+            try (FileInputStream fileInputStream = new FileInputStream(fileUrl); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+               brokerProperties.load(reader);
+               parsePrefixedProperties(brokerProperties, null);
+            }
          }
       }
       parsePrefixedProperties(System.getProperties(), systemPropertyPrefix);
@@ -478,7 +493,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    public void parsePrefixedProperties(Properties properties, String prefix) throws Exception {
-      Map<String, Object> beanProperties = new HashMap<>();
+      Map<String, Object> beanProperties = new LinkedHashMap<>();
 
       synchronized (properties) {
          String key = null;
@@ -490,8 +505,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
                }
                key = entry.getKey().toString().substring(prefix.length());
             }
-            logger.debug("Setting up config, " + key + "=" + entry.getValue());
-            beanProperties.put(key, entry.getValue());
+            String value = XMLUtil.replaceSystemPropsInString(entry.getValue().toString());
+            key = XMLUtil.replaceSystemPropsInString(key);
+            logger.debug("Property config, " + key + "=" + value);
+            beanProperties.put(key, value);
          }
       }
 
