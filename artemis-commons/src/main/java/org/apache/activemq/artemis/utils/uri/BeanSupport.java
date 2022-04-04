@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
 
 public class BeanSupport {
@@ -40,6 +41,25 @@ public class BeanSupport {
    static {
       // This is to customize the BeanUtils to use Fluent Properties as well
       beanUtils.getPropertyUtils().addBeanIntrospector(new FluentPropertyBeanIntrospectorWithIgnores());
+
+      // generic converter from String to enum type via valueOf with no default
+      registerConverter(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            if (value == null) {
+               return null;
+            }
+
+            if (String.class.equals(type) || Object.class.equals(type)) {
+               return type.cast(value.toString());
+            }
+            if (type.isEnum()) {
+               return (T) Enum.valueOf((Class<Enum>)type, value.toString());
+            }
+            throw new ConversionException("Can't convert value '" + value
+                    + "' to type " + type);
+         }
+      }, String.class);
    }
 
    public static void registerConverter(Converter converter, Class type) {

@@ -184,7 +184,7 @@ public class ClusterConnectionControlImpl extends AbstractControl implements Clu
       }
       clearIO();
       try {
-         return configuration.getMessageLoadBalancingType().getType();
+         return configuration.getMessageLoadBalancingType().toString();
       } finally {
          blockOnIO();
       }

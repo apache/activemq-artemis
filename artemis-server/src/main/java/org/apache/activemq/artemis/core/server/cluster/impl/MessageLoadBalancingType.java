@@ -16,46 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
-import org.apache.activemq.artemis.utils.uri.BeanSupport;
-import org.apache.commons.beanutils.Converter;
-
 public enum MessageLoadBalancingType {
-   OFF("OFF"), STRICT("STRICT"), ON_DEMAND("ON_DEMAND"), OFF_WITH_REDISTRIBUTION("OFF_WITH_REDISTRIBUTION");
-
-   static {
-      // for URI support on ClusterConnection
-      BeanSupport.registerConverter(new MessageLoadBalancingTypeConverter(), MessageLoadBalancingType.class);
-   }
-
-   static class MessageLoadBalancingTypeConverter implements Converter {
-
-      @Override
-      public <T> T convert(Class<T> type, Object value) {
-         return type.cast(MessageLoadBalancingType.getType(value.toString()));
-      }
-   }
-
-   private String type;
-
-   MessageLoadBalancingType(final String type) {
-      this.type = type;
-   }
-
-   public String getType() {
-      return type;
-   }
-
-   public static MessageLoadBalancingType getType(String string) {
-      if (string.equals(OFF.getType())) {
-         return MessageLoadBalancingType.OFF;
-      } else if (string.equals(STRICT.getType())) {
-         return MessageLoadBalancingType.STRICT;
-      } else if (string.equals(ON_DEMAND.getType())) {
-         return MessageLoadBalancingType.ON_DEMAND;
-      } else if (string.equals(OFF_WITH_REDISTRIBUTION.getType())) {
-         return MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION;
-      } else {
-         return null;
-      }
-   }
+   OFF, STRICT, ON_DEMAND, OFF_WITH_REDISTRIBUTION;
 }

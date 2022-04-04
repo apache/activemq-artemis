@@ -17,9 +17,15 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.ArtemisConstants;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -31,9 +37,13 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
+import org.apache.activemq.artemis.core.server.routing.KeyType;
+import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
@@ -601,6 +611,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Properties properties = new Properties();
       properties.put("connectionRouters.joe.localTargetFilter", "LF");
       properties.put("connectionRouters.joe.keyFilter", "TF");
+      properties.put("connectionRouters.joe.keyType", "SOURCE_IP");
 
       properties.put("acceptorConfigurations.tcp.params.HOST", "LOCALHOST");
       properties.put("acceptorConfigurations.tcp.params.PORT", "61616");
@@ -626,6 +637,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(1, configuration.getConnectionRouters().size());
       Assert.assertEquals("LF", configuration.getConnectionRouters().get(0).getLocalTargetFilter());
       Assert.assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
+      Assert.assertEquals(KeyType.SOURCE_IP, configuration.getConnectionRouters().get(0).getKeyType());
 
       Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
 
@@ -706,6 +718,149 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       configuration.parsePrefixedProperties(properties, null);
 
       Assert.assertEquals(25 * 1024, configuration.getGlobalMaxSize());
+   }
+
+   @Test
+   public void testSystemPropValueReplaced() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+      final String homeFromDefault = "default-home";
+      final String homeFromEnv = System.getenv("HOME");
+      properties.put("name", "${HOME:" + homeFromDefault + "}");
+      configuration.parsePrefixedProperties(properties, null);
+      if (homeFromEnv != null) {
+         Assert.assertEquals(homeFromEnv, configuration.getName());
+      } else {
+         // if $HOME is not set for some platform
+         Assert.assertEquals(homeFromDefault, configuration.getName());
+      }
+   }
+
+   @Test
+   public void testSystemPropValueNoMatch() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+      properties.put("name", "vv-${SOME_RANDOM_VV}");
+      configuration.parsePrefixedProperties(properties, null);
+      Assert.assertEquals("vv-", configuration.getName());
+   }
+
+   @Test
+   public void testSystemPropValueNonExistWithDefault() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+      properties.put("name", "vv-${SOME_RANDOM_VV:y}");
+      configuration.parsePrefixedProperties(properties, null);
+      Assert.assertEquals("vv-y", configuration.getName());
+   }
+
+
+   @Test
+   public void testSystemPropKeyReplacement() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+
+      final String newKeyName = RandomUtil.randomString();
+      final String valueFromSysProp = "VV";
+      System.setProperty(newKeyName, valueFromSysProp);
+
+      try {
+         properties.put("connectorConfigurations.KEY-${" + newKeyName + "}.name", "y");
+         configuration.parsePrefixedProperties(properties, null);
+         Assert.assertNotNull("configured new key from prop", configuration.connectorConfigs.get("KEY-" + valueFromSysProp));
+         Assert.assertEquals("y", configuration.connectorConfigs.get("KEY-" + valueFromSysProp).getName());
+      } finally {
+         System.clearProperty(newKeyName);
+      }
+   }
+
+   @Test
+   public void testEnumConversion() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+      properties.put("clusterConfiguration.cc.name", "cc");
+      properties.put("clusterConfigurations.cc.messageLoadBalancingType", "OFF_WITH_REDISTRIBUTION");
+      properties.put("criticalAnalyzerPolicy", "SHUTDOWN");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals("cc", configuration.getClusterConfigurations().get(0).getName());
+      Assert.assertEquals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION, configuration.getClusterConfigurations().get(0).getMessageLoadBalancingType());
+      Assert.assertEquals(CriticalAnalyzerPolicy.SHUTDOWN, configuration.getCriticalAnalyzerPolicy());
+   }
+
+   @Test
+   public void testPropertiesReaderRespectsOrderFromFile() throws Exception {
+
+      File tmpFile = File.createTempFile("ordered-props-test", "");
+
+      FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+      PrintWriter printWriter = new PrintWriter(fileOutputStream);
+
+      LinkedList<String> insertionOrderedKeys = new LinkedList<>();
+      char ascii = 'a';
+      for (int i = 0; i < 26; i++, ascii++) {
+         printWriter.println("resourceLimitSettings." + i + ".maxConnections=100");
+         insertionOrderedKeys.addLast(String.valueOf(i));
+
+         printWriter.println("resourceLimitSettings." + ascii + ".maxConnections=100");
+         insertionOrderedKeys.addLast(String.valueOf(ascii));
+      }
+      printWriter.flush();
+      fileOutputStream.flush();
+      fileOutputStream.close();
+
+      final AtomicReference<String> errorAt = new AtomicReference<>();
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      configuration.setResourceLimitSettings(new HashMap<String, ResourceLimitSettings>() {
+         @Override
+         public ResourceLimitSettings put(String key, ResourceLimitSettings value) {
+            if (!(key.equals(insertionOrderedKeys.remove()))) {
+               errorAt.set(key);
+               fail("Expected to see props applied in insertion order!, errorAt:" + errorAt.get());
+            }
+            return super.put(key, value);
+         }
+      });
+      configuration.parseProperties(tmpFile.getAbsolutePath());
+      assertNull("no errors in insertion order, errorAt:" + errorAt.get(), errorAt.get());
+   }
+
+
+   @Test
+   public void testPropertiesFiles() throws Exception {
+
+      LinkedList<String> files = new LinkedList<>();
+      LinkedList<String> names = new LinkedList<>();
+      names.addLast("one");
+      names.addLast("two");
+
+      for (String suffix : names) {
+         File tmpFile = File.createTempFile("props-test", suffix);
+
+         FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+         PrintWriter printWriter = new PrintWriter(fileOutputStream);
+
+         printWriter.println("name=" + suffix);
+
+         printWriter.flush();
+         fileOutputStream.flush();
+         fileOutputStream.close();
+
+         files.addLast(tmpFile.getAbsolutePath());
+      }
+      final AtomicReference<String> errorAt = new AtomicReference<>();
+      ConfigurationImpl configuration = new ConfigurationImpl() {
+         @Override
+         public ConfigurationImpl setName(String name) {
+            if (!(name.equals(names.remove()))) {
+               fail("Expected names from files in order");
+            }
+            return super.setName(name);
+         }
+      };
+      configuration.parseProperties(files.stream().collect(Collectors.joining(",")));
+      assertEquals("second won", "two", configuration.getName());
    }
 
    @Test
