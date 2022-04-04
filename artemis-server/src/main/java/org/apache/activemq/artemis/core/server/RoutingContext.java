@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -40,6 +41,9 @@ public interface RoutingContext {
    /** If the routing is from MirrorController, we don't redo mirrorController
     *  to avoid*/
    boolean isMirrorController();
+
+   /** return true if every queue routed is internal */
+   boolean isInternal();
 
    MirrorController getMirrorSource();
 
@@ -94,6 +98,10 @@ public interface RoutingContext {
    boolean isDuplicateDetection();
 
    RoutingContext setDuplicateDetection(boolean value);
+
+   RoutingContext setLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType);
+
+   MessageLoadBalancingType getLoadBalancingType();
 
 
 }

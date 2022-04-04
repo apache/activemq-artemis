@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.jboss.logging.Logger;
@@ -52,12 +53,17 @@ public class RoutingContextImpl implements RoutingContext {
 
    private RoutingType previousRoutingType;
 
+   // if we wanted to bypass the load balancing configured elsewhere
+   private MessageLoadBalancingType loadBalancingType;
+
    /* To be set by the Mirror target on the server, to avoid ping pongs or reflections of messages between mirrors */
    private MirrorController mirrorControllerSource;
 
    private RoutingType routingType;
 
    Boolean reusable = null;
+
+   Boolean internalOnly = null;
 
    volatile int version;
 
@@ -93,6 +99,11 @@ public class RoutingContextImpl implements RoutingContext {
    @Override
    public boolean isReusable() {
       return reusable != null && reusable;
+   }
+
+   @Override
+   public boolean isInternal() {
+      return internalOnly != null && internalOnly;
    }
 
    @Override
@@ -138,6 +149,8 @@ public class RoutingContextImpl implements RoutingContext {
 
       this.reusable = null;
 
+      this.internalOnly = null;
+
       return this;
    }
 
@@ -162,6 +175,13 @@ public class RoutingContextImpl implements RoutingContext {
       } else {
          listing.getNonDurableQueues().add(queue);
       }
+
+      if (internalOnly == null) {
+         internalOnly = true;
+      }
+
+      // every queue added has to be internal only
+      internalOnly = internalOnly && queue.isInternalQueue();
 
       queueCount++;
    }
@@ -198,6 +218,16 @@ public class RoutingContextImpl implements RoutingContext {
       }
    }
 
+   @Override
+   public RoutingContextImpl setLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType) {
+      this.loadBalancingType = messageLoadBalancingType;
+      return this;
+   }
+
+   @Override
+   public MessageLoadBalancingType getLoadBalancingType() {
+      return loadBalancingType;
+   }
 
    @Override
    public void addQueueWithAck(SimpleString address, Queue queue) {

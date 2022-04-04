@@ -325,6 +325,14 @@ public final class BindingsImpl implements Bindings {
       }
    }
 
+   private MessageLoadBalancingType getMessageLoadBalancingType(RoutingContext context) {
+      if (context.getLoadBalancingType() != null) {
+         return context.getLoadBalancingType();
+      } else {
+         return this.messageLoadBalancingType;
+      }
+   }
+
    private void simpleRouting(final Message message,
                               final RoutingContext context,
                               final int currentVersion) throws Exception {
@@ -333,7 +341,7 @@ public final class BindingsImpl implements Bindings {
       }
 
       routingNameBindingMap.forEachBindings((bindings, nextPosition) -> {
-         final Binding nextBinding = getNextBinding(message, bindings, nextPosition);
+         final Binding nextBinding = getNextBinding(message, bindings, nextPosition, getMessageLoadBalancingType(context));
          if (nextBinding != null && nextBinding.getFilter() == null && nextBinding.isLocal() && bindings.length == 1) {
             context.setReusable(true, currentVersion);
          } else {
@@ -362,7 +370,8 @@ public final class BindingsImpl implements Bindings {
     */
    private Binding getNextBinding(final Message message,
                                   final Binding[] bindings,
-                                  final CopyOnWriteBindings.BindingIndex bindingIndex) {
+                                  final CopyOnWriteBindings.BindingIndex bindingIndex,
+                                  final MessageLoadBalancingType loadBalancingType) {
       int nextPosition = bindingIndex.getIndex();
 
       final int bindingsCount = bindings.length;
@@ -373,8 +382,6 @@ public final class BindingsImpl implements Bindings {
 
       Binding nextBinding = null;
       int lastLowPriorityBinding = -1;
-      // snapshot this, to save loading it on each iteration
-      final MessageLoadBalancingType loadBalancingType = this.messageLoadBalancingType;
 
       for (int i = 0; i < bindingsCount; i++) {
          final Binding binding = bindings[nextPosition];
@@ -438,7 +445,7 @@ public final class BindingsImpl implements Bindings {
 
          if (resp == null) {
             // ok let's find the next binding to propose
-            Binding theBinding = getNextBinding(message, bindings, nextPosition);
+            Binding theBinding = getNextBinding(message, bindings, nextPosition, getMessageLoadBalancingType(context));
             if (theBinding == null) {
                return;
             }

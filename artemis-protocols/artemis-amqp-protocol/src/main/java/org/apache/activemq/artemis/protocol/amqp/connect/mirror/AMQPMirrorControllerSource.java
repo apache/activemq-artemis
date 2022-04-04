@@ -201,6 +201,13 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
+      if (context.isInternal()) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("server " + server + " is discarding send to avoid sending to internal queue");
+         }
+         return;
+      }
+
       if (logger.isTraceEnabled()) {
          logger.trace(server + " send message " + message);
       }
