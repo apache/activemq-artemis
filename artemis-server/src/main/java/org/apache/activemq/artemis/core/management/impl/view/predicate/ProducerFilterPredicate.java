@@ -45,6 +45,8 @@ public class ProducerFilterPredicate extends ActiveMQFilterPredicate<ServerProdu
             return matches(producer.getSessionID());
          case USER:
             return matches(server.getSessionByID(producer.getSessionID()).getUsername());
+         case VALIDATED_USER:
+            return matches(server.getSessionByID(producer.getSessionID()).getValidatedUser());
          case ADDRESS:
             return matches(producer.getAddress() != null ? producer.getAddress() : server.getSessionByID(producer.getSessionID()).getDefaultAddress());
          case PROTOCOL:

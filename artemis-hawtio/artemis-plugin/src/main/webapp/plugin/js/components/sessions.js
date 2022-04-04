@@ -88,6 +88,7 @@ var Artemis;
                 {name: "ID", visible: true},
                 {name: "Connection", visible: true},
                 {name: "User", visible: true},
+                {name: "Validated User", visible: false},
                 {name: "Consumer Count", visible: true},
                 {name: "Producer Count", visible: true},
                 {name: "Creation Time", visible: true}
@@ -117,6 +118,7 @@ var Artemis;
                 {id: 'connectionID', name: 'Connection ID'},
                 {id: 'consumerCount', name: 'Consumer Count'},
                 {id: 'user', name: 'User'},
+                {id: 'validatedUser', name: 'Validated User'},
                 {id: 'protocol', name: 'Protocol'},
                 {id: 'clientID', name: 'Client ID'},
                 {id: 'localAddress', name: 'Local Address'},
@@ -162,6 +164,7 @@ var Artemis;
             { header: 'ID', itemField: 'id' },
             { header: 'Connection', itemField: 'connectionID', templateFn: function(value, item) { return '<a href="#" onclick="selectConnection(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'User', itemField: 'user' },
+            { header: 'Validated User', itemField: 'validatedUser' },
             { header: 'Consumer Count', itemField: 'consumerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Producer Count', itemField: 'producerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectProducers(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Creation Time', itemField: 'creationTime' }

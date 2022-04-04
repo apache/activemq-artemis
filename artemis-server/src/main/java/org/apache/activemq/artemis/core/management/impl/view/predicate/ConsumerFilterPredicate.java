@@ -43,6 +43,8 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
             return matches(consumer.getSessionID());
          case USER:
             return matches(server.getSessionByID(consumer.getSessionID()).getUsername());
+         case VALIDATED_USER:
+            return matches(server.getSessionByID(consumer.getSessionID()).getValidatedUser());
          case ADDRESS:
             return matches(consumer.getQueue().getAddress());
          case QUEUE:
