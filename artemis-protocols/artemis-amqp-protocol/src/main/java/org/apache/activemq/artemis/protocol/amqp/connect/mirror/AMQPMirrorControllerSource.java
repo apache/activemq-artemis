@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -192,11 +193,39 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return (remoteID != null && sourceID != null && remoteID.equals(sourceID));
    }
 
+   private boolean routableContext(RoutingContext context) {
+      if (context.getQueueCount() > 0) {
+         for (Map.Entry<SimpleString, RouteContextList> entry : context.getContexListing().entrySet()) {
+            List<Queue> nonDurableQueues = entry.getValue().getNonDurableQueues();
+            for (Queue queue : nonDurableQueues) {
+               if (!queue.isInternalQueue()) {
+                  return true;
+               }
+            }
+
+            List<Queue> durableQueues = entry.getValue().getDurableQueues();
+            for (Queue queue : durableQueues) {
+               if (!queue.isInternalQueue()) {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
+   }
+
    @Override
    public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
       if (invalidTarget(context.getMirrorSource())) {
          if (logger.isTraceEnabled()) {
             logger.trace("server " + server + " is discarding send to avoid infinite loop (reflection with the mirror)");
+         }
+         return;
+      }
+
+      if (!routableContext(context)) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("server " + server + " is discarding send to avoid sending to internal queue");
          }
          return;
       }
