@@ -45,6 +45,6 @@ public class AuthTests  extends MQTT5TestSupport {
    private static final Logger log = Logger.getLogger(AuthTests.class);
 
    public AuthTests(String protocol) {
-      this.protocol = protocol;
+      super(protocol);
    }
 }

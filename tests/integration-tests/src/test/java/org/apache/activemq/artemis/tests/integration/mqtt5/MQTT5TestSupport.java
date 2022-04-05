@@ -80,7 +80,7 @@ import static java.util.Collections.singletonList;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
 
 @RunWith(Parameterized.class)
-public class MQTT5TestSupport extends ActiveMQTestBase {
+public abstract class MQTT5TestSupport extends ActiveMQTestBase {
    protected static final String TCP = "tcp";
    protected static final String WS = "ws";
    protected static final String SSL = "ssl";
@@ -119,7 +119,6 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    protected ConnectionFactory cf;
    protected LinkedList<Throwable> exceptions = new LinkedList<>();
    protected boolean persistent;
-   protected String protocolScheme;
 
    protected static final int NUM_MESSAGES = 250;
 
@@ -141,10 +140,6 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
 
    @Rule
    public TestName name = new TestName();
-
-   public MQTT5TestSupport() {
-      this.protocolScheme = "mqtt";
-   }
 
    public File basedir() throws IOException {
       ProtectionDomain protectionDomain = getClass().getProtectionDomain();

@@ -38,7 +38,7 @@ public class HandlingErrorTests extends MQTT5TestSupport {
    private static final Logger log = Logger.getLogger(HandlingErrorTests.class);
 
    public HandlingErrorTests(String protocol) {
-      this.protocol = protocol;
+      super(protocol);
    }
 
    /*

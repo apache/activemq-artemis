@@ -87,7 +87,7 @@ public class ConnAckTests  extends MQTT5TestSupport {
    private static final Logger log = Logger.getLogger(ConnAckTests.class);
 
    public ConnAckTests(String protocol) {
-      this.protocol = protocol;
+      super(protocol);
    }
 
    /*
