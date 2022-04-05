@@ -545,7 +545,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       File tempFolder = null;
       try {
          System.setProperty("artemis.instance", "/tmp/" + RandomUtil.randomString());
-         tempFolder = File.createTempFile("journal-folder", "");
+         tempFolder = File.createTempFile("journal-folder", "", temporaryFolder.getRoot());
          tempFolder.delete();
 
          tempFolder = new File(tempFolder.getAbsolutePath());
@@ -561,7 +561,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          Assert.assertEquals(configuration.getJournalLocation(), configuration.getNodeManagerLockLocation());
          Assert.assertTrue(configuration.getNodeManagerLockLocation().exists());
 
-         tempFolder = File.createTempFile("lock-folder", "");
+         tempFolder = File.createTempFile("lock-folder", "", temporaryFolder.getRoot());
          tempFolder.delete();
 
          tempFolder.getAbsolutePath();
@@ -792,7 +792,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    @Test
    public void testPropertiesReaderRespectsOrderFromFile() throws Exception {
 
-      File tmpFile = File.createTempFile("ordered-props-test", "");
+      File tmpFile = File.createTempFile("ordered-props-test", "", temporaryFolder.getRoot());
 
       FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
       PrintWriter printWriter = new PrintWriter(fileOutputStream);
@@ -836,7 +836,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       names.addLast("two");
 
       for (String suffix : names) {
-         File tmpFile = File.createTempFile("props-test", suffix);
+         File tmpFile = File.createTempFile("props-test", suffix, temporaryFolder.getRoot());
 
          FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
          PrintWriter printWriter = new PrintWriter(fileOutputStream);
