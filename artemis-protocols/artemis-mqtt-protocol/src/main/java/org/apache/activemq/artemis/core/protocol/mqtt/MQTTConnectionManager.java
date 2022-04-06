@@ -58,7 +58,6 @@ public class MQTTConnectionManager {
    }
 
    void connect(MqttConnectMessage connect, String validatedUser) throws Exception {
-      session.setVersion(MQTTVersion.getVersion(connect.variableHeader().version()));
       if (session.getVersion() == MQTTVersion.MQTT_5) {
          session.getConnection().setProtocolVersion(Byte.toString(MqttVersion.MQTT_5.protocolLevel()));
          String authenticationMethod = MQTTUtil.getProperty(String.class, connect.variableHeader().properties(), AUTHENTICATION_METHOD);

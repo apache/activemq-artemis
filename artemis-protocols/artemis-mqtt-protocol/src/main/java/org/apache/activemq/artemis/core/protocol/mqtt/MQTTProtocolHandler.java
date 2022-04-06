@@ -39,7 +39,6 @@ import io.netty.handler.codec.mqtt.MqttSubscribeMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubAckPayload;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
-import io.netty.handler.codec.mqtt.MqttVersion;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -223,6 +222,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleConnect(MqttConnectMessage connect) throws Exception {
+      session.setVersion(MQTTVersion.getVersion(connect.variableHeader().version()));
       /*
        * Perform authentication *before* attempting redirection because redirection may be based on the user's role.
        */
@@ -243,12 +243,11 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
       if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
          /* [MQTT-3.1.2-2] Reject unsupported clients. */
-         int packetVersion = connect.variableHeader().version();
-         if (packetVersion != MqttVersion.MQTT_3_1.protocolLevel() &&
-            packetVersion != MqttVersion.MQTT_3_1_1.protocolLevel() &&
-            packetVersion != MqttVersion.MQTT_5.protocolLevel()) {
+         if (session.getVersion() != MQTTVersion.MQTT_3_1 &&
+            session.getVersion() != MQTTVersion.MQTT_3_1_1 &&
+            session.getVersion() != MQTTVersion.MQTT_5) {
 
-            if (packetVersion <= MqttVersion.MQTT_3_1_1.protocolLevel()) {
+            if (session.getVersion().getVersion() <= MQTTVersion.MQTT_3_1_1.getVersion()) {
                // See MQTT-3.1.2-2 at http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030
                sendConnack(MQTTReasonCodes.UNACCEPTABLE_PROTOCOL_VERSION_3);
             } else {
