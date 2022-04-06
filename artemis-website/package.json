@@ -9,5 +9,9 @@
   },
   "devDependencies": {
     "honkit": "~3.7.1"
+  },
+  "overrides": {
+    "nth-check": "^2.0.1",
+    "minimist":  "^1.2.6"
   }
 }
