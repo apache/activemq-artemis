@@ -81,12 +81,6 @@
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
-         <exclusions>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-jms_2.0_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
