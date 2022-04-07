@@ -17,15 +17,12 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
-import java.util.UUID;
 import java.util.List;
 
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttVersion;
-import io.netty.util.CharsetUtil;
-import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -58,7 +55,7 @@ public class MQTTConnectionManager {
       session.getConnection().addFailureListener(failureListener);
    }
 
-   void connect(MqttConnectMessage connect, String validatedUser) throws Exception {
+   void connect(MqttConnectMessage connect, String validatedUser, String username, String password) throws Exception {
       if (session.getVersion() == MQTTVersion.MQTT_5) {
          session.getConnection().setProtocolVersion(Byte.toString(MqttVersion.MQTT_5.protocolLevel()));
          String authenticationMethod = MQTTUtil.getProperty(String.class, connect.variableHeader().properties(), AUTHENTICATION_METHOD);
@@ -70,32 +67,14 @@ public class MQTTConnectionManager {
          }
       }
 
-      String password = connect.payload().passwordInBytes() == null ? null : new String( connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
-      String username = connect.payload().userName();
-
       // the Netty codec uses "CleanSession" for both 3.1.1 "clean session" and 5 "clean start" which have slightly different semantics
       boolean cleanStart = connect.variableHeader().isCleanSession();
 
-      Pair<String, Boolean> clientIdValidation = validateClientId(connect.payload().clientIdentifier(), cleanStart);
-      if (clientIdValidation == null) {
-         // this represents an invalid client ID for MQTT 5 clients
-         session.getProtocolHandler().sendConnack(MQTTReasonCodes.CLIENT_IDENTIFIER_NOT_VALID);
-         disconnect(true);
-         return;
-      } else if (clientIdValidation.getA() == null) {
-         // this represents an invalid client ID for MQTT 3.x clients
-         session.getProtocolHandler().sendConnack(MQTTReasonCodes.IDENTIFIER_REJECTED_3);
-         disconnect(true);
-         return;
-      }
-      String clientId = clientIdValidation.getA();
-      boolean assignedClientId = clientIdValidation.getB();
-
+      String clientId = session.getConnection().getClientID();
       boolean sessionPresent = session.getProtocolManager().getSessionStates().containsKey(clientId);
       MQTTSessionState sessionState = getSessionState(clientId);
       synchronized (sessionState) {
          session.setSessionState(sessionState);
-         session.getConnection().setClientID(clientId);
          sessionState.setFailed(false);
          ServerSessionImpl serverSession = createServerSession(username, password, validatedUser);
          serverSession.start();
@@ -143,7 +122,7 @@ public class MQTTConnectionManager {
             sessionState.setClientMaxPacketSize(MQTTUtil.getProperty(Integer.class, connect.variableHeader().properties(), MAXIMUM_PACKET_SIZE, 0));
             sessionState.setClientTopicAliasMaximum(MQTTUtil.getProperty(Integer.class, connect.variableHeader().properties(), TOPIC_ALIAS_MAXIMUM));
 
-            connackProperties = getConnackProperties(clientId, assignedClientId);
+            connackProperties = getConnackProperties();
          } else {
             connackProperties = MqttProperties.NO_PROPERTIES;
          }
@@ -155,11 +134,11 @@ public class MQTTConnectionManager {
       }
    }
 
-   private MqttProperties getConnackProperties(String clientId, boolean assignedClientId) {
+   private MqttProperties getConnackProperties() {
       MqttProperties connackProperties = new MqttProperties();
 
-      if (assignedClientId) {
-         connackProperties.add(new MqttProperties.StringProperty(ASSIGNED_CLIENT_IDENTIFIER.value(), clientId));
+      if (this.session.getConnection().isClientIdAssignedByBroker()) {
+         connackProperties.add(new MqttProperties.StringProperty(ASSIGNED_CLIENT_IDENTIFIER.value(), this.session.getConnection().getClientID()));
       }
 
       if (this.session.getProtocolManager().getTopicAliasMaximum() != -1) {
@@ -226,31 +205,5 @@ public class MQTTConnectionManager {
 
    private synchronized MQTTSessionState getSessionState(String clientId) {
       return session.getProtocolManager().getSessionState(clientId);
-   }
-
-   private Pair<String, Boolean> validateClientId(String clientId, boolean cleanSession) {
-      Boolean assigned = Boolean.FALSE;
-      if (clientId == null || clientId.isEmpty()) {
-         // [MQTT-3.1.3-7] [MQTT-3.1.3-6] If client does not specify a client ID and clean session is set to 1 create it.
-         if (cleanSession) {
-            assigned = Boolean.TRUE;
-            clientId = UUID.randomUUID().toString();
-         } else {
-            // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
-            return null;
-         }
-      } else {
-         MQTTConnection connection = session.getProtocolManager().addConnectedClient(clientId, session.getConnection());
-
-         if (connection != null) {
-            MQTTSession existingSession = session.getProtocolManager().getSessionState(clientId).getSession();
-            if (session.getVersion() == MQTTVersion.MQTT_5) {
-               existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
-            }
-            // [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST disconnect the existing client
-            existingSession.getConnectionManager().disconnect(false);
-         }
-      }
-      return new Pair<>(clientId, assigned);
    }
 }

@@ -161,20 +161,16 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
 
    @Override
    public List<CloseListener> removeCloseListeners() {
-      List<CloseListener> ret = new ArrayList<>(closeListeners);
-
+      List<CloseListener> deletedCloseListeners = new ArrayList<>(closeListeners);
       closeListeners.clear();
-
-      return ret;
+      return deletedCloseListeners;
    }
 
    @Override
    public List<FailureListener> removeFailureListeners() {
-      List<FailureListener> ret = getFailureListeners();
-
+      List<FailureListener> deletedFailureListeners = getFailureListeners();
       failureListeners.clear();
-
-      return ret;
+      return deletedFailureListeners;
    }
 
    @Override
