@@ -4287,18 +4287,58 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
       @Override
       public boolean hasNext() {
-         if (messagesIterator != null && messagesIterator.hasNext()) {
-            lastIterator = messagesIterator;
+         if (cachedNext != null) {
             return true;
          }
-         if (getPagingIterator() != null) {
-            if (getPagingIterator().hasNext()) {
-               lastIterator = getPagingIterator();
+
+         if (messagesIterator != null) {
+            MessageReference nextMessage = iterate(messagesIterator);
+            if (nextMessage != null) {
+               cachedNext = nextMessage;
+               lastIterator = messagesIterator;
+               return true;
+            }
+         }
+
+         LinkedListIterator<PagedReference> pagingIterator = getPagingIterator();
+         if (pagingIterator != null) {
+            PagedReference nextMessage = iteratePaging(pagingIterator);
+            if (nextMessage != null) {
+               cachedNext = nextMessage;
+               lastIterator = pagingIterator;
                return true;
             }
          }
 
          return false;
+      }
+
+      private PagedReference iteratePaging(LinkedListIterator<PagedReference> iterator) {
+         while (iterator.hasNext()) {
+            PagedReference ref = iterator.next();
+
+            // During regular depaging we move messages from paging into QueueImpl::messageReferences
+            // later on the PagingIterator will read messages from the page files
+            // and this step will avoid reproducing those messages twice.
+            // once we found a previouslyBrowsed message we can remove it from this list as it's no longer needed
+            // since it won't be read again
+            if (!previouslyBrowsed.remove(ref.getPosition())) {
+               return ref;
+            }
+         }
+         return null;
+      }
+
+
+      private MessageReference iterate(LinkedListIterator<MessageReference> iterator) {
+         while (iterator.hasNext()) {
+            MessageReference ref = iterator.next();
+            if (ref.isPaged()) {
+               previouslyBrowsed.add(((PagedReference)ref).getPosition());
+            }
+            return ref;
+         }
+         return null;
       }
 
       @Override
@@ -4312,20 +4352,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
          }
+
          if (messagesIterator != null && messagesIterator.hasNext()) {
-            MessageReference msg = messagesIterator.next();
-            if (msg.isPaged()) {
-               previouslyBrowsed.add(((PagedReference) msg).getPosition());
+            MessageReference ref = iterate(messagesIterator);
+            if (ref != null) {
+               return ref;
             }
-            return msg;
          }
-         if (getPagingIterator() != null) {
-            while (getPagingIterator().hasNext()) {
-               lastIterator = getPagingIterator();
-               PagedReference ref = getPagingIterator().next();
-               if (previouslyBrowsed.contains(ref.getPosition())) {
-                  continue;
-               }
+
+         LinkedListIterator<PagedReference> pagingIterator = getPagingIterator();
+         if (pagingIterator != null) {
+            PagedReference ref = iteratePaging(pagingIterator);
+            if (ref != null) {
                return ref;
             }
          }
