@@ -83,7 +83,7 @@ public class TCPSchema extends AbstractCFSchema {
          if (!key.equals("ha") && !key.equals("type") &&
             !TransportConstants.ALLOWABLE_CONNECTOR_KEYS.contains(key) &&
             !factoryProperties.containsKey(key)) {
-            ActiveMQClientLogger.LOGGER.connectionFactoryParameterIgnored(key);
+            ActiveMQClientLogger.LOGGER.debug(String.format("Connection factory parameter %s is not standard", key));
          }
       }
    }

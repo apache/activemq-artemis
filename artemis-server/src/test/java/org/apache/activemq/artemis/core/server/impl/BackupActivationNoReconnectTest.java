@@ -168,7 +168,7 @@ public class BackupActivationNoReconnectTest {
          when(connectorConfig.getFactoryClassName()).thenReturn(NettyConnectorFactory.class.getName());
          Map<String, Object> urlParams = new HashMap<>();
          urlParams.put("port", serverSocket.getLocalPort());
-         when(connectorConfig.getParams()).thenReturn(urlParams);
+         when(connectorConfig.getCombinedParams()).thenReturn(urlParams);
          ClientSessionFactoryImpl sessionFactory = new ClientSessionFactoryImpl(serverLocator, connectorConfig, locatorConfig, reconnectAttempts, threadPool, scheduledThreadPool, null, null);
          when(clusterControl.getSessionFactory()).thenReturn(sessionFactory);
          when(clientProtocolManager.isAlive()).thenReturn(true);

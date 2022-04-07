@@ -445,12 +445,18 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
             //Initialize the upstream transport with the config from the acceptor as this will apply
             //relevant settings such as SSL, then override with settings from the downstream config
             final Map<String, Object> params = new HashMap<>(acceptorUsed.getConfiguration());
-            params.putAll(upstreamConfig.getParams());
+            if (upstreamConfig.getParams() != null) {
+               params.putAll(upstreamConfig.getParams());
+            }
+            final Map<String, Object> extraParams = new HashMap<>();
+            if (upstreamConfig.getExtraParams() != null) {
+               extraParams.putAll(upstreamConfig.getExtraParams());
+            }
 
             //Add the new upstream configuration that was created so we can connect back to the downstream server
             final TransportConfiguration upstreamConf = new TransportConfiguration(
                upstreamConfig.getFactoryClassName(), params, upstreamConfig.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX,
-               new HashMap<>());
+               extraParams);
             server.getConfiguration()
                .addConnectorConfiguration(upstreamConf.getName() + FederationDownstreamConnectMessage.UPSTREAM_SUFFIX, upstreamConf);
 
