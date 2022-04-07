@@ -31,7 +31,7 @@ public class MQTTRoutingContext extends RoutingContext {
 
 
    public MQTTRoutingContext(MQTTConnection mqttConnection, MQTTSession mqttSession, MqttConnectMessage connect) {
-      super(mqttConnection, connect.payload().clientIdentifier(), connect.payload().userName());
+      super(mqttConnection, mqttConnection.getClientID(), connect.payload().userName());
       this.mqttSession = mqttSession;
    }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.UUID;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
@@ -42,6 +44,7 @@ import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
@@ -224,59 +227,32 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    void handleConnect(MqttConnectMessage connect) throws Exception {
       session.setVersion(MQTTVersion.getVersion(connect.variableHeader().version()));
+      if (!checkClientVersion()) {
+         return;
+      }
+
+      session.getConnection().setClientID(connect.payload().clientIdentifier());
+      if (!validateClientID(connect.variableHeader().isCleanSession())) {
+         return;
+      }
+
       /*
        * Perform authentication *before* attempting redirection because redirection may be based on the user's role.
        */
       String password = connect.payload().passwordInBytes() == null ? null : new String(connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
       String username = connect.payload().userName();
-      String validatedUser;
-      try {
-         validatedUser = session.getServer().validateUser(username, password, session.getConnection(), session.getProtocolManager().getSecurityDomain());
-      } catch (ActiveMQSecurityException e) {
-         if (session.getVersion() == MQTTVersion.MQTT_5) {
-            session.getProtocolHandler().sendConnack(MQTTReasonCodes.BAD_USER_NAME_OR_PASSWORD);
-         } else {
-            session.getProtocolHandler().sendConnack(MQTTReasonCodes.NOT_AUTHORIZED_3);
-         }
-         disconnect(true);
+      Pair<Boolean, String> validationData = validateUser(username, password);
+      if (!validationData.getA()) {
          return;
       }
 
+      MQTTConnection existingConnection = session.getProtocolManager().addConnectedClient(session.getConnection().getClientID(), session.getConnection());
+      disconnectExistingSession(existingConnection);
+
       if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
-         /* [MQTT-3.1.2-2] Reject unsupported clients. */
-         if (session.getVersion() != MQTTVersion.MQTT_3_1 &&
-            session.getVersion() != MQTTVersion.MQTT_3_1_1 &&
-            session.getVersion() != MQTTVersion.MQTT_5) {
+         calculateKeepAlive(connect);
 
-            if (session.getVersion().getVersion() <= MQTTVersion.MQTT_3_1_1.getVersion()) {
-               // See MQTT-3.1.2-2 at http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030
-               sendConnack(MQTTReasonCodes.UNACCEPTABLE_PROTOCOL_VERSION_3);
-            } else {
-               // See MQTT-3.1.2-2 at https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901037
-               sendConnack(MQTTReasonCodes.UNSUPPORTED_PROTOCOL_VERSION);
-            }
-
-            disconnect(true);
-            return;
-         }
-
-         /*
-          * If the server's keep-alive has been disabled (-1) or if the client is using a lower value than the server
-          * then we use the client's keep-alive.
-          *
-          * We must adjust the keep-alive because MQTT communicates keep-alive values in *seconds*, but the broker uses
-          * *milliseconds*. Also, the connection keep-alive is effectively "one and a half times" the configured
-          * keep-alive value. See [MQTT-3.1.2-22].
-          */
-         int serverKeepAlive = session.getProtocolManager().getServerKeepAlive();
-         int clientKeepAlive = connect.variableHeader().keepAliveTimeSeconds();
-         if (serverKeepAlive == -1 || (clientKeepAlive <= serverKeepAlive && clientKeepAlive != 0)) {
-            connectionEntry.ttl = clientKeepAlive * MQTTUtil.KEEP_ALIVE_ADJUSTMENT;
-         } else {
-            session.setUsingServerKeepAlive(true);
-         }
-
-         session.getConnectionManager().connect(connect, validatedUser);
+         session.getConnectionManager().connect(connect, validationData.getB(), username, password);
       }
    }
 
@@ -428,5 +404,94 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
    ActiveMQServer getServer() {
       return server;
+   }
+
+   /*
+    * If the server's keep-alive has been disabled (-1) or if the client is using a lower value than the server
+    * then we use the client's keep-alive.
+    *
+    * We must adjust the keep-alive because MQTT communicates keep-alive values in *seconds*, but the broker uses
+    * *milliseconds*. Also, the connection keep-alive is effectively "one and a half times" the configured
+    * keep-alive value. See [MQTT-3.1.2-22].
+    */
+   private void calculateKeepAlive(MqttConnectMessage connect) {
+      int serverKeepAlive = session.getProtocolManager().getServerKeepAlive();
+      int clientKeepAlive = connect.variableHeader().keepAliveTimeSeconds();
+      if (serverKeepAlive == -1 || (clientKeepAlive <= serverKeepAlive && clientKeepAlive != 0)) {
+         connectionEntry.ttl = clientKeepAlive * MQTTUtil.KEEP_ALIVE_ADJUSTMENT;
+      } else {
+         session.setUsingServerKeepAlive(true);
+      }
+   }
+
+   // [MQTT-3.1.2-2] Reject unsupported clients.
+   private boolean checkClientVersion() {
+      if (session.getVersion() != MQTTVersion.MQTT_3_1 &&
+         session.getVersion() != MQTTVersion.MQTT_3_1_1 &&
+         session.getVersion() != MQTTVersion.MQTT_5) {
+
+         if (session.getVersion().getVersion() <= MQTTVersion.MQTT_3_1_1.getVersion()) {
+            // See MQTT-3.1.2-2 at http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718030
+            sendConnack(MQTTReasonCodes.UNACCEPTABLE_PROTOCOL_VERSION_3);
+         } else {
+            // See MQTT-3.1.2-2 at https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901037
+            sendConnack(MQTTReasonCodes.UNSUPPORTED_PROTOCOL_VERSION);
+         }
+
+         disconnect(true);
+         return false;
+      }
+      return true;
+   }
+
+   // [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST disconnect the existing client
+   private void disconnectExistingSession(MQTTConnection existingConnection) {
+      if (existingConnection != null) {
+         MQTTSession existingSession = session.getProtocolManager().getSessionState(session.getConnection().getClientID()).getSession();
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
+            existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
+         }
+         existingSession.getConnectionManager().disconnect(false);
+      }
+   }
+
+   private Pair<Boolean, String> validateUser(String username, String password) throws Exception {
+      String validatedUser = null;
+      Boolean result;
+
+      try {
+         validatedUser = server.validateUser(username, password, session.getConnection(), session.getProtocolManager().getSecurityDomain());
+         result = Boolean.TRUE;
+      } catch (ActiveMQSecurityException e) {
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
+            session.getProtocolHandler().sendConnack(MQTTReasonCodes.BAD_USER_NAME_OR_PASSWORD);
+         } else {
+            session.getProtocolHandler().sendConnack(MQTTReasonCodes.NOT_AUTHORIZED_3);
+         }
+         disconnect(true);
+         result = Boolean.FALSE;
+      }
+
+      return new Pair<>(result, validatedUser);
+   }
+
+   private boolean validateClientID(boolean isCleanSession) {
+      if (session.getConnection().getClientID() == null || session.getConnection().getClientID().isEmpty()) {
+         // [MQTT-3.1.3-7] [MQTT-3.1.3-6] If client does not specify a client ID and clean session is set to 1 create it.
+         if (isCleanSession) {
+            session.getConnection().setClientID(UUID.randomUUID().toString());
+            session.getConnection().setClientIdAssignedByBroker(true);
+         } else {
+            // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
+            if (session.getVersion() == MQTTVersion.MQTT_5) {
+               session.getProtocolHandler().sendConnack(MQTTReasonCodes.CLIENT_IDENTIFIER_NOT_VALID);
+            } else {
+               session.getProtocolHandler().sendConnack(MQTTReasonCodes.IDENTIFIER_REJECTED_3);
+            }
+            disconnect(true);
+            return false;
+         }
+      }
+      return true;
    }
 }

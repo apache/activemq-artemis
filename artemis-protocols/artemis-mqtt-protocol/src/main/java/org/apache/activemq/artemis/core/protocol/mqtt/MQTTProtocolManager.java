@@ -202,7 +202,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
       for (String key : toRemove) {
          logger.debugf("Removing state for session: %s", key);
-         MQTTSessionState state = sessionStates.remove(key);
+         MQTTSessionState state = removeSessionState(key);
          if (state != null && state.isWill() && !state.isAttached() && state.isFailed() && !state.isWillSent()) {
             state.getSession().sendWillMessage();
          }
