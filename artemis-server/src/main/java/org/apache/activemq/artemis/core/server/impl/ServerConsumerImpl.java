@@ -1465,11 +1465,14 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                ref = null;
                synchronized (messageQueue) {
                   if (!iterator.hasNext()) {
+                     logger.tracef("browser finished");
                      callback.browserFinished(ServerConsumerImpl.this);
                      break;
                   }
 
                   ref = iterator.next();
+
+                  logger.tracef("Receiving %s", ref.getMessage());
 
                   status = handle(ref);
                }

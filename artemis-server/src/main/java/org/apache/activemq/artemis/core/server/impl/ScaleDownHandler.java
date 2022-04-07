@@ -179,7 +179,7 @@ public class ScaleDownHandler {
                   MessageReference messageReference = messagesIterator.next();
                   Message message = messageReference.getMessage().copy();
 
-                  logger.debug("Reading message " + message + " from queue " + loopQueue);
+                  logger.debugf("Reading message %s from queue %s", message, loopQueue);
                   Set<QueuesXRefInnerManager> queuesFound = new HashSet<>();
 
                   for (Map.Entry<Queue, QueuesXRefInnerManager> controlEntry : controls.entrySet()) {
@@ -221,6 +221,7 @@ public class ScaleDownHandler {
                   }
                }
             } catch (NoSuchElementException ignored) {
+               logger.debug(ignored.getMessage(), ignored);
                // this could happen through paging browsing
             }
          }
