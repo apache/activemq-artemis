@@ -79,7 +79,6 @@ var Artemis;
                   {name: "Max Consumers", visible: true},
                   {name: "Purge On No Consumers", visible: true},
                   {name: "Consumer Count", visible: true},
-                  {name: "Rate", visible: true},
                   {name: "Message Count", visible: true},
                   {name: "Paused", visible: false},
                   {name: "Temporary", visible: false},
@@ -138,8 +137,7 @@ var Artemis;
                 {id: 'deliveringCount', name: 'Delivering Count'},
                 {id: 'paused', name: 'Paused'},
                 {id: 'temporary', name: 'Temporary'},
-                {id: 'autoCreated', name: 'Auto Created'},
-                {id: 'rate', name: 'Rate'}
+                {id: 'autoCreated', name: 'Auto Created'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -199,7 +197,6 @@ var Artemis;
             { header: 'Consumer Count', itemField: 'consumerCount' ,
               templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(' + item.idx + ')">' + $sanitize(value) + '</a>' }
             },
-            { header: 'Rate', itemField: 'rate' },
             { header: 'Message Count', itemField: 'messageCount',
               templateFn: function(value, item) { return '<a href="#" onclick="browseQueue(' + item.idx + ')" title="Browse Messages">' + value + '</a>' }
             },
