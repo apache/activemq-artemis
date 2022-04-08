@@ -24,7 +24,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -73,7 +72,7 @@ public class WebSocketFrameEncoderTest {
       verify(spy).write(ctx, msg, promise);
       verify(ctx).write(msg, promise);
       verifyNoMoreInteractions(spy, ctx);
-      verifyZeroInteractions(promise);
+      verifyNoMoreInteractions(promise);
    }
 
    @Test
@@ -160,6 +159,6 @@ public class WebSocketFrameEncoderTest {
       assertEquals(content.substring(offset), last.content().toString(StandardCharsets.UTF_8));
 
       verifyNoMoreInteractions(spy, ctx);
-      verifyZeroInteractions(promise);
+      verifyNoMoreInteractions(promise);
    }
 }

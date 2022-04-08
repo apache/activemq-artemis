@@ -38,10 +38,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -85,7 +84,7 @@ public class OpenTracingPluginTest {
       verify(spanBuilder, atLeastOnce()).setAttribute(anyString(), anyString());
       verify(spanBuilder, atLeastOnce()).setSpanKind(any(SpanKind.class));
       verify(spanBuilder, atLeastOnce()).startSpan();
-      verify(message, atLeastOnce()).setUserContext(anyObject(), anyObject());
+      verify(message, atLeastOnce()).setUserContext(any(Object.class), any(Object.class));
    }
 
    @Test
