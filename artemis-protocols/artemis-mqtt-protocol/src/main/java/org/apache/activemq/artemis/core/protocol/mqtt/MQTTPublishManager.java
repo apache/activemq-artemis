@@ -189,6 +189,10 @@ public class MQTTPublishManager {
                   topic = session.getState().getClientTopicAlias(alias);
                   if (topic == null) {
                      topic = message.variableHeader().topicName();
+                     if (topic == null || topic.length() == 0) {
+                        // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
+                        throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
+                     }
                      session.getState().addClientTopicAlias(alias, topic);
                   }
                }

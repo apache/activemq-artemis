@@ -119,14 +119,7 @@ public class MQTTSessionState {
       willRetain = false;
       willTopic = null;
       clientMaxPacketSize = 0;
-      if (clientTopicAliases != null) {
-         clientTopicAliases.clear();
-         clientTopicAliases = null;
-      }
-      if (serverTopicAliases != null) {
-         serverTopicAliases.clear();
-         serverTopicAliases = null;
-      }
+      clearTopicAliases();
       clientTopicAliasMaximum = 0;
    }
 
@@ -364,6 +357,17 @@ public class MQTTSessionState {
          if (addressMap != null) {
             addressMap.remove(info.getServerMessageId());
          }
+      }
+   }
+
+   public void clearTopicAliases() {
+      if (clientTopicAliases != null) {
+         clientTopicAliases.clear();
+         clientTopicAliases = null;
+      }
+      if (serverTopicAliases != null) {
+         serverTopicAliases.clear();
+         serverTopicAliases = null;
       }
    }
 
