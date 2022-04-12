@@ -46,6 +46,7 @@ import org.eclipse.paho.mqttv5.common.packet.MqttPublish;
 import org.eclipse.paho.mqttv5.common.packet.MqttWireMessage;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
 import org.jboss.logging.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -66,7 +67,6 @@ import org.junit.Test;
  *
  * [MQTT-3.3.1-4] A PUBLISH Packet MUST NOT have both QoS bits set to 1.
  * [MQTT-3.3.2-2] The Topic Name in the PUBLISH packet MUST NOT contain wildcard characters.
- * [MQTT-3.3.2-7] A receiver MUST NOT carry forward any Topic Alias mappings from one Network Connection to another.
  *
  *
  * I can't force the Paho client to set a Topic Alias of 0. It automatically adjusts it to 1 (confirmed via Wireshark), therefore this is not tested:
@@ -891,6 +891,56 @@ public class PublishTests extends MQTT5TestSupport {
 
       assertTrue(latch.await(2, TimeUnit.SECONDS));
       consumer.disconnect();
+   }
+
+   /*
+    * [MQTT-3.3.2-7] A receiver MUST NOT carry forward any Topic Alias mappings from one Network Connection to another.
+    *
+    * Unfortunately the Paho MQTT 5 client performs automatic validation and therefore refuses to send a message with an
+    * empty topic even though the topic-alias is set appropriately. Therefore, this test won't actually run with the
+    * current client implementation. However, I built the client locally omitting the validation logic and the test
+    * passed as expected.
+    *
+    * I'm leaving this test here with @Ignore to demonstrate how to theoretically re-produce the problem. The problem
+    * was originally discovered using https://github.com/eclipse/paho.mqtt.testing/tree/master/interoperability to run
+    * the command:
+    *
+    *  python3 client_test5.py Test.test_client_topic_alias
+    */
+   @Ignore
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testTopicAliasesNotCarriedForward() throws Exception {
+      final String TOPIC = "myTopicName";
+
+      MqttProperties properties = new MqttProperties();
+      properties.setTopicAlias(1);
+
+      MqttClient producer = createPahoClient("producer");
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .topicAliasMaximum(2)
+         .sessionExpiryInterval(999L)
+         .cleanStart(false)
+         .build();
+      producer.connect(options);
+      MqttMessage m = new MqttMessage();
+      m.setProperties(properties);
+      producer.publish(TOPIC, m);
+      m = new MqttMessage();
+      m.setProperties(properties);
+      producer.publish("", m);
+      producer.disconnect();
+      // reconnect back to the old session, but the topic alias should now be gone so publishing should fail
+      producer.connect(options);
+      m = new MqttMessage();
+      m.setProperties(properties);
+      try {
+         producer.publish("", m);
+         fail("Publishing should fail here due to an invalid topic alias");
+      } catch (Exception e) {
+         // ignore
+      }
+      assertFalse(producer.isConnected());
+      producer.close();
    }
 
    /*

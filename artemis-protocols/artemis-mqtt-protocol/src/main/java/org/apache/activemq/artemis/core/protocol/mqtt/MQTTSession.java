@@ -118,6 +118,7 @@ public class MQTTSession {
          if (state != null) {
             state.setAttached(false);
             state.setDisconnectedTime(System.currentTimeMillis());
+            state.clearTopicAliases();
          }
 
          if (getVersion() == MQTTVersion.MQTT_5) {
