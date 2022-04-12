@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.UUID;
+import java.util.List;
 
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
@@ -125,6 +126,10 @@ public class MQTTConnectionManager {
                   MqttProperties.MqttProperty willDelayInterval = willProperties.getProperty(WILL_DELAY_INTERVAL.value());
                   if (willDelayInterval != null) {
                      session.getState().setWillDelayInterval(( int) willDelayInterval.value());
+                  }
+                  List<? extends MqttProperties.MqttProperty> userProperties = willProperties.getProperties(MqttProperties.MqttPropertyType.USER_PROPERTY.value());
+                  if (userProperties != null) {
+                     session.getState().setWillUserProperties(userProperties);
                   }
                }
             }

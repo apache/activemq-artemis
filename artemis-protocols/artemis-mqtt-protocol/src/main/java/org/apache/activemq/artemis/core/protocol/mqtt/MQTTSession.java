@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import java.util.UUID;
 
 import io.netty.handler.codec.mqtt.MqttMessageBuilders;
+import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
@@ -252,12 +253,22 @@ public class MQTTSession {
 
    public void sendWillMessage() {
       try {
+         MqttProperties properties;
+         if (state.getWillUserProperties() == null) {
+            properties = MqttProperties.NO_PROPERTIES;
+         } else {
+            properties = new MqttProperties();
+            for (MqttProperties.MqttProperty userProperty : state.getWillUserProperties()) {
+               properties.add(userProperty);
+            }
+         }
          MqttPublishMessage publishMessage = MqttMessageBuilders.publish()
             .messageId(0)
             .qos(MqttQoS.valueOf(state.getWillQoSLevel()))
             .retained(state.isWillRetain())
             .topicName(state.getWillTopic())
             .payload(state.getWillMessage())
+            .properties(properties)
             .build();
          logger.debugf("%s sending will message: %s", this, publishMessage);
          getMqttPublishManager().sendToQueue(publishMessage, true);
