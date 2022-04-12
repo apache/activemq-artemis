@@ -22,6 +22,8 @@ import javax.jms.JMSContext;
 import javax.jms.Message;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -29,7 +31,11 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
+import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
+import org.eclipse.paho.mqttv5.common.packet.UserProperty;
 import org.jboss.logging.Logger;
 import org.junit.Assume;
 import org.junit.Test;
@@ -109,5 +115,53 @@ public class MQTT5Test extends MQTT5TestSupport {
       assertTrue(latch.await(30, TimeUnit.SECONDS));
       consumer.disconnect();
       consumer.close();
+   }
+
+   /*
+    * There is no normative statement in the spec about supporting user properties on will messages, but it is implied
+    * in various places.
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testWillMessageProperties() throws Exception {
+      final byte[] WILL = RandomUtil.randomBytes();
+      final String[][] properties = new String[10][2];
+      for (String[] property : properties) {
+         property[0] = RandomUtil.randomString();
+         property[1] = RandomUtil.randomString();
+      }
+
+      // consumer of the will message
+      MqttClient client1 = createPahoClient("willConsumer");
+      CountDownLatch latch = new CountDownLatch(1);
+      client1.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            int i = 0;
+            for (UserProperty property : message.getProperties().getUserProperties()) {
+               assertEquals(properties[i][0], property.getKey());
+               assertEquals(properties[i][1], property.getValue());
+               i++;
+            }
+            latch.countDown();
+         }
+      });
+      client1.connect();
+      client1.subscribe("/topic/foo", 1);
+
+      // consumer to generate the will
+      MqttClient client2 = createPahoClient("willGenerator");
+      MqttProperties willMessageProperties = new MqttProperties();
+      List<UserProperty> userProperties = new ArrayList<>();
+      for (String[] property : properties) {
+         userProperties.add(new UserProperty(property[0], property[1]));
+      }
+      willMessageProperties.setUserProperties(userProperties);
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .will("/topic/foo", new MqttMessage(WILL))
+         .build();
+      options.setWillMessageProperties(willMessageProperties);
+      client2.connect(options);
+      client2.disconnectForcibly(0, 0, false);
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
    }
 }
