@@ -39,6 +39,7 @@ public class GroovyRun {
    public static final String TWO_TEN_ZERO = "ARTEMIS-2_10_0";
    public static final String HORNETQ_235 = "HORNETQ-235";
    public static final String HORNETQ_247 = "HORNETQ-247";
+   public static final String AMQ_5_11 = "AMQ_5_11";
 
    public static Binding binding = new Binding();
    public static GroovyShell shell = new GroovyShell(binding);

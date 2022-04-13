@@ -631,6 +631,27 @@
                      <variableName>HORNETQ-247</variableName>
                   </configuration>
                </execution>
+
+               <execution>
+                  <id>openwire-5.11</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <configuration>
+                     <optional>true</optional>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:activemq-client:5.11.0</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
+                     <variableName>AMQ_5_11</variableName>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
 
@@ -691,6 +712,11 @@
                      <name>ARTEMIS-JAKARTAEE</name>
                      <value>${ARTEMIS-JAKARTAEE}</value>
                   </property>
+                  <property>
+                     <name>AMQ_5_11</name>
+                     <value>${AMQ_5_11}</value>
+                  </property>
+                  <variableName>AMQ_5_11</variableName>
                </systemProperties>
                <skipTests>${skipCompatibilityTests}</skipTests>
                <argLine>${modular.jdk.surefire.arg} -Djgroups.bind_addr=::1 ${activemq-surefire-argline}</argLine>

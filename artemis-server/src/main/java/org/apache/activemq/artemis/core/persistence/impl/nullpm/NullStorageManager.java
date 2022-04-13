@@ -87,6 +87,10 @@ public class NullStorageManager implements StorageManager {
       return dummy;
    }
 
+   protected void setNextId(long id) {
+      idSequence.set(id);
+   }
+
    public NullStorageManager() {
       this(new IOCriticalErrorListener() {
          @Override

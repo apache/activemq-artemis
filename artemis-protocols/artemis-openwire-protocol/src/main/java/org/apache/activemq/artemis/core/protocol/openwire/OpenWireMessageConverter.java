@@ -624,8 +624,10 @@ public final class OpenWireMessageConverter {
          mid = new MessageId(midString.toString());
       } else {
          //JMSMessageID should be started with "ID:" and needs to be globally unique (node + journal id)
-         String midd = "ID:" + serverNodeUUID + ":-1:-1:-1";
-         mid = new MessageId(midd, coreMessage.getMessageID());
+         //  ARTEMIS-3776 due to AMQ-6431 some older clients will not be able to receive messages
+         // if using a failover schema due to the messageID overFlowing Integer.MAX_VALUE
+         String midd = "ID:" + serverNodeUUID + ":-1:-1:" + (coreMessage.getMessageID() / Integer.MAX_VALUE);
+         mid = new MessageId(midd, coreMessage.getMessageID() % Integer.MAX_VALUE);
       }
 
       amqMsg.setMessageId(mid);
