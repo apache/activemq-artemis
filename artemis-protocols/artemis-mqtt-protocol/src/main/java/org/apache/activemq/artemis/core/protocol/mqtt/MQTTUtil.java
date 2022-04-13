@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.CaseFormat;
@@ -279,8 +280,19 @@ public class MQTTUtil {
                      .append(", remainingLength=" + message.fixedHeader().remainingLength());
                   for (MqttProperties.MqttProperty property : ((MqttPublishMessage)message).variableHeader().properties().listAll()) {
                      Object value = property.value();
-                     if (value != null && value instanceof byte[]) {
-                        value = new String((byte[]) value, StandardCharsets.UTF_8);
+                     if (value != null) {
+                        if (value instanceof byte[]) {
+                           value = new String((byte[]) value, StandardCharsets.UTF_8);
+                        } else if (value instanceof ArrayList && ((ArrayList)value).size() > 0 && ((ArrayList)value).get(0) instanceof MqttProperties.StringPair) {
+                           StringBuilder userProperties = new StringBuilder();
+                           userProperties.append("[");
+                           for (MqttProperties.StringPair pair : (ArrayList<MqttProperties.StringPair>) value) {
+                              userProperties.append(pair.key).append(": ").append(pair.value).append(", ");
+                           }
+                           userProperties.delete(userProperties.length() - 2, userProperties.length());
+                           userProperties.append("]");
+                           value = userProperties.toString();
+                        }
                      }
                      log.append(", " + formatCase(MqttPropertyType.valueOf(property.propertyId()).name()) + "=" + value);
                   }
@@ -316,7 +328,11 @@ public class MQTTUtil {
                   break;
                case SUBSCRIBE:
                   for (MqttTopicSubscription sub : ((MqttSubscribeMessage) message).payload().topicSubscriptions()) {
-                     log.append("\n\t" + sub.topicName() + " : " + sub.qualityOfService());
+                     log.append("\n\ttopic: ").append(sub.topicName())
+                        .append(", qos: ").append(sub.qualityOfService())
+                        .append(", nolocal: ").append(sub.option().isNoLocal())
+                        .append(", retainHandling: ").append(sub.option().retainHandling())
+                        .append(", isRetainAsPublished: ").append(sub.option().isRetainAsPublished());
                   }
                   break;
                case SUBACK:
