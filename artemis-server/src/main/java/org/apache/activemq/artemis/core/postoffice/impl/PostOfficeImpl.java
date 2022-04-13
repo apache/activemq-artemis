@@ -30,11 +30,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
@@ -1846,43 +1844,37 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          super(scheduledExecutorService, executor, checkPeriod, timeUnit, onDemand);
       }
 
-      volatile CountDownLatch inUseLatch;
+      private Iterator<Queue> iterator;
 
-
-      @Override
-      public void stop() {
-         super.stop();
-         // this will do a best effort to stop the current latch.
-         // no big deal if it failed. this is just to optimize this component stop.
-         CountDownLatch latch = inUseLatch;
-         if (latch != null) {
-            latch.countDown();
-         }
-      }
-
+      private Queue currentQueue;
 
       @Override
       public void run() {
-         // The reaper thread should be finished case the PostOffice is gone
-         // This is to avoid leaks on PostOffice between stops and starts
-         for (Queue queue : iterableOf(getLocalQueues())) {
-            if (!isStarted()) {
-               break;
-            }
-            try {
-               CountDownLatch latch = new CountDownLatch(1);
-               this.inUseLatch = latch;
-               queue.expireReferences(latch::countDown);
-               // the idea is in fact to block the Reaper while the Queue is executing reaping.
-               // This would avoid another eventual expiry to be called if the period for reaping is too small
-               // This should also avoid bursts in CPU consumption because of the expiry reaping
-               if (!latch.await(10, TimeUnit.SECONDS)) {
-                  ActiveMQServerLogger.LOGGER.errorExpiringMessages(new TimeoutException(queue.getName().toString()));
-               }
-            } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorExpiringMessages(e);
-            }
+         if (iterator != null) {
+            logger.debugf("A previous reaping call has not finished yet, and it is currently working on %s", currentQueue);
+            return;
          }
+
+         iterator = iterableOf(getLocalQueues()).iterator();
+
+         moveNext();
+      }
+
+      private void done() {
+         executor.execute(this::moveNext);
+      }
+
+      private void moveNext() {
+         if (!iterator.hasNext() || !this.isStarted()) {
+            iterator = null;
+            currentQueue = null;
+            return;
+         }
+
+         currentQueue = iterator.next();
+
+         // we will expire messages on this queue, once done we move to the next queue
+         currentQueue.expireReferences(this::done);
       }
    }
 

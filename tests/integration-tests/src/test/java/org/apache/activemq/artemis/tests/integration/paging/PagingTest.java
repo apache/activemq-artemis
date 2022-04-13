@@ -1670,7 +1670,7 @@ public class PagingTest extends ActiveMQTestBase {
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalDirectory(getJournalDir()).setJournalSyncNonTransactional(false).setJournalCompactMinFiles(0) // disable compact
-         .setMessageExpiryScanPeriod(500);
+         .setMessageExpiryScanPeriod(10);
 
       server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
 

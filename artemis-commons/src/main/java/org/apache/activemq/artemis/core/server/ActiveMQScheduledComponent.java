@@ -36,14 +36,14 @@ import org.jboss.logging.Logger;
 public abstract class ActiveMQScheduledComponent implements ActiveMQComponent, Runnable {
 
    private static final Logger logger = Logger.getLogger(ActiveMQScheduledComponent.class);
-   private ScheduledExecutorService scheduledExecutorService;
+   protected ScheduledExecutorService scheduledExecutorService;
    private boolean startedOwnScheduler;
 
    /** initialDelay < 0 would mean no initial delay, use the period instead */
    private long initialDelay;
    private long period;
    private TimeUnit timeUnit;
-   private final Executor executor;
+   protected final Executor executor;
    private volatile boolean isStarted;
    private ScheduledFuture future;
    private final boolean onDemand;
