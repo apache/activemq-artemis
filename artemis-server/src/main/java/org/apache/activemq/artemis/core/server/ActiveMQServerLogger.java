@@ -1824,10 +1824,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void largeMessageErrorReleasingResources(@Cause Exception e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224013, value = "failed to expire messages for queue", format = Message.Format.MESSAGE_FORMAT)
-   void errorExpiringMessages(@Cause Exception e);
-
-   @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224014, value = "Failed to close session", format = Message.Format.MESSAGE_FORMAT)
    void errorClosingSession(@Cause Exception e);
 
