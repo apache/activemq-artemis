@@ -18,29 +18,29 @@
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 
-import javax.jms.Connection
 import javax.jms.MessageConsumer
-import java.util.Date;
-import java.util.UUID;
-import javax.jms.ConnectionFactory;
-import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+{
+    final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(tcp://localhost:61616)");
+    connection = cf.createConnection();
+    try {
 
-final ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("failover:(tcp://localhost:61616)");
-connection = cf.createConnection();
-final int numberOfMessages = Integer.parseInt(arg[0])
-final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-final Queue queue = session.createQueue("Test");
-final MessageConsumer consumer = session.createConsumer(queue)
-connection.start();
+        final int numberOfMessages = Integer.parseInt(arg[0])
+        final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        final Queue queue = session.createQueue("Test");
+        final MessageConsumer consumer = session.createConsumer(queue)
+        connection.start();
 
-for (int i = 0; i < numberOfMessages; i++) {
-    final TextMessage tm = (TextMessage)consumer.receive(1000);
-    GroovyRun.assertNotNull(tm)
-    GroovyRun.assertEquals("m" + i, tm.getText());
+        for (int i = 0; i < numberOfMessages; i++) {
+            final TextMessage tm = (TextMessage) consumer.receive(1000);
+            GroovyRun.assertNotNull(tm)
+            GroovyRun.assertEquals("m" + i, tm.getText());
+        }
+    } finally {
+        connection.close();
+    }
 }
-connection.close();
