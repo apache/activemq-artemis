@@ -45,7 +45,6 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.reader.MessageUtil;
 import org.jboss.logging.Logger;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
@@ -394,9 +393,6 @@ public class MQTTPublishManager {
          if (session.getState().getSubscription(message.getAddress()) != null && !session.getState().getSubscription(message.getAddress()).option().isRetainAsPublished()) {
             isRetain = false;
          }
-
-         // [MQTT-3.8.3-3] remove property used for no-local implementation
-         message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
 
          if (session.getState().getClientTopicAliasMaximum() != null) {
             Integer alias = session.getState().getServerTopicAlias(address);
