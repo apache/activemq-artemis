@@ -15,37 +15,37 @@
 ~ See the License for the specific language governing permissions and
 ~ limitations under the License.
 -->
-<web-app version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="5.0" xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd">
 
-    <servlet>
-        <servlet-name>javax.ws.rs.core.Application</servlet-name>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>javax.ws.rs.core.Application</servlet-name>
-        <url-pattern>/wlp-sample/*</url-pattern>
-    </servlet-mapping>
+   <servlet>
+      <servlet-name>javax.ws.rs.core.Application</servlet-name>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+   <servlet-mapping>
+      <servlet-name>javax.ws.rs.core.Application</servlet-name>
+      <url-pattern>/wlp-sample/*</url-pattern>
+   </servlet-mapping>
 
-    <resource-ref>
-        <res-ref-name>jms/sampleTopic</res-ref-name>
-        <res-type>jakarta.jms.Topic</res-type>
-        <res-sharing-scope>Shareable</res-sharing-scope>
-        <lookup-name>jms/sampleTopic</lookup-name>
-    </resource-ref>
+   <resource-ref>
+      <res-ref-name>jms/sampleTopic</res-ref-name>
+      <res-type>jakarta.jms.Topic</res-type>
+      <res-sharing-scope>Shareable</res-sharing-scope>
+      <lookup-name>jms/sampleTopic</lookup-name>
+   </resource-ref>
 
-    <resource-ref>
-        <res-ref-name>jms/sampleQueue</res-ref-name>
-        <res-type>jakarta.jms.Queue</res-type>
-        <res-sharing-scope>Shareable</res-sharing-scope>
-        <lookup-name>jms/sampleQueue</lookup-name>
-    </resource-ref>
+   <resource-ref>
+      <res-ref-name>jms/sampleQueue</res-ref-name>
+      <res-type>jakarta.jms.Queue</res-type>
+      <res-sharing-scope>Shareable</res-sharing-scope>
+      <lookup-name>jms/sampleQueue</lookup-name>
+   </resource-ref>
 
-    <resource-ref>
-        <res-ref-name>jms/sampleConnectionFactory</res-ref-name>
-        <res-type>jakarta.jms.ConnectionFactory</res-type>
-        <res-sharing-scope>Shareable</res-sharing-scope>
-        <lookup-name>jms/sampleConnectionFactory</lookup-name>
-    </resource-ref>
+   <resource-ref>
+      <res-ref-name>jms/sampleConnectionFactory</res-ref-name>
+      <res-type>jakarta.jms.ConnectionFactory</res-type>
+      <res-sharing-scope>Shareable</res-sharing-scope>
+      <lookup-name>jms/sampleConnectionFactory</lookup-name>
+   </resource-ref>
 
 </web-app>

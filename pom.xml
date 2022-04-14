@@ -111,6 +111,7 @@
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
       <maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
+      <maven.rar.plugin.version>2.4</maven.rar.plugin.version>
       <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>9.2.1</checkstyle.version>
@@ -173,11 +174,6 @@
       <!-- for wlp examples -->
       <version.liberty.plugin>3.5.1</version.liberty.plugin>
       <version.liberty.runtime>22.0.0.2</version.liberty.runtime>
-      <!-- for wlp jakarta example -->
-      <version.jakarta.jms-api>3.0.0</version.jakarta.jms-api>
-      <version.jakarta.annotation-api>2.0.0</version.jakarta.annotation-api>
-      <version.jakarta.ws.rs-api>3.0.0</version.jakarta.ws.rs-api>
-      <version.jakarta.ejb-api>4.0.0</version.jakarta.ejb-api>
 
       <!-- used on tests -->
       <groovy.version>4.0.0</groovy.version>
@@ -537,26 +533,6 @@
            <version>${jakarta.resource-api.version}</version>
             <!-- License: EPL 2.0 -->
         </dependency>
-         <dependency>
-            <groupId>jakarta.jms</groupId>
-            <artifactId>jakarta.jms-api</artifactId>
-            <version>${version.jakarta.jms-api}</version>
-         </dependency>
-         <dependency>
-            <groupId>jakarta.annotation</groupId>
-            <artifactId>jakarta.annotation-api</artifactId>
-            <version>${version.jakarta.annotation-api}</version>
-         </dependency>
-         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>${version.jakarta.ws.rs-api}</version>
-         </dependency>
-         <dependency>
-            <groupId>jakarta.ejb</groupId>
-            <artifactId>${version.jakarta.ejb-api}</artifactId>
-            <version>${version.jakarta.ejb-api}</version>
-         </dependency>
          <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
@@ -1598,7 +1574,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-rar-plugin</artifactId>
-               <version>2.3</version>
+               <version>${maven.rar.plugin.version}</version>
             </plugin>
             <plugin>
                <groupId>net.sf.maven-sar</groupId>

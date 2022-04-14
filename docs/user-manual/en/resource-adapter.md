@@ -12,20 +12,19 @@ database and messaging) must be in sync, there is no way around it.
 ##Versions
 let's give you a short overview of the versions, to be sure you pick the correct *.rar.
 
-| | artemis-ra-rar   |     |     |
-| --------- | ------ | --- | --- |
-| Artemis   | JavaEE | JCA | JMS |
-| \>= 2.18.0 | \>=8      | 1.7 | 2.0 |
-| <= 2.17.0 | 7      | 1.5 | 2.0 |
+|        | artemis-ra-rar  |     |
+| ------ | --------------- | --- |
+| JavaEE | JCA             | JMS |
+| 8      | 1.7             | 2.0 |
 
-| | artemis-jakarta-ra-rar | | |
-| --- | ------- | --- | --- |
-| Artemis | JavaEE | JCA | JMS |
-| \>= 2.18.0 | \>=9 | 2.0 | 3.0 |
+| | artemis-jakarta-ra-rar |     |
+| --------- | ------------ | --- |
+| JakartaEE | JCA          | JMS |
+| \>=9      | 2.0          | 3.0 | 
 
 ## Lets start
 To use the RA, you have to build it by your own. This sounds harder than it is. But no worries, an 
-[examples](examples.md) 
+[example](examples.md) 
 is shipped with the distribution.
 
 * [install maven](https://maven.apache.org/install.html)
@@ -94,37 +93,4 @@ In the activation spec you can configure all the things you need to get messages
 With the package `org.apache.activemq.artemis.ra` you catch all ResourceAdapter logging statements.
 
 ## Example for WLP / OpenLiberty
-sample for your server.xml, in this case, with the jms 3.0 API. For a runnable sample, take also a look in the 
-examples/features/sub-modules/wlp directory. 
-```xml
-<server>
-  <resourceAdapter id="artemis" location="${wlp.user.dir}shared/lib/artemis.rar">
-      <properties.artemis />
-  </resourceAdapter>
-  
-  <!-- dont't use the jmsConnectionFactory element -->
-  <connectionFactory jndiName="jms/sampleArtemisConnectionFactory">
-      <properties.artemis />
-      <connectionManager /> <!-- not implemented by Artemis-->
-  </connectionFactory>
-  
-  <jmsActivationSpec id="your-app/QueueListener">
-      <properties.artemis useJndi="true" destination="jms/sampleQueue" destinationType="jakarta.jms.Queue"
-          connectionFactoryLookup="jms/sampleArtemisConnectionFactory" />
-  </jmsActivationSpec>
-  
-  <jmsActivationSpec id="your-app/TopicListener">
-      <properties.artemis clientId="aClientId" useJndi="true" destination="jms/sampleTopic"
-          destinationType="jakarta.jms.Topic" subscriptionDurability="Durable" subscriptionName="sampleDurableSubscriberName"
-          connectionFactoryLookup="jms/asyncAppConnectionFactory" />
-  </jmsActivationSpec>
-  
-  <jmsTopic jndiName="jms/sampleTopic">
-      <properties.artemis Address="a_sample_adress" />
-  </jmsTopic>
-  
-  <jmsQueue jndiName="jms/sampleQueue">
-      <properties.artemis Address="another_sample_adress" />
-  </jmsQueue>
-</server>
-```
+For a runnable sample, take also a look in the examples/features/sub-modules/wlp directory.
