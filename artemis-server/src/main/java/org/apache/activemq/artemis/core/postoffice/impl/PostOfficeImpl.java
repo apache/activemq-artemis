@@ -1873,8 +1873,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          currentQueue = iterator.next();
 
-         // we will expire messages on this queue, once done we move to the next queue
-         currentQueue.expireReferences(this::done);
+         if (currentQueue == null) {
+            logger.debug("iterator.next returned null on ExpiryReaper, giving up iteration");
+            // I don't think this should ever happen, this check should be moot
+            // However I preferred to have this in place just in case
+            iterator = null;
+         } else {
+            // we will expire messages on this queue, once done we move to the next queue
+            currentQueue.expireReferences(this::done);
+         }
       }
    }
 
