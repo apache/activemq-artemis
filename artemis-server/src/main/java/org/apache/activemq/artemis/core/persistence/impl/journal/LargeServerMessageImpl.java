@@ -70,7 +70,11 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       final int readableBytes = buffer.readableBytes();
       lsm.addBytes(buffer);
       lsm.releaseResources(true, true);
-      lsm.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);
+
+      if (!coreMessage.containsProperty(Message.HDR_LARGE_BODY_SIZE)) {
+         lsm.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);
+      }
+
       return lsm.toMessage();
    }
 
