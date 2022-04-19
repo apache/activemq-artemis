@@ -128,7 +128,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          AuditLogger.setRemoteAddress(connection.getRemoteAddress());
       }
 
-      MQTTUtil.logMessage(session.getState(), message, true);
+      MQTTUtil.logMessage(session.getState(), message, true, session.getVersion());
 
       if (this.ctx == null) {
          this.ctx = ctx;
@@ -407,7 +407,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       if (this.protocolManager.invokeOutgoing(message, connection) != null) {
          return;
       }
-      MQTTUtil.logMessage(session.getState(), message, false);
+      MQTTUtil.logMessage(session.getState(), message, false, session.getVersion());
       ctx.writeAndFlush(message, ctx.voidPromise());
    }
 
