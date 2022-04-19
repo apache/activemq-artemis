@@ -244,7 +244,7 @@ public class MQTTUtil {
       return message;
    }
 
-   public static void logMessage(MQTTSessionState state, MqttMessage message, boolean inbound) {
+   public static void logMessage(MQTTSessionState state, MqttMessage message, boolean inbound, MQTTVersion version) {
       if (logger.isTraceEnabled()) {
          StringBuilder log = new StringBuilder("MQTT(");
 
@@ -350,12 +350,16 @@ public class MQTTUtil {
                case PUBREC:
                case PUBREL:
                case PUBCOMP:
-                  MqttPubReplyMessageVariableHeader pubReplyVariableHeader = (MqttPubReplyMessageVariableHeader) message.variableHeader();
-                  log.append(" reasonCode=").append(formatByte(pubReplyVariableHeader.reasonCode()));
+                  if (version == MQTTVersion.MQTT_5) {
+                     MqttPubReplyMessageVariableHeader pubReplyVariableHeader = (MqttPubReplyMessageVariableHeader) message.variableHeader();
+                     log.append(" reasonCode=").append(formatByte(pubReplyVariableHeader.reasonCode()));
+                  }
                   break;
                case DISCONNECT:
-                  MqttReasonCodeAndPropertiesVariableHeader disconnectVariableHeader = (MqttReasonCodeAndPropertiesVariableHeader) message.variableHeader();
-                  log.append(" reasonCode=").append(formatByte(disconnectVariableHeader.reasonCode()));
+                  if (version == MQTTVersion.MQTT_5) {
+                     MqttReasonCodeAndPropertiesVariableHeader disconnectVariableHeader = (MqttReasonCodeAndPropertiesVariableHeader) message.variableHeader();
+                     log.append(" reasonCode=").append(formatByte(disconnectVariableHeader.reasonCode()));
+                  }
                   break;
             }
 
