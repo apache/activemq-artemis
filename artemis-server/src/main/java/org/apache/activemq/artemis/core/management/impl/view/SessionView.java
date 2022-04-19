@@ -42,6 +42,7 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add(SessionField.ID.getName(), toString(session.getName()))
          .add(SessionField.USER.getName(), toString(session.getUsername()))
+         .add(SessionField.VALIDATED_USER.getName(), toString(session.getValidatedUser()))
          .add(SessionField.CREATION_TIME.getName(), new Date(session.getCreationTime()).toString())
          .add(SessionField.CONSUMER_COUNT.getName(), session.getConsumerCount())
          .add(SessionField.PRODUCER_COUNT.getName(), session.getProducerCount())
@@ -58,6 +59,8 @@ public class SessionView extends ActiveMQAbstractView<ServerSession> {
             return session.getName();
          case USER:
             return session.getUsername();
+         case VALIDATED_USER:
+            return session.getValidatedUser();
          case CREATION_TIME:
             return new Date(session.getCreationTime());
          case CONSUMER_COUNT:

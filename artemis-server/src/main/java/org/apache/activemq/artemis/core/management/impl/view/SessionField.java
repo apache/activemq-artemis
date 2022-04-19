@@ -25,6 +25,7 @@ public enum SessionField {
    CONSUMER_COUNT("consumerCount"),
    PRODUCER_COUNT("producerCount"),
    USER("user"),
+   VALIDATED_USER("validatedUser"),
    PROTOCOL("protocol"),
    CLIENT_ID("clientID"),
    LOCAL_ADDRESS("localAddress"),

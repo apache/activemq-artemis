@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.management.impl.view.predicate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -46,13 +47,7 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
          case CLIENT_ID:
             return matches(connection.getClientID());
          case USERS:
-            List<ServerSession> sessions = server.getSessions(connection.getID().toString());
-            Set<String> users = new HashSet<>();
-            for (ServerSession session : sessions) {
-               String username = session.getUsername() == null ? "" : session.getUsername();
-               users.add(username);
-            }
-            return matchAny(users);
+            return matchAny(collectFromSessions(connection.getID().toString(), s-> s.getUsername()));
          case PROTOCOL:
             return matches(connection.getProtocolName());
          case SESSION_COUNT:
@@ -69,6 +64,17 @@ public class ConnectionFilterPredicate extends ActiveMQFilterPredicate<RemotingC
             return matches(connection.getClass().getSimpleName());
       }
       return true;
+   }
+
+   Set<String> collectFromSessions(String connectionId, Function<ServerSession, String> getter) {
+      List<ServerSession> sessions = server.getSessions(connectionId);
+      Set<String> sessionAttributes = new HashSet<>();
+      for (ServerSession session : sessions) {
+         String value = getter.apply(session);
+         String string = value == null ? "" : value;
+         sessionAttributes.add(string);
+      }
+      return sessionAttributes;
    }
 
    @Override

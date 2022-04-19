@@ -63,6 +63,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add(ConsumerField.SESSION.getName(), toString(consumer.getSessionName()))
          .add(ConsumerField.CLIENT_ID.getName(), toString(consumerClientID))
          .add(ConsumerField.USER.getName(), toString(session.getUsername()))
+         .add(ConsumerField.VALIDATED_USER.getName(), toString(session.getValidatedUser()))
          .add(ConsumerField.PROTOCOL.getName(), toString(consumer.getConnectionProtocolName()))
          .add(ConsumerField.QUEUE.getName(), toString(consumer.getQueueName()))
          .add(ConsumerField.QUEUE_TYPE.getName(), toString(consumer.getQueueType()).toLowerCase())
@@ -92,6 +93,8 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
             return consumer.getSessionName();
          case USER:
             return session.getUsername();
+         case VALIDATED_USER:
+            return session.getValidatedUser();
          case CLIENT_ID:
             return consumer.getConnectionClientID();
          case PROTOCOL:
