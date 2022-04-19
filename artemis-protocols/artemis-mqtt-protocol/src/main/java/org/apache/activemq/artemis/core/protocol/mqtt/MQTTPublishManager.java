@@ -268,8 +268,9 @@ public class MQTTPublishManager {
                tx.rollback();
                throw t;
             }
-            createMessageAck(messageId, qos, internal);
          }
+
+         createMessageAck(messageId, qos, internal);
       }
    }
 
