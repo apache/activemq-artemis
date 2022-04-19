@@ -447,7 +447,11 @@ public final class OpenWireMessageConverter {
       if (!props.isEmpty()) {
          props.forEach((key, value) -> {
             try {
-               coreMessage.putObjectProperty(key, value);
+               if (value instanceof UTF8Buffer) {
+                  coreMessage.putObjectProperty(key, value.toString());
+               } else {
+                  coreMessage.putObjectProperty(key, value);
+               }
             } catch (ActiveMQPropertyConversionException e) {
                coreMessage.putStringProperty(key, value.toString());
             }
