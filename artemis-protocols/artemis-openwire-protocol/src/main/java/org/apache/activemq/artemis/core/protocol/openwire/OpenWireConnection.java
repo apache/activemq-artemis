@@ -846,7 +846,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       context.setClientMaster(info.isClientMaster());
       context.setFaultTolerant(info.isFaultTolerant());
       context.setReconnect(true);
-      context.incRefCount();
    }
 
    /**
