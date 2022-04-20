@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 
 import java.util.UUID;
 
+import io.netty.buffer.EmptyByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.handler.codec.mqtt.MqttMessageBuilders;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
@@ -268,7 +270,7 @@ public class MQTTSession {
             .qos(MqttQoS.valueOf(state.getWillQoSLevel()))
             .retained(state.isWillRetain())
             .topicName(state.getWillTopic())
-            .payload(state.getWillMessage())
+            .payload(state.getWillMessage() == null ? new EmptyByteBuf(PooledByteBufAllocator.DEFAULT) : state.getWillMessage())
             .properties(properties)
             .build();
          logger.debugf("%s sending will message: %s", this, publishMessage);
