@@ -314,15 +314,27 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    }
 
    public Map<String, MQTTSessionState> getSessionStates() {
-      Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
-      if (acceptor instanceof AbstractAcceptor) {
-         ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
-         if (protocolManager instanceof MQTTProtocolManager) {
-            return ((MQTTProtocolManager) protocolManager).getSessionStates();
-         }
-
+      MQTTProtocolManager protocolManager = getProtocolManager();
+      if (protocolManager == null) {
+         return Collections.emptyMap();
+      } else {
+         return protocolManager.getSessionStates();
       }
-      return Collections.emptyMap();
+   }
+
+   public void scanSessions() {
+      getProtocolManager().scanSessions();
+   }
+
+   public MQTTProtocolManager getProtocolManager() {
+      Acceptor acceptor = server.getRemotingService().getAcceptor(MQTT_PROTOCOL_NAME);
+      if (acceptor instanceof AbstractAcceptor) {
+         ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get(MQTT_PROTOCOL_NAME);
+         if (protocolManager instanceof MQTTProtocolManager) {
+            return (MQTTProtocolManager) protocolManager;
+         }
+      }
+      return null;
    }
 
    protected Queue getSubscriptionQueue(String TOPIC) {
