@@ -72,6 +72,7 @@ import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
@@ -527,6 +528,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return (T) SimpleString.toSimpleString(value.toString());
          }
       }, SimpleString.class);
+
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            NamedPropertyConfiguration instance = new NamedPropertyConfiguration();
+            instance.setName(value.toString());
+            instance.setProperties(new HashMap<>());
+            return (T) instance;
+         }
+      }, NamedPropertyConfiguration.class);
+
       // support 25K or 25m etc like xml config
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
