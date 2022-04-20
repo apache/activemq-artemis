@@ -165,8 +165,11 @@
       <testcontainers.version>1.16.3</testcontainers.version>
       <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
 
-      <!-- for JakrtaEE -->
+      <!-- for JakartaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
+      <jakarta.jms-api.version.alt>3.0.0</jakarta.jms-api.version.alt>
+      <jakarta.transaction-api.version.alt>2.0.0</jakarta.transaction-api.version.alt>
+      <jakarta.resource-api.version.alt>2.0.0</jakarta.resource-api.version.alt>
 
       <!-- used on tests -->
       <groovy.version>4.0.0</groovy.version>
