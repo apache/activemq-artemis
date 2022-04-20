@@ -229,12 +229,11 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
       synchronized (clientIdSet) {
          String clientId = info.getClientId();
          if (clientId != null) {
-            AMQConnectionContext context = this.clientIdSet.get(clientId);
-            if (context != null && context.decRefCount() == 0) {
+            AMQConnectionContext context = this.clientIdSet.remove(clientId);
+            if (context != null) {
                //connection is still there and need to close
                context.getConnection().disconnect(error != null);
                this.connections.remove(context.getConnection());
-               this.clientIdSet.remove(clientId);
             }
          } else {
             throw new InvalidClientIDException("No clientID specified for connection disconnect request");

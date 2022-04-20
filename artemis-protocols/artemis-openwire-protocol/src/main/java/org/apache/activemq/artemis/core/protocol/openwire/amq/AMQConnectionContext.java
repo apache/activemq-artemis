@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
@@ -49,7 +48,6 @@ public class AMQConnectionContext {
    private boolean clientMaster = true;
    private ConnectionState connectionState;
    private XATransactionId xid;
-   private AtomicInteger refCount = new AtomicInteger(1);
    private Command lastCommand;
 
    public AMQConnectionContext() {
@@ -250,14 +248,6 @@ public class AMQConnectionContext {
       //       the connector, so this looks like a configuration option
       // http://activemq.apache.org/configuring-transports.html
       return false;
-   }
-
-   public void incRefCount() {
-      refCount.incrementAndGet();
-   }
-
-   public int decRefCount() {
-      return refCount.decrementAndGet();
    }
 
    public void setLastCommand(Command lastCommand) {
