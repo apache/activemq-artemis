@@ -23,7 +23,6 @@ import java.util.Properties;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -31,8 +30,11 @@ import org.apache.activemq.artemis.uri.schema.connector.TCPTransportConfiguratio
 import org.apache.activemq.artemis.uri.schema.serverLocator.TCPServerLocatorSchema;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
+import org.jboss.logging.Logger;
 
 public class TCPSchema extends AbstractCFSchema {
+
+   private static final Logger logger = Logger.getLogger(TCPSchema.class);
 
    @Override
    public String getSchemaName() {
@@ -83,7 +85,7 @@ public class TCPSchema extends AbstractCFSchema {
          if (!key.equals("ha") && !key.equals("type") &&
             !TransportConstants.ALLOWABLE_CONNECTOR_KEYS.contains(key) &&
             !factoryProperties.containsKey(key)) {
-            ActiveMQClientLogger.LOGGER.connectionFactoryParameterIgnored(key);
+            logger.debugf("Connection factory parameter %s is not standard", key);
          }
       }
    }

@@ -66,7 +66,7 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
       StringBuilder fragment = new StringBuilder();
       for (int i = 1; i < staticConnectors.length; i++) {
          TransportConfiguration connector = staticConnectors[i];
-         Map<String, Object> params = escapeIPv6Host(connector.getParams());
+         Map<String, Object> params = escapeIPv6Host(connector.getCombinedParams());
          URI extraUri = new URI(SchemaConstants.TCP, null, getHost(params), getPort(params), null, createQuery(params, null), null);
          if (i > 1) {
             fragment.append(",");
@@ -74,7 +74,7 @@ public class TCPServerLocatorSchema extends AbstractServerLocatorSchema {
          fragment.append(extraUri.toASCIIString());
 
       }
-      Map<String, Object> params = escapeIPv6Host(staticConnectors[0].getParams());
+      Map<String, Object> params = escapeIPv6Host(staticConnectors[0].getCombinedParams());
       return new URI(SchemaConstants.TCP, null, getHost(params), getPort(params), null, createQuery(params, query), fragment.toString());
    }
 

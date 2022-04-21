@@ -174,7 +174,7 @@ public class BackwardsCompatibilityUtils {
    private static TransportConfiguration convertTransport(TransportConfiguration tc) {
       if (tc != null) {
          String className = tc.getFactoryClassName().replace("org.apache.activemq.artemis", "org.hornetq").replace("ActiveMQ", "HornetQ");
-         return new TransportConfiguration(className, convertParameters(tc.getParams()), tc.getName());
+         return new TransportConfiguration(className, convertParameters(tc.getParams()), tc.getName(), convertParameters(tc.getExtraParams()));
       }
       return tc;
    }

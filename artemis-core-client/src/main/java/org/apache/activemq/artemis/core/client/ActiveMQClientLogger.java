@@ -426,11 +426,6 @@ public interface ActiveMQClientLogger extends BasicLogger {
    void broadcastTimeout(int retry, int maxretry);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 212078, value = "Connection factory parameter ignored {0}",
-      format = Message.Format.MESSAGE_FORMAT)
-   void connectionFactoryParameterIgnored(String parameterName);
-
-   @LogMessage(level = Logger.Level.WARN)
    @Message(id = 212079, value = "The upstream connector from the downstream federation will ignore url parameter {0}", format = Message.Format.MESSAGE_FORMAT)
    void ignoredParameterForDownstreamFederation(String name);
 
