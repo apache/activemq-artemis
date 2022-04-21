@@ -66,7 +66,8 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.AddressQueryResult;
+import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
@@ -1149,8 +1150,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private void validateDestination(ActiveMQDestination destination) throws Exception {
       if (destination.isQueue()) {
          SimpleString physicalName = new SimpleString(destination.getPhysicalName());
-         BindingQueryResult result = server.bindingQuery(physicalName);
-         if (!result.isExists() && !result.isAutoCreateQueues()) {
+         QueueQueryResult queue = server.queueQuery(physicalName);
+         AddressQueryResult address = server.addressQuery(physicalName);
+
+         if (!address.isExists() && !queue.isAutoCreateQueues()) {
             throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
          }
       }
