@@ -2652,6 +2652,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       if (sess.getValidatedUser() != null) {
          obj.add("validatedUser", sess.getValidatedUser());
+         obj.add("principal", sess.getValidatedUser());
       }
 
       if (sess.getMetaData() != null) {
