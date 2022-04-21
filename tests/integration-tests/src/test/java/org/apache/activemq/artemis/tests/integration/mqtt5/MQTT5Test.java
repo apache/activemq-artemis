@@ -20,16 +20,17 @@ package org.apache.activemq.artemis.tests.integration.mqtt5;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.Message;
-
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
@@ -163,5 +164,25 @@ public class MQTT5Test extends MQTT5TestSupport {
       client2.connect(options);
       client2.disconnectForcibly(0, 0, false);
       assertTrue(latch.await(2, TimeUnit.SECONDS));
+   }
+
+   /*
+    * It's possible for a client to change their session expiry interval via the DISCONNECT packet. Ensure we respect
+    * a new session expiry interval when disconnecting.
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testExpiryDelayOnDisconnect() throws Exception {
+      final String CONSUMER_ID = RandomUtil.randomString();
+
+      MqttAsyncClient consumer = createAsyncPahoClient(CONSUMER_ID);
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .sessionExpiryInterval(300L)
+         .build();
+      consumer.connect(options).waitForCompletion();
+      MqttProperties disconnectProperties = new MqttProperties();
+      disconnectProperties.setSessionExpiryInterval(0L);
+      consumer.disconnect(0, null, null, MQTTReasonCodes.SUCCESS, disconnectProperties).waitForCompletion();
+
+      Wait.assertEquals(0, () -> getSessionStates().size(), 5000, 10);
    }
 }
