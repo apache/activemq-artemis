@@ -59,6 +59,8 @@ public class RoutingContextImpl implements RoutingContext {
 
    Boolean reusable = null;
 
+   Boolean internalOnly = null;
+
    volatile int version;
 
    private final Executor executor;
@@ -93,6 +95,11 @@ public class RoutingContextImpl implements RoutingContext {
    @Override
    public boolean isReusable() {
       return reusable != null && reusable;
+   }
+
+   @Override
+   public boolean isInternal() {
+      return internalOnly != null && internalOnly;
    }
 
    @Override
@@ -138,6 +145,8 @@ public class RoutingContextImpl implements RoutingContext {
 
       this.reusable = null;
 
+      this.internalOnly = null;
+
       return this;
    }
 
@@ -162,6 +171,13 @@ public class RoutingContextImpl implements RoutingContext {
       } else {
          listing.getNonDurableQueues().add(queue);
       }
+
+      if (internalOnly == null) {
+         internalOnly = true;
+      }
+
+      // every queue added has to be internal only
+      internalOnly = internalOnly && queue.isInternalQueue();
 
       queueCount++;
    }
