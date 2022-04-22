@@ -622,35 +622,46 @@ public final class OpenWireMessageConverter {
 
       amqMsg.setGroupSequence(coreMessage.getGroupSequence());
 
-      final SimpleString midString = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_MESSAGE_ID);
-      final MessageId mid;
-      if (midString != null) {
-         mid = new MessageId(midString.toString());
+      final Object messageIdValue = getObjectProperty(coreMessage, Object.class, AMQ_MSG_MESSAGE_ID);
+      final MessageId messageId;
+      if (messageIdValue instanceof SimpleString) {
+         messageId = new MessageId(messageIdValue.toString());
+      } else if (messageIdValue instanceof byte[]) {
+         ByteSequence midSeq = new ByteSequence((byte[]) messageIdValue);
+         messageId = (MessageId) marshaller.unmarshal(midSeq);
       } else {
-         //JMSMessageID should be started with "ID:" and needs to be globally unique (node + journal id)
          //  ARTEMIS-3776 due to AMQ-6431 some older clients will not be able to receive messages
          // if using a failover schema due to the messageID overFlowing Integer.MAX_VALUE
          String midd = "ID:" + serverNodeUUID + ":-1:-1:" + (coreMessage.getMessageID() / Integer.MAX_VALUE);
-         mid = new MessageId(midd, coreMessage.getMessageID() % Integer.MAX_VALUE);
+         messageId = new MessageId(midd, coreMessage.getMessageID() % Integer.MAX_VALUE);
       }
 
-      amqMsg.setMessageId(mid);
+      amqMsg.setMessageId(messageId);
 
-      final SimpleString origDestBytes = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_ORIG_DESTINATION);
-      if (origDestBytes != null) {
-         amqMsg.setOriginalDestination(ActiveMQDestination.createDestination(origDestBytes.toString(), QUEUE_TYPE));
+      final Object origDestValue = getObjectProperty(coreMessage, Object.class, AMQ_MSG_ORIG_DESTINATION);
+      if (origDestValue instanceof SimpleString) {
+         amqMsg.setOriginalDestination(ActiveMQDestination.createDestination(origDestValue.toString(), QUEUE_TYPE));
+      } else if (origDestValue instanceof byte[]) {
+         ActiveMQDestination origDest = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence((byte[]) origDestValue));
+         amqMsg.setOriginalDestination(origDest);
       }
 
-      final SimpleString producerId = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_PRODUCER_ID);
-      if (producerId != null && producerId.length() > 0) {
-         amqMsg.setProducerId(new ProducerId(producerId.toString()));
+      final Object producerIdValue = getObjectProperty(coreMessage, Object.class, AMQ_MSG_PRODUCER_ID);
+      if (producerIdValue instanceof SimpleString && ((SimpleString) producerIdValue).length() > 0) {
+         amqMsg.setProducerId(new ProducerId(producerIdValue.toString()));
+      } else if (producerIdValue instanceof byte[]) {
+         ProducerId producerId = (ProducerId) marshaller.unmarshal(new ByteSequence((byte[]) producerIdValue));
+         amqMsg.setProducerId(producerId);
       }
 
       amqMsg.setRedeliveryCounter(reference.getDeliveryCount() - 1);
 
-      final SimpleString replyToBytes = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_REPLY_TO);
-      if (replyToBytes != null) {
-         amqMsg.setReplyTo(ActiveMQDestination.createDestination(replyToBytes.toString(), QUEUE_TYPE));
+      final Object replyToValue = getObjectProperty(coreMessage, Object.class, AMQ_MSG_REPLY_TO);
+      if (replyToValue instanceof SimpleString) {
+         amqMsg.setReplyTo(ActiveMQDestination.createDestination(replyToValue.toString(), QUEUE_TYPE));
+      } else if (replyToValue instanceof byte[]) {
+         ActiveMQDestination replyTo = (ActiveMQDestination) marshaller.unmarshal(new ByteSequence((byte[]) replyToValue));
+         amqMsg.setReplyTo(replyTo);
       }
 
       final SimpleString userId = getObjectProperty(coreMessage, SimpleString.class, AMQ_MSG_USER_ID);
