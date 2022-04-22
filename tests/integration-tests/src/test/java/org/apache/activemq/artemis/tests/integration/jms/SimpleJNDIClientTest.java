@@ -36,7 +36,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
@@ -56,11 +55,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
-import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logmanager.LogManager;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -117,25 +114,6 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       props.put("java.naming.provider.url", "");
       Context ctx = new InitialContext(props);//Must not throw an exception
       ctx.close();
-   }
-
-   @Test
-   public void testConnectionFactoryStringWithInvalidParameter() throws Exception {
-      Level initialLevel = LogManager.getLogManager().getLogger("org.apache.activemq.artemis.core.client").getLevel();
-      LogManager.getLogManager().getLogger("org.apache.activemq.artemis.core.client").setLevel(Level.ALL);
-      Hashtable<String, String> props = new Hashtable<>();
-      props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
-      props.put("connectionFactory.ConnectionFactory", "tcp://localhost:61616?foo=too");
-
-      AssertionLoggerHandler.startCapture();
-      try {
-         Context ctx = new InitialContext(props);
-         ctx.close();
-         assertTrue("Connection factory parameter foo is not standard", AssertionLoggerHandler.findText("Connection factory parameter foo is not standard"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
-         LogManager.getLogManager().getLogger("org.apache.activemq.artemis.core.client").setLevel(initialLevel);
-      }
    }
 
    @Test
