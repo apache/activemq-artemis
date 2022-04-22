@@ -27,7 +27,8 @@
 		<activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
 
 		<!-- AMQP Spring Starter -->
-		<amqp-10-jms-spring.version>2.5.7</amqp-10-jms-spring.version>
+		<amqp-10-jms-spring.version>2.5.8</amqp-10-jms-spring.version>
+		<spring-boot-plugin.version>2.6.7</spring-boot-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -73,7 +74,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>2.6.6</version>
+				<version>${spring-boot-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>
