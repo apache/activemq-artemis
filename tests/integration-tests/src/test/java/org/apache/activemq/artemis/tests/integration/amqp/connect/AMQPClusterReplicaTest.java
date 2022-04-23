@@ -121,11 +121,11 @@ public class AMQPClusterReplicaTest extends AmqpClientTestSupport {
             producer.send(session.createTextMessage("hello"));
          }
 
-         org.apache.activemq.artemis.core.server.Queue mainServerQueue = server.locateQueue("test");
          org.apache.activemq.artemis.core.server.Queue node1Queue = node_1.locateQueue("test");
-         org.apache.activemq.artemis.core.server.Queue node2Queue = node_2.locateQueue("test");
 
          Wait.assertEquals(10L, node1Queue::getMessageCount, 5000, 10);
+
+         connection.close();
       }
    }
 

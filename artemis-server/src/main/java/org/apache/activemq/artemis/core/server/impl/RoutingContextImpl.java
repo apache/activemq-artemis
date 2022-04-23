@@ -177,11 +177,11 @@ public class RoutingContextImpl implements RoutingContext {
       }
 
       if (internalOnly == null) {
-         internalOnly = true;
+         internalOnly = queue.isInternalQueue();
+      } else {
+         // every queue added has to be internal only
+         internalOnly = internalOnly && queue.isInternalQueue();
       }
-
-      // every queue added has to be internal only
-      internalOnly = internalOnly && queue.isInternalQueue();
 
       queueCount++;
    }
