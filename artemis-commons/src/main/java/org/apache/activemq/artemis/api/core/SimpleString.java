@@ -251,6 +251,16 @@ public final class SimpleString implements CharSequence, Serializable, Comparabl
       return true;
    }
 
+   /**
+    * returns true if the SimpleString parameter starts with the same char. false if not.
+    *
+    * @param other the char to look for
+    * @return true if this SimpleString starts with the same data
+    */
+   public boolean startsWith(final char other) {
+      return data.length > 0 && data[0] == other;
+   }
+
    @Override
    public String toString() {
       if (str == null) {

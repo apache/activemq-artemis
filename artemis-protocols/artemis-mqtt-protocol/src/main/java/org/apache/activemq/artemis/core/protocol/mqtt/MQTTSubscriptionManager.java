@@ -43,6 +43,10 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.jboss.logging.Logger;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SUBSCRIPTION_IDENTIFIER;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.DOLLAR;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.HASH;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.PLUS;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.SLASH;
 import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
 
 public class MQTTSubscriptionManager {
@@ -56,11 +60,15 @@ public class MQTTSubscriptionManager {
    private final ConcurrentMap<String, ServerConsumer> consumers;
 
    /*
-    * We filter out certain messages (e.g. management messages, notifications, and messages from any address starting
-    * with '$'). This is because MQTT clients can do silly things like subscribe to '#' which matches ever address
-    * on the broker.
+    * We filter out certain messages (e.g. management messages, notifications)
     */
    private final SimpleString messageFilter;
+
+   /*
+    * We can also filter out messages from any address starting with '$'. This is because MQTT clients can do silly
+    * things like subscribe to '#' which matches ever address on the broker.
+    */
+   private final SimpleString messageFilterNoDollar;
 
    public MQTTSubscriptionManager(MQTTSession session) {
       this.session = session;
@@ -69,19 +77,21 @@ public class MQTTSubscriptionManager {
       consumerQoSLevels = new ConcurrentHashMap<>();
 
       // Create filter string to ignore certain messages
-      StringBuilder builder = new StringBuilder();
-      builder.append("NOT ((");
-      builder.append(FilterConstants.ACTIVEMQ_ADDRESS);
-      builder.append(" = '");
-      builder.append(session.getServer().getConfiguration().getManagementAddress());
-      builder.append("') OR (");
-      builder.append(FilterConstants.ACTIVEMQ_ADDRESS);
-      builder.append(" = '");
-      builder.append(session.getServer().getConfiguration().getManagementNotificationAddress());
-      builder.append("') OR (");
-      builder.append(FilterConstants.ACTIVEMQ_ADDRESS);
-      builder.append(" LIKE '$%'))"); // [MQTT-4.7.2-1]
-      messageFilter = new SimpleString(builder.toString());
+      StringBuilder baseFilter = new StringBuilder();
+      baseFilter.append("NOT (");
+      baseFilter.append("(").append(FilterConstants.ACTIVEMQ_ADDRESS).append(" = '").append(session.getServer().getConfiguration().getManagementAddress()).append("')");
+      baseFilter.append(" OR ");
+      baseFilter.append("(").append(FilterConstants.ACTIVEMQ_ADDRESS).append(" = '").append(session.getServer().getConfiguration().getManagementNotificationAddress()).append("')");
+
+      StringBuilder messageFilter = new StringBuilder(baseFilter);
+      messageFilter.append(")");
+      this.messageFilter = new SimpleString(messageFilter.toString());
+
+      StringBuilder messageFilterNoDollar = new StringBuilder(baseFilter);
+      messageFilterNoDollar.append(" OR ");
+      messageFilterNoDollar.append("(").append(FilterConstants.ACTIVEMQ_ADDRESS).append(" LIKE '").append(DOLLAR).append("%')"); // [MQTT-4.7.2-1]
+      messageFilterNoDollar.append(")");
+      this.messageFilterNoDollar = new SimpleString(messageFilterNoDollar.toString());
    }
 
    synchronized void start() throws Exception {
@@ -96,9 +106,9 @@ public class MQTTSubscriptionManager {
 
       // if using a shared subscription then parse the subscription name and topic
       if (topicName.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX)) {
-         int slashIndex = topicName.indexOf("/") + 1;
-         sharedSubscriptionName = topicName.substring(slashIndex, topicName.indexOf("/", slashIndex));
-         topicName = topicName.substring(topicName.indexOf("/", slashIndex) + 1);
+         int slashIndex = topicName.indexOf(SLASH) + 1;
+         sharedSubscriptionName = topicName.substring(slashIndex, topicName.indexOf(SLASH, slashIndex));
+         topicName = topicName.substring(topicName.indexOf(SLASH, slashIndex) + 1);
       }
       int qos = subscription.qualityOfService().value();
       String coreAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(topicName, session.getWildcardConfiguration());
@@ -175,7 +185,7 @@ public class MQTTSubscriptionManager {
 
    private Queue findOrCreateQueue(BindingQueryResult bindingQueryResult, AddressInfo addressInfo, SimpleString queue, int qos) throws Exception {
       if (addressInfo.getRoutingTypes().contains(RoutingType.MULTICAST)) {
-         return session.getServerSession().createQueue(new QueueConfiguration(queue).setAddress(addressInfo.getName()).setFilterString(messageFilter).setDurable(MQTTUtil.DURABLE_MESSAGES && qos >= 0));
+         return session.getServerSession().createQueue(new QueueConfiguration(queue).setAddress(addressInfo.getName()).setFilterString(getMessageFilter(addressInfo.getName())).setDurable(MQTTUtil.DURABLE_MESSAGES && qos >= 0));
       }
 
       if (addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
@@ -191,7 +201,7 @@ public class MQTTSubscriptionManager {
             return session.getServer().locateQueue(name);
          } else {
             try {
-               return session.getServerSession().createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST).setFilterString(messageFilter).setDurable(MQTTUtil.DURABLE_MESSAGES && qos >= 0));
+               return session.getServerSession().createQueue(new QueueConfiguration(addressInfo.getName()).setRoutingType(RoutingType.ANYCAST).setFilterString(getMessageFilter(addressInfo.getName())).setDurable(MQTTUtil.DURABLE_MESSAGES && qos >= 0));
             } catch (ActiveMQQueueExistsException e) {
                return session.getServer().locateQueue(addressInfo.getName());
             }
@@ -199,6 +209,14 @@ public class MQTTSubscriptionManager {
       }
 
       throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(addressInfo.getRoutingType(), addressInfo.getName().toString(), EnumSet.allOf(RoutingType.class));
+   }
+
+   private SimpleString getMessageFilter(SimpleString topicFilter) {
+      if (topicFilter.startsWith(PLUS) || topicFilter.startsWith(HASH)) {
+         return messageFilterNoDollar;
+      } else {
+         return messageFilter;
+      }
    }
 
    private void createConsumerForSubscriptionQueue(Queue queue, String topic, int qos, boolean noLocal, Long existingConsumerId) throws Exception {

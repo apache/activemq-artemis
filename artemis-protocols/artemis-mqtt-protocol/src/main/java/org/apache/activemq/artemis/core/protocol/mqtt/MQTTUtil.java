@@ -77,7 +77,15 @@ public class MQTTUtil {
 
    public static final boolean SESSION_AUTO_CREATE_QUEUE = false;
 
-   public static final String MQTT_RETAIN_ADDRESS_PREFIX = "$sys.mqtt.retain.";
+   public static final char DOLLAR = '$';
+
+   public static final char HASH = '#';
+
+   public static final char PLUS = '+';
+
+   public static final char SLASH = '/';
+
+   public static final String MQTT_RETAIN_ADDRESS_PREFIX = DOLLAR + "sys.mqtt.retain.";
 
    public static final SimpleString MQTT_QOS_LEVEL_KEY = SimpleString.toSimpleString("mqtt.qos.level");
 
@@ -101,9 +109,9 @@ public class MQTTUtil {
 
    public static final SimpleString MQTT_CONTENT_TYPE_KEY = SimpleString.toSimpleString("mqtt.content.type");
 
-   public static final String MANAGEMENT_QUEUE_PREFIX = "$sys.mqtt.queue.qos2.";
+   public static final String MANAGEMENT_QUEUE_PREFIX = DOLLAR + "sys.mqtt.queue.qos2.";
 
-   public static final String SHARED_SUBSCRIPTION_PREFIX = "$share/";
+   public static final String SHARED_SUBSCRIPTION_PREFIX = DOLLAR + "share/";
 
    public static final long FOUR_BYTE_INT_MAX = Long.decode("0xFFFFFFFF"); // 4_294_967_295
 
@@ -154,9 +162,9 @@ public class MQTTUtil {
 
    public static class MQTTWildcardConfiguration extends WildcardConfiguration {
       public MQTTWildcardConfiguration() {
-         setDelimiter('/');
-         setSingleWord('+');
-         setAnyWords('#');
+         setDelimiter(SLASH);
+         setSingleWord(PLUS);
+         setAnyWords(HASH);
       }
    }
 

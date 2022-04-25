@@ -190,4 +190,80 @@ public class PahoMQTTTest extends MQTTTestSupport {
       return new MqttClient(protocol + "://localhost:" + getPort(), clientId, new MemoryPersistence());
    }
 
+   /*
+    * This test was adapted from a test from Eclipse Kapua submitted by a community member.
+    */
+   @Test(timeout = 300000)
+   public void testDollarAndHashSubscriptions() throws Exception {
+      final String CLIENT_ID_ADMIN = "test-client-admin";
+      final String CLIENT_ID_1 = "test-client-1";
+      final String CLIENT_ID_2 = "test-client-2";
+
+      CountDownLatch clientAdminLatch = new CountDownLatch(3);
+      CountDownLatch client1Latch = new CountDownLatch(2);
+      CountDownLatch client2Latch = new CountDownLatch(1);
+
+      MqttClient clientAdmin = createPahoClient(CLIENT_ID_ADMIN);
+      MqttClient client1 = createPahoClient(CLIENT_ID_1);
+      MqttClient client2 = createPahoClient(CLIENT_ID_2);
+
+      clientAdmin.setCallback(new TestMqttClientCallback(clientAdminLatch));
+      client1.setCallback(new TestMqttClientCallback(client1Latch));
+      client2.setCallback(new TestMqttClientCallback(client2Latch));
+
+      clientAdmin.connect();
+      client1.connect();
+      client2.connect();
+
+      client1.subscribe("$dollar/" + CLIENT_ID_1 + "/#");
+      client2.subscribe("$dollar/" + CLIENT_ID_2 + "/#");
+      clientAdmin.subscribe("#");
+
+      MqttMessage m = new MqttMessage("test".getBytes());
+
+      client1.publish("$dollar/" + CLIENT_ID_1 + "/foo", m);
+      client2.publish("$dollar/" + CLIENT_ID_2 + "/foo", m);
+      clientAdmin.publish("$dollar/" + CLIENT_ID_1 + "/bar", m);
+      clientAdmin.publish("$dollar/" + CLIENT_ID_1 + "/bar", m);
+
+      client1.publish("$dollar/" + CLIENT_ID_1 + "/baz", m);
+      client2.publish("$dollar/" + CLIENT_ID_2 + "/baz", m);
+      clientAdmin.publish("$dollar/" + CLIENT_ID_1 + "/baz", m);
+      clientAdmin.publish("$dollar/" + CLIENT_ID_2 + "/baz", m);
+
+      assertTrue(client1Latch.await(2, TimeUnit.SECONDS));
+      assertTrue(client2Latch.await(2, TimeUnit.SECONDS));
+      assertFalse(clientAdminLatch.await(1, TimeUnit.SECONDS));
+      assertEquals(3, clientAdminLatch.getCount());
+
+      clientAdmin.disconnect();
+      clientAdmin.close();
+      client1.disconnect();
+      client1.close();
+      client2.disconnect();
+      client2.close();
+   }
+
+   private class TestMqttClientCallback implements MqttCallback {
+
+      private CountDownLatch latch;
+
+      TestMqttClientCallback(CountDownLatch latch) {
+         this.latch = latch;
+      }
+
+      @Override
+      public void messageArrived(String topic, MqttMessage message) throws Exception {
+         latch.countDown();
+      }
+
+      @Override
+      public void deliveryComplete(IMqttDeliveryToken token) {
+      }
+
+      @Override
+      public void connectionLost(Throwable cause) {
+      }
+   }
+
 }
