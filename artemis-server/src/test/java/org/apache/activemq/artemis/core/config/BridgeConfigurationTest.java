@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.junit.Assert;
@@ -98,7 +99,8 @@ public class BridgeConfigurationTest {
       Assert.assertEquals("10", jsonObject.get(BridgeConfiguration.RECONNECT_ATTEMPTS_ON_SAME_NODE).toString());
       Assert.assertEquals("true", jsonObject.get(BridgeConfiguration.USE_DUPLICATE_DETECTION).toString());
       Assert.assertEquals("10485760", jsonObject.get(BridgeConfiguration.CONFIRMATION_WINDOW_SIZE).toString());
-      Assert.assertEquals("-1", jsonObject.get(BridgeConfiguration.PRODUCER_WINDOW_SIZE).toString());
+      Assert.assertEquals(Integer.toString(ActiveMQDefaultConfiguration.getDefaultBridgeProducerWindowSize()), jsonObject.get(BridgeConfiguration.PRODUCER_WINDOW_SIZE).toString());
+
       Assert.assertEquals("30000", jsonObject.get(BridgeConfiguration.CLIENT_FAILURE_CHECK_PERIOD).toString());
       Assert.assertEquals("2000", jsonObject.get(BridgeConfiguration.MAX_RETRY_INTERVAL).toString());
       Assert.assertEquals("102400", jsonObject.get(BridgeConfiguration.MIN_LARGE_MESSAGE_SIZE).toString());

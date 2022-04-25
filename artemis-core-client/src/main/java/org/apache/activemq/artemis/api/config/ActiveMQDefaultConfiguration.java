@@ -337,7 +337,7 @@ public final class ActiveMQDefaultConfiguration {
    private static int DEFAULT_BRIDGE_CONFIRMATION_WINDOW_SIZE = 1024 * 1024 * 10;
 
    // Producer flow control
-   private static int DEFAULT_BRIDGE_PRODUCER_WINDOW_SIZE = -1;
+   private static int DEFAULT_BRIDGE_PRODUCER_WINDOW_SIZE = 1024 * 1024;
 
    // Upon reconnection this configures the number of time the same node on the topology will be retried before resetting the server locator and using the initial connectors
    private static int DEFAULT_BRIDGE_CONNECT_SAME_NODE = 10;
