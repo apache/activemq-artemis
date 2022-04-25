@@ -22,6 +22,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -310,6 +316,83 @@ public class LinkedListTest extends ActiveMQTestBase {
          Assert.assertEquals(0, nodeStore.size());
          Assert.assertEquals(0, objs.size());
 
+      }
+   }
+
+
+   @Test
+   public void testRaceRemovingID() throws Exception {
+      ExecutorService executor = Executors.newFixedThreadPool(2);
+
+      int elements = 1000;
+      try {
+         LinkedListImpl<ObservableNode> objs = new LinkedListImpl<>();
+         ListNodeStore nodeStore = new ListNodeStore();
+         objs.setNodeStore(nodeStore);
+         final String serverID = RandomUtil.randomString();
+
+         for (int i = 0; i < elements; i++) {
+            objs.addHead(new ObservableNode(serverID, i));
+         }
+         Assert.assertEquals(elements, objs.size());
+
+         CyclicBarrier barrier = new CyclicBarrier(2);
+
+         CountDownLatch latch = new CountDownLatch(2);
+         AtomicInteger errors = new AtomicInteger(0);
+
+         executor.execute(() -> {
+            try {
+               barrier.await(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+
+            try {
+               for (int i = 0; i < elements; i++) {
+                  objs.removeWithID(serverID, i);
+               }
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
+            } finally {
+               latch.countDown();
+            }
+         });
+
+         executor.execute(() -> {
+            LinkedListIterator iterator = objs.iterator();
+
+            try {
+               barrier.await(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+
+            try {
+               while (iterator.hasNext()) {
+                  Object value = iterator.next();
+                  iterator.remove();
+               }
+            } catch (Exception e) {
+               if (e instanceof NoSuchElementException) {
+                  // this is ok
+               } else {
+                  e.printStackTrace();
+                  errors.incrementAndGet();
+               }
+            } finally {
+               latch.countDown();
+            }
+         });
+
+         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+         Assert.assertEquals(0, objs.size());
+
+         Assert.assertEquals(0, errors.get());
+      } finally {
+         executor.shutdownNow();
       }
    }
 
