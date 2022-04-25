@@ -103,7 +103,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    @Override
-   public E removeWithID(String listID, long id) {
+   public synchronized E removeWithID(String listID, long id) {
       assert nodeStore != null; // it is assumed the code will call setNodeStore before callin removeWithID
 
       Node<E> node = nodeStore.getNode(listID, id);
@@ -422,67 +422,77 @@ public class LinkedListImpl<E> implements LinkedList<E> {
 
       @Override
       public boolean hasNext() {
-         Node<E> e = getNode();
+         synchronized (LinkedListImpl.this) {
+            Node<E> e = getNode();
 
-         if (e != null && (e != last || repeat)) {
-            return true;
+            if (e != null && (e != last || repeat)) {
+               return true;
+            }
+
+            return canAdvance();
          }
-
-         return canAdvance();
       }
 
       @Override
       public E next() {
-         Node<E> e = getNode();
+         synchronized (LinkedListImpl.this) {
+            Node<E> e = getNode();
 
-         if (repeat) {
-            repeat = false;
+            if (repeat) {
+               repeat = false;
 
-            if (e != null) {
-               return e.val();
-            } else {
+               if (e != null) {
+                  return e.val();
+               } else {
+                  if (canAdvance()) {
+                     advance();
+
+                     e = getNode();
+
+                     return e.val();
+                  } else {
+                     throw new NoSuchElementException();
+                  }
+               }
+            }
+
+            if (e == null || e == last) {
                if (canAdvance()) {
                   advance();
 
                   e = getNode();
-
-                  return e.val();
                } else {
                   throw new NoSuchElementException();
                }
             }
+
+            last = e;
+
+            repeat = false;
+
+            return e.val();
          }
-
-         if (e == null || e == last) {
-            if (canAdvance()) {
-               advance();
-
-               e = getNode();
-            } else {
-               throw new NoSuchElementException();
-            }
-         }
-
-         last = e;
-
-         repeat = false;
-
-         return e.val();
       }
 
       @Override
       public void remove() {
-         if (last == null) {
-            throw new NoSuchElementException();
+         synchronized (LinkedListImpl.this) {
+            if (last == null) {
+               throw new NoSuchElementException();
+            }
+
+            if (current == null) {
+               return;
+            }
+
+            Node<E> prev = current.prev;
+
+            if (prev != null) {
+               LinkedListImpl.this.removeAfter(prev);
+
+               last = null;
+            }
          }
-
-         if (current == null) {
-            throw new NoSuchElementException();
-         }
-
-         LinkedListImpl.this.removeAfter(current.prev);
-
-         last = null;
       }
 
       @Override
