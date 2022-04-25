@@ -23,6 +23,11 @@ import java.util.EnumSet;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
@@ -31,8 +36,10 @@ import org.apache.activemq.artemis.cli.commands.address.ShowAddress;
 import org.apache.activemq.artemis.cli.commands.address.UpdateAddress;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -114,6 +121,29 @@ public class AddressCommandTest extends JMSTestBase {
       deleteAddress.setName(addressName);
       deleteAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionFailure(deleteAddress, "Address " + addressName + " has bindings");
+   }
+
+   @Test
+   public void testForceDeleteAddressWhenExistsQueues() throws Exception {
+      final String addressName = "address";
+      final SimpleString addressSimpleString = new SimpleString(addressName);
+      final String queueName = "queue1";
+      final AddressInfo addressInfo = new AddressInfo(addressSimpleString, EnumSet.of(RoutingType.ANYCAST, RoutingType.MULTICAST));
+      server.addAddressInfo(addressInfo);
+      Queue queue = server.createQueue(new QueueConfiguration(new SimpleString(queueName)).setAddress(addressSimpleString).setRoutingType(RoutingType.MULTICAST));
+      ServerLocator locator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:61616");
+      ClientSessionFactory csf = locator.createSessionFactory();
+      ClientSession session = csf.createSession();
+      ClientProducer producer = session.createProducer(addressName);
+      producer.send(session.createMessage(true));
+      Wait.assertEquals(1L, () -> queue.getMessageCount());
+
+      final DeleteAddress deleteAddress = new DeleteAddress();
+      deleteAddress.setName(addressName);
+      deleteAddress.setForce(true);
+      deleteAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
+      checkExecutionPassed(deleteAddress);
+      Wait.assertEquals(null, () -> server.locateQueue(queueName));
    }
 
    @Test

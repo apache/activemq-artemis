@@ -18,12 +18,16 @@
 package org.apache.activemq.artemis.cli.commands.address;
 
 import io.airlift.airline.Command;
+import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "delete", description = "delete an address")
 public class DeleteAddress extends AddressAbstract {
+
+   @Option(name = "--force", description = "delete the address even if it has queues - all messages in those queues will be deleted! (default false)")
+   private Boolean force = false;
 
    @Override
    public Object execute(ActionContext context) throws Exception {
@@ -36,7 +40,7 @@ public class DeleteAddress extends AddressAbstract {
       performCoreManagement(new ManagementCallback<ClientMessage>() {
          @Override
          public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "deleteAddress", getName(true));
+            ManagementHelper.putOperationInvocation(message, "broker", "deleteAddress", getName(true), force);
          }
 
          @Override
@@ -50,5 +54,9 @@ public class DeleteAddress extends AddressAbstract {
             context.err.println("Failed to delete address " + getName(true) + ". Reason: " + errMsg);
          }
       });
+   }
+
+   public void setForce(Boolean force) {
+      this.force = force;
    }
 }
