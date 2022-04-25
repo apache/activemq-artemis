@@ -88,4 +88,3 @@
 * [Performance Tools](perf-tools.md)
 * [Configuration Reference](configuration-index.md)
 * [Restart Sequence](restart-sequence.md)
-* [Resource Adapter](resource-adapter.md)
