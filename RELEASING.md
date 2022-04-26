@@ -293,18 +293,23 @@ cd activemq-artemis
 ./promote-release.sh ${CURRENT-RELEASE}
 ```
 
-Good mirror coverage can take up to 24 hours. Mirror status can be viewed [here](https://www.apache.org/mirrors/).
+It takes a small period to sync with the CDN, say ~15mins. The CDN content can be viewed [here](https://dlcdn.apache.org/activemq/activemq-artemis/).
 
 
 ## Release the staging repo
 
 Go to https://repository.apache.org/#stagingRepositories and click the "Release" button.
 
+It takes a small period to sync with Maven Central, say ~30-60mins. The Central content can be viewed [here](https://repo1.maven.org/maven2/org/apache/activemq/).
+
 
 ## Web site update:
 
-Wait 24 hours after updating SVN to get a good mirror coverage, before proceeding.
-Mirror status can be viewed [here](https://www.apache.org/mirrors/).
+Wait for the CDN to sync first after updating SVN, and additionally for Maven Central to sync, before proceeding.
+
+The CDN content can be viewed [here](https://dlcdn.apache.org/activemq/activemq-artemis/).
+The Maven Central content can be viewed [here](https://repo1.maven.org/maven2/org/apache/activemq/).
+
 
 Clone the website repository from:
 
@@ -319,16 +324,17 @@ Once the mirrors are up-to-date then update the following:
 2. Copy `src/_artemis_releases/artemis-<old-version>-release.md` to `src/_artemis_releases/artemis-<new-version>-release.md`. Update the versions and dates.
 3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
 4. Copy `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
-5. Create `src/components/artemis/documentation/latest` and copy these files into it:
+5. Build the `artemis-website` module from the new-version release sources with `mvn clean package -Prelease`.
+6. Create `src/components/artemis/documentation/latest` and copy these files into it:
     1. the contents of user-manual from `apache-artemis-<new-version>/web/user-manual`
     2. book.pdf version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook pdf`)
     3. book.epub version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook epub`)
     4. book.mobi version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook mobi`)
-6. Create `src/components/artemis/documentation/hacking-guide` and copy these files into it: 
+7. Create `src/components/artemis/documentation/hacking-guide` and copy these files into it:
     1. the contents of hacking-guide from `apache-artemis-<new-version>/web/hacking-guide`
     2. book.pdf version of hacking-guide (generated with `gitbook pdf`)
-7. Copy `src/components/artemis/documentation/javadocs/javadoc-latest` to `src/components/artemis/documentation/javadocs/javadoc-<old-version>`.
-8. Create `src/components/artemis/documentation/javadocs/javadoc-latest` and copy the contents of `apache-artemis-<new-version>/web/api` into it.
+8. Copy `src/components/artemis/documentation/javadocs/javadoc-latest` to `src/components/artemis/documentation/javadocs/javadoc-<old-version>`.
+9. Create `src/components/artemis/documentation/javadocs/javadoc-latest` and copy the contents of `apache-artemis-<new-version>/web/api` into it.
    
 Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
 Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
