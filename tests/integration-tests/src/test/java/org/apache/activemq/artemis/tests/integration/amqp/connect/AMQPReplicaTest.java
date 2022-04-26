@@ -474,6 +474,70 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
    }
 
    @Test
+   public void testAddressFilter() throws Exception {
+      final String REPLICATED = "replicated";
+      final String NON_REPLICATED = "nonReplicated";
+      final String ADDRESS_FILTER = REPLICATED + "," + "!" + NON_REPLICATED;
+      final String MSG = "msg";
+
+      server.start();
+
+      server_2 = createServer(AMQP_PORT_2, false);
+      server_2.setIdentity("server_2");
+      server_2.getConfiguration().setName("server_2");
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration("mirror-source", "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setDurable(true).setAddressFilter(ADDRESS_FILTER);
+      amqpConnection.addElement(replica);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+
+      server_2.start();
+
+      try (Connection connection = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2).createConnection()) {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         // Send to non replicated address
+         try (MessageProducer producer = session.createProducer(session.createQueue(NON_REPLICATED))) {
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            for (int i = 0; i < 2; i++) {
+               producer.send(session.createTextMessage("never receive"));
+            }
+         }
+
+         // Check nothing was added to SnF queue
+         Assert.assertEquals(0, server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded());
+
+         // Send to replicated address
+         try (MessageProducer producer = session.createProducer(session.createQueue(REPLICATED))) {
+            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+            for (int i = 0; i < 2; i++) {
+               producer.send(session.createTextMessage(MSG));
+            }
+         }
+
+         // Check some messages were sent to SnF queue
+         Assert.assertTrue(server_2.locateQueue(replica.getMirrorSNF()).getMessagesAdded() > 0);
+      }
+
+      try (Connection connection = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT).createConnection()) {
+         connection.start();
+
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         try (MessageConsumer consumer = session.createConsumer(session.createQueue(REPLICATED))) {
+            Message message = consumer.receive(3000);
+            Assert.assertNotNull(message);
+            Assert.assertEquals(MSG, message.getBody(String.class));
+         }
+
+         try (MessageConsumer consumer = session.createConsumer(session.createQueue(NON_REPLICATED))) {
+            Assert.assertNull(consumer.receiveNoWait());
+         }
+      }
+
+   }
+
+   @Test
    public void testRouteSurviving() throws Exception {
       testRouteSurvivor(false);
    }
