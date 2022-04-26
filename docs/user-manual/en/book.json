@@ -8,5 +8,6 @@
         "home": "http://activemq.apache.org/artemis",
         "issues": "https://issues.apache.org/jira/browse/ARTEMIS",
         "contribute": "http://activemq.apache.org/contributing.html"
-    }
+    },
+    "version": "@PROJECT_VERSION_FILTER_TOKEN@"
 }
