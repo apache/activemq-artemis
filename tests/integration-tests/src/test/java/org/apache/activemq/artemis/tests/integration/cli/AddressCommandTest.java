@@ -143,7 +143,7 @@ public class AddressCommandTest extends JMSTestBase {
       deleteAddress.setForce(true);
       deleteAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
       checkExecutionPassed(deleteAddress);
-      Wait.assertEquals(null, () -> server.locateQueue(queueName));
+      Wait.assertTrue(() -> server.locateQueue(queueName) == null);
    }
 
    @Test
