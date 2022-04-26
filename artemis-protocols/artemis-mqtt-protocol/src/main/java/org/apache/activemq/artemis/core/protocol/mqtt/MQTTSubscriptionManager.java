@@ -44,8 +44,6 @@ import org.jboss.logging.Logger;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SUBSCRIPTION_IDENTIFIER;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.DOLLAR;
-import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.HASH;
-import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.PLUS;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.SLASH;
 import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
 
@@ -70,8 +68,15 @@ public class MQTTSubscriptionManager {
     */
    private final SimpleString messageFilterNoDollar;
 
+   private final char singleWord;
+
+   private final char anyWords;
+
    public MQTTSubscriptionManager(MQTTSession session) {
       this.session = session;
+
+      singleWord = session.getServer().getConfiguration().getWildcardConfiguration().getSingleWord();
+      anyWords = session.getServer().getConfiguration().getWildcardConfiguration().getAnyWords();
 
       consumers = new ConcurrentHashMap<>();
       consumerQoSLevels = new ConcurrentHashMap<>();
@@ -87,9 +92,10 @@ public class MQTTSubscriptionManager {
       messageFilter.append(")");
       this.messageFilter = new SimpleString(messageFilter.toString());
 
+      // [MQTT-4.7.2-1]
       StringBuilder messageFilterNoDollar = new StringBuilder(baseFilter);
       messageFilterNoDollar.append(" OR ");
-      messageFilterNoDollar.append("(").append(FilterConstants.ACTIVEMQ_ADDRESS).append(" LIKE '").append(DOLLAR).append("%')"); // [MQTT-4.7.2-1]
+      messageFilterNoDollar.append("(").append(FilterConstants.ACTIVEMQ_ADDRESS).append(" LIKE '").append(DOLLAR).append("%')");
       messageFilterNoDollar.append(")");
       this.messageFilterNoDollar = new SimpleString(messageFilterNoDollar.toString());
    }
@@ -211,8 +217,12 @@ public class MQTTSubscriptionManager {
       throw ActiveMQMessageBundle.BUNDLE.invalidRoutingTypeForAddress(addressInfo.getRoutingType(), addressInfo.getName().toString(), EnumSet.allOf(RoutingType.class));
    }
 
-   private SimpleString getMessageFilter(SimpleString topicFilter) {
-      if (topicFilter.startsWith(PLUS) || topicFilter.startsWith(HASH)) {
+   private SimpleString getMessageFilter(SimpleString addressName) {
+      /*
+       * By the time we get here wildcards in the MQTT topic filter have already been translated into their core
+       * equivalents. This check is to enforce [MQTT-4.7.2-1].
+       */
+      if (addressName.startsWith(singleWord) || addressName.startsWith(anyWords)) {
          return messageFilterNoDollar;
       } else {
          return messageFilter;
