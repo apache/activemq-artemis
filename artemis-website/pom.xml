@@ -82,6 +82,8 @@
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
       <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
+      <src-dir-user-manual>${basedir}/../docs/user-manual/en</src-dir-user-manual>
+      <scratch-dir-user-manual>${basedir}/target/scratch/user-manual</scratch-dir-user-manual>
       <webapp-outdir-user-manual>${basedir}/target/classes/user-manual</webapp-outdir-user-manual>
       <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
       <webapp-outdir-migration-guide>${basedir}/target/classes/migration-guide</webapp-outdir-migration-guide>
@@ -179,6 +181,17 @@
                         <configuration>
                            <skip>${skipWebsiteDocGeneration}</skip>
                            <target>
+                              <!-- Make scratch copy of user manual, filter the version config -->
+                              <copy todir="${scratch-dir-user-manual}">
+                                 <fileset dir="${src-dir-user-manual}"/>
+                              </copy>
+                              <copy todir="${scratch-dir-user-manual}" overwrite="true">
+                                 <fileset file="${src-dir-user-manual}/book.json"/>
+                                 <filterset>
+                                    <filter token="PROJECT_VERSION_FILTER_TOKEN" value="${project.version}"/>
+                                 </filterset>
+                              </copy>
+
                               <condition property="honkit.cmd" value="${basedir}/node_modules/.bin/honkit.cmd" else="${basedir}/node_modules/.bin/honkit">
                                  <os family="windows" />
                               </condition>
@@ -188,7 +201,7 @@
                               <exec executable="${honkit.cmd}" failonerror="true">
                                  <env key="PATH" path="${basedir}/node" />
                                  <arg value="build" />
-                                 <arg value="${basedir}/../docs/user-manual/en" />
+                                 <arg value="${scratch-dir-user-manual}" />
                                  <arg value="${webapp-outdir-user-manual}" />
                               </exec>
                               <mkdir dir="${webapp-outdir-hacking-guide}" />

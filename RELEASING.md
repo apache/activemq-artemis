@@ -321,12 +321,12 @@ Once the mirrors are up-to-date then update the following:
 4. Copy `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
 5. Create `src/components/artemis/documentation/latest` and copy these files into it:
     1. the contents of user-manual from `apache-artemis-<new-version>/web/user-manual`
-    2. book.pdf version of user-manual (generated from the new version sources with the command `gitbook pdf`)
-    3. book.epub version of user-manual (generated from the new version sources with the command `gitbook epub`)
-    4. book.mobi version of user-manual (generated from the new version sources with the command `gitbook mobi`)
+    2. book.pdf version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook pdf`)
+    3. book.epub version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook epub`)
+    4. book.mobi version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook mobi`)
 6. Create `src/components/artemis/documentation/hacking-guide` and copy these files into it: 
-    1. the contents of user-manual from `apache-artemis-<new-version>/web/hacking-guide`
-    2. book.pdf version of hacking-guide (generated with `gitbook pdf`)        
+    1. the contents of hacking-guide from `apache-artemis-<new-version>/web/hacking-guide`
+    2. book.pdf version of hacking-guide (generated with `gitbook pdf`)
 7. Copy `src/components/artemis/documentation/javadocs/javadoc-latest` to `src/components/artemis/documentation/javadocs/javadoc-<old-version>`.
 8. Create `src/components/artemis/documentation/javadocs/javadoc-latest` and copy the contents of `apache-artemis-<new-version>/web/api` into it.
    
