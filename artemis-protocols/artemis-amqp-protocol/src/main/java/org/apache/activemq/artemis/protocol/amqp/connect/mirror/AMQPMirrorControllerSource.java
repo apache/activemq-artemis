@@ -82,6 +82,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    final boolean acks;
    final boolean addQueues;
    final boolean deleteQueues;
+   final MirrorAddressFilter addressFilter;
    private final AMQPBrokerConnection brokerConnection;
 
    final AMQPMirrorBrokerConnectionElement replicaConfig;
@@ -110,6 +111,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       this.idSupplier = protonProtocolManager.getReferenceIDSupplier();
       this.addQueues = replicaConfig.isQueueCreation();
       this.deleteQueues = replicaConfig.isQueueRemoval();
+      this.addressFilter = new MirrorAddressFilter(replicaConfig.getAddressFilter());
       this.acks = replicaConfig.isMessageAcknowledgements();
       this.brokerConnection = brokerConnection;
    }
@@ -131,6 +133,11 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       if (getControllerInUse() != null && !addressInfo.isInternal()) {
          return;
       }
+
+      if (ignoreAddress(addressInfo.getName())) {
+         return;
+      }
+
       if (addQueues) {
          Message message = createMessage(addressInfo.getName(), null, ADD_ADDRESS, null, addressInfo.toJSON());
          route(server, message);
@@ -143,6 +150,9 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          logger.trace(server + " deleteAddress " + addressInfo);
       }
       if (invalidTarget(getControllerInUse()) || addressInfo.isInternal()) {
+         return;
+      }
+      if (ignoreAddress(addressInfo.getName())) {
          return;
       }
       if (deleteQueues) {
@@ -162,6 +172,12 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          }
          return;
       }
+      if (ignoreAddress(queueConfiguration.getAddress())) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Skipping create " + queueConfiguration + ", queue address " + queueConfiguration.getAddress() + " doesn't match filter");
+         }
+         return;
+      }
       if (addQueues) {
          Message message = createMessage(queueConfiguration.getAddress(), queueConfiguration.getName(), CREATE_QUEUE, null, queueConfiguration.toJSON());
          route(server, message);
@@ -178,6 +194,10 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
+      if (ignoreAddress(address)) {
+         return;
+      }
+
       if (deleteQueues) {
          Message message = createMessage(address, queue, DELETE_QUEUE, null, queue.toString());
          route(server, message);
@@ -188,12 +208,18 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       return controller != null && sameNode(getRemoteMirrorId(), controller.getRemoteMirrorId());
    }
 
+   private boolean ignoreAddress(SimpleString address) {
+      return !addressFilter.match(address);
+   }
+
    private boolean sameNode(String remoteID, String sourceID) {
       return (remoteID != null && sourceID != null && remoteID.equals(sourceID));
    }
 
    @Override
    public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+      SimpleString address = context.getAddress(message);
+
       if (invalidTarget(context.getMirrorSource())) {
          if (logger.isTraceEnabled()) {
             logger.trace("server " + server + " is discarding send to avoid infinite loop (reflection with the mirror)");
@@ -204,6 +230,13 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       if (context.isInternal()) {
          if (logger.isTraceEnabled()) {
             logger.trace("server " + server + " is discarding send to avoid sending to internal queue");
+         }
+         return;
+      }
+
+      if (ignoreAddress(address)) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("server " + server + " is discarding send to address " + address + ", address doesn't match filter");
          }
          return;
       }
@@ -301,6 +334,13 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return;
       }
 
+      if (ignoreAddress(ref.getQueue().getAddress())) {
+         if (logger.isTraceEnabled()) {
+            logger.trace(server + " rejecting postAcknowledge queue=" + ref.getQueue().getName() + ", ref=" + ref + ", queue address is excluded");
+         }
+         return;
+      }
+
       if (logger.isTraceEnabled()) {
          logger.trace(server + " postAcknowledge " + ref);
       }
@@ -337,4 +377,5 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          return true;
       }
    }
+
 }

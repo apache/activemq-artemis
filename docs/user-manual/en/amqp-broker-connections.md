@@ -103,6 +103,25 @@ The following optional arguments can be utilized:
 * `queue-removal`: Specifies whether a queue- or address-removal event is sent. The default value is `true`.
 * `message-acknowledgements`: Specifies whether message acknowledgements are sent. The default value is `true`.
 * `queue-creation`: Specifies whether a queue- or address-creation event is sent. The default value is `true`.
+* `address-filter`: An optional comma-separated list of inclusion and/or exclusion filter entries used to govern which addresses (and related queues) mirroring events will be created for on this broker-connection. That is, events will only be mirrored to the target broker for addresses that match the filter.
+  An address is matched when it begins with an inclusion entry specified in this field, unless the address is also explicitly excluded by another entry. An exclusion entry is prefixed with `!` to denote any address beginning with that value does not match.
+  If no inclusion entry is specified in the list, all addresses not explicitly excluded will match. If the address-filter attribute is not specified, then all addresses (and related queues) will match and be mirrored.
+
+  Examples:
+
+  - 'eu'
+    matches all addresses starting with 'eu'
+  - '!eu'
+    matches all address except for those starting with 'eu'
+  - 'eu.uk,eu.de'
+    matches all addresses starting with either 'eu.uk' or 'eu.de'
+  - 'eu,!eu.uk'
+    matches all addresses starting with 'eu' but not those starting with 'eu.uk'
+
+  **Note:**
+
+  - Address exclusion will always take precedence over address inclusion.
+  - Address matching on mirror elements is prefix-based and does not support wild-card matching.
 
 An example of a mirror configuration is shown below:
 ```xml

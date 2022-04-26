@@ -30,6 +30,8 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
 
    SimpleString mirrorSNF;
 
+   String addressFilter;
+
    public SimpleString getMirrorSNF() {
       return mirrorSNF;
    }
@@ -86,4 +88,14 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
       this.messageAcknowledgements = messageAcknowledgements;
       return this;
    }
+
+   public String getAddressFilter() {
+      return addressFilter;
+   }
+
+   public AMQPMirrorBrokerConnectionElement setAddressFilter(String addressFilter) {
+      this.addressFilter = addressFilter;
+      return this;
+   }
+
 }

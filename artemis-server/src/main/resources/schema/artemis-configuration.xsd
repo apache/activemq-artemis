@@ -2442,6 +2442,14 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attribute name="address-filter" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               This defines a filter that mirror will use to determine witch events will be forwarded toward
+               target server based on source address.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
 
    </xsd:complexType>
 
