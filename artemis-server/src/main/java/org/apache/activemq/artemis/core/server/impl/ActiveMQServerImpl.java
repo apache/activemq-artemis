@@ -582,11 +582,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    public void reloadNetworkHealthCheck() {
       networkHealthCheck.setTimeUnit(TimeUnit.MILLISECONDS).setPeriod(configuration.getNetworkCheckPeriod()).
          setNetworkTimeout(configuration.getNetworkCheckTimeout()).
-         parseAddressList(configuration.getNetworkCheckList()).
-         parseURIList(configuration.getNetworkCheckURLList()).
          setNICName(configuration.getNetworkCheckNIC()).
          setIpv4Command(configuration.getNetworkCheckPingCommand()).
-         setIpv6Command(configuration.getNetworkCheckPing6Command());
+         setIpv6Command(configuration.getNetworkCheckPing6Command()).
+         parseAddressList(configuration.getNetworkCheckList()).
+         parseURIList(configuration.getNetworkCheckURLList());
 
       networkHealthCheck.addComponent(networkCheckMonitor);
    }
