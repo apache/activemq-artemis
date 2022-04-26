@@ -62,6 +62,7 @@ public final class Env {
    private static final String OS = System.getProperty("os.name").toLowerCase();
    private static final boolean IS_LINUX = OS.startsWith("linux");
    private static final boolean IS_MAC = OS.startsWith("mac");
+   private static final boolean IS_WINDOWS = OS.startsWith("windows");
 
    private Env() {
 
@@ -91,4 +92,7 @@ public final class Env {
       return IS_MAC == true;
    }
 
+   public static boolean isWindowsOs() {
+      return IS_WINDOWS == true;
+   }
 }
