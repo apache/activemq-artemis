@@ -36,6 +36,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedList;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastEndpoint;
@@ -58,6 +59,7 @@ import org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,6 +76,23 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
    private ActiveMQServer liveService;
 
    private TransportConfiguration liveTC;
+
+   private List<ActiveMQConnectionFactory> factories = new LinkedList<>();
+
+   // adding connection factories that need to be closed
+   // this is because UDP connection factories could hold a UDP thread running if they are not closed
+   private void addCF(ConnectionFactory factory) {
+      if (factory instanceof ActiveMQConnectionFactory) {
+         factories.add((ActiveMQConnectionFactory)factory);
+      }
+   }
+
+   @After
+   public void closeCFs() {
+      factories.forEach(cf -> {
+         cf.close();
+      });
+   }
 
    @Test
    public void testMultipleConnectionFactories() throws NamingException, JMSException {
@@ -251,6 +270,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       ConnectionFactory connectionFactory = (ConnectionFactory) ctx.lookup("myConnectionFactory");
+      addCF(connectionFactory);
 
       connectionFactory.createConnection().close();
       ctx.close();
@@ -268,6 +288,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Context ctx = new InitialContext(props);
 
       ActiveMQConnectionFactory cf = (ActiveMQConnectionFactory) ctx.lookup("myConnectionFactory");
+      addCF(cf);
 
       DiscoveryGroupConfiguration discoveryGroupConfiguration = cf.getDiscoveryGroupConfiguration();
       Assert.assertEquals(5000, discoveryGroupConfiguration.getRefreshTimeout());
