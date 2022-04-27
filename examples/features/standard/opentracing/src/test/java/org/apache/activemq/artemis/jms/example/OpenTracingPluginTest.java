@@ -115,8 +115,10 @@ public class OpenTracingPluginTest {
    public void assertAfterDeliver() throws ActiveMQException {
       ServerConsumer consumer = mock(ServerConsumer.class);
       MessageReference reference = mock(MessageReference.class);
+      Message mockMessage = mock(Message.class);
 
-      when(reference.getMessage().getUserContext(Span.class)).thenReturn(span);
+      when(reference.getMessage()).thenReturn(mockMessage);
+      when(mockMessage.getUserContext(Span.class)).thenReturn(span);
 
       plugin.afterDeliver(consumer, reference);
 
