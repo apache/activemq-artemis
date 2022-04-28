@@ -141,8 +141,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private static final AtomicLongFieldUpdater<QueueImpl> consumerRemovedTimestampUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "consumerRemovedTimestamp");
    private static final AtomicReferenceFieldUpdater<QueueImpl, Filter> filterUpdater = AtomicReferenceFieldUpdater.newUpdater(QueueImpl.class, Filter.class, "filter");
 
-   public static final int REDISTRIBUTOR_BATCH_SIZE = 100;
-
    public static final int NUM_PRIORITIES = 10;
 
    public static final int MAX_DELIVERIES_IN_LOOP = 1000;
@@ -1532,7 +1530,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             redistributorFuture = scheduledExecutor.schedule(dar, delay, TimeUnit.MILLISECONDS);
          }
       } else {
-         internalAddRedistributor(executor);
+         internalAddRedistributor();
       }
    }
 
@@ -3257,12 +3255,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return messageReferences.removeWithID(serverID, id);
    }
 
-   private void internalAddRedistributor(final ArtemisExecutor executor) {
+   private void internalAddRedistributor() {
       if (redistributor == null && (consumers.isEmpty() || hasUnMatchedPending)) {
          if (logger.isTraceEnabled()) {
             logger.trace("QueueImpl::Adding redistributor on queue " + this.toString());
          }
-         redistributor = new ConsumerHolder(new Redistributor(this, storageManager, postOffice, executor, QueueImpl.REDISTRIBUTOR_BATCH_SIZE));
+         redistributor = new ConsumerHolder(new Redistributor(this, storageManager, postOffice));
          redistributor.consumer.start();
          consumers.add(redistributor);
          hasUnMatchedPending = false;
@@ -4130,7 +4128,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       @Override
       public void run() {
          synchronized (QueueImpl.this) {
-            internalAddRedistributor(executor1);
+            internalAddRedistributor();
 
             clearRedistributorFuture();
          }

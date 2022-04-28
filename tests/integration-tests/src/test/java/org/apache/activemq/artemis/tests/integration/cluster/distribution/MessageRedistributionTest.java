@@ -1177,16 +1177,16 @@ public class MessageRedistributionTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 1, false);
       waitForBindings(2, "queues.testaddress", 2, 1, false);
 
-      send(0, "queues.testaddress", QueueImpl.REDISTRIBUTOR_BATCH_SIZE * 2, false, null);
+      send(0, "queues.testaddress", 200, false, null);
 
       removeConsumer(0);
       addConsumer(1, 1, "queue0", null);
 
       Queue queue = servers[1].locateQueue(SimpleString.toSimpleString("queue0"));
       Assert.assertNotNull(queue);
-      Wait.waitFor(() -> queue.getMessageCount() == QueueImpl.REDISTRIBUTOR_BATCH_SIZE * 2);
+      Wait.waitFor(() -> queue.getMessageCount() == 200);
 
-      for (int i = 0; i < QueueImpl.REDISTRIBUTOR_BATCH_SIZE * 2; i++) {
+      for (int i = 0; i < 200; i++) {
          ClientMessage message = consumers[1].getConsumer().receive(5000);
          Assert.assertNotNull(message);
          message.acknowledge();
