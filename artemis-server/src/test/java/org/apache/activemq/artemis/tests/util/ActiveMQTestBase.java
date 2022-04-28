@@ -147,6 +147,7 @@ import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.apache.activemq.artemis.utils.PortCheckRule;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.RunnableEx;
 import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -227,6 +228,31 @@ public abstract class ActiveMQTestBase extends Assert {
 
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<>();
+
+   private LinkedList<RunnableEx> runAfter;
+
+   protected synchronized void runAfter(RunnableEx run) {
+      Assert.assertNotNull(run);
+      if (runAfter == null) {
+         runAfter = new LinkedList();
+      }
+      runAfter.add(run);
+   }
+
+   @After
+   public void runAfter() {
+      if (runAfter != null) {
+         runAfter.forEach((r) -> {
+            try {
+               r.run();
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         });
+      }
+   }
+
+
 
    private final Collection<ActiveMQServer> servers = new ArrayList<>();
    private final Collection<ServerLocator> locators = new ArrayList<>();
