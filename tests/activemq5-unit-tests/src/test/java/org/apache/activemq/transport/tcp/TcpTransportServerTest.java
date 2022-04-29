@@ -37,23 +37,30 @@ public class TcpTransportServerTest extends TestCase {
       TcpTransportServer server = (TcpTransportServer) TransportFactory.bind(new URI("tcp://localhost:61616?trace=true"));
       server.setTransportOption(new HashMap<String, Object>());
 
-      server.setAcceptListener(new TransportAcceptListener() {
-         @Override
-         public void onAccept(Transport transport) {
-            assertTrue("This transport does not have a TransportLogger!!", hasTransportLogger(transport));
+      try {
+         server.setAcceptListener(new TransportAcceptListener() {
+            @Override
+            public void onAccept(Transport transport) {
+               assertTrue("This transport does not have a TransportLogger!!", hasTransportLogger(transport));
+            }
+
+            @Override
+            public void onAcceptError(Exception error) {
+               fail("Should not have received an error!");
+            }
+         });
+
+         server.start();
+
+         Socket socket = new Socket("localhost", 61616);
+         server.handleSocket(socket);
+      } finally {
+         try {
+            server.stop();
+         } catch (Throwable e) {
+            e.printStackTrace();
          }
-
-         @Override
-         public void onAcceptError(Exception error) {
-            fail("Should not have received an error!");
-         }
-      });
-
-      server.start();
-
-      Socket socket = new Socket("localhost", 61616);
-      server.handleSocket(socket);
-      server.stop();
+      }
 
    }
 
