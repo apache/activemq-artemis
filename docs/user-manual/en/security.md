@@ -1219,12 +1219,10 @@ All user & role data is stored in the bindings journal (or bindings table if
 using JDBC). The advantage here is that in a live/backup use-case any user
 management performed on the live broker will be reflected on the backup upon
 failover. Typically LDAP would be employed for this kind of use-case, but not
-everyone wants or is able to administer an independent LDAP server.
-
-> **Note:**
->
-> `ActiveMQBasicSecurityManager` works only with standalone broker 
-> configuration or with live/backup clusters. It won't work with multiple lives.
+everyone wants or is able to administer an independent LDAP server. Keep in
+mind, though, that since information stored in the journal is shared within
+the boundaries of the live/backup group, `ActiveMQBasicSecurityManager` is not
+suitable for clusters with multiple lives.
 
 User management is provided by the broker's management API. This includes the
 ability to add, list, update, and remove users & roles. As with all management
