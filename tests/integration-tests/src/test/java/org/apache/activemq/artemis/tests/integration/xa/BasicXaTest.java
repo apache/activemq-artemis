@@ -206,6 +206,12 @@ public class BasicXaTest extends ActiveMQTestBase {
       clientSession.start(xid2, XAResource.TMNOFLAGS);
       clientProducer.send(m2);
       clientSession.end(xid, XAResource.TMSUCCESS);
+
+      // this is calling resume twice
+      // the TM may eventually do it, and if the state is ACTIVE, the
+      // broker should just ignore the call and keep going
+      clientSession.end(xid, XAResource.TMSUCCESS);
+
       clientSession.commit(xid, true);
       ClientMessage message = clientConsumer.receiveImmediate();
       assertNotNull(message);

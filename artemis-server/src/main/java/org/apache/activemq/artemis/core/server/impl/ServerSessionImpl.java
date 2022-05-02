@@ -1447,7 +1447,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
             throw new ActiveMQXAException(XAException.XAER_NOTA, msg);
          } else {
-            if (theTx.getState() != Transaction.State.SUSPENDED) {
+            if (theTx.getState() == State.ACTIVE) {
+               // nothing to be done on this case, it's already active, we just ignore it and keep live as usual
+               // TM 1.2 specs expects this as a regular scenario and it should just be ignored by TM Spec
+               return;
+            } else if (theTx.getState() != Transaction.State.SUSPENDED) {
+
                final String msg = "Transaction is not suspended " + xid;
 
                throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
