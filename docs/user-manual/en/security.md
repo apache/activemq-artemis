@@ -1221,7 +1221,7 @@ management performed on the live broker will be reflected on the backup upon
 failover. Keep in mind, though, that since information stored in the journal
 is shared within the boundaries of the live/backup group,
 `ActiveMQBasicSecurityManager` is not suitable for clusters with multiple lives.
-In those use-cases LDAPLoginModule could a more appropriate option. 
+In those use-cases LDAPLoginModule could be a more appropriate option. 
 
 User management is provided by the broker's management API. This includes the
 ability to add, list, update, and remove users & roles. As with all management
