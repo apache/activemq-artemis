@@ -354,7 +354,7 @@ public class SimpleAddressManager implements AddressManager {
       final Bindings bindings = this.mappings.get(addressName);
       if (bindings != null) {
          for (Binding binding : bindings.getBindings()) {
-            if (binding instanceof QueueBinding) {
+            if (binding instanceof QueueBinding && binding.isLocal()) {
                final QueueBinding queueBinding = (QueueBinding) binding;
                final RoutingType routingType = queueBinding.getQueue().getRoutingType();
                if (!routingTypes.contains(routingType) && binding.getAddress().equals(addressName)) {
