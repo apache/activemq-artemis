@@ -1218,10 +1218,15 @@ manager *may* still may have a couple of advantages depending on your use-case.
 All user & role data is stored in the bindings journal (or bindings table if
 using JDBC). The advantage here is that in a live/backup use-case any user
 management performed on the live broker will be reflected on the backup upon
-failover. Keep in mind, though, that since information stored in the journal
-is shared within the boundaries of the live/backup group,
-`ActiveMQBasicSecurityManager` is not suitable for clusters with multiple lives.
-In those use-cases LDAPLoginModule could be a more appropriate option. 
+failover.
+
+Typically LDAP would be employed for this kind of use-case, but not everyone
+wants or is able to administer an independent LDAP server. One significant
+benefit of LDAP is that user data can be shared between multiple live brokers.
+However, this is not possible with the `ActiveMQBasicSecurityManager` or, in fact,
+any other configuration potentially available out of the box. Nevertheless,
+if you just want to share user data between a single live/backup pair then the
+basic security manager may be a good fit for you.
 
 User management is provided by the broker's management API. This includes the
 ability to add, list, update, and remove users & roles. As with all management
