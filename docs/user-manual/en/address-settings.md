@@ -35,7 +35,7 @@ that would be found in the `broker.xml` file.
       <default-consumers-before-dispatch>0</default-consumers-before-dispatch>
       <default-delay-before-dispatch>-1</default-delay-before-dispatch>
       <redistribution-delay>0</redistribution-delay>
-      <send-to-dla-on-no-route>true</send-to-dla-on-no-route>
+      <send-to-dla-on-no-route>false</send-to-dla-on-no-route>
       <slow-consumer-threshold>-1</slow-consumer-threshold>
       <slow-consumer-threshold-measurement-unit>MESSAGES_PER_SECOND</slow-consumer-threshold-measurement-unit>
       <slow-consumer-policy>NOTIFY</slow-consumer-policy>
@@ -192,7 +192,7 @@ does not route it to any queues (e.g. there might be no queues bound to that
 address, or none of the queues have filters that match) then normally that
 message would be discarded. However, if this parameter is `true` then such a
 message will instead be sent to the `dead-letter-address` (DLA) for that
-address, if it exists.
+address, if it exists. Default is `false`.
 
 `slow-consumer-threshold`. The minimum rate of message consumption allowed
 before a consumer is considered "slow." Measured in units specified by the
