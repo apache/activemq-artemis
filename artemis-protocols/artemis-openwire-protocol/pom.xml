@@ -127,6 +127,7 @@
                      !org.apache.commons.net.ftp,
                      !javax.jmdns,
                      javax.jms;version="[2,3)",
+                     com.thoughtworks.xstream.*;resolution:="optional",
                      *
                   </Import-Package>
                </instructions>

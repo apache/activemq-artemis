@@ -658,6 +658,16 @@ public class DestinationProxy implements Destination {
    }
 
    @Override
+   public boolean isSendDuplicateFromStoreToDLQ() {
+      return false;
+   }
+
+   @Override
+   public void setSendDuplicateFromStoreToDLQ(boolean arg) {
+      throw new UnsupportedOperationException("Not implemented yet");
+   }
+
+   @Override
    public void start() throws Exception {
       throw new UnsupportedOperationException("Not implemented yet");
 
