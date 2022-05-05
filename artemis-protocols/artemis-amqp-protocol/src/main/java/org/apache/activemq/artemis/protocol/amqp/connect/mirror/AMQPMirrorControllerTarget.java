@@ -67,34 +67,37 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_BROKER_ID_EXTRA_PROPERTY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_DESTINATION;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID;
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.POST_ACK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.QUEUE;
-import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
 
 public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implements MirrorController {
 
    private static final Logger logger = Logger.getLogger(AMQPMirrorControllerTarget.class);
 
-   private static ThreadLocal<MirrorController> controllerThreadLocal = new ThreadLocal<>();
+   private static final ThreadLocal<MirrorController> CONTROLLER_THREAD_LOCAL = new ThreadLocal<>();
 
    public static void setControllerInUse(MirrorController controller) {
-      controllerThreadLocal.set(controller);
+      CONTROLLER_THREAD_LOCAL.set(controller);
    }
 
    public static MirrorController getControllerInUse() {
-      return controllerThreadLocal.get();
+      return CONTROLLER_THREAD_LOCAL.get();
    }
 
-   /** Objects of this class can be used by either transaction or by OperationContext.
-    *  It is important that when you're using the transactions you clear any references to
-    *  the operation context. Don't use transaction and OperationContext at the same time
-    *  as that would generate duplicates on the objects cache.
+   /**
+    * Objects of this class can be used by either transaction or by OperationContext.
+    * It is important that when you're using the transactions you clear any references to
+    * the operation context. Don't use transaction and OperationContext at the same time
+    * as that would generate duplicates on the objects cache.
     */
    class ACKMessageOperation implements IOCallback, Runnable {
 
       Delivery delivery;
 
-      /** notice that when you use the Transaction, you need to make sure you don't use the IO*/
+      /**
+       * notice that when you use the Transaction, you need to make sure you don't use the IO
+       */
       public TransactionOperationAbstract tx = new TransactionOperationAbstract() {
          @Override
          public void afterCommit(Transaction tx) {
@@ -133,12 +136,12 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       @Override
       public void onError(int errorCode, String errorMessage) {
-         logger.warn(errorMessage + "-"  + errorMessage);
+         logger.warn(errorCode + "-" + errorMessage);
       }
    }
 
    // in a regular case we should not have more than amqpCredits on the pool, that's the max we would need
-   private final MpscPool<ACKMessageOperation> ackMessageMpscPool = new MpscPool<>(amqpCredits, ACKMessageOperation::reset, () -> new ACKMessageOperation());
+   private final MpscPool<ACKMessageOperation> ackMessageMpscPool = new MpscPool<>(amqpCredits, ACKMessageOperation::reset, ACKMessageOperation::new);
 
    final RoutingContextImpl routingContext = new RoutingContextImpl(null);
 
@@ -157,7 +160,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                                      Receiver receiver,
                                      ActiveMQServer server) {
       super(sessionSPI, connection, protonSession, receiver);
-      this.basicController = new BasicMirrorController(server);
+      this.basicController = new BasicMirrorController<>(server);
       this.basicController.setLink(receiver);
       this.server = server;
       this.referenceNodeStore = sessionSPI.getProtocolManager().getReferenceIDSupplier();
@@ -176,9 +179,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    @Override
    protected void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx) {
       recoverContext();
-
       incrementSettle();
-
 
       if (logger.isTraceEnabled()) {
          logger.trace(server + "::actualdelivery call for " + message);
@@ -199,29 +200,20 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          if (eventType != null) {
             if (eventType.equals(ADD_ADDRESS)) {
                AddressInfo addressInfo = parseAddress(message);
-               if (logger.isDebugEnabled()) {
-                  logger.debug(server + " Adding Address " + addressInfo);
-               }
+
                addAddress(addressInfo);
             } else if (eventType.equals(DELETE_ADDRESS)) {
                AddressInfo addressInfo = parseAddress(message);
-               if (logger.isDebugEnabled()) {
-                  logger.debug(server + " Removing Address " + addressInfo);
-               }
+
                deleteAddress(addressInfo);
             } else if (eventType.equals(CREATE_QUEUE)) {
                QueueConfiguration queueConfiguration = parseQueue(message);
-               if (logger.isDebugEnabled()) {
-                  logger.debug(server + " Creating queue " + queueConfiguration);
-               }
+
                createQueue(queueConfiguration);
             } else if (eventType.equals(DELETE_QUEUE)) {
-
                String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, ADDRESS);
                String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, QUEUE);
-               if (logger.isDebugEnabled()) {
-                  logger.debug(server + " Deleting queue " + queueName + " on address " + address);
-               }
+
                deleteQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
             } else if (eventType.equals(POST_ACK)) {
                String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, ADDRESS);
@@ -235,17 +227,12 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                String queueName = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, QUEUE);
                AmqpValue value = (AmqpValue) message.getBody();
                Long messageID = (Long) value.getValue();
-               if (logger.isDebugEnabled()) {
-                  logger.debug(server + " Post ack address=" + address + " queueName = " + queueName + " messageID=" + messageID + ", nodeID=" + nodeID);
-               }
+
                if (postAcknowledge(address, queueName, nodeID, messageID, messageAckOperation, ackReason)) {
                   messageAckOperation = null;
                }
             }
          } else {
-            if (logger.isDebugEnabled()) {
-               logger.debug(server + " Sending message " + message);
-            }
             if (sendMessage(message, messageAckOperation)) {
                // since the send was successful, we give up the reference here,
                // so there won't be any call on afterCompleteOperations
@@ -265,34 +252,32 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    @Override
    public void initialize() throws Exception {
       super.initialize();
-      org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());
 
       // We don't currently support SECOND so enforce that the answer is anlways FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
+
       flow();
    }
 
-   private QueueConfiguration parseQueue(AMQPMessage message) throws Exception {
-      AmqpValue bodyvalue = (AmqpValue) message.getBody();
-      String body = (String) bodyvalue.getValue();
-      QueueConfiguration queueConfiguration = QueueConfiguration.fromJSON(body);
-      return queueConfiguration;
+   private QueueConfiguration parseQueue(AMQPMessage message) {
+      AmqpValue bodyValue = (AmqpValue) message.getBody();
+      String body = (String) bodyValue.getValue();
+      return QueueConfiguration.fromJSON(body);
    }
 
-   private AddressInfo parseAddress(AMQPMessage message) throws Exception {
-      AmqpValue bodyvalue = (AmqpValue) message.getBody();
-      String body = (String) bodyvalue.getValue();
-      AddressInfo addressInfo = AddressInfo.fromJSON(body);
-      return addressInfo;
+   private AddressInfo parseAddress(AMQPMessage message) {
+      AmqpValue bodyValue = (AmqpValue) message.getBody();
+      String body = (String) bodyValue.getValue();
+      return AddressInfo.fromJSON(body);
    }
 
    @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debug(server + " Adding address " + addressInfo);
+         logger.debug(server + " adding address " + addressInfo);
       }
       server.addAddressInfo(addressInfo);
    }
@@ -315,12 +300,12 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debug(server + " Adding queue " + queueConfiguration);
+         logger.debug(server + " adding queue " + queueConfiguration);
       }
       try {
          server.createQueue(queueConfiguration, true);
-      } catch (Exception ignored) {
-         logger.debug("Queue could not be created, already existed " + queueConfiguration, ignored);
+      } catch (Exception e) {
+         logger.debug("Queue could not be created, already existed " + queueConfiguration, e);
       }
    }
 
@@ -330,13 +315,22 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          logger.debug(server + " destroy queue " + queueName + " on address = " + addressName + " server " + server.getIdentity());
       }
       try {
-         server.destroyQueue(queueName,null, false, true, false, false);
+         server.destroyQueue(queueName, null, false, true, false, false);
       } catch (ActiveMQNonExistentQueueException expected) {
          logger.debug(server + " queue " + queueName + " was previously removed", expected);
       }
    }
 
-   public boolean postAcknowledge(String address, String queue, String nodeID, long messageID, ACKMessageOperation ackMessage, AckReason reason) throws Exception {
+   public boolean postAcknowledge(String address,
+                                  String queue,
+                                  String nodeID,
+                                  long messageID,
+                                  ACKMessageOperation ackMessageOperation,
+                                  AckReason reason) throws Exception {
+      if (logger.isDebugEnabled()) {
+         logger.debug(server + " Post ack address=" + address + " queueName = " + queue + " messageID=" + messageID + ", nodeID=" + nodeID);
+      }
+
       final Queue targetQueue = server.locateQueue(queue);
 
       if (targetQueue == null) {
@@ -355,20 +349,38 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          logger.trace("Server " + server.getIdentity() + " with queue = " + queue + " being acked for " + messageID + " coming from " + messageID + " targetQueue = " + targetQueue);
       }
 
-      performAck(nodeID, messageID, targetQueue, ackMessage, reason, true);
+      performAckSync(nodeID, messageID, targetQueue, ackMessageOperation, reason);
       return true;
    }
 
+   private void performAckSync(String nodeID,
+                               long messageID,
+                               Queue targetQueue,
+                               ACKMessageOperation ackMessageOperation,
+                               AckReason reason) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("performAck (nodeID=" + nodeID + ", messageID=" + messageID + ")" + ", targetQueue=" + targetQueue.getName());
+      }
+      MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
+
+      if (reference == null) {
+         OperationContextImpl.getContext().executeOnCompletion(new ACKIOCompletion(() -> performAck(nodeID, messageID, targetQueue, ackMessageOperation, reason, true)));
+      } else {
+         ackMessage(reference, targetQueue, reason, ackMessageOperation);
+      }
+   }
 
    public void performAckOnPage(String nodeID, long messageID, Queue targetQueue, IOCallback ackMessageOperation) {
       PageAck pageAck = new PageAck(targetQueue, nodeID, messageID, ackMessageOperation);
       targetQueue.getPageSubscription().scanAck(pageAck, pageAck, pageAck, pageAck);
    }
 
-   private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, boolean retry) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("performAck (nodeID=" + nodeID + ", messageID=" + messageID + ")" + ", targetQueue=" + targetQueue.getName());
-      }
+   private void performAck(String nodeID,
+                           long messageID,
+                           Queue targetQueue,
+                           ACKMessageOperation ackMessageOperation,
+                           AckReason reason,
+                           boolean retry) {
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
 
       if (reference == null && retry) {
@@ -379,47 +391,54 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
             recoverContext();
             performAck(nodeID, messageID, targetQueue, ackMessageOperation, reason, false);
          });
-         return;
-      }
-      if (reference != null) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Post ack Server " + server + " worked well for messageID=" + messageID + " nodeID=" + nodeID);
-         }
-         try {
-            switch (reason) {
-               case EXPIRED:
-                  targetQueue.expire(reference, null, false);
-                  break;
-               default:
-                  targetQueue.acknowledge(null, reference, reason, null, false);
-                  break;
-            }
-            OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation);
-         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-         }
       } else {
-         if (reason != AckReason.EXPIRED) {
-            // if expired, we don't need to check on paging
-            // as the message will expire again when depaged (if on paging)
-            performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
+         if (reference != null) {
+            ackMessage(reference, targetQueue, reason, ackMessageOperation);
+         } else {
+            if (reason != AckReason.EXPIRED) {
+               // if expired, we don't need to check on paging
+               // as the message will expire again when depaged (if on paging)
+               performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
+            }
          }
+      }
+   }
+
+   private void ackMessage(MessageReference reference, Queue targetQueue, AckReason reason, IOCallback ackMessageOperation) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Post ack server " + server + " worked well for message=" + reference);
       }
 
+      try {
+         switch (reason) {
+            case EXPIRED:
+               targetQueue.expire(reference, null, false);
+               break;
+            default:
+               targetQueue.acknowledge(null, reference, reason, null, false);
+               break;
+         }
+         OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation);
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
    }
 
    /**
     * this method returning true means the sendMessage was successful, and the IOContext should no longer be used.
     * as the sendMessage was successful the OperationContext of the transaction will take care of the completion.
     * The caller of this method should give up any reference to messageCompletionAck when this method returns true.
-    * */
+    */
    private boolean sendMessage(AMQPMessage message, ACKMessageOperation messageCompletionAck) throws Exception {
+      if (logger.isDebugEnabled()) {
+         logger.debug(server + " Sending message " + message);
+      }
 
       if (message.getMessageID() <= 0) {
          message.setMessageID(server.getStorageManager().generateID());
       }
 
-      String internalMirrorID = (String)AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, BROKER_ID);
+      String internalMirrorID = (String) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, BROKER_ID);
       if (internalMirrorID == null) {
          internalMirrorID = getRemoteMirrorId(); // not pasisng the ID means the data was generated on the remote broker
       }
@@ -432,12 +451,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          internalID = internalIDLong;
       }
 
-
       if (logger.isTraceEnabled()) {
-         logger.trace("sendMessage on server " + server + " for message " + message +
-                         " with internalID = " + internalIDLong + " mirror id " + internalMirrorID);
+         logger.trace("sendMessage on server " + server + " for message " + message + " with internalID = " + internalIDLong + " mirror id " + internalMirrorID);
       }
-
 
       routingContext.setDuplicateDetection(false); // we do our own duplicate detection here
 
@@ -484,16 +500,33 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       return true;
    }
 
-   /**
-    * @param ref
-    * @param reason
-    */
    @Override
    public void postAcknowledge(MessageReference ref, AckReason reason) {
+      // Do nothing
    }
 
    @Override
    public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+      // Do nothing
+   }
+
+   static class ACKIOCompletion implements IOCallback {
+
+      final Runnable runnable;
+
+      ACKIOCompletion(Runnable runnable) {
+         this.runnable = runnable;
+      }
+
+      @Override
+      public void done() {
+         runnable.run();
+      }
+
+      @Override
+      public void onError(int errorCode, String errorMessage) {
+         done(); // ignore error and continue
+      }
    }
 
    class PageAck implements ToIntFunction<PagedReference>, BooleanSupplier, Runnable {
@@ -512,7 +545,6 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       /**
        * Method to retry the ack before a scan
-       * @return
        */
       @Override
       public boolean getAsBoolean() {
@@ -522,8 +554,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
             if (reference == null) {
                return false;
             } else {
-               targetQueue.acknowledge(null, reference, AckReason.NORMAL, null, false);
-               OperationContextImpl.getContext().executeOnCompletion(operation);
+               ackMessage(reference, targetQueue, AckReason.NORMAL, operation);
                return true;
             }
          } catch (Throwable e) {
