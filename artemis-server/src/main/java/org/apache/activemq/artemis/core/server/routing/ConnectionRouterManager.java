@@ -186,7 +186,7 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
 
       policy.init(policyConfig.getProperties());
 
-      if (policy.getTargetProbe() != null) {
+      if (pool != null && policy.getTargetProbe() != null) {
          pool.addTargetProbe(policy.getTargetProbe());
       }
 
