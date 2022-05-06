@@ -67,6 +67,9 @@ public interface AddressControl {
    @Attribute(desc = ADDRESS_SIZE_DESCRIPTION)
    long getAddressSize();
 
+   @Operation(desc = "Schedule Page Cleanup on this address")
+   void schedulePageCleanup() throws Exception;
+
    /**
     * Returns the sum of messages on queue(s), including messages in delivery.
     */

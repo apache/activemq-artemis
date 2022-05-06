@@ -22,6 +22,8 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonString;
 import java.text.SimpleDateFormat;
@@ -341,6 +343,34 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals("# of pages is 2", 2, addressControl.getNumberOfPages());
 
       Assert.assertEquals(serverQueue.getPageSubscription().getPagingStore().getAddressSize(), addressControl.getAddressSize());
+   }
+
+
+   @Test
+   public void testScheduleCleanup() throws Exception {
+      server.getConfiguration().setPersistenceEnabled(true);
+
+      SimpleString address = RandomUtil.randomSimpleString();
+
+      AddressSettings addressSettings = new AddressSettings().setPageSizeBytes(1024).setMaxSizeBytes(10 * 1024);
+
+      server.getAddressSettingsRepository().addMatch(address.toString(), addressSettings);
+
+      server.addAddressInfo(new AddressInfo(address).addRoutingType(RoutingType.MULTICAST));
+      server.createQueue(new QueueConfiguration(address).setName(address).setDurable(true));
+
+
+      AddressControl addressControl = createManagementControl(address);
+
+      Queue queue = server.locateQueue(address);
+      queue.getPagingStore().startPaging();
+
+      Assert.assertTrue(addressControl.isPaging());
+
+      addressControl.schedulePageCleanup();
+
+      Wait.assertFalse(addressControl::isPaging, 2000, 10);
+      Wait.assertFalse(queue.getPagingStore()::isPaging);
    }
 
    @Test
