@@ -216,6 +216,11 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
                                    boolean createMessageId) throws Exception {
             return (String) proxy.invokeOperation("sendMessage", headers, type, body, durable, user, password, createMessageId);
          }
+
+         @Override
+         public void schedulePageCleanup() throws Exception {
+            proxy.invokeOperation("schedulePageCleanup");
+         }
       };
    }
 

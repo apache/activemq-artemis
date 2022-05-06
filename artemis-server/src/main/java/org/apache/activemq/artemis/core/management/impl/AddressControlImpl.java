@@ -281,6 +281,26 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
+   public void schedulePageCleanup() throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.schedulePageCleanup(this.addressInfo);
+      }
+      clearIO();
+      try {
+         final PagingStore pagingStore = getPagingStore();
+         if (pagingStore == null) {
+            return;
+         }
+         pagingStore.getCursorProvider().scheduleCleanup();
+      } catch (Exception e) {
+         ActiveMQServerLogger.LOGGER.debug("Failed to schedule pageCleanup", e);
+         throw e;
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public long getNumberOfMessages() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfMessages(this.addressInfo);
