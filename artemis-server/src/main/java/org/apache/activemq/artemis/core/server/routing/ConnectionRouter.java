@@ -176,7 +176,7 @@ public class ConnectionRouter implements ActiveMQComponent {
          return localTarget;
       }
 
-      if (pool == null) {
+      if (policy == null || pool == null) {
          return TargetResult.REFUSED_USE_ANOTHER_RESULT;
       }
 
