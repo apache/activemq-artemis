@@ -511,7 +511,15 @@ var Artemis;
             if (isNaN(type) || typeof type !== "number") {
                 return type;
             }
-            return type > -1 && type < 8 ? typeLabels[type] : type
+            return type > -1 && type < typeLabels.length ? typeLabels[type] : type
+        }
+
+        var jmsTypeLabels = ["message", "object", "map", "bytes", "stream", "text"];
+        function formatJmsType(type) {
+            if (isNaN(type) || typeof type !== "number") {
+                return type;
+            }
+            return type > -1 && type < jmsTypeLabels.length ? jmsTypeLabels[type] : type
         }
 
         var bindingTypeLabels = ["local-queue", "remote-queue", "divert"];
@@ -519,7 +527,15 @@ var Artemis;
             if (isNaN(type) || typeof type !== "number") {
                 return type;
             }
-            return type > -1 && type < 3 ? bindingTypeLabels[type] : type
+            return type > -1 && type < bindingTypeLabels.length ? bindingTypeLabels[type] : type
+        }
+
+        var destTypeLabels = ["queue", "topic", "temp-queue", "temp-topic"];
+        function formatDestType(type) {
+            if (isNaN(type) || typeof type !== "number") {
+                return type;
+            }
+            return type > -1 && type < destTypeLabels.length ? destTypeLabels[type] : type
         }
 
         ctrl.refresh = function() {
@@ -832,7 +848,7 @@ var Artemis;
             if (isNaN(enc) || typeof enc !== "number") {
                 return enc;
             }
-            return enc > -1 && enc < 9 ? amqpEncodingLabels[enc] : enc;
+            return enc > -1 && enc < amqpEncodingLabels.length ? amqpEncodingLabels[enc] : enc;
         }
 
         var routingTypes = ["multicast", "anycast"];
@@ -840,7 +856,7 @@ var Artemis;
             if (isNaN(rt) || typeof rt !== "number") {
                 return enc;
             }
-            return rt > -1 && rt < 2 ? routingTypes[rt] : rt;
+            return rt > -1 && rt < routingTypes.length ? routingTypes[rt] : rt;
         }
 
         function createProperties(message) {
@@ -864,7 +880,15 @@ var Artemis;
                             v2 += " (" + formatRoutingType(v2) + ")";
                         } else if(k2 === "extraProperties._AMQ_ACTUAL_EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "messageAnnotations.x-opt-jms-dest") {
+                            v2 += " (" + formatDestType(v2) + ")";
+                        } else if(k2 === "messageAnnotations.x-opt-jms-reply-to") {
+                            v2 += " (" + formatDestType(v2) + ")";
+                        } else if(k2 === "messageAnnotations.x-opt-jms-msg-type") {
+                            v2 += " (" + formatJmsType(v2) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-ACTUAL-EXPIRY") {
+                            v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "properties.absoluteExpiryTime") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "properties.creationTime") {
                             v2 += " (" + formatTimestamp(v2) + ")";
