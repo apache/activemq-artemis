@@ -33,6 +33,12 @@ public interface ActiveMQServerControl {
    String DISK_STORE_USAGE_DESCRIPTION = "Fraction of total disk store used";
 
    /**
+    * Returns this server's name.
+    */
+   @Attribute(desc = "Server's name")
+   String getName();
+
+   /**
     * Returns this server's version.
     */
    @Attribute(desc = "Server's version")

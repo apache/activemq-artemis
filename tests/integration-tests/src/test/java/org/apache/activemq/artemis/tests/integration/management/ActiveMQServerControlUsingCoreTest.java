@@ -588,6 +588,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String getName() {
+            return (String) proxy.retrieveAttributeValue("name");
+         }
+
+         @Override
          public String getVersion() {
             return proxy.retrieveAttributeValue("version").toString();
          }
