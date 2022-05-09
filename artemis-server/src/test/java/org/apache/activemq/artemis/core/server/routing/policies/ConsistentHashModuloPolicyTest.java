@@ -24,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class ConsistentHashModuloPolicyTest {
@@ -51,5 +52,43 @@ public class ConsistentHashModuloPolicyTest {
       assertNotEquals(hash1, hash2);
       assertNotEquals(v1, v2);
       assertTrue(v1 < modulo && v2 < modulo);
+   }
+
+   @Test
+   public void transformKeyNotNegative() {
+      ConsistentHashModuloPolicy underTest = new ConsistentHashModuloPolicy();
+      HashMap<String, String> properties = new HashMap<>();
+      final int modulo = 2;
+      properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
+      underTest.init(properties);
+
+      assertNotNull(underTest.getProperties());
+
+      String[] values = new String[]{"ONE", "TWO", "THREE", "FOUR"};
+      for (String v : values) {
+         assertTrue("non negative for: " + v, Integer.valueOf(underTest.transformKey(v)) >= 0);
+      }
+   }
+
+   @Test
+   public void transformKeyNotNegativeWithExplicitNegativeHash() {
+      final int[] negs = {-1, Integer.MAX_VALUE, Integer.MIN_VALUE, 100, 500, 22, 2, 1};
+      ConsistentHashModuloPolicy underTest = new ConsistentHashModuloPolicy() {
+         int v = 0;
+         @Override
+         protected int getHash(String str) {
+            return negs[v++ % negs.length];
+         }
+      };
+      HashMap<String, String> properties = new HashMap<>();
+      final int modulo = 2;
+      properties.put(ConsistentHashModuloPolicy.MODULO, String.valueOf(modulo));
+      underTest.init(properties);
+
+      assertNotNull(underTest.getProperties());
+
+      for (int i = 0; i < negs.length; i++) {
+         assertTrue("non negative for: " + i, Integer.valueOf(underTest.transformKey("BLA")) >= 0);
+      }
    }
 }

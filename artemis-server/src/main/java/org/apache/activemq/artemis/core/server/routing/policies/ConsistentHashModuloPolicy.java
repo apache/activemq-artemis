@@ -35,13 +35,14 @@ public class ConsistentHashModuloPolicy extends ConsistentHashPolicy {
 
    @Override
    public void init(Map<String, String> properties) {
+      super.init(properties);
       modulo = Integer.parseInt(properties.get(MODULO));
    }
 
    @Override
    public String transformKey(String key) {
       if (modulo > 0) {
-         return String.valueOf(getHash(key) % modulo);
+         return String.valueOf((getHash(key) & Integer.MAX_VALUE) % modulo);
       }
 
       return key;
