@@ -123,3 +123,10 @@ Set the `customizer` attribute via the `web` element to enable the [`ForwardedRe
    </binding>
 </web>
 ```
+
+## Management
+
+The embedded web server can be stopped, started, or restarted via any available
+management interface via the `stopEmbeddedWebServer`, `starteEmbeddedWebServer`,
+and `restartEmbeddedWebServer` operations on the `ActiveMQServerControl` 
+respectively.

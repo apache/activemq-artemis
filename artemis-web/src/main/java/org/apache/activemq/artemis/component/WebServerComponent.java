@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.ComponentDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
+import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.eclipse.jetty.security.DefaultAuthenticatorFactory;
 import org.eclipse.jetty.server.ConnectionFactory;
 import org.eclipse.jetty.server.CustomRequestLog;
@@ -53,115 +54,81 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.logging.Logger;
 
-public class WebServerComponent implements ExternalComponent {
+public class WebServerComponent implements ExternalComponent, WebServerComponentMarker {
 
    private static final Logger logger = Logger.getLogger(WebServerComponent.class);
+   public static final String DIR_ALLOWED = "org.eclipse.jetty.servlet.Default.dirAllowed";
 
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
    private final List<String> consoleUrls = new ArrayList<>();
    private final List<String> jolokiaUrls = new ArrayList<>();
-   private List<WebAppContext> webContexts;
+   private final List<WebAppContext> webContexts = new ArrayList<>();;
    private ServerConnector[] connectors;
    private Path artemisHomePath;
    private Path temporaryWarDir;
+   private String artemisInstance;
+   private String artemisHome;
 
    @Override
    public void configure(ComponentDTO config, String artemisInstance, String artemisHome) throws Exception {
-      webServerConfig = (WebServerDTO) config;
-      server = new Server();
-
-      HttpConfiguration httpConfiguration = new HttpConfiguration();
-
-      if (webServerConfig.customizer != null) {
-         try {
-            httpConfiguration.addCustomizer((HttpConfiguration.Customizer) Class.forName(webServerConfig.customizer).getConstructor().newInstance());
-         } catch (Throwable t) {
-            ActiveMQWebLogger.LOGGER.customizerNotLoaded(webServerConfig.customizer, t);
-         }
-      }
-
-      List<BindingDTO> bindings = webServerConfig.getBindings();
-      connectors = new ServerConnector[bindings.size()];
-      String[] virtualHosts = new String[bindings.size()];
-
-      for (int i = 0; i < bindings.size(); i++) {
-         BindingDTO binding = bindings.get(i);
-         URI uri = new URI(binding.uri);
-         String scheme = uri.getScheme();
-         ServerConnector connector;
-
-         if ("https".equals(scheme)) {
-            SslContextFactory.Server sslFactory = new SslContextFactory.Server();
-            sslFactory.setKeyStorePath(binding.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : binding.keyStorePath);
-            sslFactory.setKeyStorePassword(binding.getKeyStorePassword() == null ? "password" : binding.getKeyStorePassword());
-
-            if (binding.getIncludedTLSProtocols() != null) {
-               sslFactory.setIncludeProtocols(binding.getIncludedTLSProtocols());
-            }
-            if (binding.getExcludedTLSProtocols() != null) {
-               sslFactory.setExcludeProtocols(binding.getExcludedTLSProtocols());
-            }
-            if (binding.getIncludedCipherSuites() != null) {
-               sslFactory.setIncludeCipherSuites(binding.getIncludedCipherSuites());
-            }
-            if (binding.getExcludedCipherSuites() != null) {
-               sslFactory.setExcludeCipherSuites(binding.getExcludedCipherSuites());
-            }
-            if (binding.clientAuth != null) {
-               sslFactory.setNeedClientAuth(binding.clientAuth);
-               if (binding.clientAuth) {
-                  sslFactory.setTrustStorePath(binding.trustStorePath);
-                  sslFactory.setTrustStorePassword(binding.getTrustStorePassword());
-               }
-            }
-
-            SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
-
-            httpConfiguration.addCustomizer(new SecureRequestCustomizer());
-            httpConfiguration.setSendServerVersion(false);
-            HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
-
-            connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
-
-         } else {
-            httpConfiguration.setSendServerVersion(false);
-            ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
-            connector = new ServerConnector(server, connectionFactory);
-         }
-         connector.setPort(uri.getPort());
-         connector.setHost(uri.getHost());
-         connector.setName("Connector-" + i);
-
-         connectors[i] = connector;
-         virtualHosts[i] = "@Connector-" + i;
-      }
-
-      server.setConnectors(connectors);
-
-      handlers = new HandlerList();
-
-      this.artemisHomePath = Paths.get(artemisHome != null ? artemisHome : ".");
-      Path homeWarDir = artemisHomePath.resolve(webServerConfig.path).toAbsolutePath();
-      Path instanceWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve(webServerConfig.path).toAbsolutePath();
+      this.webServerConfig = (WebServerDTO) config;
+      this.artemisInstance = artemisInstance;
+      this.artemisHome = artemisHome;
 
       temporaryWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve("tmp").resolve("webapps").toAbsolutePath();
       if (!Files.exists(temporaryWarDir)) {
          Files.createDirectories(temporaryWarDir);
       }
+   }
+
+   @Override
+   public synchronized void start() throws Exception {
+      if (isStarted()) {
+         return;
+      }
+      ActiveMQWebLogger.LOGGER.startingEmbeddedWebServer();
+
+      server = new Server();
+      handlers = new HandlerList();
+
+      HttpConfiguration httpConfiguration = new HttpConfiguration();
+
+      if (this.webServerConfig.customizer != null) {
+         try {
+            httpConfiguration.addCustomizer((HttpConfiguration.Customizer) Class.forName(this.webServerConfig.customizer).getConstructor().newInstance());
+         } catch (Throwable t) {
+            ActiveMQWebLogger.LOGGER.customizerNotLoaded(this.webServerConfig.customizer, t);
+         }
+      }
+
+      List<BindingDTO> bindings = this.webServerConfig.getBindings();
+      connectors = new ServerConnector[bindings.size()];
+      String[] virtualHosts = new String[bindings.size()];
+
+      this.artemisHomePath = Paths.get(artemisHome != null ? artemisHome : ".");
+      Path homeWarDir = artemisHomePath.resolve(this.webServerConfig.path).toAbsolutePath();
+      Path instanceWarDir = Paths.get(artemisInstance != null ? artemisInstance : ".").resolve(this.webServerConfig.path).toAbsolutePath();
 
       for (int i = 0; i < bindings.size(); i++) {
          BindingDTO binding = bindings.get(i);
+         URI uri = new URI(binding.uri);
+         String scheme = uri.getScheme();
+         ServerConnector connector = createServerConnector(httpConfiguration, i, binding, uri, scheme);
+
+         connectors[i] = connector;
+         virtualHosts[i] = "@Connector-" + i;
+
          if (binding.apps != null && binding.apps.size() > 0) {
-            webContexts = new ArrayList<>();
             for (AppDTO app : binding.apps) {
                Path dirToUse = homeWarDir;
-               if (new File(instanceWarDir.toFile().toString() + File.separator + app.war).exists()) {
+               if (new File(instanceWarDir.toFile() + File.separator + app.war).exists()) {
                   dirToUse = instanceWarDir;
                }
-               WebAppContext webContext = deployWar(app.url, app.war, dirToUse, virtualHosts[i]);
-               webContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+               WebAppContext webContext = createWebAppContext(app.url, app.war, dirToUse, virtualHosts[i]);
+               handlers.addHandler(webContext);
+               webContext.setInitParameter(DIR_ALLOWED, "false");
                webContexts.add(webContext);
                if (app.war.startsWith("console")) {
                   consoleUrls.add(binding.uri + "/" + app.url);
@@ -170,6 +137,8 @@ public class WebServerComponent implements ExternalComponent {
             }
          }
       }
+
+      server.setConnectors(connectors);
 
       ResourceHandler homeResourceHandler = new ResourceHandler();
       homeResourceHandler.setResourceBase(homeWarDir.toString());
@@ -181,7 +150,7 @@ public class WebServerComponent implements ExternalComponent {
       homeContext.setResourceBase(homeWarDir.toString());
       homeContext.setHandler(homeResourceHandler);
       homeContext.setVirtualHosts(virtualHosts);
-      homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+      homeContext.setInitParameter(DIR_ALLOWED, "false");
 
       ResourceHandler instanceResourceHandler = new ResourceHandler();
       instanceResourceHandler.setResourceBase(instanceWarDir.toString());
@@ -193,12 +162,12 @@ public class WebServerComponent implements ExternalComponent {
       instanceContext.setResourceBase(instanceWarDir.toString());
       instanceContext.setHandler(instanceResourceHandler);
       instanceContext.setVirtualHosts(virtualHosts);
-      homeContext.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
+      homeContext.setInitParameter(DIR_ALLOWED, "false");
 
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
 
-      if (webServerConfig.requestLog != null) {
+      if (this.webServerConfig.requestLog != null) {
          handlers.addHandler(getLogHandler());
       }
       handlers.addHandler(homeContext);
@@ -206,6 +175,68 @@ public class WebServerComponent implements ExternalComponent {
       handlers.addHandler(defaultHandler); // this should be last
 
       server.setHandler(handlers);
+
+      cleanupTmp();
+      server.start();
+
+      ActiveMQWebLogger.LOGGER.webserverStarted(bindings
+                                                   .stream()
+                                                   .map(binding -> binding.uri)
+                                                   .collect(Collectors.joining(", ")));
+
+      ActiveMQWebLogger.LOGGER.jolokiaAvailable(String.join(", ", jolokiaUrls));
+      ActiveMQWebLogger.LOGGER.consoleAvailable(String.join(", ", consoleUrls));
+   }
+
+   private ServerConnector createServerConnector(HttpConfiguration httpConfiguration,
+                                              int i,
+                                              BindingDTO binding,
+                                              URI uri,
+                                              String scheme) throws Exception {
+      ServerConnector connector;
+
+      if ("https".equals(scheme)) {
+         SslContextFactory.Server sslFactory = new SslContextFactory.Server();
+         sslFactory.setKeyStorePath(binding.keyStorePath == null ? artemisInstance + "/etc/keystore.jks" : binding.keyStorePath);
+         sslFactory.setKeyStorePassword(binding.getKeyStorePassword() == null ? "password" : binding.getKeyStorePassword());
+
+         if (binding.getIncludedTLSProtocols() != null) {
+            sslFactory.setIncludeProtocols(binding.getIncludedTLSProtocols());
+         }
+         if (binding.getExcludedTLSProtocols() != null) {
+            sslFactory.setExcludeProtocols(binding.getExcludedTLSProtocols());
+         }
+         if (binding.getIncludedCipherSuites() != null) {
+            sslFactory.setIncludeCipherSuites(binding.getIncludedCipherSuites());
+         }
+         if (binding.getExcludedCipherSuites() != null) {
+            sslFactory.setExcludeCipherSuites(binding.getExcludedCipherSuites());
+         }
+         if (binding.clientAuth != null) {
+            sslFactory.setNeedClientAuth(binding.clientAuth);
+            if (binding.clientAuth) {
+               sslFactory.setTrustStorePath(binding.trustStorePath);
+               sslFactory.setTrustStorePassword(binding.getTrustStorePassword());
+            }
+         }
+
+         SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
+
+         httpConfiguration.addCustomizer(new SecureRequestCustomizer());
+         httpConfiguration.setSendServerVersion(false);
+         HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
+
+         connector = new ServerConnector(server, sslConnectionFactory, httpFactory);
+
+      } else {
+         httpConfiguration.setSendServerVersion(false);
+         ConnectionFactory connectionFactory = new HttpConnectionFactory(httpConfiguration);
+         connector = new ServerConnector(server, connectionFactory);
+      }
+      connector.setPort(uri.getPort());
+      connector.setHost(uri.getHost());
+      connector.setName("Connector-" + i);
+      return connector;
    }
 
    private RequestLogHandler getLogHandler() {
@@ -249,33 +280,6 @@ public class WebServerComponent implements ExternalComponent {
       return requestLogHandler;
    }
 
-   @Override
-   public void start() throws Exception {
-      if (isStarted()) {
-         return;
-      }
-      cleanupTmp();
-      server.start();
-
-      String bindings = webServerConfig.getBindings()
-            .stream()
-            .map(binding -> binding.uri)
-            .collect(Collectors.joining(", "));
-      ActiveMQWebLogger.LOGGER.webserverStarted(bindings);
-
-      ActiveMQWebLogger.LOGGER.jolokiaAvailable(String.join(", ", jolokiaUrls));
-      ActiveMQWebLogger.LOGGER.consoleAvailable(String.join(", ", consoleUrls));
-   }
-
-   public void internalStop() throws Exception {
-      server.stop();
-      if (webContexts != null) {
-         cleanupWebTemporaryFiles(webContexts);
-
-         webContexts.clear();
-      }
-   }
-
    private File getLibFolder() {
       Path lib = artemisHomePath.resolve("lib");
       File libFolder = new File(lib.toUri());
@@ -283,7 +287,7 @@ public class WebServerComponent implements ExternalComponent {
    }
 
    private void cleanupTmp() {
-      if (webContexts == null || webContexts.size() == 0) {
+      if (webContexts.size() == 0) {
          //there is no webapp to be deployed (as in some tests)
          return;
       }
@@ -332,7 +336,7 @@ public class WebServerComponent implements ExternalComponent {
       return -1;
    }
 
-   private WebAppContext deployWar(String url, String warFile, Path warDirectory, String virtualHost) {
+   protected WebAppContext createWebAppContext(String url, String warFile, Path warDirectory, String virtualHost) {
       WebAppContext webapp = new WebAppContext();
       if (url.startsWith("/")) {
          webapp.setContextPath(url);
@@ -353,7 +357,6 @@ public class WebServerComponent implements ExternalComponent {
 
       webapp.setVirtualHosts(new String[]{virtualHost});
 
-      handlers.addHandler(webapp);
       return webapp;
    }
 
@@ -363,9 +366,17 @@ public class WebServerComponent implements ExternalComponent {
    }
 
    @Override
-   public void stop(boolean isShutdown) throws Exception {
-      if (isShutdown) {
-         internalStop();
+   public synchronized void stop(boolean isShutdown) throws Exception {
+      if (isShutdown && isStarted()) {
+         ActiveMQWebLogger.LOGGER.stoppingEmbeddedWebServer();
+         server.stop();
+         server = null;
+         cleanupWebTemporaryFiles(webContexts);
+         webContexts.clear();
+         jolokiaUrls.clear();
+         consoleUrls.clear();
+         handlers = null;
+         ActiveMQWebLogger.LOGGER.stoppedEmbeddedWebServer();
       }
    }
 

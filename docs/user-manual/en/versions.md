@@ -8,6 +8,12 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.23.0
+[Full release notes](TBD).
+
+Highlights:
+- New [management operations](web-server.md#management) for the embedded web server.
+
 ## 2.21.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351083&projectId=12315920).
 

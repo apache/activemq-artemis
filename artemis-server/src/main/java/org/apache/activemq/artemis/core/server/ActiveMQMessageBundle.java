@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQReplicationTimeooutException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQSessionCreationException;
+import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
 import org.apache.activemq.artemis.api.core.ActiveMQUnexpectedRoutingTypeForAddress;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -522,4 +523,13 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229240, value = "Connection router {0} rejected the connection", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQRemoteDisconnectException connectionRejected(String connectionRouter);
+
+   @Message(id = 229241, value = "Embedded web server not found")
+   ActiveMQIllegalStateException embeddedWebServerNotFound();
+
+   @Message(id = 229242, value = "Embedded web server not restarted in {0} milliseconds", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQTimeoutException embeddedWebServerRestartTimeout(long timeout);
+
+   @Message(id = 229243, value = "Embedded web server restart failed", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQException embeddedWebServerRestartFailed(@Cause Exception e);
 }

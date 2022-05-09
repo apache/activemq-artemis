@@ -652,6 +652,8 @@ public final class ActiveMQDefaultConfiguration {
    // If SESSION-notifications should be suppressed or not
    public static boolean DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS = false;
 
+   public static final long DEFAULT_EMBEDDED_WEB_SERVER_RESTART_TIMEOUT = 5000;
+
    /**
     * If true then the ActiveMQ Artemis Server will make use of any Protocol Managers that are in available on the classpath. If false then only the core protocol will be available, unless in Embedded mode where users can inject their own Protocol Managers.
     */
@@ -1784,6 +1786,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static boolean getDefaultSuppressSessionNotifications() {
       return DEFAULT_SUPPRESS_SESSION_NOTIFICATIONS;
+   }
+
+   public static long getDefaultEmbeddedWebServerRestartTimeout() {
+      return DEFAULT_EMBEDDED_WEB_SERVER_RESTART_TIMEOUT;
    }
 
 }
