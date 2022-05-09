@@ -1661,6 +1661,31 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
                             String filter) throws Exception {
             proxy.invokeOperation("replay", startScan, endScan, address, target, filter);
          }
+
+         @Override
+         public void stopEmbeddedWebServer() throws Exception {
+            proxy.invokeOperation("stopEmbeddedWebServer");
+         }
+
+         @Override
+         public void startEmbeddedWebServer() throws Exception {
+            proxy.invokeOperation("startEmbeddedWebServer");
+         }
+
+         @Override
+         public void restartEmbeddedWebServer() throws Exception {
+            proxy.invokeOperation("restartEmbeddedWebServer");
+         }
+
+         @Override
+         public void restartEmbeddedWebServer(long timeout) throws Exception {
+            proxy.invokeOperation("restartEmbeddedWebServer", timeout);
+         }
+
+         @Override
+         public boolean isEmbeddedWebServerStarted() {
+            return (boolean) proxy.retrieveAttributeValue("embeddedWebServerStarted");
+         }
       };
    }
 

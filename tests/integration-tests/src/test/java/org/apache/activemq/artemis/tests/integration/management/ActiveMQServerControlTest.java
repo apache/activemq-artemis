@@ -36,9 +36,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -78,6 +83,7 @@ import org.apache.activemq.artemis.core.server.BrokerConnection;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
@@ -88,6 +94,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.marker.WebServerComponentMarker;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
@@ -4287,6 +4294,131 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          serverControl.stopBrokerConnection(fake.getName());
          Assert.assertFalse(fake.isStarted());
       } catch (Exception expected) {
+      }
+   }
+
+   @Test
+   public void testManualStopStartEmbeddedWebServer() throws Exception {
+      FakeWebServerComponent fake = new FakeWebServerComponent();
+      server.addExternalComponent(fake, true);
+      Assert.assertTrue(fake.isStarted());
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      serverControl.stopEmbeddedWebServer();
+      Assert.assertFalse(fake.isStarted());
+      serverControl.startEmbeddedWebServer();
+      Assert.assertTrue(fake.isStarted());
+   }
+
+   @Test
+   public void testRestartEmbeddedWebServer() throws Exception {
+      FakeWebServerComponent fake = new FakeWebServerComponent();
+      server.addExternalComponent(fake, true);
+      Assert.assertTrue(fake.isStarted());
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      long time = System.currentTimeMillis();
+      Assert.assertTrue(time >= fake.getStartTime());
+      Assert.assertTrue(time > fake.getStopTime());
+      Thread.sleep(5);
+      serverControl.restartEmbeddedWebServer();
+      Assert.assertTrue(serverControl.isEmbeddedWebServerStarted());
+      Assert.assertTrue(time < fake.getStartTime());
+      Assert.assertTrue(time < fake.getStopTime());
+   }
+
+   @Test
+   public void testRestartEmbeddedWebServerTimeout() throws Exception {
+      final CountDownLatch startDelay = new CountDownLatch(1);
+      FakeWebServerComponent fake = new FakeWebServerComponent(startDelay);
+      server.addExternalComponent(fake, false);
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.restartEmbeddedWebServer(10);
+         fail();
+      } catch (ActiveMQTimeoutException e) {
+         // expected
+      } finally {
+         startDelay.countDown();
+      }
+      Wait.waitFor(() -> fake.isStarted());
+   }
+
+   @Test
+   public void testRestartEmbeddedWebServerException() throws Exception {
+      final String message = RandomUtil.randomString();
+      final Exception startException = new ActiveMQIllegalStateException(message);
+      FakeWebServerComponent fake = new FakeWebServerComponent(startException);
+      server.addExternalComponent(fake, false);
+
+      ActiveMQServerControl serverControl = createManagementControl();
+      try {
+         serverControl.restartEmbeddedWebServer(10);
+         fail();
+      } catch (ActiveMQIllegalStateException e) {
+         assertEquals(message, e.getMessage());
+      }
+   }
+
+   class FakeWebServerComponent implements ServiceComponent, WebServerComponentMarker {
+      AtomicBoolean started = new AtomicBoolean(false);
+      AtomicLong startTime = new AtomicLong(0);
+      AtomicLong stopTime = new AtomicLong(0);
+      CountDownLatch startDelay;
+      Exception startException;
+
+      FakeWebServerComponent(CountDownLatch startDelay) {
+         this.startDelay = startDelay;
+      }
+
+      FakeWebServerComponent(Exception startException) {
+         this.startException = startException;
+      }
+
+      FakeWebServerComponent() {
+      }
+
+      @Override
+      public void start() throws Exception {
+         if (started.get()) {
+            return;
+         }
+         if (startDelay != null) {
+            startDelay.await();
+         }
+         if (startException != null) {
+            throw startException;
+         }
+         startTime.set(System.currentTimeMillis());
+         started.set(true);
+      }
+
+      @Override
+      public void stop() throws Exception {
+         stop(false);
+      }
+
+      @Override
+      public void stop(boolean shutdown) throws Exception {
+         if (!shutdown) {
+            throw new RuntimeException("shutdown flag must be true");
+         }
+         stopTime.set(System.currentTimeMillis());
+         started.set(false);
+      }
+
+      @Override
+      public boolean isStarted() {
+         return started.get();
+      }
+
+      public long getStartTime() {
+         return startTime.get();
+      }
+
+      public long getStopTime() {
+         return stopTime.get();
       }
    }
 
