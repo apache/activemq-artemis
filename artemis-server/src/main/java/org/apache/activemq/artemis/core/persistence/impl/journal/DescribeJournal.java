@@ -109,6 +109,7 @@ public final class DescribeJournal {
 
    private final List<RecordInfo> records;
    private final List<PreparedTransactionInfo> preparedTransactions;
+   private List<PersistentQueueBindingEncoding> bindingEncodings;
 
    private static Configuration getConfiguration() {
       Configuration configuration;
@@ -143,6 +144,15 @@ public final class DescribeJournal {
       this.preparedTransactions = preparedTransactions;
    }
 
+   public List<PersistentQueueBindingEncoding> getBindingEncodings() {
+      return bindingEncodings;
+   }
+
+   public DescribeJournal setBindingEncodings(List<PersistentQueueBindingEncoding> bindingEncodings) {
+      this.bindingEncodings = bindingEncodings;
+      return this;
+   }
+
    public List<RecordInfo> getRecords() {
       return records;
    }
@@ -160,12 +170,12 @@ public final class DescribeJournal {
       describeBindingsJournal(bindingsDir, out, safe, printRecords, printSurviving, false);
    }
 
-   public static void describeBindingsJournal(final File bindingsDir, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) throws Exception {
+   public static DescribeJournal describeBindingsJournal(final File bindingsDir, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) throws Exception {
 
       SequentialFileFactory bindingsFF = new NIOSequentialFileFactory(bindingsDir, null, 1);
 
       JournalImpl bindings = new JournalImpl(1024 * 1024, 2, 2, -1, 0, bindingsFF, "activemq-bindings", "bindings", 1);
-      describeJournal(bindingsFF, bindings, bindingsDir, out, safe, printRecords, printSurviving, reclaimed);
+      return describeJournal(bindingsFF, bindings, bindingsDir, out, safe, printRecords, printSurviving, reclaimed);
    }
 
    public static DescribeJournal describeMessagesJournal(final File messagesDir) throws Exception {
@@ -333,6 +343,7 @@ public final class DescribeJournal {
 
       List<RecordInfo> records = new LinkedList<>();
       List<PreparedTransactionInfo> preparedTransactions = new LinkedList<>();
+      List<PersistentQueueBindingEncoding> bindings = null;
 
       journal.start();
 
@@ -432,6 +443,13 @@ public final class DescribeJournal {
 
             subsCounter.loadInc(info.id, encoding.getValue(), encoding.getPersistentSize());
             subsCounter.processReload();
+         } else if (userRecordType == QUEUE_BINDING_RECORD) {
+            PersistentQueueBindingEncoding bindingEncoding = (PersistentQueueBindingEncoding) DescribeJournal.newObjectEncoding(info, null);
+            if (bindings == null) {
+               bindings = new LinkedList<>();
+            }
+            bindings.add(bindingEncoding);
+
          }
 
          out.println(describeRecord(info, o, safe));
@@ -501,7 +519,7 @@ public final class DescribeJournal {
 
       journal.stop();
 
-      return new DescribeJournal(records, preparedTransactions);
+      return new DescribeJournal(records, preparedTransactions).setBindingEncodings(bindings);
    }
 
    protected static void printCounters(final PrintStream out, final Map<Long, PageSubscriptionCounterImpl> counters) {
