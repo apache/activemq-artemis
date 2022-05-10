@@ -120,7 +120,7 @@ public class PrintData extends DBOption {
 
       DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe);
 
-      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages);
+      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, null);
 
       cleanup();
 
@@ -160,11 +160,13 @@ public class PrintData extends DBOption {
       }
 
       printBanner(out, BINDINGS_BANNER);
+      DescribeJournal bindingsDescribe;
       if (skipBindings) {
          out.println(".... skipping");
          out.println();
+         bindingsDescribe = null;
       } else {
-         printBindings(bindingsDirectory, out, safe, true, true, reclaimed);
+         bindingsDescribe = printBindings(bindingsDirectory, out, safe, true, true, reclaimed);
       }
 
       printBanner(out, MESSAGES_BANNER);
@@ -185,7 +187,7 @@ public class PrintData extends DBOption {
             out.println(".... skipping");
             out.println();
          } else {
-            printPages(pagingDirectory, describeJournal, out, safe, maxPages);
+            printPages(pagingDirectory, describeJournal, out, safe, maxPages, bindingsDescribe);
          }
       } catch (Exception e) {
          e.printStackTrace();
@@ -205,11 +207,12 @@ public class PrintData extends DBOption {
       return describeJournal;
    }
 
-   public static void printBindings(File bindingsDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) {
+   public static DescribeJournal printBindings(File bindingsDirectory, PrintStream out, boolean safe, boolean printRecords, boolean printSurviving, boolean reclaimed) {
       try {
-         DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe, printRecords, printSurviving, reclaimed);
+         return DescribeJournal.describeBindingsJournal(bindingsDirectory, out, safe, printRecords, printSurviving, reclaimed);
       } catch (Exception e) {
          e.printStackTrace();
+         return null;
       }
    }
 
@@ -220,11 +223,7 @@ public class PrintData extends DBOption {
       out.println("********************************************");
    }
 
-   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe) {
-      printPages(pageDirectory, describeJournal, out, safe, -1);
-   }
-
-   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe, int maxPages) {
+   private static void printPages(File pageDirectory, DescribeJournal describeJournal, PrintStream out, boolean safe, int maxPages, DescribeJournal bindingsDescribe) {
       ActiveMQThreadFactory daemonFactory = new ActiveMQThreadFactory("cli", true, PrintData.class.getClassLoader());
       final ScheduledExecutorService scheduled = Executors.newScheduledThreadPool(1, daemonFactory);
       final ExecutorService executor = Executors.newFixedThreadPool(10, daemonFactory);
@@ -242,7 +241,7 @@ public class PrintData extends DBOption {
          addressSettingsRepository.setDefault(new AddressSettings());
          PagingManager manager = new PagingManagerImpl(pageStoreFactory, addressSettingsRepository);
 
-         printPages(describeJournal, sm, manager, out, safe, maxPages);
+         printPages(describeJournal, sm, manager, out, safe, maxPages, bindingsDescribe);
       } catch (Exception e) {
          e.printStackTrace();
       } finally {
@@ -255,8 +254,14 @@ public class PrintData extends DBOption {
                                   StorageManager sm,
                                   PagingManager manager,
                                   PrintStream out,
-                                  boolean safe, int maxPages) throws Exception {
+                                  boolean safe, int maxPages,
+                                  DescribeJournal bindingsDescribe) throws Exception {
       PageCursorsInfo cursorACKs = calculateCursorsInfo(describeJournal.getRecords());
+
+      HashSet<Long> existingQueues = new HashSet<>();
+      if (bindingsDescribe != null && bindingsDescribe.getBindingEncodings() != null) {
+         bindingsDescribe.getBindingEncodings().forEach(e -> existingQueues.add(e.getId()));
+      }
 
       Set<Long> pgTXs = cursorACKs.getPgTXs();
 
@@ -321,8 +326,15 @@ public class PrintData extends DBOption {
                         out.print(" (PG-COMPLETE)");
                      }
 
+                     if (!existingQueues.contains(q[i])) {
+                        out.print(" (N/A) ");
+                        acked = true;
+                     }
+
                      if (acked) {
                         ackCount++;
+                     } else {
+                        out.print(" (OK) ");
                      }
 
                      if (i + 1 < q.length) {
