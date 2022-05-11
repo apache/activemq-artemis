@@ -30,9 +30,9 @@ public class QueuesPage extends ArtemisPage {
 
    public QueuePage getQueuePage(String name, int timeout) {
       WebElement messagesCountWebElement = driver.findElement(getQueueLocator(name)).
-         findElements(By.tagName("td")).get(MESSAGES_COUNT_COLUMN);
+         findElement(By.xpath("td/span/a[contains(@onclick,'browseQueue')]"));
 
-      messagesCountWebElement.findElement(By.tagName("a")).click();
+      messagesCountWebElement.click();
 
       waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Browse Queue')]"), timeout);
 
@@ -45,9 +45,9 @@ public class QueuesPage extends ArtemisPage {
 
    public int getMessagesCount(String name) {
       WebElement messagesCountWebElement = driver.findElement(getQueueLocator(name)).
-         findElements(By.tagName("td")).get(MESSAGES_COUNT_COLUMN);
+         findElement(By.xpath("td/span/a[contains(@onclick,'browseQueue')]"));
 
-      return Integer.parseInt(messagesCountWebElement.findElement(By.tagName("a")).getText());
+      return Integer.parseInt(messagesCountWebElement.getText());
    }
 
    private By getQueueLocator(String name) {
