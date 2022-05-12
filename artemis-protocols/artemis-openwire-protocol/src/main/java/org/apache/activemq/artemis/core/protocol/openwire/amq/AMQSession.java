@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -250,6 +251,10 @@ public class AMQSession implements SessionCallback {
                   coreSession.createQueue(new QueueConfiguration(queueNameToUse).setAddress(addressToUse).setRoutingType(routingTypeToUse).setTemporary(isTemporary).setAutoCreated(true).setFilterString(filter));
                   connection.addKnownDestination(queueName);
                } else {
+                  if (server.getAddressInfo(queueName) == null) {
+                     //Address does not exist and will not get autocreated
+                     throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
+                  }
                   hasQueue = false;
                }
             }
