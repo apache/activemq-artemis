@@ -110,6 +110,9 @@ public class QueueConfiguration implements Serializable {
    private Boolean _transient;
    private Boolean autoCreated;
 
+   public QueueConfiguration() {
+   }
+
    /**
     * Instantiate this object and invoke {@link #setName(SimpleString)}
     *

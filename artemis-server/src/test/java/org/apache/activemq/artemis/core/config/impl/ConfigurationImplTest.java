@@ -722,6 +722,25 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals("TF", configuration.getConnectionRouters().get(0).getKeyFilter());
    }
 
+
+   @Test
+   public void testAddressViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType", "ANYCAST");
+      properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".durable", "false");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressConfigurations().size());
+      Assert.assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
+      Assert.assertEquals(SimpleString.toSimpleString("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
+      Assert.assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
+   }
+
+
    @Test
    public void testAddressSettingsViaProperties() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();

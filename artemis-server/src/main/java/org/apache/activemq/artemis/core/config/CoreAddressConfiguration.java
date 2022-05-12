@@ -76,6 +76,10 @@ public class CoreAddressConfiguration implements Serializable {
       return this;
    }
 
+   public CoreAddressConfiguration addQueueConfig(QueueConfiguration queueConfiguration) {
+      return addQueueConfiguration(queueConfiguration);
+   }
+
    @Deprecated
    public List<CoreQueueConfiguration> getQueueConfigurations() {
       List<CoreQueueConfiguration> result = new ArrayList<>();
