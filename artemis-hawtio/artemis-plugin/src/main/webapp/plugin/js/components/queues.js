@@ -34,6 +34,9 @@ var Artemis;
                             items="$ctrl.queues">
              </pf-table-view>
              <div ng-include="'plugin/artemispagination.html'"></div>
+             <script type="text/ng-template" id="queues-anchor-column-template">
+                <a href="#" ng-click="$ctrl.handleColAction(key, item)">{{value}}</a>
+             </script>
              <script type="text/ng-template" id="queues-instructions.html">
              <div>
                 <p>
@@ -57,7 +60,7 @@ var Artemis;
     .name;
 
 
-    function QueuesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisQueue, artemisAddress) {
+    function QueuesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisQueue, artemisAddress) {
         var ctrl = this;
         ctrl.pagination = pagination;
         ctrl.pagination.reset();
@@ -183,23 +186,15 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Name', itemField: 'name',
-              templateFn: function(value, item) { return '<a href="#" onclick="selectQueue(' + item.idx + ')">' + $sanitize(value) + '</a>' }
-            },
-            { header: 'Address', itemField: 'address',
-              templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }
-            },
+            { header: 'Name', itemField: 'name', htmlTemplate: 'queues-anchor-column-template', colActionFn: (item) => selectQueue(item.idx) },
+            { header: 'Address', itemField: 'address', htmlTemplate: 'queues-anchor-column-template', colActionFn: (item) => selectAddress(item.idx) },
             { header: 'Routing Type', itemField: 'routingType'},
             { header: 'Filter', itemField: 'filter' },
             { header: 'Durable', itemField: 'durable' },
             { header: 'Max Consumers', itemField: 'maxConsumers' },
             { header: 'Purge On No Consumers', itemField: 'purgeOnNoConsumers' },
-            { header: 'Consumer Count', itemField: 'consumerCount' ,
-              templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(' + item.idx + ')">' + $sanitize(value) + '</a>' }
-            },
-            { header: 'Message Count', itemField: 'messageCount',
-              templateFn: function(value, item) { return '<a href="#" onclick="browseQueue(' + item.idx + ')" title="Browse Messages">' + value + '</a>' }
-            },
+            { header: 'Consumer Count', itemField: 'consumerCount', htmlTemplate: 'queues-anchor-column-template', colActionFn: (item) => selectConsumers(item.idx) },
+            { header: 'Message Count', itemField: 'messageCount', htmlTemplate: 'queues-anchor-column-template', colActionFn: (item) => browseQueue(item.idx) },
             { header: 'Paused', itemField: 'paused' },
             { header: 'Temporary', itemField: 'temporary' },
             { header: 'Auto Created', itemField: 'autoCreated' },
@@ -353,7 +348,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    QueuesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisQueue', 'artemisAddress'];
+    QueuesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisQueue', 'artemisAddress'];
 
 
 })(Artemis || (Artemis = {}));

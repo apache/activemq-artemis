@@ -46,6 +46,9 @@ var Artemis;
                      </p>
                  </div>
              </div>
+             <script type="text/ng-template" id="sessions-anchor-column-template">
+                <a href="#" ng-click="$ctrl.handleColAction(key, item)">{{value}}</a>
+             </script>
              <script type="text/ng-template" id="sessions-instructions.html">
              <div>
                 <p>
@@ -68,7 +71,7 @@ var Artemis;
     .name;
 
 
-    function SessionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConnection, artemisSession, artemisConsumer, artemisProducer) {
+    function SessionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisConnection, artemisSession, artemisConsumer, artemisProducer) {
         var ctrl = this;
         ctrl.pagination = pagination;
         ctrl.pagination.reset();
@@ -162,11 +165,11 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Connection', itemField: 'connectionID', templateFn: function(value, item) { return '<a href="#" onclick="selectConnection(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Connection', itemField: 'connectionID', htmlTemplate: 'sessions-anchor-column-template', colActionFn: (item) => selectConnection(item.idx) },
             { header: 'User', itemField: 'user' },
             { header: 'Validated User', itemField: 'validatedUser' },
-            { header: 'Consumer Count', itemField: 'consumerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectConsumers(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
-            { header: 'Producer Count', itemField: 'producerCount', templateFn: function(value, item) { return '<a href="#" onclick="selectProducers(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Consumer Count', itemField: 'consumerCount', htmlTemplate: 'sessions-anchor-column-template', colActionFn: (item) => selectConsumers(item.idx) },
+            { header: 'Producer Count', itemField: 'producerCount', htmlTemplate: 'sessions-anchor-column-template', colActionFn: (item) => selectProducers(item.idx) },
             { header: 'Creation Time', itemField: 'creationTime' }
         ];
 
@@ -287,7 +290,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    SessionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisConnection', 'artemisSession', 'artemisConsumer', 'artemisProducer'];
+    SessionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisConnection', 'artemisSession', 'artemisConsumer', 'artemisProducer'];
 
 
 })(Artemis || (Artemis = {}));

@@ -33,6 +33,9 @@ var Artemis;
                             items="$ctrl.producers">
              </pf-table-view>
              <div ng-include="'plugin/artemispagination.html'"></div>
+             <script type="text/ng-template" id="producers-anchor-column-template">
+                <a href="#" ng-click="$ctrl.handleColAction(key, item)">{{value}}</a>
+             </script>
              <script type="text/ng-template" id="producers-instructions.html">
              <div>
                 <p>
@@ -54,7 +57,7 @@ var Artemis;
     .name;
 
 
-    function ProducersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisProducer, artemisAddress, artemisSession) {
+    function ProducersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisProducer, artemisAddress, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
         ctrl.pagination.reset();
@@ -137,12 +140,12 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Session', itemField: 'session' , templateFn: function(value, item) { return '<a href="#" onclick="selectSession(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Session', itemField: 'session' , htmlTemplate: 'producers-anchor-column-template', colActionFn: (item) => selectSession(item.idx) },
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Protocol', itemField: 'protocol' },
             { header: 'User', itemField: 'user' },
             { header: 'Validated User', name: 'validatedUser'},
-            { header: 'Address', itemField: 'address', templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Address', itemField: 'addressName' , htmlTemplate: 'producers-anchor-column-template', colActionFn: (item) => selectAddress(item.idx) },
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' }
         ];
@@ -219,6 +222,7 @@ var Artemis;
             ctrl.producers = [];
             angular.forEach(data["data"], function (value, idx) {
                 value.idx = idx;
+                value.addressName = value.address;
                 ctrl.producers.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -229,7 +233,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    ProducersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisProducer', 'artemisAddress', 'artemisSession'];
+    ProducersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisProducer', 'artemisAddress', 'artemisSession'];
 
 
 })(Artemis || (Artemis = {}));

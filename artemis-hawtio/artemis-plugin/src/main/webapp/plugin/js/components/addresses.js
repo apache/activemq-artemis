@@ -34,6 +34,9 @@ var Artemis;
                             items="$ctrl.addresses">
              </pf-table-view>
              <div ng-include="'plugin/artemispagination.html'"></div>
+             <script type="text/ng-template" id="addresses-anchor-column-template">
+                <a href="#" ng-click="$ctrl.handleColAction(key, item)">{{value}}</a>
+             </script>
              <script type="text/ng-template" id="addresses-instructions.html">
              <div>
                 <p>
@@ -57,7 +60,7 @@ var Artemis;
     .name;
 
 
-    function AddressesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisAddress) {
+    function AddressesController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisAddress) {
         var ctrl = this;
         ctrl.pagination = pagination;
         ctrl.pagination.reset();
@@ -149,7 +152,7 @@ var Artemis;
             { header: 'ID', itemField: 'id' },
             { header: 'Name', itemField: 'name' },
             { header: 'Routing Types', itemField: 'routingTypes' },
-            { header: 'Queue Count', itemField: 'queueCount' , templateFn: function(value, item) { return '<a href="#" onclick="selectQueues(' + item.idx + ')">' + $sanitize(value) + '</a>' }}
+            { header: 'Queue Count', itemField: 'queueCount' , htmlTemplate: 'addresses-anchor-column-template', colActionFn: (item) => selectQueues(item.idx) }
         ];
 
         ctrl.refresh = function () {
@@ -247,7 +250,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    AddressesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisAddress'];
+    AddressesController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisAddress'];
 
 
 })(Artemis || (Artemis = {}));

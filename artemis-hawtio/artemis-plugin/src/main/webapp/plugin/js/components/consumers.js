@@ -45,6 +45,9 @@ var Artemis;
                       </p>
                   </div>
              </div>
+             <script type="text/ng-template" id="consumers-anchor-column-template">
+                <a href="#" ng-click="$ctrl.handleColAction(key, item)">{{value}}</a>
+             </script>
              <script type="text/ng-template" id="consumers-instructions.html">
              <div>
                 <p>
@@ -67,7 +70,7 @@ var Artemis;
     .name;
 
 
-    function ConsumersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConsumer, artemisQueue, artemisAddress, artemisSession) {
+    function ConsumersController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisConsumer, artemisQueue, artemisAddress, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
         ctrl.pagination.reset();
@@ -168,14 +171,14 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
-            { header: 'Session', itemField: 'session' , templateFn: function(value, item) { return '<a href="#" onclick="selectSession(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Session', itemField: 'session' , htmlTemplate: 'consumers-anchor-column-template', colActionFn: (item) => selectSession(item.idx) },
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Validated User', itemField: 'validatedUser' },
             { header: 'Protocol', itemField: 'protocol' },
-            { header: 'Queue', itemField: 'queue', templateFn: function(value, item) { return '<a href="#" onclick="selectQueue(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Queue', itemField: 'queueName', htmlTemplate: 'consumers-anchor-column-template', colActionFn: (item) => selectQueue(item.idx) },
             { header: 'Queue Type', itemField: 'queueType' },
             { header: 'Filter', itemField: 'filter' },
-            { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Address', itemField: 'addressName' , htmlTemplate: 'consumers-anchor-column-template', colActionFn: (item) => selectAddress(item.idx) },
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' },
             { header: 'Creation Time', itemField: 'creationTime' }
@@ -288,6 +291,8 @@ var Artemis;
             ctrl.consumers = [];
             angular.forEach(data["data"], function (value, idx) {
                 value.idx = idx;
+                value.addressName = value.address;
+                value.queueName = value.queue;
                 ctrl.consumers.push(value);
             });
             ctrl.pagination.page(data["count"]);
@@ -298,7 +303,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    ConsumersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisConsumer', 'artemisQueue', 'artemisAddress', 'artemisSession'];
+    ConsumersController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisConsumer', 'artemisQueue', 'artemisAddress', 'artemisSession'];
 
 
 })(Artemis || (Artemis = {}));

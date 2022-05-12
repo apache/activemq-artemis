@@ -46,7 +46,10 @@ var Artemis;
                         <p>Are you sure you want to continue.</p>
                     </p>
                  </div>
-              </div>
+            </div>
+            <script type="text/ng-template" id="connections-anchor-column-template">
+               <a href="#" ng-click="$ctrl.handleColAction(key, item)">{{value}}</a>
+            </script>
             <script type="text/ng-template" id="connections-instructions.html">
             <div>
                 <p>
@@ -69,7 +72,7 @@ var Artemis;
     .name;
 
 
-    function ConnectionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, $sanitize, pagination, artemisConnection, artemisSession) {
+    function ConnectionsController($scope, workspace, jolokia, localStorage, artemisMessage, $location, $timeout, $filter, pagination, artemisConnection, artemisSession) {
         var ctrl = this;
         ctrl.pagination = pagination;
         ctrl.pagination.reset();
@@ -170,7 +173,8 @@ var Artemis;
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Users', itemField: 'users' },
             { header: 'protocol', itemField: 'protocol' },
-            { header: 'Session Count', itemField: 'sessionCount', templateFn: function(value, item) { return '<a href="#" onclick="selectSessions(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
+            { header: 'Session Count', itemField: 'sessionCount', htmlTemplate: 'connections-anchor-column-template', colActionFn: (item) => selectSessions(item.idx) },
+
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' },
             { header: 'Creation Time', itemField: 'creationTime' }
@@ -270,7 +274,7 @@ var Artemis;
 
         ctrl.pagination.load();
     }
-    ConnectionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', '$sanitize', 'pagination', 'artemisConnection', 'artemisSession'];
+    ConnectionsController.$inject = ['$scope', 'workspace', 'jolokia', 'localStorage', 'artemisMessage', '$location', '$timeout', '$filter', 'pagination', 'artemisConnection', 'artemisSession'];
 
 
 })(Artemis || (Artemis = {}));
