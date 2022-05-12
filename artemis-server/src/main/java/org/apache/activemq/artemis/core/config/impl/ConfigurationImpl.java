@@ -519,7 +519,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    public void populateWithProperties(Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
-      BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), new CollectionAutoFillPropertiesUtil());
+      CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil();
+      BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections);
+      autoFillCollections.setBeanUtilsBean(beanUtils);
       // nested property keys delimited by . and enclosed by '"' if they key's themselves contain dots
       beanUtils.getPropertyUtils().setResolver(new SurroundResolver(getBrokerPropertiesKeySurround(beanProperties)));
       beanUtils.getConvertUtils().register(new Converter() {
@@ -2763,6 +2765,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
       final Stack<Pair<String, Object>> collections = new Stack<>();
+      private BeanUtilsBean beanUtilsBean;
 
       @Override
       public void setProperty(final Object bean, final String name, final Object value) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
@@ -2788,16 +2791,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
                }
                return map.get(key);
             } else { // collection
-               // locate on name property
-               for (Object candidate : (Collection) bean) {
-                  if (key.equals(getProperty(candidate, "name"))) {
-                     return candidate;
-                  }
+               Object value = findByNameProperty(key, (Collection)bean);
+               if (value == null) {
+                  // create it
+                  value = newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key);
+                  ((Collection) bean).add(value);
                }
-               // or create it
-               Object created = newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key);
-               ((Collection) bean).add(created);
-               return created;
+               return value;
             }
          }
 
@@ -2807,6 +2807,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
             collections.push(new Pair<String, Object>(name, bean));
          }
          return resolved;
+      }
+
+      private Object findByNameProperty(String key, Collection collection) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+         // locate on name property, may be a SimpleString
+         for (Object candidate : collection) {
+            Object candidateName = getProperty(candidate, "name");
+            if (candidateName != null && key.equals(candidateName.toString())) {
+               return candidate;
+            }
+         }
+         return null;
       }
 
       // allow finding beans in collections via name() such that a mapped key (key)
@@ -2858,12 +2869,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                if (invokeResult instanceof Map) {
                   result = ((Map<?, ?>)invokeResult).get(key);
                } else if (invokeResult instanceof Collection) {
-                  // locate on name property
-                  for (Object candidate : (Collection) invokeResult) {
-                     if (key.equals(getProperty(candidate, "name"))) {
-                        return candidate;
-                     }
-                  }
+                  result = findByNameProperty(key, (Collection) invokeResult);
                }
             } else {
                throw new NoSuchMethodException("Property '" + name +
@@ -2894,14 +2900,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
                // create one and initialise with name
                try {
                   Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance(null);
-                  try {
-                     setProperty(instance, "name", name);
-                  } catch (NoSuchMethodException okIgnore) {
-                  }
+                  beanUtilsBean.setProperty(instance, "name", name);
 
                   // this is always going to be a little hacky b/c our config is not natively property friendly
                   if (instance instanceof TransportConfiguration) {
-                     setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
+                     beanUtilsBean.setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
                   }
                   return instance;
 
@@ -2912,6 +2915,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
             }
          }
          throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
+      }
+
+      public void setBeanUtilsBean(BeanUtilsBean beanUtilsBean) {
+         // we want type conversion
+         this.beanUtilsBean = beanUtilsBean;
       }
    }
 
