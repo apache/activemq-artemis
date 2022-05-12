@@ -21,8 +21,11 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.command.ActiveMQDestination;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -143,5 +146,55 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
 
       Wait.assertTrue(() -> server.locateQueue(new SimpleString("trash")) != null);
       Wait.assertTrue(() -> server.getAddressInfo(new SimpleString("trash")) != null);
+   }
+
+   @Rule
+   public ExpectedException thrown = ExpectedException.none();
+
+   @Test()
+   public void testSendFailsWithoutAutoCreate() throws Exception {
+      thrown.expect(javax.jms.JMSException.class);
+
+      Connection connection = null;
+      try {
+         AddressSettings setting = new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false);
+         server.getAddressSettingsRepository().addMatch("WRONG.#", setting);
+
+         connection = factory.createConnection("admin", "password");
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         ActiveMQDestination destination = ActiveMQDestination.createDestination("WRONG.QUEUE", ActiveMQDestination.QUEUE_TYPE);
+
+         final MessageProducer producer = session.createProducer(null);
+         producer.send(destination, session.createTextMessage("foo"));
+
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test()
+   public void testTransactedSendFailsWithoutAutoCreate() throws Exception {
+      thrown.expect(javax.jms.JMSException.class);
+
+      Connection connection = null;
+      try {
+         AddressSettings setting = new AddressSettings().setAutoCreateAddresses(false).setAutoCreateQueues(false);
+         server.getAddressSettingsRepository().addMatch("WRONG.#", setting);
+
+         connection = factory.createConnection("admin", "password");
+         Session session = connection.createSession(true, Session.AUTO_ACKNOWLEDGE);
+         ActiveMQDestination destination = ActiveMQDestination.createDestination("WRONG.QUEUE", ActiveMQDestination.QUEUE_TYPE);
+
+         final MessageProducer producer = session.createProducer(null);
+         producer.send(destination, session.createTextMessage("foo"));
+         session.commit();
+
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
    }
 }

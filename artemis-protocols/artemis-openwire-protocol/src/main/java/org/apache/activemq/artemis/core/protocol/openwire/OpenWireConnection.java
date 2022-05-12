@@ -368,7 +368,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                setLastCommand(command);
                response = command.visit(commandProcessorInstance);
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.warn("Errors occurred during the buffering operation ", e);
+               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
                if (responseRequired) {
                   response = convertException(e);
                }
@@ -1683,6 +1683,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          } catch (Exception e) {
             if (tx != null) {
                tx.markAsRollbackOnly(new ActiveMQException(e.getMessage()));
+            } else if (e instanceof ActiveMQNonExistentQueueException && producerInfo.getDestination() == null) {
+               //Send exception for non transacted anonymous producers using an incorrect destination
+               sendException(e);
             }
             throw e;
          } finally {
