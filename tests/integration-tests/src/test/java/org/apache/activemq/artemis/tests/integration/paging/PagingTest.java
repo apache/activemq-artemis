@@ -23,6 +23,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +32,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -832,6 +834,9 @@ public class PagingTest extends ActiveMQTestBase {
 
       int page = 1;
 
+      // all the messages on the last page will contain this constant, which it will be used to assert on the print-data
+      String lastPageConstant = RandomUtil.randomString();
+
       for (int i = 0; i < numberOfMessages; i++) {
          if (i % 10 == 0 && i > 0) {
             queue.getPagingStore().forceAnotherPage();
@@ -845,6 +850,9 @@ public class PagingTest extends ActiveMQTestBase {
 
          message.putIntProperty("i", i);
          message.putIntProperty("page", page);
+         if (page == 10) {
+            message.putStringProperty("LAST_PAGE", lastPageConstant);
+         }
 
          producer.send(message);
       }
@@ -874,8 +882,16 @@ public class PagingTest extends ActiveMQTestBase {
          Wait.assertEquals(9, () -> factory.listFiles("page").size(), 5000, 100);
 
          if (storeType != StoreConfiguration.StoreType.DATABASE) {
-            PrintData.printData(server.getConfiguration().getBindingsLocation(), server.getConfiguration().getJournalLocation(), server.getConfiguration().getPagingLocation(), new PrintStream(OutputStream.nullOutputStream()), false, false, true, true, -1);
+
+            ByteArrayOutputStream byteArraystream = new ByteArrayOutputStream();
+            final String utf8 = StandardCharsets.UTF_8.name();
+            PrintStream printDataStream = new PrintStream(byteArraystream, true, utf8);
+
+            PrintData.printData(server.getConfiguration().getBindingsLocation(), server.getConfiguration().getJournalLocation(), server.getConfiguration().getPagingLocation(), printDataStream, false, false, true, true, -1);
+
+            String data = byteArraystream.toString(utf8);
             Assert.assertEquals("PrintData is recreating empty files", 9, factory.listFiles("page").size());
+            Assert.assertTrue(data.contains(lastPageConstant));
          }
       }
 

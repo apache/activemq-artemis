@@ -278,13 +278,19 @@ public class PrintData extends DBOption {
             out.println("####################################################################################################");
             out.println("Exploring store " + store + " folder = " + folder);
             int pgid = (int) pgStore.getFirstPage();
+
+            out.println("Number of pages ::" + pgStore.getNumberOfPages() + ", Current writing page ::" + pgStore.getCurrentWritingPage());
             for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {
                if (maxPages >= 0 && pg > maxPages) {
                   out.println("******* Giving up at Page " + pgid + ", System has a total of " + pgStore.getNumberOfPages() + " pages");
                   break;
                }
-               out.println("*******   Page " + pgid);
                Page page = pgStore.createPage(pgid);
+               while (!page.getFile().exists() && pgid < pgStore.getCurrentWritingPage()) {
+                  pgid++;
+                  page = pgStore.createPage(pgid);
+               }
+               out.println("*******   Page " + pgid);
                page.open(false);
                List<PagedMessage> msgs = page.read(sm);
                page.close(false, false);
