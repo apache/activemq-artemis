@@ -119,8 +119,11 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String getCreateFileTableSQL() {
-      return format(sql("create-file-table"), tableName);
+   public String[] getCreateFileTableSQL() {
+      return new String[] {
+              format(sql("create-file-table"), tableName),
+              format(sql("create-file-index"), tableName)
+      };
    }
 
    @Override
