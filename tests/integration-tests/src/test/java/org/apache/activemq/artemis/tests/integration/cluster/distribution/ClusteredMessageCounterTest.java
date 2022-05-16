@@ -87,7 +87,7 @@ public class ClusteredMessageCounterTest extends ClusterTestBase {
    @Override
    protected ConfigurationImpl createBasicConfig(final int serverID) {
       ConfigurationImpl config = super.createBasicConfig(serverID);
-      Map<String, AddressSettings> addrSettingsMap = config.getAddressesSettings();
+      Map<String, AddressSettings> addrSettingsMap = config.getAddressSettings();
       AddressSettings addrSettings = new AddressSettings();
       addrSettings.setMaxSizeBytes(10 * 1024);
       addrSettings.setPageSizeBytes(5 * 1024);

@@ -747,16 +747,16 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       Properties properties = new Properties();
 
-      properties.put("addressesSettings.#.expiryAddress", "sharedExpiry");
-      properties.put("addressesSettings.NeedToTrackExpired.expiryAddress", "important");
-      properties.put("addressesSettings.\"Name.With.Dots\".expiryAddress", "moreImportant");
+      properties.put("addressesSettings.#.expiryAddress", "sharedExpiry"); // verify @Deprecation double plural still works
+      properties.put("addressSettings.NeedToTrackExpired.expiryAddress", "important");
+      properties.put("addressSettings.\"Name.With.Dots\".expiryAddress", "moreImportant");
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(3, configuration.getAddressesSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressesSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressesSettings().get("NeedToTrackExpired").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressesSettings().get("Name.With.Dots").getExpiryAddress());
+      Assert.assertEquals(3, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
    }
 
    @Test
@@ -929,10 +929,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       configuration.parsePrefixedProperties(properties, null);
 
-      Assert.assertEquals(3, configuration.getAddressesSettings().size());
-      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressesSettings().get("#").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressesSettings().get("NeedToTrackExpired").getExpiryAddress());
-      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressesSettings().get("Name.With.Dots").getExpiryAddress());
+      Assert.assertEquals(3, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
+      Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
    }
 
    /**

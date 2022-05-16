@@ -42,7 +42,7 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
    protected void configureAddressPolicy(ActiveMQServer server) {
       Configuration serverConfig = server.getConfiguration();
       serverConfig.setJournalType(JournalType.NIO);
-      Map<String, AddressSettings> map = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> map = serverConfig.getAddressSettings();
       if (map.size() == 0) {
          AddressSettings as = new AddressSettings();
          as.setDefaultAddressRoutingType(RoutingType.ANYCAST);
@@ -57,7 +57,7 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
 
    @Test
    public void testAMQPSenderHonourRoutingTypeOfExistingAddress() throws Exception {
-      RoutingType routingType = server.getConfiguration().getAddressesSettings().get("#").getDefaultAddressRoutingType();
+      RoutingType routingType = server.getConfiguration().getAddressSettings().get("#").getDefaultAddressRoutingType();
       Assert.assertEquals(RoutingType.ANYCAST, routingType);
       try (ActiveMQConnection coreConnection = (ActiveMQConnection) createCoreConnection();
            ClientSession clientSession = coreConnection.getSessionFactory().createSession()) {
@@ -86,7 +86,7 @@ public class AmqpSenderRoutingTypeTest extends JMSClientTestSupport {
 
    @Test
    public void testAMQPSenderCreateQueueWithDefaultRoutingTypeIfAddressDoNotExist() throws Exception {
-      RoutingType defaultRoutingType = server.getConfiguration().getAddressesSettings().get("#").getDefaultAddressRoutingType();
+      RoutingType defaultRoutingType = server.getConfiguration().getAddressSettings().get("#").getDefaultAddressRoutingType();
       Assert.assertEquals(RoutingType.ANYCAST, defaultRoutingType);
       try (ActiveMQConnection coreConnection = (ActiveMQConnection) createCoreConnection();
            ClientSession clientSession = coreConnection.getSessionFactory().createSession()) {

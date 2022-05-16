@@ -299,7 +299,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    protected GroupingHandlerConfiguration groupingHandlerConfiguration;
 
-   private Map<String, AddressSettings> addressesSettings = new HashMap<>();
+   private Map<String, AddressSettings> addressSettings = new HashMap<>();
 
    private Map<String, ResourceLimitSettings> resourceLimitSettings = new HashMap<>();
 
@@ -1646,26 +1646,50 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public Map<String, AddressSettings> getAddressSettings() {
+      return addressSettings;
+   }
+
+   @Override
+   public ConfigurationImpl setAddressSettings(final Map<String, AddressSettings> addressesSettings) {
+      this.addressSettings = addressesSettings;
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl addAddressSetting(String key, AddressSettings addressesSetting) {
+      this.addressSettings.put(key, addressesSetting);
+      return this;
+   }
+
+   @Override
+   public ConfigurationImpl clearAddressSettings() {
+      this.addressSettings.clear();
+      return this;
+   }
+
+   @Override
+   @Deprecated
    public Map<String, AddressSettings> getAddressesSettings() {
-      return addressesSettings;
+      return getAddressSettings();
    }
 
    @Override
+   @Deprecated
    public ConfigurationImpl setAddressesSettings(final Map<String, AddressSettings> addressesSettings) {
-      this.addressesSettings = addressesSettings;
-      return this;
+      return setAddressSettings(addressesSettings);
    }
 
    @Override
+   @Deprecated
    public ConfigurationImpl addAddressesSetting(String key, AddressSettings addressesSetting) {
-      this.addressesSettings.put(key, addressesSetting);
-      return this;
+      return addAddressSetting(key, addressesSetting);
    }
 
    @Override
+   @Deprecated
    public ConfigurationImpl clearAddressesSettings() {
-      this.addressesSettings.clear();
-      return this;
+      return clearAddressSettings();
    }
 
    @Override
@@ -2128,7 +2152,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       final int prime = 31;
       int result = 1;
       result = prime * result + ((acceptorConfigs == null) ? 0 : acceptorConfigs.hashCode());
-      result = prime * result + ((addressesSettings == null) ? 0 : addressesSettings.hashCode());
+      result = prime * result + ((addressSettings == null) ? 0 : addressSettings.hashCode());
       result = prime * result + (asyncConnectionExecutionEnabled ? 1231 : 1237);
       result = prime * result + ((bindingsDirectory == null) ? 0 : bindingsDirectory.hashCode());
       result = prime * result + ((bridgeConfigurations == null) ? 0 : bridgeConfigurations.hashCode());
@@ -2214,10 +2238,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return false;
       } else if (!acceptorConfigs.equals(other.acceptorConfigs))
          return false;
-      if (addressesSettings == null) {
-         if (other.addressesSettings != null)
+      if (addressSettings == null) {
+         if (other.addressSettings != null)
             return false;
-      } else if (!addressesSettings.equals(other.addressesSettings))
+      } else if (!addressSettings.equals(other.addressSettings))
          return false;
       if (asyncConnectionExecutionEnabled != other.asyncConnectionExecutionEnabled)
          return false;

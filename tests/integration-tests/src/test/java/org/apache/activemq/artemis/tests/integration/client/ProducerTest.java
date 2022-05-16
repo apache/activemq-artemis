@@ -86,8 +86,8 @@ public class ProducerTest extends ActiveMQTestBase {
       final ServerLocator locator = createInVMNonHALocator();
       AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024);
       server.stop();
-      server.getConfiguration().getAddressesSettings().clear();
-      server.getConfiguration().getAddressesSettings().put(QUEUE.toString(), setting);
+      server.getConfiguration().getAddressSettings().clear();
+      server.getConfiguration().getAddressSettings().put(QUEUE.toString(), setting);
       server.start();
 
       server.createQueue(new QueueConfiguration(QUEUE));

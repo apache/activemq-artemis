@@ -71,7 +71,7 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
       addressSettings.setDefaultGroupFirstKey(SimpleString.toSimpleString("JMSXFirstInGroupID"));
 
 
-      server.getConfiguration().getAddressesSettings().put("GroupFirst.#", addressSettings);
+      server.getConfiguration().getAddressSettings().put("GroupFirst.#", addressSettings);
    }
 
    @Test(timeout = 60000)

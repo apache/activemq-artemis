@@ -72,7 +72,7 @@ public class MultipleProducersPagingTest extends ActiveMQTestBase {
 
       server = createServer(createBasicConfig()
                                .setPersistenceEnabled(false)
-                               .setAddressesSettings(Collections.singletonMap("#", new AddressSettings()
+                               .setAddressSettings(Collections.singletonMap("#", new AddressSettings()
                                   .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
                                   .setPageSizeBytes(50000)
                                   .setMaxSizeBytes(404850)))

@@ -69,8 +69,8 @@ public class AnonymousProducerPageTest extends ActiveMQTestBase {
 
       this.server = addServer(this.createServer(true, true));
 
-      server.getConfiguration().getAddressesSettings().clear();
-      server.getConfiguration().addAddressesSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
+      server.getConfiguration().getAddressSettings().clear();
+      server.getConfiguration().addAddressSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
       server.getConfiguration().getAcceptorConfigurations().clear();
       server.getConfiguration().getAcceptorConfigurations().add(addAcceptorConfiguration(server, port));

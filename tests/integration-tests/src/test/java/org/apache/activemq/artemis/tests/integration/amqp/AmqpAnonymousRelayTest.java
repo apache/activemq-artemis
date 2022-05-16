@@ -59,7 +59,7 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       autoCreateQueueAddressSettings.setDefaultAddressRoutingType(RoutingType.ANYCAST);
       autoCreateQueueAddressSettings.setDefaultQueueRoutingType(RoutingType.ANYCAST);
 
-      server.getConfiguration().getAddressesSettings().put(AUTO_CREATION_QUEUE_PREFIX + "#", autoCreateQueueAddressSettings);
+      server.getConfiguration().getAddressSettings().put(AUTO_CREATION_QUEUE_PREFIX + "#", autoCreateQueueAddressSettings);
 
       AddressSettings autoCreateTopicAddressSettings = new AddressSettings();
       autoCreateTopicAddressSettings.setAutoCreateQueues(true);
@@ -67,7 +67,7 @@ public class AmqpAnonymousRelayTest extends AmqpClientTestSupport {
       autoCreateTopicAddressSettings.setDefaultAddressRoutingType(RoutingType.MULTICAST);
       autoCreateTopicAddressSettings.setDefaultQueueRoutingType(RoutingType.MULTICAST);
 
-      server.getConfiguration().getAddressesSettings().put(AUTO_CREATION_TOPIC_PREFIX + "#", autoCreateTopicAddressSettings);
+      server.getConfiguration().getAddressSettings().put(AUTO_CREATION_TOPIC_PREFIX + "#", autoCreateTopicAddressSettings);
    }
 
    @Test(timeout = 60000)

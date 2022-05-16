@@ -427,7 +427,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       DivertConfiguration divertConf = new DivertConfiguration().setName("divert1").setRoutingName("divert1").setAddress(testAddress).setForwardingAddress(forwardAddress);
 
-      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).clearAddressesSettings().addAddressesSetting("#", expirySettings);
+      Configuration config = createDefaultInVMConfig().addDivertConfiguration(divertConf).clearAddressSettings().addAddressSetting("#", expirySettings);
 
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, true));
 

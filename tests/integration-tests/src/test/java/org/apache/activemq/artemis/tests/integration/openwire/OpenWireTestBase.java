@@ -61,7 +61,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
 
       Configuration serverConfig = server.getConfiguration();
 
-      Map<String, AddressSettings> addressSettingsMap = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> addressSettingsMap = serverConfig.getAddressSettings();
 
       configureAddressSettings(addressSettingsMap);
 

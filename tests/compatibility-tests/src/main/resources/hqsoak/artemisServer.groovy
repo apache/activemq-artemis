@@ -3,7 +3,6 @@ package servers
 import org.apache.activemq.artemis.api.core.RoutingType
 import org.apache.activemq.artemis.api.core.SimpleString
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl
-import org.apache.activemq.artemis.core.postoffice.impl.AddressImpl
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -45,10 +44,10 @@ configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(true);
 try {
     if (!type.startsWith("ARTEMIS-1")) {
-        configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.toSimpleString("DLQ"))
+        configuration.addAddressSetting("#", new AddressSettings().setAutoCreateAddresses(false).setDeadLetterAddress(SimpleString.toSimpleString("DLQ"))
                 .setExpiryAddress(SimpleString.toSimpleString("EXP")));
         if (globalMaxSize != null) {
-            configuration.getAddressesSettings().get("#").setPageSizeBytes(Long.parseLong(globalMaxSize)).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
+            configuration.getAddressSettings().get("#").setPageSizeBytes(Long.parseLong(globalMaxSize)).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
             configuration.setGlobalMaxSize(Long.parseLong(globalMaxSize));
         }
     }

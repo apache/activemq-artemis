@@ -744,7 +744,7 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
       server.stop();
 
-      configuration = createDefaultInVMConfig().addAddressesSetting(atestq.toString(), qs);
+      configuration = createDefaultInVMConfig().addAddressSetting(atestq.toString(), qs);
 
       server = createServer(true, configuration);
       server.start();

@@ -239,7 +239,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(DEAD_LETTER_ADDRESS);
       addressSettings.setExpiryAddress(EXPIRY_ADDRESS);
-      defaultConfig.getAddressesSettings().put("#", addressSettings);
+      defaultConfig.getAddressSettings().put("#", addressSettings);
       defaultConfig.setMqttSessionScanInterval(200);
       return createServer(true, defaultConfig);
    }

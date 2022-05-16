@@ -82,7 +82,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
    protected void configureAddressPolicy(ActiveMQServer server) {
       Configuration serverConfig = server.getConfiguration();
       serverConfig.setJournalType(JournalType.NIO);
-      Map<String, AddressSettings> map = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> map = serverConfig.getAddressSettings();
       if (map.size() == 0) {
          AddressSettings as = new AddressSettings();
          map.put("#", as);

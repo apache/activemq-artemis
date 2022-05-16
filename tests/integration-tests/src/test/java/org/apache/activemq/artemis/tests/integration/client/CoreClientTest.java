@@ -169,7 +169,7 @@ public class CoreClientTest extends ActiveMQTestBase {
 
       Configuration configuration = createBasicConfig();
       configuration.clearAcceptorConfigurations();
-      configuration.addAddressesSetting("#", new AddressSettings().setMaxSizeBytes(10 * 1024 * 1024).setPageSizeBytes(1024 * 1024));
+      configuration.addAddressSetting("#", new AddressSettings().setMaxSizeBytes(10 * 1024 * 1024).setPageSizeBytes(1024 * 1024));
 
       String baseAddress = "foo";
 

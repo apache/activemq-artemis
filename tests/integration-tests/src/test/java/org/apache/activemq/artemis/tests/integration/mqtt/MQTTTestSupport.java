@@ -219,7 +219,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setDeadLetterAddress(SimpleString.toSimpleString("DLA"));
       addressSettings.setExpiryAddress(SimpleString.toSimpleString("EXPIRY"));
-      defaultConfig.getAddressesSettings().put("#", addressSettings);
+      defaultConfig.getAddressSettings().put("#", addressSettings);
       return createServer(true, defaultConfig);
    }
 

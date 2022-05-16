@@ -183,7 +183,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
       setupServer(0, isFileStorage(), isNetty());
       setupServer(1, isFileStorage(), isNetty());
       setupServer(2, isFileStorage(), isNetty());
-      servers[0].getConfiguration().addAddressesSetting("*", new AddressSettings().setAutoCreateAddresses(true) //
+      servers[0].getConfiguration().addAddressSetting("*", new AddressSettings().setAutoCreateAddresses(true) //
          .setAutoCreateQueues(true) //
          .setAutoDeleteAddresses(true) //
          .setAutoDeleteQueues(true) //  --> this causes IllegalStateExceptions

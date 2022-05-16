@@ -39,7 +39,7 @@ configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(persistent);
 try {
     if (!type.startsWith("ARTEMIS-1")) {
-        configuration.addAddressesSetting("#", new AddressSettings().setAutoCreateAddresses(true));
+        configuration.addAddressSetting("#", new AddressSettings().setAutoCreateAddresses(true));
     }
 } catch (Throwable e) {
     // need to ignore this for 1.4

@@ -1088,16 +1088,28 @@ public interface Configuration {
    /**
     * @return A list of AddressSettings per matching to be deployed to the address settings repository
     */
-   Map<String, AddressSettings> getAddressesSettings();
+   Map<String, AddressSettings> getAddressSettings();
 
    /**
-    * @param addressesSettings list of AddressSettings per matching to be deployed to the address
+    * @param addressSettings list of AddressSettings per matching to be deployed to the address
     *                          settings repository
     */
+   Configuration setAddressSettings(Map<String, AddressSettings> addressSettings);
+
+   Configuration addAddressSetting(String key, AddressSettings addressesSetting);
+
+   Configuration clearAddressSettings();
+
+   @Deprecated
+   Map<String, AddressSettings> getAddressesSettings();
+
+   @Deprecated
    Configuration setAddressesSettings(Map<String, AddressSettings> addressesSettings);
 
+   @Deprecated
    Configuration addAddressesSetting(String key, AddressSettings addressesSetting);
 
+   @Deprecated
    Configuration clearAddressesSettings();
 
    /**

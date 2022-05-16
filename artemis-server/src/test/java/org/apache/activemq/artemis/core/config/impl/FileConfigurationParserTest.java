@@ -101,7 +101,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       FileConfigurationParser parser = new FileConfigurationParser();
       Configuration config = parser.parseMainConfig(ClassloadingUtil.findResource("FileConfigurationParser-duplicateAddressSettings.xml").openStream());
 
-      Assert.assertEquals(123, config.getAddressesSettings().get("foo").getRedistributionDelay());
+      Assert.assertEquals(123, config.getAddressSettings().get("foo").getRedistributionDelay());
    }
 
    @Test
@@ -365,7 +365,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration configuration = parser.parseMainConfig(input);
-      AddressSettings settings = configuration.getAddressesSettings().get("foo");
+      AddressSettings settings = configuration.getAddressSettings().get("foo");
       Assert.assertEquals(123, settings.getMaxSizeMessages());
    }
 
@@ -414,8 +414,8 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
                                                + "\n") + lastPart;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
       Configuration configuration = new FileConfigurationParser().parseMainConfig(input);
-      assertEquals(1, configuration.getAddressesSettings().size());
-      AddressSettings addressSettings = configuration.getAddressesSettings().get("#");
+      assertEquals(1, configuration.getAddressSettings().size());
+      AddressSettings addressSettings = configuration.getAddressSettings().get("#");
       assertEquals(expected, addressSettings.getMaxSizeBytesRejectThreshold());
    }
 

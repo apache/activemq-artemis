@@ -1299,11 +1299,11 @@ public class MqttClusterRemoteSubscribeTest extends ClusterTestBase {
       setupServer(0, false, isNetty());
       servers[0].getConfiguration().setWildCardConfiguration(wildcardConfiguration);
       servers[0].getConfiguration().addAddressConfiguration(coreAddressConfiguration);
-      servers[0].getConfiguration().addAddressesSetting("#", addressSettings);
+      servers[0].getConfiguration().addAddressSetting("#", addressSettings);
       setupServer(1, false, isNetty());
       servers[1].getConfiguration().setWildCardConfiguration(wildcardConfiguration);
       servers[1].getConfiguration().addAddressConfiguration(coreAddressConfiguration);
-      servers[1].getConfiguration().addAddressesSetting("#", addressSettings);
+      servers[1].getConfiguration().addAddressSetting("#", addressSettings);
 
       setupClusterConnection("cluster0", "", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);

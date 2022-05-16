@@ -1036,11 +1036,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          NodeList list = node.getElementsByTagName("address-setting");
          for (int i = 0; i < list.getLength(); i++) {
             Pair<String, AddressSettings> newAddressSettings = parseAddressSettings(list.item(i));
-            Map<String, AddressSettings> addressSettings = config.getAddressesSettings();
+            Map<String, AddressSettings> addressSettings = config.getAddressSettings();
             if (addressSettings.containsKey(newAddressSettings.getA())) {
                ActiveMQServerLogger.LOGGER.duplicateAddressSettingMatch(newAddressSettings.getA());
             } else {
-               config.getAddressesSettings().put(newAddressSettings.getA(), newAddressSettings.getB());
+               config.getAddressSettings().put(newAddressSettings.getA(), newAddressSettings.getB());
             }
          }
       }
