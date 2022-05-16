@@ -46,7 +46,7 @@ public class PotentialOOMELoggingTest extends ActiveMQTestBase {
          server.getConfiguration().addQueueConfiguration(new QueueConfiguration(UUID.randomUUID().toString()));
       }
       server.getConfiguration().setGlobalMaxSize(-1);
-      server.getConfiguration().getAddressesSettings().put("#", new AddressSettings().setMaxSizeBytes(10485760 * 10));
+      server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setMaxSizeBytes(10485760 * 10));
       server.start();
 
       // Using the code only so the test doesn't fail just because someone edits the log text

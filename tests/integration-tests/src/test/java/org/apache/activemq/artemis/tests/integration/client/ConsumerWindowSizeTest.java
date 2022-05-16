@@ -1399,7 +1399,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       final AddressSettings settings = new AddressSettings();
       settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
       messagingService.getConfiguration()
-            .getAddressesSettings().put(queueA.toString(), settings);
+            .getAddressSettings().put(queueA.toString(), settings);
 
       messagingService.start();
       messagingService.createQueue(new QueueConfiguration(queueA).setRoutingType(RoutingType.ANYCAST));
@@ -1421,7 +1421,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       final AddressSettings settings = new AddressSettings();
       settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
       messagingService.getConfiguration()
-            .getAddressesSettings().put(addressA.toString(), settings);
+            .getAddressSettings().put(addressA.toString(), settings);
 
       messagingService.start();
       messagingService.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST));
@@ -1448,7 +1448,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
       final AddressSettings settings = new AddressSettings();
       settings.setDefaultConsumerWindowSize(defaultConsumerWindowSize);
       messagingService.getConfiguration()
-         .getAddressesSettings().put("#", settings);
+         .getAddressSettings().put("#", settings);
 
       messagingService.start();
       messagingService.createQueue(new QueueConfiguration(queueA).setRoutingType(RoutingType.ANYCAST));

@@ -57,8 +57,8 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
          setScaleDownConfiguration(new ScaleDownConfiguration().setEnabled(true).addConnector(
             getServer(2).getConfiguration().getClusterConfigurations().get(0).getStaticConnectors().get(0)));
 
-      getServer(0).getConfiguration().getAddressesSettings().put("#", new AddressSettings().setRedistributionDelay(0));
-      getServer(1).getConfiguration().getAddressesSettings().put("#", new AddressSettings().setRedistributionDelay(0));
+      getServer(0).getConfiguration().getAddressSettings().put("#", new AddressSettings().setRedistributionDelay(0));
+      getServer(1).getConfiguration().getAddressSettings().put("#", new AddressSettings().setRedistributionDelay(0));
 
       startServers(0, 1, 2);
 

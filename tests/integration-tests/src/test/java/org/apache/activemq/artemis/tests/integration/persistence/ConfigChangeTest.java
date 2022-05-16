@@ -42,7 +42,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
    @Test
    public void testChangeQueueRoutingTypeOnRestart() throws Exception {
       Configuration configuration = createDefaultInVMConfig();
-      configuration.addAddressesSetting("#", new AddressSettings());
+      configuration.addAddressSetting("#", new AddressSettings());
 
       List addressConfigurations = new ArrayList();
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()
@@ -93,7 +93,7 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       final String filter2 = "x = 'y'";
 
       Configuration configuration = createDefaultInVMConfig(  );
-      configuration.addAddressesSetting("#", new AddressSettings());
+      configuration.addAddressSetting("#", new AddressSettings());
 
       List addressConfigurations = new ArrayList();
       CoreAddressConfiguration addressConfiguration = new CoreAddressConfiguration()

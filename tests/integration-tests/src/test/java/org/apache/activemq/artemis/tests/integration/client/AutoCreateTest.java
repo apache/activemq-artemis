@@ -71,8 +71,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
       server = createServer(true, true);
       AddressSettings settings = new AddressSettings().setAutoCreateAddresses(true).setAutoDeleteAddresses(true).setAutoCreateQueues(true).setAutoDeleteQueues(true);
 
-      server.getConfiguration().getAddressesSettings().clear();
-      server.getConfiguration().getAddressesSettings().put("#", settings);
+      server.getConfiguration().getAddressSettings().clear();
+      server.getConfiguration().getAddressSettings().put("#", settings);
    }
 
    @Test
@@ -180,8 +180,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
       AssertionLoggerHandler.startCapture();
       server.getConfiguration().setAddressQueueScanPeriod(-1); // disabling scanner, we will perform it manually
       AddressSettings settings = new AddressSettings().setAutoDeleteQueues(true).setAutoDeleteAddresses(true).setAutoDeleteAddressesDelay(10).setAutoDeleteQueuesDelay(10);
-      server.getConfiguration().getAddressesSettings().clear();
-      server.getConfiguration().getAddressesSettings().put("#", settings);
+      server.getConfiguration().getAddressSettings().clear();
+      server.getConfiguration().getAddressSettings().put("#", settings);
       server.start();
       String ADDRESS_NAME = getName();
 
@@ -217,8 +217,8 @@ public class AutoCreateTest extends ActiveMQTestBase {
       AssertionLoggerHandler.startCapture();
       server.getConfiguration().setAddressQueueScanPeriod(-1); // disabling scanner, we will perform it manually
       AddressSettings settings = new AddressSettings().setAutoDeleteQueues(true).setAutoDeleteAddresses(true).setAutoDeleteAddressesDelay(10).setAutoDeleteQueuesDelay(10);
-      server.getConfiguration().getAddressesSettings().clear();
-      server.getConfiguration().getAddressesSettings().put("#", settings);
+      server.getConfiguration().getAddressSettings().clear();
+      server.getConfiguration().getAddressSettings().put("#", settings);
       server.start();
       String ADDRESS_NAME = getName();
 

@@ -58,7 +58,7 @@ public class OpenwireAmqpResenderTest extends ActiveMQTestBase {
       qpidFactory = new JmsConnectionFactory(AMQP_URL);
 
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(true)
+      serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true)
             .setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);
       server.start();

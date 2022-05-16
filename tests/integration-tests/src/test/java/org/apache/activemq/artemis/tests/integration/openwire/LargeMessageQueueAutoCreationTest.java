@@ -84,7 +84,7 @@ public class LargeMessageQueueAutoCreationTest extends BasicOpenWireTest {
    @Override
    protected void extraServerConfig(Configuration serverConfig) {
       serverConfig.setJournalType(JournalType.NIO);
-      Map<String, AddressSettings> map = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> map = serverConfig.getAddressSettings();
       Map.Entry<String, AddressSettings> entry = map.entrySet().iterator().next();
       AddressSettings settings = entry.getValue();
       settings.setAutoCreateQueues(true);

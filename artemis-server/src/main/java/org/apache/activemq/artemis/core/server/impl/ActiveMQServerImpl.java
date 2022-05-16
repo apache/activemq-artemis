@@ -3567,7 +3567,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    private void deployAddressSettingsFromConfiguration() {
-      for (Map.Entry<String, AddressSettings> entry : configuration.getAddressesSettings().entrySet()) {
+      for (Map.Entry<String, AddressSettings> entry : configuration.getAddressSettings().entrySet()) {
          addressSettingsRepository.addMatch(entry.getKey(), entry.getValue(), true);
       }
    }
@@ -4344,7 +4344,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       LegacyJMSConfiguration legacyJMSConfiguration = new LegacyJMSConfiguration(config);
       legacyJMSConfiguration.parseConfiguration(uri.openStream());
       configuration.setSecurityRoles(config.getSecurityRoles());
-      configuration.setAddressesSettings(config.getAddressesSettings());
+      configuration.setAddressSettings(config.getAddressSettings());
       configuration.setDivertConfigurations(config.getDivertConfigurations());
       configuration.setAddressConfigurations(config.getAddressConfigurations());
       configuration.setQueueConfigs(config.getQueueConfigs());
@@ -4390,7 +4390,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          recoverStoredSecuritySettings();
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("address settings");
-         addressSettingsRepository.swap(configuration.getAddressesSettings().entrySet());
+         addressSettingsRepository.swap(configuration.getAddressSettings().entrySet());
          recoverStoredAddressSettings();
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");

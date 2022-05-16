@@ -24,7 +24,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS
-import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
 
 
 String folder = arg[0];
@@ -36,9 +35,9 @@ configuration.setBrokerInstance(new File(folder + "/" + id));
 configuration.addAcceptorConfiguration("artemis", "tcp://0.0.0.0:61616?anycastPrefix=jms.queue.&multicastPrefix=jms.topic.");
 configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(false);
-configuration.addAddressesSetting("myQueue", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeBytes(1024 * 1024 * 1024).setPageSizeBytes(1024));
+configuration.addAddressSetting("myQueue", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeBytes(1024 * 1024 * 1024).setPageSizeBytes(1024));
 // if the client is using the wrong address, it will wrongly block
-configuration.addAddressesSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024).setPageSizeBytes(1024));
+configuration.addAddressSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK).setMaxSizeBytes(10 * 1024).setPageSizeBytes(1024));
 jmsConfiguration = new JMSConfigurationImpl();
 
 // used here even though it's deprecated to be compatible with older versions of the broker

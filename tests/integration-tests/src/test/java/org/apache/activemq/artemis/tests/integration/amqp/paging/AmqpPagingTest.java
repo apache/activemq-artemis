@@ -64,7 +64,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
       super.addConfiguration(server);
       final Map<String, AddressSettings> addressesSettings = server.getConfiguration()
          .setReadWholePage(readWholePage)
-         .getAddressesSettings();
+         .getAddressSettings();
       addressesSettings.get("#")
          .setMaxSizeBytes(100000)
          .setPageSizeBytes(10000);
@@ -104,7 +104,7 @@ public class AmqpPagingTest extends AmqpClientTestSupport {
       Wait.assertEquals(MSG_COUNT, queueView::getMessageCount);
       PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
       Assert.assertTrue(pagingStore.isPaging());
-      final int pageCacheMaxSize = server.getConfiguration().getAddressesSettings().get("#").getPageCacheMaxSize();
+      final int pageCacheMaxSize = server.getConfiguration().getAddressSettings().get("#").getPageCacheMaxSize();
       Assert.assertThat("the size of the messages or the number of messages isn't enough",
                         pagingStore.getNumberOfPages(), Matchers.greaterThan(pageCacheMaxSize));
       receiver.flow(MSG_COUNT);

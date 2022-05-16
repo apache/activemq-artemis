@@ -117,7 +117,7 @@ public class ProducerFlowControlBaseTest extends BasicOpenWireTest {
    @Override
    protected void extraServerConfig(Configuration serverConfig) {
       String match = "#";
-      Map<String, AddressSettings> asMap = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> asMap = serverConfig.getAddressSettings();
       asMap.get(match).setMaxSizeBytes(1).setAddressFullMessagePolicy(AddressFullMessagePolicy.BLOCK);
    }
 

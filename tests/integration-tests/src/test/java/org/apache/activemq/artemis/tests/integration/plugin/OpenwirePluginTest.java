@@ -93,7 +93,7 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
          }
       });
 
-      configuration.getAddressesSettings().put("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
+      configuration.getAddressSettings().put("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
             .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true));
 
       return server;

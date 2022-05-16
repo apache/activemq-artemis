@@ -243,7 +243,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
       addressSettings.setExpiryAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
 
-      server.getConfiguration().getAddressesSettings().put("#", addressSettings);
+      server.getConfiguration().getAddressSettings().put("#", addressSettings);
       Set<TransportConfiguration> acceptors = server.getConfiguration().getAcceptorConfigurations();
       for (TransportConfiguration tc : acceptors) {
          if (tc.getName().equals(NETTY_ACCEPTOR)) {

@@ -60,7 +60,7 @@ public class AMQPToJMSCoreTest extends ActiveMQTestBase {
       server.waitForActivation(10, TimeUnit.SECONDS);
 
       Configuration serverConfig = server.getConfiguration();
-      serverConfig.getAddressesSettings().put("#", new AddressSettings().setAutoCreateQueues(false)
+      serverConfig.getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(false)
                                                                         .setAutoCreateAddresses(false)
                                                                         .setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")));
       serverConfig.setSecurityEnabled(false);

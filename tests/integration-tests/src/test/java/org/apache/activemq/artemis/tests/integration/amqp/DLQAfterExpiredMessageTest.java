@@ -89,8 +89,8 @@ public class DLQAfterExpiredMessageTest extends AmqpClientTestSupport {
       addressSettings.setDeadLetterAddress(SimpleString.toSimpleString(getDeadLetterAddress()));
       addressSettings.setExpiryAddress(SimpleString.toSimpleString(getExpiryQueue()));
       addressSettings.setMaxDeliveryAttempts(1);
-      server.getConfiguration().getAddressesSettings().put("#", addressSettings);
-      server.getConfiguration().getAddressesSettings().put(getExpiryQueue(), addressSettings);
+      server.getConfiguration().getAddressSettings().put("#", addressSettings);
+      server.getConfiguration().getAddressSettings().put(getExpiryQueue(), addressSettings);
    }
 
    @Test

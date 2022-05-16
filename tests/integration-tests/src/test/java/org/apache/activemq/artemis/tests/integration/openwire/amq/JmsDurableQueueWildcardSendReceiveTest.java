@@ -45,7 +45,7 @@ public class JmsDurableQueueWildcardSendReceiveTest extends JmsTopicSendReceiveT
 
    @Override
    protected void extraServerConfig(Configuration serverConfig) {
-      AddressSettings settings = serverConfig.getAddressesSettings().get("#");
+      AddressSettings settings = serverConfig.getAddressSettings().get("#");
       if (settings != null) {
          settings.setAutoCreateQueues(true);
       }

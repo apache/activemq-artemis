@@ -38,7 +38,7 @@ public class ProducerAutoCreateQueueTest extends BasicOpenWireTest {
    protected void extraServerConfig(Configuration serverConfig) {
       serverConfig.setAddressQueueScanPeriod(100);
       String match = "#";
-      Map<String, AddressSettings> asMap = serverConfig.getAddressesSettings();
+      Map<String, AddressSettings> asMap = serverConfig.getAddressSettings();
       asMap.get(match).setAutoCreateAddresses(true).setAutoCreateQueues(true);
    }
 

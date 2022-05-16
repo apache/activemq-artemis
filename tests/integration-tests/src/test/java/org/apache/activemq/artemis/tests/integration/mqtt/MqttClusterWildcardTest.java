@@ -142,8 +142,8 @@ public class MqttClusterWildcardTest extends ClusterTestBase {
       // allow redistribution
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setRedistributionDelay(0);
-      servers[0].getConfiguration().addAddressesSetting("#", addressSettings);
-      servers[1].getConfiguration().addAddressesSetting("#", addressSettings);
+      servers[0].getConfiguration().addAddressSetting("#", addressSettings);
+      servers[1].getConfiguration().addAddressSetting("#", addressSettings);
 
       setupClusterConnection("cluster0", "", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);

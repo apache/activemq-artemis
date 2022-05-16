@@ -169,7 +169,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
                                                                                                                                    }
                                                                                                                                 }));
 
-      configuration.getAddressesSettings().put("#", new AddressSettings().setRedistributionDelay(0));
+      configuration.getAddressSettings().put("#", new AddressSettings().setRedistributionDelay(0));
 
       return configuration;
    }

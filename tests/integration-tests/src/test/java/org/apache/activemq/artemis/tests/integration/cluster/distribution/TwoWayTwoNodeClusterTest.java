@@ -118,8 +118,8 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
       closeAllSessionFactories();
       stopServers(0, 1);
 
-      AddressSettings addressSettings0 = config0.getAddressesSettings().get("#");
-      AddressSettings addressSettings1 = config1.getAddressesSettings().get("#");
+      AddressSettings addressSettings0 = config0.getAddressSettings().get("#");
+      AddressSettings addressSettings1 = config1.getAddressSettings().get("#");
 
       addressSettings0.setMaxSizeBytes(-1);
       addressSettings1.setMaxSizeBytes(-1);
@@ -151,7 +151,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
          config.setJournalMinFiles(20);
          config.setJournalCompactPercentage(50);
 
-         Map<String, AddressSettings> addressSettingsMap0 = config.getAddressesSettings();
+         Map<String, AddressSettings> addressSettingsMap0 = config.getAddressSettings();
          AddressSettings addrSettings = addressSettingsMap0.get("#");
          if (addrSettings == null) {
             addrSettings = new AddressSettings();

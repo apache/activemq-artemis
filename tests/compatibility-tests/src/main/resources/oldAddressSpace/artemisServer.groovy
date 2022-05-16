@@ -55,7 +55,7 @@ if (!(type.startsWith("ARTEMIS-1") || type.startsWith("HORNETQ"))) {
     addressSettings.setAutoCreateAddresses(false);
     addressSettings.setAutoCreateQueues(false);
 }
-configuration.addAddressesSetting("#", addressSettings);
+configuration.addAddressSetting("#", addressSettings);
 
 addressSettings = new AddressSettings();
 addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE)
@@ -68,7 +68,7 @@ if (!(type.startsWith("ARTEMIS-1") || type.startsWith("HORNETQ"))) {
     addressSettings.setAutoCreateAddresses(false);
     addressSettings.setAutoCreateQueues(false);
 }
-configuration.addAddressesSetting("jms.#", addressSettings);
+configuration.addAddressSetting("jms.#", addressSettings);
 
 // if the client is using the wrong address, it will wrongly block
 

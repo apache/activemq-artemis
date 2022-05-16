@@ -425,7 +425,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          .setAutoDeleteQueues(false).setAutoDeleteAddresses(false); // so slow consumer can kick in!
 
       Configuration baseConfig = new ConfigurationImpl();
-      baseConfig.getAddressesSettings().put(qName, blockingQueue);
+      baseConfig.getAddressSettings().put(qName, blockingQueue);
 
       ConnectionRouterConfiguration connectionRouterConfiguration = new ConnectionRouterConfiguration();
       connectionRouterConfiguration.setName(roleNameSharder).setKeyType(KeyType.ROLE_NAME).setKeyFilter("(?<=^EQ_).*"); // strip EQ_ prefix

@@ -123,13 +123,13 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
    protected void startServer(boolean reschedule) throws Exception {
       createReplicatedConfigs();
       Configuration configuration = liveServer.getServer().getConfiguration();
-      configuration.getAddressesSettings().clear();
+      configuration.getAddressSettings().clear();
       if (reschedule) {
          AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(Integer.MAX_VALUE).setRedeliveryDelay(1);
-         configuration.getAddressesSettings().put("#", settings);
+         configuration.getAddressSettings().put("#", settings);
       } else {
          AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(Integer.MAX_VALUE).setRedeliveryDelay(0);
-         configuration.getAddressesSettings().put("#", settings);
+         configuration.getAddressSettings().put("#", settings);
       }
       liveServer.start();
       backupServer.start();

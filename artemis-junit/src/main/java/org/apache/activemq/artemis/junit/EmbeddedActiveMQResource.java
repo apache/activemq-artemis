@@ -85,7 +85,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     * Create a default EmbeddedActiveMQResource
     */
    public EmbeddedActiveMQResource() {
-      configuration = new ConfigurationImpl().setName(SERVER_NAME).setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addAddressesSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("dla")).setExpiryAddress(SimpleString.toSimpleString("expiry")));
+      configuration = new ConfigurationImpl().setName(SERVER_NAME).setPersistenceEnabled(false).setSecurityEnabled(false).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addAddressSetting("#", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("dla")).setExpiryAddress(SimpleString.toSimpleString("expiry")));
       init();
    }
 

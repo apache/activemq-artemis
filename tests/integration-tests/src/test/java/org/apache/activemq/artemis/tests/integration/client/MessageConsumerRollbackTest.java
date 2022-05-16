@@ -56,7 +56,7 @@ public class MessageConsumerRollbackTest extends ActiveMQTestBase {
       server = createServer(true, true);
 
       AddressSettings settings = new AddressSettings().setRedeliveryDelay(100);
-      server.getConfiguration().getAddressesSettings().put("#", settings);
+      server.getConfiguration().getAddressSettings().put("#", settings);
 
       server.start();
 
