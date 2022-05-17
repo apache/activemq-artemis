@@ -94,9 +94,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       setupSessionFactory(0, isNetty());
       setupSessionFactory(1, isNetty());
 
-      this.
-
-         createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(1, "queues.testaddress", "queue0", null, false);
 
       addConsumer(1, 1, "queue0", null);
