@@ -1355,7 +1355,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    @Override
    public boolean hasScheduledDeliveryTime() {
       if (scheduledTime >= 0) {
-         return true;
+         return scheduledTime > 0;
       }
       return anyMessageAnnotations(SCHEDULED_DELIVERY_SYMBOLS, SCHEDULED_DELIVERY_NEEDLES);
    }

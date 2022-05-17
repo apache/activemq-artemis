@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,11 +42,14 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -59,6 +63,7 @@ import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
 import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -136,6 +141,47 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
          ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
          receiveJMS(nMsgs, factory);
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test(timeout = 60000)
+   public void testSendAndGetData() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      int nMsgs = 1;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         sendMessages(nMsgs, connection);
+
+         int count = getMessageCount(server.getPostOffice(), testQueueName);
+         assertEquals(nMsgs, count);
+         org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(testQueueName);
+         serverQueue.forEach(ref -> {
+            try {
+               AMQPLargeMessage message = (AMQPLargeMessage) ref.getMessage();
+               Assert.assertFalse(message.hasScheduledDeliveryTime());
+               ReadableBuffer dataBuffer = message.getData();
+               LargeBodyReader reader = message.getLargeBodyReader();
+               try {
+                  Assert.assertEquals(reader.getSize(), dataBuffer.remaining());
+                  reader.open();
+                  ByteBuffer buffer = ByteBuffer.allocate(dataBuffer.remaining());
+                  reader.readInto(buffer);
+                  ByteUtil.equals(buffer.array(), dataBuffer.array());
+               } finally {
+                  reader.close();
+               }
+            } catch (AssertionError assertionError) {
+               throw assertionError;
+            } catch (Throwable e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+
+         });
       } finally {
          connection.close();
       }

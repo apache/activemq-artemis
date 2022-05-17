@@ -57,20 +57,9 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public ICoreMessage toCore(CoreMessageObjectPools coreMessageObjectPools) {
-      LargeBodyReader reader = largeBody.getLargeBodyReader();
 
       try {
-         long size = reader.getSize();
-         if (size > Integer.MAX_VALUE) {
-            throw new RuntimeException("AMQP Large Message Body is too large to be converted into core");
-         }
-         byte[] buffer = new byte[(int)size];
-         ByteBuffer wrapbuffer = ByteBuffer.wrap(buffer);
-
-         reader.open();
-         reader.readInto(wrapbuffer);
-
-         AMQPStandardMessage standardMessage = new AMQPStandardMessage(messageFormat, buffer, extraProperties, coreMessageObjectPools);
+         AMQPStandardMessage standardMessage = new AMQPStandardMessage(messageFormat, getData().array(), extraProperties, coreMessageObjectPools);
          if (this.getExpiration() > 0) {
             standardMessage.reloadExpiration(this.getExpiration());
          }
@@ -80,16 +69,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
          throw new RuntimeException(e.getMessage(), e);
-      } finally {
-         try {
-            reader.close();
-         } catch (Exception e) {
-            // unexpected to happen, but possible, nothing else we can do beyond logging at this point
-            // if we wanted to add anything it would be a critical failure but it would be a heavy refactoring
-            // to bring the bits and listeners here for little benefit
-            // the possibility of this happening involves losing the storage device which will lead to other errors anyway
-            logger.warn(e.getMessage(), e);
-         }
       }
    }
 
@@ -308,7 +287,28 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public ReadableBuffer getData() {
-      throw new UnsupportedOperationException("Method not supported with Large Messages");
+      LargeBodyReader reader = largeBody.getLargeBodyReader();
+
+      try {
+         long size = reader.getSize();
+         if (size > Integer.MAX_VALUE) {
+            throw new RuntimeException("AMQP Large Message Body is too large to be read into memory");
+         }
+         byte[] buffer = new byte[(int) size];
+         ByteBuffer wrapbuffer = ByteBuffer.wrap(buffer);
+
+         reader.open();
+         reader.readInto(wrapbuffer);
+         return new ReadableBuffer.ByteBufferReader(wrapbuffer.rewind());
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      } finally {
+         try {
+            reader.close();
+         } catch (Exception ignored) {
+            logger.debug(ignored.getMessage(), ignored);
+         }
+      }
    }
 
    public void parseHeader(ReadableBuffer buffer) {
