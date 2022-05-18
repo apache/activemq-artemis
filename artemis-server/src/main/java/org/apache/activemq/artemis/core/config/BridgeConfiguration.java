@@ -116,11 +116,14 @@ public final class BridgeConfiguration implements Serializable {
 
    private int concurrency = ActiveMQDefaultConfiguration.getDefaultBridgeConcurrency();
 
+   private String parentName = null;
+
    public BridgeConfiguration() {
    }
 
    public BridgeConfiguration(BridgeConfiguration other) {
       name = other.name;
+      parentName = other.parentName;
       queueName = other.queueName;
       forwardingAddress = other.forwardingAddress;
       filterString = other.filterString;
@@ -265,6 +268,15 @@ public final class BridgeConfiguration implements Serializable {
     */
    public BridgeConfiguration setName(final String name) {
       this.name = name;
+      return this;
+   }
+
+   public String getParentName() {
+      return parentName;
+   }
+
+   public BridgeConfiguration setParentName(final String parentName) {
+      this.parentName = parentName;
       return this;
    }
 

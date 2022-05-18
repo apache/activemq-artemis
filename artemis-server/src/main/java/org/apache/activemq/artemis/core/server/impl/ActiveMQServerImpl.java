@@ -4420,7 +4420,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("bridges");
          for (BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
-            Bridge existingBridge = clusterManager.getBridges().get(newBridgeConfig.getName());
+            newBridgeConfig.setParentName(newBridgeConfig.getName());
+            Bridge existingBridge = clusterManager.getBridges().get(newBridgeConfig.getParentName());
             if (existingBridge != null && !existingBridge.getConfiguration().equals(newBridgeConfig)) {
                // this is an existing bridge but the config changed so stop the current bridge and deploy the new one
                destroyBridge(existingBridge.getName().toString());
@@ -4431,7 +4432,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          }
          for (final Bridge runningBridge: clusterManager.getBridges().values()) {
-            if (!configuration.getBridgeConfigurations().contains(runningBridge.getConfiguration())) {
+            List<BridgeConfiguration> newConfig = configuration.getBridgeConfigurations();
+            BridgeConfiguration running = new BridgeConfiguration(runningBridge.getConfiguration());
+            running.set("name", running.getParentName());
+            if (!configuration.getBridgeConfigurations().contains(running)) {
                // this bridge is running but it isn't in the new config which means it was removed so destroy it
                destroyBridge(runningBridge.getName().toString());
             }
