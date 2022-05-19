@@ -179,6 +179,74 @@ public class CoreClientOverTwoWaySSLTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testTwoWaySSLChooseAliasPositive() throws Exception {
+      String text = RandomUtil.randomString();
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
+
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      // the alias is specified when the keystore is created; see tests/security-resources/build.sh
+      tc.getParams().put(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, "client");
+
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, true, true);
+      session.createQueue(new QueueConfiguration(CoreClientOverTwoWaySSLTest.QUEUE).setDurable(false));
+      ClientProducer producer = session.createProducer(CoreClientOverTwoWaySSLTest.QUEUE);
+
+      ClientMessage message = createTextMessage(session, text);
+      producer.send(message);
+
+      ClientConsumer consumer = session.createConsumer(CoreClientOverTwoWaySSLTest.QUEUE);
+      session.start();
+
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      Assert.assertEquals(text, m.getBodyBuffer().readString());
+   }
+
+   @Test
+   public void testTwoWaySSLChooseAliasNegative() throws Exception {
+
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.SSL_PROVIDER, clientSSLProvider);
+
+      tc.getParams().put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.KEYSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, CLIENT_SIDE_KEYSTORE);
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      tc.getParams().put(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, RandomUtil.randomString());
+
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, storeProvider);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, storeType);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, CLIENT_SIDE_TRUSTSTORE);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, PASSWORD);
+
+      server.getRemotingService().addIncomingInterceptor(new MyInterceptor());
+
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      locator.setCallTimeout(500);
+      try {
+         ClientSessionFactory sf = createSessionFactory(locator);
+         fail();
+      } catch (ActiveMQNotConnectedException | ActiveMQConnectionTimedOutException e) {
+         // expected
+      }
+   }
+
+   @Test
    public void testTwoWaySSLVerifyClientHost() throws Exception {
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
       acceptor.getConfiguration().put(TransportConstants.VERIFY_HOST_PROP_NAME, true);

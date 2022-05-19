@@ -97,6 +97,8 @@ public class TransportConstants {
 
    public static final String KEYSTORE_PASSWORD_PROP_NAME = "keyStorePassword";
 
+   public static final String KEYSTORE_ALIAS_PROP_NAME = "keyStoreAlias";
+
    public static final String TRUSTSTORE_PROVIDER_PROP_NAME = "trustStoreProvider";
 
    public static final String TRUSTSTORE_TYPE_PROP_NAME = "trustStoreType";
@@ -258,6 +260,8 @@ public class TransportConstants {
 
    public static final boolean DEFAULT_USE_DEFAULT_SSL_CONTEXT = false;
 
+   public static final String DEFAULT_KEYSTORE_ALIAS = null;
+
    public static final boolean DEFAULT_TCP_NODELAY = true;
 
    public static final int DEFAULT_TCP_SENDBUFFER_SIZE = 1024 * 1024;
@@ -400,6 +404,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_TYPE_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_PATH_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.KEYSTORE_ALIAS_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.TRUSTSTORE_PATH_PROP_NAME);
@@ -472,6 +477,7 @@ public class TransportConstants {
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_TYPE_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_PATH_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME);
+      allowableConnectorKeys.add(TransportConstants.KEYSTORE_ALIAS_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME);
       allowableConnectorKeys.add(TransportConstants.TRUSTSTORE_PATH_PROP_NAME);

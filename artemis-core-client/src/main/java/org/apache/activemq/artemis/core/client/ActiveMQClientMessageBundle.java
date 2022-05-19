@@ -241,4 +241,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219066, value = "The connection was redirected")
    ActiveMQRoutingException redirected();
+
+   @Message(id = 219067, value = "Keystore alias {0} not found in {1}", format = Message.Format.MESSAGE_FORMAT)
+   IllegalArgumentException keystoreAliasNotFound(String keystoreAlias, String keystorePath);
 }

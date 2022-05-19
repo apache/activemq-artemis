@@ -61,25 +61,41 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(value = Parameterized.class)
 public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
-   String suffix = "";
 
-   @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}")
+   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
+
+   private boolean generateWarning;
+   private boolean useKeystoreAlias;
+   private String storeProvider;
+   private String storeType;
+   private String SERVER_SIDE_KEYSTORE;
+   private String CLIENT_SIDE_TRUSTSTORE;
+   private final String PASSWORD = "securepass";
+   private String suffix = "";
+
+   private ActiveMQServer server;
+
+   private TransportConfiguration tc;
+
+   @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}, generateWarning={2}, useKeystoreAlias={3}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{
-         {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE, false},
-         {"SunJCE", "JCEKS", false},
-         {"SUN", "JKS", false},
-         {"SunJSSE", "PKCS12", false},
-         {"JCEKS", null, true}, // for compatibility with old keyStoreProvider
-         {"JKS", null, true},   // for compatibility with old keyStoreProvider
-         {"PKCS12", null, true} // for compatibility with old keyStoreProvider
+         {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE, false, false},
+         {TransportConstants.DEFAULT_KEYSTORE_PROVIDER, TransportConstants.DEFAULT_KEYSTORE_TYPE, false, true},
+         {"SunJCE", "JCEKS", false, false},
+         {"SUN", "JKS", false, false},
+         {"SunJSSE", "PKCS12", false, false},
+         {"JCEKS", null, true, false}, // for compatibility with old keyStoreProvider
+         {"JKS", null, true, false},   // for compatibility with old keyStoreProvider
+         {"PKCS12", null, true, false} // for compatibility with old keyStoreProvider
       });
    }
 
-   public CoreClientOverOneWaySSLTest(String storeProvider, String storeType, boolean generateWarning) {
+   public CoreClientOverOneWaySSLTest(String storeProvider, String storeType, boolean generateWarning, boolean useKeystoreAlias) {
       this.storeProvider = storeProvider;
       this.storeType = storeType;
       this.generateWarning = generateWarning;
+      this.useKeystoreAlias = useKeystoreAlias;
       suffix = storeType == null || storeType.length() == 0 ? storeProvider.toLowerCase() : storeType.toLowerCase();
       // keytool expects PKCS12 stores to use the extension "p12"
       if (suffix.equalsIgnoreCase("PKCS12")) {
@@ -88,19 +104,6 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
       SERVER_SIDE_KEYSTORE = "server-keystore." + suffix;
       CLIENT_SIDE_TRUSTSTORE = "server-ca-truststore." + suffix;
    }
-
-   public static final SimpleString QUEUE = new SimpleString("QueueOverSSL");
-
-   private boolean generateWarning;
-   private String storeProvider;
-   private String storeType;
-   private String SERVER_SIDE_KEYSTORE;
-   private String CLIENT_SIDE_TRUSTSTORE;
-   private final String PASSWORD = "securepass";
-
-   private ActiveMQServer server;
-
-   private TransportConfiguration tc;
 
    @Before
    public void validateLogging() {
@@ -522,7 +525,11 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
       // reload the acceptor to reload the SSL stores
       NettyAcceptor acceptor = (NettyAcceptor) server.getRemotingService().getAcceptor("nettySSL");
-      acceptor.setKeyStorePath("other-" + SERVER_SIDE_KEYSTORE);
+      if (useKeystoreAlias) {
+         acceptor.setKeyStoreParameters("other-" + SERVER_SIDE_KEYSTORE, "other-server");
+      } else {
+         acceptor.setKeyStoreParameters("other-" + SERVER_SIDE_KEYSTORE, null);
+      }
       acceptor.reload();
 
       // create a session with the locator which failed previously proving that the SSL stores have been reloaded
@@ -990,6 +997,10 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
          params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, SERVER_SIDE_KEYSTORE);
       }
       params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, PASSWORD);
+      if (useKeystoreAlias) {
+         // the alias is specified when the keystore is created; see tests/security-resources/build.sh
+         params.put(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, "server");
+      }
       params.put(TransportConstants.HOST_PROP_NAME, "localhost");
 
       if (cipherSuites != null) {
