@@ -379,6 +379,18 @@ additional properties:
   on the client is already making use of the standard Java system property.
   Default is `null`.
 
+- `keyStoreAlias`
+
+  When used on an `acceptor` this is the alias to select from the SSL key store
+  (specified via `keyStorePath`) to present to the client when it connects.
+
+  When used on a `connector` this is the alias to select from the SSL key store
+  (specified via `keyStorePath`) to present to the server when the client
+  connects to it. This is only relevant for a `connector` when using 2-way SSL
+  (i.e. mutual authentication).
+
+  Default is `null`.
+
 - `trustStorePath`
 
   When used on an `acceptor` this is the path to the server-side SSL key store

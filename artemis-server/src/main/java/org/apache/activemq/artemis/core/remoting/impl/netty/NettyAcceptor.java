@@ -161,6 +161,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final String keyStorePassword;
 
+   private final String keystoreAlias;
+
    private final String trustStoreProvider;
 
    private final String trustStoreType;
@@ -327,11 +329,14 @@ public class NettyAcceptor extends AbstractAcceptor {
 
          trustManagerFactoryPlugin = ConfigurationHelper.getStringProperty(TransportConstants.TRUST_MANAGER_FACTORY_PLUGIN_PROP_NAME, TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN, configuration);
 
+         keystoreAlias = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_ALIAS, configuration);
+
          sslContextConfig = SSLContextConfig.builder()
             .keystoreProvider(keyStoreProvider)
             .keystorePath(keyStorePath)
             .keystoreType(keyStoreType)
             .keystorePassword(keyStorePassword)
+            .keystoreAlias(keystoreAlias)
             .truststoreProvider(trustStoreProvider)
             .truststorePath(trustStorePath)
             .truststoreType(trustStoreType)
@@ -345,6 +350,7 @@ public class NettyAcceptor extends AbstractAcceptor {
          keyStoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
+         keystoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
          trustStoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
          trustStoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
          trustStorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
@@ -563,12 +569,14 @@ public class NettyAcceptor extends AbstractAcceptor {
    }
 
    // only for testing purposes
-   public void setKeyStorePath(String keyStorePath) {
+   public void setKeyStoreParameters(String keyStorePath, String keyStoreAlias) {
       this.keyStorePath = keyStorePath;
       this.configuration.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, keyStorePath);
+      this.configuration.put(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, keyStoreAlias);
       sslContextConfig = SSLContextConfig.builder()
          .from(sslContextConfig)
          .keystorePath(keyStorePath)
+         .keystoreAlias(keyStoreAlias)
          .build();
    }
 
