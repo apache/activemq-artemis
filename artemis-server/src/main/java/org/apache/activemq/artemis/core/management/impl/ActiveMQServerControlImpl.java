@@ -3912,6 +3912,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public void addConnector(String name, String url) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.addConnector(this.server, name, url);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         server.getConfiguration().addConnectorConfiguration(name, url);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
+   public void removeConnector(String name) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.removeConnector(this.server, name);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         server.getConfiguration().getConnectorConfigurations().remove(name);
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String listBrokerConnections() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.listBrokerConnections();
