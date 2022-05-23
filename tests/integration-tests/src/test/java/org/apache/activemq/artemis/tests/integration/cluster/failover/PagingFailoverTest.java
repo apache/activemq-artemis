@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Assert;
 import org.junit.Before;
@@ -189,15 +190,10 @@ public class PagingFailoverTest extends FailoverTestBase {
 
       Queue queue = backupServer.getServer().locateQueue(ADDRESS);
 
-      long timeout = System.currentTimeMillis() + 6000;
-
-      while (timeout > System.currentTimeMillis() && queue.getPageSubscription().isPaging()) {
-         Thread.sleep(100);
-         // Simulating what would happen on expire
+      Wait.assertFalse( () -> {
          queue.expireReferences();
-      }
-
-      Assert.assertFalse(queue.getPageSubscription().isPaging());
+         return queue.getPageSubscription().isPaging();
+      });
 
    }
 
