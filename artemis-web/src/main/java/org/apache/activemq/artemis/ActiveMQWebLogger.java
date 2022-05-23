@@ -44,20 +44,32 @@ public interface ActiveMQWebLogger extends BasicLogger {
    ActiveMQWebLogger LOGGER = Logger.getMessageLogger(ActiveMQWebLogger.class, ActiveMQWebLogger.class.getPackage().getName());
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241001, value = "HTTP Server started at {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 241001, value = "Embedded web server started at {0}", format = Message.Format.MESSAGE_FORMAT)
    void webserverStarted(String bind);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 241002, value = "Artemis Jolokia REST API available at {0}", format = Message.Format.MESSAGE_FORMAT)
    void jolokiaAvailable(String bind);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 244003, value = "Temporary file not deleted on shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void tmpFileNotDeleted(File tmpdir);
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 241003, value = "Starting embedded web server", format = Message.Format.MESSAGE_FORMAT)
+   void startingEmbeddedWebServer();
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 241004, value = "Artemis Console available at {0}", format = Message.Format.MESSAGE_FORMAT)
    void consoleAvailable(String bind);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 241005, value = "Stopping embedded web server", format = Message.Format.MESSAGE_FORMAT)
+   void stoppingEmbeddedWebServer();
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 241006, value = "Stopped embedded web server", format = Message.Format.MESSAGE_FORMAT)
+   void stoppedEmbeddedWebServer();
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 244003, value = "Temporary file not deleted on shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void tmpFileNotDeleted(File tmpdir);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 244005, value = "Web customizer {0} not loaded: {1}", format = Message.Format.MESSAGE_FORMAT)

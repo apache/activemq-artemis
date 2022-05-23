@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,6 +61,7 @@ import io.netty.handler.ssl.SslHandler;
 import io.netty.util.CharsetUtil;
 import org.apache.activemq.artemis.cli.factory.xml.XmlBrokerFactoryHandler;
 import org.apache.activemq.artemis.component.WebServerComponent;
+import org.apache.activemq.artemis.component.WebServerComponentTestAccessor;
 import org.apache.activemq.artemis.core.remoting.impl.ssl.SSLSupport;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
@@ -83,16 +85,12 @@ public class WebServerComponentTest extends Assert {
 
    static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
    static final String SECURE_URL = System.getProperty("url", "https://localhost:8448/WebServerComponentTest.txt");
-   private Bootstrap bootstrap;
-   private EventLoopGroup group;
    private List<ActiveMQComponent> testedComponents;
 
    @Before
    public void setupNetty() throws URISyntaxException {
       System.setProperty("jetty.base", "./target");
       // Configure the client.
-      group = new NioEventLoopGroup();
-      bootstrap = new Bootstrap();
       testedComponents = new ArrayList<>();
    }
 
@@ -133,14 +131,7 @@ public class WebServerComponentTest extends Assert {
       // Make the connection attempt.
       CountDownLatch latch = new CountDownLatch(1);
       final ClientHandler clientHandler = new ClientHandler(latch);
-      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
-         @Override
-         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(new HttpClientCodec());
-            ch.pipeline().addLast(clientHandler);
-         }
-      });
-      Channel ch = bootstrap.connect("localhost", port).sync().channel();
+      Channel ch = getChannel(port, clientHandler);
 
       URI uri = new URI(URL);
       // Prepare the HTTP request.
@@ -175,36 +166,44 @@ public class WebServerComponentTest extends Assert {
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       webServerComponent.start();
-      final int port = webServerComponent.getPort();
       // Make the connection attempt.
-      CountDownLatch latch = new CountDownLatch(1);
-      final ClientHandler clientHandler = new ClientHandler(latch);
-      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
-         @Override
-         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(new HttpClientCodec());
-            ch.pipeline().addLast(clientHandler);
-         }
-      });
-      Channel ch = bootstrap.connect("localhost", port).sync().channel();
-
-      URI uri = new URI(URL);
-      // Prepare the HTTP request.
-      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-      request.headers().set(HttpHeaderNames.HOST, "localhost");
-
-      // Send the HTTP request.
-      ch.writeAndFlush(request);
-      assertTrue(latch.await(5, TimeUnit.SECONDS));
-      assertEquals("12345", clientHandler.body.toString());
-      // Wait for the server to close the connection.
-      ch.close();
-      ch.eventLoop().shutdownNow();
+      verifyConnection(webServerComponent.getPort());
       Assert.assertTrue(webServerComponent.isStarted());
 
       //usual stop won't actually stop it
       webServerComponent.stop();
       assertTrue(webServerComponent.isStarted());
+
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testComponentStopStartBehavior() throws Exception {
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "webapps";
+      WebServerComponent webServerComponent = new WebServerComponent();
+      Assert.assertFalse(webServerComponent.isStarted());
+      webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
+      webServerComponent.start();
+      // Make the connection attempt.
+      verifyConnection(webServerComponent.getPort());
+      Assert.assertTrue(webServerComponent.isStarted());
+
+      //usual stop won't actually stop it
+      webServerComponent.stop();
+      assertTrue(webServerComponent.isStarted());
+
+      webServerComponent.stop(true);
+      Assert.assertFalse(webServerComponent.isStarted());
+
+      webServerComponent.start();
+      assertTrue(webServerComponent.isStarted());
+
+      verifyConnection(webServerComponent.getPort());
 
       webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
@@ -257,15 +256,7 @@ public class WebServerComponentTest extends Assert {
       CountDownLatch latch = new CountDownLatch(1);
       final ClientHandler clientHandler = new ClientHandler(latch);
 
-      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
-         @Override
-         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(sslHandler);
-            ch.pipeline().addLast(new HttpClientCodec());
-            ch.pipeline().addLast(clientHandler);
-         }
-      });
-      Channel ch = bootstrap.connect("localhost", port).sync().channel();
+      Channel ch = getSslChannel(port, sslHandler, clientHandler);
 
       URI uri = new URI(SECURE_URL);
       // Prepare the HTTP request.
@@ -334,15 +325,7 @@ public class WebServerComponentTest extends Assert {
 
       CountDownLatch latch = new CountDownLatch(1);
       final ClientHandler clientHandler = new ClientHandler(latch);
-      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
-         @Override
-         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(sslHandler);
-            ch.pipeline().addLast(new HttpClientCodec());
-            ch.pipeline().addLast(clientHandler);
-         }
-      });
-      Channel ch = bootstrap.connect("localhost", port).sync().channel();
+      Channel ch = getSslChannel(port, sslHandler, clientHandler);
 
       URI uri = new URI(SECURE_URL);
       // Prepare the HTTP request.
@@ -420,14 +403,14 @@ public class WebServerComponentTest extends Assert {
    public void testServerCleanupBeforeStart() throws Exception {
       final String warName = "simple-app.war";
       createTestWar(warName);
+      final String url = "simple-app/";
 
       AppDTO app = new AppDTO();
-      app.url = "simple-app/";
+      app.url = url;
       app.war = warName;
       BindingDTO bindingDTO = new BindingDTO();
       bindingDTO.uri = "http://localhost:0";
       bindingDTO.apps = new ArrayList<>();
-      bindingDTO.apps.add(app);
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "";
@@ -435,14 +418,11 @@ public class WebServerComponentTest extends Assert {
       Assert.assertFalse(webServerComponent.isStarted());
       testedComponents.add(webServerComponent);
       webServerComponent.configure(webServerDTO, "./target", "./target");
-      //create some garbage
-      List<WebAppContext> contexts = webServerComponent.getWebContexts();
+      WebAppContext ctxt = WebServerComponentTestAccessor.createWebAppContext(webServerComponent, url, warName, Paths.get(".").resolve("target").toAbsolutePath(), null);
+      webServerComponent.getWebContexts().add(ctxt);
 
       WebInfConfiguration cfg = new WebInfConfiguration();
-      assertEquals(1, contexts.size());
-      WebAppContext ctxt = contexts.get(0);
       List<File> garbage = new ArrayList<>();
-
 
       cfg.resolveTempDirectory(ctxt);
 
@@ -463,40 +443,6 @@ public class WebServerComponentTest extends Assert {
       for (File file : garbage) {
          assertFalse("file exist: " + file.getAbsolutePath(), file.exists());
       }
-
-      //check the war is working
-      final int port = webServerComponent.getPort();
-
-      // Make the connection attempt.
-      CountDownLatch latch = new CountDownLatch(1);
-      final ClientHandler clientHandler = new ClientHandler(latch);
-      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
-         @Override
-         protected void initChannel(Channel ch) throws Exception {
-            ch.pipeline().addLast(new HttpClientCodec(8192, 8192, 8192, false));
-            ch.pipeline().addLast(clientHandler);
-         }
-      });
-
-      Channel ch = bootstrap.connect("localhost", port).sync().channel();
-
-      String warUrl = "http://localhost:" + port + "/" + app.url;
-
-      URI uri = new URI(warUrl);
-
-      // Prepare the HTTP request.
-      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
-      request.headers().set(HttpHeaderNames.HOST, "localhost");
-
-      // Send the HTTP request.
-      ch.writeAndFlush(request);
-      assertTrue(latch.await(5, TimeUnit.SECONDS));
-
-      assertTrue("content: " + clientHandler.body.toString(), clientHandler.body.toString().contains("Hello Artemis Test"));
-      assertNull(clientHandler.serverHeader);
-      // Wait for the server to close the connection.
-      ch.close();
-      ch.eventLoop().shutdownNow();
       Assert.assertTrue(webServerComponent.isStarted());
       webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
@@ -572,6 +518,52 @@ public class WebServerComponentTest extends Assert {
          }
          collector.add(file);
       }
+   }
+
+   private Channel getChannel(int port, ClientHandler clientHandler) throws InterruptedException {
+      EventLoopGroup group = new NioEventLoopGroup();
+      Bootstrap bootstrap = new Bootstrap();
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
+         @Override
+         protected void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(new HttpClientCodec());
+            ch.pipeline().addLast(clientHandler);
+         }
+      });
+      return bootstrap.connect("localhost", port).sync().channel();
+   }
+
+   private Channel getSslChannel(int port, SslHandler sslHandler, ClientHandler clientHandler) throws InterruptedException {
+      EventLoopGroup group = new NioEventLoopGroup();
+      Bootstrap bootstrap = new Bootstrap();
+      bootstrap.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer() {
+         @Override
+         protected void initChannel(Channel ch) throws Exception {
+            ch.pipeline().addLast(sslHandler);
+            ch.pipeline().addLast(new HttpClientCodec());
+            ch.pipeline().addLast(clientHandler);
+         }
+      });
+      return bootstrap.connect("localhost", port).sync().channel();
+   }
+
+   private void verifyConnection(int port) throws InterruptedException, URISyntaxException {
+      CountDownLatch latch = new CountDownLatch(1);
+      final ClientHandler clientHandler = new ClientHandler(latch);
+      Channel ch = getChannel(port, clientHandler);
+
+      URI uri = new URI(URL);
+      // Prepare the HTTP request.
+      HttpRequest request = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, uri.getRawPath());
+      request.headers().set(HttpHeaderNames.HOST, "localhost");
+
+      // Send the HTTP request.
+      ch.writeAndFlush(request);
+      assertTrue(latch.await(5, TimeUnit.SECONDS));
+      assertEquals("12345", clientHandler.body.toString());
+      // Wait for the server to close the connection.
+      ch.close();
+      ch.eventLoop().shutdownNow();
    }
 
    class ClientHandler extends SimpleChannelInboundHandler<HttpObject> {

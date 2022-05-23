@@ -273,6 +273,12 @@ public enum ActiveMQExceptionType {
       public ActiveMQException createException(String msg) {
          return new ActiveMQRoutingException(msg);
       }
+   },
+   TIMEOUT_EXCEPTION(223) {
+      @Override
+      public ActiveMQException createException(String msg) {
+         return new ActiveMQTimeoutException(msg);
+      }
    };
    private static final Map<Integer, ActiveMQExceptionType> TYPE_MAP;
 
