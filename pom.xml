@@ -167,9 +167,9 @@
 
       <!-- for JakartaEE -->
       <version.batavia>1.0.10.Final</version.batavia>
-      <jakarta.jms-api.version.alt>3.0.0</jakarta.jms-api.version.alt>
-      <jakarta.transaction-api.version.alt>2.0.0</jakarta.transaction-api.version.alt>
-      <jakarta.resource-api.version.alt>2.0.0</jakarta.resource-api.version.alt>
+      <jakarta.jms-api.version.alt>3.1.0</jakarta.jms-api.version.alt>
+      <jakarta.transaction-api.version.alt>2.0.1</jakarta.transaction-api.version.alt>
+      <jakarta.resource-api.version.alt>2.1.0</jakarta.resource-api.version.alt>
 
       <!-- used on tests -->
       <groovy.version>4.0.0</groovy.version>
