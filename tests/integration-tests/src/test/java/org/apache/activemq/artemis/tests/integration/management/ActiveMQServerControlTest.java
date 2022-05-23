@@ -161,6 +161,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    public void testGetAttributes() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 
+      Assert.assertEquals(server.getConfiguration().getName(), serverControl.getName());
+
       Assert.assertEquals(server.getVersion().getFullVersion(), serverControl.getVersion());
 
       Assert.assertEquals(conf.isClustered(), serverControl.isClustered());

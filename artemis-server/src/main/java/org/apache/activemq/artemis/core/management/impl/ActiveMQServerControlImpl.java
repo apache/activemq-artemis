@@ -205,6 +205,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public String getName() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getName(this.server);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         return server.getConfiguration().getName();
+      } finally {
+         blockOnIO();
+      }
+   }
+
+   @Override
    public String getVersion() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getVersion(this.server);
