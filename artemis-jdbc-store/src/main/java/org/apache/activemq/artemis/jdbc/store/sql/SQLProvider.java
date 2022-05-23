@@ -36,7 +36,7 @@ public interface SQLProvider {
 
    String getTableName();
 
-   String getCreateFileTableSQL();
+   String[] getCreateFileTableSQL();
 
    String getInsertFileSQL();
 
