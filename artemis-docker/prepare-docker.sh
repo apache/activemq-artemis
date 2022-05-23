@@ -62,12 +62,12 @@ Building the Docker Image:
   $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
 
   # For AdoptOpen JDK 11
-  $ docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
+  $ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
 
   # For AdoptOpen JDK 11 (Build for linux ARMv7/ARM64)
-  $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-adoptopenjdk-11 .
+  $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-eclipse-temurin-11 .
 
-Note: -t artemis-debian, -t artemis-centos and artemis-adoptopenjdk-11 are just 
+Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just 
 tag names for the purpose of this guide
 
 For more info read the readme.md
