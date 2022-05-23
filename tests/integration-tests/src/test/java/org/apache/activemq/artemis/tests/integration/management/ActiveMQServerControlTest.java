@@ -42,8 +42,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -4337,9 +4337,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.restartEmbeddedWebServer(10);
+         serverControl.restartEmbeddedWebServer(1);
          fail();
-      } catch (ActiveMQTimeoutException e) {
+      } catch (Exception e) {
          // expected
       } finally {
          startDelay.countDown();
@@ -4358,8 +4358,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       try {
          serverControl.restartEmbeddedWebServer(10);
          fail();
-      } catch (ActiveMQIllegalStateException e) {
-         assertEquals(message, e.getMessage());
+      } catch (ActiveMQException e) {
+         assertEquals(message, e.getCause().getMessage());
       }
    }
 
@@ -4372,6 +4372,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       FakeWebServerComponent(CountDownLatch startDelay) {
          this.startDelay = startDelay;
+         new Exception("startDelay = " + startDelay).printStackTrace();
       }
 
       FakeWebServerComponent(Exception startException) {

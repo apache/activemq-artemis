@@ -45,6 +45,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    public void testScaleDownWithConnector() throws Exception {
    }
 
+   // the proxy will not work on this test, ignoring the test
+   @Override
+   public void testRestartEmbeddedWebServerException() throws Exception {
+   }
+
 
 
    @Override
