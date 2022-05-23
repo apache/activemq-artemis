@@ -25,7 +25,7 @@ Using Artemis dist: ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHO
 Clean up the ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker directory
 Docker file support files at : ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
 ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
-├── Dockerfile-adoptopenjdk-11
+├── Dockerfile-eclipse-temurin-11
 ├── Dockerfile-centos
 ├── Dockerfile-debian
 └── docker-run.sh
@@ -46,9 +46,9 @@ Building the Docker Image:
   $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
 
   # For AdoptOpen JDK 11
-  $ docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
+  $ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
 
-Note: -t artemis-debian, -t artemis-centos and artemis-adoptopenjdk-11 are just
+Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just
 tag names for the purpose of this guide
 
 For more info read the readme.md
@@ -75,7 +75,7 @@ Removing _TMP_/artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz...
 Using Artemis dist: _TMP_/artemis/2.16.0
 Docker file support files at : _TMP_/artemis/2.16.0/docker
 _TMP_/artemis/2.16.0/docker
-├── Dockerfile-adoptopenjdk-11
+├── Dockerfile-eclipse-temurin-11
 ├── Dockerfile-centos
 ├── Dockerfile-debian
 └── docker-run.sh
@@ -96,9 +96,9 @@ Building the Docker Image:
   $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
 
   # For AdoptOpen JDK 11
-  $ docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
+  $ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
 
-Note: -t artemis-debian, -t artemis-centos and artemis-adoptopenjdk-11 are just
+Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just
 tag names for the purpose of this guide
 
 For more info read the readme.md
@@ -125,16 +125,16 @@ $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
 ## For AdoptOpen JDK 11
 From within the `$ARTEMIS_DIST` folder:
 ```
-$ docker build -f ./docker/Dockerfile-adoptopenjdk-11 -t artemis-adoptopenjdk-11 .
+$ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
 ```
 
 # For AdoptOpen JDK 11 (Build for linux ARMv7/ARM64)
 ```
-$ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-adoptopenjdk-11 .
+$ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-eclipse-temurin-11 .
 ```
 
 **Note:**
-`-t artemis-debian`,`-t artemis-centos`,`artemis-adoptopenjdk-11` are just tag 
+`-t artemis-debian`,`-t artemis-centos`,`artemis-eclipse-temurin-11` are just tag 
 names for the purpose of this guide
 
 
