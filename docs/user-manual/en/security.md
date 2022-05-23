@@ -1198,8 +1198,15 @@ manager *may* still may have a couple of advantages depending on your use-case.
 All user & role data is stored in the bindings journal (or bindings table if
 using JDBC). The advantage here is that in a live/backup use-case any user
 management performed on the live broker will be reflected on the backup upon
-failover. Typically LDAP would be employed for this kind of use-case, but not
-everyone wants or is able to administer an independent LDAP server.
+failover.
+
+Typically LDAP would be employed for this kind of use-case, but not everyone
+wants or is able to administer an independent LDAP server. One significant
+benefit of LDAP is that user data can be shared between multiple live brokers.
+However, this is not possible with the `ActiveMQBasicSecurityManager` or, in fact,
+any other configuration potentially available out of the box. Nevertheless,
+if you just want to share user data between a single live/backup pair then the
+basic security manager may be a good fit for you.
 
 User management is provided by the broker's management API. This includes the
 ability to add, list, update, and remove users & roles. As with all management
@@ -1218,6 +1225,8 @@ the basic security manager.
 
 The configuration for the `ActiveMQBasicSecurityManager` happens in
 `bootstrap.xml` just like it does for all security manager implementations.
+Start by removing `<jaas-security />` section and add `<security-manager />`
+configuration as described below.
 
 The `ActiveMQBasicSecurityManager` requires some special configuration for the
 following reasons:
@@ -1231,10 +1240,10 @@ If, for example, the broker was configured to use the
 `ActiveMQBasicSecurityManager` and was started from scratch then no clients
 would be able to connect because there would be no users & roles configured.
 However, in order to configure users & roles one would need to use the 
-management API which would require the proper credentials. It's a catch-22.
-Therefore, it is possible to configure "bootstrap" credentials that will be
-automatically created when the broker starts. There are properties to define
-either:
+management API which would require the proper credentials. It's a [catch-22](https://en.wikipedia.org/wiki/Catch-22_(logic))
+problem. Therefore, it is essential to configure "bootstrap" credentials that
+will be automatically created when the broker starts. There are properties
+to define either:
 
  - a single user whose credentials can then be used to add other users 
  - properties files from which to load users & roles in bulk
@@ -1308,8 +1317,11 @@ For example:
 
 > **Note:**
 >
-> Any `bootstrap` credentials will be set **whenever** you start the broker no 
-> matter what changes may have been made to them at runtime previously.
+> Any `bootstrap` credentials will be reset **whenever** you start the broker
+> no matter what changes may have been made to them at runtime previously, so
+> depending on your use-case you should decide if you want to leave `bootstrap`
+> configuration permanent or if you want to remove it after initial
+> configuration.
 
 ## Mapping external roles
 Roles from external authentication providers (i.e. LDAP) can be mapped to internally used roles. The is done through role-mapping entries in the security-settings block:
