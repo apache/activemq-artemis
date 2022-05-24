@@ -28,13 +28,13 @@ public abstract class AddressAbstract extends AbstractAction {
    @Option(name = "--anycast", description = "It will determine this address as anycast")
    private Boolean anycast;
 
-   @Option(name = "--no-anycast", description = "It will determine this address as anycast")
+   @Option(name = "--no-anycast", description = "It will not determine this address as anycast")
    private Boolean noAnycast;
 
    @Option(name = "--multicast", description = "It will determine this address as multicast")
    private Boolean multicast;
 
-   @Option(name = "--no-multicast", description = "It will determine this address as multicast")
+   @Option(name = "--no-multicast", description = "It will not determine this address as multicast")
    private Boolean noMulticast;
 
 
