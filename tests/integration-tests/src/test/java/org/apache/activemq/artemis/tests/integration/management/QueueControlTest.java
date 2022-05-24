@@ -1654,6 +1654,92 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    /**
+    * Test send to DLA while paging includes paged messages
+    */
+   @Test
+   public void testSendToDLAIncludesPagedMessages() throws Exception {
+      final SimpleString dla = new SimpleString("DLA");
+      final SimpleString qName = new SimpleString("q1");
+      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dlq = new SimpleString("DLQ1");
+      final String sampleText = "Put me on DLQ";
+      final int messageCount = 10;
+
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setMaxSizeBytes(200L);
+      server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
+      server.getAddressSettingsRepository().addMatch(dla.toString(), addressSettings);
+
+      session.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(durable));
+      session.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(durable));
+
+      // Send message to queue, make sure address enters paging.
+      ClientProducer producer = session.createProducer(adName);
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(createTextMessage(session, sampleText));
+      }
+
+      Wait.assertTrue(server.locateQueue(qName).getPagingStore()::isPaging);
+
+      //Send all messages to DLA, make sure all are sent
+      QueueControl queueControl = createManagementControl(adName, qName);
+      Assert.assertEquals(messageCount, queueControl.sendMessagesToDeadLetterAddress(null));
+      Assert.assertEquals(0, getMessageCount(queueControl));
+
+      //Make sure all shows up on DLA
+      queueControl = createManagementControl(dla, dlq);
+      Assert.assertEquals(messageCount, getMessageCount(queueControl));
+
+      queueControl.removeAllMessages();
+
+   }
+
+   /**
+    * Test send single message to DLA while paging includes paged message
+    */
+   @Test
+   public void testSendMessageToDLAIncludesPagedMessage() throws Exception {
+      final SimpleString dla = new SimpleString("DLA");
+      final SimpleString qName = new SimpleString("q1");
+      final SimpleString adName = new SimpleString("ad1");
+      final SimpleString dlq = new SimpleString("DLQ1");
+      final String sampleText = "Message Content";
+      final int messageCount = 10;
+
+      AddressSettings addressSettings = new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setMaxSizeBytes(200L);
+      server.getAddressSettingsRepository().addMatch(adName.toString(), addressSettings);
+      server.getAddressSettingsRepository().addMatch(dla.toString(), addressSettings);
+
+      session.createQueue(new QueueConfiguration(dlq).setAddress(dla).setDurable(durable));
+      session.createQueue(new QueueConfiguration(qName).setAddress(adName).setDurable(durable));
+
+      // Send message to queue, make sure address enters paging.
+      ClientProducer producer = session.createProducer(adName);
+      for (int i = 0; i < messageCount; i++) {
+         producer.send(createTextMessage(session, sampleText));
+      }
+
+      Wait.assertTrue(server.locateQueue(qName).getPagingStore()::isPaging);
+
+      //Send identifiable message to DLA
+      producer.send(createTextMessage(session, sampleText).putStringProperty("myID", "unique"));
+      QueueControl queueControl = createManagementControl(adName, qName);
+      Map<String, Object>[] messages = queueControl.listMessages(null);
+      long messageID = (Long) messages[messageCount].get("messageID");
+
+      Assert.assertTrue(queueControl.sendMessageToDeadLetterAddress(messageID));
+      queueControl.removeAllMessages();
+
+      //Make sure it shows up on DLA
+      queueControl = createManagementControl(dla, dlq);
+      messages = queueControl.listMessages(null);
+      Assert.assertEquals(1, messages.length);
+      Assert.assertEquals("unique", (String) messages[0].get("myID"));
+
+      queueControl.removeAllMessages();
+
+   }
+
+   /**
     * <ol>
     * <li>send a message to queue</li>
     * <li>move all messages from queue to otherQueue using management method</li>

@@ -2576,27 +2576,34 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return true;
             }
          }
+         if (pageIterator != null && !queueDestroyed) {
+            while (pageIterator.hasNext()) {
+               PagedReference ref = pageIterator.next();
+               if (ref.getMessage().getMessageID() == messageID) {
+                  incDelivering(ref);
+                  sendToDeadLetterAddress(null, ref);
+                  pageIterator.remove();
+                  refRemoved(ref);
+                  return true;
+               }
+            }
+         }
          return false;
       }
    }
 
    @Override
    public synchronized int sendMessagesToDeadLetterAddress(Filter filter) throws Exception {
-      int count = 0;
 
-      try (LinkedListIterator<MessageReference> iter = iterator()) {
-         while (iter.hasNext()) {
-            MessageReference ref = iter.next();
-            if (filter == null || filter.match(ref.getMessage())) {
-               incDelivering(ref);
-               sendToDeadLetterAddress(null, ref);
-               iter.remove();
-               refRemoved(ref);
-               count++;
-            }
+      return iterQueue(DEFAULT_FLUSH_LIMIT, filter, new QueueIterateAction() {
+
+         @Override
+         public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
+
+            incDelivering(ref);
+            return sendToDeadLetterAddress(tx, ref);
          }
-         return count;
-      }
+      });
    }
 
    @Override
