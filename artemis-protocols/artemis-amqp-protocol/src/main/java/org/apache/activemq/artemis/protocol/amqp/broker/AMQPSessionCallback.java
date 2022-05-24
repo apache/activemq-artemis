@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -260,6 +261,14 @@ public class AMQPSessionCallback implements SessionCallback {
                                     SimpleString filter) throws Exception {
       try {
          serverSession.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter).setTemporary(true).setDurable(false));
+      } catch (ActiveMQSecurityException se) {
+         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
+      }
+   }
+
+   public void createTemporaryAddress(SimpleString address) throws Exception {
+      try {
+         serverSession.createAddress(new AddressInfo(address).setRoutingTypes(EnumSet.of(RoutingType.MULTICAST)).setTemporary(true), false);
       } catch (ActiveMQSecurityException se) {
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingTempDestination(se.getMessage());
       }
@@ -758,12 +767,20 @@ public class AMQPSessionCallback implements SessionCallback {
       serverSession.deleteQueue(address);
    }
 
+   public void removeTemporaryAddress(SimpleString address) throws Exception {
+      serverSession.deleteAddress(address);
+   }
+
    public RoutingType getDefaultRoutingType(SimpleString address) {
       return manager.getServer().getAddressSettingsRepository().getMatch(address.toString()).getDefaultAddressRoutingType();
    }
 
    public void check(SimpleString address, CheckType checkType, SecurityAuth session) throws Exception {
-      manager.getServer().getSecurityStore().check(address, checkType, session);
+      check(address, checkType, session, false);
+   }
+
+   public void check(SimpleString address, CheckType checkType, SecurityAuth session, boolean temp) throws Exception {
+      manager.getServer().getSecurityStore().check(address, null, checkType, session, temp);
    }
 
    public String invokeIncoming(AMQPMessage message, ActiveMQProtonRemotingConnection connection) {

@@ -73,6 +73,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private final NotificationService notificationService;
 
+   private final String tempQueuePrefix;
+
 
    /**
     * @param notificationService can be <code>null</code>
@@ -85,7 +87,8 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                             final String managementClusterPassword,
                             final NotificationService notificationService,
                             final long authenticationCacheSize,
-                            final long authorizationCacheSize) {
+                            final long authorizationCacheSize,
+                            final String tempQueuePrefix) {
       this.securityRepository = securityRepository;
       this.securityManager = securityManager;
       this.securityEnabled = securityEnabled;
@@ -101,6 +104,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                                        .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                        .build();
       this.securityRepository.registerListener(this);
+      this.tempQueuePrefix = tempQueuePrefix;
    }
 
    // SecurityManager implementation --------------------------------
@@ -206,7 +210,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    public void check(final SimpleString address,
                      final CheckType checkType,
                      final SecurityAuth session) throws Exception {
-      check(address, null, checkType, session);
+      check(address, null, checkType, session, false);
    }
 
    @Override
@@ -214,9 +218,22 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                      final SimpleString queue,
                      final CheckType checkType,
                      final SecurityAuth session) throws Exception {
+      check(address, null, checkType, session, false);
+   }
+
+   @Override
+   public void check(final SimpleString address,
+                     final SimpleString queue,
+                     final CheckType checkType,
+                     final SecurityAuth session,
+                     boolean temporary) throws Exception {
       if (securityEnabled) {
          SimpleString bareAddress = CompositeAddress.extractAddressName(address);
          SimpleString bareQueue = CompositeAddress.extractQueueName(queue);
+         SimpleString addressToMatch = bareAddress;
+         if (temporary && tempQueuePrefix != null && tempQueuePrefix.length() > 1) {
+            addressToMatch = SimpleString.toSimpleString(tempQueuePrefix).concat(bareAddress);
+         }
 
          if (logger.isTraceEnabled()) {
             logger.trace("checking access permissions to " + bareAddress);
@@ -228,7 +245,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             return;
          }
 
-         Set<Role> roles = securityRepository.getMatch(bareAddress.toString());
+         Set<Role> roles = securityRepository.getMatch(addressToMatch.toString());
 
          /*
           * If a valid queue is passed in and there's an exact match for the FQQN then use the FQQN instead of the address

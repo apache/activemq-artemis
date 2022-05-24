@@ -179,6 +179,29 @@ FQQN) in the `match` of the `security-setting`, e.g.:
 **Note:** Wildcard matching doesn't work in conjuction with FQQN. The explicit
 goal of using FQQN here is to be *exact*.
 
+### Temporary Queues
+
+The `temporary-queue-namespace` value can be used with a `security-setting`
+match just as it can with an [`address-setting`](address-model.md#temporary-queues).
+For example:
+
+```xml
+<temporary-queue-namespace>temp</temporary-queue-namespace>
+
+<security-settings>
+   <security-setting match="temp.#">
+      <permission type="createAddress" roles="myRole"/>
+      <permission type="createNonDurableQueue" roles="myRole"/>
+      <permission type="deleteAddress" roles="myRole"/>
+      <permission type="deleteNonDurableQueue" roles="myRole"/>
+   </security-setting>
+</security-settings>
+```
+
+Using this configuration any user in `myRole` can create and delete all the
+resources necessary to deal with temporary JMS queues or topics, but users
+without that role will not be able to create or delete those resources.
+
 ## Security Setting Plugin
 
 Aside from configuring sets of permissions via XML these permissions can

@@ -108,5 +108,7 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 119024, value = "link is missing a desired capability declaration {0}", format = Message.Format.MESSAGE_FORMAT)
    ActiveMQAMQPIllegalStateException missingDesiredCapability(String capability);
 
+   @Message(id = 119025, value = "not authorized to delete temporary destination, {0}", format = Message.Format.MESSAGE_FORMAT)
+   ActiveMQAMQPSecurityException securityErrorDeletingTempDestination(String message);
 
 }

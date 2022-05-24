@@ -2400,7 +2400,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          if (session != null) {
             // make sure the user has privileges to delete this queue
-            securityStore.check(address, queueName, queue.isDurable() ? CheckType.DELETE_DURABLE_QUEUE : CheckType.DELETE_NON_DURABLE_QUEUE, session);
+            securityStore.check(address, queueName, queue.isDurable() ? CheckType.DELETE_DURABLE_QUEUE : CheckType.DELETE_NON_DURABLE_QUEUE, session, queue.isTemporary());
          }
 
          // This check is only valid if checkConsumerCount == true
@@ -3135,7 +3135,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.clusterSecurityRisk();
       }
 
-      securityStore = new SecurityStoreImpl(securityRepository, securityManager, configuration.getSecurityInvalidationInterval(), configuration.isSecurityEnabled(), configuration.getClusterUser(), configuration.getClusterPassword(), managementService, configuration.getAuthenticationCacheSize(), configuration.getAuthorizationCacheSize());
+      securityStore = new SecurityStoreImpl(securityRepository, securityManager, configuration.getSecurityInvalidationInterval(), configuration.isSecurityEnabled(), configuration.getClusterUser(), configuration.getClusterPassword(), managementService, configuration.getAuthenticationCacheSize(), configuration.getAuthorizationCacheSize(), configuration.getTemporaryQueueNamespace() + configuration.getWildcardConfiguration().getDelimiterString());
 
       queueFactory = new QueueFactoryImpl(executorFactory, scheduledPool, addressSettingsRepository, storageManager, this);
 
@@ -3706,12 +3706,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void removeAddressInfo(final SimpleString address, final SecurityAuth auth, boolean force) throws Exception {
+      AddressInfo addressInfo = getAddressInfo(address);
       if (auth != null) {
-         securityStore.check(address, CheckType.DELETE_ADDRESS, auth);
+         securityStore.check(address, null, CheckType.DELETE_ADDRESS, auth, addressInfo.isTemporary());
       }
 
       try {
-         AddressInfo addressInfo = getAddressInfo(address);
          if (postOffice.removeAddressInfo(address, force) == null) {
             throw ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
          }

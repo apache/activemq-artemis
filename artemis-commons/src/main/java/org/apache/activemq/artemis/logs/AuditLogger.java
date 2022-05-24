@@ -2933,4 +2933,12 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601758, value = "User {0} is calling schedulePageCleanup on address: {1}", format = Message.Format.MESSAGE_FORMAT)
    void schedulePageCleanup(String user, Object address);
+
+   static void destroyAddress(Object source, Subject user, String remoteAddress, Object... args) {
+      BASE_LOGGER.destroyAddress(getCaller(user, remoteAddress), source, arrayToString(args));
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601759, value = "User {0} is deleting a address on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void destroyAddress(String user, Object source, Object... args);
 }

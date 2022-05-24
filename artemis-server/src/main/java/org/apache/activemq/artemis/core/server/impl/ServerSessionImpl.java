@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.security.cert.X509Certificate;
@@ -80,7 +82,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
-import org.apache.activemq.artemis.core.server.TempQueueObserver;
+import org.apache.activemq.artemis.core.server.TempResourceObserver;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
@@ -161,7 +163,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected volatile boolean started = false;
 
-   protected final Map<SimpleString, TempQueueCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
+   protected final Map<SimpleString, TempResourceCleanerUpper> tempQueueCleannerUppers = new HashMap<>();
 
    protected final String name;
 
@@ -307,7 +309,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return closeables;
    }
 
-   public Map<SimpleString, TempQueueCleanerUpper> getTempQueueCleanUppers() {
+   public Map<SimpleString, TempResourceCleanerUpper> getTempQueueCleanUppers() {
       return tempQueueCleannerUppers;
    }
 
@@ -491,15 +493,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       managementService.sendNotification(new Notification(null, type, props));
    }
 
-   private void securityCheck(SimpleString address, CheckType checkType, SecurityAuth auth) throws Exception {
+   private void securityCheck(SimpleString address, SimpleString queue, CheckType checkType, SecurityAuth auth, boolean temporary) throws Exception {
       if (securityEnabled) {
-         securityStore.check(address, checkType, auth);
-      }
-   }
-
-   private void securityCheck(SimpleString address, SimpleString queue, CheckType checkType, SecurityAuth auth) throws Exception {
-      if (securityEnabled) {
-         securityStore.check(address, queue, checkType, auth);
+         securityStore.check(address, queue, checkType, auth, temporary);
       }
    }
 
@@ -541,8 +537,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       SimpleString address = removePrefix(binding.getAddress());
+      boolean temporary = false;
+      if (binding instanceof LocalQueueBinding) {
+         temporary = ((LocalQueueBinding)binding).getQueue().isTemporary();
+      }
       try {
-         securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+         securityCheck(address, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this, temporary);
       } catch (Exception e) {
          /*
           * This is here for backwards compatibility with the pre-FQQN syntax from ARTEMIS-592.
@@ -551,7 +551,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
           */
          SimpleString exactMatch = address.concat(".").concat(unPrefixedQueueName);
          if (server.getSecurityRepository().containsExactMatch(exactMatch.toString())) {
-            securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this);
+            securityCheck(exactMatch, unPrefixedQueueName, browseOnly ? CheckType.BROWSE : CheckType.CONSUME, this, temporary);
          } else {
             throw e;
          }
@@ -729,12 +729,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          .setName(removePrefix(queueConfiguration.getName()));
 
       // make sure the user has privileges to create this queue
-      securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), queueConfiguration.isDurable() ? CheckType.CREATE_DURABLE_QUEUE : CheckType.CREATE_NON_DURABLE_QUEUE, this);
+      securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), queueConfiguration.isDurable() ? CheckType.CREATE_DURABLE_QUEUE : CheckType.CREATE_NON_DURABLE_QUEUE, this, queueConfiguration.isTemporary());
 
       AddressSettings as = server.getAddressSettingsRepository().getMatch(queueConfiguration.getAddress().toString());
 
       if (as.isAutoCreateAddresses() && server.getAddressInfo(queueConfiguration.getAddress()) == null) {
-         securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), CheckType.CREATE_ADDRESS, this);
+         securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), CheckType.CREATE_ADDRESS, this, queueConfiguration.isTemporary());
       }
 
       server.checkQueueCreationLimit(getUsername());
@@ -748,9 +748,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          // session is closed.
          // It is up to the user to delete the queue when finished with it
 
-         TempQueueCleanerUpper cleaner = new TempQueueCleanerUpper(server, queueConfiguration.getName());
-         if (remotingConnection instanceof TempQueueObserver) {
-            cleaner.setObserver((TempQueueObserver) remotingConnection);
+         TempResourceCleanerUpper cleaner = new TempResourceCleanerUpper(server, queueConfiguration.getName());
+         if (remotingConnection instanceof TempResourceObserver) {
+            cleaner.setObserver((TempResourceObserver) remotingConnection);
          }
 
          remotingConnection.addCloseListener(cleaner);
@@ -935,7 +935,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       SimpleString realAddress = CompositeAddress.extractAddressName(address);
       Pair<SimpleString, EnumSet<RoutingType>> art = getAddressAndRoutingTypes(realAddress, routingTypes);
-      securityCheck(art.getA(), CheckType.CREATE_ADDRESS, this);
+      securityCheck(art.getA(), null, CheckType.CREATE_ADDRESS, this, false);
       server.addOrUpdateAddressInfo(new AddressInfo(art.getA(), art.getB()).setAutoCreated(autoCreated));
       return server.getAddressInfo(art.getA());
    }
@@ -954,8 +954,23 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       AddressInfo art = getAddressAndRoutingType(addressInfo);
-      securityCheck(art.getName(), CheckType.CREATE_ADDRESS, this);
+      securityCheck(art.getName(), null, CheckType.CREATE_ADDRESS, this, art.isTemporary());
       server.addOrUpdateAddressInfo(art.setAutoCreated(autoCreated));
+      if (art.isTemporary()) {
+         // Temporary address in core simply means the queue will be deleted if the remoting connection
+         // dies. It does not mean it will get deleted automatically when the session is closed.
+         // It is up to the user to delete the address when finished with it.
+
+         TempResourceCleanerUpper cleaner = new TempResourceCleanerUpper(server, addressInfo.getName());
+         if (remotingConnection instanceof TempResourceObserver) {
+            cleaner.setObserver((TempResourceObserver) remotingConnection);
+         }
+
+         remotingConnection.addCloseListener(cleaner);
+         remotingConnection.addFailureListener(cleaner);
+
+         tempQueueCleannerUppers.put(addressInfo.getName(), cleaner);
+      }
       return server.getAddressInfo(art.getName());
    }
 
@@ -1044,7 +1059,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
       queueConfiguration.setAddress(removePrefix(queueConfiguration.getAddress()));
 
-      securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), queueConfiguration.isDurable() ? CheckType.CREATE_DURABLE_QUEUE : CheckType.CREATE_NON_DURABLE_QUEUE, this);
+      securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), queueConfiguration.isDurable() ? CheckType.CREATE_DURABLE_QUEUE : CheckType.CREATE_NON_DURABLE_QUEUE, this, queueConfiguration.isTemporary());
 
       server.checkQueueCreationLimit(getUsername());
 
@@ -1105,40 +1120,45 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return securityDomain;
    }
 
-   public static class TempQueueCleanerUpper implements CloseListener, FailureListener {
+   public static class TempResourceCleanerUpper implements CloseListener, FailureListener {
 
-      private final SimpleString bindingName;
+      private final SimpleString resourceName;
 
       private final ActiveMQServer server;
 
-      private TempQueueObserver observer;
+      private TempResourceObserver observer;
 
-      public TempQueueCleanerUpper(final ActiveMQServer server, final SimpleString bindingName) {
+      public TempResourceCleanerUpper(final ActiveMQServer server, final SimpleString resourceName) {
          this.server = server;
 
-         this.bindingName = bindingName;
+         this.resourceName = resourceName;
       }
 
-      public void setObserver(TempQueueObserver observer) {
+      public void setObserver(TempResourceObserver observer) {
          this.observer = observer;
       }
 
       private void run() {
          try {
             if (logger.isDebugEnabled()) {
-               logger.debug("deleting temporary queue " + bindingName);
+               logger.debug("deleting temporary resource " + resourceName);
             }
             try {
-               server.destroyQueue(bindingName, null, false, false, true);
+               if (server.locateQueue(resourceName) != null) {
+                  server.destroyQueue(resourceName, null, false, false, true);
+               }
+               if (server.getAddressInfo(resourceName) != null) {
+                  server.removeAddressInfo(resourceName, null);
+               }
                if (observer != null) {
-                  observer.tempQueueDeleted(bindingName);
+                  observer.tempQueueDeleted(resourceName);
                }
             } catch (ActiveMQException e) {
-               // that's fine.. it can happen due to queue already been deleted
+               // that's fine.. it can happen due to resource already been deleted
                logger.debug(e.getMessage(), e);
             }
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, bindingName);
+            ActiveMQServerLogger.LOGGER.errorRemovingTempResource(e, resourceName);
          }
       }
 
@@ -1159,7 +1179,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       @Override
       public String toString() {
-         return "Temporary Cleaner for queue " + bindingName;
+         return "Temporary Cleaner for resource " + resourceName;
       }
 
    }
@@ -1179,7 +1199,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       server.destroyQueue(unPrefixedQueueName, this, true, false, true);
 
-      TempQueueCleanerUpper cleaner = this.tempQueueCleannerUppers.remove(unPrefixedQueueName);
+      TempResourceCleanerUpper cleaner = this.tempQueueCleannerUppers.remove(unPrefixedQueueName);
 
       if (cleaner != null) {
          remotingConnection.removeCloseListener(cleaner);
@@ -1190,6 +1210,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       if (server.getAddressInfo(unPrefixedQueueName) == null) {
          targetAddressInfos.remove(queueToDelete);
       }
+   }
+
+   @Override
+   public void deleteAddress(final SimpleString addressToDelete) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.destroyAddress(this, remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), addressToDelete);
+      }
+      final SimpleString unPrefixedQueueName = removePrefix(addressToDelete);
+
+      AddressInfo addressInfo = server.getAddressInfo(unPrefixedQueueName);
+
+      if (addressInfo == null) {
+         throw new ActiveMQAddressDoesNotExistException();
+      }
+
+      server.removeAddressInfo(unPrefixedQueueName, this);
    }
 
    @Override
@@ -2069,7 +2105,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          AuditLogger.handleManagementMessage(this.getName(), remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), tx, message, direct);
       }
       try {
-         securityCheck(removePrefix(message.getAddressSimpleString()), CheckType.MANAGE, this);
+         securityCheck(removePrefix(message.getAddressSimpleString()), null, CheckType.MANAGE, this, false);
       } catch (ActiveMQException e) {
          if (!autoCommitSends) {
             tx.markAsRollbackOnly(e);
@@ -2178,7 +2214,12 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } */
 
-      final AddressInfo targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingType);
+      final AddressInfo targetFromMessage;
+      if (server.getAddressInfo(msg.getAddressSimpleString()) != null) {
+         targetFromMessage = server.getAddressInfo(msg.getAddressSimpleString());
+      } else {
+         targetFromMessage = new AddressInfo(msg.getAddressSimpleString(), routingType);
+      }
       AddressInfo art = getAddressAndRoutingType(targetFromMessage);
       if (art != targetFromMessage) {
          // remove the prefix from the message, with the address model change, only non prefixed addresses exist on the broker
@@ -2187,7 +2228,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       // check the user has write access to this address.
       try {
-         securityCheck(CompositeAddress.extractAddressName(art.getName()), CompositeAddress.isFullyQualified(art.getName()) ? CompositeAddress.extractQueueName(art.getName()) : null, CheckType.SEND, this);
+         securityCheck(CompositeAddress.extractAddressName(art.getName()), CompositeAddress.isFullyQualified(art.getName()) ? CompositeAddress.extractQueueName(art.getName()) : null, CheckType.SEND, this, art.isTemporary());
       } catch (ActiveMQException e) {
          if (!autoCommitSends && tx != null) {
             tx.markAsRollbackOnly(e);

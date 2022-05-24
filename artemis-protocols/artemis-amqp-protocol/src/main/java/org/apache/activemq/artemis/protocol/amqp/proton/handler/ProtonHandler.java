@@ -31,6 +31,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.ProtonInitializable;
 import org.apache.activemq.artemis.protocol.amqp.sasl.ClientSASL;
@@ -562,7 +563,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
                }
                try {
                   Events.dispatch(ev, h);
-               } catch (ActiveMQSecurityException e) {
+               } catch (ActiveMQAMQPSecurityException | ActiveMQSecurityException e) {
                   log.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);

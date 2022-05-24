@@ -1,12 +1,12 @@
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements. See the NOTICE file distributed with
+ * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,20 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp;
+package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,12 +37,6 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
-import org.apache.activemq.artemis.api.core.client.ClientSession;
-import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -50,34 +45,19 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.apache.activemq.transport.amqp.client.AmqpClient;
-import org.apache.activemq.transport.amqp.client.AmqpConnection;
-import org.apache.activemq.transport.amqp.client.AmqpMessage;
-import org.apache.activemq.transport.amqp.client.AmqpSender;
-import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.messaging.DeleteOnClose;
-import org.apache.qpid.proton.amqp.messaging.Source;
-import org.apache.qpid.proton.amqp.messaging.Target;
-import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
-import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
+import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.qpid.jms.JmsConnectionFactory;
+import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 
-import static org.apache.activemq.transport.amqp.AmqpSupport.LIFETIME_POLICY;
-import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_QUEUE_CAPABILITY;
-import static org.apache.activemq.transport.amqp.AmqpSupport.TEMP_TOPIC_CAPABILITY;
+public abstract class MultiProtocolJMSClientTestSupport extends ActiveMQTestBase {
 
-/**
- * Test support class for tests that will be using the AMQP Proton wrapper client. This is to
- * make it easier to migrate tests from ActiveMQ5
- */
-public class AmqpClientTestSupport extends AmqpTestSupport {
+   private static final Logger logger = Logger.getLogger(MultiProtocolJMSClientTestSupport.class);
 
-   protected static final Symbol SHARED = Symbol.getSymbol("shared");
-   protected static final Symbol GLOBAL = Symbol.getSymbol("global");
+   protected LinkedList<Connection> jmsConnections = new LinkedList<>();
 
    protected static final String BROKER_NAME = "localhost";
    protected static final String NETTY_ACCEPTOR = "netty-acceptor";
@@ -98,25 +78,42 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
    protected MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
 
+   ConnectionSupplier amqpConnectionSupplier = () -> createConnection();
+   ConnectionSupplier coreConnectionSupplier = () -> createCoreConnection();
+   ConnectionSupplier openWireConnectionSupplier = () -> createOpenWireConnection();
+
+   protected static final int AMQP_PORT = 5672;
+
+   protected boolean useSSL;
+   protected boolean useWebSockets;
+
    @Before
    @Override
    public void setUp() throws Exception {
       super.setUp();
 
       server = createServer();
+
+      // Bug in Qpid JMS not shutting down a connection thread on certain errors
+      // TODO - Reevaluate after Qpid JMS 0.23.0 is released.
+      disableCheckThread();
    }
 
    @After
    @Override
    public void tearDown() throws Exception {
-      for (AmqpConnection conn : connections) {
-         try {
-            conn.close();
-         } catch (Throwable ignored) {
-            ignored.printStackTrace();
+      try {
+         for (Connection connection : jmsConnections) {
+            try {
+               connection.close();
+            } catch (Throwable ignored) {
+               ignored.printStackTrace();
+            }
          }
+      } catch (Exception e) {
+         logger.warn(e);
       }
-      connections.clear();
+      jmsConnections.clear();
 
       try {
          if (server != null) {
@@ -125,6 +122,227 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       } finally {
          super.tearDown();
       }
+   }
+
+   protected Connection trackJMSConnection(Connection connection) {
+      jmsConnections.add(connection);
+      return connection;
+   }
+
+   protected String getJmsConnectionURIOptions() {
+      return "";
+   }
+
+   protected String getBrokerQpidJMSConnectionString() {
+      try {
+         int port = AMQP_PORT;
+
+         String uri = null;
+
+         if (isUseSSL()) {
+            if (isUseWebSockets()) {
+               uri = "amqpwss://127.0.0.1:" + port;
+            } else {
+               uri = "amqps://127.0.0.1:" + port;
+            }
+         } else {
+            if (isUseWebSockets()) {
+               uri = "amqpws://127.0.0.1:" + port;
+            } else {
+               uri = "amqp://127.0.0.1:" + port;
+            }
+         }
+
+         if (!getJmsConnectionURIOptions().isEmpty()) {
+            uri = uri + "?" + getJmsConnectionURIOptions();
+         }
+
+         return uri;
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected URI getBrokerQpidJMSConnectionURI() {
+      try {
+         return new URI(getBrokerQpidJMSConnectionString());
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected URI getBrokerQpidJMSFailoverConnectionURI() {
+      try {
+         return new URI("failover:(" + getBrokerQpidJMSConnectionString() + ")");
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected Connection createConnection() throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), null, null, null, true);
+   }
+
+   protected Connection createFailoverConnection() throws JMSException {
+      return createConnection(getBrokerQpidJMSFailoverConnectionURI(), null, null, null, true);
+   }
+
+   protected Connection createConnection(boolean start) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), null, null, null, start);
+   }
+
+   protected Connection createConnection(String clientId) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientId, true);
+   }
+
+   protected Connection createConnection(String clientId, boolean start) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientId, start);
+   }
+
+   protected Connection createConnection(String username, String password) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), username, password, null, true);
+   }
+
+   protected Connection createConnection(String username, String password, String clientId) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), username, password, clientId, true);
+   }
+
+   protected Connection createConnection(String username, String password, String clientId, boolean start) throws JMSException {
+      return createConnection(getBrokerQpidJMSConnectionURI(), username, password, clientId, start);
+   }
+
+   protected Connection createConnection(URI remoteURI, String username, String password, String clientId, boolean start) throws JMSException {
+      JmsConnectionFactory factory = new JmsConnectionFactory(remoteURI);
+
+      Connection connection = trackJMSConnection(factory.createConnection(username, password));
+
+      connection.setExceptionListener(exception -> exception.printStackTrace());
+
+      if (clientId != null && !clientId.isEmpty()) {
+         connection.setClientID(clientId);
+      }
+
+      if (start) {
+         connection.start();
+      }
+
+      return connection;
+   }
+
+   protected String getBrokerCoreJMSConnectionString() {
+
+      try {
+         int port = AMQP_PORT;
+
+         String uri = null;
+
+         if (isUseSSL()) {
+            uri = "tcp://127.0.0.1:" + port;
+         } else {
+            uri = "tcp://127.0.0.1:" + port;
+         }
+
+         if (!getJmsConnectionURIOptions().isEmpty()) {
+            uri = uri + "?" + getJmsConnectionURIOptions();
+         }
+
+         return uri;
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected Connection createCoreConnection() throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, true);
+   }
+
+   protected Connection createCoreConnection(boolean start) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, start);
+   }
+
+   protected Connection createCoreConnection(String username, String password) throws JMSException {
+      return createCoreConnection(getBrokerCoreJMSConnectionString(), username, password, null, true);
+   }
+
+   private Connection createCoreConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
+      ActiveMQJMSConnectionFactory factory = new ActiveMQJMSConnectionFactory(connectionString);
+
+      Connection connection = trackJMSConnection(factory.createConnection(username, password));
+
+      connection.setExceptionListener(exception -> exception.printStackTrace());
+
+      if (clientId != null && !clientId.isEmpty()) {
+         connection.setClientID(clientId);
+      }
+
+      if (start) {
+         connection.start();
+      }
+
+      return connection;
+   }
+
+   protected String getBrokerOpenWireJMSConnectionString() {
+
+      try {
+         int port = AMQP_PORT;
+
+         String uri = null;
+
+         if (isUseSSL()) {
+            uri = "tcp://127.0.0.1:" + port;
+         } else {
+            uri = "tcp://127.0.0.1:" + port;
+         }
+
+         if (!getJmsConnectionURIOptions().isEmpty()) {
+            uri = uri + "?" + getJmsConnectionURIOptions();
+         } else {
+            uri = uri + "?wireFormat.cacheEnabled=true";
+         }
+
+         return uri;
+      } catch (Exception e) {
+         throw new RuntimeException();
+      }
+   }
+
+   protected Connection createOpenWireConnection() throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, true);
+   }
+
+   protected Connection createOpenWireConnection(boolean start) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, start);
+   }
+
+   protected Connection createOpenWireConnection(String username, String password) throws JMSException {
+      return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), username, password, null, true);
+   }
+
+   private Connection createOpenWireConnection(String connectionString, String username, String password, String clientId, boolean start) throws JMSException {
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionString);
+
+      Connection connection = trackJMSConnection(factory.createConnection(username, password));
+
+      connection.setExceptionListener(exception -> exception.printStackTrace());
+
+      if (clientId != null && !clientId.isEmpty()) {
+         connection.setClientID(clientId);
+      }
+
+      if (start) {
+         connection.start();
+      }
+
+      return connection;
+   }
+
+   interface ConnectionSupplier {
+      Connection createConnection() throws JMSException;
+   }
+
+   interface SecureConnectionSupplier {
+      Connection createConnection(String username, String Password) throws JMSException;
    }
 
    protected boolean isAutoCreateQueues() {
@@ -145,22 +363,6 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
    protected int getPrecreatedQueueSize() {
       return 10;
-   }
-
-   public URI getBrokerOpenWireConnectionURI() {
-      try {
-         String uri = null;
-
-         if (isUseSSL()) {
-            uri = "ssl://127.0.0.1:" + AMQP_PORT;
-         } else {
-            uri = "tcp://127.0.0.1:" + AMQP_PORT;
-         }
-
-         return new URI(uri);
-      } catch (Exception e) {
-         throw new RuntimeException();
-      }
    }
 
    protected ActiveMQServer createServer() throws Exception {
@@ -230,7 +432,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    }
 
    protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE";
+      return "AMQP,CORE,OPENWIRE";
    }
 
    protected void configureAddressPolicy(ActiveMQServer server) {
@@ -346,101 +548,6 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       return getName() + "-" + index;
    }
 
-   protected void sendMessages(String destinationName, int count) throws Exception {
-      sendMessages(destinationName, count, null);
-   }
-
-   protected void sendMessages(String destinationName, int count, RoutingType routingType) throws Exception {
-      sendMessages(destinationName, count, routingType, false);
-   }
-
-   protected void sendMessages(String destinationName,
-                               int count,
-                               RoutingType routingType,
-                               boolean durable) throws Exception {
-      sendMessages(destinationName, count, routingType, durable, Collections.emptyMap());
-   }
-
-   protected void setData(AmqpMessage amqpMessage) throws Exception {
-   }
-
-   protected void sendMessages(String destinationName,
-                               int count,
-                               RoutingType routingType,
-                               boolean durable,
-                               Map<String, Object> applicationProperties) throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      try {
-         AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            for (Map.Entry<String, Object> entry : applicationProperties.entrySet()) {
-               message.setApplicationProperty(entry.getKey(), entry.getValue());
-            }
-            message.setMessageId("MessageID:" + i);
-            message.setDurable(durable);
-            if (routingType != null) {
-               message.setMessageAnnotation(AMQPMessageSupport.ROUTING_TYPE.toString(), routingType.getType());
-            }
-            setData(message);
-            sender.send(message);
-         }
-      } finally {
-         connection.close();
-      }
-   }
-
-   protected void sendMessages(String destinationName, int count, boolean durable) throws Exception {
-      sendMessages(destinationName, count, durable, null);
-   }
-
-   protected void sendMessages(String destinationName, int count, boolean durable, byte[] payload) throws Exception {
-      AmqpClient client = createAmqpClient();
-      AmqpConnection connection = addConnection(client.connect());
-      try {
-         AmqpSession session = connection.createSession();
-         AmqpSender sender = session.createSender(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            AmqpMessage message = new AmqpMessage();
-            message.setMessageId("MessageID:" + i);
-            message.setDurable(durable);
-            if (payload != null) {
-               message.setBytes(payload);
-            }
-            sender.send(message);
-         }
-      } finally {
-         connection.close();
-      }
-   }
-
-   protected void sendMessagesCore(String destinationName, int count, boolean durable) throws Exception {
-      sendMessagesCore(destinationName, count, durable, null);
-   }
-
-   protected void sendMessagesCore(String destinationName, int count, boolean durable, byte[] body) throws Exception {
-      ServerLocator serverLocator = ActiveMQClient.createServerLocator("tcp://127.0.0.1:5672");
-      ClientSessionFactory clientSessionFactory = serverLocator.createSessionFactory();
-      ClientSession session = clientSessionFactory.createSession();
-      try {
-         ClientProducer sender = session.createProducer(destinationName);
-
-         for (int i = 0; i < count; ++i) {
-            ClientMessage message = session.createMessage(durable);
-            if (body != null) {
-               message.getBodyBuffer().writeBytes(body);
-            }
-            sender.send(message);
-         }
-      } finally {
-         session.close();
-      }
-   }
-
    protected void sendMessagesOpenWire(String destinationName, int count, boolean durable) throws Exception {
       sendMessagesOpenWire(destinationName, count, durable, null);
    }
@@ -472,47 +579,12 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       }
    }
 
-   protected Source createDynamicSource(boolean topic) {
-
-      Source source = new Source();
-      source.setDynamic(true);
-      source.setDurable(TerminusDurability.NONE);
-      source.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-
-      // Set the dynamic node lifetime-policy
-      Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
-      dynamicNodeProperties.put(LIFETIME_POLICY, DeleteOnClose.getInstance());
-      source.setDynamicNodeProperties(dynamicNodeProperties);
-
-      // Set the capability to indicate the node type being created
-      if (!topic) {
-         source.setCapabilities(TEMP_QUEUE_CAPABILITY);
-      } else {
-         source.setCapabilities(TEMP_TOPIC_CAPABILITY);
-      }
-
-      return source;
+   public boolean isUseSSL() {
+      return useSSL;
    }
 
-   protected Target createDynamicTarget(boolean topic) {
-
-      Target target = new Target();
-      target.setDynamic(true);
-      target.setDurable(TerminusDurability.NONE);
-      target.setExpiryPolicy(TerminusExpiryPolicy.LINK_DETACH);
-
-      // Set the dynamic node lifetime-policy
-      Map<Symbol, Object> dynamicNodeProperties = new HashMap<>();
-      dynamicNodeProperties.put(LIFETIME_POLICY, DeleteOnClose.getInstance());
-      target.setDynamicNodeProperties(dynamicNodeProperties);
-
-      // Set the capability to indicate the node type being created
-      if (!topic) {
-         target.setCapabilities(TEMP_QUEUE_CAPABILITY);
-      } else {
-         target.setCapabilities(TEMP_TOPIC_CAPABILITY);
-      }
-
-      return target;
+   public boolean isUseWebSockets() {
+      return useWebSockets;
    }
+
 }

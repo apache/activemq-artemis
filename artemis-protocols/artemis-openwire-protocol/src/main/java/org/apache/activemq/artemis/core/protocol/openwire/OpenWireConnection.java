@@ -37,6 +37,7 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import org.apache.activemq.advisory.AdvisorySupport;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -72,7 +73,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
-import org.apache.activemq.artemis.core.server.TempQueueObserver;
+import org.apache.activemq.artemis.core.server.TempResourceObserver;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -138,7 +139,7 @@ import org.jboss.logging.Logger;
 /**
  * Represents an activemq connection.
  */
-public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempQueueObserver {
+public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempResourceObserver {
 
    // to be used on the packet size estimate processing for the ThresholdActor
    private static final int MINIMAL_SIZE_ESTIAMTE = 1024;
@@ -892,6 +893,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
                   addressInfo.setInternal(true);
                }
+               addressInfo.setTemporary(dest.isTemporary());
                if (internalSession.getAddress(addressInfo.getName()) == null) {
                   internalSession.createAddress(addressInfo, !dest.isTemporary());
                   created = true;
@@ -1130,6 +1132,12 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          } catch (ActiveMQNonExistentQueueException neq) {
             //this is ok, ActiveMQ 5 allows this and will actually do it quite often
             ActiveMQServerLogger.LOGGER.debug("queue never existed");
+         }
+      } else {
+         try {
+            server.removeAddressInfo(new SimpleString(dest.getPhysicalName()), getRemotingConnection());
+         } catch (ActiveMQAddressDoesNotExistException neq) {
+            ActiveMQServerLogger.LOGGER.debug("address never existed");
          }
       }
 

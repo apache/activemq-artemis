@@ -1949,8 +1949,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorDeletingLargeMessageFile(@Cause Throwable e);
 
    @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 224048, value = "Failed to remove temporary queue {0}", format = Message.Format.MESSAGE_FORMAT)
-   void errorRemovingTempQueue(@Cause Exception e, SimpleString bindingName);
+   @Message(id = 224048, value = "Failed to remove temporary resource {0}", format = Message.Format.MESSAGE_FORMAT)
+   void errorRemovingTempResource(@Cause Exception e, SimpleString bindingName);
 
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224049, value = "Cannot find consumer with id {0}", format = Message.Format.MESSAGE_FORMAT)

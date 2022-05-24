@@ -51,6 +51,11 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.jboss.logging.Logger;
 
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.QUEUE_CAPABILITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TEMP_QUEUE_CAPABILITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TEMP_TOPIC_CAPABILITY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.TOPIC_CAPABILITY;
+
 /**
  * This is the equivalent for the ServerProducer
  */
@@ -95,7 +100,11 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             defRoutingType = getRoutingType(target.getCapabilities(), address);
 
             try {
-               sessionSPI.createTemporaryQueue(address, defRoutingType);
+               if (defRoutingType == RoutingType.ANYCAST) {
+                  sessionSPI.createTemporaryQueue(address, defRoutingType);
+               } else {
+                  sessionSPI.createTemporaryAddress(address);
+               }
             } catch (ActiveMQAMQPSecurityException e) {
                throw e;
             } catch (ActiveMQSecurityException e) {
@@ -157,9 +166,9 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    private RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
       if (symbols != null) {
          for (Symbol symbol : symbols) {
-            if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
+            if (TEMP_TOPIC_CAPABILITY.equals(symbol) || TOPIC_CAPABILITY.equals(symbol)) {
                return RoutingType.MULTICAST;
-            } else if (AmqpSupport.TEMP_QUEUE_CAPABILITY.equals(symbol) || AmqpSupport.QUEUE_CAPABILITY.equals(symbol)) {
+            } else if (TEMP_QUEUE_CAPABILITY.equals(symbol) || QUEUE_CAPABILITY.equals(symbol)) {
                return RoutingType.ANYCAST;
             }
          }
@@ -271,7 +280,13 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
       if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {
-            sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(target.getAddress()));
+            if (sessionSPI.getMatchingQueue(SimpleString.toSimpleString(target.getAddress()), RoutingType.ANYCAST) != null) {
+               sessionSPI.removeTemporaryQueue(SimpleString.toSimpleString(target.getAddress()));
+            } else {
+               sessionSPI.removeTemporaryAddress(SimpleString.toSimpleString(target.getAddress()));
+            }
+         } catch (ActiveMQSecurityException e) {
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorDeletingTempDestination(e.getMessage());
          } catch (Exception e) {
             //ignore on close, its temp anyway and will be removed later
          }

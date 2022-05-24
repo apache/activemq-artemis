@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
@@ -729,6 +730,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       if (linkContext != null) {
          try {
             linkContext.close(true);
+         } catch (ActiveMQAMQPSecurityException e) {
+            throw e;
          } catch (Exception e) {
             log.error(e.getMessage(), e);
          }
