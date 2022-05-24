@@ -522,7 +522,7 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
 
          @Override
          public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
-            return (Integer) proxy.invokeOperation("sendMessagesToDeadLetterAddress", filterStr);
+            return (Integer) proxy.invokeOperation(Integer.class, "sendMessagesToDeadLetterAddress", filterStr);
          }
 
          @Override
