@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
@@ -4337,7 +4338,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.restartEmbeddedWebServer(10);
+         serverControl.restartEmbeddedWebServer(1);
          fail();
       } catch (ActiveMQTimeoutException e) {
          // expected
@@ -4356,10 +4357,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQServerControl serverControl = createManagementControl();
       try {
-         serverControl.restartEmbeddedWebServer(10);
+         serverControl.restartEmbeddedWebServer(1000);
          fail();
-      } catch (ActiveMQIllegalStateException e) {
-         assertEquals(message, e.getMessage());
+      } catch (ActiveMQException e) {
+         assertSame("Unexpected cause", startException, e.getCause());
       }
    }
 
