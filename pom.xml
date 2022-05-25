@@ -874,6 +874,12 @@
             </exclusions>
             <!-- license Apache 2 -->
          </dependency>
+         <dependency>
+            <groupId>com.ibm.etcd</groupId>
+            <artifactId>etcd-java</artifactId>
+            <version>0.0.20</version>
+            <!-- license Apache 2 -->
+         </dependency>
 
          <dependency>
             <groupId>org.apache.openwebbeans</groupId>

@@ -74,6 +74,10 @@
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>com.ibm.etcd</groupId>
+         <artifactId>etcd-java</artifactId>
+      </dependency>
 
       <!-- tests -->
       <dependency>

@@ -70,7 +70,8 @@ public abstract class DistributedLockTest {
          final DistributedPrimitiveManager manager = DistributedPrimitiveManager.newInstanceOf(managerClassName(), config);
          closeables.add(manager);
          return manager;
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
          throw new RuntimeException(e);
       }
    }
@@ -79,32 +80,32 @@ public abstract class DistributedLockTest {
    public void managerReturnsSameLockIfNotClosed() throws ExecutionException, InterruptedException, TimeoutException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      Assert.assertSame(manager.getDistributedLock("a"), manager.getDistributedLock("a"));
+      Assert.assertSame(manager.getDistributedLock("managerReturnsSameLockIfNotClosed"), manager.getDistributedLock("managerReturnsSameLockIfNotClosed"));
    }
 
    @Test
    public void managerReturnsDifferentLocksIfClosed() throws ExecutionException, InterruptedException, TimeoutException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      DistributedLock closedLock = manager.getDistributedLock("a");
+      DistributedLock closedLock = manager.getDistributedLock("managerReturnsDifferentLocksIfClosed");
       closedLock.close();
-      Assert.assertNotSame(closedLock, manager.getDistributedLock("a"));
+      Assert.assertNotSame(closedLock, manager.getDistributedLock("managerReturnsDifferentLocksIfClosed"));
    }
 
    @Test
    public void managerReturnsDifferentLocksOnRestart() throws ExecutionException, InterruptedException, TimeoutException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      DistributedLock closedLock = manager.getDistributedLock("a");
+      DistributedLock closedLock = manager.getDistributedLock("managerReturnsDifferentLocksOnRestart");
       manager.stop();
       manager.start();
-      Assert.assertNotSame(closedLock, manager.getDistributedLock("a"));
+      Assert.assertNotSame(closedLock, manager.getDistributedLock("managerReturnsDifferentLocksOnRestart"));
    }
 
    @Test(expected = IllegalStateException.class)
    public void managerCannotGetLockIfNotStarted() throws ExecutionException, InterruptedException, TimeoutException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
-      manager.getDistributedLock("a");
+      manager.getDistributedLock("managerCannotGetLockIfNotStarted");
    }
 
    @Test(expected = NullPointerException.class)
@@ -118,29 +119,30 @@ public abstract class DistributedLockTest {
    public void closingLockUnlockIt() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      DistributedLock closedLock = manager.getDistributedLock("a");
+      DistributedLock closedLock = manager.getDistributedLock("closingLockUnlockIt");
       Assert.assertTrue(closedLock.tryLock());
       closedLock.close();
-      Assert.assertTrue(manager.getDistributedLock("a").tryLock());
+      Assert.assertTrue(manager.getDistributedLock("closingLockUnlockIt").tryLock());
    }
 
    @Test
    public void managerStopUnlockLocks() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      Assert.assertTrue(manager.getDistributedLock("a").tryLock());
-      Assert.assertTrue(manager.getDistributedLock("b").tryLock());
+      Assert.assertTrue(manager.getDistributedLock("managerStopUnlockLocks_a").tryLock());
+      Assert.assertTrue(manager.getDistributedLock("managerStopUnlockLocks_b").tryLock());
       manager.stop();
       manager.start();
-      Assert.assertFalse(manager.getDistributedLock("a").isHeldByCaller());
-      Assert.assertFalse(manager.getDistributedLock("b").isHeldByCaller());
+      //Wait.waitFor(() -> unavailableLock.get() == 1, Duration.ofSeconds(30L).toMillis());
+      Assert.assertFalse(manager.getDistributedLock("managerStopUnlockLocks_a").isHeldByCaller());
+      Assert.assertFalse(manager.getDistributedLock("managerStopUnlockLocks_b").isHeldByCaller());
    }
 
    @Test
    public void acquireAndReleaseLock() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      DistributedLock lock = manager.getDistributedLock("a");
+      DistributedLock lock = manager.getDistributedLock("acquireAndReleaseLock");
       Assert.assertFalse(lock.isHeldByCaller());
       Assert.assertTrue(lock.tryLock());
       Assert.assertTrue(lock.isHeldByCaller());
@@ -152,7 +154,7 @@ public abstract class DistributedLockTest {
    public void cannotAcquireSameLockTwice() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      DistributedLock lock = manager.getDistributedLock("a");
+      DistributedLock lock = manager.getDistributedLock("cannotAcquireSameLockTwice");
       Assert.assertTrue(lock.tryLock());
       lock.tryLock();
    }
@@ -163,9 +165,9 @@ public abstract class DistributedLockTest {
       DistributedPrimitiveManager observerManager = createManagedDistributeManager();
       ownerManager.start();
       observerManager.start();
-      Assert.assertTrue(ownerManager.getDistributedLock("a").tryLock());
-      Assert.assertTrue(ownerManager.getDistributedLock("a").isHeldByCaller());
-      Assert.assertFalse(observerManager.getDistributedLock("a").isHeldByCaller());
+      Assert.assertTrue(ownerManager.getDistributedLock("heldLockIsVisibleByDifferentManagers").tryLock());
+      Assert.assertTrue(ownerManager.getDistributedLock("heldLockIsVisibleByDifferentManagers").isHeldByCaller());
+      Assert.assertFalse(observerManager.getDistributedLock("heldLockIsVisibleByDifferentManagers").isHeldByCaller());
    }
 
    @Test
@@ -174,11 +176,11 @@ public abstract class DistributedLockTest {
       DistributedPrimitiveManager observerManager = createManagedDistributeManager();
       ownerManager.start();
       observerManager.start();
-      Assert.assertTrue(ownerManager.getDistributedLock("a").tryLock());
-      ownerManager.getDistributedLock("a").unlock();
-      Assert.assertFalse(observerManager.getDistributedLock("a").isHeldByCaller());
-      Assert.assertFalse(ownerManager.getDistributedLock("a").isHeldByCaller());
-      Assert.assertTrue(observerManager.getDistributedLock("a").tryLock());
+      Assert.assertTrue(ownerManager.getDistributedLock("unlockedLockIsVisibleByDifferentManagers").tryLock());
+      ownerManager.getDistributedLock("unlockedLockIsVisibleByDifferentManagers").unlock();
+      Assert.assertFalse(observerManager.getDistributedLock("unlockedLockIsVisibleByDifferentManagers").isHeldByCaller());
+      Assert.assertFalse(ownerManager.getDistributedLock("unlockedLockIsVisibleByDifferentManagers").isHeldByCaller());
+      Assert.assertTrue(observerManager.getDistributedLock("unlockedLockIsVisibleByDifferentManagers").tryLock());
    }
 
    @Test
@@ -187,8 +189,8 @@ public abstract class DistributedLockTest {
       DistributedPrimitiveManager notOwnerManager = createManagedDistributeManager();
       ownerManager.start();
       notOwnerManager.start();
-      Assert.assertTrue(ownerManager.getDistributedLock("a").tryLock());
-      Assert.assertFalse(notOwnerManager.getDistributedLock("a").tryLock());
+      Assert.assertTrue(ownerManager.getDistributedLock("cannotAcquireSameLockFromDifferentManagers").tryLock());
+      Assert.assertFalse(notOwnerManager.getDistributedLock("cannotAcquireSameLockFromDifferentManagers").tryLock());
    }
 
    @Test
@@ -197,17 +199,17 @@ public abstract class DistributedLockTest {
       DistributedPrimitiveManager notOwnerManager = createManagedDistributeManager();
       ownerManager.start();
       notOwnerManager.start();
-      Assert.assertTrue(ownerManager.getDistributedLock("a").tryLock());
-      notOwnerManager.getDistributedLock("a").unlock();
-      Assert.assertFalse(notOwnerManager.getDistributedLock("a").isHeldByCaller());
-      Assert.assertTrue(ownerManager.getDistributedLock("a").isHeldByCaller());
+      Assert.assertTrue(ownerManager.getDistributedLock("cannotUnlockFromNotOwnerManager").tryLock());
+      notOwnerManager.getDistributedLock("cannotUnlockFromNotOwnerManager").unlock();
+      Assert.assertFalse(notOwnerManager.getDistributedLock("cannotUnlockFromNotOwnerManager").isHeldByCaller());
+      Assert.assertTrue(ownerManager.getDistributedLock("cannotUnlockFromNotOwnerManager").isHeldByCaller());
    }
 
    @Test
    public void timedTryLockSucceedWithShortTimeout() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      DistributedLock backgroundLock = manager.getDistributedLock("a");
+      DistributedLock backgroundLock = manager.getDistributedLock("timedTryLockSucceedWithShortTimeout");
       Assert.assertTrue(backgroundLock.tryLock(1, TimeUnit.NANOSECONDS));
    }
 
@@ -217,10 +219,10 @@ public abstract class DistributedLockTest {
       manager.start();
       DistributedPrimitiveManager otherManager = createManagedDistributeManager();
       otherManager.start();
-      Assert.assertTrue(otherManager.getDistributedLock("a").tryLock());
+      Assert.assertTrue(otherManager.getDistributedLock("timedTryLockFailAfterTimeout").tryLock());
       final long start = System.nanoTime();
       final long timeoutSec = 1;
-      Assert.assertFalse(manager.getDistributedLock("a").tryLock(timeoutSec, TimeUnit.SECONDS));
+      Assert.assertFalse(manager.getDistributedLock("timedTryLockFailAfterTimeout").tryLock(timeoutSec, TimeUnit.SECONDS));
       final long elapsed = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
       assertThat(elapsed, greaterThanOrEqualTo(timeoutSec));
    }
@@ -231,8 +233,8 @@ public abstract class DistributedLockTest {
       manager.start();
       DistributedPrimitiveManager otherManager = createManagedDistributeManager();
       otherManager.start();
-      Assert.assertTrue(otherManager.getDistributedLock("a").tryLock());
-      DistributedLock backgroundLock = manager.getDistributedLock("a");
+      Assert.assertTrue(otherManager.getDistributedLock("timedTryLockSuccess").tryLock());
+      DistributedLock backgroundLock = manager.getDistributedLock("timedTryLockSuccess");
       CompletableFuture<Boolean> acquired = new CompletableFuture<>();
       CountDownLatch startedTry = new CountDownLatch(1);
       Thread tryLockThread = new Thread(() -> {
@@ -249,7 +251,7 @@ public abstract class DistributedLockTest {
       });
       tryLockThread.start();
       Assert.assertTrue(startedTry.await(10, TimeUnit.SECONDS));
-      otherManager.getDistributedLock("a").unlock();
+      otherManager.getDistributedLock("timedTryLockSuccess").unlock();
       Assert.assertTrue(acquired.get(4, TimeUnit.SECONDS));
    }
 
@@ -259,18 +261,22 @@ public abstract class DistributedLockTest {
       manager.start();
       DistributedPrimitiveManager otherManager = createManagedDistributeManager();
       otherManager.start();
-      Assert.assertTrue(otherManager.getDistributedLock("a").tryLock());
-      DistributedLock backgroundLock = manager.getDistributedLock("a");
+      Assert.assertTrue(otherManager.getDistributedLock("interruptStopTimedTryLock").tryLock());
+      DistributedLock backgroundLock = manager.getDistributedLock("interruptStopTimedTryLock");
       CompletableFuture<Boolean> interrupted = new CompletableFuture<>();
       CountDownLatch startedTry = new CountDownLatch(1);
       Thread tryLockThread = new Thread(() -> {
          startedTry.countDown();
          try {
             backgroundLock.tryLock(Long.MAX_VALUE, TimeUnit.DAYS);
+            System.out.println("Case 1");
             interrupted.complete(false);
          } catch (UnavailableStateException e) {
+            System.out.println("Case 2");
+            e.printStackTrace();
             interrupted.complete(false);
          } catch (InterruptedException e) {
+            System.out.println("Case 3");
             interrupted.complete(true);
          }
       });
@@ -278,21 +284,21 @@ public abstract class DistributedLockTest {
       Assert.assertTrue(startedTry.await(10, TimeUnit.SECONDS));
       // let background lock to perform some tries
       TimeUnit.SECONDS.sleep(1);
+      System.out.println("Interrupting the thread: " + tryLockThread.getName());
       tryLockThread.interrupt();
-      Assert.assertTrue(interrupted.get(4, TimeUnit.SECONDS));
+      Assert.assertTrue(interrupted.get(40, TimeUnit.SECONDS));
    }
 
    @Test
    public void lockAndMutableLongWithSameIdCanExistsTogether() throws ExecutionException, InterruptedException, TimeoutException, UnavailableStateException {
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
-      final String id = "a";
+      final String id = "lockAndMutableLongWithSameIdCanExistsTogether";
       Assert.assertTrue(manager.getDistributedLock(id).tryLock());
       Assert.assertEquals(0, manager.getMutableLong(id).get());
       manager.getMutableLong(id).set(1);
       Assert.assertTrue(manager.getDistributedLock(id).isHeldByCaller());
       Assert.assertEquals(1, manager.getMutableLong(id).get());
    }
-
 }
 

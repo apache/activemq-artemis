@@ -14,6 +14,8 @@ matrix:
 # clean out Artemis artifacts from the cache
 before_install:
 - rm -rf $HOME/.m2/repository/org/apache/activemq/artemis-*
+- ./scripts/install-etcd.sh "$HOME/etcd"
+- export PATH="$HOME/etcd:$PATH"
 
 # use 'install' so smoke-tests will work
 # use '-Pextra-tests' to ensure extra-tests compiles even though they won't actually run
