@@ -436,11 +436,6 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    /**
     * Write message to page if we are paging.
-    * <p>
-    * This is primarily a {@link PagingStore} call, but as with any other call writing persistent
-    * data, it must go through here. Both for the sake of replication, and also to ensure that it
-    * takes the locks (storage manager and pagingStore) in the right order. Avoiding thus the
-    * creation of dead-locks.
     *
     * @return {@code true} if we are paging and have handled the data, {@code false} if the data
     * needs to be sent to the journal

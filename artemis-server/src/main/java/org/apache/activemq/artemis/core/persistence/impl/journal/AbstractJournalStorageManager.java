@@ -174,12 +174,20 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected final ScheduledExecutorService scheduledExecutorService;
 
-   protected final ReentrantReadWriteLock storageManagerLock = new ReentrantReadWriteLock(true);
+   protected final ReentrantReadWriteLock storageManagerLock = new ReentrantReadWriteLock(false);
 
    // I would rather cache the Closeable instance here..
    // I never know when the JRE decides to create a new instance on every call.
    // So I'm playing safe here. That's all
-   protected final ArtemisCloseable unlockCloseable = storageManagerLock.readLock()::unlock;
+   protected final ArtemisCloseable unlockCloseable = this::unlockCloseable;
+   protected static final ArtemisCloseable dummyCloseable = () -> { };
+
+   private static final ThreadLocal<Boolean> reentrant = ThreadLocal.withInitial(() -> false);
+
+   private void unlockCloseable() {
+      storageManagerLock.readLock().unlock();
+      reentrant.set(false);
+   }
 
    protected Journal messageJournal;
 
@@ -395,6 +403,12 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public ArtemisCloseable closeableReadLock() {
+      if (reentrant.get()) {
+         return dummyCloseable;
+      }
+
+      reentrant.set(true);
+
       CriticalCloseable measure = measureCritical(CRITICAL_STORE);
       storageManagerLock.readLock().lock();
 
@@ -413,20 +427,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          measure.beforeClose(unlockCloseable);
          return measure;
       }
-   }
-
-   /**
-    * for internal use and testsuite, don't use it outside of tests
-    */
-   public void writeLock() {
-      storageManagerLock.writeLock().lock();
-   }
-
-   /**
-    * for internal use and testsuite, don't use it outside of tests
-    */
-   public void writeUnlock() {
-      storageManagerLock.writeLock().unlock();
    }
 
    @Override
@@ -2150,17 +2150,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public boolean addToPage(PagingStore store, Message msg, Transaction tx, RouteContextList listCtx) throws Exception {
-      /**
-       * Exposing the read-lock here is an encapsulation violation done in order to keep the code
-       * simpler. The alternative would be to add a second method, say 'verifyPaging', to
-       * PagingStore.
-       * <p>
-       * Adding this second method would also be more surprise prone as it would require a certain
-       * calling order.
-       * <p>
-       * The reasoning is that exposing the lock is more explicit and therefore `less bad`.
-       */
-      return store.page(msg, tx, listCtx, storageManagerLock.readLock());
+      try (ArtemisCloseable closeable = closeableReadLock()) {
+         return store.page(msg, tx, listCtx);
+      }
    }
 
    private void installLargeMessageConfirmationOnTX(Transaction tx, long recordID) {

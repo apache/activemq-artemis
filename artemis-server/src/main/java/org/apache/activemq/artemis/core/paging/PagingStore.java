@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.paging;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
@@ -89,14 +88,11 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    /**
     * Write message to page if we are paging.
     *
-    * @param readLock a read lock from the storage manager. This is an encapsulation violation made
-    *                 to keep the code less complex. If give {@code null} the method will throw a
-    *                 {@link NullPointerException}
     * @return {@code true} if we are paging and have handled the data, {@code false} if the data
     * needs to be sent to the journal
     * @throws NullPointerException if {@code readLock} is null
     */
-   boolean page(Message message, Transaction tx, RouteContextList listCtx, ReadLock readLock) throws Exception;
+   boolean page(Message message, Transaction tx, RouteContextList listCtx) throws Exception;
 
    Page createPage(int page) throws Exception;
 

@@ -62,7 +62,7 @@ public class NettyConnection implements Connection {
     * here for when the connection (or Netty Channel) becomes available again.
     */
    private final List<ReadyListener> readyListeners = new ArrayList<>();
-   private final FastThreadLocal<ArrayList<ReadyListener>> localListenersPool = new FastThreadLocal<>();
+   private static final FastThreadLocal<ArrayList<ReadyListener>> readyListenersPool = new FastThreadLocal<>();
 
    private final boolean batchingEnabled;
 
@@ -138,51 +138,47 @@ public class NettyConnection implements Connection {
 
    @Override
    public final void fireReady(final boolean ready) {
-      ArrayList<ReadyListener> readyToCall = localListenersPool.get();
-      if (readyToCall != null) {
-         localListenersPool.set(null);
+
+      // We are reusing a previously created ArrayList for this localArray
+      ArrayList<ReadyListener> localArrayList = readyListenersPool.get();
+      if (localArrayList == null) {
+         localArrayList = new ArrayList<>();
+         readyListenersPool.set(localArrayList);
+      } else {
+         localArrayList.clear();
       }
+
       synchronized (readyListeners) {
          this.ready = ready;
 
          if (ready) {
             final int size = this.readyListeners.size();
-            if (readyToCall != null) {
-               readyToCall.ensureCapacity(size);
-            }
+            localArrayList.ensureCapacity(size);
             try {
                for (int i = 0; i < size; i++) {
                   final ReadyListener readyListener = readyListeners.get(i);
                   if (readyListener == null) {
                      break;
                   }
-                  if (readyToCall == null) {
-                     readyToCall = new ArrayList<>(size);
-                  }
-                  readyToCall.add(readyListener);
+                  localArrayList.add(readyListener);
                }
             } finally {
                readyListeners.clear();
             }
          }
       }
-      if (readyToCall != null) {
-         try {
-            readyToCall.forEach(readyListener -> {
-               try {
-                  readyListener.readyForWriting();
-               } catch (Throwable logOnly) {
-                  ActiveMQClientLogger.LOGGER.failedToSetChannelReadyForWriting(logOnly);
-               }
-            });
-         } catch (Throwable t) {
-            ActiveMQClientLogger.LOGGER.failedToSetChannelReadyForWriting(t);
-         } finally {
-            readyToCall.clear();
-            if (localListenersPool.get() != null) {
-               localListenersPool.set(readyToCall);
+      try {
+         localArrayList.forEach(readyListener -> {
+            try {
+               readyListener.readyForWriting();
+            } catch (Throwable logOnly) {
+               ActiveMQClientLogger.LOGGER.failedToSetChannelReadyForWriting(logOnly);
             }
-         }
+         });
+      } catch (Throwable t) {
+         ActiveMQClientLogger.LOGGER.failedToSetChannelReadyForWriting(t);
+      } finally {
+         localArrayList.clear();
       }
    }
 
