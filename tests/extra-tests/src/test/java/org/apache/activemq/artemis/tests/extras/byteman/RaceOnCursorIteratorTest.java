@@ -198,7 +198,7 @@ public class RaceOnCursorIteratorTest extends ActiveMQTestBase {
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
       ctx.addQueue(ADDRESS, queue);
-      pagingStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS), lock);
+      pagingStore.page(msg, ctx.getTransaction(), ctx.getContextListing(ADDRESS));
 
       return msg;
    }

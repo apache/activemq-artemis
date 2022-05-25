@@ -66,11 +66,11 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));
 
       final RoutingContextImpl ctx = new RoutingContextImpl(null);
-      Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));
+      Assert.assertFalse(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
 
       store.startPaging();
 
-      Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName()), lock));
+      Assert.assertTrue(store.page(msg, ctx.getTransaction(), ctx.getContextListing(store.getStoreName())));
 
       Page page = store.depage();
 
@@ -89,7 +89,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
       Assert.assertNull(store.depage());
 
       final RoutingContextImpl ctx2 = new RoutingContextImpl(null);
-      Assert.assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName()), lock));
+      Assert.assertFalse(store.page(msg, ctx2.getTransaction(), ctx2.getContextListing(store.getStoreName())));
 
    }
 

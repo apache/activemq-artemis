@@ -23,7 +23,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Message;
@@ -354,8 +353,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       @Override
       public boolean page(Message message,
                           Transaction tx,
-                          RouteContextList listCtx,
-                          ReentrantReadWriteLock.ReadLock readLock) throws Exception {
+                          RouteContextList listCtx) throws Exception {
          return false;
       }
 

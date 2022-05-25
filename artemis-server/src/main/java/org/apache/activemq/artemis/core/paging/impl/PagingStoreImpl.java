@@ -30,7 +30,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -897,8 +896,7 @@ public class PagingStoreImpl implements PagingStore {
    @Override
    public boolean page(Message message,
                        final Transaction tx,
-                       RouteContextList listCtx,
-                       final ReadLock managerLock) throws Exception {
+                       RouteContextList listCtx) throws Exception {
 
       if (!running) {
          return false;
@@ -941,62 +939,53 @@ public class PagingStoreImpl implements PagingStore {
          lock.readLock().unlock();
       }
 
-      if (managerLock != null) {
-         managerLock.lock();
-      }
+      lock.writeLock().lock();
+
       try {
-         lock.writeLock().lock();
+         if (!paging) {
+            return false;
+         }
 
-         try {
-            if (!paging) {
-               return false;
-            }
+         final long transactionID = tx == null ? -1 : tx.getID();
+         PagedMessage pagedMessage = new PagedMessageImpl(message, routeQueues(tx, listCtx), transactionID);
 
-            final long transactionID = tx == null ? -1 : tx.getID();
-            PagedMessage pagedMessage = new PagedMessageImpl(message, routeQueues(tx, listCtx), transactionID);
+         if (message.isLargeMessage()) {
+            ((LargeServerMessage) message).setPaged();
+         }
 
-            if (message.isLargeMessage()) {
-               ((LargeServerMessage) message).setPaged();
-            }
+         int bytesToWrite = pagedMessage.getEncodeSize() + Page.SIZE_RECORD;
 
-            int bytesToWrite = pagedMessage.getEncodeSize() + Page.SIZE_RECORD;
-
+         currentPageSize += bytesToWrite;
+         if (currentPageSize > pageSize && currentPage.getNumberOfMessages() > 0) {
+            // Make sure nothing is currently validating or using currentPage
+            openNewPage();
             currentPageSize += bytesToWrite;
-            if (currentPageSize > pageSize && currentPage.getNumberOfMessages() > 0) {
-               // Make sure nothing is currently validating or using currentPage
-               openNewPage();
-               currentPageSize += bytesToWrite;
-            }
-
-            if (tx != null) {
-               installPageTransaction(tx, listCtx);
-            }
-
-            // the apply counter will make sure we write a record on journal
-            // especially on the case for non transactional sends and paging
-            // doing this will give us a possibility of recovering the page counters
-            long persistentSize = pagedMessage.getPersistentSize() > 0 ? pagedMessage.getPersistentSize() : 0;
-            final Page page = currentPage;
-            applyPageCounters(tx, page, listCtx, persistentSize);
-
-            page.write(pagedMessage);
-
-            if (tx == null && syncNonTransactional && message.isDurable()) {
-               sync();
-            }
-
-            if (logger.isTraceEnabled()) {
-               logger.tracef("Paging message %s on pageStore %s pageNr=%d", pagedMessage, getStoreName(), page.getPageId());
-            }
-
-            return true;
-         } finally {
-            lock.writeLock().unlock();
          }
+
+         if (tx != null) {
+            installPageTransaction(tx, listCtx);
+         }
+
+         // the apply counter will make sure we write a record on journal
+         // especially on the case for non transactional sends and paging
+         // doing this will give us a possibility of recovering the page counters
+         long persistentSize = pagedMessage.getPersistentSize() > 0 ? pagedMessage.getPersistentSize() : 0;
+         final Page page = currentPage;
+         applyPageCounters(tx, page, listCtx, persistentSize);
+
+         page.write(pagedMessage);
+
+         if (tx == null && syncNonTransactional && message.isDurable()) {
+            sync();
+         }
+
+         if (logger.isTraceEnabled()) {
+            logger.tracef("Paging message %s on pageStore %s pageNr=%d", pagedMessage, getStoreName(), page.getPageId());
+         }
+
+         return true;
       } finally {
-         if (managerLock != null) {
-            managerLock.unlock();
-         }
+         lock.writeLock().unlock();
       }
    }
 
