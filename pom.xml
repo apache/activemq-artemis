@@ -177,7 +177,7 @@
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
 
       <owasp.version>6.1.0</owasp.version>
-      <spring.version>5.3.19</spring.version>
+      <spring.version>5.3.20</spring.version>
 
       <jackson.version>2.13.2</jackson.version>
       <jackson-databind.version>2.13.2.2</jackson-databind.version>
