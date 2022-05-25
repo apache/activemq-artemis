@@ -69,8 +69,6 @@ public class JMSTestCase extends ActiveMQServerTestCase {
       cf = new ActiveMQJMSConnectionFactory("tcp://127.0.0.1:61616?blockOnAcknowledge=true&blockOnDurableSend=true&blockOnNonDurableSend=true");
       queueCf = new ActiveMQQueueConnectionFactory("tcp://127.0.0.1:61616?blockOnAcknowledge=true&blockOnDurableSend=true&blockOnNonDurableSend=true");
       topicCf = new ActiveMQTopicConnectionFactory("tcp://127.0.0.1:61616?blockOnAcknowledge=true&blockOnDurableSend=true&blockOnNonDurableSend=true");
-
-      assertRemainingMessages(0);
    }
 
    protected final JMSContext createContext() {
@@ -115,8 +113,6 @@ public class JMSTestCase extends ActiveMQServerTestCase {
       }
 
       cf = null;
-
-      assertRemainingMessages(0);
    }
 
    protected Connection createConnection(ConnectionFactory cf1) throws JMSException {
