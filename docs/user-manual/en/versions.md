@@ -14,6 +14,14 @@ This chapter provides the following information for each release:
 Highlights:
 - New [management operations](web-server.md#management) for the embedded web server.
 
+## 2.22.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12351488).
+
+Highlights:
+- The default `producer-window-size` on `cluster-connection` was changed to 1MB to
+  mitigate potential OutOfMemoryErrors in environments with with high latency
+  networking.
+
 ## 2.21.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351083&projectId=12315920).
 
