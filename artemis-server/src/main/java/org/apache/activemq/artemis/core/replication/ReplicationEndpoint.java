@@ -128,7 +128,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private PagingManager pageManager;
 
-   private final ConcurrentMap<SimpleString, ConcurrentMap<Integer, Page>> pageIndex = new ConcurrentHashMap<>();
+   private final ConcurrentMap<SimpleString, ConcurrentMap<Long, Page>> pageIndex = new ConcurrentHashMap<>();
    private final ConcurrentMap<Long, ReplicatedLargeMessage> largeMessages = new ConcurrentHashMap<>();
 
    // Used on tests, to simulate failures on delete pages
@@ -362,7 +362,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
       }
 
-      for (ConcurrentMap<Integer, Page> map : pageIndex.values()) {
+      for (ConcurrentMap<Long, Page> map : pageIndex.values()) {
          for (Page page : map.values()) {
             try {
                page.close(false);
@@ -784,7 +784,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @param packet
     */
    private void handlePageEvent(final ReplicationPageEventMessage packet) throws Exception {
-      ConcurrentMap<Integer, Page> pages = getPageMap(packet.getStoreName());
+      ConcurrentMap<Long, Page> pages = getPageMap(packet.getStoreName());
 
       Page page = pages.remove(packet.getPageNumber());
 
@@ -820,12 +820,12 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       page.writeDirect(pgdMessage);
    }
 
-   private ConcurrentMap<Integer, Page> getPageMap(final SimpleString storeName) {
-      ConcurrentMap<Integer, Page> resultIndex = pageIndex.get(storeName);
+   private ConcurrentMap<Long, Page> getPageMap(final SimpleString storeName) {
+      ConcurrentMap<Long, Page> resultIndex = pageIndex.get(storeName);
 
       if (resultIndex == null) {
          resultIndex = new ConcurrentHashMap<>();
-         ConcurrentMap<Integer, Page> mapResult = pageIndex.putIfAbsent(storeName, resultIndex);
+         ConcurrentMap<Long, Page> mapResult = pageIndex.putIfAbsent(storeName, resultIndex);
          if (mapResult != null) {
             resultIndex = mapResult;
          }
@@ -834,8 +834,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       return resultIndex;
    }
 
-   private Page getPage(final SimpleString storeName, final int pageId) throws Exception {
-      ConcurrentMap<Integer, Page> map = getPageMap(storeName);
+   private Page getPage(final SimpleString storeName, final long pageId) throws Exception {
+      ConcurrentMap<Long, Page> map = getPageMap(storeName);
 
       Page page = map.get(pageId);
 
@@ -851,13 +851,13 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @param map
     * @return
     */
-   private synchronized Page newPage(final int pageId,
+   private synchronized Page newPage(final long pageId,
                                      final SimpleString storeName,
-                                     final ConcurrentMap<Integer, Page> map) throws Exception {
+                                     final ConcurrentMap<Long, Page> map) throws Exception {
       Page page = map.get(pageId);
 
       if (page == null) {
-         page = pageManager.getPageStore(storeName).createPage(pageId);
+         page = pageManager.getPageStore(storeName).newPageObject(pageId);
          page.open(true);
          map.put(pageId, page);
       }

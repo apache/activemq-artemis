@@ -269,12 +269,12 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void pageClosed(SimpleString storeName, int pageNumber) {
+      public void pageClosed(SimpleString storeName, long pageNumber) {
 
       }
 
       @Override
-      public void pageDeleted(SimpleString storeName, int pageNumber) {
+      public void pageDeleted(SimpleString storeName, long pageNumber) {
 
       }
 
@@ -289,7 +289,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void pageWrite(PagedMessage message, int pageNumber) {
+      public void pageWrite(PagedMessage message, long pageNumber) {
 
       }
 

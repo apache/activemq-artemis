@@ -59,6 +59,13 @@ public class SizeAwareMetric {
 
    private Runnable underCallback;
 
+   /** To be used in a case where we just measure elements */
+   public SizeAwareMetric() {
+      this.sizeEnabled = false;
+      this.elementsEnabled = false;
+   }
+
+
    public SizeAwareMetric(long maxSize, long lowerMarkSize, long maxElements, long lowerMarkElements) {
       if (lowerMarkSize > maxSize) {
          throw new IllegalArgumentException("lowerMark must be <= maxSize");

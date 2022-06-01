@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 
@@ -39,9 +38,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    private static final AtomicIntegerFieldUpdater<PagedReferenceImpl> DELIVERY_COUNT_UPDATER = AtomicIntegerFieldUpdater
       .newUpdater(PagedReferenceImpl.class, "deliveryCount");
 
-   private final PagePosition position;
-
-   private WeakReference<PagedMessage> message;
+   protected PagedMessage message;
 
    private static final long UNDEFINED_DELIVERY_TIME = Long.MIN_VALUE;
    private long deliveryTime = UNDEFINED_DELIVERY_TIME;
@@ -50,6 +47,21 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private int messageEstimate = -1;
 
+   // this is a cached position returned on getPosition.
+   // just to avoid creating on object on each call
+   PagePosition cachedPositionObject;
+
+   /** This will create a new PagePosition, or return one previously created.
+    *  This method is used to avoid repetitions on browsing iteration only.
+    */
+   @Override
+   public PagePosition getPosition() {
+      if (cachedPositionObject == null) {
+         cachedPositionObject = getPagedMessage().newPositionObject();
+      }
+      return cachedPositionObject;
+   }
+
    private long consumerID;
 
    private boolean hasConsumerID = false;
@@ -57,7 +69,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    @SuppressWarnings("unused")
    private volatile int deliveryCount = 0;
 
-   private final PageSubscription subscription;
+   protected final PageSubscription subscription;
 
    private boolean alreadyAcked;
 
@@ -120,30 +132,12 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public synchronized PagedMessage getPagedMessage() {
-      PagedMessage returnMessage = message != null ? message.get() : null;
-
-      // We only keep a few references on the Queue from paging...
-      // Besides those references are SoftReferenced on page cache...
-      // So, this will unlikely be null,
-      // unless the Queue has stalled for some time after paging
-      if (returnMessage == null) {
-         // reference is gone, we will reconstruct it
-         returnMessage = subscription.queryMessage(position);
-         message = new WeakReference<>(returnMessage);
-      }
-      return returnMessage;
+      return message;
    }
 
-   @Override
-   public PagePosition getPosition() {
-      return position;
-   }
-
-   public PagedReferenceImpl(final PagePosition position,
-                             final PagedMessage message,
+   public PagedReferenceImpl(final PagedMessage message,
                              final PageSubscription subscription) {
-      this.position = position;
-      this.message = new WeakReference<>(message);
+      this.message = message;
       this.subscription = subscription;
       if (message != null) {
          this.largeMessage = message.getMessage().isLargeMessage() ? IS_LARGE_MESSAGE : IS_NOT_LARGE_MESSAGE;
@@ -192,7 +186,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public MessageReference copy(final Queue queue) {
-      return new PagedReferenceImpl(this.position, this.getPagedMessage(), this.subscription);
+      return new PagedReferenceImpl(this.getPagedMessage(), this.subscription);
    }
 
    @Override
@@ -307,8 +301,8 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
          // in case of an exception because of a missing page, we just want toString to return null
          msgToString = "error:" + e.getMessage();
       }
-      return "PagedReferenceImpl [position=" + position +
-         ", message=" +
+      return "PagedReferenceImpl [" +
+         "message=" +
          msgToString +
          ", deliveryTime=" +
          (deliveryTime == UNDEFINED_DELIVERY_TIME ? null : deliveryTime) +
@@ -368,12 +362,12 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void addPendingFlag() {
-      subscription.addPendingDelivery(position);
+      subscription.addPendingDelivery(this.getPagedMessage());
    }
 
    @Override
    public void removePendingFlag() {
-      subscription.removePendingDelivery(position);
+      subscription.removePendingDelivery(this.getPagedMessage());
    }
 
    @Override

@@ -61,6 +61,8 @@ import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
+import org.apache.activemq.artemis.utils.collections.LinkedList;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 @Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
 public class PrintData extends DBOption {
@@ -285,80 +287,84 @@ public class PrintData extends DBOption {
                   out.println("******* Giving up at Page " + pgid + ", System has a total of " + pgStore.getNumberOfPages() + " pages");
                   break;
                }
-               Page page = pgStore.createPage(pgid);
+               Page page = pgStore.newPageObject(pgid);
                while (!page.getFile().exists() && pgid < pgStore.getCurrentWritingPage()) {
                   pgid++;
-                  page = pgStore.createPage(pgid);
+                  page = pgStore.newPageObject(pgid);
                }
                out.println("*******   Page " + pgid);
                page.open(false);
-               List<PagedMessage> msgs = page.read(sm);
+               LinkedList<PagedMessage> msgs = page.read(sm);
                page.close(false, false);
 
                int msgID = 0;
 
-               for (PagedMessage msg : msgs) {
-                  msg.initMessage(sm);
-                  if (safe) {
-                     try {
-                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data, size=" + msg.getMessage().getPersistentSize() + ")");
-                     } catch (Exception e) {
-                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data)");
-                     }
-                  } else {
-                     out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
-                  }
-                  out.print(",Queues = ");
-                  long[] q = msg.getQueueIDs();
-                  int ackCount = 0;
-                  for (int i = 0; i < q.length; i++) {
-                     out.print(q[i]);
-
-                     PagePosition posCheck = new PagePositionImpl(pgid, msgID);
-
-                     boolean acked = false;
-
-                     Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
-                     if (positions != null) {
-                        acked = positions.contains(posCheck);
-                     }
-
-                     if (acked) {
-                        out.print(" (ACK)");
-                     }
-
-                     if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
-                        acked = true;
-                        out.print(" (PG-COMPLETE)");
-                     }
-
-                     if (!existingQueues.contains(q[i])) {
-                        out.print(" (N/A) ");
-                        acked = true;
-                     }
-
-                     if (acked) {
-                        ackCount++;
+               try (LinkedListIterator<PagedMessage> iter = msgs.iterator()) {
+                  while (iter.hasNext()) {
+                     PagedMessage msg = iter.next();
+                     msg.initMessage(sm);
+                     if (safe) {
+                        try {
+                           out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data, size=" + msg.getMessage().getPersistentSize() + ")");
+                        } catch (Exception e) {
+                           out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ", msg=" + msg.getMessage().getClass().getSimpleName() + "(safe data)");
+                        }
                      } else {
-                        out.print(" (OK) ");
+                        out.print("pg=" + pgid + ", msg=" + msgID + ",pgTX=" + msg.getTransactionID() + ",userMessageID=" + (msg.getMessage().getUserID() != null ? msg.getMessage().getUserID() : "") + ", msg=" + msg.getMessage());
                      }
+                     out.print(",Queues = ");
+                     long[] q = msg.getQueueIDs();
+                     int ackCount = 0;
+                     for (int i = 0; i < q.length; i++) {
+                        out.print(q[i]);
 
-                     if (i + 1 < q.length) {
-                        out.print(",");
+                        PagePosition posCheck = new PagePositionImpl(pgid, msgID);
+
+                        boolean acked = false;
+
+                        Set<PagePosition> positions = cursorACKs.getCursorRecords().get(q[i]);
+                        if (positions != null) {
+                           acked = positions.contains(posCheck);
+                        }
+
+                        if (acked) {
+                           out.print(" (ACK)");
+                        }
+
+                        if (cursorACKs.getCompletePages(q[i]).contains(Long.valueOf(pgid))) {
+                           acked = true;
+                           out.print(" (PG-COMPLETE)");
+                        }
+
+                        if (!existingQueues.contains(q[i])) {
+                           out.print(" (N/A) ");
+                           acked = true;
+                        }
+
+                        if (acked) {
+                           ackCount++;
+                        } else {
+                           out.print(" (OK) ");
+                        }
+
+                        if (i + 1 < q.length) {
+                           out.print(",");
+                        }
                      }
-                  }
-                  if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
-                     out.print(", **PG_TX_NOT_FOUND**");
-                  }
-                  out.println();
-
-                  if (ackCount != q.length) {
-                     out.println("^^^ Previous record has " + ackCount + " acked queues and " + q.length + " queues routed");
+                     if (msg.getTransactionID() >= 0 && !pgTXs.contains(msg.getTransactionID())) {
+                        out.print(", **PG_TX_NOT_FOUND**");
+                     }
                      out.println();
+
+                     if (ackCount != q.length) {
+                        out.println("^^^ Previous record has " + ackCount + " acked queues and " + q.length + " queues routed");
+                        out.println();
+                     }
+                     msgID++;
+
                   }
-                  msgID++;
+                  pgid++;
                }
-               pgid++;
             }
          }
       }

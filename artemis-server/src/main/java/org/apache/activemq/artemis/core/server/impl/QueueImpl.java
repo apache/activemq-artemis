@@ -107,6 +107,7 @@ import org.apache.activemq.artemis.utils.BooleanUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
@@ -207,8 +208,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // The quantity of pagedReferences on messageReferences priority list
    private final AtomicInteger pagedReferences = new AtomicInteger(0);
 
-   // The estimate of memory being consumed by this queue. Used to calculate instances of messages to depage
-   final AtomicInteger queueMemorySize = new AtomicInteger(0);
+
+   final SizeAwareMetric queueMemorySize = new SizeAwareMetric();
 
    protected final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
 
@@ -1102,6 +1103,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /* Called when a message is cancelled back into the queue */
    @Override
    public void addHead(final MessageReference ref, boolean scheduling) {
+      if (logger.isDebugEnabled()) {
+         logger.debug("AddHead, size = " + queueMemorySize + ", intermediate size = " + intermediateMessageReferences.size() + ", references size = " + messageReferences.size() + "\nreference=" + ref);
+      }
       try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
          synchronized (this) {
             if (ringSize != -1) {
@@ -1124,6 +1128,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    /* Called when a message is cancelled back into the queue */
    @Override
    public void addSorted(final MessageReference ref, boolean scheduling) {
+      if (logger.isDebugEnabled()) {
+         logger.debug("addSorted, size = " + queueMemorySize + ", intermediate size = " + intermediateMessageReferences.size() + ", references size = " + messageReferences.size() + "\nreference=" + ref);
+      }
       try (ArtemisCloseable metric = measureCritical(CRITICAL_PATH_ADD_HEAD)) {
          synchronized (this) {
             if (ringSize != -1) {
@@ -1176,7 +1183,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public synchronized void reload(final MessageReference ref) {
-      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      queueMemorySize.addSize(ref.getMessageMemoryEstimate());
       if (!scheduledDeliveryHandler.checkAndSchedule(ref, true)) {
          internalAddTail(ref);
       }
@@ -1246,7 +1253,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          // We only add queueMemorySize if not being delivered directly
-         queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+         queueMemorySize.addSize(ref.getMessageMemoryEstimate());
 
          intermediateMessageReferences.add(ref);
 
@@ -1311,7 +1318,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void deliverAsync(boolean noWait) {
       if (scheduledRunners.get() < MAX_SCHEDULED_RUNNERS) {
          scheduledRunners.incrementAndGet();
-         checkDepage(noWait);
+         checkDepage();
          try {
             getExecutor().execute(deliverRunner);
          } catch (RejectedExecutionException ignored) {
@@ -1337,7 +1344,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public ArtemisExecutor getExecutor() {
       if (pageSubscription != null && pageSubscription.isPaging()) {
          // When in page mode, we don't want to have concurrent IO on the same PageStore
-         return pageSubscription.getExecutor();
+         return pageSubscription.getPagingStore().getExecutor();
       } else {
          return executor;
       }
@@ -2476,7 +2483,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          // If empty we need to schedule depaging to make sure we would depage expired messages as well
-         if ((!hasElements || expired) && pageIterator != null && pageIterator.tryNext() > 0) {
+         if ((!hasElements || expired) && pageIterator != null && pageIterator.tryNext() != PageIterator.NextResult.noElements) {
             scheduleDepage(true);
          }
       }
@@ -2841,7 +2848,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @param ref
     */
    private void internalAddHead(final MessageReference ref) {
-      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      queueMemorySize.addSize(ref.getMessageMemoryEstimate());
       pendingMetrics.incrementMetrics(ref);
       refAdded(ref);
 
@@ -2860,7 +2867,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @param ref
     */
    private void internalAddSorted(final MessageReference ref) {
-      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      queueMemorySize.addSize(ref.getMessageMemoryEstimate());
       pendingMetrics.incrementMetrics(ref);
       refAdded(ref);
 
@@ -3101,29 +3108,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       refRemoved(ref);
    }
 
-   private void checkDepage(boolean noWait) {
-      if (pageIterator != null && pageSubscription.isPaging() && !depagePending && needsDepage() && (noWait ? pageIterator.tryNext() > 0 : pageIterator.hasNext())) {
+   private void checkDepage() {
+      if (pageIterator != null && pageSubscription.isPaging() && !depagePending && needsDepage() && pageIterator.tryNext() != PageIterator.NextResult.noElements) {
          scheduleDepage(false);
       }
    }
 
    /**
-    * This is a common check we do before scheduling depaging.. or while depaging.
-    * Before scheduling a depage runnable we verify if it fits / needs depaging.
-    * We also check for while needsDepage While depaging.
-    * This is just to avoid a copy & paste dependency
+    *
+    * This is a check on page sizing.
     *
     * @return
     */
    private boolean needsDepage() {
-      return queueMemorySize.get() < pageSubscription.getPagingStore().getMaxSize() &&
-         /**
-          * In most cases, one depage round following by at most MAX_SCHEDULED_RUNNERS deliver round,
-          * thus we just need to read MAX_DELIVERIES_IN_LOOP * MAX_SCHEDULED_RUNNERS messages. If we read too much, the message reference
-          * maybe discarded by gc collector in response to memory demand and we need to read it again at
-          * a great cost when delivering.
-          */
-         intermediateMessageReferences.size() + messageReferences.size() < MAX_DEPAGE_NUM;
+      return queueMemorySize.getSize() < pageSubscription.getPagingStore().getMaxPageReadBytes() &&
+             queueMemorySize.getElements() < pageSubscription.getPagingStore().getMaxPageReadMessages();
    }
 
    private SimpleString extractGroupID(MessageReference ref) {
@@ -3154,7 +3153,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    protected void refRemoved(MessageReference ref) {
-      queueMemorySize.addAndGet(-ref.getMessageMemoryEstimate());
+      queueMemorySize.addSize(-ref.getMessageMemoryEstimate());
       pendingMetrics.decrementMetrics(ref);
       if (ref.isPaged()) {
          pagedReferences.decrementAndGet();
@@ -3162,7 +3161,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    protected void addRefSize(MessageReference ref) {
-      queueMemorySize.addAndGet(ref.getMessageMemoryEstimate());
+      queueMemorySize.addSize(ref.getMessageMemoryEstimate());
       pendingMetrics.incrementMetrics(ref);
    }
 
@@ -3178,7 +3177,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             logger.trace("Scheduling depage for queue " + this.getName());
          }
          depagePending = true;
-         pageSubscription.getExecutor().execute(new DepageRunner(scheduleExpiry));
+         pageSubscription.getPagingStore().execute(() -> depage(scheduleExpiry));
       }
    }
 
@@ -3199,24 +3198,24 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          long timeout = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(DELIVERY_TIMEOUT);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("QueueMemorySize before depage on queue=" + this.getName() + " is " + queueMemorySize.get());
+            logger.trace("QueueMemorySize before depage on queue=" + this.getName() + " is " + queueMemorySize.getSize());
          }
 
          this.directDeliver = false;
 
          int depaged = 0;
          while (timeout - System.nanoTime() > 0 && needsDepage()) {
-            int status = pageIterator.tryNext();
-            if (status == 2) {
+            PageIterator.NextResult status = pageIterator.tryNext();
+            if (status == PageIterator.NextResult.retry) {
                continue;
-            } else if (status == 0) {
+            } else if (status == PageIterator.NextResult.noElements) {
                break;
             }
 
             depaged++;
             PagedReference reference = pageIterator.next();
-            if (logger.isTraceEnabled()) {
-               logger.trace("Depaging reference " + reference + " on queue " + this.getName());
+            if (logger.isDebugEnabled()) {
+               logger.debug("Depaging reference " + reference + " on queue " + this.getName() + " depaged::" + depaged);
             }
             addTail(reference, false);
             pageIterator.remove();
@@ -3228,12 +3227,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isDebugEnabled()) {
             int maxSize = pageSubscription.getPagingStore().getPageSizeBytes();
 
-            if (depaged == 0 && queueMemorySize.get() >= maxSize) {
+            if (depaged == 0 && queueMemorySize.getSize() >= maxSize) {
                logger.debug("Couldn't depage any message as the maxSize on the queue was achieved. " + "There are too many pending messages to be acked in reference to the page configuration");
             }
 
             if (logger.isDebugEnabled()) {
-               logger.debug("Queue Memory Size after depage on queue=" + this.getName() + " is " + queueMemorySize.get() + " with maxSize = " + maxSize + ". Depaged " + depaged + " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() + ", queueDelivering=" + deliveringMetrics.getMessageCount());
+               logger.debug("Queue Memory Size after depage on queue=" + this.getName() + " is " + queueMemorySize.getSize() + " with maxSize = " + maxSize + ". Depaged " + depaged + " messages, pendingDelivery=" + messageReferences.size() + ", intermediateMessageReferences= " + intermediateMessageReferences.size() + ", queueDelivering=" + deliveringMetrics.getMessageCount());
 
             }
          }
@@ -4162,28 +4161,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (needCheckDepage) {
                try (ArtemisCloseable metric = measureCritical(CRITICAL_CHECK_DEPAGE)) {
-                  checkDepage(true);
+                  checkDepage();
                }
             }
-
-         } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorDelivering(e);
-         }
-      }
-   }
-
-   private final class DepageRunner implements Runnable {
-
-      final boolean scheduleExpiry;
-
-      private DepageRunner(boolean scheduleExpiry) {
-         this.scheduleExpiry = scheduleExpiry;
-      }
-
-      @Override
-      public void run() {
-         try {
-            depage(scheduleExpiry);
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.errorDelivering(e);
          }

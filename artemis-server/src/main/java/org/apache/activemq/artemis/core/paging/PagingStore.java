@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 /**
  * <p>
@@ -45,12 +46,12 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    SimpleString getAddress();
 
-   int getNumberOfPages();
+   long getNumberOfPages();
 
    /**
     * Returns the page id of the current page in which the system is writing files.
     */
-   int getCurrentWritingPage();
+   long getCurrentWritingPage();
 
    SimpleString getStoreName();
 
@@ -65,6 +66,10 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    long getAddressSize();
 
    long getMaxSize();
+
+   int getMaxPageReadBytes();
+
+   int getMaxPageReadMessages();
 
    void applySetting(AddressSettings addressSettings);
 
@@ -94,9 +99,14 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     */
    boolean page(Message message, Transaction tx, RouteContextList listCtx) throws Exception;
 
-   Page createPage(int page) throws Exception;
+   Page usePage(long page);
 
-   boolean checkPageFileExists(int page) throws Exception;
+   /** Use this method when you want to use the cache of used pages. If you are just using offline (e.g. print-data), use the newPageObject method.*/
+   Page usePage(long page, boolean create);
+
+   Page newPageObject(long page) throws Exception;
+
+   boolean checkPageFileExists(long page) throws Exception;
 
    PagingManager getPagingManager();
 
@@ -169,6 +179,10 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
     * We will wait any pending runnable to finish its execution
     */
    void flushExecutors();
+
+   void execute(Runnable runnable);
+
+   ArtemisExecutor getExecutor();
 
    /**
     * Files to synchronize with a remote backup.

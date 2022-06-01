@@ -1385,6 +1385,29 @@ public class LinkedListTest extends ActiveMQTestBase {
 
    }
 
+
+   @Test
+   public void testGetElement() {
+
+      for (int i = 0; i < 100; i++) {
+         list.addTail(i);
+      }
+
+      for (int i = 0; i < 100; i++) {
+         Assert.assertEquals(i, list.get(i).intValue());
+      }
+
+      boolean expectedException = false;
+
+      try {
+         list.get(100);
+      } catch (IndexOutOfBoundsException e) {
+         expectedException = true;
+      }
+
+      Assert.assertTrue(expectedException);
+   }
+
    @Test
    public void testResizing() {
       int numIters = 1000;

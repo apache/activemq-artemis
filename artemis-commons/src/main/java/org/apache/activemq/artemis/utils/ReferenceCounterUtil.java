@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.utils;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
-public class ReferenceCounterUtil implements ReferenceCounter {
+public class ReferenceCounterUtil implements ReferenceCounter, AutoCloseable {
 
    private Runnable task;
 
@@ -28,7 +28,9 @@ public class ReferenceCounterUtil implements ReferenceCounter {
     */
    private final Executor executor;
 
-   private final AtomicInteger uses = new AtomicInteger(0);
+   private volatile int use = 0;
+
+   private static final AtomicIntegerFieldUpdater<ReferenceCounterUtil> useUpdater = AtomicIntegerFieldUpdater.newUpdater(ReferenceCounterUtil.class, "use");
 
    public ReferenceCounterUtil() {
       this.executor = null;
@@ -61,12 +63,12 @@ public class ReferenceCounterUtil implements ReferenceCounter {
 
    @Override
    public int increment() {
-      return uses.incrementAndGet();
+      return useUpdater.incrementAndGet(this);
    }
 
    @Override
    public int decrement() {
-      int value = uses.decrementAndGet();
+      int value = useUpdater.decrementAndGet(this);
       if (value == 0) {
          execute();
       }
@@ -74,11 +76,19 @@ public class ReferenceCounterUtil implements ReferenceCounter {
       return value;
    }
 
+   /** it will set the value all the way to 0, and execute the task meant for when the value was 0. */
+   public void exhaust() {
+      execute();
+      useUpdater.set(this, 0);
+   }
+
    private void execute() {
-      if (executor != null) {
-         executor.execute(task);
-      } else {
-         task.run();
+      if (task != null) {
+         if (executor != null) {
+            executor.execute(task);
+         } else {
+            task.run();
+         }
       }
    }
 
@@ -91,6 +101,11 @@ public class ReferenceCounterUtil implements ReferenceCounter {
 
    @Override
    public int getCount() {
-      return uses.get();
+      return useUpdater.get(this);
+   }
+
+   @Override
+   public void close() {
+      decrement();
    }
 }

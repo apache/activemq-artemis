@@ -1,3 +1,4 @@
+package multiVersionReplica
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
@@ -14,11 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 
-public interface BulkPageCache extends PageCache {
-
-   PagedMessage[] getMessages();
+for (int i = 0; i < 100 && !theBackupServer.getActiveMQServer().isActive(); i++) {
+    Thread.sleep(100);
 }
+System.out.println("*******************************************************************************************************************************");
+System.out.println("backup active =  " + theBackupServer.getActiveMQServer().isActive())
+System.out.println("*******************************************************************************************************************************");
+
+GroovyRun.assertTrue(theBackupServer.getActiveMQServer().isActive());

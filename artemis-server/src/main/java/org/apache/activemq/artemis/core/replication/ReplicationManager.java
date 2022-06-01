@@ -288,21 +288,21 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @param storeName
     * @param pageNumber
     */
-   public void pageClosed(final SimpleString storeName, final int pageNumber) {
+   public void pageClosed(final SimpleString storeName, final long pageNumber) {
       if (enabled) {
-         sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, false));
+         sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, false, remotingConnection.isVersionUsingLongOnPageReplication()));
       }
    }
 
-   public void pageDeleted(final SimpleString storeName, final int pageNumber) {
+   public void pageDeleted(final SimpleString storeName, final long pageNumber) {
       if (enabled) {
-         sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, true));
+         sendReplicatePacket(new ReplicationPageEventMessage(storeName, pageNumber, true, remotingConnection.isVersionUsingLongOnPageReplication()));
       }
    }
 
-   public void pageWrite(final PagedMessage message, final int pageNumber) {
+   public void pageWrite(final PagedMessage message, final long pageNumber) {
       if (enabled) {
-         sendReplicatePacket(new ReplicationPageWriteMessage(message, pageNumber));
+         sendReplicatePacket(new ReplicationPageWriteMessage(message, pageNumber, remotingConnection.isVersionUsingLongOnPageReplication()));
       }
    }
 

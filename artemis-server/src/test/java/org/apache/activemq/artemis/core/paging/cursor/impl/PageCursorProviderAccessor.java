@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements. See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,14 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.core.server.impl;
+package org.apache.activemq.artemis.core.paging.cursor.impl;
 
-import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 
-public class QueueImplTestAccessor {
+public class PageCursorProviderAccessor {
 
-   public static long getQueueMemorySize(Queue queue) {
-      return ((QueueImpl)queue).queueMemorySize.getSize();
+   public static void cleanup(PageCursorProvider provider) {
+      ((PageCursorProviderImpl)provider).cleanup();
    }
-
 }

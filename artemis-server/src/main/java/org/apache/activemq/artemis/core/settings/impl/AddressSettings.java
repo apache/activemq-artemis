@@ -42,6 +42,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final long DEFAULT_MAX_SIZE_MESSAGES = -1;
 
+   public static final int DEFAULT_MAX_READ_PAGE_MESSAGES = 1000;
+
    public static final AddressFullMessagePolicy DEFAULT_ADDRESS_FULL_MESSAGE_POLICY = AddressFullMessagePolicy.PAGE;
 
    public static final int DEFAULT_PAGE_SIZE = 10 * 1024 * 1024;
@@ -140,6 +142,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private AddressFullMessagePolicy addressFullMessagePolicy = null;
 
    private Long maxSizeBytes = null;
+
+   private Integer maxReadPageBytes = null;
+
+   private Integer maxReadPageMessages = null;
 
    private Long maxSizeMessages = null;
 
@@ -281,6 +287,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.addressFullMessagePolicy = other.addressFullMessagePolicy;
       this.maxSizeBytes = other.maxSizeBytes;
       this.maxSizeMessages = other.maxSizeMessages;
+      this.maxReadPageMessages = other.maxReadPageMessages;
+      this.maxReadPageBytes = other.maxReadPageBytes;
       this.pageSizeBytes = other.pageSizeBytes;
       this.pageMaxCache = other.pageMaxCache;
       this.dropMessagesWhenFull = other.dropMessagesWhenFull;
@@ -625,6 +633,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setMaxSizeBytes(final long maxSizeBytes) {
       this.maxSizeBytes = maxSizeBytes;
+      return this;
+   }
+
+   public int getMaxReadPageMessages() {
+      return maxReadPageMessages != null ? maxReadPageMessages : AddressSettings.DEFAULT_MAX_READ_PAGE_MESSAGES;
+   }
+
+   public AddressSettings setMaxReadPageMessages(final int maxReadPageMessages) {
+      this.maxReadPageMessages = maxReadPageMessages;
+      return this;
+   }
+
+   public int getMaxReadPageBytes() {
+      return maxReadPageBytes != null ? maxReadPageBytes : 2 * getPageSizeBytes();
+   }
+
+   public AddressSettings setMaxReadPageBytes(final int maxReadPageBytes) {
+      this.maxReadPageBytes = maxReadPageBytes;
       return this;
    }
 
@@ -1002,6 +1028,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (maxSizeMessages == null) {
          maxSizeMessages = merged.maxSizeMessages;
+      }
+      if (maxReadPageBytes == null) {
+         maxReadPageBytes = merged.maxReadPageBytes;
+      }
+      if (maxReadPageMessages == null) {
+         maxReadPageMessages = merged.maxReadPageMessages;
       }
       if (pageMaxCache == null) {
          pageMaxCache = merged.pageMaxCache;
@@ -1433,6 +1465,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          maxSizeMessages = BufferHelper.readNullableLong(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         maxReadPageBytes = BufferHelper.readNullableInteger(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         maxReadPageMessages = BufferHelper.readNullableInteger(buffer);
+      }
    }
 
    @Override
@@ -1501,7 +1541,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableInteger(managementMessageAttributeSizeLimit) +
          BufferHelper.sizeOfNullableInteger(slowConsumerThresholdMeasurementUnit.getValue()) +
          BufferHelper.sizeOfNullableBoolean(enableIngressTimestamp) +
-         BufferHelper.sizeOfNullableLong(maxSizeMessages);
+         BufferHelper.sizeOfNullableLong(maxSizeMessages) +
+         BufferHelper.sizeOfNullableInteger(maxReadPageMessages) +
+         BufferHelper.sizeOfNullableInteger(maxReadPageBytes);
    }
 
    @Override
@@ -1637,6 +1679,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       buffer.writeNullableSimpleString(configDeleteDiverts != null ? new SimpleString(configDeleteDiverts.toString()) : null);
 
       BufferHelper.writeNullableLong(buffer, maxSizeMessages);
+
+      BufferHelper.writeNullableInteger(buffer, maxReadPageBytes);
+
+      BufferHelper.writeNullableInteger(buffer, maxReadPageMessages);
    }
 
    /* (non-Javadoc)

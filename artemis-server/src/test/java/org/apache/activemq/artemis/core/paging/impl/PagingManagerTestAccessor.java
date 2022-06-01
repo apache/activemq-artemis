@@ -30,4 +30,8 @@ public class PagingManagerTestAccessor {
    public static SizeAwareMetric globalSizeAwareMetric(PagingManager pagingManager) {
       return ((PagingManagerImpl)pagingManager).getSizeAwareMetric();
    }
+
+   public static String debugMessages(Page page) throws Exception {
+      return page.debugMessages();
+   }
 }

@@ -355,17 +355,17 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public void pageClosed(SimpleString storeName, int pageNumber) {
+      public void pageClosed(SimpleString storeName, long pageNumber) {
          manager.pageClosed(storeName, pageNumber);
       }
 
       @Override
-      public void pageDeleted(SimpleString storeName, int pageNumber) {
+      public void pageDeleted(SimpleString storeName, long pageNumber) {
          manager.pageDeleted(storeName, pageNumber);
       }
 
       @Override
-      public void pageWrite(PagedMessage message, int pageNumber) {
+      public void pageWrite(PagedMessage message, long pageNumber) {
          manager.pageWrite(message, pageNumber);
       }
 

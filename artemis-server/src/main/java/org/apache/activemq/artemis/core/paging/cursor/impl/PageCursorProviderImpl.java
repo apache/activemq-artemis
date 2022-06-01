@@ -19,21 +19,14 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
-import org.apache.activemq.artemis.core.paging.cursor.LivePageCache;
-import org.apache.activemq.artemis.core.paging.cursor.NonExistentPage;
-import org.apache.activemq.artemis.core.paging.cursor.PageCache;
-import org.apache.activemq.artemis.core.paging.cursor.BulkPageCache;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
-import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
@@ -43,10 +36,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
-import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
-import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
+import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.jboss.logging.Logger;
 
@@ -66,15 +58,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    protected final PagingStore pagingStore;
 
    protected final StorageManager storageManager;
-
-   // This is the same executor used at the PageStoreImpl. One Executor per pageStore
-   private final ArtemisExecutor executor;
-
-   private final SoftValueLongObjectHashMap<BulkPageCache> softCache;
-
-   private LongObjectHashMap<Integer> numberOfMessages = null;
-
-   private final LongObjectHashMap<CompletableFuture<BulkPageCache>> inProgressReadPages;
 
    private final ConcurrentLongHashMap<PageSubscription> activeCursors = new ConcurrentLongHashMap<>();
 
@@ -102,12 +85,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                                  final boolean readWholePage) {
       this.pagingStore = pagingStore;
       this.storageManager = storageManager;
-      this.executor = executor;
-      this.softCache = new SoftValueLongObjectHashMap<>(maxCacheSize);
-      if (!readWholePage) {
-         this.numberOfMessages = new LongObjectHashMap<>();
-      }
-      this.inProgressReadPages = new LongObjectHashMap<>();
    }
 
 
@@ -121,7 +98,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          throw new IllegalStateException("Cursor " + cursorID + " had already been created");
       }
 
-      PageSubscription activeCursor = new PageSubscriptionImpl(this, pagingStore, storageManager, executor, filter, cursorID, persistent);
+      PageSubscription activeCursor = new PageSubscriptionImpl(this, pagingStore, storageManager, filter, cursorID, persistent);
       activeCursors.put(cursorID, activeCursor);
       return activeCursor;
    }
@@ -132,161 +109,11 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public PagedMessage getMessage(final PagePosition pos) {
-      PageCache cache = getPageCache(pos.getPageNr());
-
-      if (cache == null || pos.getMessageNr() >= cache.getNumberOfMessages()) {
-         // sanity check, this should never happen unless there's a bug
-         throw new NonExistentPage("Invalid messageNumber passed = " + pos + " on " + cache);
-      }
-
-      return cache.getMessage(pos);
-   }
-
-   @Override
-   public PagedReference newReference(final PagePosition pos,
-                                      final PagedMessage msg,
+   public PagedReference newReference(final PagedMessage msg,
                                       final PageSubscription subscription) {
-      return new PagedReferenceImpl(pos, msg, subscription);
+      return new PagedReferenceImpl(msg, subscription);
    }
 
-   @Override
-   public PageCache getPageCache(final long pageId) {
-      try {
-         if (pageId > pagingStore.getCurrentWritingPage()) {
-            return null;
-         }
-         boolean createPage = false;
-         CompletableFuture<BulkPageCache> inProgressReadPage;
-         BulkPageCache cache;
-         Page page = null;
-         synchronized (softCache) {
-            cache = softCache.get(pageId);
-            if (cache != null) {
-               return cache;
-            }
-            if (!pagingStore.checkPageFileExists((int) pageId)) {
-               return null;
-            }
-            Page currentPage = pagingStore.getCurrentPage();
-            // Live page cache might be cleared by gc, we need to retrieve it otherwise partially written page cache is being returned
-            if (currentPage != null && currentPage.getPageId() == pageId && (cache = currentPage.getLiveCache()) != null) {
-               softCache.put(cache.getPageId(), cache);
-               return cache;
-            }
-            inProgressReadPage = inProgressReadPages.get(pageId);
-            if (inProgressReadPage == null) {
-               if (numberOfMessages != null && numberOfMessages.containsKey(pageId)) {
-                  return new PageReader(pagingStore.createPage((int) pageId), numberOfMessages.get(pageId));
-               }
-               final CompletableFuture<BulkPageCache> readPage = new CompletableFuture<>();
-               page = pagingStore.createPage((int) pageId);
-               createPage = true;
-               inProgressReadPage = readPage;
-               inProgressReadPages.put(pageId, readPage);
-            }
-         }
-         if (createPage) {
-            return readPage(pageId, page, inProgressReadPage);
-         } else {
-            final long startedWait = System.nanoTime();
-            while (true) {
-               try {
-                  return inProgressReadPage.get(CONCURRENT_PAGE_READ_TIMEOUT_NS, TimeUnit.NANOSECONDS);
-               } catch (TimeoutException e) {
-                  final long elapsed = System.nanoTime() - startedWait;
-                  final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(elapsed);
-                  logger.warnf("Waiting a concurrent Page::read for pageNr=%d on cursor %s by %d ms",
-                               pageId, pagingStore.getAddress(), elapsedMillis);
-               }
-            }
-         }
-      } catch (Exception e) {
-         throw new RuntimeException(e.getMessage(), e);
-      }
-   }
-
-   private PageCache readPage(long pageId,
-                              Page page,
-                              CompletableFuture<BulkPageCache> inProgressReadPage) throws Exception {
-      logger.tracef("adding pageCache pageNr=%d into cursor = %s", pageId, this.pagingStore.getAddress());
-      boolean acquiredPageReadPermission = false;
-      int num = -1;
-      final PageCacheImpl cache;
-      try {
-         final long startedRequest = System.nanoTime();
-         while (!acquiredPageReadPermission) {
-            acquiredPageReadPermission = storageManager.beforePageRead(PAGE_READ_PERMISSION_TIMEOUT_NS, TimeUnit.NANOSECONDS);
-            if (!acquiredPageReadPermission) {
-               final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedRequest);
-               logger.warnf("Cannot acquire page read permission of pageNr=%d on cursor %s after %d ms: consider increasing page-max-concurrent-io or use a faster disk",
-                            pageId, pagingStore.getAddress(), elapsedMillis);
-            }
-         }
-         page.open(false);
-         final long startedReadPage = System.nanoTime();
-         List<PagedMessage> pgdMessages = page.read(storageManager);
-         final long elapsedReadPage = System.nanoTime() - startedReadPage;
-         if (elapsedReadPage > PAGE_READ_TIMEOUT_NS) {
-            logger.warnf("Page::read for pageNr=%d on cursor %s tooks %d ms to read %d bytes", pageId,
-                         pagingStore.getAddress(), TimeUnit.NANOSECONDS.toMillis(elapsedReadPage), page.getSize());
-         }
-         num = pgdMessages.size();
-         cache = new PageCacheImpl(pageId, pgdMessages.toArray(new PagedMessage[num]));
-      } catch (Throwable t) {
-         inProgressReadPage.completeExceptionally(t);
-         synchronized (softCache) {
-            inProgressReadPages.remove(pageId);
-         }
-         throw t;
-      } finally {
-         try {
-            if (page != null) {
-               page.close(false, false);
-            }
-         } catch (Throwable ignored) {
-         }
-         if (acquiredPageReadPermission) {
-            storageManager.afterPageRead();
-         }
-      }
-      inProgressReadPage.complete(cache);
-      synchronized (softCache) {
-         inProgressReadPages.remove(pageId);
-         softCache.put(pageId, cache);
-         if (numberOfMessages != null && num != -1) {
-            numberOfMessages.put(pageId, Integer.valueOf(num));
-         }
-      }
-      return cache;
-   }
-
-   @Override
-   public void addLivePageCache(LivePageCache cache) {
-      logger.tracef("Add live page cache %s", cache);
-      synchronized (softCache) {
-         softCache.put(cache.getPageId(), cache);
-      }
-   }
-
-   @Override
-   public void setCacheMaxSize(final int size) {
-      softCache.setMaxElements(size);
-   }
-
-   @Override
-   public int getCacheSize() {
-      synchronized (softCache) {
-         return softCache.size();
-      }
-   }
-
-   @Override
-   public void clearCache() {
-      synchronized (softCache) {
-         softCache.clear();
-      }
-   }
 
    @Override
    public void processReload() throws Exception {
@@ -326,19 +153,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       }
    }
 
-   private void waitForFuture() {
-      if (!executor.flush(10, TimeUnit.SECONDS)) {
-         ActiveMQServerLogger.LOGGER.timedOutStoppingPagingCursor(executor);
-         ActiveMQServerLogger.LOGGER.threadDump(ThreadDumpUtil.threadDump(""));
-      }
-   }
-
    @Override
    public void flushExecutors() {
-      for (PageSubscription cursor : activeCursors.values()) {
-         cursor.flushExecutors();
-      }
-      waitForFuture();
+      pagingStore.flushExecutors();
    }
 
    @Override
@@ -350,7 +167,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
    @Override
    public void scheduleCleanup() {
-
       if (!cleanupEnabled || scheduledCleanup.intValue() > 2) {
          // Scheduled cleanup was already scheduled before.. never mind!
          // or we have cleanup disabled
@@ -359,7 +175,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       scheduledCleanup.incrementAndGet();
 
-      executor.execute(new Runnable() {
+      pagingStore.execute(new Runnable() {
          @Override
          public void run() {
             storageManager.setContext(storageManager.newSingleThreadContext());
@@ -412,8 +228,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       scheduleCleanup();
    }
 
-   @Override
-   public void cleanup() {
+   protected void cleanup() {
 
       ArrayList<Page> depagedPages = new ArrayList<>();
       LongHashSet depagedPagesSet = new LongHashSet();
@@ -441,17 +256,19 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          synchronized (this) {
             try {
                if (!pagingStore.isStarted()) {
+                  logger.trace("Paging store is not started");
                   return;
                }
 
-               if (pagingStore.getNumberOfPages() == 0) {
+               if (!pagingStore.isPaging()) {
+                  logger.trace("Paging Store was not paging, so no reason to retry the cleanup");
                   return;
                }
 
                ArrayList<PageSubscription> cursorList = cloneSubscriptions();
 
                long minPage = checkMinPage(cursorList);
-               final long firstPage =  pagingStore.getFirstPage();
+               final long firstPage = pagingStore.getFirstPage();
                deliverIfNecessary(cursorList, minPage);
 
                logger.tracef("firstPage=%s, minPage=%s, currentWritingPage=%s", firstPage, minPage, pagingStore.getCurrentWritingPage());
@@ -462,7 +279,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                // Then we do some check on eventual pages that can be already removed but they are away from the streaming
                cleanupMiddleStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
 
-               if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && pagingStore.getCurrentPage().getNumberOfMessages() == 0) {
+               assert pagingStore.getNumberOfPages() >= 0;
+
+               if (pagingStore.getNumberOfPages() == 0 || pagingStore.getNumberOfPages() == 1 && (pagingStore.getCurrentPage() == null || pagingStore.getCurrentPage().getNumberOfMessages() == 0)) {
+                  logger.tracef("StopPaging being called on %s", pagingStore);
                   pagingStore.stopPaging();
                } else {
                   if (logger.isTraceEnabled()) {
@@ -600,48 +420,24 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       logger.tracef("this(%s) finishing cleanup on %s", this, depagedPages);
       try {
          for (Page depagedPage : depagedPages) {
-            BulkPageCache cache;
             PagedMessage[] pgdMessages;
-            synchronized (softCache) {
-               cache = softCache.get((long) depagedPage.getPageId());
-            }
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Removing pageNr=" + depagedPage.getPageId() + " from page-cache");
-            }
+            storageManager.beforePageRead();
 
-            if (cache == null) {
-               // The page is not on cache any more
-               // We need to read the page-file before deleting it
-               // to make sure we remove any large-messages pending
-               storageManager.beforePageRead();
-
-               List<PagedMessage> pgdMessagesList = null;
+            LinkedList<PagedMessage> pgdMessagesList = null;
+            try {
+               depagedPage.open(false);
+               pgdMessagesList = depagedPage.read(storageManager, true);
+            } finally {
                try {
-                  depagedPage.open(false);
-                  pgdMessagesList = depagedPage.read(storageManager, true);
-               } finally {
-                  try {
-                     depagedPage.close(false, false);
-                  } catch (Exception e) {
-                  }
-
-                  storageManager.afterPageRead();
+                  depagedPage.close(false, false);
+               } catch (Exception e) {
                }
-               pgdMessages = pgdMessagesList.isEmpty() ? null :
-                  pgdMessagesList.toArray(new PagedMessage[pgdMessagesList.size()]);
-            } else {
-               pgdMessages = cache.getMessages();
+
+               storageManager.afterPageRead();
             }
 
-            depagedPage.delete(pgdMessages);
-            synchronized (softCache) {
-               long pageId = (long) depagedPage.getPageId();
-               softCache.remove(pageId);
-               if (numberOfMessages != null) {
-                  numberOfMessages.remove(pageId);
-               }
-            }
+            depagedPage.delete(pgdMessagesList);
             onDeletePage(depagedPage);
          }
       } catch (Exception ex) {
@@ -657,8 +453,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
       boolean complete = true;
 
-      Page page = pagingStore.createPage((int)minPage);
-      if (!page.getFile().exists()) {
+      if (!pagingStore.checkPageFileExists(minPage)) {
          logger.tracef("store %s did not have an existing file, considering it a complete file then", pagingStore.getAddress());
          return true;
       }
@@ -714,14 +509,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public void printDebug() {
-      System.out.println("Debug information for PageCursorProviderImpl:");
-      for (PageCache cache : softCache.values()) {
-         System.out.println("Cache " + cache);
-      }
-   }
-
-   @Override
    public String toString() {
       return "PageCursorProviderImpl{" +
          "pagingStore=" + pagingStore +
@@ -769,6 +556,4 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          }
       }
    }
-
-
 }

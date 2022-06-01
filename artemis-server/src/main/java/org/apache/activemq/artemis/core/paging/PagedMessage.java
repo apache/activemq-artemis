@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.paging;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
+import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 
 /**
@@ -30,6 +31,8 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 public interface PagedMessage extends EncodingSupport {
 
    Message getMessage();
+
+   PagePosition newPositionObject();
 
    /**
     * The queues that were routed during paging
@@ -55,4 +58,13 @@ public interface PagedMessage extends EncodingSupport {
     *  at the same amount of bytes it used. In some cases it may need to add headers in AMQP
     *  or extra data that may affect the outcome of getEncodeSize() */
    int getStoredSize();
+
+   long getPageNumber();
+
+   PagedMessage setPageNumber(long pageNr);
+
+   int getMessageNumber();
+
+   PagedMessage setMessageNumber(int messageNr);
+
 }

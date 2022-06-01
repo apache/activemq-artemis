@@ -18,7 +18,21 @@ package org.apache.activemq.artemis.core.paging.cursor;
 
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 
-public interface LivePageCache extends BulkPageCache {
+public class QueryPagedReferenceImpl extends PagedReferenceImpl {
 
-   void addLiveMessage(PagedMessage message);
+   final PagePosition position;
+
+   public QueryPagedReferenceImpl(PagePosition position, PagedMessage message, PageSubscription subscription) {
+      super(message, subscription);
+      this.position = position;
+   }
+
+   @Override
+   public synchronized PagedMessage getPagedMessage() {
+      if (message == null) {
+         message = subscription.queryMessage(position);
+      }
+
+      return message;
+   }
 }

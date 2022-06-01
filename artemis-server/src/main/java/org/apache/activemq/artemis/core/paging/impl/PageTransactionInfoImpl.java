@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
-import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -153,7 +153,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       if (lateDeliveries != null) {
          // This is to make sure deliveries that were touched before the commit arrived will be delivered
          for (LateDelivery pos : lateDeliveries) {
-            pos.getSubscription().redeliver(pos.getIterator(), pos.getPagePosition());
+            pos.getSubscription().redeliver(pos.getIterator(), pos.getPageReference());
          }
          lateDeliveries.clear();
       }
@@ -235,7 +235,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
       if (lateDeliveries != null) {
          for (LateDelivery pos : lateDeliveries) {
-            pos.getSubscription().lateDeliveryRollback(pos.getPagePosition());
+            pos.getSubscription().lateDeliveryRollback(pos.getPageReference().getPagedMessage().newPositionObject());
             onUpdate(1, null, pos.getSubscription().getPagingStore().getPagingManager());
          }
          lateDeliveries = null;
@@ -255,41 +255,41 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    @Override
    public synchronized boolean deliverAfterCommit(PageIterator iterator,
                                                   PageSubscription cursor,
-                                                  PagePosition cursorPos) {
+                                                  PagedReference pagedReference) {
 
       if (logger.isTraceEnabled()) {
-         logger.trace("deliver after commit on " + cursor + ", position=" + cursorPos);
+         logger.trace("deliver after commit on " + cursor + ", pagedReference=" + pagedReference);
       }
 
       if (committed && useRedelivery) {
          if (logger.isTraceEnabled()) {
-            logger.trace("commit & useRedelivery on " + cursor + ", position=" + cursorPos);
+            logger.trace("commit & useRedelivery on " + cursor + ", pagedReference=" + pagedReference);
          }
-         cursor.addPendingDelivery(cursorPos);
-         cursor.redeliver(iterator, cursorPos);
+         cursor.addPendingDelivery(pagedReference.getPagedMessage());
+         cursor.redeliver(iterator, pagedReference);
          return true;
       } else if (committed) {
          if (logger.isTraceEnabled()) {
-            logger.trace("committed on " + cursor + ", position=" + cursorPos + ", ignoring position");
+            logger.trace("committed on " + cursor + ", position=" + pagedReference + ", ignoring position");
          }
          return false;
       } else if (rolledback) {
          if (logger.isTraceEnabled()) {
-            logger.trace("rolled back, position ignored on " + cursor + ", position=" + cursorPos);
+            logger.trace("rolled back, position ignored on " + cursor + ", position=" + pagedReference);
          }
-         cursor.positionIgnored(cursorPos);
+         cursor.positionIgnored(pagedReference.getPagedMessage().newPositionObject());
          onUpdate(1, null, cursor.getPagingStore().getPagingManager());
          return true;
       } else {
          if (logger.isTraceEnabled()) {
-            logger.trace("deliverAftercommit/else, marking useRedelivery on " + cursor + ", position " + cursorPos);
+            logger.trace("deliverAftercommit/else, marking useRedelivery on " + cursor + ", position " + pagedReference);
          }
          useRedelivery = true;
          if (lateDeliveries == null) {
             lateDeliveries = new LinkedList<>();
          }
-         cursor.addPendingDelivery(cursorPos);
-         lateDeliveries.add(new LateDelivery(cursor, cursorPos, iterator));
+         cursor.addPendingDelivery(pagedReference.getPagedMessage());
+         lateDeliveries.add(new LateDelivery(cursor, pagedReference, iterator));
          return true;
       }
    }
@@ -304,12 +304,12 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    private static class LateDelivery {
 
       final PageSubscription subscription;
-      final PagePosition pagePosition;
+      final PagedReference pagedReference;
       final PageIterator iterator;
 
-      private LateDelivery(PageSubscription subscription, PagePosition pagePosition, PageIterator iterator) {
+      private LateDelivery(PageSubscription subscription, PagedReference pagedReference, PageIterator iterator) {
          this.subscription = subscription;
-         this.pagePosition = pagePosition;
+         this.pagedReference = pagedReference;
          this.iterator = iterator;
       }
 
@@ -317,8 +317,8 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
          return subscription;
       }
 
-      public PagePosition getPagePosition() {
-         return pagePosition;
+      public PagedReference getPageReference() {
+         return pagedReference;
       }
 
       public PageIterator getIterator() {

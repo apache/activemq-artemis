@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.core.paging;
 
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
-import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
@@ -65,6 +65,6 @@ public interface PageTransactionInfo extends EncodingSupport {
     *
     * @return true if the message will be delivered later, false if it should be delivered right away
     */
-   boolean deliverAfterCommit(PageIterator pageIterator, PageSubscription cursor, PagePosition cursorPos);
+   boolean deliverAfterCommit(PageIterator pageIterator, PageSubscription cursor, PagedReference pagedMessage);
 
 }

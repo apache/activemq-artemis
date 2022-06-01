@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -246,6 +247,16 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
    class FakePagingStore implements PagingStore {
 
       @Override
+      public void execute(Runnable runnable) {
+         runnable.run();
+      }
+
+      @Override
+      public ArtemisExecutor getExecutor() {
+         return null;
+      }
+
+      @Override
       public void durableDown(Message message, int durableCount) {
 
       }
@@ -276,12 +287,12 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public int getNumberOfPages() {
+      public long getNumberOfPages() {
          return 0;
       }
 
       @Override
-      public int getCurrentWritingPage() {
+      public long getCurrentWritingPage() {
          return 0;
       }
 
@@ -346,8 +357,33 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public Page usePage(long page, boolean create) {
+         return null;
+      }
+
+      @Override
+      public Page usePage(long page) {
+         return null;
+      }
+
+      @Override
+      public Page newPageObject(long page) throws Exception {
+         return null;
+      }
+
+      @Override
       public void ioSync() throws Exception {
 
+      }
+
+      @Override
+      public int getMaxPageReadBytes() {
+         return 0;
+      }
+
+      @Override
+      public int getMaxPageReadMessages() {
+         return 0;
       }
 
       @Override
@@ -358,12 +394,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public Page createPage(int page) throws Exception {
-         return null;
-      }
-
-      @Override
-      public boolean checkPageFileExists(int page) throws Exception {
+      public boolean checkPageFileExists(long page) throws Exception {
          return false;
       }
 

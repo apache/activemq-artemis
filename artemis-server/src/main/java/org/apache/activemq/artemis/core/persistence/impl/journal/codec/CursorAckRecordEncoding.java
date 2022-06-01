@@ -30,7 +30,6 @@ public class CursorAckRecordEncoding implements EncodingSupport {
    }
 
    public CursorAckRecordEncoding() {
-      this.position = new PagePositionImpl();
    }
 
    @Override

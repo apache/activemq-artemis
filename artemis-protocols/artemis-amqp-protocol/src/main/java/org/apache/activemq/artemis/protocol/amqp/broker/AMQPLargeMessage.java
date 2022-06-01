@@ -480,7 +480,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    protected void releaseComplete() {
-      largeBody.deleteFile();
+      largeBody.releaseComplete();
    }
 
    @Override

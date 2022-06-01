@@ -114,11 +114,11 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    // Message related operations
 
-   void pageClosed(SimpleString storeName, int pageNumber);
+   void pageClosed(SimpleString storeName, long pageNumber);
 
-   void pageDeleted(SimpleString storeName, int pageNumber);
+   void pageDeleted(SimpleString storeName, long pageNumber);
 
-   void pageWrite(PagedMessage message, int pageNumber);
+   void pageWrite(PagedMessage message, long pageNumber);
 
    void afterCompleteOperations(IOCallback run);
 

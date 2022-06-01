@@ -62,6 +62,7 @@ import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.jboss.logging.Logger;
 
 public class PostOfficeJournalLoader implements JournalLoader {
@@ -380,30 +381,33 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
             if (store != null && store.checkPageFileExists(pageId.intValue())) {
                // on this case we need to recalculate the records
-               Page pg = store.createPage(pageId.intValue());
+               Page pg = store.newPageObject(pageId.intValue());
                pg.open(true);
 
-               List<PagedMessage> pgMessages = pg.read(storageManager);
+               org.apache.activemq.artemis.utils.collections.LinkedList<PagedMessage> pgMessages = pg.read(storageManager);
                pg.close(false, false);
                Map<Long, AtomicInteger> countsPerQueueOnPage = new HashMap<>();
                Map<Long, AtomicLong> sizePerQueueOnPage = new HashMap<>();
 
-               for (PagedMessage pgd : pgMessages) {
-                  if (pgd.getTransactionID() <= 0) {
-                     for (long q : pgd.getQueueIDs()) {
-                        AtomicInteger countQ = countsPerQueueOnPage.get(q);
-                        AtomicLong sizeQ = sizePerQueueOnPage.get(q);
-                        if (countQ == null) {
-                           countQ = new AtomicInteger(0);
-                           countsPerQueueOnPage.put(q, countQ);
-                        }
-                        if (sizeQ == null) {
-                           sizeQ = new AtomicLong(0);
-                           sizePerQueueOnPage.put(q, sizeQ);
-                        }
-                        countQ.incrementAndGet();
-                        if (pgd.getPersistentSize() > 0) {
-                           sizeQ.addAndGet(pgd.getPersistentSize());
+               try (LinkedListIterator<PagedMessage> iter = pgMessages.iterator()) {
+                  while (iter.hasNext()) {
+                     PagedMessage pgd = iter.next();
+                     if (pgd.getTransactionID() <= 0) {
+                        for (long q : pgd.getQueueIDs()) {
+                           AtomicInteger countQ = countsPerQueueOnPage.get(q);
+                           AtomicLong sizeQ = sizePerQueueOnPage.get(q);
+                           if (countQ == null) {
+                              countQ = new AtomicInteger(0);
+                              countsPerQueueOnPage.put(q, countQ);
+                           }
+                           if (sizeQ == null) {
+                              sizeQ = new AtomicLong(0);
+                              sizePerQueueOnPage.put(q, sizeQ);
+                           }
+                           countQ.incrementAndGet();
+                           if (pgd.getPersistentSize() > 0) {
+                              sizeQ.addAndGet(pgd.getPersistentSize());
+                           }
                         }
                      }
                   }

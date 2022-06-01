@@ -217,7 +217,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    @Override
    protected void releaseComplete() {
-      largeBody.deleteFile();
+      largeBody.releaseComplete();
    }
 
    // Even though not recommended, in certain instances
