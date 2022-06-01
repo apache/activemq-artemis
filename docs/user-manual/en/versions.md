@@ -35,21 +35,31 @@ Highlights:
 
 #### Upgrading from older versions
 
-Due to XML schema changes to correct an inaccurate domain name 2 files will need to
-be updated:
+1. Due to XML schema changes to correct an inaccurate domain name 2 files will need to
+   be updated:
 
- 1. `etc/bootstrap.xml`
- 2. `etc/management.xml`
+    1. `etc/bootstrap.xml`
+    2. `etc/management.xml`
 
-In both files change the XML namespace from `activemq.org` to `activemq.apache.org`,
-e.g. in `bootsrap.xml` use:
-```xml
-<broker xmlns="http://activemq.apache.org/schema">
-```
-And in `management.xml` use:
-```xml
-<management-context xmlns="http://activemq.apache.org/schema">
-```
+    In both files change the XML namespace from `activemq.org` to `activemq.apache.org`,
+    e.g. in `bootsrap.xml` use:
+    ```xml
+    <broker xmlns="http://activemq.apache.org/schema">
+    ```
+    And in `management.xml` use:
+    ```xml
+    <management-context xmlns="http://activemq.apache.org/schema">
+    ```
+   
+2. **If you're using [JDBC persistence](persistence.md#jdbc-persistence)** then due
+   to the changes in [ARTEMIS-3679](https://issues.apache.org/jira/browse/ARTEMIS-3679)
+   you'll need to update your database. The column `HOLDER_EXPIRATION_TIME` on the
+   `NODE_MANAGER_STORE`changed from a `TIMESTAMP` to a `BIGINT` (or `NUMBER(19)` on
+   Oracle). You will have to stop any broker that is accessing that table and either
+   drop it or execute the proper `ALTER TABLE` statement for your database. If you
+   drop the table then it will be automatically recreated when broker restarts and
+   repopulated with a new, auto-generated node ID.
+   
 
 ## 2.20.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12350581&projectId=12315920).
