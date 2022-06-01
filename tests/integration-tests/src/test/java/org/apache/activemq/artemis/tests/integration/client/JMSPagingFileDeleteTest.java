@@ -196,7 +196,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
 
          timeout = System.currentTimeMillis() + 10000;
 
-         Wait.assertEquals(0, pagingStore::getNumberOfPages); //I expected number of the page is 1, but It was not.
+         Wait.assertEquals(1, pagingStore::getNumberOfPages);
       } finally {
          if (connection != null) {
             connection.close();

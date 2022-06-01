@@ -24,16 +24,7 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
  */
 public interface PageCursorProvider {
 
-   /**
-    * Used on tests, to simulate a scenario where the VM cleared space
-    */
-   void clearCache();
-
-   PageCache getPageCache(long pageNr);
-
-   PagedReference newReference(PagePosition pos, PagedMessage msg, PageSubscription sub);
-
-   void addLivePageCache(LivePageCache cache);
+   PagedReference newReference(PagedMessage msg, PageSubscription sub);
 
    /**
     * @param queueId The cursorID should be the same as the queueId associated for persistence
@@ -42,8 +33,6 @@ public interface PageCursorProvider {
    PageSubscription getSubscription(long queueId);
 
    PageSubscription createSubscription(long queueId, Filter filter, boolean durable);
-
-   PagedMessage getMessage(PagePosition pos);
 
    void processReload() throws Exception;
 
@@ -63,20 +52,8 @@ public interface PageCursorProvider {
    void onPageModeCleared();
 
    /**
-    * Perform the cleanup at the caller's thread (for startup and recovery)
-    */
-   void cleanup();
-
-   void setCacheMaxSize(int size);
-
-   /**
     * @param pageCursorImpl
     */
    void close(PageSubscription pageCursorImpl);
 
-   // to be used on tests -------------------------------------------
-
-   int getCacheSize();
-
-   void printDebug();
 }

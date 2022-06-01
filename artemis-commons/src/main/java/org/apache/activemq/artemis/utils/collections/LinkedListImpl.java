@@ -20,6 +20,7 @@ import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
@@ -103,6 +104,21 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    @Override
+   public E get(int position) {
+      Node<E> current = head.next;
+
+      for (int i = 0; i < position && current != null; i++) {
+         current = current.next;
+      }
+
+      if (current == null) {
+         throw new IndexOutOfBoundsException(position + " > " + size());
+      }
+
+      return current.val();
+   }
+
+   @Override
    public synchronized E removeWithID(String listID, long id) {
       assert nodeStore != null; // it is assumed the code will call setNodeStore before callin removeWithID
 
@@ -115,6 +131,17 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       // the node will always have a prev element
       removeAfter(node.prev);
       return node.val();
+   }
+
+
+   @Override
+   public void forEach(Consumer<E> consumer) {
+      try (LinkedListIterator<E> iter = iterator()) {
+         while (iter.hasNext()) {
+            E nextValue = iter.next();
+            consumer.accept(nextValue);
+         }
+      }
    }
 
    private void itemAdded(Node<E> node, E item) {

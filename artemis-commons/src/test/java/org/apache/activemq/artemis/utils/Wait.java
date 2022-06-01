@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
+import java.util.function.Supplier;
 
 import org.junit.Assert;
 
@@ -142,13 +143,16 @@ public class Wait {
       assertTrue(DEFAULT_FAILURE_MESSAGE, condition, duration, sleep);
    }
 
-
    public static void assertTrue(String failureMessage, Condition condition, final long duration, final long sleep) {
+      assertTrue(() -> failureMessage, condition, duration, sleep);
+   }
+
+   public static void assertTrue(Supplier<String> failureMessage, Condition condition, final long duration, final long sleep) {
 
       boolean result = waitFor(condition, duration, sleep);
 
       if (!result) {
-         Assert.fail(failureMessage);
+         Assert.fail(failureMessage.get());
       }
    }
 

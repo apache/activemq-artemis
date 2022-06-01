@@ -25,8 +25,6 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 public interface PageSubscription {
 
@@ -61,7 +59,7 @@ public interface PageSubscription {
 
    PageIterator iterator();
 
-   LinkedListIterator<PagedReference> iterator(boolean jumpRemoves);
+   PageIterator iterator(boolean browsing);
 
 
       // To be called when the cursor is closed for good. Most likely when the queue is deleted
@@ -133,14 +131,9 @@ public interface PageSubscription {
 
    void processReload() throws Exception;
 
-   void addPendingDelivery(PagePosition position);
+   void addPendingDelivery(PagedMessage pagedMessage);
 
-   /**
-    * To be used on redeliveries
-    *
-    * @param position
-    */
-   void redeliver(PageIterator iterator, PagePosition position);
+   void redeliver(PageIterator iterator, PagedReference reference);
 
    void printDebug();
 
@@ -153,26 +146,16 @@ public interface PageSubscription {
    void forEachConsumedPage(Consumer<ConsumedPage> pageCleaner);
 
    /**
-    * wait all the scheduled runnables to finish their current execution
-    */
-   void flushExecutors();
-
-   void setQueue(Queue queue);
-
-   Queue getQueue();
-
-   /**
-    * To be used to requery the reference case the Garbage Collection removed it from the PagedReference as it's using WeakReferences
+    * To be used to requery the reference
     *
     * @param pos
     * @return
     */
    PagedMessage queryMessage(PagePosition pos);
 
-   /**
-    * @return executor used by the PageSubscription
-    */
-   ArtemisExecutor getExecutor();
+   void setQueue(Queue queue);
+
+   Queue getQueue();
 
    /**
     * @param deletedPage
@@ -186,5 +169,5 @@ public interface PageSubscription {
 
    void incrementDeliveredSize(long size);
 
-   void removePendingDelivery(PagePosition position);
+   void removePendingDelivery(PagedMessage pagedMessage);
 }

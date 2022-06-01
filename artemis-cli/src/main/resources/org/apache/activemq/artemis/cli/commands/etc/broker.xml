@@ -141,6 +141,13 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <max-size-bytes>-1</max-size-bytes>
             <!-- limit for the address in messages, -1 means unlimited -->
             <max-size-messages>-1</max-size-messages>
+            <!-- the size of each file on paging. Notice we keep files in memory while they are in use.
+                 Lower this setting if you have too many queues in memory. -->
+            <page-size-bytes>10M</page-size-bytes>
+            <!-- how many messages are kept in memory from paging. The system will stop reading whenever this or max-read-page-bytes hits the max first. -->
+            <max-read-page-messages>1000</max-read-page-messages>
+            <!-- how many bytes equivalent of messages are kept in memory from paging (based on memory estimate). The system will stop reading whenever this or max-read-page-messages hits the max first. -->
+            <max-read-page-bytes>1M</max-read-page-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>${full-policy}</address-full-policy>
             <auto-create-queues>${auto-create}</auto-create-queues>

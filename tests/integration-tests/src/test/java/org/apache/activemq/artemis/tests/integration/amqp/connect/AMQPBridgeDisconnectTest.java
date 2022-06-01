@@ -44,6 +44,7 @@ public class AMQPBridgeDisconnectTest extends AmqpClientTestSupport {
    public static void main(String[] arg) {
       try {
          AMQPBridgeDisconnectTest reconnect = new AMQPBridgeDisconnectTest();
+         reconnect.setTestDir(arg[1]);
          if (arg[0].equals("client")) {
             reconnect.runExternal(true);
          } else {
@@ -122,7 +123,7 @@ public class AMQPBridgeDisconnectTest extends AmqpClientTestSupport {
          this.server.getConfiguration().addAMQPConnection(connectConfiguration);
       }
       this.server.start();
-      Process process = SpawnedVMSupport.spawnVM(AMQPBridgeDisconnectTest.class.getName(), true, startClient ? "server" : "client");
+      Process process = SpawnedVMSupport.spawnVM(AMQPBridgeDisconnectTest.class.getName(), true, startClient ? "server" : "client", getTestDir());
 
       try {
          ActiveMQServer var10000 = this.server;

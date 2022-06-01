@@ -16,11 +16,15 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.util.function.Consumer;
+
 public interface LinkedList<E> {
 
    void addHead(E e);
 
    void addTail(E e);
+
+   E get(int position);
 
    E poll();
 
@@ -37,4 +41,6 @@ public interface LinkedList<E> {
 
    /** you need to call {@link #setNodeStore(NodeStore)} before you are able to call this method. */
    E removeWithID(String listID, long id);
+
+   void forEach(Consumer<E> consumer);
 }

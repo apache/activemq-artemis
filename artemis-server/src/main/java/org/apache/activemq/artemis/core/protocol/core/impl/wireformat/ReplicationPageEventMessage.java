@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class ReplicationPageEventMessage extends PacketImpl {
 
-   private int pageNumber;
+   protected long pageNumber;
 
    private SimpleString storeName;
 
@@ -32,12 +32,15 @@ public class ReplicationPageEventMessage extends PacketImpl {
     */
    private boolean isDelete;
 
-   public ReplicationPageEventMessage() {
+   private final boolean useLong;
+
+   public ReplicationPageEventMessage(boolean useLong) {
       super(PacketImpl.REPLICATION_PAGE_EVENT);
+      this.useLong = useLong;
    }
 
-   public ReplicationPageEventMessage(final SimpleString storeName, final int pageNumber, final boolean isDelete) {
-      this();
+   public ReplicationPageEventMessage(final SimpleString storeName, final long pageNumber, final boolean isDelete, final boolean useLong) {
+      this(useLong);
       this.pageNumber = pageNumber;
       this.isDelete = isDelete;
       this.storeName = storeName;
@@ -45,30 +48,46 @@ public class ReplicationPageEventMessage extends PacketImpl {
 
    @Override
    public int expectedEncodeSize() {
-      return PACKET_HEADERS_SIZE +
-             SimpleString.sizeofString(storeName) + // buffer.writeSimpleString(storeName);
-             DataConstants.SIZE_INT + //  buffer.writeInt(pageNumber);
-             DataConstants.SIZE_BOOLEAN; // buffer.writeBoolean(isDelete);
+      if (useLong) {
+         return PACKET_HEADERS_SIZE + SimpleString.sizeofString(storeName) + // buffer.writeSimpleString(storeName);
+            DataConstants.SIZE_LONG + //  buffer.writeLong(pageNumber);
+            DataConstants.SIZE_BOOLEAN; // buffer.writeBoolean(isDelete);
+      } else {
+         return PACKET_HEADERS_SIZE + SimpleString.sizeofString(storeName) + // buffer.writeSimpleString(storeName);
+            DataConstants.SIZE_INT + //  buffer.writeInt(pageNumber);
+            DataConstants.SIZE_BOOLEAN; // buffer.writeBoolean(isDelete);
+      }
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeSimpleString(storeName);
-      buffer.writeInt(pageNumber);
+      if (useLong) {
+         buffer.writeLong(pageNumber);
+      } else {
+         if (pageNumber > Integer.MAX_VALUE) {
+            throw new IllegalStateException("pageNumber=" + pageNumber + " is too large to be used with older broker version on replication");
+         }
+         buffer.writeInt((int) pageNumber);
+      }
       buffer.writeBoolean(isDelete);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       storeName = buffer.readSimpleString();
-      pageNumber = buffer.readInt();
+      if (useLong) {
+         pageNumber = buffer.readLong();
+      } else {
+         pageNumber = buffer.readInt();
+      }
       isDelete = buffer.readBoolean();
    }
 
    /**
     * @return the pageNumber
     */
-   public int getPageNumber() {
+   public long getPageNumber() {
       return pageNumber;
    }
 
@@ -98,7 +117,7 @@ public class ReplicationPageEventMessage extends PacketImpl {
       final int prime = 31;
       int result = super.hashCode();
       result = prime * result + (isDelete ? 1231 : 1237);
-      result = prime * result + pageNumber;
+      result = prime * result + (int)pageNumber;
       result = prime * result + ((storeName == null) ? 0 : storeName.hashCode());
       return result;
    }

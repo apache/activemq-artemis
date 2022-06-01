@@ -102,6 +102,13 @@ public class LargeBody {
       file = null;
    }
 
+   public void releaseComplete() {
+      if (!paged) {
+         deleteFile();
+      }
+   }
+
+
    public synchronized void deleteFile() {
       try {
          validateFile();

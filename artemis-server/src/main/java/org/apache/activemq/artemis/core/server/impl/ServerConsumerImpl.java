@@ -1345,7 +1345,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
                final int readBytes = context.readInto(bodyBuffer);
 
-               assert readBytes == localChunkLen;
+               assert readBytes == localChunkLen : "readBytes = " + readBytes + ", localChunkLen=" + localChunkLen + " on large message " + largeMessage.getMessageID() + ", hash = " + System.identityHashCode(largeMessage);
+
 
                final byte[] body = bodyBuffer.array();
 

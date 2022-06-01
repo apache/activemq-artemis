@@ -33,11 +33,9 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
-import org.apache.activemq.artemis.core.paging.cursor.PageCache;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
-import org.apache.activemq.artemis.core.paging.cursor.impl.PageCursorProviderImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
@@ -75,30 +73,6 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
    private static final int PAGE_SIZE = 10 * 1024 * 1024;
 
-   // Read more cache than what would fit on the memory, and validate if the memory would be cleared through soft-caches
-   @Test
-   public void testReadCache() throws Exception {
-
-      final int NUM_MESSAGES = 100;
-
-      int numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
-
-      System.out.println("NumberOfPages = " + numberOfPages);
-
-      PageCursorProviderImpl cursorProvider = new PageCursorProviderImpl(lookupPageStore(ADDRESS), server.getStorageManager(), server.getExecutorFactory().getExecutor(), 5);
-
-      for (int i = 0; i < numberOfPages; i++) {
-         PageCache cache = cursorProvider.getPageCache(i + 1);
-         System.out.println("Page " + i + " had " + cache.getNumberOfMessages() + " messages");
-
-      }
-
-      forceGC();
-
-      assertTrue(cursorProvider.getCacheSize() < numberOfPages);
-
-      System.out.println("Cache size = " + cursorProvider.getCacheSize());
-   }
 
    @Test
    public void testSimpleCursor() throws Exception {
@@ -109,7 +83,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       Iterator<PagedReference> iterEmpty = cursor.iterator();
 
-      int numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
+      long numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
 
       System.out.println("NumberOfPages = " + numberOfPages);
 
@@ -119,7 +93,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
       int key = 0;
       while ((msg = iterator.next()) != null) {
          assertEquals(key++, msg.getMessage().getIntProperty("key").intValue());
-         cursor.confirmPosition(msg.getPosition());
+         cursor.confirmPosition(msg.getPagedMessage().newPositionObject());
       }
       assertEquals(NUM_MESSAGES, key);
 
@@ -203,7 +177,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       });
 
-      int numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
+      long numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
 
       System.out.println("NumberOfPages = " + numberOfPages);
 
@@ -221,7 +195,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
          assertEquals(key, msg.getMessage().getIntProperty("key").intValue());
          assertTrue(msg.getMessage().getBooleanProperty("even").booleanValue());
          key += 2;
-         cursorEven.confirmPosition(msg.getPosition());
+         cursorEven.confirmPosition(msg.getPagedMessage().newPositionObject());
       }
       assertEquals(NUM_MESSAGES, key);
 
@@ -230,7 +204,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
          assertEquals(key, msg.getMessage().getIntProperty("key").intValue());
          assertFalse(msg.getMessage().getBooleanProperty("even").booleanValue());
          key += 2;
-         cursorOdd.confirmPosition(msg.getPosition());
+         cursorOdd.confirmPosition(msg.getPagedMessage().newPositionObject());
       }
       assertEquals(NUM_MESSAGES + 1, key);
 
@@ -246,27 +220,11 @@ public class PageCursorStressTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testReadNextPage() throws Exception {
-
-      final int NUM_MESSAGES = 1;
-
-      int numberOfPages = addMessages(NUM_MESSAGES, 1024);
-
-      System.out.println("NumberOfPages = " + numberOfPages);
-
-      PageCursorProvider cursorProvider = lookupCursorProvider();
-
-      PageCache cache = cursorProvider.getPageCache(2);
-
-      assertNull(cache);
-   }
-
-   @Test
    public void testRestartWithHoleOnAck() throws Exception {
 
       final int NUM_MESSAGES = 1000;
 
-      int numberOfPages = addMessages(NUM_MESSAGES, 10 * 1024);
+      long numberOfPages = addMessages(NUM_MESSAGES, 10 * 1024);
 
       System.out.println("Number of pages = " + numberOfPages);
 
@@ -319,7 +277,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
    public void testRestartWithHoleOnAckAndTransaction() throws Exception {
       final int NUM_MESSAGES = 1000;
 
-      int numberOfPages = addMessages(NUM_MESSAGES, 10 * 1024);
+      long numberOfPages = addMessages(NUM_MESSAGES, 10 * 1024);
 
       System.out.println("Number of pages = " + numberOfPages);
 
@@ -696,7 +654,7 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
       final int NUM_MESSAGES = 10;
 
-      int numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
+      long numberOfPages = addMessages(NUM_MESSAGES, 1024 * 1024);
 
       System.out.println("NumberOfPages = " + numberOfPages);
 
@@ -752,11 +710,11 @@ public class PageCursorStressTest extends ActiveMQTestBase {
 
    }
 
-   private int addMessages(final int numMessages, final int messageSize) throws Exception {
+   private long addMessages(final int numMessages, final int messageSize) throws Exception {
       return addMessages(0, numMessages, messageSize);
    }
 
-   private int addMessages(final int start, final int numMessages, final int messageSize) throws Exception {
+   private long addMessages(final int start, final int numMessages, final int messageSize) throws Exception {
       PagingStoreImpl pageStore = lookupPageStore(ADDRESS);
 
       pageStore.startPaging();

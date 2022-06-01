@@ -388,7 +388,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public void pageClosed(final SimpleString storeName, final int pageNumber) {
+   public void pageClosed(final SimpleString storeName, final long pageNumber) {
       if (isReplicated()) {
          try (ArtemisCloseable lock = closeableReadLock()) {
             if (isReplicated())
@@ -398,7 +398,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public void pageDeleted(final SimpleString storeName, final int pageNumber) {
+   public void pageDeleted(final SimpleString storeName, final long pageNumber) {
       if (isReplicated()) {
          try (ArtemisCloseable lock = closeableReadLock()) {
             if (isReplicated())
@@ -408,7 +408,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    }
 
    @Override
-   public void pageWrite(final PagedMessage message, final int pageNumber) {
+   public void pageWrite(final PagedMessage message, final long pageNumber) {
       if (messageJournal.isHistory()) {
          try (ArtemisCloseable lock = closeableReadLock()) {
 

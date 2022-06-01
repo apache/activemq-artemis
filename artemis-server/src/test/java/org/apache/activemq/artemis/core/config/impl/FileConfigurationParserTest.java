@@ -369,6 +369,20 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       Assert.assertEquals(123, settings.getMaxSizeMessages());
    }
 
+
+   @Test
+   public void testParseMaxReadAddressSettings() throws Exception {
+      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-read-page-bytes>1k</max-read-page-bytes><max-read-page-messages>33</max-read-page-messages>.\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration configuration = parser.parseMainConfig(input);
+      AddressSettings settings = configuration.getAddressSettings().get("foo");
+      Assert.assertEquals(1024, settings.getMaxReadPageBytes());
+      Assert.assertEquals(33, settings.getMaxReadPageMessages());
+   }
+
    // you should not use K, M notations on address settings max-size-messages
    @Test
    public void testExpectedErrorOverMaxMessageNotation() throws Exception {

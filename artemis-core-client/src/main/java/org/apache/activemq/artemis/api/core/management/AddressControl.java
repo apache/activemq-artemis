@@ -98,7 +98,7 @@ public interface AddressControl {
     * Returns the number of pages used by this address.
     */
    @Attribute(desc = NUMBER_OF_PAGES_DESCRIPTION)
-   int getNumberOfPages();
+   long getNumberOfPages();
 
    /**
     * Returns whether this address is paging.

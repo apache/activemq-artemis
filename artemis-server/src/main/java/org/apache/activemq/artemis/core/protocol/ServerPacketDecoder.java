@@ -194,11 +194,11 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
             break;
          }
          case REPLICATION_PAGE_WRITE: {
-            packet = new ReplicationPageWriteMessage();
+            packet = new ReplicationPageWriteMessage(connection.isVersionUsingLongOnPageReplication());
             break;
          }
          case REPLICATION_PAGE_EVENT: {
-            packet = new ReplicationPageEventMessage();
+            packet = new ReplicationPageEventMessage(connection.isVersionUsingLongOnPageReplication());
             break;
          }
          case REPLICATION_LARGE_MESSAGE_BEGIN: {

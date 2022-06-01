@@ -62,7 +62,7 @@ public final class SharedNothingBackupActivation extends Activation implements R
    //this is how we act when we start as a backup
    private ReplicaPolicy replicaPolicy;
 
-   //this is the endpoint where we replicate too
+   //this is the endpoint where we replicate to
    private ReplicationEndpoint replicationEndpoint;
 
    private final ActiveMQServerImpl activeMQServer;

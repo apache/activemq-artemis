@@ -379,15 +379,15 @@ public class NullStorageManager implements StorageManager {
    }
 
    @Override
-   public void pageClosed(final SimpleString storeName, final int pageNumber) {
+   public void pageClosed(final SimpleString storeName, final long pageNumber) {
    }
 
    @Override
-   public void pageDeleted(final SimpleString storeName, final int pageNumber) {
+   public void pageDeleted(final SimpleString storeName, final long pageNumber) {
    }
 
    @Override
-   public void pageWrite(final PagedMessage message, final int pageNumber) {
+   public void pageWrite(final PagedMessage message, final long pageNumber) {
    }
 
    @Override

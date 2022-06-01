@@ -220,7 +220,6 @@ Name | Description | Default
 [max-size-bytes](paging.md)| Max size a queue can be before invoking `address-full-policy` | -1
 [max-size-bytes-reject-threshold]() | Used with `BLOCK`, the max size an address can reach before messages are rejected; works in combination with `max-size-bytes` **for AMQP clients only**. | -1
 [page-size-bytes](paging.md) | Size of each file on page | 10485760
-[page-max-cache-size](paging.md) | Maximum number of files cached from paging | 5
 [address-full-policy](address-model.md)| What to do when a queue reaches `max-size-bytes` | `PAGE`
 [message-counter-history-day-limit](address-model.md) | Days to keep message counter data | 0
 [last-value-queue](last-value-queues.md) | **deprecated** Queue is a last value queue; see `default-last-value-queue` instead | `false`

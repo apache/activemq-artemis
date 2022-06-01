@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.CoreLargeServerMessage;
 
 class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServerMessage {
 
+   StorageManager storageManager;
    NullStorageLargeServerMessage() {
       super();
    }
@@ -48,7 +49,7 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
 
    @Override
    public StorageManager getStorageManager() {
-      return null;
+      return storageManager;
    }
 
    @Override
@@ -73,7 +74,7 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
 
    @Override
    public void setStorageManager(StorageManager storageManager) {
-
+      this.storageManager = storageManager;
    }
 
    @Override

@@ -14,24 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.artemis.core.paging.PagedMessage;
-import org.apache.activemq.artemis.utils.SoftValueLongObjectHashMap;
-
-public interface PageCache extends SoftValueLongObjectHashMap.ValueCache, AutoCloseable {
-
-   long getPageId();
-
-   int getNumberOfMessages();
-
-   /**
-    * @param pagePosition page position
-    * @return
-    */
-   PagedMessage getMessage(PagePosition pagePosition);
-
-   @Override
-   void close();
-
+if (theMainServer != null) {
+    theMainServer.stop();
 }

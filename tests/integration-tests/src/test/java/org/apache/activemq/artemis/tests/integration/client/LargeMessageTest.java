@@ -2715,10 +2715,6 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.commit();
 
       if (isPage) {
-         server.getPagingManager().getPageStore(ADDRESS).getCursorProvider().clearCache();
-      }
-
-      if (isPage) {
          Assert.assertEquals(0, server.getPagingManager().getPageStore(ADDRESS).getAddressSize());
          Assert.assertEquals(0, server.getPagingManager().getGlobalSize());
       } else {

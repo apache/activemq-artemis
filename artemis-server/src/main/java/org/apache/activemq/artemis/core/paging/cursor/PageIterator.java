@@ -21,8 +21,12 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
 public interface PageIterator extends LinkedListIterator<PagedReference> {
 
-   void redeliver(PagePosition reference);
+   enum NextResult {
+      noElements,
+      hasElements,
+      retry
+   }
+   void redeliver(PagedReference reference);
 
-   // return 0 if no elements, 1 if having more elements, 2 if taking too long to find
-   int tryNext();
+   NextResult tryNext();
 }

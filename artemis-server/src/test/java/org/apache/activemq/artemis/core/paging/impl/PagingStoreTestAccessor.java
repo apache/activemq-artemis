@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.core.paging.impl;
 
+import java.util.function.Consumer;
+
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 
@@ -24,4 +26,15 @@ public class PagingStoreTestAccessor {
    public static SequentialFileFactory getFileFactory(PagingStore store) throws Exception {
       return ((PagingStoreImpl) store).getFileFactory();
    }
+
+   public static int getUsedPagesSize(PagingStore store) {
+      return ((PagingStoreImpl)store).getUsedPagesSize();
+   }
+
+   public static void forEachUsedPage(PagingStore store, Consumer<Page> consumer) {
+      PagingStoreImpl impl = (PagingStoreImpl) store;
+      impl.forEachUsedPage(consumer);
+   }
+
+
 }

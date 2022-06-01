@@ -614,7 +614,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 222037, value = "IO Error, impossible to start paging", format = Message.Format.MESSAGE_FORMAT)
    void pageStoreStartIOError(@Cause Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 222038, value = "Starting paging on address ''{0}''; {1}", format = Message.Format.MESSAGE_FORMAT)
    void pageStoreStart(SimpleString storeName, String sizeInfo);
 
@@ -1690,7 +1690,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222288, value = "Page {0}, message {1} could not be found on offset {2}, with starting message {3}. This represents a logic error or inconsistency on the data, and the system will try once again from the beggining of the page file.",
       format = Message.Format.MESSAGE_FORMAT)
-   void pageLookupError(int pageNr, int messageNr, int offset, int startNr);
+   void pageLookupError(long pageNr, int messageNr, int offset, int startNr);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222289, value = "Did not route to any matching bindings on dead-letter-address {0} and auto-create-dead-letter-resources is true; dropping message: {1}",
@@ -2184,7 +2184,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224107, value = "The Critical Analyzer detected slow paths on the broker.  It is recommended that you enable trace logs on org.apache.activemq.artemis.utils.critical while you troubleshoot this issue. You should disable the trace logs when you have finished troubleshooting.", format = Message.Format.MESSAGE_FORMAT)
    void enableTraceForCriticalAnalyzer();
 
-   @LogMessage(level = Logger.Level.WARN)
+   @LogMessage(level = Logger.Level.INFO)
    @Message(id = 224108, value = "Stopped paging on address ''{0}''; {1}", format = Message.Format.MESSAGE_FORMAT)
    void pageStoreStop(SimpleString storeName, String pageInfo);
 
@@ -2219,5 +2219,10 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 224116, value = "The component {0} is not responsive during start up. The Server may be taking too long to start", format = Message.Format.MESSAGE_FORMAT)
    void tooLongToStart(Object component);
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 224117, value = "\"page-max-cache-size\" being used on broker.xml. This configuration attribute is no longer used and it will be ignored.", format = Message.Format.MESSAGE_FORMAT)
+   void pageMaxSizeUsed();
+
 
 }

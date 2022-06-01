@@ -218,6 +218,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME = "address-full-policy";
 
+   private static final String MAX_READ_PAGE_BYTES_NODE_NAME = "max-read-page-bytes";
+
+   private static final String MAX_READ_PAGE_MESSAGES_NODE_NAME = "max-read-page-messages";
+
    private static final String PAGE_SIZE_BYTES_NODE_NAME = "page-size-bytes";
 
    private static final String PAGE_MAX_CACHE_SIZE_NODE_NAME = "page-max-cache-size";
@@ -329,6 +333,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String SUPPRESS_SESSION_NOTIFICATIONS = "suppress-session-notifications";
 
    private boolean validateAIO = false;
+
+   private boolean printPageMaxSizeUsed = false;
 
    /**
     * @return the validateAIO
@@ -1261,7 +1267,19 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             long pageSizeLong = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
             Validators.POSITIVE_INT.validate(PAGE_SIZE_BYTES_NODE_NAME, pageSizeLong);
             addressSettings.setPageSizeBytes((int) pageSizeLong);
+         }  else if (MAX_READ_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            long maxReadPageMessages = Long.parseLong(getTrimmedTextContent(child));
+            Validators.POSITIVE_INT.validate(MAX_READ_PAGE_MESSAGES_NODE_NAME, maxReadPageMessages);
+            addressSettings.setMaxReadPageMessages((int)maxReadPageMessages);
+         }  else if (MAX_READ_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+            long maxReadPageBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
+            Validators.POSITIVE_INT.validate(MAX_READ_PAGE_BYTES_NODE_NAME, maxReadPageBytes);
+            addressSettings.setMaxReadPageBytes((int)maxReadPageBytes);
          } else if (PAGE_MAX_CACHE_SIZE_NODE_NAME.equalsIgnoreCase(name)) {
+            if (!printPageMaxSizeUsed) {
+               printPageMaxSizeUsed = true;
+               ActiveMQServerLogger.LOGGER.pageMaxSizeUsed();
+            }
             addressSettings.setPageCacheMaxSize(XMLUtil.parseInt(child));
          } else if (MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMessageCounterHistoryDayLimit(XMLUtil.parseInt(child));

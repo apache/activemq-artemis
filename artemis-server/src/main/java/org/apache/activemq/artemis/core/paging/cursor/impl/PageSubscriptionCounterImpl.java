@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
@@ -58,8 +57,6 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private final StorageManager storage;
 
-   private final Executor executor;
-
    private final AtomicLong value = new AtomicLong(0);
    private final AtomicLong persistentSize = new AtomicLong(0);
 
@@ -79,20 +76,11 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private LinkedList<PendingCounter> loadList;
 
-   private final Runnable cleanupCheck = new Runnable() {
-      @Override
-      public void run() {
-         cleanup();
-      }
-   };
-
    public PageSubscriptionCounterImpl(final StorageManager storage,
                                       final PageSubscription subscription,
-                                      final Executor executor,
                                       final boolean persistent,
                                       final long subscriptionID) {
       this.subscriptionID = subscriptionID;
-      this.executor = executor;
       this.storage = storage;
       this.persistent = persistent;
       this.subscription = subscription;
@@ -130,6 +118,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       if (!persistent) {
          return; // nothing to be done
       }
+
+      assert page != null;
 
       PendingCounter pendingInfo = pendingCounters.get((long) page.getPageId());
       if (pendingInfo == null) {
@@ -238,7 +228,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    public synchronized void incrementProcessed(long id, int add, long size) {
       addInc(id, add, size);
       if (incrementRecords.size() > FLUSH_COUNTER) {
-         executor.execute(cleanupCheck);
+         this.subscription.getPagingStore().execute(this::cleanup);
       }
 
    }

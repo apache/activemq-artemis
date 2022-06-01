@@ -20,7 +20,7 @@ import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 
 public class PagePositionImpl implements PagePosition {
 
-   private long pageNr;
+   private final long pageNr;
 
    /**
     * The index of the message on the page file.
@@ -29,9 +29,7 @@ public class PagePositionImpl implements PagePosition {
     * for instance when a cursor is storing the next message to be received
     * or when a page is marked as fully complete (as the ACKs are removed)
     */
-   private int messageNr;
-
-   private int fileOffset = -1;
+   private final int messageNr;
 
    /**
     * ID used for storage
@@ -44,25 +42,11 @@ public class PagePositionImpl implements PagePosition {
     */
    private long persistentSize;
 
-   /**
-    * @param pageNr
-    * @param messageNr
-    * @param fileOffset
-    */
-   public PagePositionImpl(long pageNr, int messageNr, int fileOffset) {
-      this();
+   public PagePositionImpl(long pageNr, int messageNr) {
       this.pageNr = pageNr;
       this.messageNr = messageNr;
-      this.fileOffset = fileOffset;
    }
 
-   public PagePositionImpl(long pageNr, int messageNr) {
-      this(pageNr, messageNr, -1);
-   }
-
-   public PagePositionImpl() {
-      super();
-   }
 
    /**
     * @return the recordID
@@ -96,11 +80,6 @@ public class PagePositionImpl implements PagePosition {
       return messageNr;
    }
 
-   @Override
-   public int getFileOffset() {
-      return fileOffset;
-   }
-
    /**
     * @return the persistentSize
     */
@@ -124,11 +103,6 @@ public class PagePositionImpl implements PagePosition {
       } else if (pageNr < o.getPageNr()) {
          return -1;
       } else return Long.compare(recordID, o.getRecordID());
-   }
-
-   @Override
-   public PagePosition nextPage() {
-      return new PagePositionImpl(this.pageNr + 1, 0, 0);
    }
 
    @Override
@@ -158,8 +132,7 @@ public class PagePositionImpl implements PagePosition {
 
    @Override
    public String toString() {
-      return "PagePositionImpl [pageNr=" + pageNr + ", messageNr=" + messageNr + ", recordID=" + recordID +
-         ", fileOffset=" + fileOffset + "]";
+      return "PagePositionImpl [pageNr=" + pageNr + ", messageNr=" + messageNr + ", recordID=" + recordID + "]";
    }
 
 }

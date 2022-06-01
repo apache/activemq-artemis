@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.unit.core.paging.impl;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
@@ -39,6 +38,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.HierarchicalObjectRepository;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       page.open(true);
 
-      List<PagedMessage> msgs = page.read(new NullStorageManager());
+      LinkedList<PagedMessage> msgs = page.read(new NullStorageManager());
 
       page.close(false, false);
 

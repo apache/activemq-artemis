@@ -70,6 +70,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.junit.AfterClass;
@@ -933,4 +934,23 @@ public class FileConfigurationTest extends ConfigurationImplTest {
          return null;
       }
    }
+
+
+   @Test
+   public void testValidateCache() throws Exception {
+
+      AssertionLoggerHandler.startCapture(true);
+      try {
+         FileConfiguration fc = new FileConfiguration();
+         FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
+         deploymentManager.addDeployable(fc);
+         deploymentManager.readConfiguration();
+         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224117"));
+         Assert.assertEquals(1, AssertionLoggerHandler.countText("AMQ224117"));
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
+
+   }
+
 }

@@ -1511,6 +1511,27 @@ public abstract class ActiveMQTestBase extends Assert {
       return server;
    }
 
+   protected ActiveMQServer createServer(final boolean realFiles,
+                                         final Configuration configuration,
+                                         final int pageSize,
+                                         final long maxAddressSize,
+                                         final int maxReadPageMessages,
+                                         final Map<String, AddressSettings> settings) {
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
+
+      if (settings != null) {
+         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
+            server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
+         }
+      }
+
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(maxAddressSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageMessages(1);
+
+      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+
+      return server;
+   }
+
    protected final ActiveMQServer createServer(final boolean realFiles,
                                                final Configuration configuration,
                                                final int pageSize,

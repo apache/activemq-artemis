@@ -27,7 +27,6 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PageIterator;
-import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagedMessageImpl;
@@ -63,7 +62,7 @@ public class QueueImplTest {
          when(pageIterator).hasNext();
       Mockito.doAnswer(invocationOnMock -> {
          pageIteratorIndex.incrementAndGet();
-         return new PagedReferenceImpl(Mockito.mock(PagePosition.class), new PagedMessageImpl(
+         return new PagedReferenceImpl(new PagedMessageImpl(
             Mockito.mock(Message.class), new long[]{0}), pageSubscription);
       }).when(pageIterator).next();
       Mockito.doReturn(pageIterator).when(pageSubscription).iterator();

@@ -25,16 +25,19 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class ReplicationPageWriteMessage extends PacketImpl implements MessagePacketI {
 
-   private int pageNumber;
+   protected long pageNumber;
 
-   private PagedMessage pagedMessage;
+   protected PagedMessage pagedMessage;
 
-   public ReplicationPageWriteMessage() {
+   final boolean useLong;
+
+   public ReplicationPageWriteMessage(final boolean useLong) {
       super(PacketImpl.REPLICATION_PAGE_WRITE);
+      this.useLong = useLong;
    }
 
-   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final int pageNumber) {
-      this();
+   public ReplicationPageWriteMessage(final PagedMessage pagedMessage, final long pageNumber, final boolean useLong) {
+      this(useLong);
       this.pageNumber = pageNumber;
       this.pagedMessage = pagedMessage;
    }
@@ -42,20 +45,35 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
 
    @Override
    public int expectedEncodeSize() {
-      return PACKET_HEADERS_SIZE +
-             DataConstants.SIZE_INT + // buffer.writeInt(pageNumber);
-             pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+      if (useLong) {
+         return PACKET_HEADERS_SIZE + DataConstants.SIZE_LONG + // buffer.writeLong(pageNumber);
+            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+      } else {
+         return PACKET_HEADERS_SIZE + DataConstants.SIZE_INT + // buffer.writeInt(pageNumber);
+            pagedMessage.getEncodeSize(); //  pagedMessage.encode(buffer);
+      }
    }
 
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
-      buffer.writeInt(pageNumber);
+      if (useLong) {
+         buffer.writeLong(pageNumber);
+      } else {
+         if (pageNumber > Integer.MAX_VALUE) {
+            throw new IllegalStateException("pageNumber=" + pageNumber + " is too large to be used with older broker version on replication");
+         }
+         buffer.writeInt((int) pageNumber);
+      }
       pagedMessage.encode(buffer);
    }
 
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
-      pageNumber = buffer.readInt();
+      if (useLong) {
+         pageNumber = buffer.readLong();
+      } else {
+         pageNumber = buffer.readInt();
+      }
       pagedMessage = new PagedMessageImpl(0, null);
       pagedMessage.decode(buffer);
    }
@@ -63,7 +81,7 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
    /**
     * @return the pageNumber
     */
-   public int getPageNumber() {
+   public long getPageNumber() {
       return pageNumber;
    }
 
@@ -78,7 +96,7 @@ public class ReplicationPageWriteMessage extends PacketImpl implements MessagePa
    public int hashCode() {
       final int prime = 31;
       int result = super.hashCode();
-      result = prime * result + pageNumber;
+      result = prime * result + (int)pageNumber;
       result = prime * result + ((pagedMessage == null) ? 0 : pagedMessage.hashCode());
       return result;
    }
