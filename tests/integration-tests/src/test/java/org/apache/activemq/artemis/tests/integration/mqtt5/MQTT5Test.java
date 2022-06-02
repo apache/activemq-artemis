@@ -208,4 +208,21 @@ public class MQTT5Test extends MQTT5TestSupport {
       scanSessions();
       assertEquals(0, server.locateQueue("DLA").getMessageCount());
    }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testQueueCleanOnRestart() throws Exception {
+      String topic = RandomUtil.randomString();
+      String clientId = RandomUtil.randomString();
+
+      MqttClient client = createPahoClient(clientId);
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .sessionExpiryInterval(999L)
+         .cleanStart(true)
+         .build();
+      client.connect(options);
+      client.subscribe(topic, AT_LEAST_ONCE);
+      server.stop();
+      server.start();
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> getSubscriptionQueue(topic, clientId) != null, 3000, 10);
+   }
 }
