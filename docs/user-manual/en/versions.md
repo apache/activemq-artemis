@@ -8,6 +8,21 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.24.0
+[Full release notes](TBD).
+
+Highlights:
+- TBD
+
+#### Upgrading from older versions
+
+Due to [ARTEMIS-3851](https://issues.apache.org/jira/browse/ARTEMIS-3851) the queue
+created for an MQTT 3.x subscriber using `CleanSession=1` is now **non-durable**
+rather than durable. This may impact `security-settings` for MQTT clients which
+previously only had `createDurableQueue` for their role. They will now need
+`createNonDurableQueue` as well. Again, this only has potential impact for MQTT 3.x
+clients using `CleanSession=1`.
+
 ## 2.23.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12351677).
 

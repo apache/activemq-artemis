@@ -74,6 +74,21 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
    }
 
    @Test
+   public void testQueueCleanOnRestart() throws Exception {
+      String topic = "clean/test";
+      String clientId = "mqtt-client";
+      String queueName = "mqtt-client.clean.test";
+
+      MQTTClientProvider clientProvider = getMQTTClientProvider();
+      clientProvider.setClientId(clientId);
+      initializeConnection(clientProvider);
+      clientProvider.subscribe(topic, AT_LEAST_ONCE);
+      server.stop();
+      server.start();
+      Wait.assertTrue(() -> server.locateQueue(SimpleString.toSimpleString(queueName)) == null, 5000, 10);
+   }
+
+   @Test
    public void testQueueCleanWhenConnectionSynExeConnectAndDisconnect() throws Exception {
       Random random = new Random();
       Set<MQTTClientProvider> clientProviders = new HashSet<>(11);

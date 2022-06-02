@@ -69,7 +69,7 @@ public class PahoMQTTQOS2SecurityTest extends MQTTTestSupport {
       MqttClient consumer = createPahoClient("consumerId");
       MqttClient producer = createPahoClient("producerId");
       MqttConnectOptions conOpt = new MqttConnectOptions();
-      conOpt.setCleanSession(true);
+      conOpt.setCleanSession(false);
       conOpt.setUserName(user1);
       conOpt.setPassword(password1.toCharArray());
       consumer.connect(conOpt);
