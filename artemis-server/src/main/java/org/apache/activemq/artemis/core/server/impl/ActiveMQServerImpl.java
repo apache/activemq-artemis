@@ -1729,7 +1729,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       int sessionCount = 0;
 
       for (Entry<String, ServerSession> sessionEntry : sessions.entrySet()) {
-         if (sessionEntry.getValue().getUsername().equals(username)) {
+         /*
+         This fixes the situation in ActiveMQServerImpl.createSession () ActiveMQServerImpl.checkSessionLimit () is called with 
+         the ServerSessionImpl.validatedUser parameter, but to count the list of sessions, the ActiveMQServerImpl.getSessionCountForUser () 
+         method is called, which already iterates over the sessions, ServerSessionImpl.getUsername () is called. 
+         In the case of certificate authentication via the TextFileCertificateLoginModule, getUsername() is always null for client connections, 
+         while ServerSessionImpl.validatedUser is set to the normal user ID via the call to securityStore.authenticate() at the very beginning of 
+         the ActiveMQServerImpl.createSession() method.
+         */
+         if ((sessionEntry.getValue ().getValidatedUser () != null && sessionEntry.getValue ().getValidatedUser ().equals (username))
+            || (sessionEntry.getValue ().getUsername () != null && sessionEntry.getValue ().getUsername ().equals (username))) {
             sessionCount++;
          }
       }
