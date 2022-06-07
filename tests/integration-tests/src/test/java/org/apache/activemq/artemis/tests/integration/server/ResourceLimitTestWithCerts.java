@@ -16,7 +16,11 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.lang.management.ManagementFactory;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -25,58 +29,80 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.tests.integration.security.SecurityTest;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ResourceLimitTest extends ActiveMQTestBase {
+public class ResourceLimitTestWithCerts extends ActiveMQTestBase {
 
-   private ActiveMQServer server;
-
-   private TransportConfiguration liveTC;
+   static {
+      String path = System.getProperty("java.security.auth.login.config");
+      if (path == null) {
+         URL resource = SecurityTest.class.getClassLoader().getResource("login.config");
+         if (resource != null) {
+            path = resource.getFile();
+            System.setProperty("java.security.auth.login.config", path);
+         }
+      }
+   }
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
 
-      ResourceLimitSettings resourceLimitSettings = new ResourceLimitSettings();
-      resourceLimitSettings.setMatch(SimpleString.toSimpleString("myUser"));
-      resourceLimitSettings.setMaxConnections(1);
-      resourceLimitSettings.setMaxQueues(1);
+      ResourceLimitSettings limit = new ResourceLimitSettings();
+      limit.setMaxConnections(1);
+      limit.setMaxQueues(1);
+      limit.setMatch(new SimpleString("first"));
 
-      Configuration configuration = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addResourceLimitSettings(resourceLimitSettings).setSecurityEnabled(true);
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("CertLogin");
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addResourceLimitSettings(limit), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
 
-      server = addServer(ActiveMQServers.newActiveMQServer(configuration, false));
-      server.start();
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
+      params.put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "client-ca-truststore.jks");
+      params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
-      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-      securityManager.getConfiguration().addUser("myUser", "password");
-      securityManager.getConfiguration().addRole("myUser", "arole");
-      Role role = new Role("arole", false, false, false, false, true, true, false, true, true, true);
+      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+
       Set<Role> roles = new HashSet<>();
-      roles.add(role);
-      server.getSecurityRepository().addMatch("#", roles);
+      roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
+      server.getConfiguration().putSecurityRoles("#", roles);
+
+      server.start();
    }
 
    @Test
    public void testSessionLimitForUser() throws Exception {
-      ServerLocator locator = addServerLocator(createNonHALocator(false));
-      ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
-      ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      ClientSession clientSession = cf.createSession();
 
       try {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
-         ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
+         ClientSession extraClientSession = extraClientSessionFactory.createSession();
          fail("creating a session factory here should fail");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
@@ -84,22 +110,31 @@ public class ResourceLimitTest extends ActiveMQTestBase {
 
       clientSession.close();
 
-      clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
+      clientSession = cf.createSession();
 
       try {
          ClientSessionFactory extraClientSessionFactory = locator.createSessionFactory();
-         ClientSession extraClientSession = extraClientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
+         ClientSession extraClientSession = extraClientSessionFactory.createSession();
          fail("creating a session factory here should fail");
       } catch (Exception e) {
          assertTrue(e instanceof ActiveMQSessionCreationException);
       }
+      clientSession.close();
+      cf.close();
    }
 
    @Test
    public void testQueueLimitForUser() throws Exception {
-      ServerLocator locator = addServerLocator(createNonHALocator(false));
-      ClientSessionFactory clientSessionFactory = locator.createSessionFactory();
-      ClientSession clientSession = clientSessionFactory.createSession("myUser", "password", false, true, true, false, 0);
+      TransportConfiguration tc = new TransportConfiguration(NETTY_CONNECTOR_FACTORY);
+      tc.getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      tc.getParams().put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+      tc.getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      tc.getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      ServerLocator locator = addServerLocator(ActiveMQClient.createServerLocatorWithoutHA(tc));
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      ClientSession clientSession = cf.createSession();
       clientSession.createQueue(new QueueConfiguration("queue").setAddress("address").setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       try {

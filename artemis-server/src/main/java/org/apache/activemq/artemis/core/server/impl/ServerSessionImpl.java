@@ -737,9 +737,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), CheckType.CREATE_ADDRESS, this);
       }
 
-      server.checkQueueCreationLimit(getUsername());
+      server.checkQueueCreationLimit(getValidatedUser());
 
-      Queue queue = server.createQueue(queueConfiguration.setUser(getUsername()));
+      Queue queue = server.createQueue(queueConfiguration.setUser(getValidatedUser()));
 
       if (queueConfiguration.isTemporary()) {
          // Temporary queue in core simply means the queue will be deleted if
@@ -1046,9 +1046,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       securityCheck(queueConfiguration.getAddress(), queueConfiguration.getName(), queueConfiguration.isDurable() ? CheckType.CREATE_DURABLE_QUEUE : CheckType.CREATE_NON_DURABLE_QUEUE, this);
 
-      server.checkQueueCreationLimit(getUsername());
+      server.checkQueueCreationLimit(getValidatedUser());
 
-      server.createSharedQueue(queueConfiguration.setUser(getUsername()));
+      server.createSharedQueue(queueConfiguration.setUser(getValidatedUser()));
    }
 
    @Deprecated
