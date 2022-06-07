@@ -5,8 +5,6 @@ Things to do before issuing a new release:
 * Update docs/user-manual/en/versions.md to include appropriate release notes and upgrade instructions. See previous
   entries for guidance.
 
-* Bump the version numbers in example and test poms to the next release version. e.g. 2.0.0
-
 * Build the release locally: mvn clean install -Prelease
 
 * Test the standalone release (this should be done on windows as well as linux):
