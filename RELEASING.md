@@ -2,12 +2,6 @@
 
 Things to do before issuing a new release:
 
-* Ensure all new Configuration parameters are documented
-
-* Use your IDE to regenerate equals/hashCode for ConfigurationImpl (this is just much safer than trying to inspect the code).
-
-* Ensure all public API classes have a proper Javadoc.
-
 * Update docs/user-manual/en/versions.md to include appropriate release notes and upgrade instructions. See previous
   entries for guidance.
 
