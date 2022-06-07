@@ -49,7 +49,7 @@ public class QueueConsumersImpl<T extends PriorityAware> implements QueueConsume
 
    private final PriorityCollection<T> consumers = new PriorityCollection<>(CopyOnWriteArraySet::new);
    private final Collection<T> unmodifiableConsumers = Collections.unmodifiableCollection(consumers);
-   private UpdatableIterator<T> iterator = new UpdatableIterator<>(consumers.resettableIterator());
+   private final UpdatableIterator<T> iterator = new UpdatableIterator<>(consumers.resettableIterator());
 
    //-- START :: ResettableIterator Methods
    // As any iterator, these are not thread-safe and should ONLY be called by a single thread at a time.

@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.junit.Test;
 
 public class JMSLVQTest extends JMSClientTestSupport {
@@ -176,6 +177,37 @@ public class JMSLVQTest extends JMSClientTestSupport {
          message2.setStringProperty(lastValueKey, "KEY");
          message2.setText("how are you");
          p.send(queue1, message2);
+      }
+   }
+
+   @Test
+   public void testNonDestructiveWithSelector() throws Exception {
+      final String MY_QUEUE = RandomUtil.randomString();
+      final boolean NON_DESTRUCTIVE = true;
+      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST).setNonDestructive(NON_DESTRUCTIVE).setLastValue(true));
+
+      ConnectionSupplier connectionSupplier = CoreConnection;
+
+      Connection consumerConnection1 = connectionSupplier.createConnection();
+      Session consumerSession1 = consumerConnection1.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Queue myQueue = consumerSession1.createQueue(MY_QUEUE);
+      MessageConsumer consumer1 = consumerSession1.createConsumer(myQueue);
+      consumerConnection1.start();
+
+      Connection consumerConnection2 = connectionSupplier.createConnection();
+      Session consumerSession2 = consumerConnection2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      myQueue = consumerSession2.createQueue(MY_QUEUE);
+      MessageConsumer consumer2 = consumerSession2.createConsumer(myQueue, "foo='bar'");
+
+      Connection producerConnection = connectionSupplier.createConnection();
+      Session producerSession = producerConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      MessageProducer p = producerSession.createProducer(myQueue);
+
+      for (int i = 0; i < 1000; i++) {
+         TextMessage m = producerSession.createTextMessage();
+         m.setStringProperty(Message.HDR_LAST_VALUE_NAME.toString(), "abc");
+         p.send(m);
+         assertNotNull(consumer1.receive(500));
       }
    }
 }

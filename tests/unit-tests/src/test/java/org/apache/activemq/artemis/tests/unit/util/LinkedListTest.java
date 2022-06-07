@@ -1033,6 +1033,41 @@ public class LinkedListTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testRemoveLastNudgeNoReplay() {
+      for (int i = 1; i < 3; i++) {
+         doTestRemoveLastNudgeNoReplay(i);
+      }
+   }
+
+   private void doTestRemoveLastNudgeNoReplay(int num) {
+
+      LinkedListIterator<Integer> iter = list.iterator();
+
+      for (int i = 0; i < num; i++) {
+         list.addTail(i);
+      }
+
+      // exhaust iterator
+      for (int i = 0; i < num; i++) {
+         assertTrue(iter.hasNext());
+         assertEquals(i, iter.next().intValue());
+      }
+
+      // remove last
+      LinkedListIterator<Integer> pruneIterator = list.iterator();
+      while (pruneIterator.hasNext()) {
+         int v = pruneIterator.next();
+         if (v == num - 1) {
+            pruneIterator.remove();
+         }
+      }
+
+      // ensure existing iterator does not reset or replay
+      assertFalse(iter.hasNext());
+      assertEquals(num - 1, list.size());
+   }
+
+   @Test
    public void testGCNepotismPoll() {
       final int count = 100;
       final LinkedListImpl<ObservableNode> list = new LinkedListImpl<>();

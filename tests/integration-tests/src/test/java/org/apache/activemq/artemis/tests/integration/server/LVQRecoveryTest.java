@@ -157,7 +157,7 @@ public class LVQRecoveryTest extends ActiveMQTestBase {
       m = consumer.receive(1000);
       Assert.assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      Assert.assertEquals("m6", m.getBodyBuffer().readString());
       m = consumer.receiveImmediate();
       Assert.assertNull(m);
    }

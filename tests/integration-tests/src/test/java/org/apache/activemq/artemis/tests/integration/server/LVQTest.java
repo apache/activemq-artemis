@@ -86,7 +86,7 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m2 = createTextMessage(clientSession, "m2");
       m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m2);
-      assertEquals(1, server.locateQueue(qName1).getMessageCount());
+      Wait.assertEquals(1, () -> server.locateQueue(qName1).getMessageCount());
       clientSession.close();
 
       server.stop();
@@ -100,7 +100,8 @@ public class LVQTest extends ActiveMQTestBase {
       ClientMessage m3 = createTextMessage(clientSession, "m3");
       m3.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
       producer.send(m3);
-      assertEquals(1, server.locateQueue(qName1).getMessageCount());
+      // wait b/c prune takes a deliver attempt which is async
+      Wait.assertEquals(1, () -> server.locateQueue(qName1).getMessageCount());
 
       ClientConsumer consumer = clientSession.createConsumer(qName1);
       clientSession.start();
@@ -293,7 +294,6 @@ public class LVQTest extends ActiveMQTestBase {
    @Test
    public void testMultipleMessagesInTx() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
-      ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       SimpleString messageId1 = new SimpleString("SMID1");
       SimpleString messageId2 = new SimpleString("SMID2");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
@@ -308,6 +308,7 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m2);
       producer.send(m3);
       producer.send(m4);
+      ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
       Assert.assertNotNull(m);
@@ -392,6 +393,7 @@ public class LVQTest extends ActiveMQTestBase {
    public void testMultipleMessagesInTxSend() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
       ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
+      clientSessionTxSends.start();
       SimpleString rh = new SimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -412,11 +414,18 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m5);
       producer.send(m6);
       clientSessionTxSends.commit();
-      clientSessionTxSends.start();
+      for (int i = 1; i < 6; i++) {
+         ClientMessage m = consumer.receive(1000);
+         Assert.assertNotNull(m);
+         m.acknowledge();
+         Assert.assertEquals("m" + i, m.getBodyBuffer().readString());
+      }
+      consumer.close();
+      consumer = clientSessionTxSends.createConsumer(qName1);
       ClientMessage m = consumer.receive(1000);
       Assert.assertNotNull(m);
       m.acknowledge();
-      Assert.assertEquals(m.getBodyBuffer().readString(), "m6");
+      Assert.assertEquals("m6", m.getBodyBuffer().readString());
    }
 
    @Test
@@ -460,7 +469,6 @@ public class LVQTest extends ActiveMQTestBase {
    @Test
    public void testMultipleMessagesPersistedCorrectlyInTx() throws Exception {
       ClientProducer producer = clientSessionTxSends.createProducer(address);
-      ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
       SimpleString rh = new SimpleString("SMID1");
       ClientMessage m1 = createTextMessage(clientSession, "m1");
       m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
@@ -488,6 +496,7 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m6);
       clientSessionTxSends.commit();
       clientSessionTxSends.start();
+      ClientConsumer consumer = clientSessionTxSends.createConsumer(qName1);
       ClientMessage m = consumer.receive(1000);
       Assert.assertNotNull(m);
       m.acknowledge();
@@ -705,7 +714,6 @@ public class LVQTest extends ActiveMQTestBase {
    @Test
    public void testLargeMessage() throws Exception {
       ClientProducer producer = clientSessionTxReceives.createProducer(address);
-      ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       SimpleString rh = new SimpleString("SMID1");
 
       for (int i = 0; i < 50; i++) {
@@ -715,6 +723,7 @@ public class LVQTest extends ActiveMQTestBase {
          producer.send(message);
          clientSession.commit();
       }
+      ClientConsumer consumer = clientSessionTxReceives.createConsumer(qName1);
       clientSessionTxReceives.start();
       ClientMessage m = consumer.receive(1000);
       Assert.assertNotNull(m);
@@ -736,11 +745,11 @@ public class LVQTest extends ActiveMQTestBase {
 
       Queue queue = server.locateQueue(qName1);
       producer.send(m1);
-      long oldSize = queue.getPersistentSize();
+      Wait.assertEquals(123, () -> queue.getPersistentSize());
       producer.send(m2);
+      // encoded size is a little larger than payload
+      Wait.assertTrue(() -> queue.getPersistentSize() > 10 * 1024);
       assertEquals(queue.getDeliveringSize(), 0);
-      assertNotEquals(queue.getPersistentSize(), oldSize);
-      assertTrue(queue.getPersistentSize() > 10 * 1024);
    }
 
    @Test
