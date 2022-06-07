@@ -9,10 +9,12 @@ This chapter provides the following information for each release:
     chapter in addition to any version-specific upgrade instructions outlined here.
 
 ## 2.23.0
-[Full release notes](TBD).
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12351677).
 
 Highlights:
-- New [management operations](web-server.md#management) for the embedded web server.
+- [management operations](web-server.md#management) for the embedded web server.
+- [JakartaEE 10 Support](https://issues.apache.org/jira/browse/ARTEMIS-3700)
+- [BugFix: High cpu usage on ReadWrite locks](https://issues.apache.org/jira/browse/ARTEMIS-3848)
 
 ## 2.22.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12351488).
