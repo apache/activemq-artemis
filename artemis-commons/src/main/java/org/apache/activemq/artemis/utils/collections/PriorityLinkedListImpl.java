@@ -30,7 +30,7 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
 
    private static final AtomicIntegerFieldUpdater<PriorityLinkedListImpl> SIZE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(PriorityLinkedListImpl.class, "size");
 
-   protected LinkedListImpl<E>[] levels;
+   protected final LinkedListImpl<E>[] levels;
 
    private volatile int size;
 

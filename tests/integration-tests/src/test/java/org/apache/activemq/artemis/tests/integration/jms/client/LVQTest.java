@@ -87,9 +87,9 @@ public class LVQTest extends JMSTestBase {
          assertNotNull(tm);
          assertEquals("Message 2", tm.getText());
 
-         // It is important to query here
-         // as we shouldn't rely on addHead after the consumer is closed
          org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue("random");
+         // one message on the queue and one in delivery - the same message if it's an LVQ
+         // LVQ getMessageCount will discount!
          Wait.assertEquals(1, serverQueue::getMessageCount);
       }
 

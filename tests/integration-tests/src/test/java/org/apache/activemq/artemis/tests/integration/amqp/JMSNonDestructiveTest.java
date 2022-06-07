@@ -620,6 +620,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
 
       HashMap<String, Integer> dups = new HashMap<>();
       List<Producer> producers = new ArrayList<>();
+      int receivedTally = 0;
 
       try (Connection connection = connectionSupplier.createConnection()) {
          Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
@@ -641,6 +642,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
             if (tm == null) {
                break;
             }
+            receivedTally++;
             results.get(tm.getStringProperty("lastval")).add(tm.getText());
             tm.acknowledge();
          }
@@ -669,6 +671,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          Assert.fail("Duplicate messages received " + sb);
       }
 
+      Assert.assertEquals("Got all messages produced", MESSAGE_COUNT_PER_GROUP * GROUP_COUNT * PRODUCER_COUNT, receivedTally);
       Wait.assertEquals((long) GROUP_COUNT, () -> server.locateQueue(NON_DESTRUCTIVE_LVQ_QUEUE_NAME).getMessageCount(), 2000, 100, false);
    }
 
