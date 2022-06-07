@@ -1764,7 +1764,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       int sessionCount = 0;
 
       for (Entry<String, ServerSession> sessionEntry : sessions.entrySet()) {
-         if (sessionEntry.getValue().getUsername().equals(username)) {
+         if ((sessionEntry.getValue().getValidatedUser() != null && sessionEntry.getValue().getValidatedUser().equals(username)) || (sessionEntry.getValue().getUsername() != null && sessionEntry.getValue().getUsername().equals(username))) {
             sessionCount++;
          }
       }
