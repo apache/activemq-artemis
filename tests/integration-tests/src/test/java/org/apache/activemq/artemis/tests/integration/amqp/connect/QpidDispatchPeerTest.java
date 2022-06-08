@@ -85,7 +85,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
    }
 
    public void pauseThenKill(int timeToWait) throws Exception {
-      int pid = qpidProcess.pid();
+      long pid = qpidProcess.pid();
       int result = ExecuteUtil.runCommand(true, "kill", "-STOP", Long.toString(pid));
       Assert.assertEquals(0, result);
       logger.info("\n*******************************************************************************************************************************\n" +

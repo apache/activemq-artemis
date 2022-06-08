@@ -134,8 +134,8 @@ public class AMQPBridgeDisconnectTest extends AmqpClientTestSupport {
             return this.server.getRemotingService().getConnections().size();
          });
          if (pause) {
-            int pid = ExecuteUtil.getPID(process);
-            ExecuteUtil.runCommand(true, new String[]{"kill", "-STOP", Integer.toString(pid)});
+            long pid = process.pid();
+            ExecuteUtil.runCommand(true, new String[]{"kill", "-STOP", Long.toString(pid)});
          } else {
             process.destroy();
          }

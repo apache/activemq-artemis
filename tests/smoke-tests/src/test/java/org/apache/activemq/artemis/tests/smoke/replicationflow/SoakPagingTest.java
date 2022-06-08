@@ -227,7 +227,7 @@ public class SoakPagingTest extends SmokeTestBase {
          System.out.println("*******************************************************************************************************************************");
          System.out.println("SERVER 0 jstack");
          System.out.println("*******************************************************************************************************************************");
-         ExecuteUtil.runCommand(true, 1, TimeUnit.MINUTES, "jstack", "" + ExecuteUtil.getPID(server0));
+         ExecuteUtil.runCommand(true, 1, TimeUnit.MINUTES, "jstack", "" + server0.pid());
       } catch (Throwable e) {
          log.warn("Error executing jstack on Server 0", e);
       }
@@ -235,7 +235,7 @@ public class SoakPagingTest extends SmokeTestBase {
          System.out.println("*******************************************************************************************************************************");
          System.out.println("SERVER 1 jstack");
          System.out.println("*******************************************************************************************************************************");
-         ExecuteUtil.runCommand(true, 1, TimeUnit.MINUTES, "jstack", "" + ExecuteUtil.getPID(server1));
+         ExecuteUtil.runCommand(true, 1, TimeUnit.MINUTES, "jstack", "" + server1.pid());
       } catch (Throwable e) {
          log.warn("Error executing jstack on Server 1", e);
       }
