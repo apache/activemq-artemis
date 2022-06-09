@@ -562,7 +562,6 @@
             <configuration>
                <skipTests>${skipIntegrationTests}</skipTests>
                <excludes>
-                  <exclude>**/ReplicatedJMSFailoverTest.java</exclude>
                   <exclude>org.apache.activemq/tests/util/*.java</exclude>
                </excludes>
                <argLine>-Djgroups.bind_addr=::1 ${activemq-surefire-argline} ${its-surefire-extra-args} -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.lang,javax.security,java.util,org.apache.activemq,org.fusesource.hawtbuf"</argLine>
