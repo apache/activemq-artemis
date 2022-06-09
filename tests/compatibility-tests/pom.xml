@@ -175,11 +175,6 @@
          </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.apache.groovy</groupId>
-         <artifactId>groovy-testng</artifactId>
-         <version>${groovy.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-junit</artifactId>
          <version>${project.version}</version>
