@@ -610,6 +610,21 @@
          <properties>
             <its-surefire-extra-args>--add-exports java.security.jgss/sun.security.krb5=ALL-UNNAMED</its-surefire-extra-args>
          </properties>
+         <build>
+            <pluginManagement>
+               <plugins>
+                  <plugin>
+                     <groupId>org.apache.maven.plugins</groupId>
+                     <artifactId>maven-surefire-plugin</artifactId>
+                     <configuration>
+                        <excludes>
+                           <exclude>**/integration/karaf/ArtemisFeatureTest.java</exclude>
+                        </excludes>
+                     </configuration>
+                  </plugin>
+               </plugins>
+            </pluginManagement>
+         </build>
       </profile>
    </profiles>
 </project>
