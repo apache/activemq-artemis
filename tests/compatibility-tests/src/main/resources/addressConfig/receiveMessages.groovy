@@ -23,7 +23,7 @@ import javax.jms.*
  */
 
 
-ConnectionFactory cf = new ActiveMQConnectionFactory();
+ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory();
 Connection connection = cf.createConnection();
 Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 Queue queue = session.createQueue("myQueue");
@@ -38,6 +38,8 @@ for (int i = 0; i < 500; i++) {
     }
 }
 session.commit();
+connection.close();
+cf.close();
 
 // Defined on AddressConfigTest.java at the test with setVariable
 latch.countDown();

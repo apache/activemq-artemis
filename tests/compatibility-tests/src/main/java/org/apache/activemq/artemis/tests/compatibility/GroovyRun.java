@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
@@ -45,8 +47,9 @@ public class GroovyRun {
    public static GroovyShell shell = new GroovyShell(binding);
 
    public static void clear() {
-      binding = new Binding();
-      shell = new GroovyShell(binding);
+      List<String> variablesToRemove = new ArrayList<>();
+      variablesToRemove.addAll(binding.getVariables().keySet());
+      variablesToRemove.forEach(v -> binding.removeVariable(v));
    }
 
    /**

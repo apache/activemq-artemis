@@ -21,9 +21,11 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.AfterClass;
+import org.jboss.logging.Logger;
 
 public abstract class VersionedBase extends ClasspathBase {
+
+   private static final Logger logger = Logger.getLogger(VersionedBase.class);
 
    protected final String server;
    protected final String sender;
@@ -46,11 +48,6 @@ public abstract class VersionedBase extends ClasspathBase {
       clearGroovy(senderClassloader);
       clearGroovy(receiverClassloader);
       clearGroovy(serverClassloader);
-   }
-
-   @AfterClass
-   public static void cleanup() {
-      loaderMap.clear();
    }
 
    protected static List<Object[]> combinatory(Object[] rootSide, Object[] sideLeft, Object[] sideRight) {
