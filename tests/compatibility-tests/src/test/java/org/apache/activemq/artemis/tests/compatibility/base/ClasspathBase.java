@@ -20,13 +20,14 @@ package org.apache.activemq.artemis.tests.compatibility.base;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
+import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.jboss.logging.Logger;
+import org.junit.AfterClass;
 import org.junit.Assume;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -41,8 +42,9 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
 
 public class ClasspathBase {
 
+   private static final Logger logger = Logger.getLogger(ClasspathBase.class);
 
-   private final Logger instanceLog = Logger.getLogger(this.getClass());
+   private final Logger instanceLog = logger;
 
    @Rule
    public TestRule watcher = new TestWatcher() {
@@ -58,15 +60,49 @@ public class ClasspathBase {
       }
    };
 
+   @AfterClass
+   public static void cleanup() {
+      loaderMap.values().forEach((cl -> clearClassLoader(cl)));
+      clearClassLoader(VersionedBase.class.getClassLoader());
+   }
+
+   public static void clearClassLoader(ClassLoader loader) {
+      try {
+         execute(loader, "org.apache.activemq.artemis.api.core.client.ActiveMQClient.clearThreadPools()");
+      } catch (Throwable e) {
+         logger.debug(e.getMessage(), e);
+      }
+
+      try {
+         execute(loader, "org.hornetq.core.client.impl.ServerLocatorImpl.clearThreadPools()");
+      } catch (Throwable e) {
+         logger.debug(e.getMessage(), e);
+      }
+
+      clearGroovy(loader);
+   }
+
+   @ClassRule
+   public static ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
+
 
    @ClassRule
    public static TemporaryFolder serverFolder;
    private static int javaVersion;
 
+   public static final int getJavaVersion() {
+      return javaVersion;
+   }
+
+   // definining server folder
    static {
       File parent = new File("./target/tmp");
       parent.mkdirs();
       serverFolder = new TemporaryFolder(parent);
+   }
+
+   // defining java version
+   static {
       String version = System.getProperty("java.version");
       if (version.startsWith("1.")) {
          version = version.substring(2, 3);
@@ -89,11 +125,9 @@ public class ClasspathBase {
       for (int i = 0; i < classPathArray.length; i++) {
          elements[i] = new File(classPathArray[i]).toPath().toUri().toURL();
       }
-      if (javaVersion > 8) {
-         ClassLoader parent = (ClassLoader) ClassLoader.class.getDeclaredMethod("getPlatformClassLoader").invoke(null);
-         return new URLClassLoader(elements, parent);
-      }
-      return new URLClassLoader(elements, null);
+
+      ClassLoader parent = ClassLoader.getPlatformClassLoader();
+      return new TestClassLoader(elements, parent);
    }
 
    protected static void startServer(File folder,
@@ -118,6 +152,10 @@ public class ClasspathBase {
    }
 
    protected ClassLoader getClasspath(String name, boolean forceNew) throws Exception {
+
+      if (name.equals(GroovyRun.ONE_FIVE) || name.equals(GroovyRun.TWO_ZERO)) {
+         Assume.assumeTrue("This version of artemis cannot be ran against JDK16+", getJavaVersion() < 16);
+      }
 
       if (!forceNew) {
          if (name.equals(SNAPSHOT)) {
@@ -174,13 +212,17 @@ public class ClasspathBase {
       });
    }
 
-   protected static void clearGroovy(ClassLoader loader) throws Exception {
-      tclCall(loader, () -> {
-         Class clazz = loader.loadClass(GroovyRun.class.getName());
-         Method method = clazz.getMethod("clear");
-         method.invoke(null);
-         return null;
-      });
+   protected static void clearGroovy(ClassLoader loader) {
+      try {
+         tclCall(loader, () -> {
+            Class clazz = loader.loadClass(GroovyRun.class.getName());
+            Method method = clazz.getMethod("clear");
+            method.invoke(null);
+            return null;
+         });
+      } catch (Throwable e) {
+         logger.warn(e.getMessage(), e);
+      }
    }
 
    protected static Object setVariable(ClassLoader loader, String name) throws Exception {

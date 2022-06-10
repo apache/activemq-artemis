@@ -74,7 +74,14 @@ public class ReplyToTest extends ServerBase {
    @Override
    public void tearDown() throws Throwable {
       super.tearDown();
+
+      localClassLoaders.forEach(cl -> {
+         clearClassLoader(cl);
+      });
+      localClassLoaders.clear();
    }
+
+   private static final ArrayList<ClassLoader> localClassLoaders = new ArrayList<>();
 
    @Override
    public ClassLoader getClasspath(String name) throws Exception {
@@ -88,6 +95,8 @@ public class ReplyToTest extends ServerBase {
          ClassLoader loader = defineClassLoader(path);
 
          clearGroovy(loader);
+
+         localClassLoaders.add(loader);
 
          return loader;
       } else {
