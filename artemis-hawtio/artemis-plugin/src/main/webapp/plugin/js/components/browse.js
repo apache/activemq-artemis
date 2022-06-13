@@ -244,8 +244,7 @@ var Artemis;
                 {name: "Large", visible: true},
                 {name: "Persistent Size", visible: true},
                 {name: "User ID", visible: true},
-                {name: "Validated User", visible: false},
-                {name: "Original Queue (Expiry/DLQ's only)", visible: true}
+                {name: "Validated User", visible: false}
            ]
         };
 
@@ -344,6 +343,8 @@ var Artemis;
                 }
             };
             ctrl.tableColumns.push(origQueue);
+
+            ctrl.dtOptions.columns.push({name: "Original Queue", visible: true});
         }
 
         var resendConfig = {
