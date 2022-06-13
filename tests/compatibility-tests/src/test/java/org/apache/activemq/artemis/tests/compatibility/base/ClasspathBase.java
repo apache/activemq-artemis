@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
-import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Assume;
@@ -81,9 +80,6 @@ public class ClasspathBase {
 
       clearGroovy(loader);
    }
-
-   @ClassRule
-   public static ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
 
 
    @ClassRule
