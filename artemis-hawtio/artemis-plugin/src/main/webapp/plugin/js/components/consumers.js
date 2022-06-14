@@ -201,10 +201,10 @@ var Artemis;
         };
 
         if (artemisConsumer.consumer) {
-            Artemis.log.debug("navigating to consumer = " + artemisConsumer.consumer.session);
+            Artemis.log.debug("navigating to consumer = " + artemisConsumer.consumer.sessionID);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
-            ctrl.filter.values.value = artemisConsumer.consumer.session;
+            ctrl.filter.values.value = artemisConsumer.consumer.sessionID;
             artemisConsumer.consumer = null;
         }
 
