@@ -8,6 +8,12 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.23.1
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351846&projectId=12315920)
+
+Highlights:
+- [ARTEMIS-3856](https://issues.apache.org/jira/browse/ARTEMIS-3856) - Failed to change channel state to ReadyForWriting : java.util.ConcurrentModificationException
+
 ## 2.23.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12351677).
 
