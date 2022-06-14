@@ -181,10 +181,10 @@ var Artemis;
         };
 
         if (artemisProducer.producer) {
-            Artemis.log.debug("navigating to producer = " + artemisProducer.producer.session);
+            Artemis.log.debug("navigating to producer = " + artemisProducer.producer.sessionID);
             ctrl.filter.values.field = ctrl.filter.fieldOptions[1].id;
             ctrl.filter.values.operation = ctrl.filter.operationOptions[0].id;
-            ctrl.filter.values.value = artemisProducer.producer.session;
+            ctrl.filter.values.value = artemisProducer.producer.sessionID;
             artemisProducer.producer = null;
         }
 
