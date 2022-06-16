@@ -2070,7 +2070,13 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       int retryInterval = getAttributeInteger(e, "retry-interval", 5000, Validators.GT_ZERO);
       int reconnectAttempts = getAttributeInteger(e, "reconnect-attempts", -1, Validators.MINUS_ONE_OR_GT_ZERO);
       String user = getAttributeValue(e, "user");
+      if (user != null && PasswordMaskingUtil.isEncMasked(user)) {
+         user = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), user, mainConfig.getPasswordCodec());
+      }
       String password = getAttributeValue(e, "password");
+      if (password != null && PasswordMaskingUtil.isEncMasked(password)) {
+         password = PasswordMaskingUtil.resolveMask(mainConfig.isMaskPassword(), password, mainConfig.getPasswordCodec());
+      }
       boolean autoStart = getBooleanAttribute(e, "auto-start", true);
 
       getInteger(e, "local-bind-port", -1, Validators.MINUS_ONE_OR_GT_ZERO);
