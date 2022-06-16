@@ -105,6 +105,7 @@ Name | Description | Default
 [bridges](core-bridges.md) | [a list of core bridges](#bridge-type) | n/a
 [ha-policy](ha.md) | the HA policy of this server | none
 [broadcast-groups](clusters.md#broadcast-groups) | [a list of broadcast-group](#broadcast-group-type) | n/a
+[broker-connections](amqp-broker-connections.md) | [a list of amqp-connection](#amqp-connection-type) | n/a
 [broker-plugins](broker-plugins.md) | [a list of broker-plugins](#broker-plugin-type) | n/a
 [configuration-file-refresh-period](config-reload.md) | The frequency in milliseconds the configuration file is checked for changes | 5000
 [check-for-live-server](ha.md#data-replication)| Used for a live server to verify if there are other nodes with the same ID on the topology | n/a
@@ -426,3 +427,15 @@ Name | Description | Default
 [timeout](message-grouping.md#clustered-grouping) | How long to wait for a decision | 5000
 [group-timeout](message-grouping.md#clustered-grouping) | How long a group binding will be used. | -1 (disabled)
 [reaper-period](message-grouping.md#clustered-grouping) | How often the reaper will be run to check for timed out group bindings. Only valid for `LOCAL` handlers. | 30000
+
+
+## amqp-connection type
+
+Name | Description | Default
+---|---|---
+[uri](amqp-broker-connections.md#amqp-server-connections) | AMQP broker connection URI (required) | n/a
+[name](amqp-broker-connections.md#amqp-server-connections) | A unique name | n/a
+[user](amqp-broker-connections.md#amqp-server-connections) | Broker authentication user (optional) | n/a
+[password](amqp-broker-connections.md#amqp-server-connections) | Broker authentication password (optional) | n/a
+[reconnect-attempts](amqp-broker-connections.md#amqp-server-connections) | How many attempts should be made to reconnect after failure. | -1 (infinite)
+[auto-start](amqp-broker-connections.md#amqp-server-connections) | Broker connection starts automatically with broker | true
