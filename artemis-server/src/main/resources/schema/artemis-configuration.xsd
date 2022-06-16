@@ -2117,6 +2117,7 @@
       <xsd:sequence maxOccurs="unbounded">
         <xsd:element name="amqp-connection" type="amqp-connectionUriType"/>
       </xsd:sequence>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="connectionRouterType">
