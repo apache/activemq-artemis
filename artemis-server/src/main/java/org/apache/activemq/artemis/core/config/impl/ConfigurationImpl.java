@@ -1726,6 +1726,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public ConfigurationImpl putSecurityRoles(String match, Set<Role> roles) {
+      securitySettings.put(match, new RoleSet(match, roles));
+      return this;
+   }
+
+   // to provide type information to creation from properties
+   public ConfigurationImpl addSecurityRole(String match, RoleSet roles) {
       securitySettings.put(match, roles);
       return this;
    }
@@ -2813,7 +2819,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
                if (!map.containsKey(key)) {
                   map.put(key, newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key));
                }
-               return map.get(key);
+               Object value = map.get(key);
+               return trackCollectionOrMap(null, value, value);
             } else { // collection
                Object value = findByNameProperty(key, (Collection)bean);
                if (value == null) {
@@ -2821,12 +2828,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   value = newNamedInstanceForCollection(collectionInfo.getA(), collectionInfo.getB(), key);
                   ((Collection) bean).add(value);
                }
-               return value;
+               return trackCollectionOrMap(null, value, value);
             }
          }
 
          Object resolved = getNestedProperty(bean, name);
 
+         return trackCollectionOrMap(name, resolved, bean);
+      }
+
+      private Object trackCollectionOrMap(String name, Object resolved, Object bean) {
          if (resolved instanceof Collection || resolved instanceof Map) {
             collections.push(new Pair<String, Object>(name, bean));
          }
@@ -2907,8 +2918,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
       private Object newNamedInstanceForCollection(String collectionPropertyName, Object hostingBean, String name) {
          // find the add X and init an instance of the type with name=name
 
-         // expect an add... without the plural
-         String addPropertyName = "add" + Character.toUpperCase(collectionPropertyName.charAt(0)) + collectionPropertyName.substring(1, collectionPropertyName.length() - 1);
+         String addPropertyName = "add";
+         // expect an add... without the plural for named accessors
+         if (collectionPropertyName != null && collectionPropertyName.length() > 0) {
+            addPropertyName += Character.toUpperCase(collectionPropertyName.charAt(0)) + collectionPropertyName.substring(1, collectionPropertyName.length() - 1);
+         }
 
          // we don't know the type, infer from add method add(X x) or add(String key, X x)
          final Method[] methods = hostingBean.getClass().getMethods();
