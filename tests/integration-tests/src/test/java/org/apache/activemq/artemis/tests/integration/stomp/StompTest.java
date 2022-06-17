@@ -51,6 +51,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
+import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManager;
 import org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -60,6 +61,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.tests.integration.mqtt.FuseMQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.mqtt.MQTTClientProvider;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -660,6 +662,37 @@ public class StompTest extends StompTestBase {
       Message message = consumer.receive(100);
       Assert.assertNull(message);
 
+   }
+
+   @Test
+   public void testTransactedSessionLeak() throws Exception {
+      for (int i = 0; i < 10; i++) {
+         conn = StompClientConnectionFactory.createClientConnection(uri);
+         conn.connect(defUser, defPass);
+
+
+         for (int s = 0; s < 10; s++) {
+            String txId = "tx" + i + "_" + s;
+            beginTransaction(conn, txId);
+            send(conn, getQueuePrefix() + getQueueName(), null, "Hello World", true, null, txId);
+            commitTransaction(conn, txId, true);
+         }
+
+         Wait.assertEquals(13, () -> server.getSessions().size(), 1000, 100);
+         conn.disconnect();
+      }
+
+      if (connection != null) {
+         connection.close();
+      }
+
+      Wait.assertEquals(0, () -> server.getSessions().size(), 1000, 100);
+
+      Acceptor stompAcceptor = server.getRemotingService().getAcceptors().get("stomp");
+      StompProtocolManager stompProtocolManager = (StompProtocolManager) stompAcceptor.getProtocolHandler().getProtocolMap().get("STOMP");
+      Assert.assertNotNull(stompProtocolManager);
+
+      Assert.assertEquals(0, stompProtocolManager.getTransactedSessions().size());
    }
 
    @Test
