@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.activemq.artemis.tests.compatibility.base.VersionedBase;
 import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,6 +49,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT
 @RunWith(Parameterized.class)
 public class ExportImportTest extends VersionedBase {
    private String serverScriptToUse;
+   private boolean skipTearDownCleanup = false;
 
    // this will ensure that all tests in this class are run twice,
    // once with "true" passed to the class' constructor and once with "false"
@@ -81,6 +83,11 @@ public class ExportImportTest extends VersionedBase {
 
    @After
    public void tearDown() {
+      if (skipTearDownCleanup) {
+         // Skip server teardown when test is no-op, avoids a chunk of stacktrace
+         return;
+      }
+
       try {
          stopServer(serverClassloader);
       } catch (Throwable ignored) {
@@ -100,10 +107,12 @@ public class ExportImportTest extends VersionedBase {
 
    @Test
    public void testSendReceivelegacy() throws Throwable {
-      if (!sender.equals(SNAPSHOT)) {
-         // makes no sense on snapshot
-         internalSendReceive(true);
-      }
+      // makes no sense on snapshot
+      boolean isSenderSnapshot = SNAPSHOT.equals(sender);
+      skipTearDownCleanup = isSenderSnapshot;
+      Assume.assumeFalse("This test only applies to old version senders", isSenderSnapshot);
+
+      internalSendReceive(true);
    }
 
    public void internalSendReceive(boolean legacyPrefixes) throws Throwable {
