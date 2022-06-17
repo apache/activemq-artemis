@@ -2738,7 +2738,7 @@ public class PagingTest extends ActiveMQTestBase {
       for (int msgCount = 0; msgCount < numberOfMessages; msgCount++) {
          log.debug("Received " + msgCount);
          msgReceived++;
-         ClientMessage msg = consumer.receiveImmediate();
+         ClientMessage msg = consumer.receive(5000);
          if (msg == null) {
             log.debug("It's null. leaving now");
             sessionConsumer.commit();
