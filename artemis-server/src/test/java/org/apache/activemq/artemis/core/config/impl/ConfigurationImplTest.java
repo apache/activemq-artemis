@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -28,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.ArtemisConstants;
@@ -39,6 +42,8 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
@@ -757,6 +762,79 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+   }
+
+   @Test
+   public void testRoleSettingsViaProperties() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("securityRoles.TEST.users.send", "true");
+      properties.put("securityRoles.TEST.users.consume", "true");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getSecurityRoles().size());
+      Assert.assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
+      Assert.assertTrue(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isConsume());
+      Assert.assertTrue(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isSend());
+      Assert.assertFalse(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isCreateAddress());
+   }
+
+   @Test
+   public void testRoleAugmentViaProperties() throws Exception {
+
+      final String xmlConfig = "<configuration xmlns=\"urn:activemq\"\n" +
+         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+         "xsi:schemaLocation=\"urn:activemq /schema/artemis-configuration.xsd\">\n" +
+         "<security-settings>" + "\n" +
+         "<security-setting match=\"#\">" + "\n" +
+         "<permission type=\"consume\" roles=\"guest\"/>" + "\n" +
+         "<permission type=\"send\" roles=\"guest\"/>" + "\n" +
+         "</security-setting>" + "\n" +
+         "</security-settings>" + "\n" +
+         "</configuration>";
+
+      FileConfigurationParser parser = new FileConfigurationParser();
+      ByteArrayInputStream input = new ByteArrayInputStream(xmlConfig.getBytes(StandardCharsets.UTF_8));
+
+      ConfigurationImpl configuration = (ConfigurationImpl) parser.parseMainConfig(input);
+      Properties properties = new Properties();
+
+      // new entry
+      properties.put("securityRoles.TEST.users.send", "true");
+      properties.put("securityRoles.TEST.users.consume", "false");
+
+      // modify existing role
+      properties.put("securityRoles.#.guest.consume", "false");
+
+      // modify with new role
+      properties.put("securityRoles.#.users.send", "true");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      // verify new addition
+      Assert.assertEquals(2, configuration.getSecurityRoles().size());
+      Assert.assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
+      Assert.assertFalse(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isConsume());
+      Assert.assertTrue(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isSend());
+
+      // verify augmentation
+      Assert.assertEquals(2, configuration.getSecurityRoles().get("#").size());
+      Set roles = configuration.getSecurityRoles().get("#");
+      class RolePredicate implements Predicate<Role> {
+         final String roleName;
+         RolePredicate(String name) {
+            this.roleName = name;
+         }
+         @Override
+         public boolean test(Role role) {
+            return roleName.equals(role.getName()) && !role.isConsume() && role.isSend() && !role.isCreateAddress();
+         }
+      }
+      Assert.assertEquals(1L, roles.stream().filter(new RolePredicate("guest")).count());
+      Assert.assertEquals(1L, roles.stream().filter(new RolePredicate("users")).count());
    }
 
    @Test
