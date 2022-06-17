@@ -72,6 +72,20 @@ public class StompSession implements SessionCallback {
 
    private volatile boolean noLocal = false;
 
+   private boolean txPending = false;
+
+   public synchronized void begin() {
+      txPending = true;
+   }
+
+   public synchronized boolean isTxPending() {
+      return txPending;
+   }
+
+   public synchronized void end() {
+      txPending = false;
+   }
+
    StompSession(final StompConnection connection, final StompProtocolManager manager, OperationContext sessionContext) {
       this.connection = connection;
       this.manager = manager;

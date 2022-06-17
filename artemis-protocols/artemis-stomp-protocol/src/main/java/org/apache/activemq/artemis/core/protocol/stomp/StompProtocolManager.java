@@ -19,10 +19,9 @@ package org.apache.activemq.artemis.core.protocol.stomp;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 import io.netty.channel.ChannelPipeline;
@@ -63,7 +62,8 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
    private final Executor executor;
 
-   private final Map<Object, StompSession> transactedSessions = new HashMap<>();
+   // connectionID / Map<SessionId, StompSession>
+   private final Map<Object, Map<Object, StompSession>> transactedSessions = new ConcurrentHashMap<>();
 
    // key => connection ID, value => Stomp session
    private final Map<Object, StompSession> sessions = new HashMap<>();
@@ -218,10 +218,29 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
 
    public StompSession getTransactedSession(StompConnection connection, String txID) throws Exception {
-      return internalGetSession(connection, transactedSessions, txID, true);
+      return internalGetSession(connection, getTXMap(connection.getID()), txID, true);
    }
 
+   public Map<Object, Map<Object, StompSession>> getTransactedSessions() {
+      return transactedSessions;
+   }
+
+   private Map<Object, StompSession> getTXMap(Object objectID) {
+      Map<Object, StompSession> sessions = transactedSessions.get(objectID);
+      if (sessions == null) {
+         sessions = new HashMap<>();
+         Map<Object, StompSession> oldValue = transactedSessions.putIfAbsent(objectID, sessions);
+         if (oldValue != null) {
+            sessions = oldValue;
+         }
+      }
+
+      return sessions;
+   }
+
+
    private StompSession internalGetSession(StompConnection connection, Map<Object, StompSession> sessions, Object id, boolean transacted) throws Exception {
+      System.out.println("Looking for sessionID " + id);
       StompSession stompSession = sessions.get(id);
       if (stompSession == null) {
          stompSession = new StompSession(connection, this, server.getStorageManager().newContext(server.getExecutorFactory().getExecutor()));
@@ -253,21 +272,18 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
                }
             }
 
-            // removed the transacted session belonging to the connection
-            Iterator<Entry<Object, StompSession>> iterator = transactedSessions.entrySet().iterator();
-            while (iterator.hasNext()) {
-               Map.Entry<Object, StompSession> entry = iterator.next();
-               if (entry.getValue().getConnection() == connection) {
-                  ServerSession serverSession = entry.getValue().getCoreSession();
-                  try {
-                     serverSession.rollback(true);
-                     serverSession.close(false);
-                  } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
-                  }
-                  iterator.remove();
+            Map<Object, StompSession> sessionMap = getTXMap(connection.getID());
+            sessionMap.values().forEach(ss -> {
+               try {
+                  ss.getCoreSession().rollback(false);
+                  ss.getCoreSession().close(false);
+               } catch (Exception e) {
+                  ActiveMQServerLogger.LOGGER.errorCleaningStompConn(e);
                }
-            }
+            });
+            sessionMap.clear();
+
+            transactedSessions.remove(connection.getID());
          }
       });
    }
@@ -323,20 +339,20 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
    public void commitTransaction(StompConnection connection, String txID) throws Exception {
       StompSession session = getTransactedSession(connection, txID);
-      if (session == null) {
+      if (session == null || !session.isTxPending()) {
          throw new ActiveMQStompException(connection, "No transaction started: " + txID);
       }
-      transactedSessions.remove(txID);
       session.getCoreSession().commit();
+      session.end();
    }
 
    public void abortTransaction(StompConnection connection, String txID) throws Exception {
       StompSession session = getTransactedSession(connection, txID);
-      if (session == null) {
+      if (session == null || !session.isTxPending()) {
          throw new ActiveMQStompException(connection, "No transaction started: " + txID);
       }
-      transactedSessions.remove(txID);
       session.getCoreSession().rollback(false);
+      session.end();
    }
 
    public StompPostReceiptFunction subscribe(StompConnection connection,
@@ -374,12 +390,13 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
    public void beginTransaction(StompConnection connection, String txID) throws Exception {
       ActiveMQServerLogger.LOGGER.debugf("-------------------------------Stomp begin tx: %s", txID);
-      if (transactedSessions.containsKey(txID)) {
+      // create the transacted session
+      StompSession session = getTransactedSession(connection, txID);
+      if (session.isTxPending()) {
          ActiveMQServerLogger.LOGGER.stompErrorTXExists(txID);
          throw new ActiveMQStompException(connection, "Transaction already started: " + txID);
       }
-      // create the transacted session
-      getTransactedSession(connection, txID);
+      session.begin();
    }
 
    public boolean destinationExists(String destination) {
