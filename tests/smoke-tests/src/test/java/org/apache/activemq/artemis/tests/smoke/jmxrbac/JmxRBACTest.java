@@ -26,7 +26,11 @@ import javax.management.remote.JMXServiceURL;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
+import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
@@ -40,11 +44,14 @@ public class JmxRBACTest extends SmokeTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT = 10099;
 
+   public static final String BROKER_NAME = "0.0.0.0";
+
    public static final String SERVER_NAME_0 = "jmx-rbac";
 
    public static final String SERVER_ADMIN = "admin";
    public static final String SERVER_USER = "user";
 
+   public static final String ADDRESS_TEST = "TEST";
 
    @Before
    public void before() throws Exception {
@@ -79,8 +86,7 @@ public class JmxRBACTest extends SmokeTestBase {
       try {
          //Create an user.
          MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
-         String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
-         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
+         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), BROKER_NAME, true);
          ActiveMQServerControl activeMQServerControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
          ObjectName memoryObjectName = new ObjectName("java.lang:type=Memory");
 
@@ -116,8 +122,7 @@ public class JmxRBACTest extends SmokeTestBase {
 
       try {
          MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
-         String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
-         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), brokerName, true);
+         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), BROKER_NAME, true);
          ActiveMQServerControl activeMQServerControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
          ObjectName memoryObjectName = new ObjectName("java.lang:type=Memory");
 
@@ -126,6 +131,75 @@ public class JmxRBACTest extends SmokeTestBase {
          try {
             activeMQServerControl.getVersion();
             Assert.fail(SERVER_USER + " should not access to " + objectNameBuilder.getActiveMQServerObjectName());
+         } catch (Exception e) {
+            Assert.assertEquals(SecurityException.class, e.getClass());
+         }
+      } finally {
+         jmxConnector.close();
+      }
+   }
+
+   @Test
+   public void testSendMessageWithoutUserAndPassword() throws Exception {
+      // Without this, the RMI server would bind to the default interface IP (the user's local IP mostly)
+      System.setProperty("java.rmi.server.hostname", JMX_SERVER_HOSTNAME);
+
+      // I don't specify both ports here manually on purpose. See actual RMI registry connection port extraction below.
+      String urlString = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT + "/jmxrmi";
+
+      JMXServiceURL url = new JMXServiceURL(urlString);
+      JMXConnector jmxConnector;
+
+      try {
+         //Connect using the admin.
+         jmxConnector = JMXConnectorFactory.connect(url, Collections.singletonMap(
+            "jmx.remote.credentials", new String[] {SERVER_ADMIN, SERVER_ADMIN}));
+         System.out.println("Successfully connected to: " + urlString);
+      } catch (Exception e) {
+         jmxConnector = null;
+         e.printStackTrace();
+         Assert.fail(e.getMessage());
+      }
+
+      try {
+         MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), BROKER_NAME, true);
+         ActiveMQServerControl activeMQServerControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
+
+         activeMQServerControl.createAddress(ADDRESS_TEST, RoutingType.MULTICAST.name());
+         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.toSimpleString(ADDRESS_TEST)), AddressControl.class, false);
+
+         testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);
+
+
+         try {
+            activeMQServerControl.removeUser(SERVER_USER);
+         } catch (Exception ignore) {
+         }
+         activeMQServerControl.addUser(SERVER_USER, SERVER_USER, "amq-user", true);
+      } finally {
+         jmxConnector.close();
+      }
+
+      try {
+         //Connect using an user.
+         jmxConnector = JMXConnectorFactory.connect(url, Collections.singletonMap(
+            "jmx.remote.credentials", new String[] {SERVER_USER, SERVER_USER}));
+         System.out.println("Successfully connected to: " + urlString);
+      } catch (Exception e) {
+         jmxConnector = null;
+         e.printStackTrace();
+         Assert.fail(e.getMessage());
+      }
+
+      try {
+         MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+         ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), BROKER_NAME, true);
+         AddressControl testAddressControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getAddressObjectName(SimpleString.toSimpleString("TEST")), AddressControl.class, false);
+
+         try {
+            testAddressControl.sendMessage(null, Message.TEXT_TYPE, ADDRESS_TEST, true, null, null);
+            Assert.fail(SERVER_USER + " should not have permissions to send a message to the address " + ADDRESS_TEST);
          } catch (Exception e) {
             Assert.assertEquals(SecurityException.class, e.getClass());
          }

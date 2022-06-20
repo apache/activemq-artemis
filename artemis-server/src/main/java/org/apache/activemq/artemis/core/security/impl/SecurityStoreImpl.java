@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.security.impl;
 
 import javax.security.auth.Subject;
+import java.security.AccessControlContext;
+import java.security.AccessController;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -26,6 +28,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.core.management.impl.ManagementRemotingConnection;
 import org.apache.activemq.artemis.core.remoting.CertificateUtil;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
@@ -167,6 +170,16 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                userIsValid = true;
                subject = cacheEntry.getB();
                validatedUser = getUserFromSubject(subject);
+            }
+         } else {
+            if (user == null && password == null && connection instanceof ManagementRemotingConnection) {
+               AccessControlContext accessControlContext = AccessController.getContext();
+               if (accessControlContext != null) {
+                  check = false;
+                  userIsValid = true;
+                  subject = Subject.getSubject(accessControlContext);
+                  validatedUser = getUserFromSubject(subject);
+               }
             }
          }
          if (check) {
@@ -382,6 +395,14 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     */
    private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
       Pair<Boolean, Subject> cached = authenticationCache.getIfPresent(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()));
+
+      if (cached == null && auth.getUsername() == null && auth.getPassword() == null && auth.getRemotingConnection() instanceof ManagementRemotingConnection) {
+         AccessControlContext accessControlContext = AccessController.getContext();
+         if (accessControlContext != null) {
+            cached = new Pair<>(true, Subject.getSubject(accessControlContext));
+         }
+      }
+
       /*
        * We don't need to worry about the cached boolean being false as users always have to
        * successfully authenticate before requesting authorization for anything.
