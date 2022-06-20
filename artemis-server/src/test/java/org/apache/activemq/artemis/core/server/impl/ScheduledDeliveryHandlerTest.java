@@ -182,8 +182,8 @@ public class ScheduledDeliveryHandlerTest extends Assert {
    @Test
    public void testScheduleNow() throws Exception {
 
-      ExecutorService executor = Executors.newFixedThreadPool(50, ActiveMQThreadFactory.defaultThreadFactory());
-      ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newFixedThreadPool(50, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       try {
          for (int i = 0; i < 100; i++) {
             // it's better to run the test a few times instead of run millions of messages here

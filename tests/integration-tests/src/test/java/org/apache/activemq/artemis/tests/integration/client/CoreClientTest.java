@@ -69,7 +69,7 @@ public class CoreClientTest extends ActiveMQTestBase {
    @Test
    public void testCoreClientWithInjectedThreadPools() throws Exception {
 
-      ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       ScheduledThreadPoolExecutor scheduledThreadPool = new ScheduledThreadPoolExecutor(10);
 
       ServerLocator locator = createNonHALocator(false);

@@ -130,7 +130,7 @@ public class MessageServiceManager {
          }
       }
       if (threadPool == null)
-         threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+         threadPool = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       timeoutTaskInterval = configuration.getTimeoutTaskInterval();
       timeoutTask = new TimeoutTask(timeoutTaskInterval);
       threadPool.execute(timeoutTask);

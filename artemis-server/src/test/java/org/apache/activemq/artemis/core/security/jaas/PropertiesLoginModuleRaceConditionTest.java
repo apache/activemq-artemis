@@ -118,7 +118,7 @@ public class PropertiesLoginModuleRaceConditionTest {
       options.put("baseDir", temp.getRoot().getAbsolutePath());
 
       errors = new ArrayBlockingQueue<>(processorCount());
-      pool = Executors.newFixedThreadPool(processorCount(), ActiveMQThreadFactory.defaultThreadFactory());
+      pool = Executors.newFixedThreadPool(processorCount(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       callback = new JaasCallbackHandler(USERNAME, PASSWORD, null);
    }
 

@@ -34,7 +34,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCompleteTaskAfterPaging() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
@@ -93,7 +93,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCompleteTaskStoreOnly() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
@@ -181,7 +181,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
    }
 
    private void testCompletionLate(boolean storeOnly) throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       try {
          OperationContextImpl impl = new OperationContextImpl(executor);
          final CountDownLatch latch1 = new CountDownLatch(1);
@@ -250,8 +250,8 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
    @Test
    public void testErrorNotLostOnPageSyncError() throws Exception {
 
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
-      ExecutorService pageSyncTimer = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      ExecutorService pageSyncTimer = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       class PageWriteErrorJob implements Runnable {
          final OperationContextImpl operationContext;
@@ -313,7 +313,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCaptureExceptionOnExecutor() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       executor.shutdown();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -358,7 +358,7 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
 
    @Test
    public void testCaptureExceptionOnFailure() throws Exception {
-      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       final CountDownLatch latch = new CountDownLatch(1);
 

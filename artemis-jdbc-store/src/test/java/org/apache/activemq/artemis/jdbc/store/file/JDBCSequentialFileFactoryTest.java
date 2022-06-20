@@ -83,7 +83,7 @@ public class JDBCSequentialFileFactoryTest {
 
    @Before
    public void setup() throws Exception {
-      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       Map<String, Object> dataSourceProperties = new HashMap<>();
       if (useAuthentication) {
          user = "testuser";

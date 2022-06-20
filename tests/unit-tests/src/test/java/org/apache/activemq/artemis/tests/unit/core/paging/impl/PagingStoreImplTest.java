@@ -1387,7 +1387,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
    }
 
    @Override

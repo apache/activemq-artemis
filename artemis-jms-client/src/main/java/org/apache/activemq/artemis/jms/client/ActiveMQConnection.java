@@ -114,7 +114,7 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
 
    private final FailoverEventListener failoverListener = new FailoverEventListenerImpl(this);
 
-   private final ExecutorService failoverListenerExecutor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
+   private final ExecutorService failoverListenerExecutor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
    private final Version thisVersion;
 

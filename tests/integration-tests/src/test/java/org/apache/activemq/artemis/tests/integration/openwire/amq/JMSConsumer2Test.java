@@ -104,7 +104,7 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
          }
       }
 
-      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       consumer.setMessageListener(new MessageListener() {
          @Override
          public void onMessage(Message m) {
