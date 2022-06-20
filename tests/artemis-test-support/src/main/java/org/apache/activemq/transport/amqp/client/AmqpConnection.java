@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.activemq.transport.InactivityIOException;
 import org.apache.activemq.transport.netty.NettyTransport;
 import org.apache.activemq.transport.amqp.client.sasl.SaslAuthenticator;
 import org.apache.activemq.transport.netty.NettyTransportListener;
@@ -614,7 +613,7 @@ public class AmqpConnection extends AmqpAbstractResource<Connection> implements 
                            pumpToProtonTransport();
                            if (protonTransport.isClosed()) {
                               LOG.debug("Transport closed after inactivity check.");
-                              throw new InactivityIOException("Channel was inactive for too long");
+                              throw new IllegalStateException("Channel was inactive for too long");
                            } else {
                               if (deadline != 0) {
                                  getScheduler().schedule(this, deadline - now, TimeUnit.MILLISECONDS);

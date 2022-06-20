@@ -36,7 +36,6 @@ import org.apache.activemq.transport.amqp.client.util.AsyncResult;
 import org.apache.activemq.transport.amqp.client.util.ClientFuture;
 import org.apache.activemq.transport.amqp.client.util.IOExceptionSupport;
 import org.apache.activemq.transport.amqp.client.util.UnmodifiableProxy;
-import org.apache.qpid.jms.JmsOperationTimedOutException;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
@@ -1043,7 +1042,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                @Override
                public void run() {
                   LOG.trace("Consumer {} drain request timed out", this);
-                  Exception cause = new JmsOperationTimedOutException("Remote did not respond to a drain request in time");
+                  Exception cause = new AmqpOperationTimedOutException("Remote did not respond to a drain request in time");
                   locallyClosed(session.getConnection(), cause);
                   stopRequest.onFailure(cause);
                   session.pumpToProtonTransport(stopRequest);

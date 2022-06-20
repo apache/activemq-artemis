@@ -16,17 +16,12 @@
  */
 package org.apache.activemq.transport.amqp;
 
-import java.nio.ByteBuffer;
 import java.util.AbstractMap;
 import java.util.Map;
 
-import org.apache.activemq.command.ActiveMQDestination;
-import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.apache.qpid.proton.amqp.transaction.Coordinator;
-import org.fusesource.hawtbuf.Buffer;
 
 /**
  * Set of useful methods and definitions used in the AMQP protocol handling
@@ -117,85 +112,5 @@ public class AmqpSupport {
       }
 
       return null;
-   }
-
-   /**
-    * Conversion from Java ByteBuffer to a HawtBuf buffer.
-    *
-    * @param data the ByteBuffer instance to convert.
-    * @return a new HawtBuf buffer converted from the given ByteBuffer.
-    */
-   public static Buffer toBuffer(ByteBuffer data) {
-      if (data == null) {
-         return null;
-      }
-
-      Buffer rc;
-
-      if (data.isDirect()) {
-         rc = new Buffer(data.remaining());
-         data.get(rc.data);
-      } else {
-         rc = new Buffer(data);
-         data.position(data.position() + data.remaining());
-      }
-
-      return rc;
-   }
-
-   /**
-    * Given a long value, convert it to a byte array for marshalling.
-    *
-    * @param value the value to convert.
-    * @return a new byte array that holds the big endian value of the long.
-    */
-   public static byte[] toBytes(long value) {
-      Buffer buffer = new Buffer(8);
-      buffer.bigEndianEditor().writeLong(value);
-      return buffer.data;
-   }
-
-   /**
-    * Converts a Binary value to a long assuming that the contained value is
-    * stored in Big Endian encoding.
-    *
-    * @param value the Binary object whose payload is converted to a long.
-    * @return a long value constructed from the bytes of the Binary instance.
-    */
-   public static long toLong(Binary value) {
-      Buffer buffer = new Buffer(value.getArray(), value.getArrayOffset(), value.getLength());
-      return buffer.bigEndianEditor().readLong();
-   }
-
-   /**
-    * Given an AMQP endpoint, deduce the appropriate ActiveMQDestination type and create
-    * a new instance.  By default if the endpoint address does not carry the standard prefix
-    * value then we default to a Queue type destination.  If the endpoint is null or is an
-    * AMQP Coordinator type endpoint this method returns null to indicate no destination
-    * can be mapped.
-    *
-    * @param endpoint the AMQP endpoint to construct an ActiveMQDestination from.
-    * @return a new ActiveMQDestination that best matches the address of the given endpoint
-    * @throws AmqpProtocolException if an error occurs while deducing the destination type.
-    */
-   public static ActiveMQDestination createDestination(Object endpoint) throws AmqpProtocolException {
-      if (endpoint == null) {
-         return null;
-      } else if (endpoint instanceof Coordinator) {
-         return null;
-      } else if (endpoint instanceof org.apache.qpid.proton.amqp.messaging.Terminus) {
-         org.apache.qpid.proton.amqp.messaging.Terminus terminus = (org.apache.qpid.proton.amqp.messaging.Terminus) endpoint;
-         if (terminus.getAddress() == null || terminus.getAddress().length() == 0) {
-            if (terminus instanceof org.apache.qpid.proton.amqp.messaging.Source) {
-               throw new AmqpProtocolException("amqp:invalid-field", "source address not set");
-            } else {
-               throw new AmqpProtocolException("amqp:invalid-field", "target address not set");
-            }
-         }
-
-         return ActiveMQDestination.createDestination(terminus.getAddress(), ActiveMQDestination.QUEUE_TYPE);
-      } else {
-         throw new RuntimeException("Unexpected terminus type: " + endpoint);
-      }
    }
 }
