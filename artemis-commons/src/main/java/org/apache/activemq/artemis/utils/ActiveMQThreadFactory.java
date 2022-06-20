@@ -127,8 +127,19 @@ public final class ActiveMQThreadFactory implements ThreadFactory {
       return t;
    }
 
+
+   /**
+    * @return ActiveMQThreadFactory
+    * @deprecated Expensive due to StackTrace lookup with called synchronized java.lang.Throwable#getOurStackTrace.
+    *    Use {@link #defaultThreadFactory(String)} instead.
+    */
+   @Deprecated
    public static ActiveMQThreadFactory defaultThreadFactory() {
       String callerClassName = Thread.currentThread().getStackTrace()[2].getClassName();
+      return defaultThreadFactory(callerClassName);
+   }
+
+   public static ActiveMQThreadFactory defaultThreadFactory(String callerClassName) {
       return new ActiveMQThreadFactory(callerClassName, false, null);
    }
 

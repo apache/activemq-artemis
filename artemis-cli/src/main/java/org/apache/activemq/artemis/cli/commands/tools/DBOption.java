@@ -221,7 +221,7 @@ public class DBOption extends OptionalLocking {
 
    protected void initializeJournal(Configuration configuration) throws Exception {
       this.config = configuration;
-      executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newFixedThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       executorFactory = new OrderedExecutorFactory(executor);
 
       scheduledExecutorService = new ScheduledThreadPoolExecutor(configuration.getScheduledThreadPoolMaxSize(), new ThreadFactory() {

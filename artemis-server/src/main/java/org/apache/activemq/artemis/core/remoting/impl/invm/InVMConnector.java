@@ -123,9 +123,9 @@ public class InVMConnector extends AbstractConnector {
    private static synchronized ExecutorService getInVMExecutor() {
       if (threadPoolExecutor == null) {
          if (ActiveMQClient.getGlobalThreadPoolSize() <= -1) {
-            threadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), ActiveMQThreadFactory.defaultThreadFactory());
+            threadPoolExecutor = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
          } else {
-            threadPoolExecutor = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory());
+            threadPoolExecutor = new ActiveMQThreadPoolExecutor(0, ActiveMQClient.getGlobalThreadPoolSize(), 60L, TimeUnit.SECONDS, ActiveMQThreadFactory.defaultThreadFactory(InVMConnector.class.getName()));
          }
       }
       return threadPoolExecutor;
