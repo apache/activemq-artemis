@@ -63,13 +63,6 @@ var Artemis = (function (Artemis) {
             template: '<artemis></artemis>',
             isValid: function () { return workspace.treeContainsDomainAndProperties(artemisJmxDomain); }
         });
-
-        // clean up local storage upon logout
-        preLogoutTasks.addTask('CleanupArtemisCredentials', function () {
-            Artemis.log.debug("Clean up Artemis credentials in local storage");
-            localStorage.removeItem('artemisUserName');
-            localStorage.removeItem('artemisPassword');
-        });
     }
     configurePlugin.$inject = ['mainNavService', 'workspace', 'helpRegistry', 'preferencesRegistry', 'localStorage', 'preLogoutTasks', 'documentBase', '$templateCache'];
 

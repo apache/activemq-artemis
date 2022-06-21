@@ -19,12 +19,6 @@ var Artemis;
     Artemis._module
     .controller("Artemis.PreferencesController", ["$scope", "localStorage", "userDetails", "$rootScope", function ($scope, localStorage, userDetails, $rootScope) {
           Core.initPreferenceScope($scope, localStorage, {
-             'artemisUserName': {
-                 'value': userDetails.username ? userDetails.username : ""
-             },
-             'artemisPassword': {
-                'value': userDetails.password ? userDetails.password : ""
-             },
              'artemisDLQ': {
                 'value': "^DLQ$"
              },
@@ -49,26 +43,6 @@ var Artemis;
         });
         $templateCache.put(path,
             `<form class="form-horizontal artemis-preferences-form" ng-controller="Artemis.PreferencesController">
-                  <div class="form-group">
-                    <label class="col-md-2 control-label" for="artemisUserName">
-                      Artemis user name
-                      <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="The user name to be used when connecting to the broker"></span>
-                    </label>
-                    <div class="col-md-6">
-                      <input id="artemisUserName" type="text" class="form-control" ng-model="artemisUserName"/>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="col-md-2 control-label" for="artemisPassword">
-                      Artemis password
-                      <span class="pficon pficon-info" data-toggle="tooltip" data-placement="top" title="The password to be used when connecting to the broker"></span>
-                    </label>
-                    <div class="col-md-6">
-                      <input id="artemisPassword" type="password" class="form-control" ng-model="artemisPassword"/>
-                    </div>
-                  </div>
-
                   <div class="form-group">
                     <label class="col-md-2 control-label" for="artemisDLQ">
                       Dead-letter address regex

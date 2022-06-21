@@ -28,7 +28,9 @@ var Artemis;
 
 
         function message(scope, location, route, localStorage, artemisMessage, workspace, element, timeout, jolokia) {
-            this.noCredentials = false,
+            this.username = "",
+            this.password= "",
+            this.noCredentials = true,
             this.durable = true,
             this.messageID = false;
             this.message = "",
@@ -45,9 +47,6 @@ var Artemis;
             // only reload the page if certain search parameters change
             Core.reloadWhenParametersChange(route, scope, location, localStorage);
             if (location.path().indexOf('artemis') > -1) {
-                this.localStorage = localStorage;
-                scope.$watch('localStorage.artemisUserName', this.checkCredentials);
-                scope.$watch('localStorage.artemisPassword', this.checkCredentials);
                 //prefill if it's a resend
                 if (artemisMessage.message !== null) {
                     this.message = artemisMessage.message.bodyText;
@@ -74,13 +73,6 @@ var Artemis;
                 scope.codeMirror = codeMirror;
             });
 
-            checkCredentials = function () {
-                this.noCredentials = (Core.isBlank(localStorage['artemisUserName']) || Core.isBlank(localStorage['artemisPassword']));
-            };
-            this.openPrefs = function (location) {
-                Artemis.log.debug("opening prefs");
-                location.path('/preferences').search({'pref': 'Artemis'});
-            };
             this.addHeader = function  () {
                 this.headers.push({name: "", value: ""});
                 // lets set the focus to the last header
@@ -141,8 +133,8 @@ var Artemis;
                             Artemis.log.debug("About to send headers: " + JSON.stringify(headers));
                         }
 
-                        var user = this.localStorage["artemisUserName"];
-                        var pwd = this.localStorage["artemisPassword"];
+                        var user = (this.noCredentials ? null : this.username);
+                        var pwd = (this.noCredentials ? null : this.password);
 
                         if (!headers) {
                             headers = {};
