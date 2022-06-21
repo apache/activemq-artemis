@@ -240,7 +240,6 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
 
 
    private StompSession internalGetSession(StompConnection connection, Map<Object, StompSession> sessions, Object id, boolean transacted) throws Exception {
-      System.out.println("Looking for sessionID " + id);
       StompSession stompSession = sessions.get(id);
       if (stompSession == null) {
          stompSession = new StompSession(connection, this, server.getStorageManager().newContext(server.getExecutorFactory().getExecutor()));
