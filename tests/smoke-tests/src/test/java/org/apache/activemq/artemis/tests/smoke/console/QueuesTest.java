@@ -22,10 +22,12 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
+import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.MessagePage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.QueuePage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.QueuesPage;
+import org.apache.activemq.artemis.tests.smoke.console.pages.SendMessagePage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.StatusPage;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
@@ -162,5 +164,63 @@ public class QueuesTest extends ConsoleTest {
 
       QueuePage dlqPage = afterQueuesPage.getQueuePage(expiryQueueName, DEFAULT_TIMEOUT);
       assertEquals(testQueueName, dlqPage.getMessageOriginalQueue(0));
+   }
+
+   @Test
+   public void testSendMessageUsingCurrentLogonUser() throws Exception {
+      final String queueName = "TEST";
+      final String messageText = "TEST";
+
+      driver.get(serverUrl + "/console");
+      LoginPage loginPage = new LoginPage(driver);
+      StatusPage statusPage = loginPage.loginValidUser(
+         SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
+      QueuesPage beforeSendingQueuesPage = statusPage.getQueuesPage(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue("DLQ"));
+      Wait.assertEquals(0, () -> beforeSendingQueuesPage.countQueue(queueName));
+
+      CreateQueue createQueueCommand = new CreateQueue();
+      createQueueCommand.setUser(SERVER_ADMIN_USERNAME);
+      createQueueCommand.setPassword(SERVER_ADMIN_PASSWORD);
+      createQueueCommand.setName(queueName);
+      createQueueCommand.setMulticast(true);
+      createQueueCommand.setAnycast(false);
+      createQueueCommand.setAutoCreateAddress(true);
+      createQueueCommand.execute(new ActionContext());
+
+      final int messages = 1;
+      beforeSendingQueuesPage.refresh(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue("DLQ"));
+      Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue(queueName));
+      assertEquals(0, beforeSendingQueuesPage.getMessagesCount(queueName));
+
+      QueuePage queuePage = beforeSendingQueuesPage.getQueuePage(queueName, DEFAULT_TIMEOUT);
+      SendMessagePage sendMessagePage = queuePage.getSendMessagePage(DEFAULT_TIMEOUT);
+      for (int i = 0; i < messages; i++) {
+         sendMessagePage.clearMessageText();
+         sendMessagePage.selectUseCurrentLogonUser();
+         sendMessagePage.appendMessageText(messageText);
+         sendMessagePage.sendMessage();
+      }
+
+      QueuesPage afterSendingQueuesPage = sendMessagePage.getQueuesPage(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> afterSendingQueuesPage.countQueue("DLQ"));
+      Wait.assertEquals(messages, () -> afterSendingQueuesPage.getMessagesCount(queueName));
+
+      Consumer consumer = new Consumer();
+      consumer.setUser(SERVER_ADMIN_USERNAME);
+      consumer.setPassword(SERVER_ADMIN_PASSWORD);
+      consumer.setDestination(queueName);
+      consumer.setMessageCount(messages);
+      consumer.setSilentInput(true);
+      consumer.setReceiveTimeout(2000);
+      consumer.setBreakOnNull(true);
+      int consumed = (int)consumer.execute(new ActionContext());
+
+      assertEquals(messages, consumed);
+
+      afterSendingQueuesPage.refresh(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> afterSendingQueuesPage.countQueue("DLQ"));
+      Wait.assertEquals(0, () -> afterSendingQueuesPage.getMessagesCount(queueName));
    }
 }

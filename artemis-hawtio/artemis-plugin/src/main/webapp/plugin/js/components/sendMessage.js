@@ -28,13 +28,6 @@ var Artemis;
                 </button>
             </h1>
 
-            <div class="alert alert-warning" ng-show="$ctrl.message.noCredentials">
-                <span class="pficon pficon-warning-triangle-o"></span>
-                <strong>No credentials set for endpoint!</strong>
-                Please set your username and password in the
-                <a href="#" class="alert-link" ng-click="$ctrl.message.openPrefs()">Preferences</a> page.
-            </div>
-
             <div class="row artemis-message-configuration">
 
                 <div class="col-sm-12">
@@ -56,6 +49,31 @@ var Artemis;
                                       popover-title="Message ID" popover-trigger="'mouseenter'">
                                 <span class="pficon pficon-info"></span>
                             </button>
+                        </div>
+                        <div class="form-group">
+                            <label>Use current logon user </label>
+                            <input id="useCurrentLogonUser" type="checkbox" ng-model="$ctrl.message.noCredentials" value="true">
+                            <button type="button" class="btn btn-link jvm-title-popover"
+                                      uib-popover-template="'use-current-logon-user-credentials-id-info.html'" popover-placement="bottom-left"
+                                      popover-title="Use current logon user" popover-trigger="'mouseenter'">
+                                <span class="pficon pficon-info"></span>
+                            </button>
+                        </div>
+                        <div class="form-group" ng-hide="$ctrl.message.noCredentials">
+                            <label class="col-sm-2 control-label" for="name-markup">Username</label>
+
+                            <div class="col-sm-10">
+                                <input id="name-markup" class="form-control" type="text" maxlength="300"
+                                       name="username" ng-model="$ctrl.message.username" placeholder="username"/>
+                            </div>
+                        </div>
+                        <div class="form-group" ng-hide="$ctrl.message.noCredentials">
+                            <label class="col-sm-2 control-label" for="name-markup">Password</label>
+
+                            <div class="col-sm-10">
+                                <input id="name-markup" class="form-control" type="password" maxlength="300"
+                                       name="password" ng-model="$ctrl.message.password" placeholder="password"/>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -110,8 +128,7 @@ var Artemis;
                 <p>
                     This page allows you to send a message to the chosen queue. The message will be of type <code>text</code>
                     message and it will be possible to add headers to the message. The sending of the message will be authenticated
-                    using the username and password set in <code>preferences</code>, if this is not set then these will
-                    be null.
+                    using the current logon user, unselect <code>use current logon user</code> to use a different user.
                 </p>
             </div>
             </script>
@@ -128,6 +145,13 @@ var Artemis;
             <div>
                 <p>
                     If durable the message will be marked persistent and written to the brokers journal if the destination queue is durable.
+                </p>
+            </div>
+            </script>
+            <script type="text/ng-template" id="use-current-logon-user-credentials-id-info.html">
+            <div>
+                <p>
+                    This option allows a user to send messages with the permissions of the user's current logon, disable it to send messages with different permissions than the user's current logon provides.
                 </p>
             </div>
             </script>

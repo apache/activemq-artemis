@@ -28,6 +28,8 @@ public class QueuePage extends ArtemisPage {
    public QueuePage(WebDriver driver) {
       super(driver);
    }
+   private By dropdownMenuLocator = By.id("moreDropdown");
+   private By sendMessageMenuItemLocator = By.xpath("//a[contains(text(),'Send message')]");
 
    public MessagePage getMessagePage(int index, int timeout) {
       driver.findElements(By.cssSelector("button[title='Show message']")).get(index).click();
@@ -66,5 +68,25 @@ public class QueuePage extends ArtemisPage {
       }
 
       return -1;
+   }
+
+   public SendMessagePage getSendMessagePage(int timeout) {
+      WebElement queuesMenuItem = driver.findElement(sendMessageMenuItemLocator);
+
+      if (!queuesMenuItem.isDisplayed()) {
+         List<WebElement> dropdownMenu = driver.findElements(dropdownMenuLocator);
+
+         if (dropdownMenu.size() > 0) {
+            dropdownMenu.get(0).click();
+         } else {
+            waitForElementToBeVisible(sendMessageMenuItemLocator, timeout);
+         }
+      }
+
+      queuesMenuItem.click();
+
+      waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Send Message')]"), timeout);
+
+      return new SendMessagePage(driver);
    }
 }
