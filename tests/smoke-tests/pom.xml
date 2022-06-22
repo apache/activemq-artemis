@@ -50,16 +50,6 @@
          <version>${project.version}</version>
          <scope>compile</scope>
          <type>pom</type>
-         <exclusions>
-            <exclusion>
-               <groupId>org.apache.activemq</groupId>
-               <artifactId>artemis-jms-client-all</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.apache.activemq</groupId>
-               <artifactId>artemis-jakarta-client-all</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
