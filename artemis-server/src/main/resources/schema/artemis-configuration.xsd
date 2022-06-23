@@ -436,81 +436,15 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of remoting connectors configurations to create
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="connector" type="transportType" maxOccurs="unbounded"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="connectors" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element maxOccurs="1" minOccurs="0" name="acceptors">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of remoting acceptors to create
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="acceptor" type="transportType" maxOccurs="unbounded"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="acceptors" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element maxOccurs="1" minOccurs="0" name="broadcast-groups">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of broadcast groups to create
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element ref="broadcast-group" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="broadcast-groups" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element maxOccurs="1" minOccurs="0" name="discovery-groups">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of discovery groups to create
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element maxOccurs="unbounded" minOccurs="0" ref="discovery-group">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           a discovery group specification element
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:element>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="discovery-groups" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="diverts" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of diverts to use
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="divert" type="divertType" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="diverts" maxOccurs="1" minOccurs="0"/>
 
          <!-- QUEUES -->
          <xsd:element name="queues" maxOccurs="1" minOccurs="0">
@@ -574,80 +508,19 @@
             </xsd:complexType>
          </xsd:element>
 
-         <xsd:element name="bridges" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of bridges to create
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="bridge" type="bridgeType" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="bridges" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="federations" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of federations to create
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="federation" type="federationType" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="federations" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="ha-policy" type="haPolicyType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The HA policy of this server
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
+         <xsd:element ref="ha-policy" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="cluster-connections" type="clusterConnectionChoiceType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of cluster connections
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
+         <xsd:element ref="cluster-connections" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="broker-connections" type="brokerConnectType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A list of connections the broker will make towards other servers.
-                  Currently the only connection type supported is amqpConnection
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
+         <xsd:element ref="broker-connections" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="connection-routers" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A list of connection routers
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="connection-router" type="connectionRouterType" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="connection-routers" maxOccurs="1" minOccurs="0"/>
 
-         <xsd:element name="grouping-handler" type="groupingHandlerType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Message Group configuration
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
+         <xsd:element ref="grouping-handler" maxOccurs="1" minOccurs="0"/>
 
          <xsd:element name="paging-directory" type="xsd:string" default="data/paging" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -744,6 +617,7 @@
                </xsd:simpleContent>
             </xsd:complexType>
          </xsd:element>
+
          <xsd:element name="node-manager-lock-directory" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -783,7 +657,6 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-
 
          <xsd:element name="journal-device-block-size" type="xsd:long" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -955,13 +828,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="store" type="storeType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The Store Type used by the server
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
+         <xsd:element ref="store" maxOccurs="1" minOccurs="0"/>
 
          <xsd:element name="critical-analyzer" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -1021,155 +888,9 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="security-settings" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of security settings
-               </xsd:documentation>
-            </xsd:annotation>
+         <xsd:element ref="security-settings" maxOccurs="1" minOccurs="0"/>
 
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:choice>
-                     <xsd:element name="security-setting" maxOccurs="unbounded" minOccurs="0">
-                        <xsd:complexType>
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 a permission to add to the matched addresses
-                              </xsd:documentation>
-                           </xsd:annotation>
-                           <xsd:sequence>
-                              <xsd:element name="permission" maxOccurs="unbounded" minOccurs="0">
-                                 <xsd:complexType>
-                                    <xsd:attribute name="type" type="xsd:string" use="required">
-                                       <xsd:annotation>
-                                          <xsd:documentation>
-                                             the type of permission
-                                          </xsd:documentation>
-                                       </xsd:annotation>
-                                    </xsd:attribute>
-                                    <xsd:attribute name="roles" type="xsd:string" use="required">
-                                       <xsd:annotation>
-                                          <xsd:documentation>
-                                             a comma-separated list of roles to apply the permission to
-                                          </xsd:documentation>
-                                       </xsd:annotation>
-                                    </xsd:attribute>
-                                    <xsd:attributeGroup ref="xml:specialAttrs"/>
-                                 </xsd:complexType>
-                              </xsd:element>
-                           </xsd:sequence>
-                           <xsd:attribute name="match" type="xsd:string" use="required">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    pattern for matching security roles against addresses; can use wildcards
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:attribute>
-                           <xsd:attributeGroup ref="xml:specialAttrs"/>
-                        </xsd:complexType>
-                     </xsd:element>
-                     <xsd:element name="security-setting-plugin" maxOccurs="1" minOccurs="0">
-                        <xsd:complexType>
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 a plugin
-                              </xsd:documentation>
-                           </xsd:annotation>
-                           <xsd:sequence>
-                              <xsd:element name="setting" maxOccurs="unbounded" minOccurs="0">
-                                 <xsd:complexType>
-                                    <xsd:attribute name="name" type="xsd:string" use="required">
-                                       <xsd:annotation>
-                                          <xsd:documentation>
-                                             the name of the setting
-                                          </xsd:documentation>
-                                       </xsd:annotation>
-                                    </xsd:attribute>
-                                    <xsd:attribute name="value" type="xsd:string" use="required">
-                                       <xsd:annotation>
-                                          <xsd:documentation>
-                                             the value for the setting
-                                          </xsd:documentation>
-                                       </xsd:annotation>
-                                    </xsd:attribute>
-                                    <xsd:attributeGroup ref="xml:specialAttrs"/>
-                                 </xsd:complexType>
-                              </xsd:element>
-                           </xsd:sequence>
-                           <xsd:attribute name="class-name" type="xsd:string" use="required">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    the name of the plugin class to instantiate
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:attribute>
-                           <xsd:attributeGroup ref="xml:specialAttrs"/>
-                        </xsd:complexType>
-                     </xsd:element>
-                  </xsd:choice>
-                  <xsd:element name="role-mapping" minOccurs="0" maxOccurs="unbounded">
-                     <xsd:complexType>
-                        <xsd:attribute name="from" type="xsd:string" use="required">
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 the name of the external role
-                              </xsd:documentation>
-                           </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attribute name="to" type="xsd:string" use="required">
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 the comma delimited name of the internal role(s)
-                              </xsd:documentation>
-                           </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attributeGroup ref="xml:specialAttrs"/>
-                     </xsd:complexType>
-                  </xsd:element>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
-
-         <xsd:element name="broker-plugins" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of broker-plugins
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="broker-plugin" maxOccurs="unbounded" minOccurs="0">
-                     <xsd:complexType>
-                        <xsd:annotation>
-                           <xsd:documentation>
-                              a broker plugin
-                           </xsd:documentation>
-                        </xsd:annotation>
-                        <xsd:sequence>
-                           <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    properties to configure a plugin
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:element>
-                        </xsd:sequence>
-                        <xsd:attribute name="class-name" type="xsd:string" use="required">
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 the name of the broker plugin class to instantiate
-                              </xsd:documentation>
-                           </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attributeGroup ref="xml:specialAttrs"/>
-                     </xsd:complexType>
-                  </xsd:element>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
+         <xsd:element ref="broker-plugins" maxOccurs="1" minOccurs="0"/>
 
          <xsd:element name="metrics-plugin" maxOccurs="1" minOccurs="0">
             <xsd:complexType>
@@ -1198,116 +919,15 @@
             </xsd:complexType>
          </xsd:element>
 
-         <xsd:element name="metrics" maxOccurs="1" minOccurs="0">
-            <xsd:complexType>
-               <xsd:annotation>
-                  <xsd:documentation>
-                     metrics configuration
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:all>
-                  <xsd:element name="jvm-memory" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           whether or not to report JVM memory metrics
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:element>
+         <xsd:element ref="metrics" maxOccurs="1" minOccurs="0"/>
 
-                  <xsd:element name="jvm-threads" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           whether or not to report JVM thread metrics
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:element>
+         <xsd:element ref="address-settings" maxOccurs="1" minOccurs="0"/>
 
-                  <xsd:element name="jvm-gc" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           whether or not to report JVM GC metrics
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:element>
+         <xsd:element ref="resource-limit-settings" maxOccurs="1" minOccurs="0"/>
 
-                  <xsd:element name="netty-pool" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-                     <xsd:annotation>
-                        <xsd:documentation>
-                           whether or not to report Netty pool metrics
-                        </xsd:documentation>
-                     </xsd:annotation>
-                  </xsd:element>
+         <xsd:element ref="connector-services" maxOccurs="1" minOccurs="0"/>
 
-                  <xsd:element name="plugin" maxOccurs="1" minOccurs="0">
-                     <xsd:complexType>
-                        <xsd:annotation>
-                           <xsd:documentation>
-                              a metrics plugin
-                           </xsd:documentation>
-                        </xsd:annotation>
-                        <xsd:sequence>
-                           <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
-                              <xsd:annotation>
-                                 <xsd:documentation>
-                                    properties to configure a plugin
-                                 </xsd:documentation>
-                              </xsd:annotation>
-                           </xsd:element>
-                        </xsd:sequence>
-                        <xsd:attribute name="class-name" type="xsd:string" use="required">
-                           <xsd:annotation>
-                              <xsd:documentation>
-                                 the name of the metrics plugin class to instantiate
-                              </xsd:documentation>
-                           </xsd:annotation>
-                        </xsd:attribute>
-                        <xsd:attributeGroup ref="xml:specialAttrs"/>
-                     </xsd:complexType>
-                  </xsd:element>
-               </xsd:all>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
-
-         <xsd:element name="address-settings" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of address settings
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element ref="address-setting" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
-
-         <xsd:element name="resource-limit-settings" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a list of resource limit settings
-               </xsd:documentation>
-            </xsd:annotation>
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element ref="resource-limit-setting" maxOccurs="unbounded" minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
-
-         <xsd:element name="connector-services" maxOccurs="1" minOccurs="0">
-            <xsd:complexType>
-               <xsd:sequence>
-                  <xsd:element name="connector-service" type="connector-serviceType" maxOccurs="unbounded"
-                               minOccurs="0"/>
-               </xsd:sequence>
-               <xsd:attributeGroup ref="xml:specialAttrs"/>
-            </xsd:complexType>
-         </xsd:element>
-
-         <xsd:element name="addresses" type="addressesType" maxOccurs="1" minOccurs="0"/>
+         <xsd:element ref="addresses" maxOccurs="1" minOccurs="0"/>
 
          <xsd:element name="network-check-list" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -1365,13 +985,8 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="wildcard-addresses" type="wildcardType" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  parameters to configure wildcard address matching format
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
+         <xsd:element ref="wildcard-addresses" maxOccurs="1" minOccurs="0"/>
+
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
@@ -1393,141 +1008,172 @@
    </xsd:element>
 
    <!-- BROADCAST GROUP CONFIGURATION -->
-   <xsd:element name="broadcast-group">
+   <xsd:element name="broadcast-groups">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of broadcast groups to create
+         </xsd:documentation>
+      </xsd:annotation>
       <xsd:complexType>
          <xsd:sequence>
-            <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     a local address to which the datagram socket is bound
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-            <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     a local port to which the datagram socket is bound
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-            <xsd:element name="group-address" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     multicast address to which the data will be broadcast
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="group-port" type="xsd:int" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     UDP port number used for broadcasting
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="broadcast-period" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     period in milliseconds between consecutive broadcasts
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="jgroups-file" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Name of JGroups configuration file. If specified, the server uses JGroups for broadcasting.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="jgroups-channel" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Name of JGroups Channel. If specified, the server uses the named channel for broadcasting.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="0"/>
+            <xsd:element name="broadcast-group" type="broadcastGroupType" maxOccurs="unbounded" minOccurs="0"/>
          </xsd:sequence>
-
-         <xsd:attribute name="name" type="xsd:ID" use="required">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a unique name for the broadcast group
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:attribute>
          <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
 
-   <xsd:element name="discovery-group">
+   <xsd:complexType name="broadcastGroupType">
+      <xsd:sequence>
+         <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a local address to which the datagram socket is bound
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a local port to which the datagram socket is bound
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="group-address" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  multicast address to which the data will be broadcast
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="group-port" type="xsd:int" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  UDP port number used for broadcasting
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="broadcast-period" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  period in milliseconds between consecutive broadcasts
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="jgroups-file" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Name of JGroups configuration file. If specified, the server uses JGroups for broadcasting.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="jgroups-channel" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Name of JGroups Channel. If specified, the server uses the named channel for broadcasting.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="0"/>
+      </xsd:sequence>
+
+      <xsd:attribute name="name" type="xsd:ID" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               a unique name for the broadcast group
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <!-- DISCOVERY GROUP CONFIGURATION -->
+   <xsd:element name="discovery-groups">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of discovery groups to create
+         </xsd:documentation>
+      </xsd:annotation>
       <xsd:complexType>
-         <xsd:all>
-            <xsd:element name="group-address" type="xsd:string" maxOccurs="1" minOccurs="0">
+         <xsd:sequence>
+            <xsd:element name="discovery-group" type="discoveryGroupType" maxOccurs="unbounded" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     Multicast IP address of the group to listen on
+                     a discovery group specification element
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-            <xsd:element name="group-port" type="xsd:int" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     UDP port number of the multi cast group
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="jgroups-file" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Name of a JGroups configuration file. If specified, the server uses JGroups for discovery.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="jgroups-channel" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Name of a JGroups Channel. If specified, the server uses the named channel for discovery.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="refresh-timeout" type="xsd:int" default="10000" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Period the discovery group waits after receiving the last broadcast from a particular server before
-                     removing that servers connector pair entry from its list.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0"/>
-            <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0"/>
-            <xsd:element name="initial-wait-timeout" type="xsd:int" default="10000" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     time to wait for an initial broadcast to give us at least one node in the cluster
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-         </xsd:all>
-
-         <xsd:attribute name="name" type="xsd:ID" use="required">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a unique name for the discovery group
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:attribute>
+         </xsd:sequence>
          <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
+
+   <xsd:complexType name="discoveryGroupType">
+      <xsd:all>
+         <xsd:element name="group-address" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Multicast IP address of the group to listen on
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="group-port" type="xsd:int" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  UDP port number of the multi cast group
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="jgroups-file" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Name of a JGroups configuration file. If specified, the server uses JGroups for discovery.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="jgroups-channel" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Name of a JGroups Channel. If specified, the server uses the named channel for discovery.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="refresh-timeout" type="xsd:int" default="10000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Period the discovery group waits after receiving the last broadcast from a particular server before
+                  removing that servers connector pair entry from its list.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element ref="local-bind-address" maxOccurs="1" minOccurs="0"/>
+         <xsd:element ref="local-bind-port" maxOccurs="1" minOccurs="0"/>
+         <xsd:element name="initial-wait-timeout" type="xsd:int" default="10000" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  time to wait for an initial broadcast to give us at least one node in the cluster
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:all>
+
+      <xsd:attribute name="name" type="xsd:ID" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               a unique name for the discovery group
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
 
    <xsd:element name="discovery-group-ref">
       <xsd:complexType>
@@ -1573,6 +1219,20 @@
    </xsd:complexType>
 
    <!-- BRIDGE CONFIGURATION -->
+   <xsd:element name="bridges">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of bridges to create
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="bridge" type="bridgeType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
    <xsd:complexType name="bridgeType">
       <xsd:sequence>
          <xsd:element name="queue-name" type="xsd:string" maxOccurs="1" minOccurs="1">
@@ -1798,6 +1458,20 @@
    </xsd:complexType>
 
    <!-- FEDERATION CONFIGURATION -->
+   <xsd:element name="federations">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of federations to create
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="federation" type="federationType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
    <xsd:complexType name="federationType">
       <xsd:sequence>
          <xsd:element name="upstream" type="upstreamType" minOccurs="0" maxOccurs="unbounded" />
@@ -1986,7 +1660,6 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-
    <xsd:complexType name="policySetType">
       <xsd:sequence>
          <xsd:element name="policy" type="policyRefType" minOccurs="0" maxOccurs="unbounded" />
@@ -1995,12 +1668,10 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-
    <xsd:complexType name="policyRefType">
       <xsd:attribute name="ref" type="xsd:string" use="required" />
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
-
 
    <xsd:complexType name="queuePolicyType">
       <xsd:sequence>
@@ -2019,7 +1690,6 @@
       <xsd:attribute name="address-match" type="xsd:string" use="required" />
       <xsd:attributeGroup ref="xml:specialAttrs" />
    </xsd:complexType>
-
 
    <xsd:complexType name="addressPolicyType">
       <xsd:sequence>
@@ -2103,26 +1773,53 @@
       </xsd:complexType>
    </xsd:element>
 
-
    <!-- CLUSTER CONNECTION CONFIGURATION -->
+   <xsd:element name="cluster-connections">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of cluster connections
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:choice maxOccurs="unbounded">
+               <xsd:element name="cluster-connection-uri" type="cluster-connectionUriType"/>
+               <xsd:element name="cluster-connection" type="cluster-connectionType">
+               </xsd:element>
+            </xsd:choice>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
 
-   <xsd:complexType name="clusterConnectionChoiceType">
-      <xsd:sequence>
-         <xsd:choice maxOccurs="unbounded">
-            <xsd:element name="cluster-connection-uri" type="cluster-connectionUriType"/>
-            <xsd:element name="cluster-connection" type="cluster-connectionType">
-            </xsd:element>
-         </xsd:choice>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
+   <xsd:element name="broker-connections">
+      <xsd:annotation>
+         <xsd:documentation>
+            A list of connections the broker will make towards other servers.
+            Currently the only connection type supported is amqpConnection
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence maxOccurs="unbounded">
+            <xsd:element name="amqp-connection" type="amqp-connectionUriType"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
 
-   <xsd:complexType name="brokerConnectType">
-      <xsd:sequence maxOccurs="unbounded">
-        <xsd:element name="amqp-connection" type="amqp-connectionUriType"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
+   <xsd:element name="connection-routers">
+      <xsd:annotation>
+         <xsd:documentation>
+            A list of connection routers
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="connection-router" type="connectionRouterType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
 
    <xsd:complexType name="connectionRouterType">
       <xsd:sequence maxOccurs="unbounded">
@@ -2410,6 +2107,7 @@
          </xsd:annotation>
       </xsd:attribute>
    </xsd:complexType>
+
    <xsd:complexType name="amqp-mirror-type">
       <xsd:annotation>
          <xsd:documentation>
@@ -2715,7 +2413,6 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-
    <xsd:complexType name="cluster-connection-uri-type">
       <xsd:attribute name="name" type="xsd:ID" use="required">
          <xsd:annotation>
@@ -2734,7 +2431,21 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <!-- DIVERT CONFIGURATION TYPE -->
+   <!-- DIVERT CONFIGURATION -->
+   <xsd:element name="diverts">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of diverts to use
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="divert" type="divertType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
    <xsd:complexType name="divertType">
       <xsd:all>
          <xsd:element name="transformer-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
@@ -2805,6 +2516,15 @@
       </xsd:attribute>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
+   <!-- STORE CONFIGURATION -->
+   <xsd:element name="store" type="storeType">
+      <xsd:annotation>
+         <xsd:documentation>
+            The Store Type used by the server
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
 
    <xsd:complexType name="storeType">
       <xsd:choice>
@@ -2979,32 +2699,40 @@
       </xsd:attribute>
    </xsd:complexType>
 
-   <xsd:complexType name="haPolicyType">
-      <xsd:choice>
-         <xsd:element name="live-only" type="haLiveOnlyPolicyType" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A live only server with no HA capabilities apart from scale down.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="replication" type="haReplicationType" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Configuration for a replicated server, either master, slave or colocated.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="shared-store" type="haSharedStoreType" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Configuration for a shared store server, either master, slave or colocated.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-      </xsd:choice>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
+   <!-- HA POLICY CONFIGURATION -->
+   <xsd:element name="ha-policy">
+      <xsd:annotation>
+         <xsd:documentation>
+            The HA policy of this server
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:choice>
+            <xsd:element name="live-only" type="haLiveOnlyPolicyType" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     A live only server with no HA capabilities apart from scale down.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="replication" type="haReplicationType" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Configuration for a replicated server, either master, slave or colocated.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="shared-store" type="haSharedStoreType" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Configuration for a shared store server, either master, slave or colocated.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:choice>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
 
    <xsd:complexType name="distributed-primitive-manager">
       <xsd:all>
@@ -3076,7 +2804,6 @@
       </xsd:choice>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
-
 
    <xsd:complexType name="haColocationReplicationType">
       <xsd:all>
@@ -3241,6 +2968,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="replicatedPolicyType">
       <xsd:all>
          <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
@@ -3302,7 +3030,6 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-
          <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
@@ -3335,6 +3062,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="replicaPolicyType">
       <xsd:all>
          <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
@@ -3452,6 +3180,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="asyncPrimaryPolicyType">
       <xsd:all>
          <xsd:element name="manager" type="distributed-primitive-manager" minOccurs="1" maxOccurs="1">
@@ -3515,6 +3244,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="asyncBackupPolicyType">
       <xsd:all>
          <xsd:element name="manager" type="distributed-primitive-manager" minOccurs="1" maxOccurs="1">
@@ -3580,6 +3310,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="colocatedReplicaPolicyType">
       <xsd:all>
          <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
@@ -3625,6 +3356,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="sharedStoreMasterPolicyType">
       <xsd:all>
          <xsd:element name="failback-delay" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
@@ -3651,6 +3383,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="sharedStoreSlavePolicyType">
       <xsd:all>
          <xsd:element name="allow-failback" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
@@ -3694,6 +3427,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="colocatedPolicyType">
       <xsd:all>
          <xsd:element name="request-backup" type="xsd:boolean" minOccurs="0" maxOccurs="1" default="false">
@@ -3734,6 +3468,7 @@
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
    <xsd:complexType name="scaleDownType">
       <xsd:sequence>
          <xsd:element name="enabled" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
@@ -3785,6 +3520,14 @@
       </xsd:sequence>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
+
+   <xsd:element name="grouping-handler" type="groupingHandlerType">
+      <xsd:annotation>
+         <xsd:documentation>
+            Message Group configuration
+         </xsd:documentation>
+      </xsd:annotation>
+   </xsd:element>
 
    <xsd:complexType name="groupingHandlerType">
       <xsd:all>
@@ -3843,144 +3586,158 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:element name="address-setting">
+   <!-- ADDRESS SETTINGS CONFIGURATION -->
+   <xsd:element name="address-settings">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of address settings
+         </xsd:documentation>
+      </xsd:annotation>
       <xsd:complexType>
-         <xsd:annotation>
-            <xsd:documentation>
-               Complex type element to configure an address.
-            </xsd:documentation>
-         </xsd:annotation>
-         <xsd:all>
-            <xsd:element name="dead-letter-address" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the address to send dead messages to
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:sequence>
+            <xsd:element name="address-setting" type="addressSettingType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
 
-            <xsd:element name="auto-create-dead-letter-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to automatically create the dead-letter-address and/or a corresponding queue
-                     on that address when a message found to be undeliverable
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+   <xsd:complexType name="addressSettingType">
+      <xsd:annotation>
+         <xsd:documentation>
+            Complex type element to configure an address.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:all>
+         <xsd:element name="dead-letter-address" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the address to send dead messages to
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="dead-letter-queue-prefix" type="xsd:string" default="DLQ." maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the prefix to use for auto-created dead letter queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="auto-create-dead-letter-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to automatically create the dead-letter-address and/or a corresponding queue
+                  on that address when a message found to be undeliverable
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="dead-letter-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the suffix to use for auto-created dead letter queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="dead-letter-queue-prefix" type="xsd:string" default="DLQ." maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the prefix to use for auto-created dead letter queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="expiry-address" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the address to send expired messages to
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="dead-letter-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the suffix to use for auto-created dead letter queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="auto-create-expiry-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to automatically create the expiry-address and/or a corresponding queue
-                     on that address when a message is sent to a matching queue
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="expiry-address" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the address to send expired messages to
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="expiry-queue-prefix" type="xsd:string" default="EXP." maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the prefix to use for auto-created expiry queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="auto-create-expiry-resources" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to automatically create the expiry-address and/or a corresponding queue
+                  on that address when a message is sent to a matching queue
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="expiry-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the suffix to use for auto-created expiry queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="expiry-queue-prefix" type="xsd:string" default="EXP." maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the prefix to use for auto-created expiry queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Overrides the expiration time for messages using the default value for expiration time. "-1"
-                     disables this setting.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="expiry-queue-suffix" type="xsd:string" default="" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the suffix to use for auto-created expiry queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="min-expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Overrides the expiration time for messages using a lower value. "-1" disables this setting.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Overrides the expiration time for messages using the default value for expiration time. "-1"
+                  disables this setting.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="max-expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Overrides the expiration time for messages using a higher value. "-1" disables this setting.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="min-expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Overrides the expiration time for messages using a lower value. "-1" disables this setting.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="redelivery-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the time (in ms) to wait before redelivering a cancelled message.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="max-expiry-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Overrides the expiration time for messages using a higher value. "-1" disables this setting.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="redelivery-delay-multiplier" type="xsd:double" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     multiplier to apply to the "redelivery-delay"
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="redelivery-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the time (in ms) to wait before redelivering a cancelled message.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="redelivery-collision-avoidance-factor" type="xsd:double" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     factor by which to modify the redelivery delay slightly to avoid collisions
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="redelivery-delay-multiplier" type="xsd:double" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  multiplier to apply to the "redelivery-delay"
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="max-redelivery-delay" type="xsd:long" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Maximum value for the redelivery-delay
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="redelivery-collision-avoidance-factor" type="xsd:double" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  factor by which to modify the redelivery delay slightly to avoid collisions
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="max-delivery-attempts" type="xsd:int" default="10" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how many times to attempt to deliver a message before sending to dead letter address
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="max-redelivery-delay" type="xsd:long" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Maximum value for the redelivery-delay
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="max-delivery-attempts" type="xsd:int" default="10" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how many times to attempt to deliver a message before sending to dead letter address
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
             <xsd:element name="max-size-bytes" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
@@ -3992,24 +3749,24 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="max-size-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the maximum number of messages allowed on the address.  This is used in PAGING, BLOCK and FAIL policies. It does not support notations and it is a simple number of messages allowed.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="max-size-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the maximum number of messages allowed on the address.  This is used in PAGING, BLOCK and FAIL policies. It does not support notations and it is a simple number of messages allowed.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
-            <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1"
-                         minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     used with the address full BLOCK policy, the maximum size (in bytes) an address can reach before
-                     messages start getting rejected. Works in combination with max-size-bytes for AMQP protocol only.
-                     Default = -1 (no limit).
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1"
+                        minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  used with the address full BLOCK policy, the maximum size (in bytes) an address can reach before
+                  messages start getting rejected. Works in combination with max-size-bytes for AMQP protocol only.
+                  Default = -1 (no limit).
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
             <xsd:element name="page-size-bytes" type="xsd:string" default="10485760" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
@@ -4020,500 +3777,512 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="page-max-cache-size" default="5" type="xsd:int" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     Number of paging files to cache in memory to avoid IO during paging navigation
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="max-read-page-messages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     How many messages are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
-                     Between this and max-read-page-bytes the system will stop reading based on whatever hits the mark first.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="max-read-page-bytes" type="xsd:string" default="20M" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     How many bytes are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
-                     Between this and max-read-page-messages the system will stop reading based on whatever hits the mark first.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="address-full-policy" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     what happens when an address where "max-size-bytes" is specified becomes full
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:simpleType>
-                  <xsd:restriction base="xsd:string">
-                     <xsd:enumeration value="DROP"/>
-                     <xsd:enumeration value="FAIL"/>
-                     <xsd:enumeration value="PAGE"/>
-                     <xsd:enumeration value="BLOCK"/>
-                  </xsd:restriction>
-               </xsd:simpleType>
-            </xsd:element>
-
-            <xsd:element name="message-counter-history-day-limit" type="xsd:int" default="0" maxOccurs="1"
-                         minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how many days to keep message counter history for this address
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     This is deprecated please use default-last-value-queue instead.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether to treat the queues under the address as a last value queues by default
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-last-value-key" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the property to use as the key for a last value queue by default
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-non-destructive" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether the queue should be non-destructive by default
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-exclusive-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether to treat the queues under the address as exclusive queues by default
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-group-rebalance" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether to rebalance groups when a consumer is added
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-group-rebalance-pause-dispatch" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether to pause dispatch when rebalancing groups
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-group-buckets" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     number of buckets to use for grouping, -1 (default) is unlimited and uses the raw group, 0 disables message groups.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-group-first-key" type="xsd:string" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     key used to mark a message is first in a group for a consumer
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-consumers-before-dispatch" type="xsd:int" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the default number of consumers needed before dispatch can start for queues under the address.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-delay-before-dispatch" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the default delay (in milliseconds) to wait before dispatching if number of consumers before
-                     dispatch is not met for queues under the address.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="redistribution-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how long (in ms) to wait after the last consumer is closed on a queue before redistributing
-                     messages.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="send-to-dla-on-no-route" type="xsd:boolean" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     if there are no queues matching this address, whether to forward message to DLA (if it exists for
-                     this address)
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="slow-consumer-threshold" type="xsd:long" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     The minimum rate of message consumption allowed before a consumer is considered "slow."  Measurement
-                     unit is defined by the slow-consumer-threshold-measurement-unit parameter.  By default this is
-                     messages-per-seconds
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="slow-consumer-threshold-measurement-unit" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     The units used to measure the slow consumer threshold.  Default is messages-per-second.
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:simpleType>
-                  <xsd:restriction base="xsd:string">
-                     <xsd:enumeration value="MESSAGES_PER_SECOND"/>
-                     <xsd:enumeration value="MESSAGES_PER_MINUTE"/>
-                     <xsd:enumeration value="MESSAGES_PER_HOUR"/>
-                     <xsd:enumeration value="MESSAGES_PER_DAY"/>
-                  </xsd:restriction>
-               </xsd:simpleType>
-            </xsd:element>
-
-            <xsd:element name="slow-consumer-policy" default="NOTIFY" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     what happens when a slow consumer is identified
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:simpleType>
-                  <xsd:restriction base="xsd:string">
-                     <xsd:enumeration value="KILL"/>
-                     <xsd:enumeration value="NOTIFY"/>
-                  </xsd:restriction>
-               </xsd:simpleType>
-            </xsd:element>
-
-            <xsd:element name="slow-consumer-check-period" type="xsd:long" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     How often to check for slow consumers on a particular queue. Measured in seconds.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-create-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     DEPRECATED: whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
-                     queue
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     DEPRECATED: whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-create-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     DEPRECATED: whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
-                     a topic
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     DEPRECATED: whether or not to delete auto-created JMS topics when the last subscription is closed
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-create-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to automatically create a queue when a client sends a message to or attempts to consume
-                     a message from a queue
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to delete auto-created queues when the queue has 0 consumers and 0 messages
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-created-queues" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to delete created queues when the queue has 0 consumers and 0 messages
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-queues-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how long to wait (in milliseconds) before deleting auto-created queues after the queue has 0
-                     consumers.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-queues-message-count" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the message count the queue must be at or below before it can be evaluated to be auto deleted, 0 waits until empty queue (default) and -1 disables this check.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="config-delete-queues" default="OFF" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                      What to do when a queue is no longer in broker.xml.
-                     OFF = will do nothing queues will remain,
-                     FORCE = delete queues even if messages remaining.
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:simpleType>
-                  <xsd:restriction base="xsd:string">
-                     <xsd:enumeration value="OFF"/>
-                     <xsd:enumeration value="FORCE"/>
-                  </xsd:restriction>
-               </xsd:simpleType>
-            </xsd:element>
-
-            <xsd:element name="auto-create-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to automatically create addresses when a client sends a message to or attempts to
-                     consume a message from a queue mapped to an address that doesn't exist
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to delete auto-created addresses when it no longer has any queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="auto-delete-addresses-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how long to wait (in milliseconds) before deleting auto-created addresses after they no longer
-                     have any queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="config-delete-addresses" default="OFF" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     What to do when an address is no longer in broker.xml.
-                     OFF = will do nothing addresses will remain,
-                     FORCE = delete address and its queues even if messages remaining.
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:simpleType>
-                  <xsd:restriction base="xsd:string">
-                     <xsd:enumeration value="OFF"/>
-                     <xsd:enumeration value="FORCE"/>
-                  </xsd:restriction>
-               </xsd:simpleType>
-            </xsd:element>
-
-            <xsd:element name="config-delete-diverts" default="OFF" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     What to do when a divert is no longer in broker.xml.
-                     OFF = will do nothing queues will remain,
-                     FORCE = delete queues even if messages remaining.
-                  </xsd:documentation>
-               </xsd:annotation>
-               <xsd:simpleType>
-                  <xsd:restriction base="xsd:string">
-                     <xsd:enumeration value="OFF"/>
-                     <xsd:enumeration value="FORCE"/>
-                  </xsd:restriction>
-               </xsd:simpleType>
-            </xsd:element>
-
-            <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how many message a management resource can browse, list or filter
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="management-message-attribute-size-limit" type="xsd:int" default="256" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the size limit of any message attribute value returned from a browse ,list or filter. Attribute values that exceed with be truncated
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-purge-on-no-consumers" type="xsd:boolean" default="false" maxOccurs="1"
-                         minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     purge the contents of the queue once there are no consumers
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-max-consumers" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the maximum number of consumers allowed on this queue at any one time
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-queue-routing-type" type="routing-type" default="MULTICAST" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the routing-type used on auto-created queues
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-address-routing-type" type="routing-type" default="MULTICAST" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the routing-type used on auto-created addresses
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-consumer-window-size" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the default window size for a consumer
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="default-ring-size" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the default ring-size value for any matching queue which doesn't have `ring-size` explicitly
-                     defined
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="retroactive-message-count" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the number of messages to preserve for future queues created on the matching address
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="enable-metrics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not to enable metrics for metrics plugins on the matching address
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-            <xsd:element name="enable-ingress-timestamp" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     whether or not the broker should set its own timestamp on incoming messages to the matching address
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-
-         </xsd:all>
-
-         <xsd:attribute name="match" type="xsd:string" use="required">
+         <xsd:element name="page-max-cache-size" default="5" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  pattern for matching settings against addresses; can use wildards
+                  Number of paging files to cache in memory to avoid IO during paging navigation
                </xsd:documentation>
             </xsd:annotation>
-         </xsd:attribute>
-         <xsd:attributeGroup ref="xml:specialAttrs"/>
-      </xsd:complexType>
-   </xsd:element>
+         </xsd:element>
 
-   <xsd:element name="resource-limit-setting">
-      <xsd:complexType>
+         <xsd:element name="max-read-page-messages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How many messages are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
+                  Between this and max-read-page-bytes the system will stop reading based on whatever hits the mark first.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="max-read-page-bytes" type="xsd:string" default="20M" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How many bytes are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
+                  Between this and max-read-page-messages the system will stop reading based on whatever hits the mark first.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="address-full-policy" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  what happens when an address where "max-size-bytes" is specified becomes full
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="DROP"/>
+                  <xsd:enumeration value="FAIL"/>
+                  <xsd:enumeration value="PAGE"/>
+                  <xsd:enumeration value="BLOCK"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="message-counter-history-day-limit" type="xsd:int" default="0" maxOccurs="1"
+                        minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how many days to keep message counter history for this address
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  This is deprecated please use default-last-value-queue instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-last-value-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether to treat the queues under the address as a last value queues by default
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-last-value-key" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the property to use as the key for a last value queue by default
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-non-destructive" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether the queue should be non-destructive by default
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-exclusive-queue" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether to treat the queues under the address as exclusive queues by default
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-group-rebalance" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether to rebalance groups when a consumer is added
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-group-rebalance-pause-dispatch" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether to pause dispatch when rebalancing groups
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-group-buckets" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  number of buckets to use for grouping, -1 (default) is unlimited and uses the raw group, 0 disables message groups.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-group-first-key" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  key used to mark a message is first in a group for a consumer
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-consumers-before-dispatch" type="xsd:int" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the default number of consumers needed before dispatch can start for queues under the address.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-delay-before-dispatch" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the default delay (in milliseconds) to wait before dispatching if number of consumers before
+                  dispatch is not met for queues under the address.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="redistribution-delay" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how long (in ms) to wait after the last consumer is closed on a queue before redistributing
+                  messages.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="send-to-dla-on-no-route" type="xsd:boolean" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  if there are no queues matching this address, whether to forward message to DLA (if it exists for
+                  this address)
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="slow-consumer-threshold" type="xsd:long" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The minimum rate of message consumption allowed before a consumer is considered "slow."  Measurement
+                  unit is defined by the slow-consumer-threshold-measurement-unit parameter.  By default this is
+                  messages-per-seconds
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="slow-consumer-threshold-measurement-unit" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The units used to measure the slow consumer threshold.  Default is messages-per-second.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="MESSAGES_PER_SECOND"/>
+                  <xsd:enumeration value="MESSAGES_PER_MINUTE"/>
+                  <xsd:enumeration value="MESSAGES_PER_HOUR"/>
+                  <xsd:enumeration value="MESSAGES_PER_DAY"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="slow-consumer-policy" default="NOTIFY" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  what happens when a slow consumer is identified
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="KILL"/>
+                  <xsd:enumeration value="NOTIFY"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="slow-consumer-check-period" type="xsd:long" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How often to check for slow consumers on a particular queue. Measured in seconds.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-create-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED: whether or not to automatically create JMS queues when a producer sends or a consumer connects to a
+                  queue
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-jms-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED: whether or not to delete auto-created JMS queues when the queue has 0 consumers and 0 messages
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-create-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED: whether or not to automatically create JMS topics when a producer sends or a consumer subscribes to
+                  a topic
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-jms-topics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED: whether or not to delete auto-created JMS topics when the last subscription is closed
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-create-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to automatically create a queue when a client sends a message to or attempts to consume
+                  a message from a queue
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-queues" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to delete auto-created queues when the queue has 0 consumers and 0 messages
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-created-queues" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to delete created queues when the queue has 0 consumers and 0 messages
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-queues-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how long to wait (in milliseconds) before deleting auto-created queues after the queue has 0
+                  consumers.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-queues-message-count" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the message count the queue must be at or below before it can be evaluated to be auto deleted, 0 waits until empty queue (default) and -1 disables this check.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="config-delete-queues" default="OFF" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                     What to do when a queue is no longer in broker.xml.
+                  OFF = will do nothing queues will remain,
+                  FORCE = delete queues even if messages remaining.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="OFF"/>
+                  <xsd:enumeration value="FORCE"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="auto-create-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to automatically create addresses when a client sends a message to or attempts to
+                  consume a message from a queue mapped to an address that doesn't exist
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-addresses" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to delete auto-created addresses when it no longer has any queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-addresses-delay" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how long to wait (in milliseconds) before deleting auto-created addresses after they no longer
+                  have any queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="config-delete-addresses" default="OFF" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  What to do when an address is no longer in broker.xml.
+                  OFF = will do nothing addresses will remain,
+                  FORCE = delete address and its queues even if messages remaining.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="OFF"/>
+                  <xsd:enumeration value="FORCE"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="config-delete-diverts" default="OFF" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  What to do when a divert is no longer in broker.xml.
+                  OFF = will do nothing queues will remain,
+                  FORCE = delete queues even if messages remaining.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="OFF"/>
+                  <xsd:enumeration value="FORCE"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="management-browse-page-size" type="xsd:int" default="200" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how many message a management resource can browse, list or filter
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="management-message-attribute-size-limit" type="xsd:int" default="256" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the size limit of any message attribute value returned from a browse ,list or filter. Attribute values that exceed with be truncated
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-purge-on-no-consumers" type="xsd:boolean" default="false" maxOccurs="1"
+                        minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  purge the contents of the queue once there are no consumers
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-max-consumers" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the maximum number of consumers allowed on this queue at any one time
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-queue-routing-type" type="routing-type" default="MULTICAST" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the routing-type used on auto-created queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-address-routing-type" type="routing-type" default="MULTICAST" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the routing-type used on auto-created addresses
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-consumer-window-size" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the default window size for a consumer
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="default-ring-size" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the default ring-size value for any matching queue which doesn't have `ring-size` explicitly
+                  defined
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="retroactive-message-count" type="xsd:long" default="0" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the number of messages to preserve for future queues created on the matching address
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="enable-metrics" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to enable metrics for metrics plugins on the matching address
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="enable-ingress-timestamp" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not the broker should set its own timestamp on incoming messages to the matching address
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+      </xsd:all>
+
+      <xsd:attribute name="match" type="xsd:string" use="required">
          <xsd:annotation>
             <xsd:documentation>
-               Complex type element to configure resource limits for a particular user.
+               pattern for matching settings against addresses; can use wildards
             </xsd:documentation>
          </xsd:annotation>
-         <xsd:all>
-            <xsd:element name="max-connections" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how many connections are allowed by the matched user (-1 means no limit, default is -1)
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
 
-            <xsd:element name="max-queues" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     how many queues can be created by the matched user (-1 means no limit, default is -1)
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
-         </xsd:all>
-
-         <xsd:attribute name="match" type="xsd:string" use="required">
-            <xsd:annotation>
-               <xsd:documentation>
-                  the name of the user to whom the limits should be applied
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:attribute>
+   <!-- RESOURCE LIMIT CONFIGURATION -->
+   <xsd:element name="resource-limit-settings">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of resource limit settings
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="resource-limit-setting" type="resourceLimitSettingType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
          <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
+
+   <xsd:complexType name="resourceLimitSettingType">
+      <xsd:annotation>
+         <xsd:documentation>
+            Complex type element to configure resource limits for a particular user.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:all>
+         <xsd:element name="max-connections" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how many connections are allowed by the matched user (-1 means no limit, default is -1)
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="max-queues" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  how many queues can be created by the matched user (-1 means no limit, default is -1)
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:all>
+
+      <xsd:attribute name="match" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               the name of the user to whom the limits should be applied
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
 
    <xsd:element name="filter">
       <xsd:complexType>
@@ -4533,6 +4302,20 @@
       </xsd:complexType>
    </xsd:element>
 
+   <xsd:element name="connector-services">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of connector services
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="connector-service" type="connector-serviceType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+   
    <xsd:complexType name="connector-serviceType">
       <xsd:sequence>
          <xsd:element maxOccurs="1" minOccurs="1" name="factory-class" type="xsd:string">
@@ -4564,7 +4347,6 @@
    </xsd:complexType>
 
    <!-- 2.0 Addressing configuration -->
-
    <xsd:simpleType name="routing-type">
       <xsd:restriction base="xsd:string">
          <xsd:enumeration value="ANYCAST"/>
@@ -4644,57 +4426,324 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="addressesType">
-      <xsd:sequence>
-         <xsd:element name="address" type="addressType" maxOccurs="unbounded" minOccurs="0"/>
-      </xsd:sequence>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
-
-   <xsd:complexType name="wildcardType">
+   <!-- CONNECTORS CONFIGURATION -->
+   <xsd:element name="connectors">
       <xsd:annotation>
          <xsd:documentation>
-            Complex type element to configure wildcard address format.
+            a list of remoting connectors configurations to create
          </xsd:documentation>
       </xsd:annotation>
-      <xsd:all>
-         <xsd:element maxOccurs="1" minOccurs="0" name="enabled" type="xsd:boolean">
-            <xsd:annotation>
-               <xsd:documentation>
-                  deprecated please use routing-enabled.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element maxOccurs="1" minOccurs="0" name="routing-enabled" type="xsd:boolean">
-            <xsd:annotation>
-               <xsd:documentation>
-                  is wildcard addresses routing enabled.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element maxOccurs="1" minOccurs="0" name="delimiter" type="xsd:string">
-            <xsd:annotation>
-               <xsd:documentation>
-                  wildcard address parts delimiter. Default '.'
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element maxOccurs="1" minOccurs="0" name="any-words" type="xsd:string">
-            <xsd:annotation>
-               <xsd:documentation>
-                  wildcard address any words character. Default '#'
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element maxOccurs="1" minOccurs="0" name="single-word" type="xsd:string">
-            <xsd:annotation>
-               <xsd:documentation>
-                  wildcard address single word character. Default '*'
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-      </xsd:all>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="connector" type="transportType" maxOccurs="unbounded"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="acceptors">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of remoting acceptors to create
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="acceptor" type="transportType" maxOccurs="unbounded"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <!-- SECURITY SETTINGS CONFIGURATION -->
+   <xsd:element name="security-settings">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of security settings
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:choice>
+               <xsd:element name="security-setting" maxOccurs="unbounded" minOccurs="0">
+                  <xsd:complexType>
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           a permission to add to the matched addresses
+                        </xsd:documentation>
+                     </xsd:annotation>
+                     <xsd:sequence>
+                        <xsd:element name="permission" maxOccurs="unbounded" minOccurs="0">
+                           <xsd:complexType>
+                              <xsd:attribute name="type" type="xsd:string" use="required">
+                                 <xsd:annotation>
+                                    <xsd:documentation>
+                                       the type of permission
+                                    </xsd:documentation>
+                                 </xsd:annotation>
+                              </xsd:attribute>
+                              <xsd:attribute name="roles" type="xsd:string" use="required">
+                                 <xsd:annotation>
+                                    <xsd:documentation>
+                                       a comma-separated list of roles to apply the permission to
+                                    </xsd:documentation>
+                                 </xsd:annotation>
+                              </xsd:attribute>
+                              <xsd:attributeGroup ref="xml:specialAttrs"/>
+                           </xsd:complexType>
+                        </xsd:element>
+                     </xsd:sequence>
+                     <xsd:attribute name="match" type="xsd:string" use="required">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              pattern for matching security roles against addresses; can use wildcards
+                           </xsd:documentation>
+                        </xsd:annotation>
+                     </xsd:attribute>
+                     <xsd:attributeGroup ref="xml:specialAttrs"/>
+                  </xsd:complexType>
+               </xsd:element>
+               <xsd:element name="security-setting-plugin" maxOccurs="1" minOccurs="0">
+                  <xsd:complexType>
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           a plugin
+                        </xsd:documentation>
+                     </xsd:annotation>
+                     <xsd:sequence>
+                        <xsd:element name="setting" maxOccurs="unbounded" minOccurs="0">
+                           <xsd:complexType>
+                              <xsd:attribute name="name" type="xsd:string" use="required">
+                                 <xsd:annotation>
+                                    <xsd:documentation>
+                                       the name of the setting
+                                    </xsd:documentation>
+                                 </xsd:annotation>
+                              </xsd:attribute>
+                              <xsd:attribute name="value" type="xsd:string" use="required">
+                                 <xsd:annotation>
+                                    <xsd:documentation>
+                                       the value for the setting
+                                    </xsd:documentation>
+                                 </xsd:annotation>
+                              </xsd:attribute>
+                              <xsd:attributeGroup ref="xml:specialAttrs"/>
+                           </xsd:complexType>
+                        </xsd:element>
+                     </xsd:sequence>
+                     <xsd:attribute name="class-name" type="xsd:string" use="required">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              the name of the plugin class to instantiate
+                           </xsd:documentation>
+                        </xsd:annotation>
+                     </xsd:attribute>
+                     <xsd:attributeGroup ref="xml:specialAttrs"/>
+                  </xsd:complexType>
+               </xsd:element>
+            </xsd:choice>
+            <xsd:element name="role-mapping" minOccurs="0" maxOccurs="unbounded">
+               <xsd:complexType>
+                  <xsd:attribute name="from" type="xsd:string" use="required">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           the name of the external role
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:attribute>
+                  <xsd:attribute name="to" type="xsd:string" use="required">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           the comma delimited name of the internal role(s)
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
+               </xsd:complexType>
+            </xsd:element>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <!-- BROKER PLUGINS CONFIGURATION -->
+   <xsd:element name="broker-plugins">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of broker-plugins
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="broker-plugin" maxOccurs="unbounded" minOccurs="0">
+               <xsd:complexType>
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        a broker plugin
+                     </xsd:documentation>
+                  </xsd:annotation>
+                  <xsd:sequence>
+                     <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              properties to configure a plugin
+                           </xsd:documentation>
+                        </xsd:annotation>
+                     </xsd:element>
+                  </xsd:sequence>
+                  <xsd:attribute name="class-name" type="xsd:string" use="required">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           the name of the broker plugin class to instantiate
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
+               </xsd:complexType>
+            </xsd:element>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <!-- METRICS CONFIGURATION -->
+   <xsd:element name="metrics">
+      <xsd:annotation>
+         <xsd:documentation>
+            metrics configuration
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:all>
+            <xsd:element name="jvm-memory" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to report JVM memory metrics
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="jvm-threads" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to report JVM thread metrics
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="jvm-gc" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to report JVM GC metrics
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="netty-pool" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     whether or not to report Netty pool metrics
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+
+            <xsd:element name="plugin" maxOccurs="1" minOccurs="0">
+               <xsd:complexType>
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        a metrics plugin
+                     </xsd:documentation>
+                  </xsd:annotation>
+                  <xsd:sequence>
+                     <xsd:element ref="property" maxOccurs="unbounded" minOccurs="0">
+                        <xsd:annotation>
+                           <xsd:documentation>
+                              properties to configure a plugin
+                           </xsd:documentation>
+                        </xsd:annotation>
+                     </xsd:element>
+                  </xsd:sequence>
+                  <xsd:attribute name="class-name" type="xsd:string" use="required">
+                     <xsd:annotation>
+                        <xsd:documentation>
+                           the name of the metrics plugin class to instantiate
+                        </xsd:documentation>
+                     </xsd:annotation>
+                  </xsd:attribute>
+                  <xsd:attributeGroup ref="xml:specialAttrs"/>
+               </xsd:complexType>
+            </xsd:element>
+         </xsd:all>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <!-- ADDRESSES CONFIGURATION -->
+   <xsd:element name="addresses">
+      <xsd:annotation>
+         <xsd:documentation>
+            a list of addresses
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:element name="address" type="addressType" maxOccurs="unbounded" minOccurs="0"/>
+         </xsd:sequence>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
+
+   <xsd:element name="wildcard-addresses">
+      <xsd:annotation>
+         <xsd:documentation>
+            parameters to configure wildcard address matching format
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:complexType>
+         <xsd:annotation>
+            <xsd:documentation>
+               Complex type element to configure wildcard address format.
+            </xsd:documentation>
+         </xsd:annotation>
+         <xsd:all>
+            <xsd:element maxOccurs="1" minOccurs="0" name="enabled" type="xsd:boolean">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     deprecated please use routing-enabled.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="routing-enabled" type="xsd:boolean">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     is wildcard addresses routing enabled.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="delimiter" type="xsd:string">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     wildcard address parts delimiter. Default '.'
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="any-words" type="xsd:string">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     wildcard address any words character. Default '#'
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element maxOccurs="1" minOccurs="0" name="single-word" type="xsd:string">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     wildcard address single word character. Default '*'
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:all>
+         <xsd:attributeGroup ref="xml:specialAttrs"/>
+      </xsd:complexType>
+   </xsd:element>
 
 </xsd:schema>
