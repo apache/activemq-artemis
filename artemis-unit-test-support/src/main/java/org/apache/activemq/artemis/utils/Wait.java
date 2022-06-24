@@ -16,21 +16,37 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 import java.util.function.Supplier;
 
+import org.jboss.logging.Logger;
 import org.junit.Assert;
 
 /**
  * Utility adapted from: org.apache.activemq.util.Wait
  */
 public class Wait {
-
+   private static Logger logger = Logger.getLogger(Wait.class);
 
    public static final long MAX_WAIT_MILLIS = 30 * 1000;
    public static final int SLEEP_MILLIS = 100;
    public static final String DEFAULT_FAILURE_MESSAGE = "Condition wasn't met";
+
+   private static Method tdUtilMethod;
+   static {
+      try {
+         Class<?> clazz = Class.forName("org.apache.activemq.artemis.utils.ThreadDumpUtil");
+         tdUtilMethod = clazz.getMethod("threadDump", String.class);
+      } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Wait util was unable to locate ThreadDumpUtil class/method", e);
+         } else {
+            logger.info("Wait util was unable to locate ThreadDumpUtil class/method due to: " + e.getClass().getName() + ": " + e.getMessage());
+         }
+      }
+   }
 
    public interface Condition {
 
@@ -71,11 +87,12 @@ public class Wait {
    }
 
    public static void assertEquals(Long size, LongCondition condition, long timeout, long sleepMillis, boolean printThreadDump) throws Exception {
-      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis, printThreadDump);
+      checkForThreadDumpUtil(printThreadDump);
 
+      boolean result = waitFor(() -> condition.getCount() == size, timeout, sleepMillis, printThreadDump);
       if (!result) {
          if (printThreadDump) {
-            System.out.println(ThreadDumpUtil.threadDump("thread dump"));
+            callThreadDumpUtil("thread dump");
          }
          Assert.assertEquals(size.longValue(), condition.getCount());
       }
@@ -170,7 +187,7 @@ public class Wait {
                                  final long durationMillis,
                                  final long sleepMillis,
                                  final boolean printThreadDump) {
-
+      checkForThreadDumpUtil(printThreadDump);
       try {
          final long expiry = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(durationMillis);
          boolean conditionSatisified = condition.isSatisfied();
@@ -183,7 +200,7 @@ public class Wait {
             conditionSatisified = condition.isSatisfied();
          }
          if (!conditionSatisified && printThreadDump) {
-            System.out.println(ThreadDumpUtil.threadDump("thread dump"));
+            callThreadDumpUtil("thread dump");
          }
          return conditionSatisified;
       } catch (Exception e) {
@@ -191,4 +208,20 @@ public class Wait {
       }
    }
 
+   private static void checkForThreadDumpUtil(boolean printThreadDump) {
+      if (printThreadDump && tdUtilMethod == null) {
+         throw new IllegalStateException("Unable to identify ThreadDumpUtil class/method.");
+      }
+   }
+
+   private static void callThreadDumpUtil(String msg) {
+      checkForThreadDumpUtil(true);
+
+      try {
+         Object threadDump = tdUtilMethod.invoke(null, msg);
+         System.out.println(threadDump);
+      } catch (Exception e) {
+         throw new RuntimeException("Failure running ThreadDumpUtil", e);
+      }
+   }
 }

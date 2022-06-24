@@ -25,7 +25,7 @@
    <server configuration="${artemis.URI.instance}/etc/broker.xml"/>
 
    <!-- The web server is only bound to localhost by default -->
-   <web path="web" bind="http://localhost:8161"  passwordCodec="org.apache.activemq.artemis.utils.MaskPasswordResolvingTest$SimplePasswordCodec" keyStorePassword="ENC(youneverknow)" trustStorePassword="ENC(youcanguess)">
+   <web path="web" bind="http://localhost:8161"  passwordCodec="org.apache.activemq.artemis.utils.SimpleWebTestPasswordCodec" keyStorePassword="ENC(youneverknow)" trustStorePassword="ENC(youcanguess)">
       <app url="activemq-branding" war="activemq-branding.war"/>
    </web>
 

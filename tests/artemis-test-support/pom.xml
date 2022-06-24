@@ -32,37 +32,88 @@
 
    <dependencies>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-client</artifactId>
+         <scope>provided</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>qpid-jms-client</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-j</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-buffer</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-codec-http</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-transport</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-common</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-handler</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.jms</groupId>
          <artifactId>jakarta.jms-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
+         <scope>provided</scope>
+      </dependency>
+
+      <!-- This should be the only dependency not at 'provided' scope, for now -->
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+         <type>test-jar</type>
       </dependency>
    </dependencies>
-
 </project>

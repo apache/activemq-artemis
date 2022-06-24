@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.e2e.common.E2ETestBase;
-import org.apache.activemq.artemis.tests.smoke.utils.Jmx;
+import org.apache.activemq.artemis.tests.util.Jmx;
 import org.apache.commons.io.FileUtils;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;

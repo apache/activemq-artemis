@@ -26,7 +26,7 @@
 
    <!-- The web server is only bound to localhost by default -->
    <web path="web">
-       <binding uri="https://localhost:8443" passwordCodec="org.apache.activemq.artemis.utils.MaskPasswordResolvingTest$SimplePasswordCodec" keyStorePassword="ENC(youneverknow)" trustStorePassword="ENC(youcanguess)">
+       <binding uri="https://localhost:8443" passwordCodec="org.apache.activemq.artemis.utils.SimpleWebTestPasswordCodec" keyStorePassword="ENC(youneverknow)" trustStorePassword="ENC(youcanguess)">
            <app url="console" war="console.war"/>
        </binding>
    </web>

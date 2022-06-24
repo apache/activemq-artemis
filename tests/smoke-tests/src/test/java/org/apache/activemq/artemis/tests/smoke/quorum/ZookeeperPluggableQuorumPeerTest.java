@@ -28,14 +28,14 @@ import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.containsExactNodeIds;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.decodeNetworkTopologyJson;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.liveOf;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.validateNetworkTopology;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withBackup;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withLive;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withMembers;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withNodes;
+import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
+import static org.apache.activemq.artemis.tests.util.Jmx.decodeNetworkTopologyJson;
+import static org.apache.activemq.artemis.tests.util.Jmx.liveOf;
+import static org.apache.activemq.artemis.tests.util.Jmx.validateNetworkTopology;
+import static org.apache.activemq.artemis.tests.util.Jmx.withBackup;
+import static org.apache.activemq.artemis.tests.util.Jmx.withLive;
+import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
+import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 
 public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSinglePairTest {
 
