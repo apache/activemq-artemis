@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.activemq.artemis.tests.smoke.utils.Jmx;
+import org.apache.activemq.artemis.tests.util.Jmx;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
@@ -39,15 +39,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.backupOf;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.containsExactNodeIds;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.decodeNetworkTopologyJson;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.liveOf;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.validateNetworkTopology;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withBackup;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withLive;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withMembers;
-import static org.apache.activemq.artemis.tests.smoke.utils.Jmx.withNodes;
+import static org.apache.activemq.artemis.tests.util.Jmx.backupOf;
+import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
+import static org.apache.activemq.artemis.tests.util.Jmx.decodeNetworkTopologyJson;
+import static org.apache.activemq.artemis.tests.util.Jmx.liveOf;
+import static org.apache.activemq.artemis.tests.util.Jmx.validateNetworkTopology;
+import static org.apache.activemq.artemis.tests.util.Jmx.withBackup;
+import static org.apache.activemq.artemis.tests.util.Jmx.withLive;
+import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
+import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 
 @RunWith(Parameterized.class)
 public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {

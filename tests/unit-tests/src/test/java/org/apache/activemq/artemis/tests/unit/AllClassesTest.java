@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.unit;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.jboss.logging.Logger;
 import org.junit.Assume;
 import org.junit.Test;

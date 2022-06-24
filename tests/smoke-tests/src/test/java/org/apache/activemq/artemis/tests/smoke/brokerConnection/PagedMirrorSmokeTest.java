@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.jboss.logging.Logger;
 import org.junit.Assert;

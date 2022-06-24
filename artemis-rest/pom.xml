@@ -129,12 +129,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
-         <version>${project.version}</version>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
          <groupId>jakarta.jms</groupId>
          <artifactId>jakarta.jms-api</artifactId>
       </dependency>
@@ -157,12 +151,10 @@
       <dependency>
          <groupId>org.apache.httpcomponents</groupId>
          <artifactId>httpcore</artifactId>
-         <version>4.4.13</version>
       </dependency>
       <dependency>
          <groupId>org.apache.httpcomponents</groupId>
          <artifactId>httpclient</artifactId>
-         <version>4.5.13</version>
       </dependency>
       <dependency>
          <groupId>commons-codec</groupId>
@@ -171,6 +163,12 @@
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-unit-test-support</artifactId>
+         <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
    </dependencies>

@@ -63,22 +63,8 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
          <groupId>org.apache.activemq.tests</groupId>
          <artifactId>unit-tests</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
          <type>test-jar</type>
@@ -110,6 +96,12 @@
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>artemis-test-support</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
    </dependencies>
 

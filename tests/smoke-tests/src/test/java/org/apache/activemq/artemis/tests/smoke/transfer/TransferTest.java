@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,28 +77,12 @@ public class TransferTest extends SmokeTestBase {
       return parameters;
    }
 
-   private static ConnectionFactory createConnectionFactory(String protocol, String uri) {
-      if (protocol.toUpperCase().equals("AMQP")) {
-
-         if (uri.startsWith("tcp://")) {
-            // replacing tcp:// by amqp://
-            uri = "amqp" + uri.substring(3);
-
-         }
-         return new JmsConnectionFactory(uri);
-      } else if (protocol.toUpperCase().equals("CORE") || protocol.toUpperCase().equals("ARTEMIS")) {
-         return new org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory(uri);
-      } else {
-         throw new IllegalStateException("Unknown:" + protocol);
-      }
-   }
-
    private ConnectionFactory createConsumerCF() {
-      return createConnectionFactory(consumerProtocol, "tcp://localhost:61716");
+      return CFUtil.createConnectionFactory(consumerProtocol, "tcp://localhost:61716");
    }
 
    private ConnectionFactory createSenderCF() {
-      return createConnectionFactory(senderProtocol, "tcp://localhost:61616");
+      return CFUtil.createConnectionFactory(senderProtocol, "tcp://localhost:61616");
    }
 
    @Before

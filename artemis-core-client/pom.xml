@@ -72,6 +72,12 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-unit-test-support</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
          <scope>test</scope>
@@ -179,20 +185,6 @@
             <filtering>true</filtering>
          </resource>
       </resources>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <phase>test</phase>
-                  <goals>
-                     <goal>test-jar</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
    </build>
 
 </project>

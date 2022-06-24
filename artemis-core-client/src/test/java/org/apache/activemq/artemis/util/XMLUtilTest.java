@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.util;
 
-import org.apache.activemq.artemis.tests.util.SilentTestCase;
+import org.apache.activemq.artemis.utils.SilentTestCase;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.junit.Assert;
 import org.junit.Test;

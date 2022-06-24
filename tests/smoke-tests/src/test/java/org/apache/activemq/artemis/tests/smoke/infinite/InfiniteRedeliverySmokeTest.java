@@ -32,7 +32,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;

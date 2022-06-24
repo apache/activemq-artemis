@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
+import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
@@ -143,7 +144,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
 
       session.close();
 
-      ConnectionFactory factory = createConnectionFactory(protocol, "tcp://localhost:61616");
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
       Connection connection = factory.createConnection();
       try {
          Session session = connection.createSession();
