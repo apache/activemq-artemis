@@ -52,6 +52,9 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    // We will force a moveNextFiles when the compactCount is bellow than COMPACT_SPLIT_LINE
    private static final short COMPACT_SPLIT_LINE = 2;
 
+   // Compacting should split the compacting counts only once
+   boolean split = false;
+
    // Snapshot of transactions that were pending when the compactor started
    private final ConcurrentLongHashMap<PendingTransaction> pendingTransactions = new ConcurrentLongHashMap<>();
 
@@ -156,49 +159,27 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    }
 
    private void checkSize(final int size) throws Exception {
-      checkSize(size, -1);
+      checkSizeAndCompactSplit(size, -1);
    }
 
-   private void checkSize(final int size, final int compactCount) throws Exception {
+   private void checkSizeAndCompactSplit(final int size, final int compactCount) throws Exception {
       if (getWritingChannel() == null) {
-         if (!checkCompact(compactCount)) {
-            // will need to open a file either way
-            openFile();
+         if (compactCount < COMPACT_SPLIT_LINE) {
+            // in case the very first record is already bellog SPLIT-LINE we need to set split = true already
+            // so no further checks will be done
+            // otherwise we would endup with more files than needed
+            split = true;
          }
+         openFile();
       } else {
-         if (compactCount >= 0) {
-            if (checkCompact(compactCount)) {
-               // The file was already moved on this case, no need to check for the size.
-               // otherwise we will also need to check for the size
-               return;
-            }
+         if (compactCount >= 0 && compactCount < COMPACT_SPLIT_LINE && !split) {
+            split = true;
+            openFile();
          }
 
          if (getWritingChannel().writerIndex() + size > getWritingChannel().capacity()) {
             openFile();
          }
-      }
-   }
-
-   int currentCount;
-
-   // This means we will need to split when the compactCount is bellow the watermark
-   boolean willNeedToSplit = false;
-
-   boolean splitted = false;
-
-   private boolean checkCompact(final int compactCount) throws Exception {
-      if (compactCount >= COMPACT_SPLIT_LINE && !splitted) {
-         willNeedToSplit = true;
-      }
-
-      if (willNeedToSplit && compactCount < COMPACT_SPLIT_LINE) {
-         willNeedToSplit = false;
-         splitted = false;
-         openFile();
-         return true;
-      } else {
-         return false;
       }
    }
 
@@ -244,7 +225,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
          JournalInternalRecord addRecord = new JournalAddRecord(true, info.id, info.getUserRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
          addRecord.setCompactCount((short) (info.compactCount + 1));
 
-         checkSize(addRecord.getEncodeSize(), info.compactCount);
+         checkSizeAndCompactSplit(addRecord.getEncodeSize(), info.compactCount);
 
          writeEncoder(addRecord);
 
@@ -271,7 +252,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       record.setCompactCount((short) (info.compactCount + 1));
 
-      checkSize(record.getEncodeSize(), info.compactCount);
+      checkSizeAndCompactSplit(record.getEncodeSize(), info.compactCount);
 
       newTransaction.addPositive(currentFile, info.id, record.getEncodeSize(), info.replaceableUpdate);
 
@@ -460,7 +441,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       updateRecord.setCompactCount((short) (info.compactCount + 1));
 
-      checkSize(updateRecord.getEncodeSize(), info.compactCount);
+      checkSizeAndCompactSplit(updateRecord.getEncodeSize(), info.compactCount);
 
       JournalRecord newRecord = newRecords.get(info.id);
 
@@ -493,7 +474,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
       updateRecordTX.setCompactCount((short) (info.compactCount + 1));
 
-      checkSize(updateRecordTX.getEncodeSize(), info.compactCount);
+      checkSizeAndCompactSplit(updateRecordTX.getEncodeSize(), info.compactCount);
 
       writeEncoder(updateRecordTX);
 
