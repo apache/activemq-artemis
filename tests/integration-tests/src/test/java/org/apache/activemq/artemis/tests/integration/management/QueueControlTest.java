@@ -439,7 +439,80 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertEquals(1, obj.size());
 
+      assertEquals(0, obj.get(0).asJsonObject().getInt("lastDeliveredTimeElapsed"));
+
+      assertEquals(0, obj.get(0).asJsonObject().getInt("lastAcknowledgedTimeElapsed"));
+
       consumer.close();
+      Assert.assertEquals(0, queueControl.getConsumerCount());
+
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      assertEquals(0, obj.size());
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetConsumerWithMessagesJSON() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ClientProducer producer = session.createProducer(address);
+
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createMessage(true));
+      }
+
+      Wait.assertEquals(0, () -> queueControl.getConsumerCount());
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      Wait.assertEquals(1, () -> queueControl.getConsumerCount());
+
+      session.start();
+
+      ClientMessage clientMessage = null;
+
+      for (int i = 0; i < 5; i++) {
+         clientMessage = consumer.receiveImmediate();
+      }
+
+      JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      assertEquals(1, obj.size());
+
+      Wait.assertEquals(5, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt("deliveringCount"));
+
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      JsonObject jsonObject = obj.get(0).asJsonObject();
+
+      assertEquals(5, jsonObject.getInt("deliveringCount"));
+
+      assertEquals(0, jsonObject.getInt("messagesAcknowledged"));
+
+      assertTrue(jsonObject.getInt("lastDeliveredTimeElapsed") > 0);
+
+      assertTrue( jsonObject.getInt("lastAcknowledgedTimeElapsed") > 0);
+
+      clientMessage.acknowledge();
+
+      session.commit();
+
+      Wait.assertEquals(5, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt("messagesAcknowledged"));
+
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      jsonObject = obj.get(0).asJsonObject();
+
+      assertEquals(0, jsonObject.getInt("deliveringCount"));
+
+      consumer.close();
+
       Assert.assertEquals(0, queueControl.getConsumerCount());
 
       obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());

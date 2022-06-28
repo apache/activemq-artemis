@@ -62,4 +62,28 @@ public interface ConsumerInfo {
     */
    String getConnectionRemoteAddress();
 
+   /**
+    * Returns how many messages are out for delivery but not yet acknowledged
+    * @return delivering count
+    */
+   int getDeliveringCount();
+
+   /**
+    * Returns the time in milliseconds that the last message was delivered to a consumer
+    * @return the time of the last message delivered
+    */
+   long getLastDeliveredTime();
+
+   /**
+    * Returns the time in milliseconds that the last message was acknowledged by a consumer
+    * @return the time of the last message was acknowledged
+    */
+   long getLastAcknowledgedTime();
+
+   /**
+    * Retruns the number of messages acknowledged by this consumer sinceit was created
+    * @return messages acknowledged
+    */
+   long getMessagesAcknowledged();
+
 }

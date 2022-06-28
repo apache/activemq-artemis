@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -182,7 +181,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    private final OperationContext context;
 
    // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
-   protected final Map<SimpleString, Pair<Object, AtomicLong>> targetAddressInfos = new MaxSizeMap<>(100);
+   protected final Map<SimpleString, Pair<Object, TargetAddressInfo>> targetAddressInfos = new MaxSizeMap<>(100);
 
    private final long creationTime = System.currentTimeMillis();
 
@@ -1931,7 +1930,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String[] getTargetAddresses() {
-      Map<SimpleString, Pair<Object, AtomicLong>> copy = cloneTargetAddresses();
+      Map<SimpleString, Pair<Object, TargetAddressInfo>> copy = cloneTargetAddresses();
       Iterator<SimpleString> iter = copy.keySet().iterator();
       int num = copy.keySet().size();
       String[] addresses = new String[num];
@@ -1945,7 +1944,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String getLastSentMessageID(String address) {
-      Pair<Object, AtomicLong> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
+      Pair<Object, TargetAddressInfo> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
       if (value != null) {
          return value.getA().toString();
       } else {
@@ -1964,14 +1963,19 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void describeProducersInfo(JsonArrayBuilder array) throws Exception {
-      Map<SimpleString, Pair<Object, AtomicLong>> targetCopy = cloneTargetAddresses();
+      Map<SimpleString, Pair<Object, TargetAddressInfo>> targetCopy = cloneTargetAddresses();
 
-      for (Map.Entry<SimpleString, Pair<Object, AtomicLong>> entry : targetCopy.entrySet()) {
+      for (Map.Entry<SimpleString, Pair<Object, TargetAddressInfo>> entry : targetCopy.entrySet()) {
          String uuid = null;
          if (entry.getValue().getA() != null) {
             uuid = entry.getValue().getA().toString();
          }
-         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder().add("connectionID", this.getConnectionID().toString()).add("sessionID", this.getName()).add("destination", entry.getKey().toString()).add("lastUUIDSent", uuid, JsonValue.NULL).add("msgSent", entry.getValue().getB().longValue());
+         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder()
+               .add("connectionID", this.getConnectionID().toString())
+               .add("sessionID", this.getName()).add("destination", entry.getKey().toString())
+               .add("lastUUIDSent", uuid, JsonValue.NULL)
+               .add("msgSent", entry.getValue().getB().getMessagesSent().longValue())
+               .add("msgSizeSent", entry.getValue().getB().getMessagesSizeSent().longValue());
          array.add(producerInfo);
       }
    }
@@ -2048,7 +2052,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       connectionFailed(me, failedOver);
    }
 
-   public Map<SimpleString, Pair<Object, AtomicLong>> cloneTargetAddresses() {
+   public Map<SimpleString, Pair<Object, TargetAddressInfo>> cloneTargetAddresses() {
       return new HashMap<>(targetAddressInfos);
    }
 
@@ -2220,13 +2224,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          result = postOffice.route(msg, routingContext, direct);
 
-         Pair<Object, AtomicLong> value = targetAddressInfos.get(msg.getAddressSimpleString());
+         Pair<Object, TargetAddressInfo> value = targetAddressInfos.get(msg.getAddressSimpleString());
 
          if (value == null) {
-            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>(msg.getUserID(), new AtomicLong(1)));
+            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>(msg.getUserID(), new TargetAddressInfo()));
          } else {
             value.setA(msg.getUserID());
-            value.getB().incrementAndGet();
+            value.getB().getMessagesSent().incrementAndGet();
+            value.getB().getMessagesSizeSent().getAndAdd(msg.getEncodeSize());
          }
       } finally {
          if (!routingContext.isReusable()) {
@@ -2383,4 +2388,5 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public String toManagementString() {
       return "ServerSession [id=" + getConnectionID() + ":" + getName() + "]";
    }
+
 }

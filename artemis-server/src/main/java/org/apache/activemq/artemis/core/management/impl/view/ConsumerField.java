@@ -32,7 +32,12 @@ public enum ConsumerField {
    LOCAL_ADDRESS("localAddress"),
    REMOTE_ADDRESS("remoteAddress"),
    QUEUE_TYPE("queueType"),
-   CREATION_TIME("creationTime");
+   CREATION_TIME("creationTime"),
+   DELIVERING_COUNT("deliveringCount"),
+   DELIVERING_SIZE("deliveringSize"),
+   MESSAGES_ACKNOWLEDGED("messagesAcknowledged"),
+   LAST_DELIVERED_TIME_ELAPSED("lastDeliveredTimeElapsed"),
+   LAST_ACKNOWLEDGED_TIME_ELAPSED("lastAcknowledgedTimeElapsed");
 
    private static final Map<String, ConsumerField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 

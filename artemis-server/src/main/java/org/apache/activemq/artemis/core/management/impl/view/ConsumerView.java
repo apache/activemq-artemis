@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.management.impl.view.predicate.ConsumerFilterPredicate;
@@ -46,7 +49,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
    @Override
    public JsonObjectBuilder toJson(ServerConsumer consumer) {
       ServerSession session = server.getSessionByID(consumer.getSessionID());
-
+      ActiveMQServerControlImpl serverControl = server.getActiveMQServerControl();
       //if session is not available then consumer is not in valid state - ignore
       if (session == null) {
          return null;
@@ -57,6 +60,8 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          //for the special case for JMS
          consumerClientID = session.getMetaData(ClientSession.JMS_SESSION_CLIENT_ID_PROPERTY);
       }
+
+      List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
 
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add(ConsumerField.ID.getName(), toString(consumer.getSequentialID()))
@@ -71,7 +76,12 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add(ConsumerField.ADDRESS.getName(), toString(consumer.getQueueAddress()))
          .add(ConsumerField.LOCAL_ADDRESS.getName(), toString(consumer.getConnectionLocalAddress()))
          .add(ConsumerField.REMOTE_ADDRESS.getName(), toString(consumer.getConnectionRemoteAddress()))
-         .add(ConsumerField.CREATION_TIME.getName(), new Date(consumer.getCreationTime()).toString());
+         .add(ConsumerField.CREATION_TIME.getName(), new Date(consumer.getCreationTime()).toString())
+         .add(ConsumerField.DELIVERING_COUNT.getName(), toString(deliveringMessages.size()))
+         .add(ConsumerField.DELIVERING_SIZE.getName(), toString(serverControl.getDeliveringMessageSize(deliveringMessages)))
+         .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), toString(consumer.getMessagesAcknowledged()))
+         .add(ConsumerField.LAST_DELIVERED_TIME_ELAPSED.getName(), toString(serverControl.getLastDeliveredTimeElapsed(consumer)))
+         .add(ConsumerField.LAST_ACKNOWLEDGED_TIME_ELAPSED.getName(), toString(serverControl.getLastAcknowledgedTimeElapsed(consumer)));
       return obj;
    }
 
@@ -111,6 +121,27 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
             return consumer.getConnectionRemoteAddress();
          case CREATION_TIME:
             return new Date(consumer.getCreationTime());
+         case DELIVERING_COUNT:
+            return consumer.getDeliveringMessages().size();
+         case DELIVERING_SIZE:
+            List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
+            long deliveringMessageSize = 0;
+            for (int i = 0; i < deliveringMessages.size(); i++) {
+               MessageReference messageReference =  deliveringMessages.get(i);
+               deliveringMessageSize += messageReference.getMessage().getEncodeSize();
+            }
+            return deliveringMessageSize;
+         case MESSAGES_ACKNOWLEDGED:
+            return consumer.getMessagesAcknowledged();
+         case LAST_DELIVERED_TIME_ELAPSED: {
+            long currentTime = System.currentTimeMillis();
+            return consumer.getLastDeliveredTime() == 0 ? 0 : currentTime - consumer.getLastDeliveredTime();
+         }
+         case LAST_ACKNOWLEDGED_TIME_ELAPSED: {
+            long currentTime = System.currentTimeMillis();
+            return consumer.getLastAcknowledgedTime() == 0 ? 0 : currentTime - consumer.getLastAcknowledgedTime();
+         }
+
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }

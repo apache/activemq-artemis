@@ -18,7 +18,10 @@ package org.apache.activemq.artemis.core.management.impl.view.predicate;
 
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+
+import java.util.List;
 
 public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsumer> {
 
@@ -59,6 +62,28 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
             return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
          case REMOTE_ADDRESS:
             return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
+         case DELIVERING_COUNT:
+            return matches(consumer.getDeliveringMessages().size());
+         case DELIVERING_SIZE:
+            List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
+            long deliveringMessageSize = 0;
+            for (int i = 0; i < deliveringMessages.size(); i++) {
+               MessageReference messageReference =  deliveringMessages.get(i);
+               deliveringMessageSize += messageReference.getMessage().getEncodeSize();
+            }
+            return matches(deliveringMessageSize);
+         case MESSAGES_ACKNOWLEDGED:
+            return matches(consumer.getMessagesAcknowledged());
+         case LAST_DELIVERED_TIME_ELAPSED: {
+            long currentTime = System.currentTimeMillis();
+            return matches(consumer.getLastDeliveredTime() == 0 ? 0 : currentTime - consumer.getLastDeliveredTime());
+         }
+         case LAST_ACKNOWLEDGED_TIME_ELAPSED: {
+            long currentTime = System.currentTimeMillis();
+            return matches(consumer.getLastAcknowledgedTime() == 0 ? 0 : currentTime - consumer.getLastAcknowledgedTime());
+         }
+
+
       }
       return true;
    }

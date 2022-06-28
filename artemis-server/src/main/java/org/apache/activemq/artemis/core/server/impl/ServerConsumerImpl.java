@@ -160,6 +160,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private boolean isClosed = false;
 
+   private long lastDeliveredTime = 0;
+
+   private long lastAcknowledgedTime = 0;
+
 
    public ServerConsumerImpl(final long id,
                              final ServerSession session,
@@ -473,6 +477,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             if (preAcknowledge) {
                // With pre-ack, we ack *before* sending to the client
                ref.getQueue().acknowledge(ref, this);
+               lastAcknowledgedTime = System.currentTimeMillis();
                acks++;
             }
 
@@ -506,8 +511,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             // The deliverer was prepared during handle, as we can't have more than one pending large message
             // as it would return busy if there is anything pending
             largeMessageDeliverer.deliver();
+            lastDeliveredTime = System.currentTimeMillis();
          } else {
             deliverStandardMessage(reference, message);
+            lastDeliveredTime = System.currentTimeMillis();
          }
       } finally {
          pendingDelivery.countDown();
@@ -926,7 +933,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
             ref.acknowledge(tx, this);
             ackedRefs.add(ref.getMessageID());
-
+            lastAcknowledgedTime = System.currentTimeMillis();
             acks++;
          }
          while (ref.getMessageID() != messageID);
@@ -992,6 +999,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
          ref.acknowledge(tx, this);
 
+         lastAcknowledgedTime = System.currentTimeMillis();
          acks++;
 
          if (startedTransaction) {
@@ -1543,6 +1551,26 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public String getConnectionRemoteAddress() {
       return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
+   }
+
+   @Override
+   public int getDeliveringCount() {
+      return deliveringRefs.size();
+   }
+
+   @Override
+   public long getLastDeliveredTime() {
+      return lastDeliveredTime;
+   }
+
+   @Override
+   public long getLastAcknowledgedTime() {
+      return lastAcknowledgedTime;
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      return acks;
    }
 
    public SessionCallback getCallback() {

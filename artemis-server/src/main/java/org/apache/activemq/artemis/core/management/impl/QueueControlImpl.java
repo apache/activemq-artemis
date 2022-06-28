@@ -1770,8 +1770,18 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
             if (consumer instanceof ServerConsumer) {
                ServerConsumer serverConsumer = (ServerConsumer) consumer;
-
-               JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
+               List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
+               JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+                     .add("consumerID", serverConsumer.getID())
+                     .add("connectionID", serverConsumer.getConnectionID().toString())
+                     .add("sessionID", serverConsumer.getSessionID())
+                     .add("browseOnly", serverConsumer.isBrowseOnly())
+                     .add("creationTime", serverConsumer.getCreationTime())
+                     .add("deliveringCount", deliveringMessages.size())
+                     .add("deliveringSize", getDeliveringSize())
+                     .add("messagesAcknowledged", serverConsumer.getMessagesAcknowledged())
+                     .add("lastDeliveredTimeElapsed", getLastDeliveredTimeElapsed(serverConsumer))
+                     .add("lastAcknowledgedTimeElapsed", getLastAcknowledgedTimeElapsed(serverConsumer));
 
                jsonArray.add(obj);
             }

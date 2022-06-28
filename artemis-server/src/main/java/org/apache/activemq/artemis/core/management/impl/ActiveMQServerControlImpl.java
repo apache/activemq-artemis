@@ -103,6 +103,7 @@ import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
@@ -2752,7 +2753,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    private JsonObject toJSONObject(ServerConsumer consumer) throws Exception {
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", consumer.getID()).add("connectionID", consumer.getConnectionID().toString()).add("sessionID", consumer.getSessionID()).add("queueName", consumer.getQueue().getName().toString()).add("browseOnly", consumer.isBrowseOnly()).add("creationTime", consumer.getCreationTime()).add("deliveringCount", consumer.getDeliveringMessages().size());
+      List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+            .add("consumerID", consumer.getID())
+            .add("connectionID", consumer.getConnectionID().toString())
+            .add("sessionID", consumer.getSessionID())
+            .add("queueName", consumer.getQueue().getName().toString())
+            .add("browseOnly", consumer.isBrowseOnly())
+            .add("creationTime", consumer.getCreationTime())
+            .add("deliveringCount", deliveringMessages.size())
+            .add("deliveringSize", getDeliveringMessageSize(deliveringMessages))
+            .add("messagesAcknowledged", consumer.getMessagesAcknowledged())
+            .add("lastDeliveredTimeElapsed", getLastDeliveredTimeElapsed(consumer))
+            .add("lastAcknowledgedTimeElapsed", getLastAcknowledgedTimeElapsed(consumer));
       if (consumer.getFilter() != null) {
          obj.add("filter", consumer.getFilter().getFilterString().toString());
       }

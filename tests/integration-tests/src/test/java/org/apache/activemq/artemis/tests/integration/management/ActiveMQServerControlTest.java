@@ -2126,6 +2126,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       assertEquals(1, jsonArray.size());
       assertEquals(8, ((JsonObject) jsonArray.get(0)).getInt("msgSent"));
+      assertTrue(((JsonObject) jsonArray.get(0)).getInt("msgSizeSent") > 0);
 
       clientSession.close();
       locator.close();
@@ -2713,6 +2714,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), first.getString("queueName"));
       Assert.assertEquals(false, first.getBoolean("browseOnly"));
       Assert.assertEquals(0, first.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(0, first.getJsonNumber("deliveringSize").longValue());
+      Assert.assertEquals(0, first.getJsonNumber("messagesAcknowledged").longValue());
+      Assert.assertEquals(0, first.getJsonNumber("lastDeliveredTimeElapsed").longValue());
+      Assert.assertEquals(0, first.getJsonNumber("lastAcknowledgedTimeElapsed").longValue());
 
       Assert.assertTrue(second.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertNotNull(second.getJsonNumber("consumerID").longValue());
@@ -2724,6 +2729,11 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals(queueName.toString(), second.getString("queueName"));
       Assert.assertEquals(false, second.getBoolean("browseOnly"));
       Assert.assertEquals(0, second.getJsonNumber("deliveringCount").longValue());
+      Assert.assertEquals(0, second.getJsonNumber("deliveringSize").longValue());
+      Assert.assertEquals(0, second.getJsonNumber("messagesAcknowledged").longValue());
+      Assert.assertEquals(0, second.getJsonNumber("lastDeliveredTimeElapsed").longValue());
+      Assert.assertEquals(0, second.getJsonNumber("lastAcknowledgedTimeElapsed").longValue());
+
    }
 
    @Test
@@ -3586,6 +3596,12 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          Assert.assertNotEquals("localAddress", "", jsonConsumer.getString("localAddress"));
          Assert.assertNotEquals("remoteAddress", "", jsonConsumer.getString("remoteAddress"));
          Assert.assertNotEquals("creationTime", "", jsonConsumer.getString("creationTime"));
+         Assert.assertNotEquals("deliveringCount", "", jsonConsumer.getString("deliveringCount"));
+         Assert.assertNotEquals("deliveringSize", "", jsonConsumer.getString("deliveringSize"));
+         Assert.assertNotEquals("messagesAcknowledged", "", jsonConsumer.getString("messagesAcknowledged"));
+         Assert.assertNotEquals("lastDeliveredTimeElapsed", "", jsonConsumer.getString("lastDeliveredTimeElapsed"));
+         Assert.assertNotEquals("lastAcknowledgedTimeElapsed", "", jsonConsumer.getString("lastAcknowledgedTimeElapsed"));
+
       }
 
    }

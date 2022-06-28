@@ -23,6 +23,7 @@ import javax.management.NotCompliantMBeanException;
 import javax.management.StandardMBean;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
@@ -32,6 +33,8 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.DummyOperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.Base64;
@@ -50,8 +53,24 @@ public abstract class AbstractControl extends StandardMBean {
       this.storageManager = storageManager;
    }
 
+   public long getDeliveringMessageSize(List<MessageReference> deliveringMessages) {
+      long deliveringMessageSize = 0;
+      for (int i = 0; i < deliveringMessages.size(); i++) {
+         MessageReference messageReference =  deliveringMessages.get(i);
+         deliveringMessageSize += messageReference.getMessage().getEncodeSize();
+      }
+      return deliveringMessageSize;
+   }
 
+   public long getLastDeliveredTimeElapsed(ServerConsumer consumer) {
+      long currentTime = System.currentTimeMillis();
+      return consumer.getLastDeliveredTime() == 0 ? 0 : currentTime - consumer.getLastDeliveredTime();
+   }
 
+   public long getLastAcknowledgedTimeElapsed(ServerConsumer consumer) {
+      long currentTime = System.currentTimeMillis();
+      return consumer.getLastAcknowledgedTime() == 0 ? 0 : currentTime - consumer.getLastAcknowledgedTime();
+   }
 
    protected void clearIO() {
       // the storage manager could be null on the backup on certain components
@@ -72,6 +91,7 @@ public abstract class AbstractControl extends StandardMBean {
       }
 
    }
+
 
    protected abstract MBeanOperationInfo[] fillMBeanOperationInfo();
 

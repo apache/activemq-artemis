@@ -278,4 +278,24 @@ public class DummyServerConsumer implements ServerConsumer {
       // TODO Auto-generated method stub
       return null;
    }
+
+   @Override
+   public int getDeliveringCount() {
+      return 0;
+   }
+
+   @Override
+   public long getLastDeliveredTime() {
+      return 0;
+   }
+
+   @Override
+   public long getLastAcknowledgedTime() {
+      return 0;
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      return 0;
+   }
 }

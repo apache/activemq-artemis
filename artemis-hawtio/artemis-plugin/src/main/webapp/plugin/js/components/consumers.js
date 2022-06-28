@@ -95,7 +95,12 @@ var Artemis;
               {name: "Address", visible: true},
               {name: "Remote Address", visible: true},
               {name: "Local Address", visible: true},
-              {name: "Creation Time", visible: true}
+              {name: "Creation Time", visible: true},
+              {name: "Delivering Count", visible: false},
+              {name: "Delivering Size", visible: false},
+              {name: "Messages Acknowledged", visible: false},
+              {name: "Last Delivered Time Elapsed", visible: false},
+              {name: "Last Acknowledged Time Elapsed", visible: false}
          ]
         };
 
@@ -127,7 +132,12 @@ var Artemis;
                 {id: 'queue', name: 'Queue'},
                 {id: 'protocol', name: 'Protocol'},
                 {id: 'localAddress', name: 'Local Address'},
-                {id: 'remoteAddress', name: 'Remote Address'}
+                {id: 'remoteAddress', name: 'Remote Address'},
+                {id: 'deliveringCount', name: 'Delivering Count'},
+                {id: 'deliveringSize', name: 'Delivering Size'},
+                {id: 'messagesAcknowledged', name: 'Messages Acknowledged'},
+                {id: 'lastDeliveredTimeElapsed', name: 'Last Delivered Time Elapsed'},
+                {id: 'lastAcknowledgedTimeElapsed', name: 'Last Acknowledged Time Elapsed'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -178,7 +188,12 @@ var Artemis;
             { header: 'Address', itemField: 'address' , templateFn: function(value, item) { return '<a href="#" onclick="selectAddress(' + item.idx + ')">' + $sanitize(value) + '</a>' }},
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' },
-            { header: 'Creation Time', itemField: 'creationTime' }
+            { header: 'Creation Time', itemField: 'creationTime' },
+            { header: 'Delivering Count', itemField: 'deliveringCount' },
+            { header: 'Delivering Size', itemField: 'deliveringSize' },
+            { header: 'Messages Acknowledged', itemField: 'messagesAcknowledged' },
+            { header: 'Last Delivered Time Elapsed', itemField: 'lastDeliveredTimeElapsed' },
+            { header: 'Last Acknowledged Time Elapsed', itemField: 'lastAcknowledgedTimeElapsed' }
         ];
 
         ctrl.refresh = function () {
