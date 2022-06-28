@@ -1910,12 +1910,13 @@
             </executions>
          </plugin>
 
-         <!-- This is placing the .so somewhere other than the distribution so testsuite can take it
-              This is to avoid a dependency on having to build a distribution in order to run tests.
-         -->
+         <!-- This is placing the .so in the root target/bin/ dir, so the testsuite can use it, by
+              leveraging the surefire argLine. This avoids having to build a distribution to run tests.
+              Note the plugin config is not inherited, we only do this at the root. -->
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
+            <inherited>false</inherited>
             <executions>
                <execution>
                   <id>copy</id>
