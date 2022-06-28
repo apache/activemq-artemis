@@ -47,6 +47,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -131,6 +133,101 @@ public class SocksProxyTest extends ActiveMQTestBase {
 
       connector.close();
       Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testSocksProxyHandlerAddedEncryptedPassword() throws Exception {
+      InetAddress address = getNonLoopbackAddress();
+      Assume.assumeTrue("Cannot find non-loopback address", address != null);
+
+      BufferHandler handler = (connectionID, buffer) -> {
+      };
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.HOST_PROP_NAME, address.getHostAddress());
+      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+      params.put(TransportConstants.PROXY_USERNAME_PROP_NAME, "proxyuser");
+      params.put(TransportConstants.PROXY_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("proxypassword")));
+
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
+         @Override
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
+         }
+
+         @Override
+         public void connectionDestroyed(final Object connectionID) {
+         }
+
+         @Override
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final ClientProtocolManager protocol) {
+         }
+
+         @Override
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
+         }
+      };
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+
+      ChannelPipeline pipeline = connector.getBootStrap().register().await().channel().pipeline();
+      Assert.assertNotNull(pipeline.get(Socks5ProxyHandler.class));
+
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testSocksProxyHandlerAddedEncryptedPasswordFail() throws Exception {
+      InetAddress address = getNonLoopbackAddress();
+      Assume.assumeTrue("Cannot find non-loopback address", address != null);
+
+      BufferHandler handler = (connectionID, buffer) -> {
+      };
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.HOST_PROP_NAME, address.getHostAddress());
+      params.put(TransportConstants.PROXY_ENABLED_PROP_NAME, true);
+      params.put(TransportConstants.PROXY_HOST_PROP_NAME, "localhost");
+      params.put(TransportConstants.PROXY_USERNAME_PROP_NAME, "proxyuser");
+      params.put(TransportConstants.PROXY_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap("ThisAintReallyAPassword"));
+
+      ClientConnectionLifeCycleListener listener = new ClientConnectionLifeCycleListener() {
+         @Override
+         public void connectionException(final Object connectionID, final ActiveMQException me) {
+         }
+
+         @Override
+         public void connectionDestroyed(final Object connectionID) {
+         }
+
+         @Override
+         public void connectionCreated(final ActiveMQComponent component,
+                                       final Connection connection,
+                                       final ClientProtocolManager protocol) {
+         }
+
+         @Override
+         public void connectionReadyForWrites(Object connectionID, boolean ready) {
+         }
+      };
+
+      try {
+         new NettyConnector(params, handler, listener, closeExecutor, threadPool, scheduledThreadPool);
+         fail("SOCKS password decryption not supported");
+      } catch (IllegalArgumentException iae) {
+         // If a different IllegalArgumentException is thrown from the expected one, rethrow it
+         if (!iae.getMessage().startsWith("AMQ219057"))
+            throw iae;
+         // OK
+      }
    }
 
    private InetAddress getNonLoopbackAddress() throws SocketException {
