@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
@@ -35,6 +36,7 @@ import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ACK_REASON;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ADDRESS;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.BROKER_ID;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.EVENT_TYPE;
@@ -49,12 +51,19 @@ public class AMQPMirrorMessageFactory {
     * This method is open to make it testable,
     * do not use on your applications.
     */
-   public static Message createMessage(String to, SimpleString address, SimpleString queue, Object event, String brokerID, Object body) {
+   public static Message createMessage(String to, SimpleString address, SimpleString queue, Object event, String brokerID, Object body, AckReason ackReason) {
       Header header = new Header();
       header.setDurable(true);
 
       Map<Symbol, Object> annotations = new HashMap<>();
       annotations.put(EVENT_TYPE, event);
+
+      if (ackReason != null && ackReason != AckReason.NORMAL) {
+         // if the ack reason is normal, we just send it null as the target will assume it as normal
+         // just to save some bits
+         annotations.put(ACK_REASON, ackReason.getVal());
+      }
+
       if (address != null) {
          annotations.put(ADDRESS, address.toString());
       }

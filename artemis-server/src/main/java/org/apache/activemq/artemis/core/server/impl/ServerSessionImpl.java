@@ -1306,7 +1306,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       MessageReference ref = consumer.removeReferenceByID(messageID);
 
       if (ref != null) {
-         ref.getQueue().expire(ref, consumer);
+         ref.getQueue().expire(ref, consumer, true);
       }
    }
 

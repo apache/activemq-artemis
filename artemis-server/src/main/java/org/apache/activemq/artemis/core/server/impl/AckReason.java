@@ -18,5 +18,33 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 public enum AckReason {
-   KILLED, EXPIRED, NORMAL, REPLACED
+   NORMAL((byte)0), KILLED((byte)1), EXPIRED((byte)2), REPLACED((byte)3);
+
+   private byte value;
+
+   AckReason(byte value) {
+      this.value = value;
+   }
+
+   public byte getVal() {
+      return value;
+   }
+
+   public static AckReason fromValue(byte value) {
+      switch (value) {
+         case 0:
+            return NORMAL;
+         case 1:
+            return KILLED;
+         case 2:
+            return EXPIRED;
+         case 3:
+            return REPLACED;
+         default:
+            // in case a newer version connects with a not known type
+            // this will just play safe and use the NORMAL ack mode
+            return NORMAL;
+      }
+   }
+
 }

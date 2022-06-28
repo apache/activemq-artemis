@@ -226,6 +226,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
             } else if (eventType.equals(POST_ACK)) {
                String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, ADDRESS);
                String nodeID = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, BROKER_ID);
+
+               AckReason ackReason = AMQPMessageBrokerAccessor.getMessageAnnotationAckReason(message);
+
                if (nodeID == null) {
                   nodeID = getRemoteMirrorId(); // not sending the nodeID means it's data generated on that broker
                }
@@ -235,7 +238,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                if (logger.isDebugEnabled()) {
                   logger.debug(server + " Post ack address=" + address + " queueName = " + queueName + " messageID=" + messageID + ", nodeID=" + nodeID);
                }
-               if (postAcknowledge(address, queueName, nodeID, messageID, messageAckOperation)) {
+               if (postAcknowledge(address, queueName, nodeID, messageID, messageAckOperation, ackReason)) {
                   messageAckOperation = null;
                }
             }
@@ -333,7 +336,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
    }
 
-   public boolean postAcknowledge(String address, String queue, String nodeID, long messageID, ACKMessageOperation ackMessage) throws Exception {
+   public boolean postAcknowledge(String address, String queue, String nodeID, long messageID, ACKMessageOperation ackMessage, AckReason reason) throws Exception {
       final Queue targetQueue = server.locateQueue(queue);
 
       if (targetQueue == null) {
@@ -352,9 +355,8 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          logger.trace("Server " + server.getIdentity() + " with queue = " + queue + " being acked for " + messageID + " coming from " + messageID + " targetQueue = " + targetQueue);
       }
 
-      performAck(nodeID, messageID, targetQueue, ackMessage, true);
+      performAck(nodeID, messageID, targetQueue, ackMessage, reason, true);
       return true;
-
    }
 
 
@@ -363,18 +365,19 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       targetQueue.getPageSubscription().scanAck(pageAck, pageAck, pageAck, pageAck);
    }
 
-   private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, boolean retry) {
+   private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, boolean retry) {
       if (logger.isTraceEnabled()) {
          logger.trace("performAck (nodeID=" + nodeID + ", messageID=" + messageID + ")" + ", targetQueue=" + targetQueue.getName());
       }
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
+
       if (reference == null && retry) {
          if (logger.isDebugEnabled()) {
             logger.debug("Retrying Reference not found on messageID=" + messageID + " nodeID=" + nodeID);
          }
          targetQueue.flushOnIntermediate(() -> {
             recoverContext();
-            performAck(nodeID, messageID, targetQueue, ackMessageOperation, false);
+            performAck(nodeID, messageID, targetQueue, ackMessageOperation, reason, false);
          });
          return;
       }
@@ -383,13 +386,24 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
             logger.trace("Post ack Server " + server + " worked well for messageID=" + messageID + " nodeID=" + nodeID);
          }
          try {
-            targetQueue.acknowledge(reference);
+            switch (reason) {
+               case EXPIRED:
+                  targetQueue.expire(reference, null, false);
+                  break;
+               default:
+                  targetQueue.acknowledge(null, reference, reason, null, false);
+                  break;
+            }
             OperationContextImpl.getContext().executeOnCompletion(ackMessageOperation);
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
          }
       } else {
-         performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
+         if (reason != AckReason.EXPIRED) {
+            // if expired, we don't need to check on paging
+            // as the message will expire again when depaged (if on paging)
+            performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
+         }
       }
 
    }
@@ -508,7 +522,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
             if (reference == null) {
                return false;
             } else {
-               targetQueue.acknowledge(reference);
+               targetQueue.acknowledge(null, reference, AckReason.NORMAL, null, false);
                OperationContextImpl.getContext().executeOnCompletion(operation);
                return true;
             }

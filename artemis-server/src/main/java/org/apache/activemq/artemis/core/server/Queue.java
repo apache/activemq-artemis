@@ -220,7 +220,7 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void acknowledge(Transaction tx, MessageReference ref) throws Exception;
 
-   void acknowledge(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer) throws Exception;
+   void acknowledge(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer, boolean delivering) throws Exception;
 
    void reacknowledge(Transaction tx, MessageReference ref) throws Exception;
 
@@ -341,7 +341,7 @@ public interface Queue extends Bindable,CriticalComponent {
 
    void expire(MessageReference ref) throws Exception;
 
-   void expire(MessageReference ref, ServerConsumer consumer) throws Exception;
+   void expire(MessageReference ref, ServerConsumer consumer, boolean delivering) throws Exception;
 
    boolean sendMessageToDeadLetterAddress(long messageID) throws Exception;
 
@@ -505,6 +505,8 @@ public interface Queue extends Bindable,CriticalComponent {
    void deliverScheduledMessages() throws ActiveMQException;
 
    void postAcknowledge(MessageReference ref, AckReason reason);
+
+   void postAcknowledge(MessageReference ref, AckReason reason, boolean delivering);
 
    /**
     * @return the user associated with this queue

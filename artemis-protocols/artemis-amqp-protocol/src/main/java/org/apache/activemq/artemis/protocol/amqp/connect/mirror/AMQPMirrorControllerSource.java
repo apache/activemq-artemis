@@ -34,7 +34,6 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
-import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
@@ -52,6 +51,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    private static final Logger logger = Logger.getLogger(AMQPMirrorControllerSource.class);
 
    public static final Symbol EVENT_TYPE = Symbol.getSymbol("x-opt-amq-mr-ev-type");
+   public static final Symbol ACK_REASON = Symbol.getSymbol("x-opt-amq-mr-ack-reason");
    public static final Symbol ADDRESS = Symbol.getSymbol("x-opt-amq-mr-adr");
    public static final Symbol QUEUE = Symbol.getSymbol("x-opt-amq-mr-qu");
    public static final Symbol BROKER_ID = Symbol.getSymbol("x-opt-amq-bkr-id");
@@ -74,7 +74,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(INTERNAL_ID.toString());
    public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(BROKER_ID.toString());
 
-   private static final ThreadLocal<MirrorControlRouting> mirrorControlRouting = ThreadLocal.withInitial(() -> new MirrorControlRouting(null));
+   private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null).setMirrorDisabled(true));
 
    final Queue snfQueue;
    final ActiveMQServer server;
@@ -350,32 +350,24 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       if (logger.isTraceEnabled()) {
          logger.trace(server + " sending ack message from server " + nodeID + " with messageID=" + internalID);
       }
-      Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID);
+      Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID, reason);
       route(server, message);
       ref.getMessage().usageDown();
    }
 
    private Message createMessage(SimpleString address, SimpleString queue, Object event, String brokerID, Object body) {
-      return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, brokerID, body);
+      return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, brokerID, body, null);
+   }
+
+   private Message createMessage(SimpleString address, SimpleString queue, Object event, String brokerID, Object body, AckReason ackReason) {
+      return AMQPMirrorMessageFactory.createMessage(snfQueue.getAddress().toString(), address, queue, event, brokerID, body, ackReason);
    }
 
    public static void route(ActiveMQServer server, Message message) throws Exception {
       message.setMessageID(server.getStorageManager().generateID());
-      MirrorControlRouting ctx = mirrorControlRouting.get();
+      RoutingContext ctx = mirrorControlRouting.get();
       ctx.clear();
       server.getPostOffice().route(message, ctx, false);
-   }
-
-   private static class MirrorControlRouting extends RoutingContextImpl {
-
-      MirrorControlRouting(Transaction transaction) {
-         super(transaction);
-      }
-
-      @Override
-      public boolean isMirrorController() {
-         return true;
-      }
    }
 
 }

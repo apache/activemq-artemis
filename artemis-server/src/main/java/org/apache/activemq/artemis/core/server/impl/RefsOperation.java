@@ -51,6 +51,8 @@ public class RefsOperation extends TransactionOperationAbstract {
     */
    protected boolean ignoreRedeliveryCheck = false;
 
+   private boolean delivering = true;
+
    private String lingerSessionId = null;
 
    public RefsOperation(Queue queue, AckReason reason, StorageManager storageManager) {
@@ -59,6 +61,15 @@ public class RefsOperation extends TransactionOperationAbstract {
       this.storageManager = storageManager;
    }
 
+
+   public RefsOperation setDelivering(boolean delivering) {
+      this.delivering = delivering;
+      return this;
+   }
+
+   public boolean isDelivering() {
+      return delivering;
+   }
 
    // once turned on, we shouldn't turn it off, that's why no parameters
    public void setIgnoreRedeliveryCheck() {
@@ -175,7 +186,7 @@ public class RefsOperation extends TransactionOperationAbstract {
          clearLingerRef(ref);
 
          synchronized (ref.getQueue()) {
-            ref.getQueue().postAcknowledge(ref, reason);
+            ref.getQueue().postAcknowledge(ref, reason, delivering);
          }
       }
 

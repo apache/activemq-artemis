@@ -1825,20 +1825,23 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void acknowledge(final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
-      acknowledge(null, ref, reason, consumer);
+      acknowledge(null, ref, reason, consumer, true);
    }
 
    @Override
    public void acknowledge(final Transaction tx, final MessageReference ref) throws Exception {
-      acknowledge(tx, ref, AckReason.NORMAL, null);
+      acknowledge(tx, ref, AckReason.NORMAL, null, true);
    }
 
+   /** The parameter delivering can be sent as false in situation where the ack is coming outside of the context of delivering.
+    *  Example: Mirror replication will call the ack here without any consumer involved. On that case no previous delivery happened,
+    *           hence no information about delivering statistics should be updated. */
    @Override
-   public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws Exception {
+   public void acknowledge(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer, boolean delivering) throws Exception {
       boolean transactional = tx != null;
       RefsOperation refsOperation = null;
       if (transactional) {
-         refsOperation = getRefsOperation(tx, reason);
+         refsOperation = getRefsOperation(tx, reason, false, delivering);
       }
 
       if (logger.isTraceEnabled()) {
@@ -1861,7 +1864,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refsOperation.addAck(ref);
             } else {
                pageSubscription.ack((PagedReference) ref);
-               postAcknowledge(ref, reason);
+               postAcknowledge(ref, reason, delivering);
             }
          } else {
             Message message = ref.getMessage();
@@ -1880,7 +1883,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                ackAttempts.incrementAndGet();
                refsOperation.addAck(ref);
             } else {
-               postAcknowledge(ref, reason);
+               postAcknowledge(ref, reason, delivering);
             }
          }
 
@@ -1919,10 +1922,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason) {
-      return getRefsOperation(tx, ackReason, false);
+      return getRefsOperation(tx, ackReason, false, true);
    }
 
-   private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason, boolean ignoreRedlieveryCheck) {
+   private RefsOperation getRefsOperation(final Transaction tx, AckReason ackReason, boolean ignoreRedlieveryCheck, boolean delivering) {
       synchronized (tx) {
          RefsOperation oper = (RefsOperation) tx.getProperty(TransactionPropertyIndexes.REFS_OPERATION);
 
@@ -1938,6 +1941,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             oper.setIgnoreRedeliveryCheck();
          }
 
+         oper.setDelivering(delivering);
+
          return oper;
       }
    }
@@ -1949,7 +1954,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void cancel(final Transaction tx, final MessageReference reference, boolean ignoreRedeliveryCheck) {
-      getRefsOperation(tx, AckReason.NORMAL, ignoreRedeliveryCheck).addAck(reference);
+      getRefsOperation(tx, AckReason.NORMAL, ignoreRedeliveryCheck, true).addAck(reference);
    }
 
    @Override
@@ -1968,11 +1973,14 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void expire(final MessageReference ref) throws Exception {
-      expire(ref, null);
+      expire(ref, null, true);
    }
 
+   /** The parameter delivering can be sent as false in situation where the ack is coming outside of the context of delivering.
+    *  Example: Mirror replication will call the ack here without any consumer involved. On that case no previous delivery happened,
+    *           hence no information about delivering statistics should be updated. */
    @Override
-   public void expire(final MessageReference ref, final ServerConsumer consumer) throws Exception {
+   public void expire(final MessageReference ref, final ServerConsumer consumer, boolean delivering) throws Exception {
       if (addressSettings.getExpiryAddress() != null) {
 
          createExpiryResources();
@@ -1980,12 +1988,12 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (logger.isTraceEnabled()) {
             logger.trace("moving expired reference " + ref + " to address = " + addressSettings.getExpiryAddress() + " from queue=" + this.getName());
          }
-         move(null, addressSettings.getExpiryAddress(), null, ref, false, AckReason.EXPIRED, consumer);
+         move(null, addressSettings.getExpiryAddress(), null, ref, false, AckReason.EXPIRED, consumer, null, delivering);
       } else {
          if (logger.isTraceEnabled()) {
             logger.trace("expiry is null, just acking expired message for reference " + ref + " from queue=" + this.getName());
          }
-         acknowledge(ref, AckReason.EXPIRED, consumer);
+         acknowledge(null, ref, AckReason.EXPIRED, consumer, delivering);
       }
 
       // potentially auto-delete this queue if this expired the last message
@@ -2087,7 +2095,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          @Override
          public boolean actMessage(Transaction tx, MessageReference ref) throws Exception {
             incDelivering(ref);
-            acknowledge(tx, ref, ackReason, null);
+            acknowledge(tx, ref, ackReason, null, true);
             return true;
          }
       };
@@ -2341,7 +2349,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             MessageReference ref = iter.next();
             if (filter == null || filter.match(ref.getMessage())) {
                incDelivering(ref);
-               expire(tx, ref);
+               expire(tx, ref, true);
                iter.remove();
                refRemoved(ref);
                count++;
@@ -2466,7 +2474,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             final Transaction tx = new TransactionImpl(storageManager);
             for (MessageReference ref : expiredMessages) {
                try {
-                  expire(tx, ref);
+                  expire(tx, ref, true);
                   refRemoved(ref);
                } catch (Exception e) {
                   ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
@@ -2538,7 +2546,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                refRemoved(ref);
                incDelivering(ref);
                try {
-                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL, null);
+                  move(null, toAddress, binding, ref, rejectDuplicate, AckReason.NORMAL, null, null, true);
                } catch (Exception e) {
                   decDelivering(ref);
                   throw e;
@@ -2598,7 +2606,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
 
             if (!ignored) {
-               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null);
+               move(null, toAddress, binding, ref, rejectDuplicates, AckReason.NORMAL, null, null, true);
             }
 
             return true;
@@ -2670,7 +2678,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   }
                }
 
-               move(SimpleString.toSimpleString(originalMessageAddress), tx, ref, false, false, targetQueue);
+               move(tx, SimpleString.toSimpleString(originalMessageAddress), null, ref, false, AckReason.NORMAL, null, targetQueue, true);
 
                return true;
             }
@@ -2929,7 +2937,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                // page cleanup
                continue;
             }
-            acknowledge(tx, ref, AckReason.KILLED, null);
+            acknowledge(tx, ref, AckReason.KILLED, null, true);
             iter.remove();
             refRemoved(ref);
             txCount++;
@@ -3297,7 +3305,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized MessageReference removeWithSuppliedID(String serverID, long id, NodeStore<MessageReference> nodeStore) {
       checkIDSupplier(nodeStore);
-      return messageReferences.removeWithID(serverID, id);
+      MessageReference reference = messageReferences.removeWithID(serverID, id);
+      if (reference != null) {
+         refRemoved(reference);
+      }
+      return reference;
    }
 
    private void internalAddRedistributor() {
@@ -3374,13 +3386,25 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return messageReferences.size();
    }
 
-   private void move(final SimpleString toAddress,
-                     final Transaction tx,
-                     final MessageReference ref,
-                     final boolean expiry,
-                     final boolean rejectDuplicate,
-                     final Long queueID) throws Exception {
-      Message copyMessage = makeCopy(ref, expiry, toAddress);
+   private RoutingStatus move(final Transaction originalTX,
+                              final SimpleString address,
+                              final Binding binding,
+                              final MessageReference ref,
+                              final boolean rejectDuplicate,
+                              final AckReason reason,
+                              final ServerConsumer consumer,
+                              final Long queueID,
+                              boolean delivering) throws Exception {
+      Transaction tx;
+
+      if (originalTX != null) {
+         tx = originalTX;
+      } else {
+         // if no TX we create a new one to commit at the end
+         tx = new TransactionImpl(storageManager);
+      }
+
+      Message copyMessage = makeCopy(ref, reason == AckReason.EXPIRED, address);
 
       Object originalRoutingType = ref.getMessage().getBrokerProperty(Message.HDR_ORIG_ROUTING_TYPE);
       if (originalRoutingType != null && originalRoutingType instanceof Byte) {
@@ -3394,14 +3418,26 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          copyMessage.putBytesProperty(Message.HDR_ROUTE_TO_IDS.toString(), encodedBuffer);
       }
 
-      postOffice.route(copyMessage, tx, false, rejectDuplicate);
+      RoutingStatus routingStatus;
+      {
+         RoutingContext context = new RoutingContextImpl(tx);
+         if (reason == AckReason.EXPIRED) {
+            // we Disable mirror on expiration as the target might be also expiring it
+            // and this could cause races
+            // we will only send the ACK for the expiration with the reason=EXPIRE and the expire will be played on the mirror side
+            context.setMirrorDisabled(true);
+         }
 
-      if (expiry) {
-         acknowledge(tx, ref, AckReason.EXPIRED, null);
-      } else {
-         acknowledge(tx, ref);
+         routingStatus = postOffice.route(copyMessage, context, false, rejectDuplicate, binding);
       }
 
+      acknowledge(tx, ref, reason, consumer, delivering);
+
+      if (originalTX == null) {
+         tx.commit();
+      }
+
+      return routingStatus;
    }
 
    @SuppressWarnings({"ArrayToString", "ArrayToStringConcatenation"})
@@ -3563,7 +3599,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return LargeServerMessageImpl.checkLargeMessage(copy, storageManager);
    }
 
-   private void expire(final Transaction tx, final MessageReference ref) throws Exception {
+   private void expire(final Transaction tx, final MessageReference ref, boolean delivering) throws Exception {
       SimpleString expiryAddress = addressSettings.getExpiryAddress();
 
       if (expiryAddress != null && expiryAddress.length() != 0) {
@@ -3574,9 +3610,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (bindingList == null || bindingList.getBindings().isEmpty()) {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoBindings(expiryAddress);
-            acknowledge(tx, ref, AckReason.EXPIRED, null);
+            acknowledge(tx, ref, AckReason.EXPIRED, null, delivering);
          } else {
-            move(expiryAddress, tx, ref, true, false, null);
+            move(tx, expiryAddress, null, ref, false, AckReason.EXPIRED, null, null, delivering);
          }
       } else {
          if (!printErrorExpiring) {
@@ -3585,7 +3621,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ActiveMQServerLogger.LOGGER.errorExpiringReferencesNoAddress(name);
          }
 
-         acknowledge(tx, ref, AckReason.EXPIRED, null);
+         acknowledge(tx, ref, AckReason.EXPIRED, null, delivering);
       }
 
       if (server != null && server.hasBrokerMessagePlugins()) {
@@ -3648,7 +3684,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             ref.acknowledge(tx, AckReason.KILLED, null);
          } else {
             ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
-            RoutingStatus status = move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null);
+            RoutingStatus status = move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null, null, true);
 
             // this shouldn't happen, but in case it does it's better to log a message than just drop the message silently
             if (status.equals(RoutingStatus.NO_BINDINGS) && server.getAddressSettingsRepository().getMatch(getAddress().toString()).isAutoCreateDeadLetterResources()) {
@@ -3658,7 +3694,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
       } else {
          ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
-
          ref.acknowledge(tx, AckReason.KILLED, null);
       }
 
@@ -3687,35 +3722,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
          }
       }
-   }
-
-   private RoutingStatus move(final Transaction originalTX,
-                     final SimpleString address,
-                     final Binding binding,
-                     final MessageReference ref,
-                     final boolean rejectDuplicate,
-                     final AckReason reason,
-                     final ServerConsumer consumer) throws Exception {
-      Transaction tx;
-
-      if (originalTX != null) {
-         tx = originalTX;
-      } else {
-         // if no TX we create a new one to commit at the end
-         tx = new TransactionImpl(storageManager);
-      }
-
-      Message copyMessage = makeCopy(ref, reason == AckReason.EXPIRED, address);
-
-      RoutingStatus routingStatus = postOffice.route(copyMessage, tx, false, rejectDuplicate, binding);
-
-      acknowledge(tx, ref, reason, consumer);
-
-      if (originalTX == null) {
-         tx.commit();
-      }
-
-      return routingStatus;
    }
 
    /*
@@ -3913,10 +3919,20 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void postAcknowledge(final MessageReference ref, AckReason reason) {
+      postAcknowledge(ref, reason, true);
+   }
+
+   /** The parameter delivering can be sent as false in situation where the ack is coming outside of the context of delivering.
+    *  Example: Mirror replication will call the ack here without any consumer involved. On that case no previous delivery happened,
+    *           hence no information about delivering statistics should be updated. */
+   @Override
+   public void postAcknowledge(final MessageReference ref, AckReason reason, boolean delivering) {
       QueueImpl queue = (QueueImpl) ref.getQueue();
 
       try {
-         queue.decDelivering(ref);
+         if (delivering) {
+            queue.decDelivering(ref);
+         }
          if (nonDestructive && reason == AckReason.NORMAL) {
             // this is done to tell the difference between actual acks and just a closed consumer in the non-destructive use-case
             ref.setInDelivery(false);
@@ -4003,7 +4019,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          Transaction transaction = new TransactionImpl(storageManager);
          for (MessageReference reference : refs) {
             incDelivering(reference); // post ack will decrement this, so need to inc
-            acknowledge(transaction, reference, AckReason.KILLED, null);
+            acknowledge(transaction, reference, AckReason.KILLED, null, true);
          }
          transaction.commit();
       } catch (Exception e) {
