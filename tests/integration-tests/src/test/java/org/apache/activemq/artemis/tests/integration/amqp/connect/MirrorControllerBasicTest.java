@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorMessageFactory;
@@ -92,7 +93,7 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo("test").addRoutingType(RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration("test").setAddress("test").setRoutingType(RoutingType.ANYCAST));
 
-      Message message = AMQPMirrorMessageFactory.createMessage("test", SimpleString.toSimpleString("ad1"), SimpleString.toSimpleString("qu1"), "test", "someUID", "body-test");
+      Message message = AMQPMirrorMessageFactory.createMessage("test", SimpleString.toSimpleString("ad1"), SimpleString.toSimpleString("qu1"), "test", "someUID", "body-test", AckReason.KILLED);
       AMQPMirrorControllerSource.route(server, message);
 
       AmqpClient client = new AmqpClient(new URI("tcp://localhost:61616"), null, null);
@@ -108,6 +109,9 @@ public class MirrorControllerBasicTest extends ActiveMQTestBase {
       Assert.assertEquals("qu1", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.QUEUE.toString()));
       Assert.assertEquals("someUID", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString()));
       Assert.assertEquals("test", amqpMessage.getMessageAnnotation(AMQPMirrorControllerSource.EVENT_TYPE.toString()));
+      Number ackReason = (Number)amqpMessage.getMessageAnnotation("x-opt-amq-mr-ack-reason");
+      Assert.assertEquals(AckReason.KILLED.getVal(), ackReason.byteValue());
+      Assert.assertEquals(AckReason.KILLED, AckReason.fromValue(ackReason.byteValue()));
 
       connection.close();
 

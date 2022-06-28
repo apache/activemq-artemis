@@ -17,11 +17,14 @@
 
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
+
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.ACK_REASON;
 
 /** <b>Warning:</b> do not use this class outside of the broker implementation.
  *  This is exposing package methods on this package that are not meant to be used on user's application. */
@@ -35,6 +38,11 @@ public class AMQPMessageBrokerAccessor {
    /** Warning: this is a method specific to the broker. Do not use it on user's application. */
    public static Object getMessageAnnotationProperty(AMQPMessage message, Symbol symbol) {
       return message.getMessageAnnotation(symbol);
+   }
+
+   public static AckReason getMessageAnnotationAckReason(AMQPMessage message) {
+      Number reasonVal = (Number) getMessageAnnotationProperty(message, ACK_REASON);
+      return reasonVal == null ? AckReason.NORMAL : AckReason.fromValue(reasonVal.byteValue());
    }
 
    /** Warning: this is a method specific to the broker. Do not use it on user's application. */

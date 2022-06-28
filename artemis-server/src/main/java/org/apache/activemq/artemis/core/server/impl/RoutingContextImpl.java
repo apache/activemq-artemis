@@ -67,6 +67,8 @@ public class RoutingContextImpl implements RoutingContext {
 
    volatile int version;
 
+   boolean mirrorDisabled = false;
+
    private final Executor executor;
 
    private boolean duplicateDetection = true;
@@ -92,8 +94,14 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public boolean isMirrorController() {
-      return false;
+   public boolean isMirrorDisabled() {
+      return mirrorDisabled;
+   }
+
+   @Override
+   public RoutingContextImpl setMirrorDisabled(boolean mirrorDisabled) {
+      this.mirrorDisabled = mirrorDisabled;
+      return this;
    }
 
    @Override

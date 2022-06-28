@@ -282,11 +282,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    @Override
    public void acknowledge(Transaction tx, AckReason reason, ServerConsumer consumer) throws Exception {
-      if (tx == null) {
-         getQueue().acknowledge(this, reason, consumer);
-      } else {
-         getQueue().acknowledge(tx, this, reason, consumer);
-      }
+      getQueue().acknowledge(tx, this, reason, consumer, true);
    }
 
    /* (non-Javadoc)

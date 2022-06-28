@@ -275,7 +275,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
       if (tx == null) {
          getQueue().acknowledge(this, reason, consumer);
       } else {
-         getQueue().acknowledge(tx, this, reason, consumer);
+         getQueue().acknowledge(tx, this, reason, consumer, true);
       }
    }
 

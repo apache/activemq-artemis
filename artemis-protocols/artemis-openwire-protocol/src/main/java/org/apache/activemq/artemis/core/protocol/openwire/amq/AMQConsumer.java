@@ -327,7 +327,7 @@ public class AMQConsumer {
 
          if (ack.isExpiredAck()) {
             for (MessageReference ref : ackList) {
-               ref.getQueue().expire(ref, serverConsumer);
+               ref.getQueue().expire(ref, serverConsumer, true);
             }
          } else if (removeReferences) {
 

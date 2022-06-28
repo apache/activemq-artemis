@@ -281,7 +281,7 @@ public class LastValueQueue extends QueueImpl {
 
    @Override
    public QueueConfiguration getQueueConfiguration() {
-      return super.getQueueConfiguration().setLastValue(true);
+      return super.getQueueConfiguration().setLastValue(true).setLastValueKey(lastValueKey);
    }
 
    private void replaceLVQMessage(MessageReference ref, HolderReference hr) {
@@ -319,11 +319,11 @@ public class LastValueQueue extends QueueImpl {
    public void acknowledge(Transaction tx,
                            MessageReference ref,
                            AckReason reason,
-                           ServerConsumer consumer) throws Exception {
+                           ServerConsumer consumer, boolean delivering) throws Exception {
       if (reason == AckReason.EXPIRED || reason == AckReason.KILLED) {
          removeIfCurrent(ref);
       }
-      super.acknowledge(tx, ref, reason, consumer);
+      super.acknowledge(tx, ref, reason, consumer, delivering);
    }
 
    @Override

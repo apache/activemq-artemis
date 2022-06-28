@@ -40,7 +40,9 @@ public interface RoutingContext {
 
    /** If the routing is from MirrorController, we don't redo mirrorController
     *  to avoid*/
-   boolean isMirrorController();
+   boolean isMirrorDisabled();
+
+   RoutingContext setMirrorDisabled(boolean mirrorDisabled);
 
    /** return true if every queue routed is internal */
    boolean isInternal();
