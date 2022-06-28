@@ -38,6 +38,9 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -166,6 +169,70 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Connection c = connector.createConnection();
       assertNotNull(c);
       c.close();
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+
+   }
+
+   /**
+    * that encrypted java system properties are read
+    */
+   @Test
+   public void testEncryptedJavaSystemProperty() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Connection c = connector.createConnection();
+      assertNotNull(c);
+      c.close();
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+
+   }
+
+   /**
+    * that bad value encrypted java system properties are read but fail
+    */
+   @Test
+   public void testEncryptedJavaSystemPropertyFail() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.JAVAX_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
+
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Assert.assertNull(connector.createConnection());
       connector.close();
       Assert.assertFalse(connector.isStarted());
 
@@ -310,7 +377,7 @@ public class NettyConnectorTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void tesActiveMQSystemProperties() throws Exception {
+   public void testActiveMQSystemProperties() throws Exception {
       BufferHandler handler = new BufferHandler() {
          @Override
          public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
@@ -330,6 +397,162 @@ public class NettyConnectorTest extends ActiveMQTestBase {
       Assert.assertTrue(connector.isStarted());
       Connection c = connector.createConnection();
       assertNotNull(c);
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testEncryptedActiveMQSystemProperties() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Connection c = connector.createConnection();
+      assertNotNull(c);
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testEncryptedActiveMQSystemPropertiesFail() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("bad password")));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Assert.assertNull(connector.createConnection());
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   public static class NettyConnectorTestPasswordCodec implements SensitiveDataCodec<String> {
+
+      private static final String MASK = "supersecureish";
+      private static final String CLEARTEXT = "securepass";
+
+      @Override
+      public String decode(Object mask) throws Exception {
+         if (!MASK.equals(mask)) {
+            return mask.toString();
+         }
+         return CLEARTEXT;
+      }
+
+      @Override
+      public String encode(Object secret) throws Exception {
+         if (!CLEARTEXT.equals(secret)) {
+            return secret.toString();
+         }
+         return MASK;
+      }
+   }
+
+   @Test
+   public void testEncryptedActiveMQSystemPropertiesWithWrappedPasswordsAndCodec() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      NettyConnectorTestPasswordCodec codec = new NettyConnectorTestPasswordCodec();
+
+      System.setProperty(NettyConnector.ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME, NettyConnectorTestPasswordCodec.class.getName());
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Connection c = connector.createConnection();
+      assertNotNull(c);
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testEncryptedActiveMQSystemPropertiesWithBarePasswordsAndCodec() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      System.setProperty(NettyConnector.ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME, NettyConnectorTestPasswordCodec.class.getName());
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, "securepass");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Connection c = connector.createConnection();
+      assertNotNull(c);
+      connector.close();
+      Assert.assertFalse(connector.isStarted());
+   }
+
+   @Test
+   public void testEncryptedActiveMQSystemPropertiesWithCodecFail() throws Exception {
+      BufferHandler handler = new BufferHandler() {
+         @Override
+         public void bufferReceived(final Object connectionID, final ActiveMQBuffer buffer) {
+         }
+      };
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
+
+      NettyConnector connector = new NettyConnector(params, handler, listener, executorService, Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())), Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
+
+      DefaultSensitiveStringCodec codec = new DefaultSensitiveStringCodec();
+
+      System.setProperty(NettyConnector.ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME, NettyConnectorTestPasswordCodec.class.getName());
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PATH_PROP_NAME, "client-keystore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME, "server-ca-truststore.jks");
+      System.setProperty(NettyConnector.ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME, PasswordMaskingUtil.wrap(codec.encode("securepass")));
+
+      connector.start();
+      Assert.assertTrue(connector.isStarted());
+      Assert.assertNull(connector.createConnection());
       connector.close();
       Assert.assertFalse(connector.isStarted());
    }

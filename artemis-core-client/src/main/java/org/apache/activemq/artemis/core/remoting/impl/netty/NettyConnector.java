@@ -123,6 +123,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvid
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.IPV6Util;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -153,6 +154,7 @@ public class NettyConnector extends AbstractConnector {
    public static final String ACTIVEMQ_TRUSTSTORE_TYPE_PROP_NAME = "org.apache.activemq.ssl.trustStoreType";
    public static final String ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME = "org.apache.activemq.ssl.trustStore";
    public static final String ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME = "org.apache.activemq.ssl.trustStorePassword";
+   public static final String ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME = "org.apache.activemq.ssl.passwordCodec";
 
    // Constants for HTTP upgrade
    // These constants are exposed publicly as they are used on the server-side to fetch
@@ -177,7 +179,6 @@ public class NettyConnector extends AbstractConnector {
       config.put(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT);
       DEFAULT_CONFIG = Collections.unmodifiableMap(config);
    }
-
 
    private final boolean serverConnection;
 
@@ -229,6 +230,8 @@ public class NettyConnector extends AbstractConnector {
    private String localAddress;
 
    private int localPort;
+
+   private String passwordCodecClass;
 
    private String keyStoreProvider;
 
@@ -324,6 +327,7 @@ public class NettyConnector extends AbstractConnector {
                          final ClientProtocolManager protocolManager) {
       this(configuration, handler, listener, closeExecutor, threadPool, scheduledThreadPool, protocolManager, false);
    }
+
    public NettyConnector(final Map<String, Object> configuration,
                          final BufferHandler handler,
                          final BaseConnectionLifeCycleListener<?> listener,
@@ -395,6 +399,8 @@ public class NettyConnector extends AbstractConnector {
 
       localPort = ConfigurationHelper.getIntProperty(TransportConstants.LOCAL_PORT_PROP_NAME, TransportConstants.DEFAULT_LOCAL_PORT, configuration);
       if (sslEnabled) {
+         passwordCodecClass = ConfigurationHelper.getStringProperty(ActiveMQDefaultConfiguration.getPropPasswordCodec(), TransportConstants.DEFAULT_PASSWORD_CODEC_CLASS, configuration);
+
          keyStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PROVIDER, configuration);
 
          keyStoreType = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_TYPE_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_TYPE, configuration);
@@ -438,6 +444,7 @@ public class NettyConnector extends AbstractConnector {
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
          keyStoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
+         passwordCodecClass = TransportConstants.DEFAULT_PASSWORD_CODEC_CLASS;
          trustStoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
          trustStoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
          trustStorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
@@ -592,8 +599,14 @@ public class NettyConnector extends AbstractConnector {
             realTrustStoreType = trustStoreType;
             realTrustStorePassword = trustStorePassword;
          } else {
+            String tempPasswordCodecClass = Stream.of(System.getProperty(ACTIVEMQ_SSL_PASSWORD_CODEC_CLASS_PROP_NAME), passwordCodecClass).map(v -> useDefaultSslContext ? passwordCodecClass : v).filter(Objects::nonNull).findFirst().orElse(null);
+
             realKeyStorePath = Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME), keyStorePath).map(v -> useDefaultSslContext ? keyStorePath : v).filter(Objects::nonNull).findFirst().orElse(null);
-            realKeyStorePassword = Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME), keyStorePassword).map(v -> useDefaultSslContext ? keyStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+            String tempKeyStorePassword = Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME), keyStorePassword).map(v -> useDefaultSslContext ? keyStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+            if (tempKeyStorePassword != null && !tempKeyStorePassword.equals(keyStorePassword)) {
+               tempKeyStorePassword = processSslPasswordProperty(tempKeyStorePassword, tempPasswordCodecClass);
+            }
+            realKeyStorePassword = tempKeyStorePassword;
             realKeyStoreAlias = keyStoreAlias;
 
             Pair<String, String> keyStoreCompat = SSLSupport.getValidProviderAndType(Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PROVIDER_PROP_NAME), keyStoreProvider).map(v -> useDefaultSslContext ? keyStoreProvider : v).filter(Objects::nonNull).findFirst().orElse(null),
@@ -602,7 +615,11 @@ public class NettyConnector extends AbstractConnector {
             realKeyStoreType = keyStoreCompat.getB();
 
             realTrustStorePath = Stream.of(System.getProperty(ACTIVEMQ_TRUSTSTORE_PATH_PROP_NAME), System.getProperty(JAVAX_TRUSTSTORE_PATH_PROP_NAME), trustStorePath).map(v -> useDefaultSslContext ? trustStorePath : v).filter(Objects::nonNull).findFirst().orElse(null);
-            realTrustStorePassword = Stream.of(System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME), System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME), trustStorePassword).map(v -> useDefaultSslContext ? trustStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+            String tempTrustStorePassword = Stream.of(System.getProperty(ACTIVEMQ_TRUSTSTORE_PASSWORD_PROP_NAME), System.getProperty(JAVAX_TRUSTSTORE_PASSWORD_PROP_NAME), trustStorePassword).map(v -> useDefaultSslContext ? trustStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+            if (tempTrustStorePassword != null && !tempTrustStorePassword.equals(trustStorePassword)) {
+               tempTrustStorePassword = processSslPasswordProperty(tempTrustStorePassword, tempPasswordCodecClass);
+            }
+            realTrustStorePassword = tempTrustStorePassword;
 
             Pair<String, String> trustStoreCompat = SSLSupport.getValidProviderAndType(Stream.of(System.getProperty(ACTIVEMQ_TRUSTSTORE_PROVIDER_PROP_NAME), System.getProperty(JAVAX_TRUSTSTORE_PROVIDER_PROP_NAME), trustStoreProvider).map(v -> useDefaultSslContext ? trustStoreProvider : v).filter(Objects::nonNull).findFirst().orElse(null),
                                                                                        Stream.of(System.getProperty(ACTIVEMQ_TRUSTSTORE_TYPE_PROP_NAME), System.getProperty(JAVAX_TRUSTSTORE_TYPE_PROP_NAME), trustStoreType).map(v -> useDefaultSslContext ? trustStoreType : v).filter(Objects::nonNull).findFirst().orElse(null));
@@ -753,6 +770,15 @@ public class NettyConnector extends AbstractConnector {
          batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
       logger.debug("Started {} Netty Connector version {} to {}:{}", connectorType, TransportConstants.NETTY_VERSION, host, port);
+   }
+
+   private String processSslPasswordProperty(String password, String codecClass) {
+      try {
+         return PasswordMaskingUtil.resolveMask(password, codecClass);
+      } catch (Exception e) {
+         ActiveMQClientLogger.LOGGER.errorCreatingNettyConnection(e);
+         throw new RuntimeException(e);
+      }
    }
 
    private SSLEngine loadJdkSslEngine(final SSLContextConfig sslContextConfig) throws Exception {
@@ -1366,4 +1392,3 @@ public class NettyConnector extends AbstractConnector {
       }
    }
 }
-
