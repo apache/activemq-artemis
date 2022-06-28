@@ -62,4 +62,51 @@ public interface ConsumerInfo {
     */
    String getConnectionRemoteAddress();
 
+   /**
+    * Returns how many messages are out for delivery but not yet acknowledged
+    * @return delivering count
+    */
+   int getMessagesInTransit();
+
+   /**
+    * Returns the combined size of all the messages out for delivery but not yet acknowledged
+    * @return the total size of all the messages
+    */
+   long getMessagesInTransitSize();
+
+   /**
+    * Returns The total number of messages sent to a consumer including redeliveries that have been acknowledged
+    * @return the total number of messages delivered.
+    */
+   long getMessagesDelivered();
+
+   /**
+    * Returns the total size of all the messages delivered to the consumer. This includes redelivered messages
+    * @return The total size of all the messages
+    */
+   long getMessagesDeliveredSize();
+
+   /**
+    * Returns the number of messages acknowledged by this consumer since it was created
+    * @return messages acknowledged
+    */
+   long getMessagesAcknowledged();
+
+   /**
+    * Returns the number of acknowledged messages that are awaiting commit in a transaction
+    * @return th eno acknowledgements awaiting commit
+    */
+   int getMessagesAcknowledgedAwaitingCommit();
+
+   /**
+    * Returns the time in milliseconds that the last message was delivered to a consumer
+    * @return the time of the last message delivered
+    */
+   long getLastDeliveredTime();
+
+   /**
+    * Returns the time in milliseconds that the last message was acknowledged by a consumer
+    * @return the time of the last message was acknowledged
+    */
+   long getLastAcknowledgedTime();
 }

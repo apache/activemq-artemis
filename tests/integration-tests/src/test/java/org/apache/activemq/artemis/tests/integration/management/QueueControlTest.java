@@ -19,14 +19,24 @@ package org.apache.activemq.artemis.tests.integration.management;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
+import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.api.jms.JMSFactoryType;
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerTestAccessor;
 import org.apache.activemq.artemis.core.server.impl.QueueImplTestAccessor;
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
+
+import javax.jms.XAConnection;
+import javax.jms.XAConnectionFactory;
+import javax.jms.XASession;
 import javax.management.Notification;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -466,6 +476,10 @@ public class QueueControlTest extends ManagementTestBase {
 
       assertEquals(1, obj.size());
 
+      assertEquals(0, obj.get(0).asJsonObject().getInt(ConsumerField.LAST_DELIVERED_TIME.getName()));
+
+      assertEquals(0, obj.get(0).asJsonObject().getInt(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()));
+
       consumer.close();
       Assert.assertEquals(0, queueControl.getConsumerCount());
 
@@ -474,6 +488,442 @@ public class QueueControlTest extends ManagementTestBase {
       assertEquals(0, obj.size());
 
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetConsumerWithMessagesJSON() throws Exception {
+      long currentTime = System.currentTimeMillis();
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+
+      ClientProducer producer = session.createProducer(address);
+
+      for (int i = 0; i < 10; i++) {
+         producer.send(session.createMessage(true));
+      }
+
+      Wait.assertEquals(0, () -> queueControl.getConsumerCount());
+
+      ClientConsumer consumer = session.createConsumer(queue);
+      Wait.assertEquals(1, () -> queueControl.getConsumerCount());
+
+      session.start();
+
+      ClientMessage clientMessage = null;
+
+      int size = 0;
+      for (int i = 0; i < 5; i++) {
+         clientMessage = consumer.receiveImmediate();
+         size += clientMessage.getEncodeSize();
+      }
+
+      JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      assertEquals(1, obj.size());
+
+      Wait.assertEquals(5, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      JsonObject jsonObject = obj.get(0).asJsonObject();
+
+      assertEquals(5, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+      assertEquals(size, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+      assertEquals(5, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED.getName()));
+
+      assertEquals(size, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()));
+
+      assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+      long lastDelivered = jsonObject.getJsonNumber(ConsumerField.LAST_DELIVERED_TIME.getName()).longValue();
+
+      assertTrue(lastDelivered > currentTime);
+
+      assertEquals( 0, jsonObject.getInt(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()));
+
+      clientMessage.acknowledge();
+
+      session.commit();
+
+      Wait.assertEquals(5, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      jsonObject = obj.get(0).asJsonObject();
+
+      assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+      long lastAcked = jsonObject.getJsonNumber(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName()).longValue();
+
+      assertTrue("lastAcked = " + lastAcked + " lastDelivered = " + lastDelivered, lastAcked >= lastDelivered);
+
+      currentTime = System.currentTimeMillis();
+
+      //now make sure they fall between the test time window
+      assertTrue("currentTime = " + currentTime + " lastAcked = " + lastAcked,currentTime >= lastAcked);
+
+      consumer.close();
+
+      Assert.assertEquals(0, queueControl.getConsumerCount());
+
+      obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+      assertEquals(0, obj.size());
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsAutoAckCore() throws Exception {
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      factory.setConsumerWindowSize(1);
+      testGetConsumerMessageCountsAutoAck(factory, false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsAutoAckAMQP() throws Exception {
+      testGetConsumerMessageCountsAutoAck(new JmsConnectionFactory("amqp://localhost:61616"), false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsAutoAckOpenWire() throws Exception {
+      testGetConsumerMessageCountsAutoAck(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsAutoAckCoreIndividualAck() throws Exception {
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      testGetConsumerMessageCountsAutoAck(factory, true);
+   }
+
+   public void testGetConsumerMessageCountsAutoAck(ConnectionFactory factory, boolean usePriority) throws Exception {
+      SimpleString queueName = RandomUtil.randomSimpleString();
+      this.session.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
+      Connection connection = factory.createConnection();
+      try {
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+         javax.jms.Queue queue = session.createQueue(queueName.toString());
+
+         MessageProducer producer = session.createProducer(queue);
+
+         for (int i = 0; i < 100; i++) {
+            javax.jms.Message message = session.createMessage();
+            if (usePriority) {
+               producer.send(message, DeliveryMode.PERSISTENT, 1, javax.jms.Message.DEFAULT_TIME_TO_LIVE);
+            } else {
+               producer.send(message);
+            }
+         }
+
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         connection.start();
+
+         javax.jms.Message message = null;
+
+         for (int i = 0; i < 100; i++) {
+            message = consumer.receive(5000);
+            Assert.assertNotNull("message " + i + " not received",message);
+         }
+
+         JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         assertEquals(1, obj.size());
+
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+
+         obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         JsonObject jsonObject = obj.get(0).asJsonObject();
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED.getName()));
+
+         assertTrue(jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()) > 0);
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         consumer.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsClientAckCore() throws Exception {
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      factory.setConsumerWindowSize(1);
+      testGetConsumerMessageCountsClientAck(factory, false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsClientAckAMQP() throws Exception {
+      testGetConsumerMessageCountsClientAck(new JmsConnectionFactory("amqp://localhost:61616"), false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsClientAckOpenWire() throws Exception {
+      testGetConsumerMessageCountsClientAck(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), false);
+   }
+
+   public void testGetConsumerMessageCountsClientAck(ConnectionFactory factory, boolean usePriority) throws Exception {
+      SimpleString queueName = RandomUtil.randomSimpleString();
+      this.session.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
+      Connection connection = factory.createConnection();
+      try {
+         Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+
+         javax.jms.Queue queue = session.createQueue(queueName.toString());
+
+         MessageProducer producer = session.createProducer(queue);
+
+         for (int i = 0; i < 100; i++) {
+            javax.jms.Message message = session.createMessage();
+            if (usePriority) {
+               producer.send(message, DeliveryMode.PERSISTENT, 1, javax.jms.Message.DEFAULT_TIME_TO_LIVE);
+            } else {
+               producer.send(message);
+            }
+         }
+
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         connection.start();
+
+         javax.jms.Message message = null;
+
+         for (int i = 0; i < 100; i++) {
+            message = consumer.receive(5000);
+            Assert.assertNotNull("message " + i + " not received",message);
+            message.acknowledge();
+         }
+
+         JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         assertEquals(1, obj.size());
+
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+         obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         JsonObject jsonObject = obj.get(0).asJsonObject();
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED.getName()));
+
+         assertTrue(jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()) > 0);
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         consumer.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsTransactedCore() throws Exception {
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      factory.setConsumerWindowSize(1);
+      testGetConsumerMessageCountsTransacted(factory, false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsTransactedAMQP() throws Exception {
+      testGetConsumerMessageCountsTransacted(new JmsConnectionFactory("amqp://localhost:61616"), false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsTransactedOpenWire() throws Exception {
+      testGetConsumerMessageCountsTransacted(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"), false);
+   }
+
+   public void testGetConsumerMessageCountsTransacted(ConnectionFactory factory, boolean usePriority) throws Exception {
+      SimpleString queueName = RandomUtil.randomSimpleString();
+      this.session.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
+      Connection connection = factory.createConnection();
+      try {
+         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+
+         javax.jms.Queue queue = session.createQueue(queueName.toString());
+
+         MessageProducer producer = session.createProducer(queue);
+
+         for (int i = 0; i < 100; i++) {
+            javax.jms.Message message = session.createMessage();
+            if (usePriority) {
+               producer.send(message, DeliveryMode.PERSISTENT, 1, javax.jms.Message.DEFAULT_TIME_TO_LIVE);
+            } else {
+               producer.send(message);
+            }
+         }
+         session.commit();
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         connection.start();
+
+         javax.jms.Message message = null;
+
+         for (int i = 0; i < 100; i++) {
+            message = consumer.receive(5000);
+            Assert.assertNotNull("message " + i + " not received",message);
+         }
+
+         session.commit();
+
+         JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         assertEquals(1, obj.size());
+
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         JsonObject jsonObject = obj.get(0).asJsonObject();
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED.getName()));
+
+         assertTrue(jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()) > 0);
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         consumer.close();
+      } finally {
+         connection.close();
+      }
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsTransactedXACore() throws Exception {
+      ActiveMQConnectionFactory factory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      factory.setConsumerWindowSize(1);
+      testGetConsumerMessageCountsTransactedXA(factory, false);
+   }
+
+   @Test
+   public void testGetConsumerMessageCountsTransactedXAOpenWire() throws Exception {
+      testGetConsumerMessageCountsTransactedXA(new org.apache.activemq.ActiveMQXAConnectionFactory("tcp://localhost:61616"), false);
+   }
+   public void testGetConsumerMessageCountsTransactedXA(XAConnectionFactory factory, boolean usePriority) throws Exception {
+      SimpleString queueName = RandomUtil.randomSimpleString();
+      this.session.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setDurable(durable).setRoutingType(RoutingType.ANYCAST));
+
+      QueueControl queueControl = createManagementControl(queueName, queueName, RoutingType.ANYCAST);
+      XAConnection connection = factory.createXAConnection();
+      try {
+         XASession session = connection.createXASession();
+
+         XidImpl xid = newXID();
+         javax.jms.Queue queue = session.createQueue(queueName.toString());
+
+         MessageProducer producer = session.createProducer(queue);
+         session.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         for (int i = 0; i < 100; i++) {
+            javax.jms.Message message = session.createMessage();
+            if (usePriority) {
+               producer.send(message, DeliveryMode.PERSISTENT, 1, javax.jms.Message.DEFAULT_TIME_TO_LIVE);
+            } else {
+               producer.send(message);
+            }
+         }
+         session.getXAResource().end(xid, XAResource.TMSUCCESS);
+         session.getXAResource().commit(xid, true);
+
+         MessageConsumer consumer = session.createConsumer(queue);
+
+         connection.start();
+         xid = newXID();
+         javax.jms.Message message = null;
+         session.getXAResource().start(xid, XAResource.TMNOFLAGS);
+         for (int i = 0; i < 100; i++) {
+            message = consumer.receive(5000);
+            Assert.assertNotNull("message " + i + " not received",message);
+         }
+         session.getXAResource().end(xid, XAResource.TMSUCCESS);
+
+         JsonArray obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         assertEquals(1, obj.size());
+
+         Wait.assertEquals(100, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         JsonObject jsonObject = obj.get(0).asJsonObject();
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED.getName()));
+
+         assertTrue(jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()) > 0);
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         session.getXAResource().commit(xid, true);
+
+         obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         assertEquals(1, obj.size());
+
+         Wait.assertEquals(0, () -> JsonUtil.readJsonArray(queueControl.listConsumersAsJSON()).get(0).asJsonObject().getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         obj = JsonUtil.readJsonArray(queueControl.listConsumersAsJSON());
+
+         jsonObject = obj.get(0).asJsonObject();
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName()));
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED.getName()));
+
+         assertTrue(jsonObject.getInt(ConsumerField.MESSAGES_DELIVERED_SIZE.getName()) > 0);
+
+         assertEquals(100, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED.getName()));
+
+         assertEquals(0, jsonObject.getInt(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName()));
+
+         consumer.close();
+      } finally {
+         connection.close();
+      }
    }
 
    @Test
@@ -589,7 +1039,7 @@ public class QueueControlTest extends ManagementTestBase {
 
                if (key.equals("StringProperties")) {
                   // these are very verbose composite data structures
-                  assertTrue(value.toString().length() + " truncated? " + key, value.toString().length() <= 2048);
+                  assertTrue(value.toString().length() + " truncated? " + key, value.toString().length() <= 3000);
                } else {
                   assertTrue(value.toString().length() + " truncated? " + key, value.toString().length() <= 512);
                }

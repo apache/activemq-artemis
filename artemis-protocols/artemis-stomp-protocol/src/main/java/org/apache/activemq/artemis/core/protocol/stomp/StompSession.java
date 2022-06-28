@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -55,10 +56,15 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
+import static org.apache.activemq.artemis.core.protocol.stomp.StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;
 
 public class StompSession implements SessionCallback {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private final String senderName = UUIDGenerator.getInstance().generateUUID().toString();
+
+   private boolean createProducer = true;
 
    private final StompProtocolManager manager;
 
@@ -217,6 +223,7 @@ public class StompSession implements SessionCallback {
 
    @Override
    public void closed() {
+      session.removeProducer(senderName);
    }
 
    @Override
@@ -379,10 +386,18 @@ public class StompSession implements SessionCallback {
    }
 
    public void sendInternal(Message message, boolean direct) throws Exception {
-      session.send(message, direct);
+      if (createProducer) {
+         session.addProducer(senderName, STOMP_PROTOCOL_NAME, ServerProducer.ANONYMOUS);
+         createProducer = false;
+      }
+      session.send(message, direct, senderName);
    }
 
    public void sendInternalLarge(CoreMessage message, boolean direct) throws Exception {
+      if (createProducer) {
+         session.addProducer(senderName, STOMP_PROTOCOL_NAME, ServerProducer.ANONYMOUS);
+         createProducer = false;
+      }
       int headerSize = message.getHeadersAndPropertiesEncodeSize();
       if (headerSize >= connection.getMinLargeMessageSize()) {
          throw BUNDLE.headerTooBig();
@@ -402,7 +417,7 @@ public class StompSession implements SessionCallback {
 
       largeMessage.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, bytes.length);
 
-      session.send(largeMessage.toMessage(), direct);
+      session.send(largeMessage.toMessage(), direct, senderName);
    }
 
 }

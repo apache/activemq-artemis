@@ -14,18 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.client.impl;
+package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 
-/**
- * A ClientProducerInternal
- */
-public interface ClientProducerInternal extends ClientProducer {
+import java.util.Collection;
+import java.util.Map;
 
-   void cleanUp();
+public interface ServerProducers {
+   Map<String, ServerProducer> cloneProducers();
 
-   ClientProducerCredits getProducerCredits();
+   Collection<ServerProducer> getServerProducers();
 
-   int getID();
+   ServerProducer getServerProducer(String senderName, Message msg, ServerSessionImpl serverSession);
+
+   void put(String id, ServerProducer producer);
+
+   void remove(String id);
+
+   void clear();
 }

@@ -349,7 +349,9 @@ public interface ActiveMQServer extends ServiceComponent {
                                boolean autoCreateQueues,
                                OperationContext context,
                                Map<SimpleString, RoutingType> prefixes,
-                               String securityDomain, String validatedUser) throws Exception;
+                               String securityDomain,
+                               String validatedUser,
+                               boolean isLegacyProducer) throws Exception;
 
    /** This is to be used in places where security is bypassed, like internal sessions, broker connections, etc... */
    ServerSession createInternalSession(String name,
@@ -364,7 +366,8 @@ public interface ActiveMQServer extends ServiceComponent {
                                boolean autoCreateQueues,
                                OperationContext context,
                                Map<SimpleString, RoutingType> prefixes,
-                               String securityDomain) throws Exception;
+                               String securityDomain,
+                               boolean isLegacyProducer) throws Exception;
 
    /** should the server rebuild page counters upon startup.
     *  this will be useful on testing or an embedded broker scenario */

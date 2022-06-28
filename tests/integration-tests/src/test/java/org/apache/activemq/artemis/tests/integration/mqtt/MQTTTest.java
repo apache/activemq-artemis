@@ -37,12 +37,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
+import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
@@ -50,6 +52,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -166,6 +170,63 @@ public class MQTTTest extends MQTTTestSupport {
       assertEquals(0, latch.getCount());
       subscriptionProvider.disconnect();
       publishProvider.disconnect();
+   }
+
+   @Test
+   public void testProducerMetrics() throws Exception {
+
+      final MQTTClientProvider publishProvider = getMQTTClientProvider();
+      initializeConnection(publishProvider);
+
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         String payload = "Message " + i;
+         publishProvider.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
+      }
+
+      String filterString = createJsonFilter("", "", "");
+      String producersAsJsonString = server.getActiveMQServerControl().listProducers(filterString, 1, 50);
+      JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+      JsonArray array = (JsonArray) producersAsJsonObject.get("data");
+
+      Assert.assertEquals("number of producers returned from query", 1, array.size());
+
+      JsonObject producer = array.getJsonObject(0);
+
+      Assert.assertNotEquals(ProducerField.ID.getName(), "", producer.getString(ProducerField.ID.getName()));
+      Assert.assertNotEquals(ProducerField.SESSION.getName(), "", producer.getString(ProducerField.SESSION.getName()));
+      Assert.assertNotEquals(ProducerField.CLIENT_ID.getName(), "", producer.getString(ProducerField.CLIENT_ID.getName()));
+      Assert.assertEquals(ProducerField.USER.getName(), "", producer.getString(ProducerField.USER.getName()));
+      Assert.assertEquals(ProducerField.PROTOCOL.getAlternativeName(), "MQTT", producer.getString(ProducerField.PROTOCOL.getName()));
+      Assert.assertEquals(ProducerField.ADDRESS.getName(), "ANONYMOUS", producer.getString(ProducerField.ADDRESS.getName()));
+      Assert.assertNotEquals(ProducerField.LOCAL_ADDRESS.getName(), "", producer.getString(ProducerField.LOCAL_ADDRESS.getName()));
+      Assert.assertNotEquals(ProducerField.REMOTE_ADDRESS.getName(), "", producer.getString(ProducerField.REMOTE_ADDRESS.getName()));
+      Assert.assertNotEquals(ProducerField.CREATION_TIME.getName(), "", producer.getString(ProducerField.CREATION_TIME.getName()));
+      Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), NUM_MESSAGES, producer.getInt(ProducerField.MESSAGE_SENT.getName()));
+      Assert.assertEquals(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), "", producer.getString(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName()));
+
+      final MQTTClientProvider publishProvider2 = getMQTTClientProvider();
+      initializeConnection(publishProvider2);
+      for (int i = 0; i < NUM_MESSAGES; i++) {
+         String payload = "Message " + i;
+         publishProvider2.publish("foo/bah", payload.getBytes(), AT_LEAST_ONCE);
+      }
+      filterString = createJsonFilter("", "", "");
+      producersAsJsonString = server.getActiveMQServerControl().listProducers(filterString, 1, 50);
+      producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+      array = (JsonArray) producersAsJsonObject.get("data");
+
+      Assert.assertEquals("number of producers returned from query", 2, array.size());
+      publishProvider.disconnect();
+
+
+      publishProvider2.disconnect();
+
+      filterString = createJsonFilter("", "", "");
+      producersAsJsonString = server.getActiveMQServerControl().listProducers(filterString, 1, 50);
+      producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+      array = (JsonArray) producersAsJsonObject.get("data");
+
+      Assert.assertEquals("number of producers returned from query", 0, array.size());
    }
 
    @Test(timeout = 60 * 1000)

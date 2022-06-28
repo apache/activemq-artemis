@@ -29,11 +29,13 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRequ
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateProducerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationDownstreamConnectMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.MessagePacketI;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NodeAnnounceMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.QuorumVoteReplyMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RemoveProducerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationAddTXMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationCommitMessage;
@@ -58,16 +60,19 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSen
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V3;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.BACKUP_REQUEST_RESPONSE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_CONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CLUSTER_CONNECT_REPLY;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_PRODUCER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.FEDERATION_DOWNSTREAM_CONNECT;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.NODE_ANNOUNCE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.QUORUM_VOTE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.QUORUM_VOTE_REPLY;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REMOVE_PRODUCER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_APPEND;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_APPEND_TX;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REPLICATION_COMMIT_ROLLBACK;
@@ -106,8 +111,10 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
          sendMessage = new SessionSendMessage_1X(new CoreMessage(this.coreMessageObjectPools));
       } else if (connection.isVersionBeforeAsyncResponseChange()) {
          sendMessage = new SessionSendMessage(new CoreMessage(this.coreMessageObjectPools));
-      } else {
+      } else if (connection.isBeforeProducerMetricsChanged()) {
          sendMessage = new SessionSendMessage_V2(new CoreMessage(this.coreMessageObjectPools));
+      } else {
+         sendMessage = new SessionSendMessage_V3(new CoreMessage(this.coreMessageObjectPools));
       }
 
       sendMessage.decode(in);
@@ -267,6 +274,14 @@ public class ServerPacketDecoder extends ClientPacketDecoder {
          }
          case FEDERATION_DOWNSTREAM_CONNECT: {
             packet = new FederationDownstreamConnectMessage();
+            break;
+         }
+         case CREATE_PRODUCER: {
+            packet = new CreateProducerMessage();
+            break;
+         }
+         case REMOVE_PRODUCER: {
+            packet = new RemoveProducerMessage();
             break;
          }
          default: {

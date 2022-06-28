@@ -98,7 +98,15 @@ var Artemis;
               {name: "Address", visible: true},
               {name: "Remote Address", visible: true},
               {name: "Local Address", visible: true},
-              {name: "Creation Time", visible: true}
+              {name: "Creation Time", visible: true},
+              {name: "Messages in Transit", visible: false},
+              {name: "Messages in Transit Size", visible: false},
+              {name: "Messages Delivered", visible: false},
+              {name: "Messages Delivered Size", visible: false},
+              {name: "Messages Acknowledged", visible: false},
+              {name: "Messages Acknowledged awaiting Commit", visible: false},
+              {name: "Last Delivered Time", visible: false},
+              {name: "Last Acknowledged Time", visible: false}
          ]
         };
 
@@ -130,7 +138,13 @@ var Artemis;
                 {id: 'queue', name: 'Queue'},
                 {id: 'protocol', name: 'Protocol'},
                 {id: 'localAddress', name: 'Local Address'},
-                {id: 'remoteAddress', name: 'Remote Address'}
+                {id: 'remoteAddress', name: 'Remote Address'},
+                {id: 'messagesInTransit', name: 'Messages in Transit'},
+                {id: 'messagesInTransitSize', name: 'Messages in Transit Size'},
+                {id: 'messagesDelivered', name: 'Messages Delivered'},
+                {id: 'messagesDeliveredSize', name: 'Messages Delivered Size'},
+                {id: 'messagesAcknowledged', name: 'Messages Acknowledged'},
+                {id: 'messagesAcknowledgedAwaitingCommit', name: 'Messages Acknowledged awaiting Commit'}
             ],
             operationOptions: [
                 {id: 'EQUALS', name: 'Equals'},
@@ -181,7 +195,15 @@ var Artemis;
             { header: 'Address', itemField: 'addressName' , htmlTemplate: 'consumers-anchor-column-template', colActionFn: (item) => selectAddress(item.idx) },
             { header: 'Remote Address', itemField: 'remoteAddress' },
             { header: 'Local Address', itemField: 'localAddress' },
-            { header: 'Creation Time', itemField: 'creationTime' }
+            { header: 'Creation Time', itemField: 'creationTime' },
+            { header: 'Messages in Transit', itemField: 'messagesInTransit' },
+            { header: 'Messages in Transit Size', itemField: 'messagesInTransitSize' },
+            { header: 'Messages Delivered', itemField: 'messagesDelivered' },
+            { header: 'Messages Delivered Size', itemField: 'messagesDeliveredSize' },
+            { header: 'Messages Acknowledged', itemField: 'messagesAcknowledged' },
+            { header: 'Messages Acknowledged awaiting Commit', itemField: 'messagesAcknowledgedAwaitingCommit' },
+            { header: 'Last Delivered Time', itemField: 'lastDeliveredTime', templateFn: function(value) { return formatTimestamp(value);} },
+            { header: 'Last Acknowledged Time', itemField: 'lastAcknowledgedTime' ,  templateFn: function(value) { return formatTimestamp(value);} }
         ];
 
         ctrl.refresh = function () {
@@ -278,6 +300,25 @@ var Artemis;
                 jolokia.request({ type: 'exec', mbean: mbean, operation: method, arguments: [JSON.stringify(sessionsFilter), ctrl.pagination.pageNumber, ctrl.pagination.pageSize] }, Core.onSuccess(populateTable, { error: onError }));
             }
         };
+
+        function formatTimestamp(timestamp) {
+             Artemis.log.info("in timestamp " + timestamp + " " + (typeof timestamp !== "number"));
+             if (isNaN(timestamp) || typeof timestamp !== "number") {
+                Artemis.log.info("returning timestamp " + timestamp + " " + (typeof timestamp !== "number"));
+                return timestamp;
+             }
+             if (timestamp === 0) {
+                return "N/A";
+             }
+             var d = new Date(timestamp);
+             // "yyyy-MM-dd HH:mm:ss"
+             //add 1 to month as getmonth returns the position not the actual month
+             return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+        }
+        function pad2(value) {
+            return (value < 10 ? '0' : '') + value;
+        }
+
 
         ctrl.pagination.setOperation(ctrl.loadOperation);
 

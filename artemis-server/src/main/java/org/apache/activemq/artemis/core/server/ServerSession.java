@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import javax.transaction.xa.Xid;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -332,11 +333,13 @@ public interface ServerSession extends SecurityAuth {
    RoutingStatus send(Transaction tx,
                       Message message,
                       boolean direct,
+                      String senderName,
                       boolean noAutoCreateQueue) throws Exception;
 
    RoutingStatus send(Transaction tx,
                       Message message,
                       boolean direct,
+                      String senderName,
                       boolean noAutoCreateQueue,
                       RoutingContext routingContext) throws Exception;
 
@@ -345,18 +348,20 @@ public interface ServerSession extends SecurityAuth {
                         Message msg,
                         SimpleString originalAddress,
                         boolean direct,
+                        String senderName,
                         boolean noAutoCreateQueue) throws Exception;
 
    RoutingStatus doSend(Transaction tx,
                         Message msg,
                         SimpleString originalAddress,
                         boolean direct,
+                        String senderName,
                         boolean noAutoCreateQueue,
                         RoutingContext routingContext) throws Exception;
 
-   RoutingStatus send(Message message, boolean direct, boolean noAutoCreateQueue) throws Exception;
+   RoutingStatus send(Message message, boolean direct, String senderName, boolean noAutoCreateQueue) throws Exception;
 
-   RoutingStatus send(Message message, boolean direct) throws Exception;
+   RoutingStatus send(Message message, boolean direct, String senderName) throws Exception;
 
    void forceConsumerDelivery(long consumerID, long sequence) throws Exception;
 
@@ -376,8 +381,6 @@ public interface ServerSession extends SecurityAuth {
 
    Map<String, String> getMetaData();
 
-   String[] getTargetAddresses();
-
    /**
     * Add all the producers detail to the JSONArray object.
     * This is a method to be used by the management layer.
@@ -387,7 +390,6 @@ public interface ServerSession extends SecurityAuth {
     */
    void describeProducersInfo(JsonArrayBuilder objs) throws Exception;
 
-   String getLastSentMessageID(String address);
 
    long getCreationTime();
 
@@ -522,11 +524,11 @@ public interface ServerSession extends SecurityAuth {
    Pair<SimpleString, EnumSet<RoutingType>> getAddressAndRoutingTypes(SimpleString address,
                                                                       EnumSet<RoutingType> defaultRoutingTypes);
 
-   void addProducer(ServerProducer serverProducer);
+   void addProducer(String name, String protocol, String address);
 
    void removeProducer(String ID);
 
-   Map<String, ServerProducer> getServerProducers();
+   Collection<ServerProducer> getServerProducers();
 
    String getDefaultAddress();
 

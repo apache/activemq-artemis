@@ -41,7 +41,6 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
-import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -202,14 +201,14 @@ public class AMQPSessionCallback implements SessionCallback {
                                                            false, // boolean autoCommitAcks,
                                                            false, // boolean preAcknowledge,
                                                            true, //boolean xa,
-                                                           null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain());
+                                                           null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain(), false);
       } else {
          serverSession = manager.getServer().createSession(name, connection.getUser(), connection.getPassword(), ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, protonSPI.getProtonConnectionDelegate(), // RemotingConnection remotingConnection,
                                                            false, // boolean autoCommitSends
                                                            false, // boolean autoCommitAcks,
                                                            false, // boolean preAcknowledge,
                                                            true, //boolean xa,
-                                                           null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain(), connection.getValidatedUser());
+                                                           null, this, true, operationContext, manager.getPrefixes(), manager.getSecurityDomain(), connection.getValidatedUser(), false);
       }
    }
 
@@ -532,7 +531,7 @@ public class AMQPSessionCallback implements SessionCallback {
       OperationContext oldContext = recoverContext();
       try {
          if (invokeIncoming((AMQPMessage) message, (ActiveMQProtonRemotingConnection) transportConnection.getProtocolConnection()) == null) {
-            serverSession.send(transaction, message, directDeliver, false, routingContext);
+            serverSession.send(transaction, message, directDeliver, receiver.getName(), false, routingContext);
 
             afterIO(new IOCallback() {
                @Override
@@ -744,8 +743,8 @@ public class AMQPSessionCallback implements SessionCallback {
       return protonSPI.invokeOutgoingInterceptors(message, connection);
    }
 
-   public void addProducer(ServerProducer serverProducer) {
-      serverSession.addProducer(serverProducer);
+   public void addProducer(String name, String address) {
+      serverSession.addProducer(name, ProtonProtocolManagerFactory.AMQP_PROTOCOL_NAME, address);
    }
 
    public void removeProducer(String name) {

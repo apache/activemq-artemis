@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.config.TransformerConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.management.impl.view.AddressView;
 import org.apache.activemq.artemis.core.management.impl.view.ConnectionView;
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.management.impl.view.ConsumerView;
 import org.apache.activemq.artemis.core.management.impl.view.ProducerView;
 import org.apache.activemq.artemis.core.management.impl.view.QueueView;
@@ -107,6 +108,7 @@ import org.apache.activemq.artemis.core.server.ConnectorServiceFactory;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.JournalType;
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
@@ -2609,7 +2611,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          Set<ServerProducer> producers = new HashSet<>();
          for (ServerSession session : server.getSessions()) {
-            producers.addAll(session.getServerProducers().values());
+            producers.addAll(session.getServerProducers());
          }
          ProducerView view = new ProducerView(server);
          view.setCollection(producers);
@@ -2767,7 +2769,24 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    private JsonObject toJSONObject(ServerConsumer consumer) throws Exception {
-      JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", consumer.getID()).add("connectionID", consumer.getConnectionID().toString()).add("sessionID", consumer.getSessionID()).add("queueName", consumer.getQueue().getName().toString()).add("browseOnly", consumer.isBrowseOnly()).add("creationTime", consumer.getCreationTime()).add("deliveringCount", consumer.getDeliveringMessages().size());
+      List<MessageReference> deliveringMessages = consumer.getDeliveringMessages();
+      JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+            .add(ConsumerField.ID.getAlternativeName(), consumer.getID())
+            .add(ConsumerField.CONNECTION.getAlternativeName(), consumer.getConnectionID().toString())
+            .add(ConsumerField.SESSION.getAlternativeName(), consumer.getSessionID())
+            .add(ConsumerField.QUEUE.getAlternativeName(), consumer.getQueue().getName().toString())
+            .add(ConsumerField.BROWSE_ONLY.getName(), consumer.isBrowseOnly())
+            .add(ConsumerField.CREATION_TIME.getName(), consumer.getCreationTime())
+            // deliveringCount is renamed as MESSAGES_IN_TRANSIT but left in json for backward compatibility
+            .add(ConsumerField.MESSAGES_IN_TRANSIT.getAlternativeName(), consumer.getMessagesInTransit())
+            .add(ConsumerField.MESSAGES_IN_TRANSIT.getName(), consumer.getMessagesInTransit())
+            .add(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName(), consumer.getMessagesInTransitSize())
+            .add(ConsumerField.MESSAGES_DELIVERED.getName(), consumer.getMessagesDelivered())
+            .add(ConsumerField.MESSAGES_DELIVERED_SIZE.getName(), consumer.getMessagesDeliveredSize())
+            .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), consumer.getMessagesAcknowledged())
+            .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), consumer.getMessagesAcknowledgedAwaitingCommit())
+            .add(ConsumerField.LAST_DELIVERED_TIME.getName(), consumer.getLastDeliveredTime())
+            .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime());
       if (consumer.getFilter() != null) {
          obj.add("filter", consumer.getFilter().getFilterString().toString());
       }
@@ -4405,14 +4424,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (!server.isStarted()) {
          throw new IllegalStateException("Broker is not started. It can not be managed yet");
       }
-   }
-
-   public String[] listTargetAddresses(final String sessionID) {
-      ServerSession session = server.getSessionByID(sessionID);
-      if (session != null) {
-         return session.getTargetAddresses();
-      }
-      return new String[0];
    }
 
    @Override

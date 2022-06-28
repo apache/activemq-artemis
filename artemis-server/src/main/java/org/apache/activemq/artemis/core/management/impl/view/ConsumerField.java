@@ -20,9 +20,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public enum ConsumerField {
-   ID("id"),
-   SESSION("session"),
-   QUEUE("queue"),
+   ID("id", "consumerID"),
+   SESSION("session", "sessionID"),
+   CONNECTION("connection", "connectionID"),
+   QUEUE("queue", "queueName"),
    FILTER("filter"),
    ADDRESS("address"),
    USER("user"),
@@ -32,7 +33,16 @@ public enum ConsumerField {
    LOCAL_ADDRESS("localAddress"),
    REMOTE_ADDRESS("remoteAddress"),
    QUEUE_TYPE("queueType"),
-   CREATION_TIME("creationTime");
+   BROWSE_ONLY("browseOnly"),
+   CREATION_TIME("creationTime"),
+   MESSAGES_IN_TRANSIT("messagesInTransit", "deliveringCount"),
+   MESSAGES_IN_TRANSIT_SIZE("messagesInTransitSize"),
+   MESSAGES_DELIVERED("messagesDelivered"),
+   MESSAGES_DELIVERED_SIZE("messagesDeliveredSize"),
+   MESSAGES_ACKNOWLEDGED("messagesAcknowledged"),
+   MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT("messagesAcknowledgedAwaitingCommit"),
+   LAST_DELIVERED_TIME("lastDeliveredTime"),
+   LAST_ACKNOWLEDGED_TIME("lastAcknowledgedTime");
 
    private static final Map<String, ConsumerField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -44,12 +54,28 @@ public enum ConsumerField {
 
    private final String name;
 
+   private final String alternativeName;
+
    public String getName() {
       return name;
    }
 
+   /**
+    * There is some inconsistency with some json objects returned for consumers because they were hard coded.
+    * This is just to track the differences and provide backward compatibility.
+    * @return the old alternative name
+    */
+   public String getAlternativeName() {
+      return alternativeName;
+   }
+
    ConsumerField(String name) {
+      this(name, "");
+   }
+
+   ConsumerField(String name, String alternativeName) {
       this.name = name;
+      this.alternativeName = alternativeName;
    }
 
    public static ConsumerField valueOfName(String name) {

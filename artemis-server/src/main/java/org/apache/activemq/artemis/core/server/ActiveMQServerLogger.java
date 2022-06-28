@@ -1220,7 +1220,11 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222308, value = "Unable to listen for incoming fail-back request because {} is null. Ensure the broker has the proper cluster-connection configuration.", level = LogMessage.Level.WARN)
    void failBackCheckerFailure(String component);
 
+   @LogMessage(id = 222309, value = "Trying to remove a producer with ID {} that doesnt exist from session {} on Connection {}.", level = LogMessage.Level.WARN)
+   void producerDoesNotExist(int id, String session, String remoteAddress);
 
+   @LogMessage(id = 222310, value = "Trying to add a producer with ID {} that already exists to session {} on Connection {}.", level = LogMessage.Level.WARN)
+   void producerAlreadyExists(int id, String session, String remoteAddress);
 
    @LogMessage(id = 224000, value = "Failure in initialisation", level = LogMessage.Level.ERROR)
    void initializationError(Throwable e);
