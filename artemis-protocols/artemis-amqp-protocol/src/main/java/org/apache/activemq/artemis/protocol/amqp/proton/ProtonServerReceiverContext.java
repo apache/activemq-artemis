@@ -270,6 +270,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    @Override
    public void close(boolean remoteLinkClose) throws ActiveMQAMQPException {
       super.close(remoteLinkClose);
+      sessionSPI.removeProducer(receiver.getName());
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
       if (target != null && target.getDynamic() && (target.getExpiryPolicy() == TerminusExpiryPolicy.LINK_DETACH || target.getExpiryPolicy() == TerminusExpiryPolicy.SESSION_END)) {
          try {

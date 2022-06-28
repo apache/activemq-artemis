@@ -180,4 +180,8 @@ public class SessionSendContinuationMessage extends SessionContinuationMessage {
    public SendAcknowledgementHandler getHandler() {
       return handler;
    }
+
+   public int getSenderID() {
+      return -1;
+   }
 }

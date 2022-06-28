@@ -132,7 +132,7 @@ public class AMQSession implements SessionCallback {
       // now
 
       try {
-         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext(), protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), connection.getValidatedUser());
+         coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext(), protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), connection.getValidatedUser(), false);
       } catch (Exception e) {
          logger.error("error init session", e);
       }
@@ -392,7 +392,6 @@ public class AMQSession implements SessionCallback {
 
       assert clientId.toString().equals(this.connection.getState().getInfo().getClientId()) : "Session cached clientId must be the same of the connection";
       originalCoreMsg.putStringProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME, clientId);
-
       /* ActiveMQ failover transport will attempt to reconnect after connection failure.  Any sent messages that did
       * not receive acks will be resent.  (ActiveMQ broker handles this by returning a last sequence id received to
       * the client).  To handle this in Artemis we use a duplicate ID cache.  To do this we check to see if the
@@ -438,7 +437,7 @@ public class AMQSession implements SessionCallback {
                restoreAutoRead();
             }
 
-            getCoreSession().send(coreMsg, false, dest.isTemporary());
+            getCoreSession().send(coreMsg, false, producerInfo.getProducerId().toString(), dest.isTemporary());
 
             if (count == null || count.decrementAndGet() == 0) {
                if (sendProducerAck) {
@@ -462,7 +461,7 @@ public class AMQSession implements SessionCallback {
          Exception exceptionToSend = null;
 
          try {
-            getCoreSession().send(coreMsg, false, dest.isTemporary());
+            getCoreSession().send(coreMsg, false, producerInfo.getProducerId().toString(), dest.isTemporary());
          } catch (Exception e) {
             logger.debug("Sending exception to the client", e);
             exceptionToSend = e;

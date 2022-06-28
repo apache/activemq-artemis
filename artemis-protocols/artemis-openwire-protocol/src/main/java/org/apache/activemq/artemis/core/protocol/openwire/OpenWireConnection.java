@@ -837,7 +837,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private void createInternalSession(ConnectionInfo info) throws Exception {
-      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), validatedUser);
+      internalSession = server.createSession(UUIDGenerator.getInstance().generateStringUUID(), context.getUserName(), info.getPassword(), -1, this, true, false, false, false, null, null, true, operationContext, protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), validatedUser, false);
    }
 
    //raise the refCount of context
@@ -1261,6 +1261,10 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             }
 
             ss.addProducer(info);
+            getSession(info.getProducerId().getParentId()).getCoreSession().addProducer(
+                  info.getProducerId().toString(),
+                  OpenWireProtocolManagerFactory.OPENWIRE_PROTOCOL_NAME,
+                  info.getDestination() != null ? info.getDestination().getPhysicalName() : null);
 
          }
          return null;
@@ -1290,6 +1294,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
          synchronized (producerExchanges) {
             producerExchanges.remove(id);
+            getSession(id.getParentId()).getCoreSession().removeProducer(id.toString());
          }
          return null;
       }

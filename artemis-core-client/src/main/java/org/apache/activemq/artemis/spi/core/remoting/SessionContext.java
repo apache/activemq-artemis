@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionQueueQueryResponseMessage;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -142,7 +143,8 @@ public abstract class SessionContext {
    public abstract void sendFullMessage(ICoreMessage msgI,
                                         boolean sendBlocking,
                                         SendAcknowledgementHandler handler,
-                                        SimpleString defaultAddress) throws ActiveMQException;
+                                        SimpleString defaultAddress,
+                                        int senderID) throws ActiveMQException;
 
    /**
     * it should return the number of credits (or bytes) used to send this packet
@@ -159,6 +161,7 @@ public abstract class SessionContext {
                                              boolean lastChunk,
                                              byte[] chunk,
                                              int reconnectID,
+                                             int senderID,
                                              SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
    public abstract int sendServerLargeMessageChunk(Message msgI,
@@ -166,6 +169,7 @@ public abstract class SessionContext {
                                                    boolean sendBlocking,
                                                    boolean lastChunk,
                                                    byte[] chunk,
+                                                   int senderID,
                                                    SendAcknowledgementHandler messageHandler) throws ActiveMQException;
 
    public abstract void setSendAcknowledgementHandler(SendAcknowledgementHandler handler);
@@ -385,4 +389,8 @@ public abstract class SessionContext {
    public abstract void linkFlowControl(SimpleString address, ClientProducerCredits clientProducerCredits);
 
    public abstract boolean isWritable(ReadyListener callback);
+
+   public abstract void createProducer(ClientProducerInternal producer);
+
+   public abstract void removeProducer(int id);
 }

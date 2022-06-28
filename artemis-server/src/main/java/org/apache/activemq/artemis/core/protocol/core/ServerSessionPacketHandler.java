@@ -19,8 +19,10 @@ package org.apache.activemq.artemis.core.protocol.core;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import io.netty.util.collection.IntObjectHashMap;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
@@ -31,6 +33,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -39,12 +42,14 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateProducerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSharedQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.NullResponseMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RemoveProducerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAddMetaDataMessage;
@@ -97,6 +102,7 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.EmbedMessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.pools.MpscPool;
 import org.apache.activemq.artemis.utils.pools.Pool;
 import org.apache.activemq.artemis.utils.SimpleFuture;
@@ -108,11 +114,13 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_PRODUCER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_SHARED_QUEUE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_SHARED_QUEUE_V2;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.DELETE_QUEUE;
+import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.REMOVE_PRODUCER;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_ACKNOWLEDGE;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_BINDINGQUERY;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.SESS_CLOSE;
@@ -151,6 +159,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   private static final String PRODUCER_ID_PREFIX = "artemis:sender:ID:";
+
    private final ServerSession session;
 
    private final StorageManager storageManager;
@@ -173,6 +183,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    private final Pool<NullResponseMessage> poolNullResponse;
 
    private final Pool<NullResponseMessage_V2> poolNullResponseV2;
+
+   private final Map<Integer, String> producers = new IntObjectHashMap<>();
 
    public ServerSessionPacketHandler(final ActiveMQServer server,
                                      final ServerSession session,
@@ -323,7 +335,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                case SESS_SEND_CONTINUATION: {
                   SessionSendContinuationMessage message = (SessionSendContinuationMessage) packet;
                   requiresResponse = message.isRequiresResponse();
-                  sendContinuations(message.getPacketSize(), message.getMessageBodySize(), message.getBody(), message.isContinues());
+                  int senderID = message.getSenderID();
+                  sendContinuations(message.getPacketSize(), message.getMessageBodySize(), message.getBody(), message.isContinues(), senderID);
                   if (requiresResponse) {
                      response = createNullResponseMessage(packet);
                   }
@@ -635,6 +648,28 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                   }
                   break;
                }
+               case CREATE_PRODUCER: {
+                  CreateProducerMessage message = (CreateProducerMessage) packet;
+                  if (!producers.containsKey(message.getId())) {
+                     // this is used to create/destroy the producer so needs to be unique
+                     String senderName = PRODUCER_ID_PREFIX + UUIDGenerator.getInstance().generateUUID();
+                     producers.put(message.getId(), senderName);
+                     session.addProducer(senderName, ActiveMQClient.DEFAULT_CORE_PROTOCOL, message.getAddress() != null ? message.getAddress().toString() : null);
+                  } else {
+                     ActiveMQServerLogger.LOGGER.producerAlreadyExists(message.getId(),session.getName(), remotingConnection.getRemoteAddress());
+                  }
+                  break;
+               }
+               case REMOVE_PRODUCER: {
+                  RemoveProducerMessage message = (RemoveProducerMessage) packet;
+                  String remove = producers.remove(message.getId());
+                  if (remove != null) {
+                     session.removeProducer(remove);
+                  } else {
+                     ActiveMQServerLogger.LOGGER.producerDoesNotExist(message.getId(), session.getName(), remotingConnection.getRemoteAddress());
+                  }
+                  break;
+               }
             }
          } catch (ActiveMQIOErrorException e) {
             response = onActiveMQIOErrorExceptionWhileHandlePacket(packet, e, requiresResponse, response, this.session);
@@ -747,7 +782,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
          try {
             final SessionSendMessage message = (SessionSendMessage) packet;
             requiresResponse = message.isRequiresResponse();
-            this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage(), storageManager), this.direct);
+            this.session.send(EmbedMessageUtil.extractEmbedded(message.getMessage(), storageManager), this.direct, producers.get(message.getSenderID()));
             if (requiresResponse) {
                response = createNullResponseMessage(packet);
             }
@@ -1049,7 +1084,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    private void sendContinuations(final int packetSize,
                                   final long messageBodySize,
                                   final byte[] body,
-                                  final boolean continues) throws Exception {
+                                  final boolean continues,
+                                  final int senderID) throws Exception {
 
       synchronized (largeMessageLock) {
          if (currentLargeMessage == null) {
@@ -1071,7 +1107,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             LargeServerMessage message = currentLargeMessage;
             currentLargeMessage.setStorageManager(storageManager);
             currentLargeMessage = null;
-            session.doSend(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), null, false, false);
+            session.doSend(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage)message.toMessage(), storageManager), null, false, producers.get(senderID), false);
          }
       }
    }

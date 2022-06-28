@@ -362,6 +362,7 @@ public class AMQConsumer {
             if (ack.isIndividualAck() || ack.isStandardAck()) {
                for (MessageReference ref : ackList) {
                   ref.acknowledge(transaction, serverConsumer);
+                  serverConsumer.metricsAcknowledge(ref, transaction);
                   removeRolledback(ref);
                }
             } else if (ack.isPoisonAck()) {

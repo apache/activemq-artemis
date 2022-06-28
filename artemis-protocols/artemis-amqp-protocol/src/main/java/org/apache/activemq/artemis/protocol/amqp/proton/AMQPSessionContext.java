@@ -24,8 +24,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ServerProducer;
-import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
@@ -160,7 +158,6 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public void removeReceiver(Receiver receiver) {
-      sessionSPI.removeProducer(receiver.getName());
       receivers.remove(receiver);
    }
 
@@ -229,8 +226,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          AMQPMirrorControllerTarget protonReceiver = new AMQPMirrorControllerTarget(sessionSPI, connection, this, receiver, server);
          protonReceiver.initialize();
          receivers.put(receiver, protonReceiver);
-         ServerProducer serverProducer = new ServerProducerImpl(receiver.getName(), "AMQP", receiver.getTarget().getAddress());
-         sessionSPI.addProducer(serverProducer);
+         sessionSPI.addProducer(receiver.getName(), receiver.getTarget().getAddress());
          receiver.setContext(protonReceiver);
          HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
          brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getNodeID().toString());
@@ -255,8 +251,7 @@ public class AMQPSessionContext extends ProtonInitializable {
          ProtonServerReceiverContext protonReceiver = new ProtonServerReceiverContext(sessionSPI, connection, this, receiver);
          protonReceiver.initialize();
          receivers.put(receiver, protonReceiver);
-         ServerProducer serverProducer = new ServerProducerImpl(receiver.getName(), "AMQP", receiver.getTarget().getAddress());
-         sessionSPI.addProducer(serverProducer);
+         sessionSPI.addProducer(receiver.getName(), receiver.getTarget().getAddress());
          receiver.setContext(protonReceiver);
          connection.runNow(() -> {
             receiver.open();

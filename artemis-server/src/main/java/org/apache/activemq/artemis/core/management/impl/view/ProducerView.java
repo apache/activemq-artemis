@@ -59,6 +59,7 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
 
       JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
          .add(ProducerField.ID.getName(), toString(producer.getID()))
+         .add(ProducerField.NAME.getName(), toString(producer.getName()))
          .add(ProducerField.SESSION.getName(), toString(session.getName()))
          .add(ProducerField.CLIENT_ID.getName(), toString(sessionClientID))
          .add(ProducerField.USER.getName(), toString(session.getUsername()))
@@ -67,7 +68,10 @@ public class ProducerView extends ActiveMQAbstractView<ServerProducer> {
          .add(ProducerField.ADDRESS.getName(), toString(producer.getAddress() != null ? producer.getAddress() : session.getDefaultAddress()))
          .add(ProducerField.LOCAL_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getLocalAddress()))
          .add(ProducerField.REMOTE_ADDRESS.getName(), toString(session.getRemotingConnection().getTransportConnection().getRemoteAddress()))
-         .add(ProducerField.CREATION_TIME.getName(), toString(producer.getCreationTime()));
+         .add(ProducerField.CREATION_TIME.getName(), toString(producer.getCreationTime()))
+         .add(ProducerField.MESSAGE_SENT.getName(), producer.getMessagesSent())
+         .add(ProducerField.MESSAGE_SENT_SIZE.getName(), producer.getMessagesSentSize())
+         .add(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), toString(producer.getLastProducedMessageID()));
       return obj;
    }
 

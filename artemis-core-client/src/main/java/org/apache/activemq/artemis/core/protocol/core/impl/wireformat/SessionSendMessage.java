@@ -136,4 +136,7 @@ public class SessionSendMessage extends MessagePacket {
       return true;
    }
 
+   public int getSenderID() {
+      return -1;
+   }
 }

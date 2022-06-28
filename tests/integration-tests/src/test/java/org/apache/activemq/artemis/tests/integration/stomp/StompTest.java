@@ -34,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -47,6 +48,7 @@ import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
+import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -59,6 +61,8 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
@@ -161,6 +165,44 @@ public class StompTest extends StompTestBase {
       }
 
       assertTrue(latch.await(60, TimeUnit.SECONDS));
+   }
+
+   @Test
+   public void testProducerMetrics() throws Exception {
+      conn.connect(defUser, defPass);
+
+      send(conn, getQueuePrefix() + getQueueName(), null, "Hello World!", true);
+
+      String filterString = createJsonFilter("", "", "");
+      String producersAsJsonString = server.getActiveMQServerControl().listProducers(filterString, 1, 50);
+      JsonObject producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+      JsonArray array = (JsonArray) producersAsJsonObject.get("data");
+
+      Assert.assertEquals("number of producers returned from query", 1, array.size());
+
+      JsonObject producer = array.getJsonObject(0);
+      Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), 1, producer.getInt(ProducerField.MESSAGE_SENT.getName()));
+
+      send(conn, getQueuePrefix() + getQueueName(), null, "Hello World!", true);
+
+      producersAsJsonString = server.getActiveMQServerControl().listProducers(filterString, 1, 50);
+      producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+      array = (JsonArray) producersAsJsonObject.get("data");
+
+      Assert.assertEquals("number of producers returned from query", 1, array.size());
+
+      producer = array.getJsonObject(0);
+      Assert.assertEquals(ProducerField.MESSAGE_SENT.getName(), 2, producer.getInt(ProducerField.MESSAGE_SENT.getName()));
+
+      conn.closeTransport();
+
+      Wait.assertEquals(0, () -> ((JsonArray) JsonUtil.readJsonObject(server.getActiveMQServerControl().listProducers(filterString, 1, 50)).get("data")).size());
+
+      producersAsJsonString = server.getActiveMQServerControl().listProducers(filterString, 1, 50);
+      producersAsJsonObject = JsonUtil.readJsonObject(producersAsJsonString);
+      array = (JsonArray) producersAsJsonObject.get("data");
+
+      Assert.assertEquals("number of producers returned from query", 0, array.size());
    }
 
    @Test

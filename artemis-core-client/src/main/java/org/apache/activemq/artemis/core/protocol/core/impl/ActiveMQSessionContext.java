@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionImpl;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.core.Channel;
@@ -68,6 +69,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.ResponseHandler;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ActiveMQExceptionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateAddressMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateProducerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateQueueMessage_V2;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.CreateSessionMessage;
@@ -76,6 +78,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Disconnect
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.DisconnectConsumerWithKillMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReattachSessionResponseMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RemoveProducerMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.RollbackMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAcknowledgeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionAddMetaDataMessageV2;
@@ -105,10 +108,12 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendLargeMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_1X;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage;
@@ -372,6 +377,20 @@ public class ActiveMQSessionContext extends SessionContext {
    }
 
    @Override
+   public void createProducer(ClientProducerInternal producer) {
+      if (!sessionChannel.getConnection().isBeforeProducerMetricsChanged()) {
+         sessionChannel.send(new CreateProducerMessage(producer.getID(), producer.getAddress()));
+      }
+   }
+
+   @Override
+   public void removeProducer(int id) {
+      if (!sessionChannel.getConnection().isBeforeProducerMetricsChanged()) {
+         sessionChannel.send(new RemoveProducerMessage(id));
+      }
+   }
+
+   @Override
    public ClientConsumerInternal createConsumer(SimpleString queueName,
                                                 SimpleString filterString,
                                                 int priority,
@@ -546,15 +565,19 @@ public class ActiveMQSessionContext extends SessionContext {
    public void sendFullMessage(ICoreMessage msgI,
                                boolean sendBlocking,
                                SendAcknowledgementHandler handler,
-                               SimpleString defaultAddress) throws ActiveMQException {
+                               SimpleString defaultAddress,
+                               int senderID) throws ActiveMQException {
       final SessionSendMessage packet;
       if (sessionChannel.getConnection().isVersionBeforeAddressChange()) {
          packet = new SessionSendMessage_1X(msgI, sendBlocking, handler);
       } else if (sessionChannel.getConnection().isVersionBeforeAsyncResponseChange()) {
          packet = new SessionSendMessage(msgI, sendBlocking, handler);
-      } else {
+      } else if (sessionChannel.getConnection().isBeforeProducerMetricsChanged()) {
          boolean responseRequired = confirmationWindow != -1 || sendBlocking;
          packet = new SessionSendMessage_V2(msgI, responseRequired, handler);
+      } else {
+         boolean responseRequired = confirmationWindow != -1 || sendBlocking;
+         packet = new SessionSendMessage_V3(msgI, responseRequired, handler, senderID);
       }
       if (sendBlocking) {
          sessionChannel.sendBlocking(packet, PacketImpl.NULL_RESPONSE);
@@ -579,8 +602,9 @@ public class ActiveMQSessionContext extends SessionContext {
                                     boolean lastChunk,
                                     byte[] chunk,
                                     int reconnectID,
+                                    int senderID,
                                     SendAcknowledgementHandler messageHandler) throws ActiveMQException {
-      return sendSessionSendContinuationMessage(this.sessionChannel, msgI, messageBodySize, sendBlocking, lastChunk, chunk, messageHandler);
+      return sendSessionSendContinuationMessage(this.sessionChannel, msgI, messageBodySize, sendBlocking, lastChunk, chunk, senderID,  messageHandler);
    }
 
    @Override
@@ -589,8 +613,9 @@ public class ActiveMQSessionContext extends SessionContext {
                                           boolean sendBlocking,
                                           boolean lastChunk,
                                           byte[] chunk,
+                                          int senderID,
                                           SendAcknowledgementHandler messageHandler) throws ActiveMQException {
-      return sendSessionSendContinuationMessage(this.sessionChannel, msgI, messageBodySize, sendBlocking, lastChunk, chunk, messageHandler);
+      return sendSessionSendContinuationMessage(this.sessionChannel, msgI, messageBodySize, sendBlocking, lastChunk, chunk, senderID, messageHandler);
    }
 
    @Override
@@ -1043,13 +1068,16 @@ public class ActiveMQSessionContext extends SessionContext {
                                                          boolean sendBlocking,
                                                          boolean lastChunk,
                                                          byte[] chunk,
+                                                         int senderID,
                                                          SendAcknowledgementHandler messageHandler) throws ActiveMQException {
       final boolean requiresResponse = lastChunk && sendBlocking;
       final SessionSendContinuationMessage chunkPacket;
       if (sessionChannel.getConnection().isVersionBeforeAsyncResponseChange()) {
          chunkPacket = new SessionSendContinuationMessage(msgI, chunk, !lastChunk, requiresResponse, messageBodySize, messageHandler);
-      } else {
+      } else if (sessionChannel.getConnection().isBeforeProducerMetricsChanged()) {
          chunkPacket = new SessionSendContinuationMessage_V2(msgI, chunk, !lastChunk, requiresResponse || confirmationWindow != -1, messageBodySize, messageHandler);
+      } else {
+         chunkPacket = new SessionSendContinuationMessage_V3(msgI, chunk, !lastChunk, requiresResponse || confirmationWindow != -1, messageBodySize, senderID, messageHandler);
       }
       //perform a weak form of flow control to avoid OOM on tight loops
       final CoreRemotingConnection connection = channel.getConnection();

@@ -110,4 +110,11 @@ public interface ServerConsumer extends Consumer, ConsumerInfo {
    long getCreationTime();
 
    String getSessionID();
+
+   /**
+    * This is needed when some protocols (OW) handle the acks themselves and need to update the metrics
+    * @param ref the message reference
+    * @param transaction the tx
+    */
+   void metricsAcknowledge(MessageReference ref, Transaction transaction);
 }

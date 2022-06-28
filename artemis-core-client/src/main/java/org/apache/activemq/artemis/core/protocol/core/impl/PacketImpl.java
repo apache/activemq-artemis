@@ -47,6 +47,9 @@ public class PacketImpl implements Packet {
    // 2.24.0
    public static final int ARTEMIS_2_24_0_VERSION = 133;
 
+   // 2.28.0
+   public static final int ARTEMIS_2_28_0_VERSION = 134;
+
    public static final SimpleString OLD_QUEUE_PREFIX = new SimpleString("jms.queue.");
    public static final SimpleString OLD_TEMP_QUEUE_PREFIX = new SimpleString("jms.tempqueue.");
    public static final SimpleString OLD_TOPIC_PREFIX = new SimpleString("jms.topic.");
@@ -293,7 +296,9 @@ public class PacketImpl implements Packet {
 
    public static final byte DISCONNECT_V3 = -19;
 
+   public static final byte CREATE_PRODUCER = -20;
 
+   public static final byte REMOVE_PRODUCER = -21;
 
    public PacketImpl(final byte type) {
       this.type = type;

@@ -79,6 +79,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRec
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionRequestProducerCreditsMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage_V2;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSendContinuationMessage_V3;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionUniqueAddMetaDataMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXAAfterFailedMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionXACommitMessage;
@@ -423,8 +424,10 @@ public abstract class PacketDecoder implements Serializable {
          case SESS_SEND_CONTINUATION: {
             if (connection.isVersionBeforeAsyncResponseChange()) {
                packet = new SessionSendContinuationMessage();
-            } else {
+            } else if (connection.isBeforeProducerMetricsChanged()) {
                packet = new SessionSendContinuationMessage_V2();
+            } else {
+               packet = new SessionSendContinuationMessage_V3();
             }
             break;
          }

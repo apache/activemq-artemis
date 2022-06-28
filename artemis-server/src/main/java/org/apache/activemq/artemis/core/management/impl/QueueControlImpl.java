@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
+import org.apache.activemq.artemis.core.management.impl.view.ConsumerField;
 import org.apache.activemq.artemis.core.messagecounter.MessageCounter;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -1826,9 +1827,20 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
             if (consumer instanceof ServerConsumer) {
                ServerConsumer serverConsumer = (ServerConsumer) consumer;
-
-               JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
-
+               JsonObjectBuilder obj = JsonLoader.createObjectBuilder()
+                       .add(ConsumerField.ID.getAlternativeName(), serverConsumer.getID())
+                       .add(ConsumerField.CONNECTION.getAlternativeName(), serverConsumer.getConnectionID().toString())
+                       .add(ConsumerField.SESSION.getAlternativeName(), serverConsumer.getSessionID())
+                       .add(ConsumerField.BROWSE_ONLY.getName(), serverConsumer.isBrowseOnly())
+                       .add(ConsumerField.CREATION_TIME.getName(), serverConsumer.getCreationTime())
+                       .add(ConsumerField.MESSAGES_IN_TRANSIT.getName(), serverConsumer.getMessagesInTransit())
+                       .add(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName(), serverConsumer.getMessagesInTransitSize())
+                       .add(ConsumerField.MESSAGES_DELIVERED.getName(), serverConsumer.getMessagesDelivered())
+                       .add(ConsumerField.MESSAGES_DELIVERED_SIZE.getName(), serverConsumer.getMessagesDeliveredSize())
+                       .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), serverConsumer.getMessagesAcknowledged())
+                       .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), serverConsumer.getMessagesAcknowledgedAwaitingCommit())
+                       .add(ConsumerField.LAST_DELIVERED_TIME.getName(), serverConsumer.getLastDeliveredTime())
+                       .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), serverConsumer.getLastAcknowledgedTime());
                jsonArray.add(obj);
             }
 
