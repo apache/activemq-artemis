@@ -23,6 +23,7 @@ import java.util.Set;
 import io.netty.handler.codec.socksx.SocksVersion;
 import io.netty.util.Version;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -263,6 +264,8 @@ public class TransportConstants {
    public static final boolean DEFAULT_USE_DEFAULT_SSL_CONTEXT = false;
 
    public static final String DEFAULT_KEYSTORE_ALIAS = null;
+
+   public static final String DEFAULT_PASSWORD_CODEC_CLASS = DefaultSensitiveStringCodec.class.getName();
 
    public static final boolean DEFAULT_TCP_NODELAY = true;
 
