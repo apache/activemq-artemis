@@ -90,9 +90,14 @@ jobs:
       - name: Javadoc Check (JDK11 / -Prelease)
         if: matrix.java == '11'
         run: |
-          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
+          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease -DskipWebsiteDocGeneration=true -DskipWebsiteJavadocGeneration=true
 
       - name: Javadoc Check (JDK >11)
         if: matrix.java != '11'
         run: |
           mvn -s .github/maven-settings.xml javadoc:javadoc
+
+      - name: Website Content Check (JDK11 only / -Prelease)
+        if: matrix.java == '11'
+        run: |
+          mvn -s .github/maven-settings.xml clean install -DskipTests -Prelease -am -pl "artemis-website"

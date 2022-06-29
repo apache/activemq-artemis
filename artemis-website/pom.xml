@@ -25,59 +25,7 @@
 
    <artifactId>artemis-website</artifactId>
    <packaging>jar</packaging>
-   <name>ActiveMQ Artemis Web</name>
-
-   <dependencies>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-core-client</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-client</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-server</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-server</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-journal</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-selector</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-
-      <!-- stuff needed to resolve various classes during javadoc processing -->
-      <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging-processor</artifactId>
-         <scope>provided</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>xalan</groupId>
-         <artifactId>xalan</artifactId>
-         <optional>true</optional>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>com.google.code.findbugs</groupId>
-         <artifactId>jsr305</artifactId>
-        <scope>provided</scope>
-      </dependency>
-   </dependencies>
+   <name>ActiveMQ Artemis Website</name>
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
@@ -88,58 +36,142 @@
       <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
       <webapp-outdir-migration-guide>${basedir}/target/classes/migration-guide</webapp-outdir-migration-guide>
 
+      <placeholderJavadocDir>${basedir}/src/placeholder/javadoc</placeholderJavadocDir>
+      <skipPlaceholderJavadocGeneration>false</skipPlaceholderJavadocGeneration>
+
       <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
       <nodeVersion>v16.14.0</nodeVersion>
       <npmVersion>8.3.1</npmVersion>
       <skipWebsiteDocGeneration>false</skipWebsiteDocGeneration>
+      <skipWebsiteJavadocGeneration>false</skipWebsiteJavadocGeneration>
    </properties>
 
    <build>
       <plugins>
-
+         <!-- A placeholder content for the assembly. This is disabled when using the
+              release profile and thus activating the real (/slow) javadoc generation -->
          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
             <executions>
                <execution>
-                  <id>javadoc-jar</id>
+                  <id>fallback-javadoc-jar</id>
                   <phase>package</phase>
                   <goals>
                      <goal>jar</goal>
                   </goals>
                   <configuration>
-                     <source>8</source>
-                     <useStandardDocletOptions>true</useStandardDocletOptions>
+                     <doctitle>ActiveMQ Artemis ${project.version} API Placeholder</doctitle>
                      <minmemory>128m</minmemory>
                      <maxmemory>512m</maxmemory>
-                     <quiet>false</quiet>
-                     <!-- switch on dependency-driven aggregation -->
-                     <includeDependencySources>true</includeDependencySources>
-
-                     <dependencySourceIncludes>
-                        <!-- include ONLY dependencies I control -->
-                        <dependencySourceInclude>org.apache.activemq:artemis-core-client</dependencySourceInclude>
-                        <dependencySourceInclude>org.apache.activemq:artemis-jms-client</dependencySourceInclude>
-                        <dependencySourceInclude>org.apache.activemq:artemis-server</dependencySourceInclude>
-                        <dependencySourceInclude>org.apache.activemq:artemis-jms-server</dependencySourceInclude>
-                        <dependencySourceInclude>org.apache.activemq:artemis-journal</dependencySourceInclude>
-                        <dependencySourceInclude>org.apache.activemq:artemis-selector</dependencySourceInclude>
-                     </dependencySourceIncludes>
-                     <quiet>false</quiet>
-                     <aggregate>true</aggregate>
-                     <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils
-                     </excludePackageNames>
+                     <skip>${skipPlaceholderJavadocGeneration}</skip>
+                     <javadocDirectory>${placeholderJavadocDir}</javadocDirectory>
+                     <noindex>true</noindex>
+                     <nohelp>true</nohelp>
+                     <notimestamp>true</notimestamp>
+                     <notree>true</notree>
+                     <use>false</use>
+                     <overview>${placeholderJavadocDir}/overview.html</overview>
                   </configuration>
                </execution>
             </executions>
          </plugin>
       </plugins>
    </build>
-
    <profiles>
       <profile>
          <id>release</id>
+         <properties>
+            <skipPlaceholderJavadocGeneration>true</skipPlaceholderJavadocGeneration>
+         </properties>
+
+         <dependencies>
+            <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-core-client</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-jms-client</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-server</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-jms-server</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-journal</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+            <dependency>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>artemis-selector</artifactId>
+               <version>${project.version}</version>
+            </dependency>
+
+            <!-- stuff needed to resolve various classes during javadoc processing -->
+            <dependency>
+               <groupId>org.jboss.logging</groupId>
+               <artifactId>jboss-logging-processor</artifactId>
+               <scope>provided</scope>
+               <optional>true</optional>
+            </dependency>
+            <dependency>
+               <groupId>xalan</groupId>
+               <artifactId>xalan</artifactId>
+               <optional>true</optional>
+               <scope>provided</scope>
+            </dependency>
+            <dependency>
+               <groupId>com.google.code.findbugs</groupId>
+               <artifactId>jsr305</artifactId>
+              <scope>provided</scope>
+            </dependency>
+         </dependencies>
+
          <build>
             <plugins>
+               <plugin>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                           <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                           <doctitle>ActiveMQ Artemis ${project.version} API</doctitle>
+                           <source>8</source>
+                           <minmemory>128m</minmemory>
+                           <maxmemory>512m</maxmemory>
+                           <skip>${skipWebsiteJavadocGeneration}</skip>
+                           <!-- switch on dependency-driven aggregation -->
+                           <includeDependencySources>true</includeDependencySources>
+
+                           <dependencySourceIncludes>
+                              <!-- include ONLY dependencies I control -->
+                              <dependencySourceInclude>org.apache.activemq:artemis-core-client</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.activemq:artemis-jms-client</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.activemq:artemis-server</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.activemq:artemis-jms-server</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.activemq:artemis-journal</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.activemq:artemis-selector</dependencySourceInclude>
+                           </dependencySourceIncludes>
+                           <aggregate>true</aggregate>
+                           <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils
+                           </excludePackageNames>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
                <plugin>
                   <groupId>com.github.eirslett</groupId>
                   <artifactId>frontend-maven-plugin</artifactId>
