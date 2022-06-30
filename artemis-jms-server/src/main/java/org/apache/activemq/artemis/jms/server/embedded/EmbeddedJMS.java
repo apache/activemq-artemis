@@ -105,7 +105,7 @@ public class EmbeddedJMS extends EmbeddedActiveMQ {
 
    @Override
    public EmbeddedJMS start() throws Exception {
-      super.initStart();
+      super.createActiveMQServer();
       if (jmsConfiguration != null) {
          serverManager = new JMSServerManagerImpl(activeMQServer, jmsConfiguration);
       } else {

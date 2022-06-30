@@ -608,6 +608,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          internalStart();
       } catch (Throwable t) {
          ActiveMQServerLogger.LOGGER.failedToStartServer(t);
+         throw t;
       } finally {
          if (originalState == SERVER_STATE.STOPPED) {
             reloadNetworkHealthCheck();

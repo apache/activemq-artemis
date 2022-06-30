@@ -68,6 +68,8 @@
       <module>artemis-features</module>
       <module>artemis-quorum-api</module>
       <module>artemis-quorum-ri</module>
+      <module>artemis-image</module>
+      <module>artemis-image/examples</module>
    </modules>
 
    <name>ActiveMQ Artemis Parent</name>
@@ -105,6 +107,7 @@
       <errorprone.version>2.10.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
       <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
+      <jib.maven.plugin.version>3.3.2</jib.maven.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>9.2.1</checkstyle.version>
       <mockito.version>5.2.0</mockito.version>
@@ -1891,6 +1894,11 @@
                   </artifactItem>
                </artifactItems>
             </configuration>
+         </plugin>
+         <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>${jib.maven.plugin.version}</version>
          </plugin>
       </plugins>
    </build>
