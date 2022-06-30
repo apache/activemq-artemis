@@ -177,6 +177,10 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
+   public OperationContext getSessionContext() {
+      return serverSession.getSessionContext();
+   }
+
    @Override
    public void browserFinished(ServerConsumer consumer) {
 

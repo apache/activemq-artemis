@@ -26,7 +26,9 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.io.RunnableCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -138,7 +140,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    // in a regular case we should not have more than amqpCredits on the pool, that's the max we would need
-   private final MpscPool<ACKMessageOperation> ackMessageMpscPool = new MpscPool<>(amqpCredits, ACKMessageOperation::reset, () -> new ACKMessageOperation());
+   private final MpscPool<ACKMessageOperation> ackMessageMpscPool = new MpscPool<>(amqpCredits, ACKMessageOperation::reset, ACKMessageOperation::new);
 
    final RoutingContextImpl routingContext = new RoutingContextImpl(null);
 
@@ -151,6 +153,8 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    private final ReferenceNodeStore referenceNodeStore;
 
+   OperationContext mirrorContext;
+
    public AMQPMirrorControllerTarget(AMQPSessionCallback sessionSPI,
                                      AMQPConnectionContext connection,
                                      AMQPSessionContext protonSession,
@@ -161,6 +165,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       this.basicController.setLink(receiver);
       this.server = server;
       this.referenceNodeStore = sessionSPI.getProtocolManager().getReferenceIDSupplier();
+      mirrorContext = protonSession.getSessionSPI().getSessionContext();
    }
 
    @Override
@@ -224,7 +229,6 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                }
                deleteQueue(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName));
             } else if (eventType.equals(POST_ACK)) {
-               String address = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, ADDRESS);
                String nodeID = (String) AMQPMessageBrokerAccessor.getMessageAnnotationProperty(message, BROKER_ID);
 
                AckReason ackReason = AMQPMessageBrokerAccessor.getMessageAnnotationAckReason(message);
@@ -236,9 +240,9 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                AmqpValue value = (AmqpValue) message.getBody();
                Long messageID = (Long) value.getValue();
                if (logger.isDebugEnabled()) {
-                  logger.debug(server + " Post ack address=" + address + " queueName = " + queueName + " messageID=" + messageID + ", nodeID=" + nodeID);
+                  logger.debug(server + " Post ack queueName = " + queueName + " messageID=" + messageID + ", nodeID=" + nodeID);
                }
-               if (postAcknowledge(address, queueName, nodeID, messageID, messageAckOperation, ackReason)) {
+               if (postAcknowledge(queueName, nodeID, messageID, messageAckOperation, ackReason)) {
                   messageAckOperation = null;
                }
             }
@@ -336,7 +340,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
    }
 
-   public boolean postAcknowledge(String address, String queue, String nodeID, long messageID, ACKMessageOperation ackMessage, AckReason reason) throws Exception {
+   public boolean postAcknowledge(String queue, String nodeID, long messageID, ACKMessageOperation ackMessage, AckReason reason) throws Exception {
       final Queue targetQueue = server.locateQueue(queue);
 
       if (targetQueue == null) {
@@ -355,32 +359,50 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          logger.trace("Server " + server.getIdentity() + " with queue = " + queue + " being acked for " + messageID + " coming from " + messageID + " targetQueue = " + targetQueue);
       }
 
-      performAck(nodeID, messageID, targetQueue, ackMessage, reason, true);
+      performAck(nodeID, messageID, targetQueue, ackMessage, reason, (short)0);
       return true;
    }
-
 
    public void performAckOnPage(String nodeID, long messageID, Queue targetQueue, IOCallback ackMessageOperation) {
       PageAck pageAck = new PageAck(targetQueue, nodeID, messageID, ackMessageOperation);
       targetQueue.getPageSubscription().scanAck(pageAck, pageAck, pageAck, pageAck);
    }
 
-   private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, boolean retry) {
+   private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, final short retry) {
       if (logger.isTraceEnabled()) {
          logger.trace("performAck (nodeID=" + nodeID + ", messageID=" + messageID + ")" + ", targetQueue=" + targetQueue.getName());
       }
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
 
-      if (reference == null && retry) {
+      if (reference == null) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Retrying Reference not found on messageID=" + messageID + " nodeID=" + nodeID);
+            logger.debug("Retrying Reference not found on messageID=" + messageID + " nodeID=" + nodeID + ", currentRetry=" + retry);
          }
-         targetQueue.flushOnIntermediate(() -> {
-            recoverContext();
-            performAck(nodeID, messageID, targetQueue, ackMessageOperation, reason, false);
-         });
-         return;
+         switch (retry) {
+            case 0:
+               // first retry, after IO Operations
+               sessionSPI.getSessionContext().executeOnCompletion(new RunnableCallback(() -> performAck(nodeID, messageID, targetQueue, ackMessageOperation, reason, (short) 1)));
+               return;
+            case 1:
+               // second retry after the queue is flushed the temporary adds
+               targetQueue.flushOnIntermediate(() -> {
+                  recoverContext();
+                  performAck(nodeID, messageID, targetQueue, ackMessageOperation, reason, (short)2);
+               });
+               return;
+            case 2:
+               // third retry, on paging
+               if (reason != AckReason.EXPIRED) {
+                  // if expired, we don't need to check on paging
+                  // as the message will expire again when depaged (if on paging)
+                  performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
+                  return;
+               } else {
+                  ackMessageOperation.run();
+               }
+         }
       }
+
       if (reference != null) {
          if (logger.isTraceEnabled()) {
             logger.trace("Post ack Server " + server + " worked well for messageID=" + messageID + " nodeID=" + nodeID);
@@ -398,14 +420,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
          }
-      } else {
-         if (reason != AckReason.EXPIRED) {
-            // if expired, we don't need to check on paging
-            // as the message will expire again when depaged (if on paging)
-            performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
-         }
       }
-
    }
 
    /**
