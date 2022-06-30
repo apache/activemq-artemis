@@ -130,12 +130,15 @@ public class EmbeddedActiveMQ {
    }
 
    public EmbeddedActiveMQ start() throws Exception {
-      initStart();
+      createActiveMQServer();
       activeMQServer.start();
       return this;
    }
 
-   protected void initStart() throws Exception {
+   public void createActiveMQServer() throws Exception {
+      if (activeMQServer != null) {
+         return;
+      }
       if (configuration == null) {
          if (configResourcePath == null)
             configResourcePath = "broker.xml";

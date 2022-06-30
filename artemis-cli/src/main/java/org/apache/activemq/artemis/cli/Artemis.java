@@ -115,14 +115,15 @@ public class Artemis {
    public static void verifyManagementDTO(File etc) {
       if (etc != null) {
          File management = new File(etc, "management.xml");
-
-         try {
-            ManagementContextDTO managementContextDTO = XmlUtil.decode(ManagementContextDTO.class, management);
-            if (managementContextDTO != null && managementContextDTO.getAuthorisation() != null) {
-               System.setProperty("javax.management.builder.initial", "org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerBuilder");
+         if (management.exists()) {
+            try {
+               ManagementContextDTO managementContextDTO = XmlUtil.decode(ManagementContextDTO.class, management);
+               if (managementContextDTO != null && managementContextDTO.getAuthorisation() != null) {
+                  System.setProperty("javax.management.builder.initial", "org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerBuilder");
+               }
+            } catch (Exception e) {
+               e.printStackTrace();
             }
-         } catch (Exception e) {
-            e.printStackTrace();
          }
       }
    }
