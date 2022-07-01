@@ -33,11 +33,9 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
 
-      # use 'install' so smoke-tests will work
-      # By setting anything to org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED we are disabling libaio loading on the testsuite
-      - name: Fast Tests
+      - name: Show Cache Contents After Restore
         run: |
-          mvn -s .github/maven-settings.xml -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Pfast-tests -Ptests-CI install
+          if [ -d ~/.m2/repository ]; then ls -lR ~/.m2/repository; else echo "Directory doesnt exist"; fi
 
 
   checks:
@@ -71,33 +69,6 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
 
-      - name: Build Main
+      - name: Show Cache Contents After Restore
         run: |
-          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pextra-tests -Pjmh install
-
-      - name: Build Examples (JDK11 / -Prelease)
-        if: matrix.java == '11'
-        run: |
-          cd examples
-          mvn -s ../.github/maven-settings.xml install -Prelease
-
-      - name: Build Examples (JDK >11 / -Pexamples,noRun)
-        if: matrix.java != '11'
-        run: |
-          cd examples
-          mvn -s ../.github/maven-settings.xml install -Pexamples,noRun
-
-      - name: Javadoc Check (JDK11 / -Prelease)
-        if: matrix.java == '11'
-        run: |
-          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease -DskipWebsiteDocGeneration=true -DskipWebsiteJavadocGeneration=true
-
-      - name: Javadoc Check (JDK >11)
-        if: matrix.java != '11'
-        run: |
-          mvn -s .github/maven-settings.xml javadoc:javadoc
-
-      - name: Website Content Check (JDK11 only / -Prelease)
-        if: matrix.java == '11'
-        run: |
-          mvn -s .github/maven-settings.xml clean install -DskipTests -Prelease -am -pl "artemis-website"
+          if [ -d ~/.m2/repository ]; then ls -lR ~/.m2/repository; else echo "Directory doesnt exist"; fi
