@@ -103,7 +103,7 @@
       <hawtio.version>2.15.0</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jboss.logging.version>3.5.0.Final</jboss.logging.version>
-      <jetty.version>9.4.45.v20220203</jetty.version>
+      <jetty.version>10.0.11</jetty.version>
       <tomcat.servlet-api.version>8.5.78</tomcat.servlet-api.version>
       <jgroups.version>5.2.0.Final</jgroups.version>
       <errorprone.version>2.10.0</errorprone.version>
