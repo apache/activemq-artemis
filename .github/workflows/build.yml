@@ -19,13 +19,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository/*/*/*/*/*
-            !~/.m2/repository/org/apache/activemq/**/*-SNAPSHOT
-            !~/.m2/repository/org/apache/activemq/examples
-            !~/.m2/repository/org/apache/activemq/tests
-          key: ${{ runner.os }}-maven-test-${{ hashFiles('**/pom.xml') }}
+            ~/.m2/repository/
+          key: ${{ runner.os }}-mvn-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-maven-test-
+            ${{ runner.os }}-mvn-
 
       - name: Install JDK ${{ matrix.java }}
         uses: actions/setup-java@v2
@@ -39,6 +36,11 @@ jobs:
         run: |
           mvn -s .github/maven-settings.xml -Dorg.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory.DISABLED=AnythingNotNull -Pfast-tests -Ptests-CI install
 
+      - name: Clean Up Before Caching
+        run: |
+          rm -rf ~/.m2/repository/org/apache/activemq/tests
+          rm -rf ~/.m2/repository/org/apache/activemq/examples
+          if [ -d ~/.m2/repository/org/apache/activemq ]; then find ~/.m2/repository/org/apache/activemq -name "*-SNAPSHOT" -type d -prune -exec rm -r '{}' \; ; fi
 
   checks:
     name: Checks (${{ matrix.java }})
@@ -56,14 +58,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.m2/repository/*/*/*/*/*
-            !~/.m2/repository/org/apache/activemq/**/*-SNAPSHOT
-            !~/.m2/repository/org/apache/activemq/examples
-            !~/.m2/repository/org/apache/activemq/tests
-          key: ${{ runner.os }}-maven-checks-${{ hashFiles('**/pom.xml') }}
+            ~/.m2/repository/
+          key: ${{ runner.os }}-mvn-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-maven-checks-
-            ${{ runner.os }}-maven-test-
+            ${{ runner.os }}-mvn-
 
       - name: Install JDK ${{ matrix.java }}
         uses: actions/setup-java@v2
@@ -101,3 +99,9 @@ jobs:
         if: matrix.java == '11'
         run: |
           mvn -s .github/maven-settings.xml clean install -DskipTests -Prelease -am -pl "artemis-website"
+
+      - name: Clean Up Before Caching
+        run: |
+          rm -rf ~/.m2/repository/org/apache/activemq/tests
+          rm -rf ~/.m2/repository/org/apache/activemq/examples
+          if [ -d ~/.m2/repository/org/apache/activemq ]; then find ~/.m2/repository/org/apache/activemq -name "*-SNAPSHOT" -type d -prune -exec rm -r '{}' \; ; fi
