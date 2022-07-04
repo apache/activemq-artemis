@@ -54,7 +54,6 @@ under the License.
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-client</artifactId>
-         <version>${activemq5-version}</version>
          <exclusions>
             <exclusion>
                <groupId>org.apache.geronimo.specs</groupId>
