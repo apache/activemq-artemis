@@ -7,7 +7,7 @@ matrix:
       env:
         - EXAMPLES_PROFILE="release"
     - os: linux
-      jdk: openjdk16
+      jdk: openjdk17
       env:
         - EXAMPLES_PROFILE="examples,noRun"
 
