@@ -27,13 +27,11 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.naming.InitialContext;
 
-import org.apache.activemq.artemis.jms.example.ldap.LdapServer;
+import org.junit.runner.JUnitCore;
 
 public class SecurityExample {
 
-   public static void main(final String[] args) throws Exception {
-      LdapServer ldapServer = new LdapServer(args[0]);
-
+   public static void securityExample() throws Exception {
       boolean result = true;
       Connection failConnection = null;
       Connection billConnection = null;
@@ -58,6 +56,7 @@ public class SecurityExample {
          try {
             failConnection = cf.createConnection();
             result = false;
+            System.err.println("Unexpectedly connected with default user");
          } catch (JMSSecurityException e) {
             System.out.println("Default user cannot get a connection. Details: " + e.getMessage());
          }
@@ -66,8 +65,9 @@ public class SecurityExample {
          try {
             billConnection = createConnection("bill", "activemq1", cf);
             result = false;
+            System.err.println("User bill unexpectedly connected with wrong password");
          } catch (JMSException e) {
-            System.out.println("User bill failed to connect. Details: " + e.getMessage());
+            System.out.println("User bill failed to connect with wrong password. Details: " + e.getMessage());
          }
 
          // Step 6. bill makes a good connection.
@@ -85,16 +85,17 @@ public class SecurityExample {
          // Step 9. sam makes a good connection.
          samConnection = createConnection("sam", "activemq3", cf);
          samConnection.start();
+         System.out.println("-------------------------------------------------------------------------------------");
 
          // Step 10. Check every user can publish/subscribe genericTopics.
-         System.out.println("------------------------Checking permissions on " + genericTopic + "----------------");
+         System.out.println("======== Checking permissions on " + genericTopic.getTopicName() + " ========");
          checkUserSendAndReceive(genericTopic, billConnection, "bill");
          checkUserSendAndReceive(genericTopic, andrewConnection, "andrew");
          checkUserSendAndReceive(genericTopic, frankConnection, "frank");
          checkUserSendAndReceive(genericTopic, samConnection, "sam");
          System.out.println("-------------------------------------------------------------------------------------");
 
-         System.out.println("------------------------Checking permissions on " + europeTopic + "----------------");
+         System.out.println("======== Checking permissions on " + europeTopic.getTopicName() + " ========");
 
          // Step 11. Check permissions on news.europe.europeTopic for bill: can't send and can't receive
          checkUserNoSendNoReceive(europeTopic, billConnection, "bill");
@@ -109,7 +110,7 @@ public class SecurityExample {
          checkUserReceiveNoSend(europeTopic, samConnection, "sam", andrewConnection);
          System.out.println("-------------------------------------------------------------------------------------");
 
-         System.out.println("------------------------Checking permissions on " + usTopic + "----------------");
+         System.out.println("======== Checking permissions on " + usTopic.getTopicName() + " ========");
 
          // Step 15. Check permissions on news.us.usTopic for bill: can't send and can't receive
          checkUserNoSendNoReceive(usTopic, billConnection, "bill");
@@ -145,8 +146,6 @@ public class SecurityExample {
          if (initialContext != null) {
             initialContext.close();
          }
-
-         ldapServer.stop();
       }
    }
 
@@ -166,9 +165,9 @@ public class SecurityExample {
                                             " can send message [" +
                                             msg.getText() +
                                             "] to topic " +
-                                            topic);
+                                            topic.getTopicName());
       } catch (JMSException e) {
-         System.out.println("User " + user + " cannot send message [" + msg.getText() + "] to topic: " + topic);
+         System.out.println("User " + user + " cannot send message [" + msg.getText() + "] to topic: " + topic.getTopicName());
       }
 
       // Now send a good message
@@ -179,9 +178,9 @@ public class SecurityExample {
       TextMessage receivedMsg = (TextMessage) consumer.receive(2000);
 
       if (receivedMsg != null) {
-         System.out.println("User " + user + " can receive message [" + receivedMsg.getText() + "] from topic " + topic);
+         System.out.println("User " + user + " can receive message [" + receivedMsg.getText() + "] from topic " + topic.getTopicName());
       } else {
-         throw new IllegalStateException("Security setting is broken! User " + user + " cannot receive message from topic " + topic);
+         throw new IllegalStateException("Security setting is broken! User " + user + " cannot receive message from topic " + topic.getTopicName());
       }
 
       session1.close();
@@ -198,7 +197,7 @@ public class SecurityExample {
       try {
          session.createConsumer(topic);
       } catch (JMSException e) {
-         System.out.println("User " + user + " cannot receive any message from topic " + topic);
+         System.out.println("User " + user + " cannot receive any message from topic " + topic.getTopicName());
       }
 
       Session session1 = receivingConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -209,13 +208,13 @@ public class SecurityExample {
 
       TextMessage receivedMsg = (TextMessage) goodConsumer.receive(2000);
       if (receivedMsg != null) {
-         System.out.println("User " + user + " can send message [" + receivedMsg.getText() + "] to topic " + topic);
+         System.out.println("User " + user + " can send message [" + receivedMsg.getText() + "] to topic " + topic.getTopicName());
       } else {
          throw new IllegalStateException("Security setting is broken! User " + user +
                                             " cannot send message [" +
                                             msg.getText() +
                                             "] to topic " +
-                                            topic);
+                                            topic.getTopicName());
       }
 
       session.close();
@@ -232,7 +231,7 @@ public class SecurityExample {
       try {
          session.createConsumer(topic);
       } catch (JMSException e) {
-         System.out.println("User " + user + " cannot create consumer on topic " + topic);
+         System.out.println("User " + user + " cannot create consumer on topic " + topic.getTopicName());
       }
 
       TextMessage msg = session.createTextMessage("hello-world-3");
@@ -242,9 +241,9 @@ public class SecurityExample {
                                             " can send message [" +
                                             msg.getText() +
                                             "] to topic " +
-                                            topic);
+                                            topic.getTopicName());
       } catch (JMSException e) {
-         System.out.println("User " + user + " cannot send message [" + msg.getText() + "] to topic: " + topic);
+         System.out.println("User " + user + " cannot send message [" + msg.getText() + "] to topic: " + topic.getTopicName());
       }
 
       session.close();
@@ -261,8 +260,8 @@ public class SecurityExample {
       producer.send(msg);
       TextMessage receivedMsg = (TextMessage) consumer.receive(5000);
       if (receivedMsg != null) {
-         System.out.println("User " + user + " can send message: [" + msg.getText() + "] to topic: " + topic);
-         System.out.println("User " + user + " can receive message: [" + msg.getText() + "] from topic: " + topic);
+         System.out.println("User " + user + " can send message: [" + msg.getText() + "] to topic: " + topic.getTopicName());
+         System.out.println("User " + user + " can receive message: [" + msg.getText() + "] from topic: " + topic.getTopicName());
       } else {
          throw new IllegalStateException("Error! User " + user + " cannot receive the message! ");
       }
@@ -273,5 +272,10 @@ public class SecurityExample {
                                               final String password,
                                               final ConnectionFactory cf) throws JMSException {
       return cf.createConnection(username, password);
+   }
+
+   // Boiler plate, leverages JUnit integrations to start test LDAP server and then run example code above.
+   public static void main(final String[] args) throws Exception {
+      JUnitCore.main(SecurityExampleTestLdapServer.class.getName());
    }
 }
