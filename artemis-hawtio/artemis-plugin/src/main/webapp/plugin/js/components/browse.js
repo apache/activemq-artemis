@@ -339,7 +339,7 @@ var Artemis;
                 itemField: 'StringProperties',
                 header: 'Original Queue',
                 templateFn: function(value) {
-                    return value._AMQ_ORIG_QUEUE;
+                    return (value['_AMQ_ORIG_QUEUE'] ? value['_AMQ_ORIG_QUEUE'] : value['extraProperties._AMQ_ORIG_QUEUE']);
                 }
             };
             ctrl.tableColumns.push(origQueue);

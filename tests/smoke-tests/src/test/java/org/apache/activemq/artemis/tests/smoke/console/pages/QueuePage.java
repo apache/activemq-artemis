@@ -19,8 +19,13 @@ package org.apache.activemq.artemis.tests.smoke.console.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+
+import java.util.List;
 
 public class QueuePage extends ArtemisPage {
+   private By messageRowLocator = By.cssSelector("tr[role='row'][class='ng-scope odd']");
+
    public QueuePage(WebDriver driver) {
       super(driver);
    }
@@ -31,5 +36,36 @@ public class QueuePage extends ArtemisPage {
       waitForElementToBeVisible(By.cssSelector("span[role='presentation']"), timeout);
 
       return new MessagePage(driver);
+   }
+
+   public long getMessageId(int index) {
+      WebElement messageRowWebElement = driver.findElements(messageRowLocator).get(index);
+
+      String messageIdText = messageRowWebElement.findElements(By.tagName("td")).get(
+         getIndexOfColumn("Message ID")).findElement(By.tagName("span")).getText();
+
+      return Long.parseLong(messageIdText);
+   }
+
+   public String getMessageOriginalQueue(int index) {
+      WebElement messageRowWebElement = driver.findElements(messageRowLocator).get(index);
+
+      String messageOriginalQueue = messageRowWebElement.findElements(By.tagName("td")).get(
+         getIndexOfColumn("Original Queue")).findElement(By.tagName("span")).getText();
+
+      return messageOriginalQueue;
+   }
+
+   public int getIndexOfColumn(String name) {
+      WebElement headerRowWebElement = driver.findElement(By.cssSelector("tr[role='row']"));
+
+      List<WebElement> columnWebElements = headerRowWebElement.findElements(By.tagName("th"));
+      for (int i = 0; i < columnWebElements.size(); i++) {
+         if (name.equals(columnWebElements.get(i).getText())) {
+            return i;
+         }
+      }
+
+      return -1;
    }
 }
