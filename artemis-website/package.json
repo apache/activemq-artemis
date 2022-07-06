@@ -8,10 +8,11 @@
     "url": "https://github.com/apache/activemq-artemis"
   },
   "devDependencies": {
-    "honkit": "~3.7.1"
+    "honkit": "~3.7.4"
   },
   "overrides": {
     "nth-check": "^2.0.1",
-    "minimist":  "^1.2.6"
+    "minimist":  "^1.2.6",
+    "jsdom": "^16.5.0"
   }
 }
