@@ -85,3 +85,22 @@ To create a new queue click on the address you want to bind the queue to and cli
 Once you have created a queue you should be able to **Send** a message to it or **Browse** it or view the  **Attributes** or **Charts**. Simply click on the queue in th ejmx tree and click on the appropriate tab.
 
 You can also see a graphical view of all brokers, addresses, queues and their consumers using the **Diagram** tab. 
+
+### Status Logging
+
+When the broker starts it will detect the presence of the web console and log
+status information, e.g.:
+
+```
+INFO  [org.apache.activemq.artemis] AMQ241002: Artemis Jolokia REST API available at http://localhost:8161/console/jolokia
+INFO  [org.apache.activemq.artemis] AMQ241004: Artemis Console available at http://localhost:8161/console
+```
+
+The web console is detected by inspecting the value of the `<display-name>` tag
+in the war file's `WEB-INF/web.xml` descriptor. By default it looks for
+`hawtio`. However, if this value is changed for any reason the broker can look
+for this new value by setting the following system property
+
+```
+-Dorg.apache.activemq.artemis.webConsoleDisplayName=newValue
+```
