@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.activemq.artemis.ActiveMQWebLogger;
+import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.components.ExternalComponent;
 import org.apache.activemq.artemis.dto.AppDTO;
 import org.apache.activemq.artemis.dto.BindingDTO;
@@ -59,12 +60,15 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    private static final Logger logger = Logger.getLogger(WebServerComponent.class);
    public static final String DIR_ALLOWED = "org.eclipse.jetty.servlet.Default.dirAllowed";
 
+   // this should match the value of <display-name> in the console war's WEB-INF/web.xml
+   public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "hawtio");
+
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
    private final List<String> consoleUrls = new ArrayList<>();
    private final List<String> jolokiaUrls = new ArrayList<>();
-   private final List<WebAppContext> webContexts = new ArrayList<>();;
+   private final List<Pair<WebAppContext, String>> webContextData = new ArrayList<>();
    private ServerConnector[] connectors;
    private Path artemisHomePath;
    private Path temporaryWarDir;
@@ -129,11 +133,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
                WebAppContext webContext = createWebAppContext(app.url, app.war, dirToUse, virtualHosts[i]);
                handlers.addHandler(webContext);
                webContext.setInitParameter(DIR_ALLOWED, "false");
-               webContexts.add(webContext);
-               if (app.war.startsWith("console")) {
-                  consoleUrls.add(binding.uri + "/" + app.url);
-                  jolokiaUrls.add(binding.uri + "/" + app.url + "/jolokia");
-               }
+               webContextData.add(new Pair(webContext, binding.uri));
             }
          }
       }
@@ -179,13 +179,28 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       cleanupTmp();
       server.start();
 
+      printStatus(bindings);
+   }
+
+   private void printStatus(List<BindingDTO> bindings) {
       ActiveMQWebLogger.LOGGER.webserverStarted(bindings
                                                    .stream()
                                                    .map(binding -> binding.uri)
                                                    .collect(Collectors.joining(", ")));
 
-      ActiveMQWebLogger.LOGGER.jolokiaAvailable(String.join(", ", jolokiaUrls));
-      ActiveMQWebLogger.LOGGER.consoleAvailable(String.join(", ", consoleUrls));
+      // the web server has to start before the war's web.xml will be parsed
+      for (Pair<WebAppContext, String> data : webContextData) {
+         if (WEB_CONSOLE_DISPLAY_NAME.equals(data.getA().getDisplayName())) {
+            consoleUrls.add(data.getB() + data.getA().getContextPath());
+            jolokiaUrls.add(data.getB() + data.getA().getContextPath() + "/jolokia");
+         }
+      }
+      if (!jolokiaUrls.isEmpty()) {
+         ActiveMQWebLogger.LOGGER.jolokiaAvailable(String.join(", ", jolokiaUrls));
+      }
+      if (!consoleUrls.isEmpty()) {
+         ActiveMQWebLogger.LOGGER.consoleAvailable(String.join(", ", consoleUrls));
+      }
    }
 
    private ServerConnector createServerConnector(HttpConfiguration httpConfiguration,
@@ -287,7 +302,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    }
 
    private void cleanupTmp() {
-      if (webContexts.size() == 0) {
+      if (webContextData.size() == 0) {
          //there is no webapp to be deployed (as in some tests)
          return;
       }
@@ -304,10 +319,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       }
    }
 
-   public void cleanupWebTemporaryFiles(List<WebAppContext> webContexts) throws Exception {
+   public void cleanupWebTemporaryFiles(List<Pair<WebAppContext, String>> webContextData) throws Exception {
       List<File> temporaryFiles = new ArrayList<>();
-      for (WebAppContext context : webContexts) {
-         File tmpdir = context.getTempDirectory();
+      for (Pair<WebAppContext, String> data : webContextData) {
+         File tmpdir = data.getA().getTempDirectory();
          temporaryFiles.add(tmpdir);
       }
 
@@ -371,8 +386,8 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          ActiveMQWebLogger.LOGGER.stoppingEmbeddedWebServer();
          server.stop();
          server = null;
-         cleanupWebTemporaryFiles(webContexts);
-         webContexts.clear();
+         cleanupWebTemporaryFiles(webContextData);
+         webContextData.clear();
          jolokiaUrls.clear();
          consoleUrls.clear();
          handlers = null;
@@ -380,7 +395,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
       }
    }
 
-   public List<WebAppContext> getWebContexts() {
-      return this.webContexts;
+   public List<Pair<WebAppContext, String>> getWebContextData() {
+      return this.webContextData;
    }
 }
