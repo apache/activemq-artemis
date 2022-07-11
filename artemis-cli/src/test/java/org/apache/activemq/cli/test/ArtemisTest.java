@@ -40,6 +40,7 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
@@ -1264,6 +1265,37 @@ public class ArtemisTest extends CliTestBase {
    @Test
    public void testSimpleRun() throws Exception {
       testSimpleRun("server");
+   }
+
+   @Test
+   public void testOperationRetry() throws Exception {
+      File instanceFolder = temporaryFolder.newFolder("server");
+      setupAuth(instanceFolder);
+      Run.setEmbedded(true);
+      Artemis.main("create", instanceFolder.getAbsolutePath(), "--verbose", "--force", "--silent", "--no-web", "--queues", "q1", "--no-autotune", "--require-login", "--default-port", "61616");
+      System.setProperty("artemis.instance", instanceFolder.getAbsolutePath());
+
+      try {
+         Artemis.internalExecute("run");
+         InputStream in = new ByteArrayInputStream("admin\n".getBytes());
+         ActionContext context = new ActionContext(in, System.out, System.err);
+
+         /*
+          * This operation should fail the first time and then prompt the user to re-enter the username which
+          * it will read from the InputStream in the ActionContext. It can't read the password since it's using
+          * System.console.readPassword() for that.
+          */
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute(null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin"}, context));
+
+         /*
+          * This is the same as above except it will prompt the user to re-enter both the URL and the username.
+          */
+         in = new ByteArrayInputStream("tcp://localhost:61616\nadmin\n".getBytes());
+         context = new ActionContext(in, System.out, System.err);
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute(null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin", "--url", "tcp://badhost:11111"}, context));
+      } finally {
+         stopServer();
+      }
    }
 
    @Test
