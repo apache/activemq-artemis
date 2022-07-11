@@ -17,6 +17,9 @@
 
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
@@ -26,10 +29,13 @@ import org.apache.activemq.artemis.tests.smoke.console.pages.QueuePage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.QueuesPage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.StatusPage;
 import org.apache.activemq.artemis.utils.Wait;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openqa.selenium.MutableCapabilities;
+
+import javax.management.ObjectName;
 
 @RunWith(Parameterized.class)
 public class QueuesTest extends ConsoleTest {
@@ -100,5 +106,62 @@ public class QueuesTest extends ConsoleTest {
       QueuesPage afterQueuesPage = messagePage.getQueuesPage(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> afterQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(0, () -> afterQueuesPage.getMessagesCount(queueName));
+   }
+
+   @Test
+   public void testExpiryQueue() throws Exception {
+      final int messages = 1;
+      final String expiryQueueName = "ExpiryQueue";
+      final String testQueueName = "TEST";
+      final String messageText = "TEST";
+      final ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(null, "0.0.0.0", true);
+      final ObjectName expiryQueueObjectName = objectNameBuilder.getQueueObjectName(
+         SimpleString.toSimpleString(expiryQueueName),
+         SimpleString.toSimpleString(expiryQueueName),
+         RoutingType.ANYCAST);
+      final ObjectName testQueueObjectName = objectNameBuilder.getQueueObjectName(
+         SimpleString.toSimpleString(testQueueName),
+         SimpleString.toSimpleString(testQueueName),
+         RoutingType.ANYCAST);
+
+      driver.get(serverUrl + "/console");
+      LoginPage loginPage = new LoginPage(driver);
+      StatusPage statusPage = loginPage.loginValidUser(
+         SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
+      Assert.assertTrue(statusPage.postJolokiaExecRequest(expiryQueueObjectName.getCanonicalName(),
+         "removeAllMessages()", "").toString().contains("\"status\":200"));
+
+      QueuesPage beforeQueuesPage = statusPage.getQueuesPage(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue("ExpiryQueue"));
+      Wait.assertEquals(0, () -> beforeQueuesPage.countQueue(testQueueName));
+
+      Producer producer = new Producer();
+      producer.setUser(SERVER_ADMIN_USERNAME);
+      producer.setPassword(SERVER_ADMIN_PASSWORD);
+      producer.setDestination(testQueueName);
+      producer.setMessageCount(messages);
+      producer.setMessage(messageText);
+      producer.setSilentInput(true);
+      producer.setProtocol("amqp");
+      producer.execute(new ActionContext());
+
+      beforeQueuesPage.refresh(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(expiryQueueName));
+      assertEquals(0, beforeQueuesPage.getMessagesCount(expiryQueueName));
+      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(testQueueName));
+      assertEquals(messages, beforeQueuesPage.getMessagesCount(testQueueName));
+
+      QueuePage queuePage = beforeQueuesPage.getQueuePage(testQueueName, DEFAULT_TIMEOUT);
+      Assert.assertTrue(queuePage.postJolokiaExecRequest(testQueueObjectName.getCanonicalName(), "expireMessage(long)",
+         String.valueOf(queuePage.getMessageId(0))).toString().contains("\"status\":200"));
+
+      QueuesPage afterQueuesPage = queuePage.getQueuesPage(DEFAULT_TIMEOUT);
+      Wait.assertEquals(1, () -> afterQueuesPage.countQueue(expiryQueueName));
+      assertEquals(messages, afterQueuesPage.getMessagesCount(expiryQueueName));
+      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(testQueueName));
+      assertEquals(0, afterQueuesPage.getMessagesCount(testQueueName));
+
+      QueuePage dlqPage = afterQueuesPage.getQueuePage(expiryQueueName, DEFAULT_TIMEOUT);
+      assertEquals(testQueueName, dlqPage.getMessageOriginalQueue(0));
    }
 }

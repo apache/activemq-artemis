@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.activemq.artemis.utils.StringEscapeUtils;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -74,5 +76,22 @@ public abstract class ArtemisPage extends ConsolePage {
       waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Browse Queues')]"), timeout);
 
       return new QueuesPage(driver);
+   }
+
+   public Object postJolokiaExecRequest(String mbean, String operation, String arguments) {
+      Object response = ((JavascriptExecutor) driver).executeAsyncScript(
+         "var callback = arguments[arguments.length - 1];" +
+            "var xhr = new XMLHttpRequest();" +
+            "xhr.open('POST', '/console/jolokia', true);" +
+            "xhr.onreadystatechange = function() {" +
+            "  if (xhr.readyState == 4) {" +
+            "    callback(xhr.responseText);" +
+            "  }" +
+            "};" +
+            "xhr.send('{\"type\":\"exec\",\"mbean\":\"" + StringEscapeUtils.escapeString(StringEscapeUtils.escapeString(mbean)) +
+            "\",\"operation\":\"" + StringEscapeUtils.escapeString(StringEscapeUtils.escapeString(operation)) +
+            "\",\"arguments\":[" + StringEscapeUtils.escapeString(arguments) + "]}');");
+
+      return response;
    }
 }
