@@ -31,20 +31,20 @@ server = server as ActiveMQServer
 waitForCondition(10, server.&isActive)
 
 ServerLocatorImpl.newLocator("tcp://${masterBindAddress}:${masterBindPort}").withCloseable { locator ->
-    locator.blockOnDurableSend = true
-    locator.createSessionFactory().withCloseable { sf ->
-        sf.createSession(true, true).withCloseable { session ->
-            session.start()
-            session.createQueue(new QueueConfiguration(replicationTestQueueName as String))
-            session.createProducer(replicationTestQueueName as String).withCloseable { producer ->
-                new StringInputStream(replicationTestString).withCloseable { body ->
-                    ClientMessage message = session.createMessage(true)
-                    message.bodyInputStream = body
-                    producer.send(message)
-                }
+   locator.blockOnDurableSend = true
+   locator.createSessionFactory().withCloseable { sf ->
+      sf.createSession(true, true).withCloseable { session ->
+         session.start()
+         session.createQueue(new QueueConfiguration(replicationTestQueueName as String))
+         session.createProducer(replicationTestQueueName as String).withCloseable { producer ->
+            new StringInputStream(replicationTestString).withCloseable { body ->
+               ClientMessage message = session.createMessage(true)
+               message.bodyInputStream = body
+               producer.send(message)
             }
-        }
-    }
+         }
+      }
+   }
 }
 
 waitForCondition(10, server.&isReplicaSync)

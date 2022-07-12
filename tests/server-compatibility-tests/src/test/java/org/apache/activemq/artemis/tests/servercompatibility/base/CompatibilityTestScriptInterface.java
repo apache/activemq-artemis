@@ -22,8 +22,8 @@ import java.io.File;
 @SuppressWarnings("unused")
 public interface CompatibilityTestScriptInterface {
 
-    File getWorkingDir();
+   File getWorkingDir();
 
-    String getSide();
+   String getSide();
 
 }

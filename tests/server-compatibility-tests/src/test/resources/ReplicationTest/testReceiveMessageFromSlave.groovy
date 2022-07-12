@@ -27,19 +27,19 @@ server = server as ActiveMQServer
 waitForCondition(10, server.&isActive)
 
 ServerLocatorImpl.newLocator("tcp://${slaveBindAddress}:${slaveBindPort}").withCloseable { locator ->
-    locator.createSessionFactory().withCloseable { sf ->
-        sf.createSession(true, false).withCloseable { session ->
-            session.start()
-            session.createConsumer(replicationTestQueueName as String).withCloseable { consumer ->
-                ClientMessage message = consumer.receive(5000)
-                assertNotNull(message)
-                final os = new ByteArrayOutputStream()
-                os.withCloseable {
-                    message.saveToOutputStream(it)
-                }
-                assertEquals(replicationTestString, os.toString())
+   locator.createSessionFactory().withCloseable { sf ->
+      sf.createSession(true, false).withCloseable { session ->
+         session.start()
+         session.createConsumer(replicationTestQueueName as String).withCloseable { consumer ->
+            ClientMessage message = consumer.receive(5000)
+            assertNotNull(message)
+            final os = new ByteArrayOutputStream()
+            os.withCloseable {
+               message.saveToOutputStream(it)
             }
-            session.commit()
-        }
-    }
+            assertEquals(replicationTestString, os.toString())
+         }
+         session.commit()
+      }
+   }
 }

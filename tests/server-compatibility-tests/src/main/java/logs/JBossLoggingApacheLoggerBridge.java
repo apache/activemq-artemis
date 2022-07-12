@@ -26,7 +26,7 @@ import org.jboss.logging.Logger;
  * We need to have the class defined.
  * However I cannot import commons into older versions.
  * For that reason this class was needed as a duplicate.
- * */
+ */
 public class JBossLoggingApacheLoggerBridge implements Log {
 
    final Logger bridgeLog;

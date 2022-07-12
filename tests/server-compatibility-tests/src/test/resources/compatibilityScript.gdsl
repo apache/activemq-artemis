@@ -25,5 +25,5 @@
 
 def generalContext = context(scope: scriptScope(), pathRegexp: /.*\/*\.groovy/)
 contributor generalContext, {
-    delegatesTo(findClass('org.apache.activemq.artemis.tests.compatibility.base.CompatibilityTestScriptInterface'))
+   delegatesTo(findClass('org.apache.activemq.artemis.tests.compatibility.base.CompatibilityTestScriptInterface'))
 }

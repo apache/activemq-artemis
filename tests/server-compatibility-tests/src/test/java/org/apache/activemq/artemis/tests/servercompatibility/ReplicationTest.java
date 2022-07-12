@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.servercompatibility;
 
 import org.apache.activemq.artemis.tests.servercompatibility.base.ScriptedCompatibilityTest;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -25,60 +26,64 @@ import org.junit.runners.Parameterized;
 import java.util.Collection;
 import java.util.List;
 
-import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.*;
+import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.ARTEMIS_2_17_0;
+import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.ARTEMIS_2_18_0;
+import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.ARTEMIS_SNAPSHOT;
 
 @RunWith(Parameterized.class)
 public class ReplicationTest extends ScriptedCompatibilityTest {
 
-    private static final int MASTER = FIRST;
-    private static final int SLAVE = SECOND;
+   private static final int MASTER = FIRST;
+   private static final int SLAVE = SECOND;
+   private static final Logger log = Logger.getLogger(ReplicationTest.class);
 
-    @Parameterized.Parameters(name = "master={0}, slave={1}")
-    public static Collection<?> getParameters() {
-        return List.of(
 
-                // ARTEMIS-3767
-                // new Object[]{ARTEMIS_2_17_0, ARTEMIS_2_18_0},
-                // new Object[]{ARTEMIS_2_18_0, ARTEMIS_2_17_0},
+   @Parameterized.Parameters(name = "master={0}, slave={1}")
+   public static Collection<?> getParameters() {
+      return List.of(
 
-                // Current
-                new Object[]{ARTEMIS_2_17_0, ARTEMIS_SNAPSHOT},
-                new Object[]{ARTEMIS_SNAPSHOT, ARTEMIS_2_17_0},
+            // ARTEMIS-3767
+            // new Object[]{ARTEMIS_2_17_0, ARTEMIS_2_18_0},
+            // new Object[]{ARTEMIS_2_18_0, ARTEMIS_2_17_0},
 
-                // These below should work OK
-                new Object[]{ARTEMIS_2_17_0, ARTEMIS_2_17_0},
-                new Object[]{ARTEMIS_2_18_0, ARTEMIS_2_18_0},
-                new Object[]{ARTEMIS_SNAPSHOT, ARTEMIS_SNAPSHOT}
+            // Current
+            new Object[]{ARTEMIS_2_17_0, ARTEMIS_SNAPSHOT},
+            new Object[]{ARTEMIS_SNAPSHOT, ARTEMIS_2_17_0},
 
-        );
-    }
+            // These below should work OK
+            new Object[]{ARTEMIS_2_17_0, ARTEMIS_2_17_0},
+            new Object[]{ARTEMIS_2_18_0, ARTEMIS_2_18_0},
+            new Object[]{ARTEMIS_SNAPSHOT, ARTEMIS_SNAPSHOT}
 
-    public ReplicationTest(String master, String slave) {
-        super(master, slave);
-    }
+      );
+   }
 
-    @Test
-    public void testReplication() throws Throwable {
-        try {
-            executeScript(MASTER, "ReplicationTest/createMaster.groovy");
-            executeScript(SLAVE, "ReplicationTest/createSlave.groovy");
-            executeScript(MASTER, "ReplicationTest/testSendMessageToMaster.groovy");
+   public ReplicationTest(String master, String slave) {
+      super(master, slave);
+   }
+
+   @Test
+   public void testReplication() throws Throwable {
+      try {
+         executeScript(MASTER, "ReplicationTest/createMaster.groovy");
+         executeScript(SLAVE, "ReplicationTest/createSlave.groovy");
+         executeScript(MASTER, "ReplicationTest/testSendMessageToMaster.groovy");
+         executeScript(MASTER, "servers/stopServer.groovy");
+         executeScript(SLAVE, "ReplicationTest/testReceiveMessageFromSlave.groovy");
+         executeScript(SLAVE, "servers/stopServer.groovy");
+      } catch (Throwable t) {
+         try {
             executeScript(MASTER, "servers/stopServer.groovy");
-            executeScript(SLAVE, "ReplicationTest/testReceiveMessageFromSlave.groovy");
+         } catch (Throwable t1) {
+            log.error("Failed to stop master server.", t1);
+         }
+         try {
             executeScript(SLAVE, "servers/stopServer.groovy");
-        } catch (Throwable t) {
-            try {
-                executeScript(MASTER, "servers/stopServer.groovy");
-            } catch (Throwable t1) {
-                t1.printStackTrace();
-            }
-            try {
-                executeScript(SLAVE, "servers/stopServer.groovy");
-            } catch (Throwable t2) {
-                t2.printStackTrace();
-            }
-            throw t;
-        }
-    }
+         } catch (Throwable t2) {
+            log.error("Failed to stop slave server.", t2);
+         }
+         throw t;
+      }
+   }
 
 }
