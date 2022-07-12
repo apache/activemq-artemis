@@ -1,0 +1,12 @@
+/**
+ * This file helps with autocompletion and syntax check in compatibility scripts based on
+ * CompatibilityTestScriptInterface in Intellij IDEA.
+ *
+ * Re-save and reactivate this script in the CompatibilityTestScriptInterface changes in order to reflect the changes in
+ * scripts if IDEA throws com.intellij.openapi.progress.ProcessCanceledException.
+ */
+
+def generalContext = context(scope: scriptScope(), pathRegexp: /.*\/*\.groovy/)
+contributor generalContext, {
+    delegatesTo(findClass('org.apache.activemq.artemis.tests.compatibility.base.CompatibilityTestScriptInterface'))
+}

@@ -1,0 +1,251 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.activemq.tests</groupId>
+        <artifactId>artemis-tests-pom</artifactId>
+        <version>2.24.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>server-compatibility-tests</artifactId>
+    <packaging>jar</packaging>
+    <name>ActiveMQ Artemis Server Compatibility Tests</name>
+
+    <properties>
+        <activemq.basedir>${project.basedir}/../..</activemq.basedir>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${groovy.version}</version>
+            <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.groovy</groupId>
+                    <artifactId>groovy-test-junit5</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging-processor</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging-annotations</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.logmanager</groupId>
+            <artifactId>jboss-logmanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.marshalling</groupId>
+            <artifactId>jboss-marshalling-river</artifactId>
+            <version>2.0.9.Final</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-commons</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>artemis-maven-plugin</artifactId>
+                <executions>
+                    <!-- The executions of dependency-scan will calculate dependencies for each specific version used here on this testsuite. -->
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>dependency-scan</goal>
+                        </goals>
+                        <id>2_17_0-check</id>
+                        <configuration>
+                            <optional>true</optional>
+                            <libListWithDeps>
+                                <arg>org.apache.activemq:artemis-server:2.17.0</arg>
+                                <arg>org.apache.activemq:artemis-commons:2.17.0</arg>
+                                <arg>org.apache.activemq:artemis-core-client:2.17.0</arg>
+                                <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                            </libListWithDeps>
+                            <libList>
+                                <arg>org.apache.activemq.tests:server-compatibility-tests:${project.version}</arg>
+                            </libList>
+                            <variableName>ARTEMIS-2_17_0</variableName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>dependency-scan</goal>
+                        </goals>
+                        <id>2_18_0-check</id>
+                        <configuration>
+                            <optional>true</optional>
+                            <libListWithDeps>
+                                <arg>org.apache.activemq:artemis-server:2.18.0</arg>
+                                <arg>org.apache.activemq:artemis-commons:2.18.0</arg>
+                                <arg>org.apache.activemq:artemis-core-client:2.18.0</arg>
+                                <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                            </libListWithDeps>
+                            <libList>
+                                <arg>org.apache.activemq.tests:server-compatibility-tests:${project.version}</arg>
+                            </libList>
+                            <variableName>ARTEMIS-2_18_0</variableName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>dependency-scan</goal>
+                        </goals>
+                        <id>SNAPSHOT-check</id>
+                        <configuration>
+                            <optional>true</optional>
+                            <libListWithDeps>
+                                <arg>org.apache.activemq:artemis-server:${project.version}</arg>
+                                <arg>org.apache.activemq:artemis-commons:${project.version}</arg>
+                                <arg>org.apache.activemq:artemis-core-client:${project.version}</arg>
+                                <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                            </libListWithDeps>
+                            <libList>
+                                <arg>org.apache.activemq.tests:server-compatibility-tests:${project.version}</arg>
+                            </libList>
+                            <variableName>ARTEMIS-SNAPSHOT</variableName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemProperties>
+                        <property>
+                            <name>ARTEMIS-SNAPSHOT</name>
+                            <value>${ARTEMIS-SNAPSHOT}</value>
+                        </property>
+                        <property>
+                            <name>ARTEMIS-2_17_0</name> <!-- 2.17.0 -->
+                            <value>${ARTEMIS-2_17_0}</value>
+                        </property>
+                        <property>
+                            <name>ARTEMIS-2_18_0</name> <!-- 2.17.0 -->
+                            <value>${ARTEMIS-2_18_0}</value>
+                        </property>
+                        <property>
+                            <name>ARTEMIS-SNAPSHOT</name>
+                            <value>${ARTEMIS-SNAPSHOT}</value>
+                        </property>
+                    </systemProperties>
+                    <skipTests>${skipCompatibilityTests}</skipTests>
+                    <argLine>${modular.jdk.surefire.arg} -Djgroups.bind_addr=::1 ${activemq-surefire-argline}</argLine>
+                </configuration>
+            </plugin>
+            <!-- during testing and debugging, it may be useful to add all the classpath variables to your IDE settings and run compatibility tests manually.
+                 uncomment this next group so you will have a big line to add to your test setting -->
+            <!-- <plugin>
+               <artifactId>maven-antrun-plugin</artifactId>
+               <executions>
+                  <execution>
+                     <phase>compile</phase>
+                     <goals>
+                        <goal>run</goal>
+                     </goals>
+                     <configuration>
+                        <tasks>
+                           <echo>You can use this line to include into your tests runnings</echo>
+                           <echo>-DARTEMIS-200="${ARTEMIS-200}" -DARTEMIS-210="${ARTEMIS-210}" -DARTEMIS-263="${ARTEMIS-263}" -DARTEMIS-240="${ARTEMIS-240}" -DARTEMIS-155="${ARTEMIS-155}" -DARTEMIS-140="${ARTEMIS-140}" -DHORNETQ-235="${HORNETQ-235}" -DHORNETQ-247="${HORNETQ-247}" -DARTEMIS-270="${ARTEMIS-270}" -DARTEMIS-240="${ARTEMIS-240}" -DARTEMIS-155="${ARTEMIS-155}" -DARTEMIS-140="${ARTEMIS-140}"</echo>
+                        </tasks>
+                     </configuration>
+                  </execution>
+               </executions>
+            </plugin> -->
+            <plugin>
+                <groupId>org.apache.servicemix.tooling</groupId>
+                <artifactId>depends-maven-plugin</artifactId>
+                <version>1.2</version>
+                <executions>
+                    <execution>
+                        <id>generate-depends-file</id>
+                        <goals>
+                            <goal>generate-depends-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <distributionManagement>
+        <repository>
+            <id>jboss-releases-repository</id>
+            <name>JBoss Releases Repository</name>
+            <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
+        </repository>
+        <snapshotRepository>
+            <id>jboss-snapshots-repository</id>
+            <name>JBoss Snapshots Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
