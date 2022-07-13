@@ -87,7 +87,7 @@
       <activemq-artemis-native-version>1.0.2</activemq-artemis-native-version>
       <karaf.version>4.3.3</karaf.version>
       <pax.exam.version>4.13.4</pax.exam.version>
-      <commons.config.version>2.7</commons.config.version>
+      <commons.config.version>2.8.0</commons.config.version>
       <commons.lang.version>3.12.0</commons.lang.version>
       <activemq5-version>5.17.1</activemq5-version>
       <apache.derby.version>10.14.2.0</apache.derby.version>
