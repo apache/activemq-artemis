@@ -42,12 +42,9 @@ if (server !instanceof ActiveMQServer) {
 }
 
 server = server as ActiveMQServer
-if (server.state != ActiveMQServer.SERVER_STATE.STOPPED) {
-   println "Waiting up to 10 seconds for the server \"${server.configuration.name}\" to stop ..."
-   10.times {
-      directive = server.state == ActiveMQServer.SERVER_STATE.STOPPED ? 1 : 0
-      Thread.sleep(1000)
-   }
-   assertEquals(ActiveMQServer.SERVER_STATE.STOPPED, server.state)
-   println "Server \"${server.configuration.name}\" stopped."
+
+waitForCondition("Waiting up to 10 seconds for the server \"${server.configuration.name}\" to stop ...", 10) {
+   server.state == ActiveMQServer.SERVER_STATE.STOPPED
 }
+
+println "Server \"${server.configuration.name}\" stopped."

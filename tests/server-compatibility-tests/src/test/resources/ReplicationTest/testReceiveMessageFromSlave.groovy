@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer
 evaluate(new File('ReplicationTest/testConfiguration.groovy'))
 server = server as ActiveMQServer
 
-waitForCondition(10, server.&isActive)
+waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to become active ...", 10, server.&isActive)
 
 ServerLocatorImpl.newLocator("tcp://${slaveBindAddress}:${slaveBindPort}").withCloseable { locator ->
    locator.createSessionFactory().withCloseable { sf ->

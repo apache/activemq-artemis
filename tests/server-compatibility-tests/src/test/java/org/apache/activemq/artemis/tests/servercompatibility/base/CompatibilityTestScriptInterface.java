@@ -38,4 +38,5 @@ public interface CompatibilityTestScriptInterface {
 
    <T> T waitForCondition(int seconds, Closure<T> condition) throws InterruptedException;
 
+   <T> T waitForCondition(String message, int seconds, Closure<T> condition) throws InterruptedException;
 }

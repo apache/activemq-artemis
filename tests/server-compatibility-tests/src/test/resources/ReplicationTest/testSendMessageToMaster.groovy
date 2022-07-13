@@ -28,7 +28,7 @@ import java.nio.charset.Charset
 evaluate(new File('ReplicationTest/testConfiguration.groovy'))
 server = server as ActiveMQServer
 
-waitForCondition(10, server.&isActive)
+waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to become active ...", 10, server.&isActive)
 
 ServerLocatorImpl.newLocator("tcp://${masterBindAddress}:${masterBindPort}").withCloseable { locator ->
    locator.blockOnDurableSend = true
@@ -47,7 +47,7 @@ ServerLocatorImpl.newLocator("tcp://${masterBindAddress}:${masterBindPort}").wit
    }
 }
 
-waitForCondition(10, server.&isReplicaSync)
+waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to synchronize ...", 10, server.&isReplicaSync)
 
 queue = server.locateQueue(replicationTestQueueName)
 assertEquals(1L, queue.durableMessageCount)

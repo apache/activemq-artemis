@@ -43,13 +43,8 @@ if (server !instanceof ActiveMQServer) {
 
 server = server as ActiveMQServer
 
-println "Waiting up to 10 seconds for the server \"${server.configuration.name}\" to start ..."
-
-10.times {
-   directive = server.state == ActiveMQServer.SERVER_STATE.STARTED ? 1 : 0
-   Thread.sleep(1000)
+waitForCondition("Waiting up to 10 seconds for the server \"${server.configuration.name}\" to start ...", 10) {
+   server.state == ActiveMQServer.SERVER_STATE.STARTED
 }
-
-assertEquals(ActiveMQServer.SERVER_STATE.STARTED, server.state)
 
 println "Server \"${server.configuration.name}\" started."

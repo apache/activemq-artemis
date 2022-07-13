@@ -125,15 +125,25 @@ public abstract class CompatibilityTestScript extends Script implements Compatib
 
    @Override
    public <T> T waitForCondition(int seconds, Closure<T> condition) throws InterruptedException {
+      return waitForCondition(null, seconds, condition);
+   }
+
+   @Override
+   public <T> T waitForCondition(String message, int seconds, Closure<T> condition) throws InterruptedException {
+      T result = condition.call();
+      if (!DefaultGroovyMethods.asBoolean(result)) {
+         if (message != null) {
+            System.out.println(message);
+         }
+      }
       while (seconds > 0) {
-         T result = condition.call();
+         Thread.sleep(1000);
+         seconds--;
+         result = condition.call();
          if (DefaultGroovyMethods.asBoolean(result)) {
             return result;
          }
-         Thread.sleep(1000);
-         seconds--;
       }
-      T result = condition.call();
       assertTrue(DefaultGroovyMethods.asBoolean(result));
       return result;
    }
