@@ -2957,7 +2957,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
                // create one and initialise with name
                try {
-                  Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance(null);
+                  Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance((java.lang.Object[])null);
                   beanUtilsBean.setProperty(instance, "name", name);
 
                   // this is always going to be a little hacky b/c our config is not natively property friendly
