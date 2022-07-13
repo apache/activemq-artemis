@@ -103,22 +103,27 @@ public abstract class CompatibilityTestScript extends Script implements Compatib
       }
    }
 
+   @Override
    public void assertEquals(Object expected, Object given) {
       Assert.assertEquals(expected, given);
    }
 
+   @Override
    public void assertTrue(boolean condition) {
       Assert.assertTrue(condition);
    }
 
+   @Override
    public void assertFalse(boolean condition) {
       Assert.assertFalse(condition);
    }
 
+   @Override
    public void assertNotNull(Object object) {
       Assert.assertNotNull(object);
    }
 
+   @Override
    public <T> T waitForCondition(int seconds, Closure<T> condition) throws InterruptedException {
       while (seconds > 0) {
          T result = condition.call();

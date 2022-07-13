@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.servercompatibility.base;
 
+import groovy.lang.Closure;
+
 import java.io.File;
 
 @SuppressWarnings("unused")
@@ -25,5 +27,15 @@ public interface CompatibilityTestScriptInterface {
    File getWorkingDir();
 
    String getSide();
+
+   void assertEquals(Object expected, Object given);
+
+   void assertTrue(boolean condition);
+
+   void assertFalse(boolean condition);
+
+   void assertNotNull(Object object);
+
+   <T> T waitForCondition(int seconds, Closure<T> condition) throws InterruptedException;
 
 }
