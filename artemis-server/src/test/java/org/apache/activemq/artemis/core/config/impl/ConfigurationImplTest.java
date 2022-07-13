@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirror
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin;
@@ -628,6 +629,38 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(1, configuration.getConnectionRouters().size());
       Assert.assertEquals(KeyType.CLIENT_ID, configuration.getConnectionRouters().get(0).getKeyType());
       Assert.assertEquals("2", configuration.getConnectionRouters().get(0).getPolicyConfiguration().getProperties().get(ConsistentHashModuloPolicy.MODULO));
+   }
+
+   @Test
+   public void testCoreBridgeConfiguration() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      final String queueName = "q";
+      final String forwardingAddress = "fa";
+
+      Properties properties = new InsertionOrderedProperties();
+
+      properties.put("bridgeConfigurations.b1.queueName", queueName);
+      properties.put("bridgeConfigurations.b1.forwardingAddress", forwardingAddress);
+      properties.put("bridgeConfigurations.b1.confirmationWindowSize", "10");
+      properties.put("bridgeConfigurations.b1.routingType", "STRIP");  // enum
+      // this is a List<String> from comma sep value
+      properties.put("bridgeConfigurations.b1.staticConnectors", "a,b");
+      // flip b in place
+      properties.put("bridgeConfigurations.b1.staticConnectors[1]", "c");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getBridgeConfigurations().size());
+      Assert.assertEquals(queueName, configuration.getBridgeConfigurations().get(0).getQueueName());
+
+      Assert.assertEquals(forwardingAddress, configuration.getBridgeConfigurations().get(0).getForwardingAddress());
+      Assert.assertEquals(10, configuration.getBridgeConfigurations().get(0).getConfirmationWindowSize());
+      Assert.assertEquals(2, configuration.getBridgeConfigurations().get(0).getStaticConnectors().size());
+      Assert.assertEquals("a", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(0));
+      Assert.assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
+
+      Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
    }
 
    @Test

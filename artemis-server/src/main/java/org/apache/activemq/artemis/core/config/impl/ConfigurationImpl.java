@@ -550,6 +550,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
          }
       }, TransformerConfiguration.class);
 
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            List convertedValue = new ArrayList<String>();
+            for (String entry : value.toString().split(",")) {
+               convertedValue.add(entry);
+            }
+            return (T) convertedValue;
+         }
+      }, java.util.List.class);
+
       // support 25K or 25m etc like xml config
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
