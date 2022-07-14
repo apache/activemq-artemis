@@ -24,8 +24,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer
 evaluate(new File('ReplicationTest/testConfiguration.groovy'))
 server = server as ActiveMQServer
 
-waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to become active ...", 10, server.&isActive)
-waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to synchronize ...", 10, server.&isReplicaSync)
+waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to become active ...",
+      "Server \"${server.configuration.name}\" failed to activate on time.", 10, server.&isActive)
+//waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to synchronize ...",
+//      "Server \"${server.configuration.name}\" failed to synchronize on time.", 10, server.&isReplicaSync)
 
 ServerLocatorImpl.newLocator("tcp://${slaveBindAddress}:${slaveBindPort}").withCloseable { locator ->
    locator.createSessionFactory().withCloseable { sf ->
@@ -33,12 +35,13 @@ ServerLocatorImpl.newLocator("tcp://${slaveBindAddress}:${slaveBindPort}").withC
          session.start()
          session.createConsumer(replicationTestQueueName as String).withCloseable { consumer ->
             ClientMessage message = consumer.receive(5000)
-            assertNotNull(message)
+            assertNotNull("No message received from \"${server.configuration.name}\".", message)
             final os = new ByteArrayOutputStream()
             os.withCloseable {
                message.saveToOutputStream(it)
             }
-            assertEquals(replicationTestString, os.toString())
+            println "Received message \"${os.toString()}\" with ID ${message.messageID} from the slave server."
+            assertEquals("Message received from \"${server.configuration.name}\" doesn\'t match.", replicationTestString, os.toString())
          }
          session.commit()
       }

@@ -21,14 +21,14 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration
 import org.apache.activemq.artemis.api.core.client.ClientMessage
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl
 import org.apache.activemq.artemis.core.server.ActiveMQServer
-import org.apache.tools.ant.filters.StringInputStream
 
 import java.nio.charset.Charset
 
 evaluate(new File('ReplicationTest/testConfiguration.groovy'))
 server = server as ActiveMQServer
 
-waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to become active ...", 10, server.&isActive)
+waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to become active ...",
+      "Server \"${server.configuration.name}\" failed to activate on time.", 10, server.&isActive)
 
 ServerLocatorImpl.newLocator("tcp://${masterBindAddress}:${masterBindPort}").withCloseable { locator ->
    locator.blockOnDurableSend = true
@@ -37,21 +37,23 @@ ServerLocatorImpl.newLocator("tcp://${masterBindAddress}:${masterBindPort}").wit
          session.start()
          session.createQueue(new QueueConfiguration(replicationTestQueueName as String))
          session.createProducer(replicationTestQueueName as String).withCloseable { producer ->
-            new StringInputStream(replicationTestString).withCloseable { body ->
-               ClientMessage message = session.createMessage(true)
-               message.bodyInputStream = body
-               producer.send(message)
-            }
+            ClientMessage message = session.createMessage(true)
+            message.writeBodyBufferBytes(replicationTestString.bytes)
+            println "Sending message \"${replicationTestString}\" to the master server ..."
+            producer.send(message)
          }
       }
    }
 }
 
-waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to synchronize ...", 10, server.&isReplicaSync)
+waitForCondition("Waiting up to 10 seconds for \"${server.configuration.name}\" to synchronize ...",
+      "Server \"${server.configuration.name}\" failed to synchronize on time.", 10, server.&isReplicaSync)
 
 queue = server.locateQueue(replicationTestQueueName)
-assertEquals(1L, queue.durableMessageCount)
+assertEquals("Test queue on \"${server.configuration.name}\" is expected to contain one message.", 1L, queue.durableMessageCount)
 browser = queue.browserIterator()
-assertTrue(browser.hasNext())
+assertTrue("Test queue on \"${server.configuration.name}\" is expected to contain a message.", browser.hasNext())
 message = browser.next()
-assertEquals(replicationTestString, message.message.toCore().readOnlyBodyBuffer.byteBuf().toString(Charset.defaultCharset()))
+assertEquals("The message with ID ${message.messageID} received by \"${server.configuration.name}\" doesn't match.", replicationTestString, message.message.toCore().readOnlyBodyBuffer.byteBuf().toString(Charset.defaultCharset()))
+
+println "Testing message \"$replicationTestString\" with ID ${message.messageID} has been successfully delivered to \"${server.configuration.name}\"."

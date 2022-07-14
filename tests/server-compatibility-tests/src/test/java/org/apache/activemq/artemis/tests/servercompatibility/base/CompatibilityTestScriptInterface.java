@@ -25,18 +25,17 @@ import java.io.File;
 public interface CompatibilityTestScriptInterface {
 
    File getWorkingDir();
-
    String getSide();
-
    void assertEquals(Object expected, Object given);
-
+   void assertEquals(String message, Object expected, Object given);
    void assertTrue(boolean condition);
-
+   void assertTrue(String message, boolean condition);
    void assertFalse(boolean condition);
-
+   void assertFalse(String message, boolean condition);
    void assertNotNull(Object object);
-
-   <T> T waitForCondition(int seconds, Closure<T> condition) throws InterruptedException;
-
-   <T> T waitForCondition(String message, int seconds, Closure<T> condition) throws InterruptedException;
+   void assertNotNull(String message, Object object);
+   void waitForCondition(String failMessage, int seconds, Closure<Boolean> condition) throws InterruptedException;
+   void waitForCondition(String failMessage, String waitMessage, int seconds, Closure<Boolean> condition) throws InterruptedException;
+   void fail();
+   void fail(String message);
 }

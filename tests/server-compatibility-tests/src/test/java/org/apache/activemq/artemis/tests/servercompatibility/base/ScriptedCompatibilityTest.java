@@ -93,18 +93,22 @@ public abstract class ScriptedCompatibilityTest {
    }
 
    protected Object executeScript(int sideIndex, String scriptPath) throws Throwable {
+      final String side = getSide(sideIndex);
       final Object shell = getShell(sideIndex);
       final FutureTask<Object> executionTask = new FutureTask<>(() -> shell.getClass().getMethod("evaluate", File.class).invoke(shell, getScript(scriptPath)));
       final Thread executionThread = new Thread(executionTask);
-      executionThread.setName(getSide(sideIndex) + ": " + scriptPath);
+      executionThread.setName(side + "(" + sideIndex + "): " + scriptPath);
       // If we don't replace the context class loader too then some things -- such as ServiceLoader -- don't work properly.
       executionThread.setContextClassLoader((ClassLoader) shell.getClass().getMethod("getClassLoader").invoke(shell));
+      System.out.printf("*\n* EXECUTING %s\n*\n", executionThread.getName());
       executionThread.start();
       executionThread.join();
       try {
          return executionTask.get();
       } catch (Exception e) {
          tryUnpackAssertionError(e);
+      } finally {
+         System.out.printf("*\n* FINISHED %s\n*\n", executionThread.getName());
       }
       return null;
    }

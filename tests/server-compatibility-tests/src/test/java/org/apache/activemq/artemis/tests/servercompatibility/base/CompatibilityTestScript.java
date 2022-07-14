@@ -24,7 +24,6 @@ import groovy.lang.Script;
 import groovy.transform.Memoized;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.junit.Assert;
 
 import java.io.File;
@@ -109,8 +108,18 @@ public abstract class CompatibilityTestScript extends Script implements Compatib
    }
 
    @Override
+   public void assertEquals(String message, Object expected, Object given) {
+      Assert.assertEquals(message, expected, given);
+   }
+
+   @Override
    public void assertTrue(boolean condition) {
       Assert.assertTrue(condition);
+   }
+
+   @Override
+   public void assertTrue(String message, boolean condition) {
+      Assert.assertTrue(message, condition);
    }
 
    @Override
@@ -119,32 +128,56 @@ public abstract class CompatibilityTestScript extends Script implements Compatib
    }
 
    @Override
+   public void assertFalse(String message, boolean condition) {
+      Assert.assertFalse(message, condition);
+   }
+
+   @Override
    public void assertNotNull(Object object) {
       Assert.assertNotNull(object);
    }
 
    @Override
-   public <T> T waitForCondition(int seconds, Closure<T> condition) throws InterruptedException {
-      return waitForCondition(null, seconds, condition);
+   public void assertNotNull(String message, Object object) {
+      Assert.assertNotNull(message, object);
    }
 
    @Override
-   public <T> T waitForCondition(String message, int seconds, Closure<T> condition) throws InterruptedException {
-      T result = condition.call();
-      if (!DefaultGroovyMethods.asBoolean(result)) {
-         if (message != null) {
-            System.out.println(message);
-         }
+   public void fail() {
+      Assert.fail();
+   }
+
+   @Override
+   public void fail(String message) {
+      Assert.fail(message);
+   }
+
+   @Override
+   public void waitForCondition(String failMessage, int seconds, Closure<Boolean> condition) throws InterruptedException {
+      waitForCondition(null, failMessage, seconds, condition);
+   }
+
+   @Override
+   public void waitForCondition(String message, String failMessage, int seconds, Closure<Boolean> condition) throws InterruptedException {
+      if (condition.call()) {
+         return;
+      }
+      if (message != null) {
+         println(message);
       }
       while (seconds > 0) {
          Thread.sleep(1000);
          seconds--;
-         result = condition.call();
-         if (DefaultGroovyMethods.asBoolean(result)) {
-            return result;
+         if (condition.call()) {
+            return;
          }
       }
-      assertTrue(DefaultGroovyMethods.asBoolean(result));
-      return result;
+      fail(failMessage);
+   }
+
+   @Override
+   public void println(Object value) {
+      print("[" + Thread.currentThread().getName() + "] ");
+      super.println(value);
    }
 }

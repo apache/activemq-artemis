@@ -43,7 +43,8 @@ if (server !instanceof ActiveMQServer) {
 
 server = server as ActiveMQServer
 
-waitForCondition("Waiting up to 10 seconds for the server \"${server.configuration.name}\" to stop ...", 10) {
+waitForCondition("Waiting up to 10 seconds for the server \"${server.configuration.name}\" to stop ...",
+      "Server \"${server.configuration.name}\" failed to stop on time.", 10) {
    server.state == ActiveMQServer.SERVER_STATE.STOPPED
 }
 
