@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import java.security.InvalidParameterException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
+
+import java.security.InvalidParameterException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This message may signal start or end of the replication synchronization.
@@ -143,6 +143,10 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       buffer.writeBoolean(synchronizationIsFinished);
       buffer.writeBoolean(allowsAutoFailBack);
       buffer.writeString(nodeID);
+      if (synchronizationIsFinished) {
+         // At this point, pre 2.18.0 servers don't expect any more data to come.
+         return;
+      }
       buffer.writeByte(dataType.code);
       buffer.writeInt(ids.length);
       for (long id : ids) {
@@ -155,6 +159,10 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       synchronizationIsFinished = buffer.readBoolean();
       allowsAutoFailBack = buffer.readBoolean();
       nodeID = buffer.readString();
+      if (synchronizationIsFinished && (buffer.readableBytes() == 0)) {
+         // Pre-2.18.0 server wouldn't send anything more than this.
+         return;
+      }
       dataType = SyncDataType.getDataType(buffer.readByte());
       int length = buffer.readInt();
       ids = new long[length];
