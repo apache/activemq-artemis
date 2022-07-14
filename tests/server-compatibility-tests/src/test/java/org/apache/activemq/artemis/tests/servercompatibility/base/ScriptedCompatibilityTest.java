@@ -213,7 +213,7 @@ public abstract class ScriptedCompatibilityTest {
       // We need to put the requested server version at the beginning of class loader chain so that it gets selected
       // with higher priority. At the same time we need the other classes to be present. These will be appended to the
       // chain.
-      final ClassLoader serverClassLoader = new URLClassLoader(getClassPath(side), ClassLoader.getPlatformClassLoader());
+      final ClassLoader serverClassLoader = (VersionTags.ARTEMIS_SNAPSHOT.equals(side)) ? ScriptedCompatibilityTest.class.getClassLoader() : new URLClassLoader(getClassPath(side), ClassLoader.getPlatformClassLoader());
       final ClassLoader baseClassLoader = new URLClassLoader(baseClassPath.toArray(new URL[0]), serverClassLoader);
       return new GroovyClassLoader(baseClassLoader);
    }

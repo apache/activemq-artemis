@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.ARTEMIS_2_17_0;
-import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.ARTEMIS_2_18_0;
 import static org.apache.activemq.artemis.tests.servercompatibility.base.VersionTags.ARTEMIS_SNAPSHOT;
 
 @RunWith(Parameterized.class)
@@ -42,17 +41,12 @@ public class ReplicationTest extends ScriptedCompatibilityTest {
    public static Collection<?> getParameters() {
       return List.of(
 
-            // ARTEMIS-3767
-            // new Object[]{ARTEMIS_2_17_0, ARTEMIS_2_18_0},
-            // new Object[]{ARTEMIS_2_18_0, ARTEMIS_2_17_0},
-
-            // Current
-            new Object[]{ARTEMIS_2_17_0, ARTEMIS_SNAPSHOT},
+            // 2.17.0 against current
             new Object[]{ARTEMIS_SNAPSHOT, ARTEMIS_2_17_0},
+            new Object[]{ARTEMIS_2_17_0, ARTEMIS_SNAPSHOT},
 
             // These below should work OK
             new Object[]{ARTEMIS_2_17_0, ARTEMIS_2_17_0},
-            new Object[]{ARTEMIS_2_18_0, ARTEMIS_2_18_0},
             new Object[]{ARTEMIS_SNAPSHOT, ARTEMIS_SNAPSHOT}
 
       );

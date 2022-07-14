@@ -82,19 +82,16 @@
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-server</artifactId>
             <version>${project.version}</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-commons</artifactId>
             <version>${project.version}</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.activemq</groupId>
             <artifactId>artemis-core-client</artifactId>
             <version>${project.version}</version>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 
@@ -151,26 +148,6 @@
                             <variableName>ARTEMIS-2_18_0</variableName>
                         </configuration>
                     </execution>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>dependency-scan</goal>
-                        </goals>
-                        <id>SNAPSHOT-check</id>
-                        <configuration>
-                            <optional>true</optional>
-                            <libListWithDeps>
-                                <arg>org.apache.activemq:artemis-server:${project.version}</arg>
-                                <arg>org.apache.activemq:artemis-commons:${project.version}</arg>
-                                <arg>org.apache.activemq:artemis-core-client:${project.version}</arg>
-                                <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
-                            </libListWithDeps>
-                            <libList>
-                                <arg>org.apache.activemq.tests:server-compatibility-tests:${project.version}</arg>
-                            </libList>
-                            <variableName>ARTEMIS-SNAPSHOT</variableName>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
 
@@ -186,10 +163,6 @@
                         <property>
                             <name>ARTEMIS-2_17_0</name> <!-- 2.17.0 -->
                             <value>${ARTEMIS-2_17_0}</value>
-                        </property>
-                        <property>
-                            <name>ARTEMIS-2_18_0</name> <!-- 2.17.0 -->
-                            <value>${ARTEMIS-2_18_0}</value>
                         </property>
                         <property>
                             <name>ARTEMIS-SNAPSHOT</name>
