@@ -156,9 +156,15 @@ public class EmbeddedActiveMQ {
       }
 
       if (propertiesResourcePath != null) {
-         URL brokerPropertiesFromClasspath = this.getClass().getClassLoader().getResource(propertiesResourcePath);
-         if (brokerPropertiesFromClasspath != null) {
-            activeMQServer.setProperties(new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
+         if (propertiesResourcePath == ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME) {
+            // try and locate on the classpath, broker.properties
+            URL brokerPropertiesFromClasspath = this.getClass().getClassLoader().getResource(propertiesResourcePath);
+            if (brokerPropertiesFromClasspath != null) {
+               activeMQServer.setProperties(new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
+            }
+         } else {
+            // pass through non default configured value
+            activeMQServer.setProperties(propertiesResourcePath);
          }
       }
    }

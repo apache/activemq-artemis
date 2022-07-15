@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
@@ -471,22 +472,33 @@ public class ConfigurationImpl implements Configuration, Serializable {
       fileUrlToProperties = System.getProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, fileUrlToProperties);
       if (fileUrlToProperties != null) {
          for (String fileUrl : fileUrlToProperties.split(",")) {
-            Properties brokerProperties = new Properties() {
-               final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
-
-               @Override
-               public Object put(Object key, Object value) {
-                  return orderedMap.put(key.toString(), value.toString());
+            Properties brokerProperties = new InsertionOrderedProperties();
+            if (fileUrl.endsWith("/")) {
+               // treat as a directory and parse every property file in alphabetical order
+               File dir = new File(fileUrl);
+               if (dir.exists()) {
+                  String[] files = dir.list(new FilenameFilter() {
+                     @Override
+                     public boolean accept(File file, String s) {
+                        return s.endsWith(".properties");
+                     }
+                  });
+                  if (files != null && files.length > 0) {
+                     Arrays.sort(files);
+                     for (String fileName : files) {
+                        try (FileInputStream fileInputStream = new FileInputStream(new File(dir, fileName)); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+                           brokerProperties.clear();
+                           brokerProperties.load(reader);
+                           parsePrefixedProperties(brokerProperties, null);
+                        }
+                     }
+                  }
                }
-
-               @Override
-               public Set<Map.Entry<Object, Object>> entrySet() {
-                  return orderedMap.entrySet();
+            } else {
+               try (FileInputStream fileInputStream = new FileInputStream(fileUrl); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+                  brokerProperties.load(reader);
+                  parsePrefixedProperties(brokerProperties, null);
                }
-            };
-            try (FileInputStream fileInputStream = new FileInputStream(fileUrl); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
-               brokerProperties.load(reader);
-               parsePrefixedProperties(brokerProperties, null);
             }
          }
       }
@@ -3007,6 +3019,26 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return expression.substring(surroundString.length(), expression.length() - surroundString.length());
          }
          return super.getProperty(expression);
+      }
+   }
+
+   static class InsertionOrderedProperties extends Properties {
+
+      final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
+
+      @Override
+      public Object put(Object key, Object value) {
+         return orderedMap.put(key.toString(), value.toString());
+      }
+
+      @Override
+      public Set<Map.Entry<Object, Object>> entrySet() {
+         return orderedMap.entrySet();
+      }
+
+      @Override
+      public void clear() {
+         orderedMap.clear();
       }
    }
 }
