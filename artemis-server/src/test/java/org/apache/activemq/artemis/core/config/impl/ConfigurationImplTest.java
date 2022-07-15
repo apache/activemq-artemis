@@ -22,9 +22,7 @@ import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -618,7 +616,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
-      Properties insertionOrderedProperties = new InsertionOrderedProperties();
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
       insertionOrderedProperties.put("connectionRouters.autoShard.localTargetFilter", "NULL|$STATEFUL_SET_ORDINAL");
       insertionOrderedProperties.put("connectionRouters.autoShard.keyType", KeyType.CLIENT_ID);
       insertionOrderedProperties.put("connectionRouters.autoShard.policyConfiguration", ConsistentHashModuloPolicy.NAME);
@@ -638,7 +636,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       final String queueName = "q";
       final String forwardingAddress = "fa";
 
-      Properties properties = new InsertionOrderedProperties();
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
 
       properties.put("bridgeConfigurations.b1.queueName", queueName);
       properties.put("bridgeConfigurations.b1.forwardingAddress", forwardingAddress);
@@ -795,7 +793,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       final String forwardAddress = "forwardAddress";
       final String className = "s.o.m.e.class";
 
-      Properties properties = new InsertionOrderedProperties();
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
 
       properties.put("divertConfigurations.divert1.routingName", routingName);
       properties.put("divertConfigurations.divert1.address", address);
@@ -1031,7 +1029,6 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
          files.addLast(tmpFile.getAbsolutePath());
       }
-      final AtomicReference<String> errorAt = new AtomicReference<>();
       ConfigurationImpl configuration = new ConfigurationImpl() {
          @Override
          public ConfigurationImpl setName(String name) {
@@ -1043,6 +1040,41 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       };
       configuration.parseProperties(files.stream().collect(Collectors.joining(",")));
       assertEquals("second won", "two", configuration.getName());
+   }
+
+   @Test
+   public void testPropertiesFilesInDir() throws Exception {
+
+      LinkedList<String> files = new LinkedList<>();
+      LinkedList<String> names = new LinkedList<>();
+      names.addLast("a_one");
+      names.addLast("b_two");
+
+      for (String name : names) {
+         File tmpFile = File.createTempFile(name, ".properties", temporaryFolder.getRoot());
+
+         FileOutputStream fileOutputStream = new FileOutputStream(tmpFile);
+         PrintWriter printWriter = new PrintWriter(fileOutputStream);
+
+         printWriter.println("name=" + name);
+
+         printWriter.flush();
+         fileOutputStream.flush();
+         fileOutputStream.close();
+         files.addLast(tmpFile.getAbsolutePath());
+      }
+      ConfigurationImpl configuration = new ConfigurationImpl() {
+         @Override
+         public ConfigurationImpl setName(String name) {
+            if (!(name.equals(names.remove()))) {
+               fail("Expected names from files in order");
+            }
+            return super.setName(name);
+         }
+      };
+      configuration.parseProperties(temporaryFolder.getRoot() + "/");
+      assertEquals("second won", "b_two", configuration.getName());
+      assertTrue("all names applied", names.isEmpty());
    }
 
    @Test
@@ -1131,18 +1163,4 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       return new ConfigurationImpl();
    }
 
-   private static class InsertionOrderedProperties extends Properties {
-
-      final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
-
-      @Override
-      public Object put(Object key, Object value) {
-         return orderedMap.put(key.toString(), value.toString());
-      }
-
-      @Override
-      public Set<Map.Entry<Object, Object>> entrySet() {
-         return orderedMap.entrySet();
-      }
-   }
 }
