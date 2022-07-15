@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.core.protocol.core.impl.wireformat;
 
-import java.security.InvalidParameterException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.persistence.impl.journal.AbstractJournalStorageManager;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.utils.DataConstants;
+
+import java.security.InvalidParameterException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This message may signal start or end of the replication synchronization.
@@ -39,6 +39,10 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    private boolean synchronizationIsFinished;
    private String nodeID;
    private boolean allowsAutoFailBack;
+
+   // this is for version compatibility
+   // certain versions will need to interrupt encoding and decoding after synchronizationIsFinished on the encoding depending on its value
+   private final boolean beforeTwoEighteen;
 
    public enum SyncDataType {
       JournalBindings(AbstractJournalStorageManager.JournalContent.BINDINGS.typeByte),
@@ -70,12 +74,13 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       }
    }
 
-   public ReplicationStartSyncMessage() {
+   public ReplicationStartSyncMessage(boolean beforeTwoEighteen) {
       super(REPLICATION_START_FINISH_SYNC);
+      this.beforeTwoEighteen = synchronizationIsFinished;
    }
 
-   public ReplicationStartSyncMessage(List<Long> filenames) {
-      this();
+   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, List<Long> filenames) {
+      this(beforeTwoEighteen);
       ids = new long[filenames.size()];
       for (int i = 0; i < filenames.size(); i++) {
          ids[i] = filenames.get(i);
@@ -85,24 +90,24 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    }
 
 
-   public ReplicationStartSyncMessage(String nodeID, long nodeDataVersion) {
-      this(nodeID);
+   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, String nodeID, long nodeDataVersion) {
+      this(beforeTwoEighteen, nodeID);
       ids = new long[1];
       ids[0] = nodeDataVersion;
       dataType = SyncDataType.ActivationSequence;
    }
 
-   public ReplicationStartSyncMessage(String nodeID) {
-      this();
+   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, String nodeID) {
+      this(beforeTwoEighteen);
       synchronizationIsFinished = true;
       this.nodeID = nodeID;
    }
 
-   public ReplicationStartSyncMessage(JournalFile[] datafiles,
+   public ReplicationStartSyncMessage(boolean beforeTwoEighteen, JournalFile[] datafiles,
                                       AbstractJournalStorageManager.JournalContent contentType,
                                       String nodeID,
                                       boolean allowsAutoFailBack) {
-      this();
+      this(beforeTwoEighteen);
       this.nodeID = nodeID;
       this.allowsAutoFailBack = allowsAutoFailBack;
       synchronizationIsFinished = false;
@@ -143,6 +148,10 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       buffer.writeBoolean(synchronizationIsFinished);
       buffer.writeBoolean(allowsAutoFailBack);
       buffer.writeString(nodeID);
+      if (beforeTwoEighteen && synchronizationIsFinished) {
+         // At this point, pre 2.18.0 servers don't expect any more data to come.
+         return;
+      }
       buffer.writeByte(dataType.code);
       buffer.writeInt(ids.length);
       for (long id : ids) {
@@ -155,6 +164,10 @@ public class ReplicationStartSyncMessage extends PacketImpl {
       synchronizationIsFinished = buffer.readBoolean();
       allowsAutoFailBack = buffer.readBoolean();
       nodeID = buffer.readString();
+      if (buffer.readableBytes() == 0) {
+         // Pre-2.18.0 server wouldn't send anything more than this.
+         return;
+      }
       dataType = SyncDataType.getDataType(buffer.readByte());
       int length = buffer.readInt();
       ids = new long[length];

@@ -224,7 +224,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                                   final Persister persister,
                                   final Object record) throws Exception {
       if (enabled) {
-         sendReplicatePacket(new ReplicationAddMessage(journalID, operation, id, recordType, persister, record));
+         sendReplicatePacket(new ReplicationAddMessage(remotingConnection.isBeforeTwoEighteen(), journalID, operation, id, recordType, persister, record));
       }
    }
 
@@ -242,7 +242,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                                             final Persister persister,
                                             final Object record) throws Exception {
       if (enabled) {
-         sendReplicatePacket(new ReplicationAddTXMessage(journalID, operation, txID, id, recordType, persister, record));
+         sendReplicatePacket(new ReplicationAddTXMessage(remotingConnection.isBeforeTwoEighteen(), journalID, operation, txID, id, recordType, persister, record));
       }
    }
 
@@ -801,7 +801,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                                     String nodeID,
                                     boolean allowsAutoFailBack) throws ActiveMQException {
       if (enabled)
-         sendReplicatePacket(new ReplicationStartSyncMessage(datafiles, contentType, nodeID, allowsAutoFailBack));
+         sendReplicatePacket(new ReplicationStartSyncMessage(remotingConnection.isBeforeTwoEighteen(), datafiles, contentType, nodeID, allowsAutoFailBack));
    }
 
    /**
@@ -820,7 +820,7 @@ public final class ReplicationManager implements ActiveMQComponent {
          }
 
          synchronizationIsFinishedAcknowledgement.countUp();
-         sendReplicatePacket(new ReplicationStartSyncMessage(nodeID, server.getNodeManager().getNodeActivationSequence()));
+         sendReplicatePacket(new ReplicationStartSyncMessage(remotingConnection.isBeforeTwoEighteen(), nodeID, server.getNodeManager().getNodeActivationSequence()));
          try {
             if (!synchronizationIsFinishedAcknowledgement.await(initialReplicationSyncTimeout)) {
                ActiveMQReplicationTimeooutException exception = ActiveMQMessageBundle.BUNDLE.replicationSynchronizationTimeout(initialReplicationSyncTimeout);
@@ -865,7 +865,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       idsToSend = new ArrayList<>(largeMessages.keySet());
 
       if (enabled)
-         sendReplicatePacket(new ReplicationStartSyncMessage(idsToSend));
+         sendReplicatePacket(new ReplicationStartSyncMessage(remotingConnection.isBeforeTwoEighteen(), idsToSend));
    }
 
    /**

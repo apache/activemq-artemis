@@ -38,6 +38,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_EIGHTEEN_ZERO;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_SEVENTEEN_ZERO;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYTWO_ZERO;
 
 @RunWith(Parameterized.class)
@@ -58,7 +60,11 @@ public class MultiVersionReplicaTest extends ClasspathBase {
       List<Object[]> combinations = new ArrayList<>();
       combinations.add(new Object[]{TWO_TWENTYTWO_ZERO, SNAPSHOT});
       combinations.add(new Object[]{SNAPSHOT, TWO_TWENTYTWO_ZERO});
-      // The SNAPSHOT/SNAPSHOT is here as a teest validation only, like in other cases where SNAPSHOT/SNAPSHOT is used.
+      combinations.add(new Object[]{TWO_SEVENTEEN_ZERO, SNAPSHOT});
+      combinations.add(new Object[]{SNAPSHOT, TWO_SEVENTEEN_ZERO});
+      combinations.add(new Object[]{TWO_EIGHTEEN_ZERO, SNAPSHOT});
+      combinations.add(new Object[]{SNAPSHOT, TWO_EIGHTEEN_ZERO});
+      // The SNAPSHOT/SNAPSHOT is here as a test validation only, like in other cases where SNAPSHOT/SNAPSHOT is used.
       combinations.add(new Object[]{SNAPSHOT, SNAPSHOT});
       return combinations;
    }
@@ -93,35 +99,48 @@ public class MultiVersionReplicaTest extends ClasspathBase {
 
       evaluate(mainClassloader, "multiVersionReplica/mainServerIsReplicated.groovy");
 
-      send(new ActiveMQConnectionFactory("tcp://localhost:61000"), 2000);
-      send(new JmsConnectionFactory("amqp://localhost:61000"), 2000);
+      send(new ActiveMQConnectionFactory("tcp://localhost:61000"), 2000, 10);
+      send(new JmsConnectionFactory("amqp://localhost:61000"), 2000, 10);
 
       evaluate(mainClassloader, "multiVersionReplica/mainServerStop.groovy");
       evaluate(backupClassLoader, "multiVersionReplica/backupServerIsActive.groovy");
 
-      receive(new ActiveMQConnectionFactory("tcp://localhost:61001"), 2000);
-      receive(new JmsConnectionFactory("amqp://localhost:61001"), 2000);
+      receive(new ActiveMQConnectionFactory("tcp://localhost:61001"), 2010);
+      receive(new JmsConnectionFactory("amqp://localhost:61001"), 2010);
 
       evaluate(backupClassLoader, "multiVersionReplica/backupServerStop.groovy");
    }
 
 
-   private void send(ConnectionFactory factory, int numberOfMessages) throws Throwable {
+   private void send(ConnectionFactory factory, int numberOfMessagesTx, int numberOfMessagesNonTx) throws Throwable {
       try (Connection connection = factory.createConnection()) {
-         Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
-         Queue queue = session.createQueue(QUEUE_NAME);
-         MessageProducer producer = session.createProducer(queue);
-         boolean pending = false;
-         for (int i = 0; i < numberOfMessages; i++) {
-            producer.send(session.createTextMessage("Hello world!!!!!"));
-            pending = true;
-            if (i > 0 && i % 100 == 0) {
-               session.commit();
-               pending = false;
+         Queue queue;
+
+         {
+            Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+            queue = session.createQueue(QUEUE_NAME);
+            MessageProducer producer = session.createProducer(queue);
+            boolean pending = false;
+            for (int i = 0; i < numberOfMessagesTx; i++) {
+               producer.send(session.createTextMessage("Hello world!!!!!"));
+               pending = true;
+               if (i > 0 && i % 100 == 0) {
+                  session.commit();
+                  pending = false;
+               }
             }
+            if (pending) {
+               session.commit();
+            }
+            session.close();
          }
-         if (pending) {
-            session.commit();
+
+         {
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(queue);
+            for (int i = 0; i < numberOfMessagesNonTx; i++) {
+               producer.send(session.createTextMessage("Hello world!!!!!"));
+            }
          }
       }
    }

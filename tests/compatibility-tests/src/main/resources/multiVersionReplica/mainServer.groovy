@@ -41,7 +41,13 @@ configuration.addAcceptorConfiguration("artemis", "tcp://localhost:" + port);
 configuration.addConnectorConfiguration("local", "tcp://localhost:" + port);
 configuration.setSecurityEnabled(false);
 configuration.setPersistenceEnabled(true);
-configuration.setGlobalMaxMessages(10);
+
+if (configuration.metaClass.hasMetaProperty("globalMaxMessages")) {
+    configuration.globalMaxMessages = 10
+} else {
+    configuration.globalMaxSize = 10 * 1024
+}
+
 configuration.setHAPolicyConfiguration(new ReplicatedPolicyConfiguration().setClusterName("main"))
 configuration.addAddressesSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE));
 
