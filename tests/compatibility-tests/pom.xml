@@ -417,6 +417,58 @@
                   <goals>
                      <goal>dependency-scan</goal>
                   </goals>
+                  <id>2_17_0-check</id>
+                  <configuration>
+                     <optional>true</optional>
+                     <libListWithDeps>
+                        <arg>org.apache.activemq:artemis-jms-server:2.17.0</arg>
+                        <arg>org.apache.activemq:artemis-jms-client:2.17.0</arg>
+                        <arg>org.apache.activemq:artemis-cli:2.17.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.17.0</arg>
+                        <arg>org.apache.activemq:artemis-amqp-protocol:2.17.0</arg>
+                        <arg>org.apache.activemq:artemis-hornetq-protocol:2.17.0</arg>
+                        <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                        <arg>org.jboss.marshalling:jboss-marshalling-river:2.0.9.Final</arg>
+                     </libListWithDeps>
+                     <libList>
+                        <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                     </libList>
+                     <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                           otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
+                     <variableName>ARTEMIS-2_17_0</variableName>
+                  </configuration>
+               </execution>               <execution>
+               <phase>compile</phase>
+               <goals>
+                  <goal>dependency-scan</goal>
+               </goals>
+               <id>2_18_0-check</id>
+               <configuration>
+                  <optional>true</optional>
+                  <libListWithDeps>
+                     <arg>org.apache.activemq:artemis-jms-server:2.18.0</arg>
+                     <arg>org.apache.activemq:artemis-jms-client:2.18.0</arg>
+                     <arg>org.apache.activemq:artemis-cli:2.18.0</arg>
+                     <arg>org.apache.activemq:artemis-hornetq-protocol:2.18.0</arg>
+                     <arg>org.apache.activemq:artemis-amqp-protocol:2.18.0</arg>
+                     <arg>org.apache.activemq:artemis-hornetq-protocol:2.18.0</arg>
+                     <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
+                     <arg>org.jboss.marshalling:jboss-marshalling-river:2.0.9.Final</arg>
+                  </libListWithDeps>
+                  <libList>
+                     <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
+                  </libList>
+                  <!-- for future maintainers, notice that if you add new variables you also need to add the system property
+                        otherwise this is not captured, search for the word @@@@ on this pom where I left anothr comment -->
+                  <variableName>ARTEMIS-2_18_0</variableName>
+               </configuration>
+            </execution>
+
+               <execution>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
                   <id>2_22_0-check</id>
                   <configuration>
                      <optional>true</optional>
@@ -660,6 +712,14 @@
                   <property>
                      <name>ARTEMIS-2_10_0</name> <!-- 2.10.0 -->
                      <value>${ARTEMIS-2_10_0}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-2_17_0</name>
+                     <value>${ARTEMIS-2_17_0}</value>
+                  </property>
+                  <property>
+                     <name>ARTEMIS-2_18_0</name>
+                     <value>${ARTEMIS-2_18_0}</value>
                   </property>
                   <property>
                      <name>ARTEMIS-2_22_0</name>

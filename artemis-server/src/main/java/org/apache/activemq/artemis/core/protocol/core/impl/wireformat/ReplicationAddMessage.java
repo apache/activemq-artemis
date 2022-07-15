@@ -43,17 +43,22 @@ public final class ReplicationAddMessage extends PacketImpl {
 
    private byte[] recordData;
 
-   public ReplicationAddMessage() {
+   // this is for version compatibility
+   private final boolean beforeTwoEighteen;
+
+   public ReplicationAddMessage(final boolean beforeTwoEighteen) {
       super(PacketImpl.REPLICATION_APPEND);
+      this.beforeTwoEighteen = beforeTwoEighteen;
    }
 
-   public ReplicationAddMessage(final byte journalID,
+   public ReplicationAddMessage(final boolean beforeTwoEighteen,
+                                final byte journalID,
                                 final ADD_OPERATION_TYPE operation,
                                 final long id,
                                 final byte journalRecordType,
                                 final Persister persister,
                                 final Object encodingData) {
-      this();
+      this(beforeTwoEighteen);
       this.journalID = journalID;
       this.operation = operation;
       this.id = id;
@@ -77,7 +82,11 @@ public final class ReplicationAddMessage extends PacketImpl {
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
-      buffer.writeByte(operation.toRecord());
+      if (beforeTwoEighteen) {
+         buffer.writeBoolean(operation == ADD_OPERATION_TYPE.UPDATE);
+      } else {
+         buffer.writeByte(operation.toRecord());
+      }
       buffer.writeLong(id);
       buffer.writeByte(journalRecordType);
       buffer.writeInt(persister.getEncodeSize(encodingData));
@@ -87,7 +96,16 @@ public final class ReplicationAddMessage extends PacketImpl {
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
-      operation = ADD_OPERATION_TYPE.toOperation(buffer.readByte());
+      if (beforeTwoEighteen) {
+         boolean isUpdate = buffer.readBoolean();
+         if (isUpdate) {
+            operation = ADD_OPERATION_TYPE.UPDATE;
+         } else {
+            operation = ADD_OPERATION_TYPE.ADD;
+         }
+      } else {
+         operation = ADD_OPERATION_TYPE.toOperation(buffer.readByte());
+      }
       id = buffer.readLong();
       journalRecordType = buffer.readByte();
       final int recordDataSize = buffer.readInt();

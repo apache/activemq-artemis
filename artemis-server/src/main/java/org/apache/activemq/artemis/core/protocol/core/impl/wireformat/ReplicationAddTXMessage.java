@@ -45,18 +45,23 @@ public class ReplicationAddTXMessage extends PacketImpl {
 
    private ADD_OPERATION_TYPE operation;
 
-   public ReplicationAddTXMessage() {
+   // this is for version compatibility
+   private final boolean beforeTwoEighteen;
+
+   public ReplicationAddTXMessage(final boolean beforeTwoEighteen) {
       super(PacketImpl.REPLICATION_APPEND_TX);
+      this.beforeTwoEighteen = beforeTwoEighteen;
    }
 
-   public ReplicationAddTXMessage(final byte journalID,
+   public ReplicationAddTXMessage(final boolean beforeTwoEighteen,
+                                  final byte journalID,
                                   final ADD_OPERATION_TYPE operation,
                                   final long txId,
                                   final long id,
                                   final byte recordType,
                                   final Persister persister,
                                   final Object encodingData) {
-      this();
+      this(beforeTwoEighteen);
       this.journalID = journalID;
       this.operation = operation;
       this.txId = txId;
@@ -82,7 +87,11 @@ public class ReplicationAddTXMessage extends PacketImpl {
    @Override
    public void encodeRest(final ActiveMQBuffer buffer) {
       buffer.writeByte(journalID);
-      buffer.writeByte(operation.toRecord());
+      if (beforeTwoEighteen) {
+         buffer.writeBoolean(operation == ADD_OPERATION_TYPE.UPDATE);
+      } else {
+         buffer.writeByte(operation.toRecord());
+      }
       buffer.writeLong(txId);
       buffer.writeLong(id);
       buffer.writeByte(recordType);
@@ -93,7 +102,16 @@ public class ReplicationAddTXMessage extends PacketImpl {
    @Override
    public void decodeRest(final ActiveMQBuffer buffer) {
       journalID = buffer.readByte();
-      operation = ADD_OPERATION_TYPE.toOperation(buffer.readByte());
+      if (beforeTwoEighteen) {
+         boolean isUpdate = buffer.readBoolean();
+         if (isUpdate) {
+            operation = ADD_OPERATION_TYPE.UPDATE;
+         } else {
+            operation = ADD_OPERATION_TYPE.ADD;
+         }
+      } else {
+         operation = ADD_OPERATION_TYPE.toOperation(buffer.readByte());
+      }
       txId = buffer.readLong();
       id = buffer.readLong();
       recordType = buffer.readByte();
