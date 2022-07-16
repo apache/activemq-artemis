@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
@@ -455,7 +456,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    /**
     * After a message is sent
     *
-    * @param session           the session that sends the message
+    * @param session
     * @param tx
     * @param message
     * @param direct
@@ -470,23 +471,43 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
                          boolean direct,
                          boolean noAutoCreateQueue,
                          RoutingStatus result) throws ActiveMQException {
-
-      if (logAll || logSendingEvents) {
-
+      if (logAll || logDeliveringEvents) {
          if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
-            //details - debug level
-            LoggingActiveMQServerPluginLogger.LOGGER.afterSendDetails((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
-                                                                      message, (session == null ? UNAVAILABLE : session.getName()),
-                                                                      tx, session, direct, noAutoCreateQueue);
+            LoggingActiveMQServerPluginLogger.LOGGER.afterSendDetails(message,
+                                                                      result.toString(),
+                                                                      tx,
+                                                                      (session == null ? UNAVAILABLE : session.getName()),
+                                                                      (session == null ? UNAVAILABLE : session.getConnectionID().toString()),
+                                                                      direct,
+                                                                      noAutoCreateQueue);
          }
+         if (tx != null) {
+            tx.addOperation(new TransactionOperationAbstract() {
+               @Override
+               public void afterCommit(Transaction tx) {
+                  logSend(tx, message, result);
+               }
 
-         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
-            //info level log
-            LoggingActiveMQServerPluginLogger.LOGGER.afterSend((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
-                                                               (session == null ? UNAVAILABLE : session.getName()),
-                                                               (session == null ? UNAVAILABLE : session.getConnectionID().toString()),
-                                                               result);
+               @Override
+               public void afterRollback(Transaction tx) {
+                  if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
+                     LoggingActiveMQServerPluginLogger.LOGGER.rolledBackTransaction(tx, message.toString());
+                  }
+               }
+            });
+         } else {
+            logSend(tx, message, result);
          }
+      }
+   }
+
+   private void logSend(Transaction tx,
+                        Message message,
+                        RoutingStatus result) {
+      if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+         LoggingActiveMQServerPluginLogger.LOGGER.afterSend((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                            result,
+                                                            (tx == null ? UNAVAILABLE : tx.toString()));
       }
    }
 
@@ -652,28 +673,49 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    /**
     * A message has been acknowledged
     *
-    * @param ref    The acked message
-    * @param reason The ack reason
+    * @param tx       The transaction for the ack
+    * @param ref      The acked message
+    * @param reason   The ack reason
+    * @param consumer The consumer acking the ref
     * @throws ActiveMQException
     */
    @Override
-   public void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
+   public void messageAcknowledged(final Transaction tx, final MessageReference ref, final AckReason reason, final ServerConsumer consumer) throws ActiveMQException {
       if (logAll || logDeliveringEvents) {
-
-         //details - debug logging
-         LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledgedDetails(ref, reason);
-
-         if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+         if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
             Message message = (ref == null ? null : ref.getMessage());
             Queue queue = (ref == null ? null : ref.getQueue());
 
-            // info level logging
-            LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledged((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
-                                                                         (consumer == null ? UNAVAILABLE : consumer.getSessionID() != null ? consumer.getSessionID() : null),
-                                                                         (consumer == null ? UNAVAILABLE : Long.toString(consumer.getID())),
-                                                                         (queue == null ? UNAVAILABLE : queue.getName().toString()),
-                                                                         reason);
+            LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledgedDetails((message == null ? UNAVAILABLE : Long.toString(message.getMessageID())),
+                                                                                (consumer == null ? UNAVAILABLE : consumer.getSessionID() != null ? consumer.getSessionID() : null),
+                                                                                (consumer == null ? UNAVAILABLE : Long.toString(consumer.getID())),
+                                                                                (queue == null ? UNAVAILABLE : queue.getName().toString()),
+                                                                                (tx == null ? UNAVAILABLE : tx.toString()),
+                                                                                reason);
          }
+         if (tx != null) {
+            tx.addOperation(new TransactionOperationAbstract() {
+               @Override
+               public void afterCommit(Transaction tx) {
+                  logAck(tx, ref);
+               }
+
+               @Override
+               public void afterRollback(Transaction tx) {
+                  if (LoggingActiveMQServerPluginLogger.LOGGER.isDebugEnabled()) {
+                     LoggingActiveMQServerPluginLogger.LOGGER.rolledBackTransaction(tx, ref.toString());
+                  }
+               }
+            });
+         } else {
+            logAck(tx, ref);
+         }
+      }
+   }
+
+   private void logAck(Transaction tx, MessageReference ref) {
+      if (LoggingActiveMQServerPluginLogger.LOGGER.isInfoEnabled()) {
+         LoggingActiveMQServerPluginLogger.LOGGER.messageAcknowledged(ref, tx);
       }
    }
 

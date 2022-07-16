@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import javax.security.auth.Subject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -1882,17 +1883,36 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          if (AuditLogger.isMessageLoggingEnabled()) {
-            ServerSession session = null;
             // it's possible for the consumer to be null (e.g. acking the message administratively)
-            if (consumer != null) {
-               session = server.getSessionByID(consumer.getSessionID());
+            final ServerSession session = consumer != null ? server.getSessionByID(consumer.getSessionID()) : null;
+            final Subject subject = session == null ? null : session.getRemotingConnection().getAuditSubject();
+            final String remoteAddress = session == null ? null : session.getRemotingConnection().getRemoteAddress();
+
+            if (transactional) {
+               AuditLogger.addAckToTransaction(subject, remoteAddress, getName().toString(), ref.getMessage().toString(), tx.toString());
+               tx.addOperation(new TransactionOperationAbstract() {
+                  @Override
+                  public void afterCommit(Transaction tx) {
+                     auditLogAck(subject, remoteAddress, ref, tx);
+                  }
+
+                  @Override
+                  public void afterRollback(Transaction tx) {
+                     AuditLogger.rolledBackTransaction(subject, remoteAddress, tx.toString(), ref.toString());
+                  }
+               });
+            } else {
+               auditLogAck(subject, remoteAddress, ref, tx);
             }
-            AuditLogger.coreAcknowledgeMessage(session == null ? null : session.getRemotingConnection().getAuditSubject(), session == null ? null : session.getRemotingConnection().getRemoteAddress(), getName().toString(), ref.getMessage().toString());
          }
          if (server != null && server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(ref, reason, consumer));
+            server.callBrokerMessagePlugins(plugin -> plugin.messageAcknowledged(tx, ref, reason, consumer));
          }
       }
+   }
+
+   private void auditLogAck(Subject subject, String remoteAddress, MessageReference ref, Transaction tx) {
+      AuditLogger.coreAcknowledgeMessage(subject, remoteAddress, getName().toString(), ref.getMessage().toString(), tx == null ? null : tx.toString());
    }
 
    @Override

@@ -270,8 +270,25 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     * @throws ActiveMQException
     *
     */
+   @Deprecated
    default void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
       //by default call the old method for backwards compatibility
       this.messageAcknowledged(ref, reason);
+   }
+
+   /**
+    * A message has been acknowledged
+    *
+    * @param tx The transaction associated with the ack
+    * @param ref The acked message
+    * @param reason The ack reason
+    * @param consumer the Consumer that acknowledged the message - this field is optional
+    * and can be null
+    * @throws ActiveMQException
+    *
+    */
+   default void messageAcknowledged(Transaction tx, MessageReference ref, AckReason reason, ServerConsumer consumer) throws ActiveMQException {
+      //by default call the old method for backwards compatibility
+      this.messageAcknowledged(ref, reason, consumer);
    }
 }

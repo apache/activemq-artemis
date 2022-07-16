@@ -2420,13 +2420,13 @@ public interface AuditLogger extends BasicLogger {
     *
     * */
    //hot path log using a different logger
-   static void coreSendMessage(Subject user, String remoteAddress, String messageToString, Object context) {
-      MESSAGE_LOGGER.logCoreSendMessage(getCaller(user, remoteAddress), messageToString, context);
+   static void coreSendMessage(Subject user, String remoteAddress, String messageToString, Object context, String tx) {
+      MESSAGE_LOGGER.coreSendMessage(getCaller(user, remoteAddress), messageToString, context, tx);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601500, value = "User {0} is sending a message {1}, with Context: {2}", format = Message.Format.MESSAGE_FORMAT)
-   void logCoreSendMessage(String user, String messageToString, Object context);
+   @Message(id = 601500, value = "User {0} sent a message {1}, context: {2}, transaction: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void coreSendMessage(String user, String messageToString, Object context, String tx);
 
    //hot path log using a different logger
    static void coreConsumeMessage(Subject user, String remoteAddress, String queue, String message) {
@@ -2438,13 +2438,13 @@ public interface AuditLogger extends BasicLogger {
    void consumeMessage(String user, String address, String message);
 
    //hot path log using a different logger
-   static void coreAcknowledgeMessage(Subject user, String remoteAddress, String queue, String message) {
-      MESSAGE_LOGGER.acknowledgeMessage(getCaller(user, remoteAddress), queue, message);
+   static void coreAcknowledgeMessage(Subject user, String remoteAddress, String queue, String message, String tx) {
+      MESSAGE_LOGGER.coreAcknowledgeMessage(getCaller(user, remoteAddress), queue, message, tx);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601502, value = "User {0} is acknowledging a message from {1}: {2}", format = Message.Format.MESSAGE_FORMAT)
-   void acknowledgeMessage(String user, String queue, String message);
+   @Message(id = 601502, value = "User {0} acknowledged message from {1}: {2}, transaction: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void coreAcknowledgeMessage(String user, String queue, String message, String tx);
 
    /*
     * This logger is focused on user interaction from the console or thru resource specific functions in the management layer/JMX
@@ -2455,7 +2455,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601701, value = "User {0} successfully created Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601701, value = "User {0} successfully created address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
    void createAddressSuccess(String user, String name, String routingTypes);
 
    static void createAddressFailure(String name, String routingTypes) {
@@ -2463,7 +2463,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601702, value = "User {0} failed to created Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601702, value = "User {0} failed to created address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
    void createAddressFailure(String user, String name, String routingTypes);
 
    static void updateAddressSuccess(String name, String routingTypes) {
@@ -2471,7 +2471,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601703, value = "User {0} successfully updated Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601703, value = "User {0} successfully updated address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
    void updateAddressSuccess(String user, String name, String routingTypes);
 
    static void updateAddressFailure(String name, String routingTypes) {
@@ -2479,7 +2479,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601704, value = "User {0} successfully updated Address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601704, value = "User {0} successfully updated address: {1} with routing types {2}", format = Message.Format.MESSAGE_FORMAT)
    void updateAddressFailure(String user, String name, String routingTypes);
 
    static void deleteAddressSuccess(String name) {
@@ -2487,7 +2487,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601705, value = "User {0} successfully deleted Address: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601705, value = "User {0} successfully deleted address: {1}", format = Message.Format.MESSAGE_FORMAT)
    void deleteAddressSuccess(String user, String name);
 
 
@@ -2496,7 +2496,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601706, value = "User {0} failed to deleted Address: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601706, value = "User {0} failed to deleted address: {1}", format = Message.Format.MESSAGE_FORMAT)
    void deleteAddressFailure(String user, String name);
 
    static void createQueueSuccess(String name, String address, String routingType) {
@@ -2504,7 +2504,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601707, value = "User {0} successfully created Queue: {1} on Address: {2} with routing type {3}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601707, value = "User {0} successfully created queue: {1} on address: {2} with routing type {3}", format = Message.Format.MESSAGE_FORMAT)
    void createQueueSuccess(String user, String name, String address, String routingType);
 
    static void createQueueFailure(String name, String address, String routingType) {
@@ -2512,7 +2512,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601708, value = "User {0} failed to create Queue: {1} on Address: {2} with routing type {3}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601708, value = "User {0} failed to create queue: {1} on address: {2} with routing type {3}", format = Message.Format.MESSAGE_FORMAT)
    void createQueueFailure(String user, String name, String address, String routingType);
 
    static void updateQueueSuccess(String name, String routingType) {
@@ -2520,7 +2520,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601709, value = "User {0} successfully updated Queue: {1} with routing type {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601709, value = "User {0} successfully updated queue: {1} with routing type {2}", format = Message.Format.MESSAGE_FORMAT)
    void updateQueueSuccess(String user, String name, String routingType);
 
    static void updateQueueFailure(String name, String routingType) {
@@ -2528,7 +2528,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601710, value = "User {0} failed to update Queue: {1} with routing type {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601710, value = "User {0} failed to update queue: {1} with routing type {2}", format = Message.Format.MESSAGE_FORMAT)
    void updateQueueFailure(String user, String name, String routingType);
 
 
@@ -2537,7 +2537,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601711, value = "User {0} successfully deleted Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601711, value = "User {0} successfully deleted queue: {1}", format = Message.Format.MESSAGE_FORMAT)
    void destroyQueueSuccess(String user, String name);
 
    static void destroyQueueFailure(String name) {
@@ -2545,7 +2545,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601712, value = "User {0} failed to delete Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601712, value = "User {0} failed to delete queue: {1}", format = Message.Format.MESSAGE_FORMAT)
    void destroyQueueFailure(String user, String name);
 
    static void removeMessagesSuccess(int removed, String queue) {
@@ -2553,7 +2553,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601713, value = "User {0} has removed {1} messages from Queue: {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601713, value = "User {0} has removed {1} messages from queue: {2}", format = Message.Format.MESSAGE_FORMAT)
    void removeMessagesSuccess(String user, int removed, String queue);
 
    static void removeMessagesFailure(String queue) {
@@ -2561,7 +2561,7 @@ public interface AuditLogger extends BasicLogger {
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601714, value = "User {0} failed to remove messages from Queue: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601714, value = "User {0} failed to remove messages from queue: {1}", format = Message.Format.MESSAGE_FORMAT)
    void removeMessagesFailure(String user, String queue);
 
    static void userSuccesfullyAuthenticatedInAudit(Subject subject, String remoteAddress) {
@@ -2933,4 +2933,31 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601758, value = "User {0} is calling schedulePageCleanup on address: {1}", format = Message.Format.MESSAGE_FORMAT)
    void schedulePageCleanup(String user, Object address);
+
+   //hot path log using a different logger
+   static void addAckToTransaction(Subject user, String remoteAddress, String queue, String message, String tx) {
+      MESSAGE_LOGGER.addAckToTransaction(getCaller(user, remoteAddress), queue, message, tx);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601759, value = "User {0} added acknowledgement of a message from {1}: {2} to transaction: {3}", format = Message.Format.MESSAGE_FORMAT)
+   void addAckToTransaction(String user, String queue, String message, String tx);
+
+   //hot path log using a different logger
+   static void addSendToTransaction(Subject user, String remoteAddress, String messageToString, String tx) {
+      MESSAGE_LOGGER.addSendToTransaction(getCaller(user, remoteAddress), messageToString, tx);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601760, value = "User {0} added a message send for: {1} to transaction: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void addSendToTransaction(String user, String messageToString, String tx);
+
+   //hot path log using a different logger
+   static void rolledBackTransaction(Subject user, String remoteAddress, String tx, String resource) {
+      MESSAGE_LOGGER.rolledBackTransaction(getCaller(user, remoteAddress), tx, resource);
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601761, value = "User {0} rolled back transaction {1} involving {2}", format = Message.Format.MESSAGE_FORMAT)
+   void rolledBackTransaction(String user, String tx, String resource);
 }
