@@ -1812,10 +1812,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             message.setMessageID(id);
          }
 
-         if (AuditLogger.isMessageLoggingEnabled()) {
-            AuditLogger.coreSendMessage(remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext);
-         }
-
          SimpleString address = message.getAddressSimpleString();
 
          if (defaultAddress == null && address != null) {
@@ -1844,6 +1840,25 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             result = doSend(tx, message, address, direct, noAutoCreateQueue, routingContext);
          }
 
+         if (AuditLogger.isMessageLoggingEnabled()) {
+            if (tx != null && !autoCommitSends) {
+               AuditLogger.addSendToTransaction(remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), message.toString(), tx.toString());
+               tx.addOperation(new TransactionOperationAbstract() {
+                  @Override
+                  public void afterCommit(Transaction tx) {
+                     auditLogSend(message, tx);
+                  }
+
+                  @Override
+                  public void afterRollback(Transaction tx) {
+                     AuditLogger.rolledBackTransaction(remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), tx.toString(), message.toString());
+                  }
+               });
+            } else {
+               auditLogSend(message, null);
+            }
+         }
+
       } catch (Exception e) {
          if (server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.onSendException(this, tx, message, direct, noAutoCreateQueue, e));
@@ -1851,11 +1866,14 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw e;
       }
       if (server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, tx, message, direct, noAutoCreateQueue, result));
+         server.callBrokerMessagePlugins(plugin -> plugin.afterSend(this, autoCommitSends ? null : tx, message, direct, noAutoCreateQueue, result));
       }
       return result;
    }
 
+   private void auditLogSend(Message message, Transaction tx) {
+      AuditLogger.coreSendMessage(remotingConnection.getAuditSubject(), remotingConnection.getRemoteAddress(), message.toString(), routingContext, tx == null ? null : tx.toString());
+   }
 
    @Override
    public void requestProducerCredits(SimpleString address, final int credits) throws Exception {

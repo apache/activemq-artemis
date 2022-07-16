@@ -104,8 +104,8 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
                           boolean autoDeleteAddress);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 841009, value = "sent message with ID: {0}, session name: {1}, session connectionID: {2}, result: {3}", format = Message.Format.MESSAGE_FORMAT)
-   void afterSend(String messageID, String sessionName, String sessionConnectionID, RoutingStatus result);
+   @Message(id = 841009, value = "sent message with ID: {0}, result: {1}, transaction: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void afterSend(String messageID, RoutingStatus result, String tx);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 841010, value = "routed message with ID: {0}, result: {1}", format = Message.Format.MESSAGE_FORMAT)
@@ -129,9 +129,8 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
    void messageExpired(MessageReference message, SimpleString messageExpiryAddress);
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 841014, value = "acknowledged message ID: {0}, messageRef sessionID: {1}, with messageRef consumerID: {2}, messageRef QueueName: {3}," +
-      "  with ackReason: {4}", format = Message.Format.MESSAGE_FORMAT)
-   void messageAcknowledged(String messageID, String sessionID, String consumerID, String queueName, AckReason reason);
+   @Message(id = 841014, value = "messageAcknowledged: {0}, with transaction: {2}", format = Message.Format.MESSAGE_FORMAT)
+   void messageAcknowledged(MessageReference ref, Transaction tx);
 
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 841015, value = "deployed bridge: {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -218,13 +217,12 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
                    boolean noAutoCreateQueue);
 
    @LogMessage(level = Logger.Level.DEBUG)
-   @Message(id = 843009, value = "message ID: {0}, message {1}, session name: {2} with tx: {3}, session: {4}, direct: {5}," +
-      " noAutoCreateQueue: {6}", format = Message.Format.MESSAGE_FORMAT)
-   void afterSendDetails(String messageID,
-                         org.apache.activemq.artemis.api.core.Message message,
-                         String sessionName,
+   @Message(id = 843009, value = "afterSend message: {0}, result: {1}, transaction: {2}, session: {3}, connection: {4}, direct: {5}, noAutoCreateQueue: {6}", format = Message.Format.MESSAGE_FORMAT)
+   void afterSendDetails(org.apache.activemq.artemis.api.core.Message message,
+                         String result,
                          Transaction tx,
-                         ServerSession session,
+                         String sessionName,
+                         String connectionID,
                          boolean direct,
                          boolean noAutoCreateQueue);
 
@@ -260,8 +258,8 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
                             ServerConsumer consumer);
 
    @LogMessage(level = Logger.Level.DEBUG)
-   @Message(id = 843014, value = "acknowledged message: {0}, with ackReason: {1}", format = Message.Format.MESSAGE_FORMAT)
-   void messageAcknowledgedDetails(MessageReference ref, AckReason reason);
+   @Message(id = 843014, value = "messageAcknowledged ID: {0}, sessionID: {1}, consumerID: {2}, queue: {3}, transaction: {4}, ackReason: {5}", format = Message.Format.MESSAGE_FORMAT)
+   void messageAcknowledgedDetails(String messageID, String sessionID, String consumerID, String queueName, String tx, AckReason reason);
 
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 843015, value = "beforeDeployBridge called with bridgeConfiguration: {0}", format = Message.Format.MESSAGE_FORMAT)
@@ -286,4 +284,7 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
                                    boolean direct,
                                    boolean rejectDuplicates);
 
+   @LogMessage(level = Logger.Level.DEBUG)
+   @Message(id = 843020, value = "rolled back transaction {0} involving {1}", format = Message.Format.MESSAGE_FORMAT)
+   void rolledBackTransaction(Transaction tx, String resource);
 }
