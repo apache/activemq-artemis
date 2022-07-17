@@ -73,26 +73,27 @@ public interface AddressControl {
    /**
     * Returns the sum of messages on queue(s), including messages in delivery.
     */
-   @Attribute(desc = "the sum of messages on queue(s), including messages in delivery")
-   long getNumberOfMessages() throws Exception;
+   @Deprecated
+   @Attribute(desc = "the sum of messages on queue(s), including messages in delivery; DEPRECATED: use getMessageCount() instead")
+   long getNumberOfMessages();
 
    /**
     * Returns the names of the remote queue(s) bound to this address.
     */
    @Attribute(desc = "names of the remote queue(s) bound to this address")
-   String[] getRemoteQueueNames() throws Exception;
+   String[] getRemoteQueueNames();
 
    /**
     * Returns the names of the local queue(s) bound to this address.
     */
    @Attribute(desc = "names of the local queue(s) bound to this address")
-   String[] getQueueNames() throws Exception;
+   String[] getQueueNames();
 
    /**
     * Returns the names of both the local and remote queue(s) bound to this address.
     */
    @Attribute(desc = "names of both the local & remote queue(s) bound to this address")
-   String[] getAllQueueNames() throws Exception;
+   String[] getAllQueueNames();
 
    /**
     * Returns the number of pages used by this address.

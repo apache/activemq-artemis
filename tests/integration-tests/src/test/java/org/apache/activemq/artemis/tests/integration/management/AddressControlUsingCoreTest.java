@@ -62,22 +62,22 @@ public class AddressControlUsingCoreTest extends AddressControlTest {
          }
 
          @Override
-         public long getNumberOfMessages() throws Exception {
+         public long getNumberOfMessages() {
             return (long) proxy.retrieveAttributeValue("numberOfMessages");
          }
 
          @Override
-         public String[] getRemoteQueueNames() throws Exception {
+         public String[] getRemoteQueueNames() {
             return (String[]) proxy.retrieveAttributeValue("remoteQueueNames", String.class);
          }
 
          @Override
-         public String[] getAllQueueNames() throws Exception {
+         public String[] getAllQueueNames() {
             return (String[]) proxy.retrieveAttributeValue("allQueueNames", String.class);
          }
 
          @Override
-         public String[] getQueueNames() throws Exception {
+         public String[] getQueueNames() {
             return (String[]) proxy.retrieveAttributeValue("queueNames", String.class);
          }
 

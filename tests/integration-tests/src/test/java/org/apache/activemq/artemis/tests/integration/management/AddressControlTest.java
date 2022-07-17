@@ -22,14 +22,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
-import org.apache.activemq.artemis.core.server.Queue;
-import org.apache.activemq.artemis.json.JsonArray;
-import org.apache.activemq.artemis.json.JsonString;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,15 +47,19 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.core.management.RoleInfo;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonString;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.Base64;
@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
@@ -449,6 +450,36 @@ public class AddressControlTest extends ManagementTestBase {
       session.createQueue(new QueueConfiguration(address.concat('2')).setAddress(address).setRoutingType(RoutingType.ANYCAST));
       producer.send(session.createMessage(false));
       assertTrue(Wait.waitFor(() -> addressControl.getMessageCount() == 2, 2000, 100));
+   }
+
+   @Test
+   public void testNumberOfMessages() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      session.createAddress(address, RoutingType.ANYCAST, false);
+
+      AddressControl addressControl = createManagementControl(address);
+      assertEquals(0, addressControl.getNumberOfMessages());
+
+      ClientProducer producer = session.createProducer(address.toString());
+      producer.send(session.createMessage(false));
+      assertEquals(0, addressControl.getNumberOfMessages());
+
+      session.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
+      producer.send(session.createMessage(false));
+      Wait.assertTrue(() -> addressControl.getNumberOfMessages() == 1, 2000, 100);
+
+      RemoteQueueBinding binding = Mockito.mock(RemoteQueueBinding.class);
+      Mockito.when(binding.getAddress()).thenReturn(address);
+      Queue queue = Mockito.mock(Queue.class);
+      Mockito.when(queue.getMessageCount()).thenReturn((long) 999);
+      Mockito.when(binding.getQueue()).thenReturn(queue);
+      Mockito.when(binding.getUniqueName()).thenReturn(RandomUtil.randomSimpleString());
+      Mockito.when(binding.getRoutingName()).thenReturn(RandomUtil.randomSimpleString());
+      Mockito.when(binding.getClusterName()).thenReturn(RandomUtil.randomSimpleString());
+      Mockito.when(binding.getType()).thenReturn(BindingType.REMOTE_QUEUE);
+      server.getPostOffice().addBinding(binding);
+
+      assertEquals(1, addressControl.getNumberOfMessages());
    }
 
    @Test
