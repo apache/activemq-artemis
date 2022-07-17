@@ -16,12 +16,10 @@
  */
 package org.apache.activemq.artemis.core.management.impl;
 
-import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
-import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
@@ -45,6 +42,7 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -52,6 +50,7 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.replay.ReplayManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
@@ -130,17 +129,17 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public String[] getRemoteQueueNames() throws Exception {
+   public String[] getRemoteQueueNames() {
       return getQueueNames(SearchType.REMOTE);
    }
 
    @Override
-   public String[] getQueueNames() throws Exception {
+   public String[] getQueueNames() {
       return getQueueNames(SearchType.LOCAL);
    }
 
    @Override
-   public String[] getAllQueueNames() throws Exception {
+   public String[] getAllQueueNames() {
       return getQueueNames(SearchType.ALL);
    }
 
@@ -148,7 +147,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       LOCAL, REMOTE, ALL
    }
 
-   private String[] getQueueNames(SearchType searchType) throws Exception {
+   private String[] getQueueNames(SearchType searchType) {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getQueueNames(this.addressInfo, searchType);
       }
@@ -301,22 +300,14 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
    }
 
    @Override
-   public long getNumberOfMessages() throws Exception {
+   @Deprecated
+   public long getNumberOfMessages() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getNumberOfMessages(this.addressInfo);
       }
       clearIO();
-      long totalMsgs = 0;
       try {
-         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
-         if (bindings != null) {
-            for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof QueueBinding) {
-                  totalMsgs += ((QueueBinding) binding).getQueue().getMessageCount();
-               }
-            }
-         }
-         return totalMsgs;
+         return getMessageCount();
       } catch (Throwable t) {
          throw new IllegalStateException(t.getMessage());
       } finally {
@@ -668,33 +659,17 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
 
    private long getMessageCount(final DurabilityType durability) {
-      List<QueueControl> queues = getQueues(durability);
       long count = 0;
-      for (QueueControl queue : queues) {
-         count += queue.getMessageCount();
+      for (String queueName : getQueueNames()) {
+         Queue queue = server.locateQueue(queueName);
+         if (queue != null &&
+            (durability == DurabilityType.ALL ||
+            (durability == DurabilityType.DURABLE && queue.isDurable()) ||
+            (durability == DurabilityType.NON_DURABLE && !queue.isDurable()))) {
+            count += queue.getMessageCount();
+         }
       }
       return count;
-   }
-
-   private List<QueueControl> getQueues(final DurabilityType durability) {
-      try {
-         List<QueueControl> matchingQueues = new ArrayList<>();
-         String[] queues = getQueueNames();
-         for (String queue : queues) {
-            QueueControl coreQueueControl = (QueueControl) managementService.getResource(ResourceNames.QUEUE + queue);
-
-            // Ignore the "special" subscription
-            if (coreQueueControl != null) {
-               if (durability == DurabilityType.ALL || durability == DurabilityType.DURABLE && coreQueueControl.isDurable() ||
-                     durability == DurabilityType.NON_DURABLE && !coreQueueControl.isDurable()) {
-                  matchingQueues.add(coreQueueControl);
-               }
-            }
-         }
-         return matchingQueues;
-      } catch (Exception e) {
-         return Collections.emptyList();
-      }
    }
 
    private void checkStarted() {
@@ -702,7 +677,6 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          throw new IllegalStateException("Broker is not started. Queues can not be managed yet");
       }
    }
-
 
    private enum DurabilityType {
       ALL, DURABLE, NON_DURABLE
