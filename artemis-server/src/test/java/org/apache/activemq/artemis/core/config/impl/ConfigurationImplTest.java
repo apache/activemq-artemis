@@ -38,6 +38,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
@@ -627,6 +628,44 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(1, configuration.getConnectionRouters().size());
       Assert.assertEquals(KeyType.CLIENT_ID, configuration.getConnectionRouters().get(0).getKeyType());
       Assert.assertEquals("2", configuration.getConnectionRouters().get(0).getPolicyConfiguration().getProperties().get(ConsistentHashModuloPolicy.MODULO));
+   }
+
+   @Test
+   public void testAMQPConnectionsConfiguration() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
+      insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
+      insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
+      insertionOrderedProperties.put("AMQPConnections.target.password", "password");
+      insertionOrderedProperties.put("AMQPConnections.target.autoStart", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.type", "MIRROR");
+      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.messageAcknowledgements", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueCreation", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueRemoval", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.addressFilter", "foo");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertEquals(1, configuration.getAMQPConnections().size());
+      AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
+      Assert.assertEquals("target", connectConfiguration.getName());
+      Assert.assertEquals("localhost:61617", connectConfiguration.getUri());
+      Assert.assertEquals(55, connectConfiguration.getRetryInterval());
+      Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      Assert.assertEquals("admin", connectConfiguration.getUser());
+      Assert.assertEquals("password", connectConfiguration.getPassword());
+      Assert.assertEquals(1,connectConfiguration.getConnectionElements().size());
+      AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
+      Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
+      AMQPMirrorBrokerConnectionElement amqpMirrorBrokerConnectionElement = (AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement;
+      Assert.assertEquals("mirror", amqpMirrorBrokerConnectionElement.getName());
+      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
+      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueCreation());
+      Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueRemoval());
+      Assert.assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
    }
 
    @Test
