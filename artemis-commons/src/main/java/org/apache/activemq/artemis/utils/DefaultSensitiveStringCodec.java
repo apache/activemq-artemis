@@ -23,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -111,7 +112,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       return algorithm.verify(inputValue, storedValue);
    }
 
-   private abstract class CodecAlgorithm {
+   private abstract static class CodecAlgorithm {
 
       protected Map<String, String> params;
 
@@ -202,7 +203,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       }
    }
 
-   private class PBKDF2Algorithm extends CodecAlgorithm {
+   private static class PBKDF2Algorithm extends CodecAlgorithm {
       private static final String SEPARATOR = ":";
       private String sceretKeyAlgorithm = "PBKDF2WithHmacSHA1";
       private String randomScheme = "SHA1PRNG";
@@ -210,10 +211,14 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
       private int saltLength = 32;
       private int iterations = 1024;
       private SecretKeyFactory skf;
+      private static SecureRandom sr;
 
       PBKDF2Algorithm(Map<String, String> params) throws NoSuchAlgorithmException {
          super(params);
          skf = SecretKeyFactory.getInstance(sceretKeyAlgorithm);
+         if (sr == null) {
+            sr = SecureRandom.getInstance(randomScheme);
+         }
       }
 
       @Override
@@ -221,8 +226,9 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          throw new IllegalArgumentException("Algorithm doesn't support decoding");
       }
 
-      public byte[] getSalt() throws NoSuchAlgorithmException {
-         byte[] salt = RandomUtil.randomBytes(this.saltLength);
+      public byte[] getSalt() {
+         byte[] salt = new byte[this.saltLength];
+         sr.nextBytes(salt);
          return salt;
       }
 
