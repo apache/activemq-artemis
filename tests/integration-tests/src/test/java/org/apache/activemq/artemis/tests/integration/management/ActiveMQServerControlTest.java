@@ -2929,7 +2929,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertNotEquals("consumerCount", "", array.getJsonObject(0).getString("consumerCount"));
       Assert.assertEquals("maxConsumers", "-1", array.getJsonObject(0).getString("maxConsumers"));
       Assert.assertEquals("autoCreated", "false", array.getJsonObject(0).getString("autoCreated"));
-      Assert.assertEquals("user", "", array.getJsonObject(0).getString("user"));
+      Assert.assertEquals("user", "guest", array.getJsonObject(0).getString("user"));
       Assert.assertNotEquals("routingType", "", array.getJsonObject(0).getString("routingType"));
       Assert.assertEquals("messagesAdded", "0", array.getJsonObject(0).getString("messagesAdded"));
       Assert.assertEquals("messageCount", "0", array.getJsonObject(0).getString("messageCount"));

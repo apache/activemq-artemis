@@ -1996,7 +1996,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public String getValidatedUser() {
-      return validatedUser;
+      /*
+       * Security is often disabled in tests so if the validated user is null
+       * then just return the username supplied directly from the client.
+       */
+      return validatedUser != null ? validatedUser : username;
    }
 
    @Override

@@ -16,12 +16,26 @@ Highlights:
 
 #### Upgrading from older versions
 
-Due to [ARTEMIS-3851](https://issues.apache.org/jira/browse/ARTEMIS-3851) the queue
-created for an MQTT 3.x subscriber using `CleanSession=1` is now **non-durable**
-rather than durable. This may impact `security-settings` for MQTT clients which
-previously only had `createDurableQueue` for their role. They will now need
-`createNonDurableQueue` as well. Again, this only has potential impact for MQTT 3.x
-clients using `CleanSession=1`.
+ 1. Due to [ARTEMIS-3851](https://issues.apache.org/jira/browse/ARTEMIS-3851) 
+    the queue created for an MQTT 3.x subscriber using `CleanSession=1` is now
+    **non-durable** rather than durable. This may impact `security-settings`
+    for MQTT clients which previously only had `createDurableQueue` for their
+    role. They will now need `createNonDurableQueue` as well. Again, this only
+    has potential impact for MQTT 3.x clients using `CleanSession=1`.
+ 2. Due to [ARTEMIS-3892](https://issues.apache.org/jira/browse/ARTEMIS-3892)
+    the username assigned to queues will be based on the **validated** user
+    rather than just the username submitted by the client application. This
+    will impact use-cases like the following:
+    1. When `login.config` is configured with the [`GuestLoginModule`](security.md#guestloginmodule)
+       which causes some users to be assigned a specific username and role
+       during the authentication process. 
+    2. When `login.config` is configured with the [`CertificateLoginModule`](security.md#certificateloginmodule)
+       which causes users to be assigned a username and role corresponding to
+       the subject DN from their SSL certificate.
+    
+    In these kinds of situations the broker will use this assigned (i.e. 
+    validated) username for any queues created with the connection. In the past
+    the queue's username would have been left blank.
 
 ## 2.23.1
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351846&projectId=12315920)
