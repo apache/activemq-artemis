@@ -162,7 +162,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          Assert.assertEquals(2, addressControl.getMessageCount());
 
          checkAuditLogRecord(false, "messageID=0");
-         checkAuditLogRecord(true, "sending a message");
+         checkAuditLogRecord(true, "sent a message");
          checkAuditLogRecord(true, uniqueStr);
          checkAuditLogRecord(true, "Hello2");
 
@@ -176,6 +176,6 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          connection.close();
       }
       checkAuditLogRecord(true, "is consuming a message from");
-      checkAuditLogRecord(true, "is acknowledging a message from");
+      checkAuditLogRecord(true, "acknowledged message from");
    }
 }

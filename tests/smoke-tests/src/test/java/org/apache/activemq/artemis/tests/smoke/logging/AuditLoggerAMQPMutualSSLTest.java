@@ -75,9 +75,9 @@ public class AuditLoggerAMQPMutualSSLTest extends AuditLoggerTestBase {
 
       checkAuditLogRecord(true, "AMQ601715: User myUser(producers)@", "successfully authenticated");
       checkAuditLogRecord(true, "AMQ601267: User myUser(producers)@", "is creating a core session");
-      checkAuditLogRecord(true, "AMQ601500: User myUser(producers)@", "is sending a message AMQPStandardMessage");
+      checkAuditLogRecord(true, "AMQ601500: User myUser(producers)@", "sent a message AMQPStandardMessage");
       checkAuditLogRecord(true, "AMQ601265: User myUser(producers)@", "is creating a core consumer");
       checkAuditLogRecord(true, "AMQ601501: User myUser(producers)@", "is consuming a message from exampleQueue");
-      checkAuditLogRecord(true, "AMQ601502: User myUser(producers)@", "is acknowledging a message from exampleQueue: AMQPStandardMessage");
+      checkAuditLogRecord(true, "AMQ601502: User myUser(producers)@", "acknowledged message from exampleQueue: AMQPStandardMessage");
    }
 }

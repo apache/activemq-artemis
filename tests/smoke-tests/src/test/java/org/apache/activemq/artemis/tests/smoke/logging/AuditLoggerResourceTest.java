@@ -52,19 +52,19 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
          ActiveMQServerControl serverControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectNameBuilder.getActiveMQServerObjectName(), ActiveMQServerControl.class, false);
 
          serverControl.createAddress("auditAddress", "ANYCAST,MULTICAST");
-         checkAuditLogRecord(true, "successfully created Address:");
+         checkAuditLogRecord(true, "successfully created address:");
          serverControl.updateAddress("auditAddress", "ANYCAST");
-         checkAuditLogRecord(true, "successfully updated Address:");
+         checkAuditLogRecord(true, "successfully updated address:");
          serverControl.deleteAddress("auditAddress");
-         checkAuditLogRecord(true, "successfully deleted Address:");
+         checkAuditLogRecord(true, "successfully deleted address:");
          serverControl.createQueue("auditAddress", "auditQueue", "ANYCAST");
-         checkAuditLogRecord(true, "successfully created Queue:");
+         checkAuditLogRecord(true, "successfully created queue:");
          serverControl.updateQueue("auditQueue", "ANYCAST", -1, false);
          final QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection,
                objectNameBuilder.getQueueObjectName(new SimpleString( "auditAddress"), new SimpleString("auditQueue"), RoutingType.ANYCAST),
                QueueControl.class,
                false);
-         checkAuditLogRecord(true, "successfully updated Queue:");
+         checkAuditLogRecord(true, "successfully updated queue:");
          queueControl.removeAllMessages();
          checkAuditLogRecord(true, "has removed 0 messages");
          queueControl.sendMessage(new HashMap<>(), 0, "foo", true, "admin", "admin");
@@ -72,7 +72,7 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
          CompositeData[] browse = queueControl.browse();
          checkAuditLogRecord(true, "browsed " + browse.length + " messages");
          serverControl.destroyQueue("auditQueue");
-         checkAuditLogRecord(true, "successfully deleted Queue:");
+         checkAuditLogRecord(true, "successfully deleted queue:");
 
          ServerLocator locator = createNettyNonHALocator();
          ClientSessionFactory sessionFactory = locator.createSessionFactory();
