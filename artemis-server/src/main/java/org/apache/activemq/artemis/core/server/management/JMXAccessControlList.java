@@ -83,6 +83,11 @@ public class JMXAccessControlList {
 
    public boolean isInAllowList(ObjectName objectName) {
       TreeMap<String, Access> domainMap = allowList.get(objectName.getDomain());
+
+      if (domainMap == null) {
+         domainMap = allowList.get(WILDCARD);
+      }
+
       if (domainMap != null) {
          if (domainMap.containsKey("")) {
             return true;

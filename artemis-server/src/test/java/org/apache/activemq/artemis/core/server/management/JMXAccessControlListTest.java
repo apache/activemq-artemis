@@ -61,6 +61,30 @@ public class JMXAccessControlListTest {
    }
 
    @Test
+   public void testWildcardDomain() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToAllowList("*", null);
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+   }
+
+   @Test
+   public void testWildcardDomainWithProperty() throws MalformedObjectNameException {
+      JMXAccessControlList controlList = new JMXAccessControlList();
+      controlList.addToAllowList("*", "type=foo");
+      controlList.addToAllowList("org.myDomain.foo", "type=bar");
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:*")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain.foo:type=bar")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.foo:type=foo")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain.bar:*")));
+      Assert.assertFalse(controlList.isInAllowList(new ObjectName("org.myDomain:subType=foo")));
+
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:type=foo")));
+      Assert.assertTrue(controlList.isInAllowList(new ObjectName("org.myDomain:subType=bar,type=foo")));
+   }
+
+   @Test
    public void testBasicRole() throws MalformedObjectNameException {
       JMXAccessControlList controlList = new JMXAccessControlList();
       controlList.addToRoleAccess("org.myDomain", null,"listSomething", "admin");
