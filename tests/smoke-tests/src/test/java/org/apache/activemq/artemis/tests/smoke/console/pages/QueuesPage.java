@@ -17,20 +17,25 @@
 
 package org.apache.activemq.artemis.tests.smoke.console.pages;
 
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 public class QueuesPage extends ArtemisPage {
-   private static final int MESSAGES_COUNT_COLUMN = 10;
+   private static final String MESSAGE_COUNT_COLUMN_NAME = "Message Count";
 
    public QueuesPage(WebDriver driver) {
       super(driver);
    }
 
    public QueuePage getQueuePage(String name, int timeout) {
-      WebElement messagesCountWebElement = driver.findElement(getQueueLocator(name)).
-         findElement(By.xpath("td/span/a[contains(@onclick,'browseQueue')]"));
+      WebElement queueRowWebElement = driver.findElement(getQueueLocator(name));
+
+      WebElement messagesCountWebElement = queueRowWebElement.findElements(By.tagName("td"))
+         .get(getIndexOfColumn(MESSAGE_COUNT_COLUMN_NAME)).findElement(By.tagName("span"))
+         .findElement(By.tagName("a"));
 
       messagesCountWebElement.click();
 
@@ -44,13 +49,29 @@ public class QueuesPage extends ArtemisPage {
    }
 
    public int getMessagesCount(String name) {
-      WebElement messagesCountWebElement = driver.findElement(getQueueLocator(name)).
-         findElement(By.xpath("td/span/a[contains(@onclick,'browseQueue')]"));
+      WebElement queueRowWebElement = driver.findElement(getQueueLocator(name));
 
-      return Integer.parseInt(messagesCountWebElement.getText());
+      String messageCountText = queueRowWebElement.findElements(By.tagName("td"))
+         .get(getIndexOfColumn(MESSAGE_COUNT_COLUMN_NAME)).findElement(By.tagName("span"))
+         .findElement(By.tagName("a")).getText();
+
+      return Integer.parseInt(messageCountText);
    }
 
    private By getQueueLocator(String name) {
       return By.xpath("//tr[td/span/a='" + name + "']");
+   }
+
+   public int getIndexOfColumn(String name) {
+      WebElement headerRowWebElement = driver.findElement(By.cssSelector("tr[role='row']"));
+
+      List<WebElement> columnWebElements = headerRowWebElement.findElements(By.tagName("th"));
+      for (int i = 0; i < columnWebElements.size(); i++) {
+         if (name.equals(columnWebElements.get(i).getText())) {
+            return i;
+         }
+      }
+
+      return -1;
    }
 }
