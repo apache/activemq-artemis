@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.cli.commands.messages.perf;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedTransferQueue;
@@ -30,6 +31,7 @@ import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 @Command(name = "client", description = "It will produce and consume messages to a broker instance")
 public class PerfClientCommand extends PerfCommand {
@@ -198,5 +200,200 @@ public class PerfClientCommand extends PerfCommand {
       if (benchmark != null) {
          benchmark.close();
       }
+   }
+
+   @Override
+   public Object execute(ActionContext context) throws Exception {
+      if (durableSubscription && (destinations == null || destinations.isEmpty())) {
+         // An empty destination list would create a single queue://TEST destination but durable subscriptions require
+         // topic destinations instead.
+         destinations = Collections.singletonList(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + "TEST");
+      }
+
+      if (durableSubscription && clientID == null) {
+         throw new IllegalArgumentException("The clientID must be set on durable subscriptions");
+      }
+
+      return super.execute(context);
+   }
+
+   public boolean isTransaction() {
+      return transaction;
+   }
+
+   public PerfClientCommand setTransaction(boolean transaction) {
+      this.transaction = transaction;
+      return this;
+   }
+
+   public int getSharedSubscription() {
+      return sharedSubscription;
+   }
+
+   public PerfClientCommand setSharedSubscription(int sharedSubscription) {
+      this.sharedSubscription = sharedSubscription;
+      return this;
+   }
+
+   public boolean isDurableSubscription() {
+      return durableSubscription;
+   }
+
+   public PerfClientCommand setDurableSubscription(boolean durableSubscription) {
+      this.durableSubscription = durableSubscription;
+      return this;
+   }
+
+   public int getConsumerConnections() {
+      return consumerConnections;
+   }
+
+   public PerfClientCommand setConsumerConnections(int consumerConnections) {
+      this.consumerConnections = consumerConnections;
+      return this;
+   }
+
+   public int getConsumersPerDestination() {
+      return consumersPerDestination;
+   }
+
+   public PerfClientCommand setConsumersPerDestination(int consumersPerDestination) {
+      this.consumersPerDestination = consumersPerDestination;
+      return this;
+   }
+
+   public boolean isPersistent() {
+      return persistent;
+   }
+
+   public PerfClientCommand setPersistent(boolean persistent) {
+      this.persistent = persistent;
+      return this;
+   }
+
+   public int getMessageSize() {
+      return messageSize;
+   }
+
+   public PerfClientCommand setMessageSize(int messageSize) {
+      this.messageSize = messageSize;
+      return this;
+   }
+
+   public Long getRate() {
+      return rate;
+   }
+
+   public PerfClientCommand setRate(Long rate) {
+      this.rate = rate;
+      return this;
+   }
+
+   public long getTtl() {
+      return ttl;
+   }
+
+   public PerfClientCommand setTtl(long ttl) {
+      this.ttl = ttl;
+      return this;
+   }
+
+   public String getMsgGroupID() {
+      return msgGroupID;
+   }
+
+   public PerfClientCommand setMsgGroupID(String msgGroupID) {
+      this.msgGroupID = msgGroupID;
+      return this;
+   }
+
+   public boolean isSharedConnections() {
+      return sharedConnections;
+   }
+
+   public PerfClientCommand setSharedConnections(boolean sharedConnections) {
+      this.sharedConnections = sharedConnections;
+      return this;
+   }
+
+   public long getTxSize() {
+      return txSize;
+   }
+
+   public PerfClientCommand setTxSize(long txSize) {
+      this.txSize = txSize;
+      return this;
+   }
+
+   public int getProducersPerDestination() {
+      return producersPerDestination;
+   }
+
+   public PerfClientCommand setProducersPerDestination(int producersPerDestination) {
+      this.producersPerDestination = producersPerDestination;
+      return this;
+   }
+
+   public int getThreads() {
+      return threads;
+   }
+
+   public PerfClientCommand setThreads(int threads) {
+      this.threads = threads;
+      return this;
+   }
+
+   public long getMaxPending() {
+      return maxPending;
+   }
+
+   public PerfClientCommand setMaxPending(long maxPending) {
+      this.maxPending = maxPending;
+      return this;
+   }
+
+   public String getConsumerUrl() {
+      return consumerUrl;
+   }
+
+   public PerfClientCommand setConsumerUrl(String consumerUrl) {
+      this.consumerUrl = consumerUrl;
+      return this;
+   }
+
+   public String getConsumerProtocol() {
+      return consumerProtocol;
+   }
+
+   public PerfClientCommand setConsumerProtocol(String consumerProtocol) {
+      this.consumerProtocol = consumerProtocol;
+      return this;
+   }
+
+   public boolean isEnableMessageID() {
+      return enableMessageID;
+   }
+
+   public PerfClientCommand setEnableMessageID(boolean enableMessageID) {
+      this.enableMessageID = enableMessageID;
+      return this;
+   }
+
+   public boolean isEnableTimestamp() {
+      return enableTimestamp;
+   }
+
+   public PerfClientCommand setEnableTimestamp(boolean enableTimestamp) {
+      this.enableTimestamp = enableTimestamp;
+      return this;
+   }
+
+   public BenchmarkService getProducerBenchmark() {
+      return producerBenchmark;
+   }
+
+   public PerfClientCommand setProducerBenchmark(BenchmarkService producerBenchmark) {
+      this.producerBenchmark = producerBenchmark;
+      return this;
    }
 }
