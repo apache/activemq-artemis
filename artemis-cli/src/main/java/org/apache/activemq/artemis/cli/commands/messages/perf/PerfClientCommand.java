@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.cli.commands.messages.perf;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedTransferQueue;
@@ -30,6 +31,7 @@ import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 @Command(name = "client", description = "It will produce and consume messages to a broker instance")
 public class PerfClientCommand extends PerfCommand {
@@ -198,5 +200,15 @@ public class PerfClientCommand extends PerfCommand {
       if (benchmark != null) {
          benchmark.close();
       }
+   }
+
+   @Override
+   public Object execute(ActionContext context) throws Exception {
+      if (durableSubscription && (destinations == null || destinations.isEmpty())) {
+         // An empty destination list would create a single queue://TEST destination but durable subscriptions require
+         // topic destinations instead.
+         destinations = Collections.singletonList(ActiveMQDestination.TOPIC_QUALIFIED_PREFIX + "TEST");
+      }
+      return super.execute(context);
    }
 }
