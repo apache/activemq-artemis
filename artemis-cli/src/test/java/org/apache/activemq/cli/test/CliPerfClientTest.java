@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.cli.test;
 
-import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.perf.PerfClientCommand;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,26 +46,22 @@ public class CliPerfClientTest extends CliTestBase {
       super.tearDown();
    }
 
-   private void start(boolean durable) throws Exception {
-      PerfClientCommand command = new PerfClientCommand() {
-         @Override
-         public Object execute(ActionContext context) throws Exception {
-            clientID = "perfClientTest";
-            durableSubscription = durable;
-            messageCount = 1;
-            return super.execute(context);
-         }
-      };
-      command.setUser("admin").setPassword("admin").execute(new TestActionContext());
-   }
-
    @Test
    public void testNonDurableStarts() throws Exception {
-      start(false);
+      new PerfClientCommand().setDurableSubscription(false).setMessageCount(1).setUser("admin").setPassword("admin").setClientID("perfClientTest").execute(new TestActionContext());
    }
 
    @Test
    public void testDurableStarts() throws Exception {
-      start(true);
+      new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setUser("admin").setPassword("admin").setClientID("perfClientTest").execute(new TestActionContext());
+   }
+
+   @Test
+   public void testDurableNoClientIDSet() throws Exception {
+      try {
+         new PerfClientCommand().setDurableSubscription(true).setMessageCount(1).setUser("admin").setPassword("admin").execute(new TestActionContext());
+         Assert.fail("Exception expected");
+      } catch (IllegalArgumentException cliExpected) {
+      }
    }
 }

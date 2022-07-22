@@ -151,4 +151,79 @@ public abstract class PerfCommand extends ConnectionAbstract {
       return jmsDestinations;
    }
 
+   public boolean isShowLatency() {
+      return showLatency;
+   }
+
+   public PerfCommand setShowLatency(boolean showLatency) {
+      this.showLatency = showLatency;
+      return this;
+   }
+
+   public String getReportFileName() {
+      return reportFileName;
+   }
+
+   public PerfCommand setReportFileName(String reportFileName) {
+      this.reportFileName = reportFileName;
+      return this;
+   }
+
+   public String getHdrFileName() {
+      return hdrFileName;
+   }
+
+   public PerfCommand setHdrFileName(String hdrFileName) {
+      this.hdrFileName = hdrFileName;
+      return this;
+   }
+
+   public int getDuration() {
+      return duration;
+   }
+
+   public PerfCommand setDuration(int duration) {
+      this.duration = duration;
+      return this;
+   }
+
+   public int getWarmup() {
+      return warmup;
+   }
+
+   public PerfCommand setWarmup(int warmup) {
+      this.warmup = warmup;
+      return this;
+   }
+
+   public long getMessageCount() {
+      return messageCount;
+   }
+
+   public PerfCommand setMessageCount(long messageCount) {
+      this.messageCount = messageCount;
+      return this;
+   }
+
+   public int getNumDestinations() {
+      return numDestinations;
+   }
+
+   public PerfCommand setNumDestinations(int numDestinations) {
+      this.numDestinations = numDestinations;
+      return this;
+   }
+
+   public List<String> getDestinations() {
+      return destinations;
+   }
+
+   public PerfCommand setDestinations(List<String> destinations) {
+      this.destinations = destinations;
+      return this;
+   }
+
+   public CountDownLatch getCompleted() {
+      return completed;
+   }
 }
