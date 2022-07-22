@@ -2267,13 +2267,13 @@ public interface AuditLogger extends BasicLogger {
    void handleManagementMessage2(String user, Object source, Object... args);
 
 
-   static void securityFailure(Exception cause) {
-      BASE_LOGGER.securityFailure(getCaller(), cause);
+   static void securityFailure(Exception cause, String reason) {
+      BASE_LOGGER.securityFailure(getCaller(), reason, cause);
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601264, value = "User {0} gets security check failure", format = Message.Format.MESSAGE_FORMAT)
-   void securityFailure(String user, @Cause Throwable cause);
+   @Message(id = 601264, value = "User {0} gets security check failure, reason={1}", format = Message.Format.MESSAGE_FORMAT)
+   void securityFailure(String user, String reason, @Cause Throwable cause);
 
 
    static void createCoreConsumer(Object source, Subject user, String remoteAddress, Object... args) {
