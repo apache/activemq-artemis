@@ -70,13 +70,6 @@
          <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
-         <groupId>xalan</groupId>
-         <artifactId>xalan</artifactId>
-         <version>2.7.2</version>
-         <optional>true</optional>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
          <groupId>org.osgi</groupId>
          <artifactId>org.osgi.core</artifactId>
          <scope>provided</scope>
