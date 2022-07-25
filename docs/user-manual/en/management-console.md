@@ -42,13 +42,13 @@ Running below the Navigation Menu you will see several default feature tabs.
  
 - `Artemis` This is the core tab for Apache ActiveMQ Artemis specific functionality. The rest of this document will focus on this.
 
-- `Connect` This allows you to connect to a remote broker from the same console.
-
 - `Dashboard` Here you can create and save graphs and tables of metrics available via JMX, a default jvm health dashboard is provided. 
 
 - `JMX` This exposes the raw Jolokia JMX so you can browse/access all the JMX endpoints exposed by the JVM.
 
 - `Threads` This allows you to monitor the thread usage and their state.
+
+In previous versions there was a "Connect" tab which could be used to connect to a remote broker from the same console. This was disabled by default for security purposes, but it can be enabled again by removing `-Dhawtio.disableProxy=true` from `artemis.profile` (or `artemis.profile.cmd` on Windows).
 
 You can install further hawtio plugins if you wish to have further functionality.
 
