@@ -9,10 +9,10 @@ This chapter provides the following information for each release:
     chapter in addition to any version-specific upgrade instructions outlined here.
 
 ## 2.24.0
-[Full release notes](TBD).
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351822&projectId=12315920)
 
 Highlights:
-- TBD
+- Streamlined page caches and files are just read into queues without the need of soft caches.
 
 #### Upgrading from older versions
 
