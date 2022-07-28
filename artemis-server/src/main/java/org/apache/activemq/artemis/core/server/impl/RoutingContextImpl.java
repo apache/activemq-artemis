@@ -26,7 +26,6 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -213,17 +212,6 @@ public class RoutingContextImpl implements RoutingContext {
       printWriter.println("..................................................");
 
       return stringWriter.toString();
-   }
-
-   @Override
-   public void processReferences(final List<MessageReference> refs, final boolean direct) {
-      internalprocessReferences(refs, direct);
-   }
-
-   private void internalprocessReferences(final List<MessageReference> refs, final boolean direct) {
-      for (MessageReference ref : refs) {
-         ref.getQueue().addTail(ref, direct);
-      }
    }
 
    @Override
