@@ -1592,9 +1592,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             @Override
             public void done() {
-               context.processReferences(refs, direct);
+               processReferences(refs, direct);
             }
          });
+      }
+   }
+
+   private static void processReferences(List<MessageReference> refs, boolean direct) {
+      for (MessageReference ref : refs) {
+         ref.getQueue().addTail(ref, direct);
       }
    }
 
