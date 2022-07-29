@@ -102,7 +102,13 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
       return artifact;
    }
 
-   protected File resolveArtifact(Artifact artifact) throws MojoExecutionException, DependencyCollectionException {
+   protected File resolveArtifactFile(Artifact artifact) throws MojoExecutionException, DependencyCollectionException {
+      ArtifactResult result = resolveArtifact(artifact);
+
+      return result.getArtifact().getFile();
+   }
+
+   protected ArtifactResult resolveArtifact(Artifact artifact) throws MojoExecutionException {
       ArtifactRequest request = new ArtifactRequest();
       request.setArtifact(artifact);
       request.setRepositories(remoteRepos);
@@ -113,8 +119,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
       } catch (ArtifactResolutionException e) {
          throw new MojoExecutionException(e.getMessage(), e);
       }
-
-      return result.getArtifact().getFile();
+      return result;
    }
 
    protected List<Artifact> explodeDependencies(Artifact artifact) throws DependencyCollectionException {
@@ -164,7 +169,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
             List<Artifact> artifactsList = explodeDependencies(newArtifact(lib));
 
             for (Artifact artifact : artifactsList) {
-               File artifactFile = resolveArtifact(artifact);
+               File artifactFile = resolveArtifactFile(artifact);
                filesSet.add(artifactFile);
             }
          }
@@ -174,7 +179,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
          for (String lib : individualListParameter) {
             Artifact artifact = newArtifact(lib);
             getLog().debug("Single dpendency resolved::" + artifact);
-            File artifactFile = resolveArtifact(artifact);
+            File artifactFile = resolveArtifactFile(artifact);
             filesSet.add(artifactFile);
          }
       }

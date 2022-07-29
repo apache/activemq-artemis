@@ -22,6 +22,8 @@
 * [Mapping JMS Concepts to the Core API](jms-core-mapping.md)
 * [Using JMS](using-jms.md)
 * [The Client Classpath](client-classpath.md)
+    * [JMS](client-classpath-jms.md)
+    * [Jakarta](client-classpath-jakarta.md)
 * [Examples](examples.md)
 * [Routing Messages With Wild Cards](wildcard-routing.md)
 * [Wildcard Syntax](wildcard-syntax.md)
