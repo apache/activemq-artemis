@@ -162,9 +162,7 @@ Let's take a look at all the parameters in turn:
   > `max-size-bytes` to prevent the flow of messages from ceasing.
 
 - `producer-window-size`. This optional parameter determines the producer flow
-  control through the bridge. 
-    
-  Default = 1048576 (1 Meba Bytes)
+  control through the bridge. Default is `1048576` (i.e. 1MB).
 
 - `user`. This optional parameter determines the user name to use when creating
   the bridge connection to the remote server. If it is not specified the
