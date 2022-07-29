@@ -200,6 +200,85 @@
                   </configuration>
                </plugin>
                <plugin>
+                  <groupId>org.apache.activemq</groupId>
+                  <artifactId>artemis-maven-plugin</artifactId>
+                  <version>${project.version}</version>
+                  <executions>
+                     <execution>
+                        <id>doc-jms-client</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>dependency-doc</goal>
+                        </goals>
+                        <configuration>
+                           <file>${scratch-dir-user-manual}/client-classpath-jms.md</file>
+                           <groupOrder>
+                              <arg>org.apache.activemq</arg>
+                              <arg>jakarta.jms</arg>
+                              <arg>org.jgroups</arg>
+                              <arg>io.netty</arg>
+                           </groupOrder>
+                           <header>#Artemis JMS Client Dependencies
+
+File | observation | package
+---|---|---</header>
+                           <line>X{fileMD}| X{detail} |X{package} </line>
+                           <detailKey>
+                              <arg>io.netty:netty-transport-native-epoll</arg>
+                              <arg>io.netty:netty-transport-classes-epoll</arg>
+                              <arg>io.netty:netty-transport-native-kqueue</arg>
+                              <arg>io.netty:netty-transport-classes-kqueue</arg>
+                              <arg>org.jgroups:jgroups</arg>
+                           </detailKey>
+                           <detailValue>
+                              <arg>only if you want epoll on Linux</arg>
+                              <arg>only if you want epoll on Linux</arg>
+                              <arg>only if you want kqueue on MacOS</arg>
+                              <arg>only if you want kqueue on MacOS</arg>
+                              <arg>only if you want JGroups discovery from the clients</arg>
+                           </detailValue>
+                           <lib>org.apache.activemq:artemis-jms-client:${project.version}</lib>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>doc-jakarta-client</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>dependency-doc</goal>
+                        </goals>
+                        <configuration>
+                           <file>${scratch-dir-user-manual}/client-classpath-jakarta.md</file>
+                           <groupOrder>
+                              <arg>org.apache.activemq</arg>
+                              <arg>jakarta.jms</arg>
+                              <arg>org.jgroups</arg>
+                              <arg>io.netty</arg>
+                           </groupOrder>
+                           <header>#Artemis Jakarta Client Dependencies
+File | observation | package
+---|---|---</header>
+                           <line>X{fileMD}| X{detail} |X{package} </line>
+                           <detailKey>
+                              <arg>io.netty:netty-transport-native-epoll</arg>
+                              <arg>io.netty:netty-transport-classes-epoll</arg>
+                              <arg>io.netty:netty-transport-native-kqueue</arg>
+                              <arg>io.netty:netty-transport-classes-kqueue</arg>
+                              <arg>org.jgroups:jgroups</arg>
+                           </detailKey>
+                           <detailValue>
+                              <arg>only if you want epoll on Linux</arg>
+                              <arg>only if you want epoll on Linux</arg>
+                              <arg>only if you want kqueue on MacOS</arg>
+                              <arg>only if you want kqueue on MacOS</arg>
+                              <arg>only if you want JGroups discovery from the clients</arg>
+                           </detailValue>
+                           <lib>org.apache.activemq:artemis-jakarta-client:${project.version}</lib>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+
+               <plugin>
                   <artifactId>maven-antrun-plugin</artifactId>
                   <executions>
                      <execution>
