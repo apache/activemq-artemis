@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.tests.compatibility.base;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.tests.compatibility.GroovyRun;
 import org.jboss.logging.Logger;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -166,23 +168,17 @@ public class ClasspathBase {
          }
       }
 
-      String value = System.getProperty(name);
-
-      if (!printed.contains(name)) {
-         boolean ok = value != null && !value.trim().isEmpty();
-         if (!ok) {
-            System.out.println("Add \"-D" + name + "=\'CLASSPATH\'\" into your VM settings");
-            System.out.println("You will see it in the output from mvn install at the compatibility-tests");
-            System.out.println("... look for output from dependency-scan");
-
-            // our dependency scan used at the pom under compatibility-tests/pom.xml will generate these, example:
-            // [INFO] dependency-scan setting: -DARTEMIS-140="/Users/someuser/....."
-            // copy that into your IDE setting and you should be able to debug it
-         }
-         Assume.assumeTrue("Cannot run these tests, no classpath found", ok);
+      String classPathValue = null;
+      File file = new File("./target/" + name + ".cp");
+      if (file.exists()) {
+         StringBuffer buffer = new StringBuffer();
+         Files.lines(file.toPath()).forEach((str) -> buffer.append(str));
+         classPathValue = buffer.toString();
       }
 
-      ClassLoader loader = defineClassLoader(value);
+      Assert.assertTrue("Cannot run compatibility tests, no classpath found on ./target/" + name + ".cp", classPathValue != null && !classPathValue.trim().equals(""));
+
+      ClassLoader loader = defineClassLoader(classPathValue);
       if (!forceNew) {
          // if we are forcing a new one, there's no point in caching it
          loaderMap.put(name, loader);

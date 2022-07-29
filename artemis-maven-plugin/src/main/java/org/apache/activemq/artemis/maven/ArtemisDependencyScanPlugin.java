@@ -16,7 +16,10 @@
  */
 package org.apache.activemq.artemis.maven;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -57,6 +60,9 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    private String variableName;
 
    @Parameter
+   private String file;
+
+   @Parameter
    private String pathSeparator = File.pathSeparator;
 
    /** Where to copy the exploded dependencies. */
@@ -85,23 +91,23 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
             remoteRepos.add(repo);
          }
       }
-      getLog().info("Local " + localRepository);
+      getLog().debug("Local " + localRepository);
       project = (MavenProject) getPluginContext().get("project");
 
       Map properties = getPluginContext();
 
       Set<Map.Entry> entries = properties.entrySet();
 
-      getLog().info("Entries.size " + entries.size());
+      getLog().debug("Entries.size " + entries.size());
       for (Map.Entry entry : entries) {
-         getLog().info("... key=" + entry.getKey() + " = " + entry.getValue());
+         getLog().debug("... key=" + entry.getKey() + " = " + entry.getValue());
       }
 
       try {
          StringBuffer buffer = new StringBuffer();
          Set<File> filesSet = resolveDependencies(libListWithDeps, libList);
 
-         if (variableName != null) {
+         if (variableName != null || file != null) {
             String separatorUsed = "";
             for (File f : filesSet) {
                buffer.append(separatorUsed);
@@ -111,6 +117,22 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
 
             String classPathGenerated = buffer.toString();
             setVariable(classPathGenerated);
+
+            if (file != null) {
+               File fileOutput = new File(file);
+               try {
+                  if (getLog().isDebugEnabled()) {
+                     getLog().debug("Generating file " + file + " with classpath output for " + variableName);
+                     getLog().debug(classPathGenerated);
+                  }
+                  PrintStream printStream = new PrintStream(new BufferedOutputStream(new FileOutputStream(fileOutput)));
+                  printStream.print(classPathGenerated);
+                  printStream.close();
+               } catch (Exception e) {
+                  getLog().error("could not generate file with classpath", e);
+               }
+            }
+
          }
 
          if (targetFolder != null) {
@@ -138,7 +160,7 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
    private void setVariable(String classPathGenerated) {
       if (variableName != null) {
          project.getProperties().setProperty(variableName, classPathGenerated);
-         getLog().info("dependency-scan setting: -D" + variableName + "=\"" + classPathGenerated + "\"");
+         getLog().debug("dependency-scan setting: -D" + variableName + "=\"" + classPathGenerated + "\"");
       }
    }
 
