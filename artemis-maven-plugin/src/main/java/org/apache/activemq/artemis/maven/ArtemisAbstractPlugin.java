@@ -150,7 +150,7 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
             }
          });
       }
-      getLog().info(writer.toString());
+      getLog().debug(writer.toString());
       return dependencies;
    }
 
