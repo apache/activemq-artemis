@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -1426,7 +1427,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          // Need to propagate the consumer add
          TypedProperties props = new TypedProperties();
 
-         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, binding.getAddress());
+         SimpleString addressName = message.getSimpleStringProperty(ManagementHelper.HDR_ADDRESS);
+
+         props.putSimpleStringProperty(ManagementHelper.HDR_ADDRESS, CompositeAddress.isFullyQualified(addressName) ? addressName : binding.getAddress());
 
          props.putSimpleStringProperty(ManagementHelper.HDR_CLUSTER_NAME, clusterName);
 

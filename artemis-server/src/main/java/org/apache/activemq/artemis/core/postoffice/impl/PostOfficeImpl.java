@@ -415,7 +415,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                      return;
                   }
 
-                  Binding binding = getBinding(queueName);
+                  SimpleString addressName = props.getSimpleStringProperty(ManagementHelper.HDR_ADDRESS);
+                  Binding binding = getBinding(CompositeAddress.isFullyQualified(addressName) ? addressName : queueName);
 
                   if (binding != null) {
                      // We have a local queue

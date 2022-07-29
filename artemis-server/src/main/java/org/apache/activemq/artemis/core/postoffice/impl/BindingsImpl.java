@@ -192,7 +192,7 @@ public final class BindingsImpl implements Bindings {
          logger.tracef("Redistributing message %s", message);
       }
 
-      final SimpleString routingName = originatingQueue.getName();
+      final SimpleString routingName = CompositeAddress.isFullyQualified(message.getAddress()) && originatingQueue.getRoutingType() == RoutingType.ANYCAST ? CompositeAddress.extractAddressName(message.getAddressSimpleString()) : originatingQueue.getName();
 
       final Pair<Binding[], CopyOnWriteBindings.BindingIndex> bindingsAndPosition = routingNameBindingMap.getBindings(routingName);
 
