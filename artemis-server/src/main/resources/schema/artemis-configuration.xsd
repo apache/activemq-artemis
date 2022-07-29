@@ -1709,7 +1709,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="producer-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="-1">
+         <xsd:element name="producer-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="1048576">
             <xsd:annotation>
                <xsd:documentation>
                   Producer flow control. Supports byte notation like "K", "Mb", "GB", etc.
@@ -2614,7 +2614,7 @@
             </xsd:annotation>
          </xsd:element>
 
-         <xsd:element name="producer-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="-1">
+         <xsd:element name="producer-window-size" type="xsd:string" maxOccurs="1" minOccurs="0" default="1048576">
             <xsd:annotation>
                <xsd:documentation>
                   Producer flow control. Supports byte notation like "K", "Mb", "GB", etc.
