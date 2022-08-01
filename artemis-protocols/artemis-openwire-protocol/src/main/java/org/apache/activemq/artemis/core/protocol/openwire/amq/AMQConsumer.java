@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.OpenWireConstants;
 import org.apache.activemq.artemis.utils.SelectorTranslator;
 import org.apache.activemq.command.ConsumerControl;
 import org.apache.activemq.command.ConsumerId;
@@ -119,7 +120,7 @@ public class AMQConsumer {
 
    public void init(SlowConsumerDetectionListener slowConsumerDetectionListener, long nativeId) throws Exception {
 
-      SimpleString selector = info.getSelector() == null ? null : new SimpleString(SelectorTranslator.convertToActiveMQFilterString(info.getSelector()));
+      SimpleString selector = info.getSelector() == null ? null : new SimpleString(SelectorTranslator.convertOpenWireToActiveMQFilterString(info.getSelector()));
       boolean preAck = false;
       if (info.isNoLocal()) {
          if (!AdvisorySupport.isAdvisoryTopic(openwireDestination)) {
@@ -350,7 +351,7 @@ public class AMQConsumer {
                   Throwable poisonCause = ack.getPoisonCause();
                   if (poisonCause != null) {
                      ((QueueImpl) ref.getQueue()).decDelivering(ref);
-                     ref.getMessage().putStringProperty(OpenWireMessageConverter.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
+                     ref.getMessage().putStringProperty(OpenWireConstants.AMQ_MSG_DLQ_DELIVERY_FAILURE_CAUSE_PROPERTY, new SimpleString(poisonCause.toString()));
                      ((QueueImpl) ref.getQueue()).incDelivering(ref);
                   }
                   ref.getQueue().sendToDeadLetterAddress(transaction, ref);

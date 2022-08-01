@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.activemq.artemis.utils.OpenWireConstants.AMQ_MSG_MESSAGE_ID;
+
 /**
  * This class converts a JMS selector expression into an ActiveMQ Artemis core filter expression.
  *
@@ -52,6 +54,17 @@ public class SelectorTranslator {
 
       return filterString;
 
+   }
+
+   public static String convertOpenWireToActiveMQFilterString(final String selectorString) {
+      if (selectorString == null) {
+         return null;
+      }
+
+      String filterString = SelectorTranslator.convertToActiveMQFilterString(selectorString);
+      filterString = SelectorTranslator.parse(filterString, "AMQUserID", AMQ_MSG_MESSAGE_ID.toString());
+
+      return filterString;
    }
 
    public static String convertHQToActiveMQFilterString(final String hqFilterString) {
