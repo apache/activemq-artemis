@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQQueue;
+import org.apache.activemq.util.IdGenerator;
 import org.junit.Test;
 
 /**
@@ -270,5 +271,21 @@ public class JMSConsumer2Test extends BasicOpenWireTest {
       session.commit();
 
       connection.close();
+   }
+
+   @Test
+   public void testSelectorWithJMSMessageID() throws Exception {
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+      sendMessages(connection, destination, 1);
+      /*
+       * The OpenWire client uses the hostname in the JMSMessageID so the test
+       * uses the same method for the selector so that the test will work on
+       * any host.
+       */
+      MessageConsumer consumer = session.createConsumer(destination, "JMSMessageID like '%" + IdGenerator.getHostName() + "%'");
+      connection.start();
+      Message m = consumer.receive(500);
+      assertNotNull(m);
    }
 }
