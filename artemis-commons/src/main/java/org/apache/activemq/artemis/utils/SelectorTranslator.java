@@ -69,7 +69,7 @@ public class SelectorTranslator {
 
    }
 
-   private static String parse(final String input, final String match, final String replace) {
+   public static String parse(final String input, final String match, final String replace) {
       final char quote = '\'';
 
       boolean inQuote = false;
