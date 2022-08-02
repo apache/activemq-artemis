@@ -56,7 +56,23 @@ public class HQFilterConversionInterceptor implements Interceptor {
       if (filterString == null) {
          return null;
       }
-      return SimpleString.toSimpleString(
-            SelectorTranslator.convertHQToActiveMQFilterString(filterString.toString()));
+      return SimpleString.toSimpleString(convertHQToActiveMQFilterString(filterString.toString()));
    }
+
+
+   public static String convertHQToActiveMQFilterString(final String hqFilterString) {
+      if (hqFilterString == null) {
+         return null;
+      }
+
+      String filterString = SelectorTranslator.parse(hqFilterString, "HQDurable", "AMQDurable");
+      filterString = SelectorTranslator.parse(filterString, "HQPriority", "AMQPriority");
+      filterString = SelectorTranslator.parse(filterString, "HQTimestamp", "AMQTimestamp");
+      filterString = SelectorTranslator.parse(filterString, "HQUserID", "AMQUserID");
+      filterString = SelectorTranslator.parse(filterString, "HQExpiration", "AMQExpiration");
+
+      return filterString;
+
+   }
+
 }

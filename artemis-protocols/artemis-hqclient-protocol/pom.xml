@@ -46,6 +46,11 @@
          <groupId>org.osgi</groupId>
          <artifactId>osgi.cmpn</artifactId>
       </dependency>
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
    </dependencies>
 
    <build>
