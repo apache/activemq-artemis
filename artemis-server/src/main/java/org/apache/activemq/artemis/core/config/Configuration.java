@@ -675,6 +675,12 @@ public interface Configuration {
    Configuration setNodeManagerLockDirectory(String dir);
 
    /**
+    * the directory that contains the lock file
+    * @return the directory
+    */
+   String getNodeManagerLockDirectory();
+
+   /**
     * Sets the file system directory used to store journal log.
     */
    Configuration setJournalDirectory(String dir);
@@ -1169,7 +1175,7 @@ public interface Configuration {
    Configuration setMaskPassword(Boolean maskPassword);
 
    /**
-    * If passwords are masked. True means the passwords are masked.
+    * If passwords are masked. True means the passwords are masked.enableda
     */
    Boolean isMaskPassword();
 
@@ -1286,8 +1292,11 @@ public interface Configuration {
    int getNetworkCheckTimeout();
 
    /** The NIC name to be used on network checks */
+   @Deprecated
    Configuration setNetworCheckNIC(String nic);
 
+   /** The NIC name to be used on network checks */
+   Configuration setNetworkCheckNIC(String nic);
    String getNetworkCheckNIC();
 
    String getNetworkCheckPingCommand();
