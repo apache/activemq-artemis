@@ -20,10 +20,14 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,6 +57,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
+import org.apache.commons.lang3.ClassUtils;
 import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
@@ -599,6 +604,59 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
    }
 
+   @Test
+   public void testRootPrimitives() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties properties = new Properties();
+      Method[] declaredMethods = Configuration.class.getDeclaredMethods();
+      HashMap<String, Object> props = new HashMap<>();
+      int nextInt = 1;
+      long nextLong = 1;
+      // add random entries for all root primitive bean properties
+      for (Method declaredMethod : declaredMethods) {
+         if (declaredMethod.getName().startsWith("set") && declaredMethod.getAnnotation(Deprecated.class) == null &&
+                 declaredMethod.getParameterCount() == 1 && (ClassUtils.isPrimitiveOrWrapper(declaredMethod.getParameters()[0].getType())
+                 || declaredMethod.getParameters()[0].getType().equals(String.class))) {
+            String prop = declaredMethod.getName().substring(3);
+            prop = Character.toLowerCase(prop.charAt(0)) +
+                    (prop.length() > 1 ? prop.substring(1) : "");
+            Class<?> type = declaredMethod.getParameters()[0].getType();
+            if (type.equals(Boolean.class)) {
+               properties.put(prop, Boolean.TRUE);
+            } else if (type.equals(boolean.class)) {
+               properties.put(prop, true);
+            } else if (type.equals(Long.class) || type.equals(long.class)) {
+               properties.put(prop, nextLong++);
+            } else if (type.equals(Integer.class) || type.equals(int.class)) {
+               properties.put(prop, nextInt++);
+            } else if (type.equals(String.class)) {
+               byte[] array = new byte[7]; // length is bounded by 7
+               new Random().nextBytes(array);
+               String generatedString = new String(array, Charset.forName("UTF-8"));
+
+               properties.put(prop, generatedString);
+            }
+         }
+      }
+      // now parse
+      configuration.parsePrefixedProperties(properties, null);
+
+      //then call the getter to make sure it gets set
+      for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+         String methodName = entry.getKey().toString();
+         methodName = Character.toUpperCase(methodName.charAt(0)) +
+                 (methodName.length() > 1 ? methodName.substring(1) : "");
+         if (entry.getValue().getClass() == Boolean.class || entry.getValue().getClass() == boolean.class) {
+            methodName = "is" + methodName;
+         } else {
+            methodName = "get" + methodName;
+         }
+
+         Method declaredMethod = ConfigurationImpl.class.getDeclaredMethod(methodName);
+         Object value = declaredMethod.invoke(configuration);
+         Assert.assertEquals(value, properties.get(entry.getKey()));
+      }
+   }
 
    @Test
    public void testSetSystemProperty() throws Throwable {

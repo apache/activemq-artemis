@@ -1169,6 +1169,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
+   public String getNodeManagerLockDirectory() {
+      return nodeManagerLockDirectory;
+   }
+   @Override
    public JournalType getJournalType() {
       return journalType;
    }
@@ -2657,6 +2661,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration setNetworCheckNIC(String nic) {
+      this.networkCheckNIC = nic;
+      return this;
+   }
+
+   @Override
+   public Configuration setNetworkCheckNIC(String nic) {
       this.networkCheckNIC = nic;
       return this;
    }
