@@ -1554,7 +1554,7 @@ desired. The broker uses a component called a "security manager" to implement
 the actual authentication and authorization checks. By default, the broker uses
 `org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager` to
 provide JAAS integration, but users can provide their own implementation of
-`org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3` and
+`org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5` and
 configure it in `bootstrap.xml` using the `security-manager` element, e.g.:
 
 ```xml
