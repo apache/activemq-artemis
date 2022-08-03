@@ -73,6 +73,12 @@ address "order.foo" address but you can also use
 For example, if you used the `match` string `queue.#` the settings would be
 applied to all addresses which start with `queue.`
 
+If more than one `address-setting` would match a given queue, the winner is
+selected based on how specific the match is. A match on the any-words
+delimiter (`#`) is considered less specific than a match without it.
+A match with a single word delimiter `*` is less specific than a match on an
+exact queue name.
+
 The meaning of the specific settings are explained fully throughout the user
 manual, however here is a brief description with a link to the appropriate
 chapter if available.
