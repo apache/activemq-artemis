@@ -292,6 +292,7 @@ File | observation | package
                               </copy>
                               <copy todir="${scratch-dir-user-manual}" overwrite="true">
                                  <fileset file="${src-dir-user-manual}/book.json" />
+                                 <fileset file="${src-dir-user-manual}/client-classpath.md" />
                                  <filterset>
                                     <filter token="PROJECT_VERSION_FILTER_TOKEN" value="${project.version}" />
                                  </filterset>
