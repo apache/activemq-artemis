@@ -219,10 +219,9 @@
                               <arg>io.netty</arg>
                            </groupOrder>
                            <header>#Artemis JMS Client Dependencies
-
-File | observation | package
+File | package | observation
 ---|---|---</header>
-                           <line>X{fileMD}| X{detail} |X{package} </line>
+                           <line>X{fileMD} | X{package} | X{detail} </line>
                            <detailKey>
                               <arg>io.netty:netty-transport-native-epoll</arg>
                               <arg>io.netty:netty-transport-classes-epoll</arg>
@@ -255,9 +254,9 @@ File | observation | package
                               <arg>io.netty</arg>
                            </groupOrder>
                            <header>#Artemis Jakarta Client Dependencies
-File | observation | package
+File | package | observation
 ---|---|---</header>
-                           <line>X{fileMD}| X{detail} |X{package} </line>
+                           <line>X{fileMD} | X{package} | X{detail} </line>
                            <detailKey>
                               <arg>io.netty:netty-transport-native-epoll</arg>
                               <arg>io.netty:netty-transport-classes-epoll</arg>
@@ -292,6 +291,7 @@ File | observation | package
                               </copy>
                               <copy todir="${scratch-dir-user-manual}" overwrite="true">
                                  <fileset file="${src-dir-user-manual}/book.json" />
+                                 <fileset file="${src-dir-user-manual}/client-classpath.md" />
                                  <filterset>
                                     <filter token="PROJECT_VERSION_FILTER_TOKEN" value="${project.version}" />
                                  </filterset>
