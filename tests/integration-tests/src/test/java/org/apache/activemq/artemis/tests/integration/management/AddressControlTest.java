@@ -240,13 +240,18 @@ public class AddressControlTest extends ManagementTestBase {
       Assert.assertEquals(1, roles.length);
       Object[] r = (Object[]) roles[0];
       Assert.assertEquals(role.getName(), r[0]);
-      Assert.assertEquals(CheckType.SEND.hasRole(role), r[1]);
-      Assert.assertEquals(CheckType.CONSUME.hasRole(role), r[2]);
-      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.hasRole(role), r[3]);
-      Assert.assertEquals(CheckType.DELETE_DURABLE_QUEUE.hasRole(role), r[4]);
-      Assert.assertEquals(CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), r[5]);
-      Assert.assertEquals(CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), r[6]);
-      Assert.assertEquals(CheckType.MANAGE.hasRole(role), r[7]);
+      Assert.assertEquals(CheckType.SEND.hasRole(role), (boolean)r[1]);
+      Assert.assertEquals(CheckType.CONSUME.hasRole(role), (boolean)r[2]);
+      Assert.assertEquals(CheckType.CREATE_DURABLE_QUEUE.hasRole(role), (boolean)r[3]);
+      Assert.assertEquals(CheckType.DELETE_DURABLE_QUEUE.hasRole(role), (boolean)r[4]);
+      Assert.assertEquals(CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), (boolean)r[5]);
+      Assert.assertEquals(CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), (boolean)r[6]);
+      Assert.assertEquals(CheckType.MANAGE.hasRole(role), (boolean)r[7]);
+      Assert.assertEquals(CheckType.BROWSE.hasRole(role), (boolean)r[8]);
+      Assert.assertEquals(CheckType.CREATE_ADDRESS.hasRole(role), (boolean)r[9]);
+      Assert.assertEquals(CheckType.DELETE_ADDRESS.hasRole(role), (boolean)r[10]);
+
+      Assert.assertEquals(CheckType.values().length + 1, r.length);
 
       session.deleteQueue(queue);
    }

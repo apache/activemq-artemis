@@ -211,7 +211,19 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
          int i = 0;
          for (Role role : roles) {
-            objRoles[i++] = new Object[]{role.getName(), CheckType.SEND.hasRole(role), CheckType.CONSUME.hasRole(role), CheckType.CREATE_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_DURABLE_QUEUE.hasRole(role), CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role), CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role), CheckType.MANAGE.hasRole(role)};
+            objRoles[i++] = new Object[]{
+               role.getName(),
+               CheckType.SEND.hasRole(role),
+               CheckType.CONSUME.hasRole(role),
+               CheckType.CREATE_DURABLE_QUEUE.hasRole(role),
+               CheckType.DELETE_DURABLE_QUEUE.hasRole(role),
+               CheckType.CREATE_NON_DURABLE_QUEUE.hasRole(role),
+               CheckType.DELETE_NON_DURABLE_QUEUE.hasRole(role),
+               CheckType.MANAGE.hasRole(role),
+               CheckType.BROWSE.hasRole(role),
+               CheckType.CREATE_ADDRESS.hasRole(role),
+               CheckType.DELETE_ADDRESS.hasRole(role)
+            };
          }
          return objRoles;
       } finally {
