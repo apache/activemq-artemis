@@ -1,0 +1,110 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.activemq.artemis.tests.integration.amqp.paging;
+
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.tests.integration.amqp.AmqpClientTestSupport;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.transport.amqp.client.AmqpClient;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpReceiver;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.jboss.logging.Logger;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = Logger.getLogger(AmqpMaxReadPagingTest.class);
+
+   public AmqpMaxReadPagingTest() {
+   }
+
+   @Override
+   protected void addConfiguration(ActiveMQServer server) {
+      super.addConfiguration(server);
+      final Map<String, AddressSettings> addressesSettings = server.getConfiguration()
+         .getAddressSettings();
+      addressesSettings.get("#").setMaxSizeMessages(1)
+         .setMaxSizeBytes(100000)
+         .setPageSizeBytes(10000).setMaxReadPageMessages(10).setMaxReadPageBytes(10 * 1024 * 1024).setPageFlowControl(true);
+
+      server.getConfiguration().setMessageExpiryScanPeriod(-1);
+   }
+
+   @Test(timeout = 60000)
+   public void testMaxReadPage() throws Exception {
+      final int MSG_SIZE = 1000;
+      final StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < MSG_SIZE; i++) {
+         builder.append('0');
+      }
+      final String data = builder.toString();
+      final int MSG_COUNT = 100;
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      runAfter(connection::close);
+      AmqpSession session = connection.createSession();
+
+      Queue queue = server.locateQueue(getQueueName());
+      Assert.assertNotNull(queue);
+      queue.getPagingStore().startPaging();
+
+      AmqpSender sender = session.createSender(getQueueName(), true);
+
+      AmqpReceiver receiver = session.createReceiver(getQueueName());
+      receiver.setPresettle(true);
+      for (int i = 0; i < MSG_COUNT; i++) {
+         AmqpMessage message = new AmqpMessage();
+         message.setText(data);
+         message.setDurable(true);
+         sender.send(message);
+      }
+      sender.close();
+      Wait.assertEquals(MSG_COUNT, queue::getMessageCount);
+      receiver.flow(MSG_COUNT);
+      Assert.assertNotNull(receiver.receive(10, TimeUnit.SECONDS)); // wait some time so we have some data
+      if (receiver.getPrefetchSize() > 10) {
+         logger.warn("Receiver has an unexpected size of " + receiver.getPrefetchSize() + " elements on the client buffer");
+      }
+      PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
+      Assert.assertTrue(pagingStore.isPaging());
+      Assert.assertTrue(receiver.getPrefetchSize() <= 10); // we should not have more than page-read messages
+
+      Thread.sleep(500); // it is important to have some quiet period to make sure all previous tasks were emptied
+      for (int i = 0; i < MSG_COUNT - 1; i++) {
+         AmqpMessage message = receiver.receive(10, TimeUnit.SECONDS);
+         Assert.assertNotNull(message);
+         System.out.println("Received " + i);
+         message.accept();
+      }
+
+      receiver.close();
+      connection.close();
+   }
+
+}

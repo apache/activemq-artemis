@@ -80,6 +80,24 @@ public interface ArtemisExecutor extends Executor {
    default void shutdown() {
    }
 
+   /**
+    * It will give up the executor loop, giving a chance to other OrderedExecutors to run
+    */
+   default void yield() {
+   }
+
+
+
+   default boolean isFair() {
+      return false;
+   }
+
+   /** If this OrderedExecutor is fair, it will yield for another executors after each task ran */
+   default ArtemisExecutor setFair(boolean fair) {
+      return this;
+   }
+
+
 
    /**
     * This will verify if the executor is flushed with no wait (or very minimal wait if not the {@link org.apache.activemq.artemis.utils.actors.OrderedExecutor}

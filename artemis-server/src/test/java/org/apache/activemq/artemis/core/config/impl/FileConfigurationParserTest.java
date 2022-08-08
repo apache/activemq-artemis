@@ -300,6 +300,30 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testParseAddressSettingsFlowControl() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = "<core xmlns=\"urn:activemq:core\">\n" +
+         "      <address-settings>\n" +
+         "         <!-- if you define auto-create on certain queues, management has to be auto-create -->\n" +
+         "         <address-setting match=\"hello\">\n" +
+         "                 <page-flow-control>true</page-flow-control>\n" +
+         "         </address-setting>\n" +
+         "      </address-settings>\n" +
+         "</core>";
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      Map<String, AddressSettings> addressSettings = config.getAddressSettings();
+      assertEquals(1, addressSettings.size());
+
+      AddressSettings settings = addressSettings.get("hello");
+      Assert.assertNotNull(settings);
+      Assert.assertTrue(settings.isPageFlowControl());
+   }
+
+   @Test
    public void testParsingOverflowPageSize() throws Exception {
       testParsingOverFlow("<address-settings>" + "\n" + "<address-setting match=\"#\">" + "\n" + "<page-size-bytes>2147483648</page-size-bytes>\n" + "</address-setting>" + "\n" + "</address-settings>" + "\n");
       testParsingOverFlow("<journal-file-size>2147483648</journal-file-size>");

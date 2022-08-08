@@ -66,6 +66,10 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    private final AtomicBoolean closed = new AtomicBoolean();
    private final BlockingQueue<AmqpMessage> prefetch = new LinkedBlockingDeque<>();
 
+   public int getPrefetchSize() {
+      return prefetch.size();
+   }
+
    private final AmqpSession session;
    private final String address;
    private final String receiverId;

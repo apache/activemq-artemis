@@ -33,6 +33,12 @@ import org.apache.activemq.artemis.spi.core.remoting.AcceptorFactory;
  */
 public interface ServiceRegistry {
 
+   ExecutorService getPageExecutorService();
+
+   /** Notice that if you want to provide your own PageExecutor, you should limit the number of threads to the number of
+    *  parallel reads you want to perform on paging */
+   void setPageExecutorService(ExecutorService executorService);
+
    ExecutorService getExecutorService();
 
    void setExecutorService(ExecutorService executorService);

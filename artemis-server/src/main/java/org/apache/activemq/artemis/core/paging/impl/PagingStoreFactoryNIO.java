@@ -62,6 +62,8 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
 
    private final ExecutorFactory executorFactory;
 
+   private final ExecutorFactory ioExecutorFactory;
+
    private final boolean syncNonTransactional;
 
    private PagingManager pagingManager;
@@ -73,8 +75,6 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
    private final StorageManager storageManager;
 
    private final IOCriticalErrorListener critialErrorListener;
-
-   private final boolean readWholePage;
 
    public File getDirectory() {
       return directory;
@@ -109,27 +109,17 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                 final long syncTimeout,
                                 final ScheduledExecutorService scheduledExecutor,
                                 final ExecutorFactory executorFactory,
+                                final ExecutorFactory ioExecutorFactory,
                                 final boolean syncNonTransactional,
                                 final IOCriticalErrorListener critialErrorListener) {
-      this(storageManager, directory, syncTimeout, scheduledExecutor, executorFactory, syncNonTransactional, critialErrorListener, false);
-   }
-
-   public PagingStoreFactoryNIO(final StorageManager storageManager,
-                                final File directory,
-                                final long syncTimeout,
-                                final ScheduledExecutorService scheduledExecutor,
-                                final ExecutorFactory executorFactory,
-                                final boolean syncNonTransactional,
-                                final IOCriticalErrorListener critialErrorListener,
-                                final boolean readWholePage) {
       this.storageManager = storageManager;
       this.directory = directory;
       this.executorFactory = executorFactory;
+      this.ioExecutorFactory = ioExecutorFactory;
       this.syncNonTransactional = syncNonTransactional;
       this.scheduledExecutor = scheduledExecutor;
       this.syncTimeout = syncTimeout;
       this.critialErrorListener = critialErrorListener;
-      this.readWholePage = readWholePage;
    }
 
 
@@ -157,13 +147,13 @@ public class PagingStoreFactoryNIO implements PagingStoreFactory {
                                                StorageManager storageManager,
                                                AddressSettings addressSettings,
                                                ArtemisExecutor executor) {
-      return new PageCursorProviderImpl(store, storageManager, executor, addressSettings.getPageCacheMaxSize(), readWholePage);
+      return new PageCursorProviderImpl(store, storageManager);
    }
 
    @Override
    public synchronized PagingStore newStore(final SimpleString address, final AddressSettings settings) {
 
-      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor(), executorFactory.getExecutor(), syncNonTransactional);
+      return new PagingStoreImpl(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, null, this, address, settings, executorFactory.getExecutor().setFair(true), ioExecutorFactory.getExecutor(), syncNonTransactional);
    }
 
    @Override

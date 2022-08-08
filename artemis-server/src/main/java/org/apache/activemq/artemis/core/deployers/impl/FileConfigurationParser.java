@@ -222,6 +222,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_READ_PAGE_MESSAGES_NODE_NAME = "max-read-page-messages";
 
+   private static final String PAGE_FLOW_CONTROL_NAME = "page-flow-control";
+
    private static final String PAGE_SIZE_BYTES_NODE_NAME = "page-size-bytes";
 
    private static final String PAGE_MAX_CACHE_SIZE_NODE_NAME = "page-max-cache-size";
@@ -1259,6 +1261,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setMaxRedeliveryDelay(XMLUtil.parseLong(child));
          } else if (MAX_SIZE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeBytes(ByteUtil.convertTextBytes(getTrimmedTextContent(child)));
+         } else if (PAGE_FLOW_CONTROL_NAME.equalsIgnoreCase(name)) {
+            addressSettings.setPageFlowControl(XMLUtil.parseBoolean(child));
          } else if (MAX_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMaxSizeMessages(XMLUtil.parseInt(child));
          } else if (MAX_SIZE_BYTES_REJECT_THRESHOLD_NODE_NAME.equalsIgnoreCase(name)) {

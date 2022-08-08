@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -667,19 +666,6 @@ public class NullStorageManager implements StorageManager {
    @Override
    public void addBytesToLargeMessage(SequentialFile file, long messageId, ActiveMQBuffer bytes) throws Exception {
 
-   }
-
-   @Override
-   public void beforePageRead() throws Exception {
-   }
-
-   @Override
-   public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
-      return true;
-   }
-
-   @Override
-   public void afterPageRead() throws Exception {
    }
 
    @Override

@@ -91,20 +91,6 @@ public class JournalStorageManagerTest extends ActiveMQTestBase {
       testExecutor.shutdownNow();
    }
 
-   @Test
-   public void testDisablePageConcurrentMax() throws Exception {
-      if (journalType == JournalType.ASYNCIO) {
-         assumeTrue("AIO is not supported on this platform", AIOSequentialFileFactory.isSupported());
-      }
-      final Configuration configuration = createDefaultInVMConfig().setJournalType(journalType);
-      configuration.setPageMaxConcurrentIO(-1);
-      final ExecutorFactory executorFactory = new OrderedExecutorFactory(executor);
-      final ExecutorFactory ioExecutorFactory = new OrderedExecutorFactory(ioExecutor);
-      final JournalStorageManager manager = new JournalStorageManager(configuration, null, executorFactory, null, ioExecutorFactory);
-      // if -1 is being set it means that we should first call afterPageRead to acuire the permit to read a page
-      Assert.assertTrue(manager.beforePageRead(0, TimeUnit.NANOSECONDS));
-   }
-
    /**
     * Test of fixJournalFileSize method, of class JournalStorageManager.
     */

@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -183,13 +182,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       largeMessagesDirectory = config.getLargeMessagesDirectory();
 
       largeMessagesFactory = new NIOSequentialFileFactory(config.getLargeMessagesLocation(), false, criticalErrorListener, 1);
-
-      // it doesn't make sense to limit paging concurrency < 0
-      if (config.getPageMaxConcurrentIO() >= 0) {
-         pageMaxConcurrentIO = new Semaphore(config.getPageMaxConcurrentIO());
-      } else {
-         pageMaxConcurrentIO = null;
-      }
    }
 
    /**
