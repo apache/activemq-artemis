@@ -36,10 +36,27 @@ public class OrderedExecutor extends ProcessorBase<Runnable> implements ArtemisE
 
    private static final Logger logger = Logger.getLogger(OrderedExecutor.class);
 
+   private boolean fair;
+
+   @Override
+   public boolean isFair() {
+      return fair;
+   }
+
+   @Override
+   /** If this OrderedExecutor is fair, it will yield for another executors after each task ran */
+   public OrderedExecutor setFair(boolean fair) {
+      this.fair = fair;
+      return this;
+   }
+
    @Override
    protected final void doTask(Runnable task) {
       try {
          task.run();
+         if (fair) {
+            this.yield();
+         }
       } catch (ActiveMQInterruptedException e) {
          // This could happen during shutdowns. Nothing to be concerned about here
          logger.debug("Interrupted Thread", e);

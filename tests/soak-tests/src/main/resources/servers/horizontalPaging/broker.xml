@@ -229,6 +229,7 @@ under the License.
             <page-size-bytes>5M</page-size-bytes>
             <!-- how many messages are kept in memory from paging. The system will stop reading whenever this or max-read-page-bytes hits the max first. -->
             <max-read-page-messages>50</max-read-page-messages>
+            <page-flow-control>true</page-flow-control>
             <!-- how many bytes equivalent of messages are kept in memory from paging (based on memory estimate). The system will stop reading whenever this or max-read-page-messages hits the max first. -->
             <max-read-page-bytes>500K</max-read-page-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>

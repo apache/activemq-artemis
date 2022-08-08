@@ -36,7 +36,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
-import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
@@ -72,17 +71,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
 
    public PageCursorProviderImpl(final PagingStore pagingStore,
-                                 final StorageManager storageManager,
-                                 final ArtemisExecutor executor,
-                                 final int maxCacheSize) {
-      this(pagingStore, storageManager, executor, maxCacheSize, false);
-   }
-
-   public PageCursorProviderImpl(final PagingStore pagingStore,
-                                 final StorageManager storageManager,
-                                 final ArtemisExecutor executor,
-                                 final int maxCacheSize,
-                                 final boolean readWholePage) {
+                                 final StorageManager storageManager) {
       this.pagingStore = pagingStore;
       this.storageManager = storageManager;
    }
@@ -420,10 +409,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       logger.tracef("this(%s) finishing cleanup on %s", this, depagedPages);
       try {
          for (Page depagedPage : depagedPages) {
-            PagedMessage[] pgdMessages;
-
-            storageManager.beforePageRead();
-
             LinkedList<PagedMessage> pgdMessagesList = null;
             try {
                depagedPage.open(false);
@@ -433,8 +418,6 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                   depagedPage.close(false, false);
                } catch (Exception e) {
                }
-
-               storageManager.afterPageRead();
             }
 
             depagedPage.delete(pgdMessagesList);

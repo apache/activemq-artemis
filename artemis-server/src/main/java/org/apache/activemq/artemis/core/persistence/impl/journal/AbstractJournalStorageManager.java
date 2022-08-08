@@ -37,7 +37,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiConsumer;
@@ -165,8 +164,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    }
 
    private static final long CHECKPOINT_BATCH_SIZE = Integer.MAX_VALUE;
-
-   protected Semaphore pageMaxConcurrentIO;
 
    protected BatchingIDGenerator idGenerator;
 
@@ -1705,29 +1702,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          info[1] = messageJournal.loadInternalOnly();
 
          return info;
-      }
-   }
-
-   @Override
-   public void beforePageRead() throws Exception {
-      if (pageMaxConcurrentIO != null) {
-         pageMaxConcurrentIO.acquire();
-      }
-   }
-
-   @Override
-   public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
-      final Semaphore pageMaxConcurrentIO = this.pageMaxConcurrentIO;
-      if (pageMaxConcurrentIO == null) {
-         return true;
-      }
-      return pageMaxConcurrentIO.tryAcquire(timeout, unit);
-   }
-
-   @Override
-   public void afterPageRead() throws Exception {
-      if (pageMaxConcurrentIO != null) {
-         pageMaxConcurrentIO.release();
       }
    }
 

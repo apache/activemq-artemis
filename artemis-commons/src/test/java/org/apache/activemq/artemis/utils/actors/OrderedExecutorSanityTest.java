@@ -184,4 +184,65 @@ public class OrderedExecutorSanityTest {
       }
    }
 
+
+   @Test
+   public void testFair() throws InterruptedException {
+      AtomicInteger errors = new AtomicInteger(0);
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+      try {
+         final ArtemisExecutor executor = new OrderedExecutor(executorService).setFair(true);
+         final ArtemisExecutor executor2 = new OrderedExecutor(executorService).setFair(true);
+
+         CountDownLatch latchDone1 = new CountDownLatch(1);
+         CountDownLatch latchBlock1 = new CountDownLatch(1);
+         CountDownLatch latchDone2 = new CountDownLatch(1);
+         CountDownLatch latchDone3 = new CountDownLatch(1);
+         CountDownLatch latchBlock3 = new CountDownLatch(1);
+         executor.execute(() -> {
+            try {
+               log.info("Exec 1");
+               latchDone1.countDown();
+               latchBlock1.await(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
+            }
+         });
+
+         Assert.assertTrue(latchDone1.await(10, TimeUnit.SECONDS));
+
+         executor.execute(() -> {
+            try {
+               // Exec 2 is supposed to yield to Exec3, so Exec3 will happen first
+               log.info("Exec 2");
+               latchDone2.countDown();
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
+            }
+         });
+
+         executor2.execute(() -> {
+            try {
+               log.info("Exec 3");
+               latchDone3.countDown();
+               latchBlock3.await(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+               e.printStackTrace();
+               errors.incrementAndGet();
+            }
+         });
+
+         latchBlock1.countDown();
+         Assert.assertTrue(latchDone3.await(10, TimeUnit.SECONDS));
+         Assert.assertFalse(latchDone2.await(1, TimeUnit.MILLISECONDS));
+         latchBlock3.countDown();
+         Assert.assertTrue(latchDone2.await(10, TimeUnit.SECONDS));
+         Assert.assertEquals(0, errors.get());
+      } finally {
+         executorService.shutdownNow();
+      }
+   }
+
+
 }

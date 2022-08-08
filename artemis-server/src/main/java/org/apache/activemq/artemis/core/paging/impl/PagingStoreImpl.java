@@ -148,20 +148,6 @@ public class PagingStoreImpl implements PagingStore {
                           final SimpleString storeName,
                           final AddressSettings addressSettings,
                           final ArtemisExecutor executor,
-                          final boolean syncNonTransactional) {
-      this(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, executor, syncNonTransactional);
-   }
-
-   public PagingStoreImpl(final SimpleString address,
-                          final ScheduledExecutorService scheduledExecutor,
-                          final long syncTimeout,
-                          final PagingManager pagingManager,
-                          final StorageManager storageManager,
-                          final SequentialFileFactory fileFactory,
-                          final PagingStoreFactory storeFactory,
-                          final SimpleString storeName,
-                          final AddressSettings addressSettings,
-                          final ArtemisExecutor executor,
                           final ArtemisExecutor ioExecutor,
                           final boolean syncNonTransactional) {
       if (pagingManager == null) {

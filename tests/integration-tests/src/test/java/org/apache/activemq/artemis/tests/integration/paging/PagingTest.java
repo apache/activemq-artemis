@@ -2853,10 +2853,8 @@ public class PagingTest extends ActiveMQTestBase {
       class InterruptedCursorProvider extends PageCursorProviderImpl {
 
          InterruptedCursorProvider(PagingStore pagingStore,
-                                   StorageManager storageManager,
-                                   ArtemisExecutor executor,
-                                   int maxCacheSize) {
-            super(pagingStore, storageManager, executor, maxCacheSize);
+                                   StorageManager storageManager) {
+            super(pagingStore, storageManager);
          }
 
          @Override
@@ -2875,13 +2873,13 @@ public class PagingTest extends ActiveMQTestBase {
       server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
          @Override
          protected PagingStoreFactoryNIO getPagingStoreFactory() {
-            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                @Override
                public PageCursorProvider newCursorProvider(PagingStore store,
                                                            StorageManager storageManager,
                                                            AddressSettings addressSettings,
                                                            ArtemisExecutor executor) {
-                  return new InterruptedCursorProvider(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
+                  return new InterruptedCursorProvider(store, storageManager);
                }
             };
          }
@@ -4539,10 +4537,8 @@ public class PagingTest extends ActiveMQTestBase {
       class InterruptedCursorProvider extends PageCursorProviderImpl {
 
          InterruptedCursorProvider(PagingStore pagingStore,
-                                   StorageManager storageManager,
-                                   ArtemisExecutor executor,
-                                   int maxCacheSize) {
-            super(pagingStore, storageManager, executor, maxCacheSize);
+                                   StorageManager storageManager) {
+            super(pagingStore, storageManager);
          }
 
          @Override
@@ -4561,13 +4557,13 @@ public class PagingTest extends ActiveMQTestBase {
       server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
          @Override
          protected PagingStoreFactoryNIO getPagingStoreFactory() {
-            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+            return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                @Override
                public PageCursorProvider newCursorProvider(PagingStore store,
                                                            StorageManager storageManager,
                                                            AddressSettings addressSettings,
                                                            ArtemisExecutor executor) {
-                  return new InterruptedCursorProvider(store, storageManager, executor, addressSettings.getPageCacheMaxSize());
+                  return new InterruptedCursorProvider(store, storageManager);
                }
             };
          }
@@ -7327,7 +7323,7 @@ public class PagingTest extends ActiveMQTestBase {
                                      AddressSettings addressSettings,
                                      ArtemisExecutor executor,
                                      boolean syncNonTransactional) {
-            super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, syncNonTransactional);
+            super(address, scheduledExecutor, syncTimeout, pagingManager, storageManager, fileFactory, storeFactory, storeName, addressSettings, executor, executor, syncNonTransactional);
          }
 
          /**
@@ -7344,7 +7340,7 @@ public class PagingTest extends ActiveMQTestBase {
          server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
             @Override
             protected PagingStoreFactoryDatabase getPagingStoreFactory() throws Exception {
-               return new PagingStoreFactoryDatabase((DatabaseStorageConfiguration) this.getConfiguration().getStoreConfiguration(), this.getStorageManager(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+               return new PagingStoreFactoryDatabase((DatabaseStorageConfiguration) this.getConfiguration().getStoreConfiguration(), this.getStorageManager(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                   @Override
                   public synchronized PagingStore newStore(SimpleString address, AddressSettings settings) {
                      return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.syncNonTransactional);
@@ -7356,7 +7352,7 @@ public class PagingTest extends ActiveMQTestBase {
          server = new ActiveMQServerImpl(config, ManagementFactory.getPlatformMBeanServer(), new ActiveMQSecurityManagerImpl()) {
             @Override
             protected PagingStoreFactoryNIO getPagingStoreFactory() {
-               return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
+               return new PagingStoreFactoryNIO(this.getStorageManager(), this.getConfiguration().getPagingLocation(), this.getConfiguration().getJournalBufferTimeout_NIO(), this.getScheduledPool(), this.getExecutorFactory(), this.getExecutorFactory(), this.getConfiguration().isJournalSyncNonTransactional(), null) {
                   @Override
                   public synchronized PagingStore newStore(SimpleString address, AddressSettings settings) {
                      return new NonStoppablePagingStoreImpl(address, this.getScheduledExecutor(), config.getJournalBufferTimeout_NIO(), getPagingManager(), getStorageManager(), null, this, address, settings, getExecutorFactory().getExecutor(), this.isSyncNonTransactional());

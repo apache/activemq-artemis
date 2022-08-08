@@ -43,6 +43,8 @@ public class ServiceRegistryImpl implements ServiceRegistry {
 
    private ExecutorService executorService;
 
+   private ExecutorService pageExecutorService;
+
    private ExecutorService ioExecutorService;
 
    private ScheduledExecutorService scheduledExecutorService;
@@ -72,6 +74,16 @@ public class ServiceRegistryImpl implements ServiceRegistry {
       this.bridgeTransformers = new ConcurrentHashMap<>();
       this.federationTransformers = new ConcurrentHashMap<>();
       this.acceptorFactories = new ConcurrentHashMap<>();
+   }
+
+   @Override
+   public ExecutorService getPageExecutorService() {
+      return pageExecutorService;
+   }
+
+   @Override
+   public void setPageExecutorService(ExecutorService executorService) {
+      this.pageExecutorService = executorService;
    }
 
    @Override

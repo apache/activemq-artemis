@@ -209,7 +209,6 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    // The quantity of pagedReferences on messageReferences priority list
    private final AtomicInteger pagedReferences = new AtomicInteger(0);
 
-
    final SizeAwareMetric queueMemorySize = new SizeAwareMetric();
 
    protected final QueueMessageMetrics pendingMetrics = new QueueMessageMetrics(this, "pending");
@@ -3171,8 +3170,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     */
    private boolean needsDepage() {
-      return queueMemorySize.getSize() < pageSubscription.getPagingStore().getMaxPageReadBytes() &&
-             queueMemorySize.getElements() < pageSubscription.getPagingStore().getMaxPageReadMessages();
+      AddressSettings thisSettings = this.addressSettings;
+      if (thisSettings != null && thisSettings.isPageFlowControl()) {
+         // if deliveringControl is set, we will use the deliveringMetrics to decide on depaging
+         // this is particularly needed when paging is used with a client that does not have flow control
+         // (OpenWire has it usually off by default)
+         return (queueMemorySize.getSize() + deliveringMetrics.getPersistentSize()) < pageSubscription.getPagingStore().getMaxPageReadBytes() && (queueMemorySize.getElements() + deliveringMetrics.getMessageCount()) < pageSubscription.getPagingStore().getMaxPageReadMessages();
+      } else {
+         return queueMemorySize.getSize() < pageSubscription.getPagingStore().getMaxPageReadBytes() && queueMemorySize.getElements() < pageSubscription.getPagingStore().getMaxPageReadMessages();
+      }
    }
 
    private SimpleString extractGroupID(MessageReference ref) {
@@ -4429,6 +4435,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    public void decDelivering(final MessageReference reference) {
       deliveringMetrics.decrementMetrics(reference);
+      AddressSettings theSettings = this.addressSettings;
+      if (theSettings != null && theSettings.isPageFlowControl()) {
+         deliverAsync(); // we check for async delivery after acks
+                         // in case paging stopped for lack of space
+      }
    }
 
    private long getPersistentSize(final MessageReference reference) {

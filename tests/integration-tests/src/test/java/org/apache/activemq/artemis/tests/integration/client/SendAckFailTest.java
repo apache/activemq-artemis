@@ -390,21 +390,6 @@ public class SendAckFailTest extends SpawnedTestBase {
       }
 
       @Override
-      public void beforePageRead() throws Exception {
-         manager.beforePageRead();
-      }
-
-      @Override
-      public boolean beforePageRead(long timeout, TimeUnit unit) throws InterruptedException {
-         return manager.beforePageRead(timeout, unit);
-      }
-
-      @Override
-      public void afterPageRead() throws Exception {
-         manager.afterPageRead();
-      }
-
-      @Override
       public ByteBuffer allocateDirectBuffer(int size) {
          return manager.allocateDirectBuffer(size);
       }
