@@ -1181,10 +1181,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       if (server.hasBrokerMessagePlugins()) {
-         if(remotingConnection==null){
+         if (remotingConnection == null) {
             server.callBrokerMessagePlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
-         }
-         else{
+         } else {
             server.callBrokerMessagePlugins(plugin -> plugin.beforeMessageRoute(remotingConnection,message, context, direct, rejectDuplicates));
          }
       }
@@ -1214,10 +1213,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             context.getTransaction().commit();
          }
          if (server.hasBrokerMessagePlugins()) {
-            if(remotingConnection==null){
+            if (remotingConnection == null) {
                server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, status));
-            }
-            else {
+            } else {
                server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(remotingConnection, message, context, direct, rejectDuplicates, status));
             }
          }
