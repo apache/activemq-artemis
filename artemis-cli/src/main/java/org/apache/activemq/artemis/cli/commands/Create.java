@@ -203,6 +203,9 @@ public class Create extends InputAbstract {
    @Option(name = "--java-options", description = "Extra java options to be passed to the profile")
    private String javaOptions = "";
 
+   @Option(name = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default = '2G'")
+   private String javaMemory = "2G";
+
    @Option(name = "--allow-anonymous", description = "Enables anonymous configuration on security, opposite of --require-login (Default: input)")
    private Boolean allowAnonymous = null;
 
@@ -797,6 +800,7 @@ public class Create extends InputAbstract {
 
 
       filters.put("${java-opts}", javaOptions);
+      filters.put("${java-memory}", javaMemory);
 
       if (allowAnonymous) {
          write(ETC_LOGIN_CONFIG_WITH_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);

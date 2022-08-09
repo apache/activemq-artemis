@@ -36,9 +36,7 @@ import org.jboss.logging.Logger;
  */
 public abstract class ClientAbstract extends Thread {
 
-
    private static final Logger log = Logger.getLogger(ClientAbstract.class);
-
 
    protected ClientSession session;
 
@@ -56,11 +54,9 @@ public abstract class ClientAbstract extends Thread {
     */
    protected volatile boolean pendingCommit = false;
 
-
    public ClientAbstract(ClientSessionFactory sf) {
       this.sf = sf;
    }
-
 
    public ClientSession getConnection() {
       return session;

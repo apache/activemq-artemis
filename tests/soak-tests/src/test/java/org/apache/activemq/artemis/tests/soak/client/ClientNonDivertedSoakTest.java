@@ -30,11 +30,13 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
 
+   private static final Logger logger = Logger.getLogger(ClientNonDivertedSoakTest.class);
 
    private static final SimpleString ADDRESS = new SimpleString("ADD");
 
@@ -94,7 +96,7 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
          producer.send(msg);
 
          if (i % 1000 == 0) {
-            System.out.println("Sent " + i + " messages");
+            logger.info("Sent " + i + " messages");
             session.commit();
          }
       }
@@ -111,14 +113,14 @@ public class ClientNonDivertedSoakTest extends ActiveMQTestBase {
       send.start();
       rec1.start();
 
-      long timeEnd = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
+      long timeEnd = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(ClientParameters.TIME_LIMIT_SECONDS);
       while (timeEnd > System.currentTimeMillis()) {
          if (send.getErrorsCount() != 0 || rec1.getErrorsCount() != 0) {
-            System.out.println("There are sequence errors in some of the clients, please look at the logs");
+            logger.info("There are sequence errors in some of the clients, please look at the logs");
             break;
          }
 
-         System.out.println("count = " + send.msgs);
+         logger.info("count = " + send.msgs);
          Thread.sleep(10000);
       }
 

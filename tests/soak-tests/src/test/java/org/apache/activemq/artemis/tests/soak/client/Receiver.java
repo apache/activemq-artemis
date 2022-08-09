@@ -24,9 +24,11 @@ import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.jboss.logging.Logger;
 
 public class Receiver extends ClientAbstract {
 
+   private static final Logger logger = Logger.getLogger(Receiver.class);
 
    // We should leave some messages on paging. We don't want to consume all for this test
    private final Semaphore minConsume = new Semaphore(0);
@@ -72,7 +74,7 @@ public class Receiver extends ClientAbstract {
 
                if (msg.getLongProperty("count") != msgs + pendingMsgs) {
                   errors++;
-                  System.out.println("count should be " + (msgs + pendingMsgs) + " when it was " + msg.getLongProperty("count") + " on " + queue);
+                  logger.info("count should be " + (msgs + pendingMsgs) + " when it was " + msg.getLongProperty("count") + " on " + queue);
                }
 
                pendingMsgs++;

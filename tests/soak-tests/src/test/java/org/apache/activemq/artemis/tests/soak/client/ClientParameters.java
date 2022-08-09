@@ -14,20 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.soak.failover;
 
-import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTest;
+package org.apache.activemq.artemis.tests.soak.client;
 
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
 
-public class RandomFailoverSoakTest extends RandomReattachTest {
-
-   private static final String TEST_NAME = "RANDOM";
-   public static final int TEST_REPETITION = testProperty(TEST_NAME, "TEST_REPETITION", 100);
-
-   @Override
-   protected int getNumIterations() {
-      return TEST_REPETITION;
-   }
+public class ClientParameters {
+   private static final String TEST_NAME = "CLIENT";
+   public static final int TIME_LIMIT_SECONDS = testProperty(TEST_NAME, "TIME_LIMIT_SECONDS", 60);
+   public static final int TEST_REPETITION = testProperty(TEST_NAME, "REPETITIONS", 10);
 
 }
