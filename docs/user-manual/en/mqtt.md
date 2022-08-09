@@ -100,6 +100,20 @@ UTF-8 strings and print them up to 256 characters. Payload logging is limited
 to avoid filling the logs with potentially hundreds of megabytes of unhelpful
 information.
 
+## Custom Client ID Handling
+
+The client ID used by an MQTT application is very important as it uniquely
+identifies the application. In some situations broker administrators may want
+to perform extra validation or even modify incoming client IDs to support
+specific use-cases. This is possible by implementing a custom security manager
+as demonstrated in the `security-manager` example shipped with the broker.
+
+The simplest implementation is a "wrapper" just like the `security-manager`
+example uses. In the `authenticate` method you can modify the client ID using
+`setClientId()` on the `org.apache.activemq.artemis.spi.core.protocol.RemotingConnection`
+that is passed in. If you perform some custom validation of the client ID you
+can reject the client ID by throwing a `org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException`.
+
 ## Wildcard subscriptions
 
 MQTT addresses are hierarchical much like a file system, and they use a special
