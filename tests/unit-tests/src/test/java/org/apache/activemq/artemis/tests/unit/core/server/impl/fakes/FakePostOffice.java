@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 public class FakePostOffice implements PostOffice {
 
@@ -265,7 +266,8 @@ public class FakePostOffice implements PostOffice {
    }
 
    @Override
-   public RoutingStatus route(Message message,
+   public RoutingStatus route(RemotingConnection remotingConnection,
+                              Message message,
                               Transaction tx,
                               boolean direct) throws Exception {
       return RoutingStatus.OK;

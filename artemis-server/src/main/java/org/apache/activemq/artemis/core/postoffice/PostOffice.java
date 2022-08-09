@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  * A PostOffice instance maintains a mapping of a String address to a Queue. Multiple Queue instances can be bound
@@ -149,7 +150,8 @@ public interface PostOffice extends ActiveMQComponent {
 
    RoutingStatus route(Message message, boolean direct) throws Exception;
 
-   RoutingStatus route(Message message,
+   RoutingStatus route(RemotingConnection remotingConnection,
+                       Message message,
                        Transaction tx,
                        boolean direct) throws Exception;
 

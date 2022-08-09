@@ -215,7 +215,7 @@ public class MQTTPublishManager {
             Transaction tx = session.getServerSession().newTransaction();
             try {
                if (internal) {
-                  session.getServer().getPostOffice().route(serverMessage, tx, true);
+                  session.getServer().getPostOffice().route(session.getServerSession().getRemotingConnection(), serverMessage, tx, true);
                } else {
                   session.getServerSession().send(tx, serverMessage, true, false);
                }

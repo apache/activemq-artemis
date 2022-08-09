@@ -97,6 +97,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -1067,12 +1068,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    @Override
    public RoutingStatus route(final Message message, final boolean direct) throws Exception {
-      return route(message, (Transaction) null, direct);
+      return route(null,message, (Transaction) null, direct);
    }
 
    @Override
-   public RoutingStatus route(final Message message, final Transaction tx, final boolean direct) throws Exception {
-      return route(message, new RoutingContextImpl(tx), direct);
+   public RoutingStatus route(RemotingConnection remotingConnection,
+                              final Message message, final Transaction tx, final boolean direct) throws Exception {
+      return route(remotingConnection,message, new RoutingContextImpl(tx), direct,false,null,false);
    }
 
    @Override
@@ -1096,7 +1098,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    public RoutingStatus route(final Message message,
                               final RoutingContext context,
                               final boolean direct) throws Exception {
-      return route(message, context, direct, true, null, false);
+      return route(null,message, context, direct, true, null, false);
    }
 
    @Override
@@ -1106,7 +1108,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                               boolean rejectDuplicates,
                               final Binding bindingMove) throws Exception {
 
-      return route(message, context, direct, rejectDuplicates, bindingMove, false);
+      return route(null,message, context, direct, rejectDuplicates, bindingMove, false);
    }
 
 
@@ -1114,7 +1116,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
     * The route can call itelf sending to DLA.
     * if a DLA still not found, it should then use previous semantics.
     * */
-   private RoutingStatus route(final Message message,
+   private RoutingStatus route(RemotingConnection remotingConnection, final Message message,
                                final RoutingContext context,
                                final boolean direct,
                                final boolean rejectDuplicates,
@@ -1179,7 +1181,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       if (server.hasBrokerMessagePlugins()) {
-         server.callBrokerMessagePlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
+         server.callBrokerMessagePlugins(plugin -> plugin.beforeMessageRoute(remotingConnection,message, context, direct, rejectDuplicates));
       }
 
       if (logger.isTraceEnabled()) {
@@ -1207,7 +1209,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             context.getTransaction().commit();
          }
          if (server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, status));
+            server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(remotingConnection,message, context, direct, rejectDuplicates, status));
          }
          return status;
       } catch (Exception e) {
@@ -1249,7 +1251,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
             message.reencode();
 
-            route(message, new RoutingContextImpl(context.getTransaction()), false, true, null, true);
+            route(null,message, new RoutingContextImpl(context.getTransaction()), false, true, null, true);
             status = RoutingStatus.NO_BINDINGS_DLA;
          }
       } else {

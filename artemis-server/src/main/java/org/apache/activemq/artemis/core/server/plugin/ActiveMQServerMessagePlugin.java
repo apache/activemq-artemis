@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
  *
@@ -117,6 +118,34 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
 
    /**
     * Before a message is routed
+    * @param connection
+    * @param message
+    * @param context
+    * @param direct
+    * @param rejectDuplicates
+    * @throws ActiveMQException
+    */
+   default void beforeMessageRoute(RemotingConnection connection, Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws ActiveMQException {
+
+   }
+
+   /**
+    * After a message is routed
+    *
+    * @param connection
+    * @param message
+    * @param context
+    * @param direct
+    * @param rejectDuplicates
+    * @param result
+    * @throws ActiveMQException
+    */
+   default void afterMessageRoute(RemotingConnection connection,Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
+                                  RoutingStatus result) throws ActiveMQException {
+
+   }
+
+   /**
     *
     * @param message
     * @param context
@@ -124,12 +153,12 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     * @param rejectDuplicates
     * @throws ActiveMQException
     */
+   @Deprecated
    default void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws ActiveMQException {
 
    }
 
    /**
-    * After a message is routed
     *
     * @param message
     * @param context
@@ -138,6 +167,7 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     * @param result
     * @throws ActiveMQException
     */
+   @Deprecated
    default void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                   RoutingStatus result) throws ActiveMQException {
 
