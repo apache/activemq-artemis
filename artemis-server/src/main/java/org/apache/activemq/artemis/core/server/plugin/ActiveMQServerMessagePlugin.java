@@ -126,7 +126,7 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     * @throws ActiveMQException
     */
    default void beforeMessageRoute(RemotingConnection connection, Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) throws ActiveMQException {
-
+      beforeMessageRoute(message,context,direct,rejectDuplicates);
    }
 
    /**
@@ -142,7 +142,7 @@ public interface ActiveMQServerMessagePlugin extends ActiveMQServerBasePlugin {
     */
    default void afterMessageRoute(RemotingConnection connection,Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                   RoutingStatus result) throws ActiveMQException {
-
+      afterMessageRoute(message,context,direct,rejectDuplicates,result);
    }
 
    /**
