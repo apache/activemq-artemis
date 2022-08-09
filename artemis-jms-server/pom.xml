@@ -102,6 +102,7 @@
                      <maxmemory>512m</maxmemory>
                      <quiet>false</quiet>
                      <aggregate>true</aggregate>
+                     <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                      <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils</excludePackageNames>
                   </configuration>
                   <executions>

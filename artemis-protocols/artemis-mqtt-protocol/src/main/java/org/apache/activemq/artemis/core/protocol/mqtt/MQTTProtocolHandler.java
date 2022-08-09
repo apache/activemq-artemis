@@ -45,6 +45,7 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.ClientIdValidateException;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
@@ -241,8 +242,20 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
        */
       String password = connect.payload().passwordInBytes() == null ? null : new String(connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
       String username = connect.payload().userName();
-      Pair<Boolean, String> validationData = validateUser(username, password);
-      if (!validationData.getA()) {
+      Pair<Boolean, String> validationData = null;
+      try {
+         validationData = validateUser(username, password);
+         if (!validationData.getA()) {
+            return;
+         }
+      }
+      catch(ClientIdValidateException e){
+         if (session.getVersion() == MQTTVersion.MQTT_5) {
+            session.getProtocolHandler().sendConnack(e.getCode());
+         } else {
+            session.getProtocolHandler().sendConnack(MQTTReasonCodes.IDENTIFIER_REJECTED_3);
+         }
+         disconnect(true);
          return;
       }
 
@@ -474,6 +487,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          }
          disconnect(true);
          result = Boolean.FALSE;
+      }
+      catch(ClientIdValidateException e){
+         throw e;
       }
 
       return new Pair<>(result, validatedUser);

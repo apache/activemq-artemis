@@ -70,6 +70,7 @@
                      <notimestamp>true</notimestamp>
                      <notree>true</notree>
                      <use>false</use>
+                     <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                      <overview>${placeholderJavadocDir}/overview.html</overview>
                   </configuration>
                </execution>
@@ -149,7 +150,7 @@
                            <skip>${skipWebsiteJavadocGeneration}</skip>
                            <!-- switch on dependency-driven aggregation -->
                            <includeDependencySources>true</includeDependencySources>
-
+                           <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                            <dependencySourceIncludes>
                               <!-- include ONLY dependencies I control -->
                               <dependencySourceInclude>org.apache.activemq:artemis-core-client</dependencySourceInclude>

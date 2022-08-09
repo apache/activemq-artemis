@@ -1969,6 +1969,7 @@
                <quiet>false</quiet>
                <!-- XXX FIXME 'aggregate' is deprecated -->
                <aggregate>true</aggregate>
+               <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                <excludePackageNames>com.restfully.*:org.jboss.resteasy.examples.*:org.jboss.resteasy.tests.*
                </excludePackageNames>
             </configuration>
