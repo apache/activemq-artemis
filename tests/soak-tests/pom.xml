@@ -46,11 +46,9 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>unit-tests</artifactId>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
-         <scope>test</scope>
-         <type>test-jar</type>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.tests</groupId>
@@ -84,6 +82,34 @@
 
    <build>
       <plugins>
+         <plugin>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-maven-plugin</artifactId>
+            <version>${project.version}</version>
+            <executions>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-horizontal-paging</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/horizontalPaging</instance>
+                     <configuration>${basedir}/target/classes/servers/horizontalPaging</configuration>
+                     <args>
+                        <arg>--java-memory</arg>
+                        <arg>10G</arg>
+                     </args>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
