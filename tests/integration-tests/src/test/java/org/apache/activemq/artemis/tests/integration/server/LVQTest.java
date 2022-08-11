@@ -141,6 +141,28 @@ public class LVQTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testMultipleMessagesWithoutLastValue() throws Exception {
+      ClientProducer producer = clientSession.createProducer(address);
+      ClientMessage m1 = createTextMessage(clientSession, "message1");
+      ClientMessage m2 = createTextMessage(clientSession, "message2");
+      producer.send(m1);
+      producer.send(m2);
+
+      Wait.assertEquals(2L, () -> server.locateQueue(qName1).getMessageCount(), 2000, 100);
+
+      ClientConsumer consumer = clientSession.createConsumer(qName1);
+      clientSession.start();
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals("message1", m.getBodyBuffer().readString());
+      m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals("message2", m.getBodyBuffer().readString());
+   }
+
+   @Test
    public void testMultipleRollback() throws Exception {
       AddressSettings qs = new AddressSettings();
       qs.setDefaultLastValueQueue(true);

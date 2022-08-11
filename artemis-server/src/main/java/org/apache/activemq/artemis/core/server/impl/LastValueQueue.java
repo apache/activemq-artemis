@@ -224,6 +224,9 @@ public class LastValueQueue extends QueueImpl {
          if (current == ref) {
             currentLastValue = true;
          }
+      } else {
+         // if the ref has no last value
+         return true;
       }
       return currentLastValue;
    }
