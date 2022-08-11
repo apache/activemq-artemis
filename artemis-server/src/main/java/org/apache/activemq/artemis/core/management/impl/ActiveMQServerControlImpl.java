@@ -3095,6 +3095,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3146,6 +3147,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3224,6 +3226,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3331,6 +3334,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3447,6 +3451,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   @Deprecated
    public void addAddressSettings(final String address,
                                   final String DLA,
                                   final String expiryAddress,
@@ -3594,6 +3599,39 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettings));
 
+   }
+
+   @Override
+   public String addAddressSettings(String address, String addressSettingsConfigurationAsJson) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.addAddressSettings(this.server, addressSettingsConfigurationAsJson);
+      }
+      checkStarted();
+
+      clearIO();
+
+      try {
+         AddressSettings addressSettingsConfiguration = AddressSettings.fromJSON(addressSettingsConfigurationAsJson);
+         if (addressSettingsConfiguration == null) {
+            throw ActiveMQMessageBundle.BUNDLE.failedToParseJson(addressSettingsConfigurationAsJson);
+         }
+         // JBPAPP-6334 requested this to be pageSizeBytes > maxSizeBytes
+         if (addressSettingsConfiguration.getPageSizeBytes() > addressSettingsConfiguration.getMaxSizeBytes() && addressSettingsConfiguration.getMaxSizeBytes() > 0) {
+            throw new IllegalStateException("pageSize has to be lower than maxSizeBytes. Invalid argument (" + addressSettingsConfiguration.getPageSizeBytes() + " < " + addressSettingsConfiguration.getMaxSizeBytes() + ")");
+         }
+
+         if (addressSettingsConfiguration.getMaxSizeBytes() < -1) {
+            throw new IllegalStateException("Invalid argument on maxSizeBytes");
+         }
+         server.getAddressSettingsRepository().addMatch(address, addressSettingsConfiguration);
+
+         storageManager.storeAddressSetting(new PersistedAddressSetting(new SimpleString(address), addressSettingsConfiguration));
+         return addressSettingsConfiguration.toJSON();
+      } catch (ActiveMQException e) {
+         throw new IllegalStateException(e.getMessage());
+      } finally {
+         blockOnIO();
+      }
    }
 
    @Override

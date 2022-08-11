@@ -17,5 +17,16 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 public enum PageFullMessagePolicy {
-   DROP, FAIL
+   DROP, FAIL;
+
+   public static PageFullMessagePolicy getType(int type) {
+      switch (type) {
+         case 0:
+            return DROP;
+         case 1:
+            return FAIL;
+         default:
+            return null;
+      }
+   }
 }

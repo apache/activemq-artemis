@@ -334,7 +334,7 @@ public class RedeployTest extends ActiveMQTestBase {
          AddressSettings addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("foo");
          assertEquals("a", addressSettings.getDeadLetterAddress().toString());
 
-         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addAddressSettings("bar", "c", null, 0, false, 0, 0, 0, 0, 0, 0, 0, 0, false, null, 0, 0, null, false, false, false, false);
+         embeddedActiveMQ.getActiveMQServer().getActiveMQServerControl().addAddressSettings("bar", new AddressSettings().setDeadLetterAddress(SimpleString.toSimpleString("c")).setExpiryDelay(0L).toJSON());
          addressSettings = embeddedActiveMQ.getActiveMQServer().getAddressSettingsRepository().getMatch("bar");
          assertEquals("c", addressSettings.getDeadLetterAddress().toString());
 

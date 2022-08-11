@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 import java.io.Serializable;
+import java.io.StringReader;
+import java.util.Map;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
@@ -25,8 +27,13 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.settings.Mergeable;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
+import org.apache.activemq.artemis.json.JsonString;
+import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.utils.BufferHelper;
 import org.apache.activemq.artemis.utils.DataConstants;
+import org.apache.activemq.artemis.utils.JsonLoader;
 
 /**
  * Configuration settings that are applied on the address level
@@ -34,6 +41,152 @@ import org.apache.activemq.artemis.utils.DataConstants;
 public class AddressSettings implements Mergeable<AddressSettings>, Serializable, EncodingSupport {
 
    private static final long serialVersionUID = 1607502280582336366L;
+
+   public static final String ADDRESS_FULL_MESSAGE_POLICY = "address-full-message-policy";
+
+   public static final String MAX_SIZE_BYTES = "max-size-bytes";
+
+   public static final String MAX_READ_PAGE_BYTES = "max-size-page-bytes";
+
+   public static final String MAX_READ_PAGE_MESSAGES = "max-read-page-messages";
+
+   public static final String MAX_SIZE_MESSAGES = "max-size-messages";
+
+   public static final String PAGE_SIZE_BYTES = "page-size-bytes";
+
+   public static final String PAGE_MAX_CACHE_SIZE = "page-max-cache-size";
+
+   public static final String DROP_MESSAGES_WHEN_FULL = "drop-messages-when-full";
+
+   public static final String MAX_DELIVERY_ATTEMPTS = "max-delivery-attempts";
+
+   public static final String MESSAGE_COUNTER_HISTORY_DAY_LIMIT = "message-counter-history-day-limit";
+
+   public static final String REDELIVERY_DELAY = "redelivery-delay";
+
+   public static final String REDELIVERY_DELAY_MULTIPLIER = "redelivery-delay-multiplier";
+
+   public static final String REDELIVERY_COLLISION_AVOIDANCE_FACTOR = "redelivery-collision-avoidance-factor";
+
+   public static final String MAX_REDELIVERY_DELAY = "max-redelivery-delay";
+
+   public static final String DEAD_LETTER_ADDRESS = "dead-letter-address";
+
+   public static final String EXPIRY_ADDRESS = "expiry-address";
+
+   public static final String EXPIRY_DELAY = "expiry-delay";
+
+   public static final String MIN_EXPIRY_DELAY = "min-expiry-delay";
+
+   public static final String MAX_EXPIRY_DELAY = "max-expiry-delay";
+
+   public static final String DEFAULT_LAST_VALUE_QUEUE_PROP = "default-last-value-queue";
+
+   public static final String DEFAULT_LAST_VALUE_KEY = "default-last-value-key";
+
+   public static final String DEFAULT_NON_DESTRUCTIVE = "default-non-destructive";
+
+   public static final String DEFAULT_EXCLUSIVE_QUEUE = "default-exclusive-queue";
+
+   public static final String DEFAULT_GROUP_REBALANCE = "default-group-rebalance";
+
+   public static final String DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH = "default-group-rebalance-pause-dispatch";
+
+   public static final String DEFAULT_GROUP_BUCKETS = "default-group-buckets";
+
+   public static final String DEFAULT_GROUP_FIRST_KEY = "default-group-first-key";
+
+   public static final String REDISTRIBUTION_DELAY = "redistribution-delay";
+
+   public static final String SEND_TO_DLA_ON_NO_ROUTE = "send-to-dla-on-no-route";
+
+   public static final String SLOW_CONSUMER_THRESHOLD = "slow-consumer-threshold";
+
+   public static final String SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT = "slow-consumer-threshold-measurement-unit";
+
+   public static final String SLOW_CONSUMER_CHECK_PERIOD = "slow-consumer-check-period";
+
+   public static final String SLOW_CONSUMER_POLICY = "slow-consumer-policy";
+
+   public static final String AUTO_CREATE_QUEUES = "auto-create-queues";
+
+   public static final String AUTO_DELETE_QUEUES = "auto-delete-queues";
+
+   public static final String AUTO_DELETE_CREATED_QUEUES = "auto-delete-created-queues";
+
+   public static final String AUTO_DELETE_QUEUES_DELAY = "auto-delete-queues-delay";
+
+   public static final String AUTO_DELETE_QUEUE_MESSAGE_COUNT = "auto-delete-queues-message-count";
+
+   public static final String DEFAULT_RING_SIZE = "default-ring-size";
+
+   public static final String RETROACTIVE_MESSAGE_COUNT = "retroactive-message-count";
+
+   public static final String CONFIG_DELETE_QUEUES = "config-delete-queues";
+
+   public static final String AUTO_CREATE_ADDRESSES = "auto-create-addresses";
+
+   public static final String AUTO_DELETE_ADDRESSES = "auto-delete-addresses";
+
+   public static final String AUTO_DELETE_ADDRESS_DELAY = "auto-delete-address-delay";
+
+   public static final String CONFIG_DELETE_ADDRESSES = "config-delete-addresses";
+
+   public static final String CONFIG_DELETE_DIVERTS = "config-delete-diverts";
+
+   public static final String MANAGEMENT_BROWSE_PAGE_SIZE_PROP = "management-browse-page-size";
+
+   public static final String MAX_SIZE_BYTES_REJECT_THRESHOLD = "max-size-bytes-reject-threshold";
+
+   public static final String DEFAULT_MAX_CONSUMERS = "default-max-consumers";
+
+   public static final String DEFAULT_PURGE_ON_NO_CONSUMERS = "default-purge-on-no-consumers";
+
+   public static final String DEFAULT_CONSUMERS_BEFORE_DISPATCH = "default-consumers-before-dispatch";
+
+   public static final String DEFAULT_DELAY_BEFORE_DISPATCH = "default-delay-before-dispatch";
+
+   public static final String DEFAULT_QUEUE_ROUTING_TYPE = "default-queue-routing-type";
+
+   public static final String DEFAULT_ADDRESS_ROUTING_TYPE = "default-address-routing-type";
+
+   public static final String DEFAULT_CONSUMER_WINDOW_SIZE_PROP = "default-consumer-window-size";
+
+   public static final String AUTO_CREATE_DEAD_LETTER_RESOURCES = "auto-create-dead-letter-resources";
+
+   public static final String DEAD_LETTER_QUEUE_PREFIX = "dead-letter-queue-prefix";
+
+   public static final String DEAD_LETTER_QUEUE_SUFFIX = "dead-letter-queue-suffix";
+
+   public static final String AUTO_CREATE_EXPIRY_RESOURCES = "auto-create-expiry-resources";
+
+   public static final String EXPIRY_QUEUE_PREFIX = "expiry-queue-prefix";
+
+   public static final String EXPIRY_QUEUE_SUFFIX = "expiry-address-suffix";
+
+   public static final String ENABLE_METRICS = "enable-metrics";
+
+   public static final String MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT_PROP = "management-message-attribute-size-limit";
+
+   public static final String  ENABLE_INGRESS_TIMESTAMP = "enable-ingress-timestamp";
+
+   public static final String  QUEUE_PREFETCH = "queue-prefetch";
+
+   public static final String  AUTO_DELETE_QUEUES_SKIP_USAGE_CHECK = "auto-delete-queues-skip-usage-check";
+
+   public static final String  AUTO_DELETE_ADDRESSES_SKIP_USAGE_CHECK = "auto-delete-addresses-skip-usage-check";
+
+   public static final String  PREFETCH_PAGE_MESSAGES = "prefetch-page-messages";
+
+   public static final String  PAGE_LIMIT_BYTES = "page-limit-bytes";
+
+   public static final String  PAGE_LIMIT_MESSAGES = "page-limit-messages";
+
+   public static final String  PAGE_FULL_MESSAGE_POLICY = "page-full-message-policy";
+
+   public static final String  PREFETCH_PAGE_BYTES = "prefetch-page-bytes";
+
+   public static final String  ID_CACHE_SIZE = "id-cache-size";
 
    /**
     * defaults used if null, this allows merging
@@ -380,6 +533,378 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    }
 
    public AddressSettings() {
+   }
+
+   /**
+    * Set the value of a parameter based on its "key" {@code String}. Valid key names and corresponding {@code static}
+    * {@code final} are:
+    * <p><ul>
+    * <li>address-full-message-policy: {@link #ADDRESS_FULL_MESSAGE_POLICY}
+    * <li>max-size-bytes: {@link #MAX_SIZE_BYTES}
+    * <li>max-size-page-bytes: {@link #MAX_READ_PAGE_BYTES}
+    * <li>max-read-page-messages: {@link #MAX_READ_PAGE_MESSAGES}
+    * <li>max-size-messages: {@link #MAX_SIZE_MESSAGES}
+    * <li>page-size-bytes: {@link #PAGE_SIZE_BYTES}
+    * <li>page-max-cache-size: {@link #PAGE_MAX_CACHE_SIZE}
+    * <li>drop-messages-when-full: {@link #DROP_MESSAGES_WHEN_FULL}
+    * <li>max-delivery-attempts: {@link #MAX_DELIVERY_ATTEMPTS}
+    * <li>message-counter-history-day-limit: {@link #MESSAGE_COUNTER_HISTORY_DAY_LIMIT}
+    * <li>redelivery-delay: {@link #REDELIVERY_DELAY}
+    * <li>redelivery-delay-multiplier: {@link #REDELIVERY_DELAY_MULTIPLIER}
+    * <li>redelivery-collision-avoidance-factor: {@link #REDELIVERY_COLLISION_AVOIDANCE_FACTOR}
+    * <li>max-redelivery-delay: {@link #MAX_REDELIVERY_DELAY}
+    * <li>dead-letter-address: {@link #DEAD_LETTER_ADDRESS}
+    * <li>expiry-address: {@link #EXPIRY_ADDRESS}
+    * <li>expiry-delay: {@link #EXPIRY_DELAY}
+    * <li>min-expiry-delay: {@link #MIN_EXPIRY_DELAY}
+    * <li>max-expiry-delay: {@link #MAX_EXPIRY_DELAY}
+    * <li>default-last-value-queue: {@link #DEFAULT_LAST_VALUE_QUEUE_PROP}
+    * <li>default-last-value-key: {@link #DEFAULT_LAST_VALUE_KEY}
+    * <li>default-non-destructive: {@link #DEFAULT_NON_DESTRUCTIVE}
+    * <li>default-exclusive-queue: {@link #DEFAULT_EXCLUSIVE_QUEUE}
+    * <li>default-group-rebalance: {@link #DEFAULT_GROUP_REBALANCE}
+    * <li>default-group-rebalance-pause-dispatch: {@link #DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH}
+    * <li>default-group-buckets: {@link #DEFAULT_GROUP_BUCKETS}
+    * <li>default-group-first-key: {@link #DEFAULT_GROUP_FIRST_KEY}
+    * <li>redistribution-delay: {@link #REDISTRIBUTION_DELAY}
+    * <li>send-to-dla-on-no-route: {@link #SEND_TO_DLA_ON_NO_ROUTE}
+    * <li>slow-consumer-threshold: {@link #SLOW_CONSUMER_THRESHOLD}
+    * <li>slow-consumer-threshold-measurement-unit: {@link #SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT}
+    * <li>slow-consumer-check-period: {@link #SLOW_CONSUMER_CHECK_PERIOD}
+    * <li>slow-consumer-policy: {@link #SLOW_CONSUMER_POLICY}
+    * <li>auto-create-queues: {@link #AUTO_CREATE_QUEUES}
+    * <li>auto-delete-queues: {@link #AUTO_DELETE_QUEUES}
+    * <li>auto-delete-created-queues: {@link #AUTO_DELETE_CREATED_QUEUES}
+    * <li>auto-delete-queues-delay: {@link #AUTO_DELETE_QUEUES_DELAY}
+    * <li>auto-delete-queues-message-count: {@link #AUTO_DELETE_QUEUE_MESSAGE_COUNT}
+    * <li>default-ring-size: {@link #DEFAULT_RING_SIZE}
+    * <li>retroactive-message-count: {@link #RETROACTIVE_MESSAGE_COUNT}
+    * <li>config-delete-queues: {@link #CONFIG_DELETE_QUEUES}
+    * <li>auto-create-addresses: {@link #AUTO_CREATE_ADDRESSES}
+    * <li>auto-delete-addresses: {@link #AUTO_DELETE_ADDRESSES}
+    * <li>auto-delete-address-delay: {@link #AUTO_DELETE_ADDRESS_DELAY}
+    * <li>config-delete-addresses: {@link #CONFIG_DELETE_ADDRESSES}
+    * <li>config-delete-diverts: {@link #CONFIG_DELETE_DIVERTS}
+    * <li>management-browse-page-size: {@link #MANAGEMENT_BROWSE_PAGE_SIZE_PROP}
+    * <li>max-size-bytes-reject-threshold: {@link #MAX_SIZE_BYTES_REJECT_THRESHOLD}
+    * <li>default-max-consumers: {@link #DEFAULT_MAX_CONSUMERS}
+    * <li>default-purge-on-no-consumers: {@link #DEFAULT_PURGE_ON_NO_CONSUMERS}
+    * <li>default-consumers-before-dispatch: {@link #DEFAULT_CONSUMERS_BEFORE_DISPATCH}
+    * <li>default-delay-before-dispatch: {@link #DEFAULT_DELAY_BEFORE_DISPATCH}
+    * <li>default-queue-routing-type: {@link #DEFAULT_QUEUE_ROUTING_TYPE}
+    * <li>default-address-routing-type: {@link #DEFAULT_ADDRESS_ROUTING_TYPE}
+    * <li>default-consumer-window-size: {@link #DEFAULT_CONSUMER_WINDOW_SIZE_PROP}
+    * <li>auto-create-dead-letter-resources: {@link #AUTO_CREATE_DEAD_LETTER_RESOURCES}
+    * <li>dead-letter-queue-prefix: {@link #DEAD_LETTER_QUEUE_PREFIX}
+    * <li>dead-letter-queue-suffix: {@link #DEAD_LETTER_QUEUE_SUFFIX}
+    * <li>auto-create-expiry-resources: {@link #AUTO_CREATE_EXPIRY_RESOURCES}
+    * <li>expiry-queue-prefix: {@link #EXPIRY_QUEUE_PREFIX}
+    * <li>expiry-address-suffix: {@link #EXPIRY_QUEUE_SUFFIX}
+    * <li>enable-metrics: {@link #ENABLE_METRICS}
+    * <li>management-message-attribute-size-limit: {@link #MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT_PROP}
+    * <li>enable-ingress-timestamp: {@link # ENABLE_INGRESS_TIMESTAMP}
+    * <li>queue-prefetch: {@link # QUEUE_PREFETCH}
+    * <li>auto-delete-queues-skip-usage-check: {@link # AUTO_DELETE_QUEUES_SKIP_USAGE_CHECK}
+    * <li>auto-delete-addresses-skip-usage-check: {@link # AUTO_DELETE_ADDRESSES_SKIP_USAGE_CHECK}
+    * <li>prefetch-page-messages: {@link # PREFETCH_PAGE_MESSAGES}
+    * <li>page-limit-bytes: {@link # PAGE_LIMIT_BYTES}
+    * <li>page-limit-messages: {@link # PAGE_LIMIT_MESSAGES}
+    * <li>page-full-message-policy: {@link # PAGE_FULL_MESSAGE_POLICY}
+    * <li>prefetch-page-bytes: {@link # PREFETCH_PAGE_BYTES}
+    * <li>id-cache-size: {@link # ID_CACHE_SIZE}
+    * </ul><p>
+    * The {@code String}-based values will be converted to the proper value types based on the underlying property. For
+    * example, if you pass the value "TRUE" for the key "auto-create-queues" the {@code String} "TRUE" will be converted
+    * to the {@code Boolean} {@code true}.
+    *
+    * @param key the key to set to the value
+    * @param value the value to set for the key
+    * @return this {@code QueueConfiguration}
+    */
+   public AddressSettings set(String key, String value) {
+      if (key != null && value != null) {
+         if (key.equals(ADDRESS_FULL_MESSAGE_POLICY)) {
+            setAddressFullMessagePolicy(AddressFullMessagePolicy.valueOf(value));
+         } else if (key.equals(MAX_SIZE_BYTES)) {
+            setMaxSizeBytes(Long.parseLong(value));
+         } else if (key.equals(MAX_READ_PAGE_BYTES)) {
+            setMaxReadPageBytes(Integer.valueOf(value));
+         } else if (key.equals(MAX_READ_PAGE_MESSAGES)) {
+            setMaxReadPageMessages(Integer.valueOf(value));
+         } else if (key.equals(MAX_SIZE_MESSAGES)) {
+            setMaxSizeMessages(Long.parseLong(value));
+         } else if (key.equals(PAGE_SIZE_BYTES)) {
+            setPageSizeBytes(Integer.valueOf(value));
+         } else if (key.equals(PAGE_MAX_CACHE_SIZE)) {
+            setPageCacheMaxSize(Integer.valueOf(value));
+         } else if (key.equals(DROP_MESSAGES_WHEN_FULL)) {
+            setDropMessagesWhenFull(Boolean.valueOf(value));
+         } else if (key.equals(MAX_DELIVERY_ATTEMPTS)) {
+            setMaxDeliveryAttempts(Integer.valueOf(value));
+         } else if (key.equals(MESSAGE_COUNTER_HISTORY_DAY_LIMIT)) {
+            setMessageCounterHistoryDayLimit(Integer.valueOf(value));
+         } else if (key.equals(REDELIVERY_DELAY)) {
+            setRedeliveryDelay(Long.parseLong(value));
+         } else if (key.equals(REDELIVERY_DELAY_MULTIPLIER)) {
+            setRedeliveryMultiplier(Double.parseDouble(value));
+         } else if (key.equals(REDELIVERY_COLLISION_AVOIDANCE_FACTOR)) {
+            setRedeliveryCollisionAvoidanceFactor(Double.parseDouble(value));
+         } else if (key.equals(MAX_REDELIVERY_DELAY)) {
+            setMaxRedeliveryDelay(Long.parseLong(value));
+         } else if (key.equals(DEAD_LETTER_ADDRESS)) {
+            setDeadLetterAddress(new SimpleString(value));
+         } else if (key.equals(EXPIRY_ADDRESS)) {
+            setExpiryAddress(new SimpleString(value));
+         } else if (key.equals(EXPIRY_DELAY)) {
+            setExpiryDelay(Long.valueOf(value));
+         } else if (key.equals(MIN_EXPIRY_DELAY)) {
+            setMinExpiryDelay(Long.valueOf(value));
+         } else if (key.equals(MAX_EXPIRY_DELAY)) {
+            setMaxExpiryDelay(Long.valueOf(value));
+         } else if (key.equals(DEFAULT_LAST_VALUE_QUEUE_PROP)) {
+            setDefaultLastValueQueue(Boolean.parseBoolean(value));
+         } else if (key.equals(DEFAULT_LAST_VALUE_KEY)) {
+            setDefaultLastValueKey(new SimpleString(value));
+         } else if (key.equals(DEFAULT_NON_DESTRUCTIVE)) {
+            setDefaultNonDestructive(Boolean.parseBoolean(value));
+         } else if (key.equals(DEFAULT_EXCLUSIVE_QUEUE)) {
+            setDefaultExclusiveQueue(Boolean.valueOf(value));
+         } else if (key.equals(DEFAULT_GROUP_REBALANCE)) {
+            setDefaultGroupRebalance(Boolean.parseBoolean(value));
+         } else if (key.equals(DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH)) {
+            setDefaultGroupRebalancePauseDispatch(Boolean.parseBoolean(value));
+         } else if (key.equals(DEFAULT_GROUP_BUCKETS)) {
+            setDefaultGroupBuckets(Integer.valueOf(value));
+         } else if (key.equals(DEFAULT_GROUP_FIRST_KEY)) {
+            setDefaultGroupFirstKey(new SimpleString(value));
+         } else if (key.equals(REDISTRIBUTION_DELAY)) {
+            setRedistributionDelay(Long.parseLong(value));
+         } else if (key.equals(SEND_TO_DLA_ON_NO_ROUTE)) {
+            setSendToDLAOnNoRoute(Boolean.parseBoolean(value));
+         } else if (key.equals(SLOW_CONSUMER_THRESHOLD)) {
+            setSlowConsumerThreshold(Long.parseLong(value));
+         } else if (key.equals(SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT)) {
+            setSlowConsumerThresholdMeasurementUnit(SlowConsumerThresholdMeasurementUnit.valueOf(value));
+         } else if (key.equals(SLOW_CONSUMER_CHECK_PERIOD)) {
+            setSlowConsumerCheckPeriod(Long.parseLong(value));
+         } else if (key.equals(SLOW_CONSUMER_POLICY)) {
+            setSlowConsumerPolicy(SlowConsumerPolicy.valueOf(value));
+         } else if (key.equals(AUTO_CREATE_QUEUES)) {
+            setAutoCreateQueues(Boolean.valueOf(value));
+         } else if (key.equals(AUTO_DELETE_QUEUES)) {
+            setAutoDeleteQueues(Boolean.valueOf(value));
+         } else if (key.equals(AUTO_DELETE_CREATED_QUEUES)) {
+            setAutoDeleteCreatedQueues(Boolean.valueOf(value));
+         } else if (key.equals(AUTO_DELETE_QUEUES_DELAY)) {
+            setAutoDeleteQueuesDelay(Long.parseLong(value));
+         } else if (key.equals(AUTO_DELETE_QUEUE_MESSAGE_COUNT)) {
+            setAutoDeleteQueuesMessageCount(Long.parseLong(value));
+         } else if (key.equals(DEFAULT_RING_SIZE)) {
+            setDefaultRingSize(Long.parseLong(value));
+         } else if (key.equals(RETROACTIVE_MESSAGE_COUNT)) {
+            setRetroactiveMessageCount(Long.parseLong(value));
+         } else if (key.equals(CONFIG_DELETE_QUEUES)) {
+            setConfigDeleteQueues(DeletionPolicy.valueOf(value));
+         } else if (key.equals(AUTO_CREATE_ADDRESSES)) {
+            setAutoCreateAddresses(Boolean.valueOf(value));
+         } else if (key.equals(AUTO_DELETE_ADDRESSES)) {
+            setAutoDeleteAddresses(Boolean.valueOf(value));
+         } else if (key.equals(AUTO_DELETE_ADDRESS_DELAY)) {
+            setAutoDeleteAddressesDelay(Long.parseLong(value));
+         } else if (key.equals(CONFIG_DELETE_ADDRESSES)) {
+            setConfigDeleteAddresses(DeletionPolicy.valueOf(value));
+         } else if (key.equals(CONFIG_DELETE_DIVERTS)) {
+            setConfigDeleteDiverts(DeletionPolicy.valueOf(value));
+         } else if (key.equals(MANAGEMENT_BROWSE_PAGE_SIZE_PROP)) {
+            setManagementBrowsePageSize(Integer.valueOf(value));
+         } else if (key.equals(MAX_SIZE_BYTES_REJECT_THRESHOLD)) {
+            setMaxSizeBytesRejectThreshold(Long.parseLong(value));
+         } else if (key.equals(DEFAULT_MAX_CONSUMERS)) {
+            setDefaultMaxConsumers(Integer.valueOf(value));
+         } else if (key.equals(DEFAULT_PURGE_ON_NO_CONSUMERS)) {
+            setDefaultPurgeOnNoConsumers(Boolean.valueOf(value));
+         } else if (key.equals(DEFAULT_CONSUMERS_BEFORE_DISPATCH)) {
+            setDefaultConsumersBeforeDispatch(Integer.valueOf(value));
+         } else if (key.equals(DEFAULT_DELAY_BEFORE_DISPATCH)) {
+            setDefaultDelayBeforeDispatch(Long.valueOf(value));
+         } else if (key.equals(DEFAULT_QUEUE_ROUTING_TYPE)) {
+            setDefaultQueueRoutingType(RoutingType.valueOf(value));
+         } else if (key.equals(DEFAULT_ADDRESS_ROUTING_TYPE)) {
+            setDefaultAddressRoutingType(RoutingType.valueOf(value));
+         } else if (key.equals(DEFAULT_CONSUMER_WINDOW_SIZE_PROP)) {
+            setDefaultConsumerWindowSize(Integer.valueOf(value));
+         } else if (key.equals(AUTO_CREATE_DEAD_LETTER_RESOURCES)) {
+            setAutoCreateDeadLetterResources(Boolean.parseBoolean(value));
+         } else if (key.equals(DEAD_LETTER_QUEUE_PREFIX)) {
+            setDeadLetterQueuePrefix(new SimpleString(value));
+         } else if (key.equals(DEAD_LETTER_QUEUE_SUFFIX)) {
+            setDeadLetterQueueSuffix(new SimpleString(value));
+         } else if (key.equals(AUTO_CREATE_EXPIRY_RESOURCES)) {
+            setAutoCreateExpiryResources(Boolean.parseBoolean(value));
+         } else if (key.equals(EXPIRY_QUEUE_PREFIX)) {
+            setExpiryQueuePrefix(new SimpleString(value));
+         } else if (key.equals(EXPIRY_QUEUE_SUFFIX)) {
+            setExpiryQueueSuffix(new SimpleString(value));
+         } else if (key.equals(ENABLE_METRICS)) {
+            setEnableMetrics(Boolean.parseBoolean(value));
+         } else if (key.equals(MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT_PROP)) {
+            setManagementMessageAttributeSizeLimit(Integer.valueOf(value));
+         } else if (key.equals(ENABLE_INGRESS_TIMESTAMP)) {
+            setEnableIngressTimestamp(Boolean.parseBoolean(value));
+         } else if (key.equals(QUEUE_PREFETCH)) {
+            setQueuePrefetch(Integer.valueOf(value));
+         } else if (key.equals(AUTO_DELETE_QUEUES_SKIP_USAGE_CHECK)) {
+            setAutoDeleteQueuesSkipUsageCheck(Boolean.parseBoolean(value));
+         } else if (key.equals(AUTO_DELETE_ADDRESSES_SKIP_USAGE_CHECK)) {
+            setAutoDeleteAddressesSkipUsageCheck(Boolean.parseBoolean(value));
+         } else if (key.equals(PREFETCH_PAGE_MESSAGES)) {
+            setPrefetchPageMessages(Integer.valueOf(value));
+         } else if (key.equals(PAGE_LIMIT_BYTES)) {
+            setPageLimitBytes(Long.valueOf(value));
+         } else if (key.equals(PAGE_LIMIT_MESSAGES)) {
+            setPageLimitMessages(Long.valueOf(value));
+         } else if (key.equals(PAGE_FULL_MESSAGE_POLICY)) {
+            setPageFullMessagePolicy(PageFullMessagePolicy.valueOf(value));
+         } else if (key.equals(PREFETCH_PAGE_BYTES)) {
+            setPrefetchPageBytes(Integer.valueOf(value));
+         } else if (key.equals(ID_CACHE_SIZE)) {
+            setIDCacheSize(Integer.valueOf(value));
+         }
+      }
+      return this;
+   }
+
+   /**
+    * This method returns a JSON-formatted {@code String} representation of this {@code AddressSettings}. It is a
+    * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}.
+    *
+    * @return a JSON-formatted {@code String} representation of this {@code AddressSettings}
+    */
+   public String toJSON() {
+      JsonObjectBuilder builder = JsonLoader.createObjectBuilder();
+
+      if (getAddressFullMessagePolicy() != null) {
+         builder.add(ADDRESS_FULL_MESSAGE_POLICY, getAddressFullMessagePolicy().toString());
+      }
+
+      builder.add(MAX_SIZE_BYTES, getMaxSizeBytes());
+      builder.add(MAX_SIZE_MESSAGES, getMaxSizeMessages());
+      builder.add(MAX_READ_PAGE_MESSAGES, getMaxReadPageMessages());
+      builder.add(MAX_READ_PAGE_BYTES, getMaxReadPageBytes());
+      builder.add(PAGE_SIZE_BYTES, getPageSizeBytes());
+      builder.add(PAGE_MAX_CACHE_SIZE, getPageCacheMaxSize());
+      if (getDropMessagesWhenFull() != null) {
+         builder.add(DROP_MESSAGES_WHEN_FULL, getDropMessagesWhenFull());
+      }
+      builder.add(MAX_DELIVERY_ATTEMPTS, getMaxDeliveryAttempts());
+      builder.add(MESSAGE_COUNTER_HISTORY_DAY_LIMIT, getMessageCounterHistoryDayLimit());
+      builder.add(REDELIVERY_DELAY, getRedeliveryDelay());
+      builder.add(REDELIVERY_DELAY_MULTIPLIER, getRedeliveryMultiplier());
+      builder.add(REDELIVERY_COLLISION_AVOIDANCE_FACTOR, getRedeliveryCollisionAvoidanceFactor());
+      builder.add(MAX_REDELIVERY_DELAY, getMaxRedeliveryDelay());
+      if (getDeadLetterAddress() != null) {
+         builder.add(DEAD_LETTER_ADDRESS, getDeadLetterAddress().toString());
+      }
+      builder.add(AUTO_CREATE_DEAD_LETTER_RESOURCES, isAutoCreateDeadLetterResources());
+      if (getDeadLetterQueuePrefix() != null) {
+         builder.add(DEAD_LETTER_QUEUE_PREFIX, getDeadLetterQueuePrefix().toString());
+      }
+      if (getDeadLetterQueueSuffix() != null) {
+         builder.add(DEAD_LETTER_QUEUE_SUFFIX, getDeadLetterQueueSuffix().toString());
+      }
+      if (getExpiryAddress() != null) {
+         builder.add(EXPIRY_ADDRESS, getExpiryAddress().toString());
+      }
+      builder.add(AUTO_CREATE_EXPIRY_RESOURCES, isAutoCreateExpiryResources());
+      if (getExpiryQueuePrefix() != null) {
+         builder.add(EXPIRY_QUEUE_PREFIX, getExpiryQueuePrefix().toString());
+      }
+      if (getExpiryQueueSuffix() != null) {
+         builder.add(EXPIRY_QUEUE_SUFFIX, getExpiryQueueSuffix().toString());
+      }
+      builder.add(EXPIRY_DELAY, getExpiryDelay());
+      builder.add(MIN_EXPIRY_DELAY, getMinExpiryDelay());
+      builder.add(MAX_EXPIRY_DELAY, getMaxExpiryDelay());
+      builder.add(DEFAULT_LAST_VALUE_QUEUE_PROP, isDefaultLastValueQueue());
+      if (getDefaultLastValueKey() != null ) {
+         builder.add(DEFAULT_LAST_VALUE_KEY, getDefaultLastValueKey().toString());
+      }
+      builder.add(DEFAULT_NON_DESTRUCTIVE, isDefaultNonDestructive());
+      builder.add(DEFAULT_EXCLUSIVE_QUEUE, isDefaultExclusiveQueue());
+      builder.add(REDISTRIBUTION_DELAY, getRedistributionDelay());
+      builder.add(SEND_TO_DLA_ON_NO_ROUTE, isSendToDLAOnNoRoute());
+      builder.add(SLOW_CONSUMER_THRESHOLD, getSlowConsumerThreshold());
+      builder.add(SLOW_CONSUMER_CHECK_PERIOD, getSlowConsumerCheckPeriod());
+      if (getSlowConsumerPolicy() != null ) {
+         builder.add(SLOW_CONSUMER_POLICY, getSlowConsumerPolicy().toString());
+      }
+      builder.add(AUTO_CREATE_QUEUES, isAutoCreateQueues());
+      builder.add(AUTO_DELETE_QUEUES, isAutoDeleteQueues());
+      builder.add(AUTO_DELETE_CREATED_QUEUES, isAutoDeleteCreatedQueues());
+      builder.add(AUTO_DELETE_QUEUES_DELAY, getAutoDeleteQueuesDelay());
+      builder.add(AUTO_DELETE_QUEUE_MESSAGE_COUNT, getAutoDeleteQueuesMessageCount());
+      if (getConfigDeleteQueues() != null) {
+         builder.add(CONFIG_DELETE_QUEUES, getConfigDeleteQueues().toString());
+      }
+      builder.add(AUTO_CREATE_ADDRESSES, isAutoCreateAddresses());
+      builder.add(AUTO_DELETE_ADDRESSES, isAutoDeleteAddresses());
+      builder.add(AUTO_DELETE_ADDRESS_DELAY, getAutoDeleteAddressesDelay());
+      if (getConfigDeleteAddresses() != null) {
+         builder.add(CONFIG_DELETE_ADDRESSES, getConfigDeleteAddresses().toString());
+      }
+      if (getConfigDeleteDiverts() != null) {
+         builder.add(CONFIG_DELETE_DIVERTS, getConfigDeleteDiverts().toString());
+      }
+      builder.add(MANAGEMENT_BROWSE_PAGE_SIZE_PROP, getManagementBrowsePageSize());
+      builder.add(QUEUE_PREFETCH, getQueuePrefetch());
+      builder.add(MAX_SIZE_BYTES_REJECT_THRESHOLD, getMaxSizeBytesRejectThreshold());
+      builder.add(DEFAULT_MAX_CONSUMERS, getDefaultMaxConsumers());
+      if (defaultPurgeOnNoConsumers != null) {
+         builder.add(DEFAULT_PURGE_ON_NO_CONSUMERS, defaultPurgeOnNoConsumers);
+      }
+      builder.add(DEFAULT_CONSUMERS_BEFORE_DISPATCH, getDefaultConsumersBeforeDispatch());
+      builder.add(DEFAULT_DELAY_BEFORE_DISPATCH, getDefaultDelayBeforeDispatch());
+      if (getDefaultQueueRoutingType() != null ) {
+         builder.add(DEFAULT_QUEUE_ROUTING_TYPE, getDefaultQueueRoutingType().toString());
+      }
+      if (getDefaultAddressRoutingType() != null ) {
+         builder.add(DEFAULT_ADDRESS_ROUTING_TYPE, getDefaultAddressRoutingType().toString());
+      }
+      builder.add(DEFAULT_CONSUMER_WINDOW_SIZE_PROP, getDefaultConsumerWindowSize());
+      builder.add(DEFAULT_GROUP_REBALANCE, isDefaultGroupRebalance());
+      builder.add(DEFAULT_GROUP_REBALANCE_PAUSE_DISPATCH, isDefaultGroupRebalancePauseDispatch());
+      builder.add(DEFAULT_GROUP_BUCKETS, getDefaultGroupBuckets());
+      if (getDefaultGroupFirstKey() != null ) {
+         builder.add(DEFAULT_GROUP_FIRST_KEY, getDefaultGroupFirstKey().toString());
+      }
+      builder.add(DEFAULT_RING_SIZE, getDefaultRingSize());
+      builder.add(RETROACTIVE_MESSAGE_COUNT, getRetroactiveMessageCount());
+      builder.add(ENABLE_METRICS, isEnableMetrics());
+      builder.add(MANAGEMENT_MESSAGE_ATTRIBUTE_SIZE_LIMIT_PROP, getManagementMessageAttributeSizeLimit());
+      if (getSlowConsumerThresholdMeasurementUnit() != null ) {
+         builder.add(SLOW_CONSUMER_THRESHOLD_MEASUREMENT_UNIT, getSlowConsumerThresholdMeasurementUnit().toString());
+      }
+      builder.add(ENABLE_INGRESS_TIMESTAMP, isEnableIngressTimestamp());
+      builder.add(AUTO_DELETE_QUEUES_SKIP_USAGE_CHECK, getAutoDeleteQueuesSkipUsageCheck());
+      builder.add(AUTO_DELETE_ADDRESSES_SKIP_USAGE_CHECK, isAutoDeleteAddressesSkipUsageCheck());
+      builder.add(PREFETCH_PAGE_MESSAGES, getPrefetchPageMessages());
+      builder.add(PAGE_LIMIT_BYTES, getPageLimitBytes());
+      builder.add(PAGE_LIMIT_MESSAGES, getPageLimitMessages());
+      if (getPageFullMessagePolicy() != null ) {
+         builder.add(PAGE_FULL_MESSAGE_POLICY, getPageFullMessagePolicy().toString());
+      }
+      builder.add(PREFETCH_PAGE_BYTES, getPrefetchPageBytes());
+      builder.add(ID_CACHE_SIZE, getIDCacheSize());
+      return builder.build().toString();
+   }
+
+   public Boolean getDropMessagesWhenFull() {
+      return dropMessagesWhenFull;
+   }
+
+   public AddressSettings setDropMessagesWhenFull(Boolean dropMessagesWhenFull) {
+      this.dropMessagesWhenFull = dropMessagesWhenFull;
+      return this;
    }
 
    @Deprecated
@@ -1869,6 +2394,25 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableInteger(buffer, prefetchPageMessages);
    }
 
+
+   /**
+    * This method returns a {@code AddressSettings} created from the JSON-formatted input {@code String}. The input
+    * should be a simple object of key/value pairs. Valid keys are referenced in {@link #set(String, String)}.
+    *
+    * @param jsonString
+    * @return the {@code QueueConfiguration} created from the JSON-formatted input {@code String}
+    */
+   public static AddressSettings fromJSON(String jsonString) {
+      JsonObject json = JsonLoader.readObject(new StringReader(jsonString));
+
+      AddressSettings result = new AddressSettings();
+
+      for (Map.Entry<String, JsonValue> entry : json.entrySet()) {
+         result.set(entry.getKey(), entry.getValue().getValueType() == JsonValue.ValueType.STRING ? ((JsonString)entry.getValue()).getString() : entry.getValue().toString());
+      }
+
+      return result;
+   }
    /* (non-Javadoc)
        * @see java.lang.Object#hashCode()
        */

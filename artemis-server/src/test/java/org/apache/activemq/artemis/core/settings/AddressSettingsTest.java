@@ -17,11 +17,16 @@
 package org.apache.activemq.artemis.core.settings;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
+import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -165,5 +170,233 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(addressSettings.getRedeliveryMultiplier(), 1.0, 0.000001);
       Assert.assertEquals(addressSettings.getMaxRedeliveryDelay(), 5000);
       Assert.assertEquals(AddressFullMessagePolicy.DROP, addressSettings.getAddressFullMessagePolicy());
+   }
+
+   @Test
+   public void testJSON() {
+      Boolean dropMessagesWhenFull = RandomUtil.randomBoolean();
+      Boolean autoCreateQueues = RandomUtil.randomBoolean();
+      Boolean autoDeleteQueues = RandomUtil.randomBoolean();
+      Boolean autoDeleteCreatedQueues = RandomUtil.randomBoolean();
+      Long autoDeleteQueuesDelay = RandomUtil.randomPositiveLong();
+      Boolean autoDeleteQueuesSkipUsageCheck = RandomUtil.randomBoolean();
+      Long autoDeleteQueuesMessageCount = RandomUtil.randomPositiveLong();
+      DeletionPolicy configDeleteQueues = DeletionPolicy.getType(RandomUtil.randomInterval(0, 1));
+      Boolean autoCreateAddresses = RandomUtil.randomBoolean();
+      Boolean autoDeleteAddresses = RandomUtil.randomBoolean();
+      Long autoDeleteAddressesDelay = RandomUtil.randomPositiveLong();
+      Boolean autoDeleteAddressesSkipUsageCheck = RandomUtil.randomBoolean();
+      DeletionPolicy configDeleteAddresses = DeletionPolicy.getType(RandomUtil.randomInterval(0, 1));
+      DeletionPolicy configDeleteDiverts = DeletionPolicy.getType(RandomUtil.randomInterval(0, 1));
+      Integer defaultMaxConsumers = RandomUtil.randomPositiveInt();
+      Integer defaultConsumersBeforeDispatch = RandomUtil.randomPositiveInt();
+      Long defaultDelayBeforeDispatch = RandomUtil.randomPositiveLong();
+      Boolean defaultPurgeOnNoConsumers = RandomUtil.randomBoolean();
+      RoutingType defaultQueueRoutingType = RoutingType.getType(RandomUtil.randomBoolean() ? (byte) 1 : 0);
+      RoutingType defaultAddressRoutingType = RoutingType.getType(RandomUtil.randomBoolean() ? (byte) 1 : 0);
+      Boolean defaultLastValueQueue = RandomUtil.randomBoolean();
+      SimpleString defaultLastValueKey = RandomUtil.randomSimpleString();
+      Boolean defaultNonDestructive = RandomUtil.randomBoolean();
+      Boolean defaultExclusiveQueue = RandomUtil.randomBoolean();
+      AddressFullMessagePolicy addressFullMessagePolicy = AddressFullMessagePolicy.getType(RandomUtil.randomInterval(0, 3));
+      Integer pageSizeBytes = RandomUtil.randomPositiveInt();
+      Integer pageCacheMaxSize = RandomUtil.randomPositiveInt();
+      Long maxSizeMessages = RandomUtil.randomPositiveLong();
+      Long maxSizeBytes = RandomUtil.randomPositiveLong();
+      Integer maxReadPageMessages = RandomUtil.randomPositiveInt();
+      Integer prefetchPageMessages = RandomUtil.randomPositiveInt();
+      Long pageLimitBytes = RandomUtil.randomPositiveLong();
+      Long pageLimitMessages = RandomUtil.randomPositiveLong();
+      PageFullMessagePolicy pageFullMessagePolicy = PageFullMessagePolicy.getType(RandomUtil.randomInterval(0, 1));
+      Integer maxReadPageBytes = RandomUtil.randomPositiveInt();
+      Integer prefetchPageBytes = RandomUtil.randomPositiveInt();
+      Integer maxDeliveryAttempts = RandomUtil.randomPositiveInt();
+      Integer messageCounterHistoryDayLimit = RandomUtil.randomPositiveInt();
+      Long redeliveryDelay = RandomUtil.randomPositiveLong();
+      Double redeliveryMultiplier = RandomUtil.randomDouble();
+      Double redeliveryCollisionAvoidanceFactor = RandomUtil.randomDouble();
+      Long maxRedeliveryDelay = RandomUtil.randomPositiveLong();
+      SimpleString deadLetterAddress = RandomUtil.randomSimpleString();
+      SimpleString expiryAddress = RandomUtil.randomSimpleString();
+      Boolean autoCreateExpiryResources = RandomUtil.randomBoolean();
+      SimpleString expiryQueuePrefix = RandomUtil.randomSimpleString();
+      SimpleString expiryQueueSuffix = RandomUtil.randomSimpleString();
+      Long expiryDelay = RandomUtil.randomPositiveLong();
+      Long minExpiryDelay = RandomUtil.randomPositiveLong();
+      Long maxExpiryDelay = RandomUtil.randomPositiveLong();
+      Boolean sendToDLAOnNoRoute = RandomUtil.randomBoolean();
+      Boolean autoCreateDeadLetterResources = RandomUtil.randomBoolean();
+      SimpleString deadLetterQueuePrefix = RandomUtil.randomSimpleString();
+      SimpleString deadLetterQueueSuffix = RandomUtil.randomSimpleString();
+      Long redistributionDelay = RandomUtil.randomPositiveLong();
+      Long slowConsumerThreshold = RandomUtil.randomPositiveLong();
+      SlowConsumerThresholdMeasurementUnit slowConsumerThresholdMeasurementUnit = SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
+      Long slowConsumerCheckPeriod = RandomUtil.randomPositiveLong();
+      SlowConsumerPolicy slowConsumerPolicy = SlowConsumerPolicy.getType(RandomUtil.randomInterval(0, 1));
+      Integer managementBrowsePageSize = RandomUtil.randomPositiveInt();
+      Integer queuePrefetch = RandomUtil.randomPositiveInt();
+      Long maxSizeBytesRejectThreshold = RandomUtil.randomPositiveLong();
+      Integer defaultConsumerWindowSize = RandomUtil.randomPositiveInt();
+      Boolean defaultGroupRebalance = RandomUtil.randomBoolean();
+      Boolean defaultGroupRebalancePauseDispatch = RandomUtil.randomBoolean();
+      SimpleString defaultGroupFirstKey = RandomUtil.randomSimpleString();
+      Integer defaultGroupBuckets = RandomUtil.randomPositiveInt();
+      Long defaultRingSize = RandomUtil.randomPositiveLong();
+      Long retroactiveMessageCount = RandomUtil.randomPositiveLong();
+      Boolean enableMetrics = RandomUtil.randomBoolean();
+      Integer managementMessageAttributeSizeLimit = RandomUtil.randomPositiveInt();
+      Boolean enableIngressTimestamp = RandomUtil.randomBoolean();
+      Integer iDCacheSize = RandomUtil.randomPositiveInt();
+
+      AddressSettings a = new AddressSettings()
+         .setDropMessagesWhenFull(dropMessagesWhenFull)
+         .setAutoCreateQueues(autoCreateQueues)
+         .setAutoDeleteQueues(autoDeleteQueues)
+         .setAutoDeleteCreatedQueues(autoDeleteCreatedQueues)
+         .setAutoDeleteQueuesDelay(autoDeleteQueuesDelay)
+         .setAutoDeleteQueuesSkipUsageCheck(autoDeleteQueuesSkipUsageCheck)
+         .setAutoDeleteQueuesMessageCount(autoDeleteQueuesMessageCount)
+         .setConfigDeleteQueues(configDeleteQueues)
+         .setAutoCreateAddresses(autoCreateAddresses)
+         .setAutoDeleteAddresses(autoDeleteAddresses)
+         .setAutoDeleteAddressesDelay(autoDeleteAddressesDelay)
+         .setAutoDeleteAddressesSkipUsageCheck(autoDeleteAddressesSkipUsageCheck)
+         .setConfigDeleteAddresses(configDeleteAddresses)
+         .setConfigDeleteDiverts(configDeleteDiverts)
+         .setDefaultMaxConsumers(defaultMaxConsumers)
+         .setDefaultConsumersBeforeDispatch(defaultConsumersBeforeDispatch)
+         .setDefaultDelayBeforeDispatch(defaultDelayBeforeDispatch)
+         .setDefaultPurgeOnNoConsumers(defaultPurgeOnNoConsumers)
+         .setDefaultQueueRoutingType(defaultQueueRoutingType)
+         .setDefaultAddressRoutingType(defaultAddressRoutingType)
+         .setDefaultLastValueQueue(defaultLastValueQueue)
+         .setDefaultLastValueKey(defaultLastValueKey)
+         .setDefaultNonDestructive(defaultNonDestructive)
+         .setDefaultExclusiveQueue(defaultExclusiveQueue)
+         .setAddressFullMessagePolicy(addressFullMessagePolicy)
+         .setPageSizeBytes(pageSizeBytes)
+         .setPageCacheMaxSize(pageCacheMaxSize)
+         .setMaxSizeMessages(maxSizeMessages)
+         .setMaxSizeBytes(maxSizeBytes)
+         .setMaxReadPageMessages(maxReadPageMessages)
+         .setPrefetchPageMessages(prefetchPageMessages)
+         .setPageLimitBytes(pageLimitBytes)
+         .setPageLimitMessages(pageLimitMessages)
+         .setPageFullMessagePolicy(pageFullMessagePolicy)
+         .setMaxReadPageBytes(maxReadPageBytes)
+         .setPrefetchPageBytes(prefetchPageBytes)
+         .setMaxDeliveryAttempts(maxDeliveryAttempts)
+         .setMessageCounterHistoryDayLimit(messageCounterHistoryDayLimit)
+         .setRedeliveryDelay(redeliveryDelay)
+         .setRedeliveryMultiplier(redeliveryMultiplier)
+         .setRedeliveryCollisionAvoidanceFactor(redeliveryCollisionAvoidanceFactor)
+         .setMaxRedeliveryDelay(maxRedeliveryDelay)
+         .setDeadLetterAddress(deadLetterAddress)
+         .setExpiryAddress(expiryAddress)
+         .setAutoCreateExpiryResources(autoCreateExpiryResources)
+         .setExpiryQueuePrefix(expiryQueuePrefix)
+         .setExpiryQueueSuffix(expiryQueueSuffix)
+         .setExpiryDelay(expiryDelay)
+         .setMinExpiryDelay(minExpiryDelay)
+         .setMaxExpiryDelay(maxExpiryDelay)
+         .setSendToDLAOnNoRoute(sendToDLAOnNoRoute)
+         .setAutoCreateDeadLetterResources(autoCreateDeadLetterResources)
+         .setDeadLetterQueuePrefix(deadLetterQueuePrefix)
+         .setDeadLetterQueueSuffix(deadLetterQueueSuffix)
+         .setRedistributionDelay(redistributionDelay)
+         .setSlowConsumerThreshold(slowConsumerThreshold)
+         .setSlowConsumerThresholdMeasurementUnit(slowConsumerThresholdMeasurementUnit)
+         .setSlowConsumerCheckPeriod(slowConsumerCheckPeriod)
+         .setSlowConsumerPolicy(slowConsumerPolicy)
+         .setManagementBrowsePageSize(managementBrowsePageSize)
+         .setQueuePrefetch(queuePrefetch)
+         .setMaxSizeBytesRejectThreshold(maxSizeBytesRejectThreshold)
+         .setDefaultConsumerWindowSize(defaultConsumerWindowSize)
+         .setDefaultGroupRebalance(defaultGroupRebalance)
+         .setDefaultGroupRebalancePauseDispatch(defaultGroupRebalancePauseDispatch)
+         .setDefaultGroupFirstKey(defaultGroupFirstKey)
+         .setDefaultGroupBuckets(defaultGroupBuckets)
+         .setDefaultRingSize(defaultRingSize)
+         .setRetroactiveMessageCount(retroactiveMessageCount)
+         .setEnableMetrics(enableMetrics)
+         .setManagementMessageAttributeSizeLimit(managementMessageAttributeSizeLimit)
+         .setEnableIngressTimestamp(enableIngressTimestamp)
+         .setIDCacheSize(iDCacheSize);
+
+      AddressSettings b = AddressSettings.fromJSON(a.toJSON());
+
+      assertEquals(dropMessagesWhenFull, b.getDropMessagesWhenFull());
+      assertEquals(autoCreateQueues, b.isAutoCreateQueues());
+      assertEquals(autoDeleteQueues, b.isAutoDeleteQueues());
+      assertEquals(autoDeleteCreatedQueues, b.isAutoDeleteCreatedQueues());
+      assertEquals(autoDeleteQueuesDelay, (Long) b.getAutoDeleteQueuesDelay());
+      assertEquals(autoDeleteQueuesSkipUsageCheck, b.getAutoDeleteQueuesSkipUsageCheck());
+      assertEquals(autoDeleteQueuesMessageCount, (Long) b.getAutoDeleteQueuesMessageCount());
+      assertEquals(configDeleteQueues, b.getConfigDeleteQueues());
+      assertEquals(autoCreateAddresses, b.isAutoCreateAddresses());
+      assertEquals(autoDeleteAddresses, b.isAutoDeleteAddresses());
+      assertEquals(autoDeleteAddressesDelay, (Long) b.getAutoDeleteAddressesDelay());
+      assertEquals(autoDeleteAddressesSkipUsageCheck, b.isAutoDeleteAddressesSkipUsageCheck());
+      assertEquals(configDeleteAddresses, b.getConfigDeleteAddresses());
+      assertEquals(configDeleteDiverts, b.getConfigDeleteDiverts());
+      assertEquals(defaultMaxConsumers, b.getDefaultMaxConsumers());
+      assertEquals(defaultConsumersBeforeDispatch, b.getDefaultConsumersBeforeDispatch());
+      assertEquals(defaultDelayBeforeDispatch, b.getDefaultDelayBeforeDispatch());
+      assertEquals(defaultPurgeOnNoConsumers, b.isDefaultPurgeOnNoConsumers());
+      assertEquals(defaultQueueRoutingType, b.getDefaultQueueRoutingType());
+      assertEquals(defaultAddressRoutingType, b.getDefaultAddressRoutingType());
+      assertEquals(defaultLastValueQueue, b.isDefaultLastValueQueue());
+      assertEquals(defaultLastValueKey, b.getDefaultLastValueKey());
+      assertEquals(defaultNonDestructive, b.isDefaultNonDestructive());
+      assertEquals(defaultExclusiveQueue, b.isDefaultExclusiveQueue());
+      assertEquals(addressFullMessagePolicy, b.getAddressFullMessagePolicy());
+      assertEquals(pageSizeBytes, (Integer) b.getPageSizeBytes());
+      assertEquals(pageCacheMaxSize, (Integer) b.getPageCacheMaxSize());
+      assertEquals(maxSizeMessages, (Long) b.getMaxSizeMessages());
+      assertEquals(maxSizeBytes, (Long) b.getMaxSizeBytes());
+      assertEquals(maxReadPageMessages, (Integer) b.getMaxReadPageMessages());
+      assertEquals(prefetchPageMessages, (Integer) b.getPrefetchPageMessages());
+      assertEquals(pageLimitBytes, b.getPageLimitBytes());
+      assertEquals(pageLimitMessages, b.getPageLimitMessages());
+      assertEquals(pageFullMessagePolicy, b.getPageFullMessagePolicy());
+      assertEquals(maxReadPageBytes, (Integer) b.getMaxReadPageBytes());
+      assertEquals(prefetchPageBytes, (Integer) b.getPrefetchPageBytes());
+      assertEquals(maxDeliveryAttempts, (Integer) b.getMaxDeliveryAttempts());
+      assertEquals(messageCounterHistoryDayLimit, (Integer) b.getMessageCounterHistoryDayLimit());
+      assertEquals(redeliveryDelay, (Long) b.getRedeliveryDelay());
+      assertEquals(redeliveryMultiplier, (Double) b.getRedeliveryMultiplier());
+      assertEquals(redeliveryCollisionAvoidanceFactor, (Double) b.getRedeliveryCollisionAvoidanceFactor());
+      assertEquals(maxRedeliveryDelay, (Long) b.getMaxRedeliveryDelay());
+      assertEquals(deadLetterAddress, b.getDeadLetterAddress());
+      assertEquals(expiryAddress, b.getExpiryAddress());
+      assertEquals(autoCreateExpiryResources, b.isAutoCreateExpiryResources());
+      assertEquals(expiryQueuePrefix, b.getExpiryQueuePrefix());
+      assertEquals(expiryQueueSuffix, b.getExpiryQueueSuffix());
+      assertEquals(expiryDelay, b.getExpiryDelay());
+      assertEquals(minExpiryDelay, b.getMinExpiryDelay());
+      assertEquals(maxExpiryDelay, b.getMaxExpiryDelay());
+      assertEquals(sendToDLAOnNoRoute, b.isSendToDLAOnNoRoute());
+      assertEquals(autoCreateDeadLetterResources, b.isAutoCreateDeadLetterResources());
+      assertEquals(deadLetterQueuePrefix, b.getDeadLetterQueuePrefix());
+      assertEquals(deadLetterQueueSuffix, b.getDeadLetterQueueSuffix());
+      assertEquals(redistributionDelay, (Long) b.getRedistributionDelay());
+      assertEquals(slowConsumerThreshold, (Long) b.getSlowConsumerThreshold());
+      assertEquals(slowConsumerThresholdMeasurementUnit, b.getSlowConsumerThresholdMeasurementUnit());
+      assertEquals(slowConsumerCheckPeriod, (Long) b.getSlowConsumerCheckPeriod());
+      assertEquals(slowConsumerPolicy, b.getSlowConsumerPolicy());
+      assertEquals(managementBrowsePageSize, (Integer) b.getManagementBrowsePageSize());
+      assertEquals(queuePrefetch, (Integer) b.getQueuePrefetch());
+      assertEquals(maxSizeBytesRejectThreshold, (Long) b.getMaxSizeBytesRejectThreshold());
+      assertEquals(defaultConsumerWindowSize, (Integer) b.getDefaultConsumerWindowSize());
+      assertEquals(defaultGroupRebalance, b.isDefaultGroupRebalance());
+      assertEquals(defaultGroupRebalancePauseDispatch, b.isDefaultGroupRebalancePauseDispatch());
+      assertEquals(defaultGroupFirstKey, b.getDefaultGroupFirstKey());
+      assertEquals(defaultGroupBuckets, (Integer) b.getDefaultGroupBuckets());
+      assertEquals(defaultRingSize, (Long) b.getDefaultRingSize());
+      assertEquals(retroactiveMessageCount, (Long) b.getRetroactiveMessageCount());
+      assertEquals(enableMetrics, b.isEnableMetrics());
+      assertEquals(managementMessageAttributeSizeLimit, (Integer) b.getManagementMessageAttributeSizeLimit());
+      assertEquals(enableIngressTimestamp, b.isEnableIngressTimestamp());
+      assertEquals(iDCacheSize, b.getIDCacheSize());
    }
 }

@@ -17,5 +17,20 @@
 package org.apache.activemq.artemis.core.settings.impl;
 
 public enum AddressFullMessagePolicy {
-   DROP, PAGE, BLOCK, FAIL
+   DROP, PAGE, BLOCK, FAIL;
+
+   public static AddressFullMessagePolicy getType(int type) {
+      switch (type) {
+         case 0:
+            return DROP;
+         case 1:
+            return PAGE;
+         case 2:
+            return BLOCK;
+         case 3:
+            return FAIL;
+         default:
+            return null;
+      }
+   }
 }
