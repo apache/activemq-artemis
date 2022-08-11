@@ -486,7 +486,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          }
          disconnect(true);
          result = Boolean.FALSE;
-      } catch(ClientIdValidateException e) {
+      } catch (ClientIdValidateException e) {
          throw e;
       }
 
