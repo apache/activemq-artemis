@@ -19,23 +19,25 @@ package org.apache.activemq.artemis.core.protocol.mqtt.exceptions;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 
-public class ClientIdValidateException extends RuntimeException{
-    private byte code = MQTTReasonCodes.CLIENT_IDENTIFIER_NOT_VALID;
+public class ClientIdValidateException extends RuntimeException {
 
-    public ClientIdValidateException(String message) {
-        super(message);
-    }
+   private final byte code;
 
-    public ClientIdValidateException(byte code,String message) {
-        super(message);
-        this.code = code;
-    }
-    public byte getCode() {
-        return code;
-    }
+   public ClientIdValidateException(String message) {
+      super(message);
+      code = MQTTReasonCodes.CLIENT_IDENTIFIER_NOT_VALID;
+   }
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName() + "[code=" + code + "]";
-    }
+   public ClientIdValidateException(byte code,String message) {
+      super(message);
+      this.code = code;
+   }
+   public byte getCode() {
+      return code;
+   }
+
+   @Override
+   public String toString() {
+      return this.getClass().getSimpleName() + "[code=" + code + "]";
+   }
 }

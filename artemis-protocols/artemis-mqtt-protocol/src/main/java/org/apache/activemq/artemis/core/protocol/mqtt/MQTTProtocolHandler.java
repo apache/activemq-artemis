@@ -248,8 +248,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          if (!validationData.getA()) {
             return;
          }
-      }
-      catch(ClientIdValidateException e){
+      } catch (ClientIdValidateException e) {
          if (session.getVersion() == MQTTVersion.MQTT_5) {
             session.getProtocolHandler().sendConnack(e.getCode());
          } else {
@@ -487,8 +486,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          }
          disconnect(true);
          result = Boolean.FALSE;
-      }
-      catch(ClientIdValidateException e){
+      } catch(ClientIdValidateException e) {
          throw e;
       }
 
