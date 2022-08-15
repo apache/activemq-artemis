@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
+import org.apache.activemq.artemis.logs.JBossLoggingConfiguration;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.utils.FileUtil;
@@ -345,6 +346,9 @@ public class Create extends InputAbstract {
 
    @Option(name = "--jdbc-lock-expiration", description = "Lock expiration")
    long jdbcLockExpiration = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
+
+   @Option(name = "--logger-properties", description = "If set, it points to a java properties file containing logging properties")
+   String loggerProperties = null;
 
    private boolean IS_WINDOWS;
    private boolean IS_CYGWIN;
@@ -826,7 +830,16 @@ public class Create extends InputAbstract {
          writeEtc(ETC_ARTEMIS_PROFILE, etcFolder, filters, true);
       }
 
-      writeEtc(ETC_LOGGING_PROPERTIES, etcFolder, null, false);
+      if (loggerProperties == null) {
+         writeEtc(ETC_LOGGING_PROPERTIES, etcFolder, null, false);
+      } else {
+         context.out.println("applying custom logger.properties from " + loggerProperties);
+         JBossLoggingConfiguration loggingConfig = JBossLoggingConfiguration.createDefaultArtemisLoggingProperties();
+         loggingConfig.updateFrom(new File(loggerProperties));
+         try (PrintWriter writer = new PrintWriter(new File(etcFolder, ETC_LOGGING_PROPERTIES))) {
+            loggingConfig.save(writer);
+         }
+      }
 
       if (noWeb) {
          filters.put("${bootstrap-web-settings}", "");
