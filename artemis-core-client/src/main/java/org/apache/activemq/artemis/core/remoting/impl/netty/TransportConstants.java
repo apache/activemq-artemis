@@ -29,6 +29,8 @@ public class TransportConstants {
 
    private static final Logger logger = Logger.getLogger(TransportConstants.class);
 
+   public static final String PROXY_PROTOCOL_ENABLED_PROP_NAME = "proxyProtocolEnabled";
+
    public static final String SSL_CONTEXT_PROP_NAME = "sslContext";
 
    public static final String SSL_ENABLED_PROP_NAME = "sslEnabled";
@@ -191,6 +193,8 @@ public class TransportConstants {
    public static final String AUTO_START = "autoStart";
 
    public static final boolean DEFAULT_AUTO_START = true;
+
+   public static final Boolean DEFAULT_PROXY_PROTOCOL_ENABLED = false;
 
    public static final boolean DEFAULT_SSL_ENABLED = false;
 
@@ -386,6 +390,7 @@ public class TransportConstants {
       allowableAcceptorKeys.add(TransportConstants.HTTP_RESPONSE_TIME_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_SERVER_SCAN_PERIOD_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.HTTP_UPGRADE_ENABLED_PROP_NAME);
+      allowableAcceptorKeys.add(TransportConstants.PROXY_PROTOCOL_ENABLED_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.USE_NIO_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.USE_EPOLL_PROP_NAME);
       allowableAcceptorKeys.add(TransportConstants.USE_KQUEUE_PROP_NAME);

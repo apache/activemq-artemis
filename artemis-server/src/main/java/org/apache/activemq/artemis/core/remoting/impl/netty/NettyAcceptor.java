@@ -65,6 +65,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.codec.haproxy.HAProxyMessageDecoder;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -229,6 +230,8 @@ public class NettyAcceptor extends AbstractAcceptor {
 
    private final boolean httpUpgradeEnabled;
 
+   private final boolean proxyProtocolEnabled;
+
    private final long connectionsAllowed;
 
    private final boolean autoStart;
@@ -266,6 +269,8 @@ public class NettyAcceptor extends AbstractAcceptor {
       this.listener = listener;
 
       sslEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.SSL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_SSL_ENABLED, configuration);
+
+      this.proxyProtocolEnabled = ConfigurationHelper.getBooleanProperty(TransportConstants.PROXY_PROTOCOL_ENABLED_PROP_NAME, TransportConstants.DEFAULT_PROXY_PROTOCOL_ENABLED, configuration);
 
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.NIO_REMOTING_THREADS_PROPNAME, -1, configuration);
       remotingThreads = ConfigurationHelper.getIntProperty(TransportConstants.REMOTING_THREADS_PROPNAME, remotingThreads, configuration);
@@ -465,6 +470,13 @@ public class NettyAcceptor extends AbstractAcceptor {
          @Override
          public void initChannel(Channel channel) throws Exception {
             ChannelPipeline pipeline = channel.pipeline();
+
+            // If HAProxy Proxy Protocol is enabled, add it to the pipeline in the first position
+            if (proxyProtocolEnabled) {
+               pipeline.addLast("haproxy", new HAProxyMessageDecoder());
+            }
+
+            // If SSL is enabled, add an SSL capable handler
             if (sslEnabled) {
                final Pair<String, Integer> peerInfo = getPeerInfo(channel);
                try {
@@ -481,6 +493,8 @@ public class NettyAcceptor extends AbstractAcceptor {
                   throw e;
                }
             }
+
+            // Add the handler for the acceptor configured protocol (i.e. STOMP, AMQP, MQTT, etc)
             pipeline.addLast(protocolHandler.getProtocolDecoder());
          }
 
