@@ -160,7 +160,7 @@ public class PagingStoreImpl implements PagingStore {
 
       this.storeName = storeName;
 
-      this.size = new SizeAwareMetric(maxSize, maxSize, -1, -1).
+      this.size = new SizeAwareMetric(maxSize, maxSize, maxMessages, maxMessages).
          setUnderCallback(this::underSized).setOverCallback(this::overSized).
          setOnSizeCallback(pagingManager::addSize);
 
@@ -865,15 +865,15 @@ public class PagingStoreImpl implements PagingStore {
          return false;
       }
 
-      if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
+      if (addressFullMessagePolicy == AddressFullMessagePolicy.FAIL && (maxSize != -1 || maxMessages != -1 || usingGlobalMaxSize || pagingManager.isDiskFull())) {
          if (isFull()) {
             if (runOnFailure && runWhenAvailable != null) {
                onMemoryFreedRunnables.add(AtomicRunnable.checkAtomic(runWhenAvailable));
             }
             return false;
          }
-      } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxSize != -1 || usingGlobalMaxSize)) {
-         if (pagingManager.isDiskFull() || maxSize > 0 && this.full || pagingManager.isGlobalFull()) {
+      } else if (pagingManager.isDiskFull() || addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK && (maxMessages != -1 || maxSize != -1 || usingGlobalMaxSize)) {
+         if (pagingManager.isDiskFull() || this.full || pagingManager.isGlobalFull()) {
             if (runWhenBlocking != null) {
                runWhenBlocking.run();
             }
@@ -885,7 +885,7 @@ public class PagingStoreImpl implements PagingStore {
             // has been added, but the check to execute was done before the element was added
             // NOTE! We do not fix this race by locking the whole thing, doing this check provides
             // MUCH better performance in a highly concurrent environment
-            if (!pagingManager.isGlobalFull() && (!full || maxSize < 0)) {
+            if (!pagingManager.isGlobalFull() && !full) {
                // run it now
                atomicRunWhenAvailable.run();
             } else {
@@ -942,7 +942,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public boolean checkReleasedMemory() {
-      if (!blockedViaAddressControl && !pagingManager.isGlobalFull() && (!full || maxSize < 0)) {
+      if (!blockedViaAddressControl && !pagingManager.isGlobalFull() && !full) {
          if (!onMemoryFreedRunnables.isEmpty()) {
             executor.execute(this::memoryReleased);
             if (blocking) {
@@ -1308,7 +1308,7 @@ public class PagingStoreImpl implements PagingStore {
    // To be used on isDropMessagesWhenFull
    @Override
    public boolean isFull() {
-      return maxSize > 0 && getAddressSize() >= maxSize || pagingManager.isGlobalFull();
+      return full || pagingManager.isGlobalFull();
    }
 
 
