@@ -25,6 +25,7 @@ import io.netty.handler.codec.mqtt.MqttMessageBuilders;
 import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttQoS;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -277,6 +278,8 @@ public class MQTTSession {
          getMqttPublishManager().sendToQueue(publishMessage, true);
          state.setWillSent(true);
          state.setWillMessage(null);
+      } catch (ActiveMQSecurityException e) {
+         MQTTLogger.LOGGER.authorizationFailureSendingWillMessage(e.getMessage());
       } catch (Exception e) {
          MQTTLogger.LOGGER.errorSendingWillMessage(e);
       }
