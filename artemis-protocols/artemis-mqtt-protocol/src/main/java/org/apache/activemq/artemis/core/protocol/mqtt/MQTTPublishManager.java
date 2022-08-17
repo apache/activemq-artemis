@@ -214,11 +214,7 @@ public class MQTTPublishManager {
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
-               if (internal) {
-                  session.getServer().getPostOffice().route(serverMessage, tx, true);
-               } else {
-                  session.getServerSession().send(tx, serverMessage, true, false);
-               }
+               session.getServerSession().send(tx, serverMessage, true, false);
 
                if (message.fixedHeader().isRetain()) {
                   ByteBuf payload = message.payload();
@@ -228,6 +224,9 @@ public class MQTTPublishManager {
                tx.commit();
             } catch (ActiveMQSecurityException e) {
                tx.rollback();
+               if (internal) {
+                  throw e;
+               }
                if (session.getVersion() == MQTTVersion.MQTT_5) {
                   sendMessageAck(internal, qos, messageId, MQTTReasonCodes.NOT_AUTHORIZED);
                   return;

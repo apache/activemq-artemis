@@ -18,13 +18,17 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttException;
+import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
@@ -82,5 +86,48 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
       }
 
       client.isConnected();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testWillAuthorizationSuccess() throws Exception {
+      internalTestWillAuthorization(fullUser, fullPass, true);
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testWillAuthorizationFailure() throws Exception {
+      internalTestWillAuthorization(noprivUser, noprivPass, false);
+   }
+
+   private void internalTestWillAuthorization(String username, String password, boolean succeed) throws Exception {
+      final byte[] WILL = RandomUtil.randomBytes();
+      final String TOPIC = RandomUtil.randomString();
+
+      // consumer of the will message
+      MqttClient client1 = createPahoClient("willConsumer");
+      CountDownLatch latch = new CountDownLatch(1);
+      client1.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            latch.countDown();
+         }
+      });
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .username(fullUser)
+         .password(fullPass.getBytes(StandardCharsets.UTF_8))
+         .build();
+      client1.connect(options);
+      client1.subscribe(TOPIC, 1);
+
+      // consumer to generate the will
+      MqttClient client2 = createPahoClient("willGenerator");
+      options = new MqttConnectionOptionsBuilder()
+         .username(username)
+         .password(password.getBytes(StandardCharsets.UTF_8))
+         .will(TOPIC, new MqttMessage(WILL))
+         .build();
+      client2.connect(options);
+      client2.disconnectForcibly(0, 0, false);
+
+      assertEquals(succeed, latch.await(2, TimeUnit.SECONDS));
    }
 }

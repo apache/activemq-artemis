@@ -80,4 +80,8 @@ public interface MQTTLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 834006, value = "Failed to publish MQTT message: {0}.", format = Message.Format.MESSAGE_FORMAT)
    void failedToPublishMqttMessage(String exceptionMessage, @Cause Throwable t);
+
+   @LogMessage(level = Logger.Level.ERROR)
+   @Message(id = 834007, value = "Authorization failure sending will message: {0}", format = Message.Format.MESSAGE_FORMAT)
+   void authorizationFailureSendingWillMessage(String message);
 }
