@@ -31,8 +31,6 @@
       <activemq.basedir>${project.basedir}/../..</activemq.basedir>
       <e2e-tests.surefire-extra-args />
       <e2e-tests.dockerfile>Dockerfile-centos</e2e-tests.dockerfile>
-      <e2e-tests.skipImageBuild>true</e2e-tests.skipImageBuild>
-      <e2e-tests.skipTests>true</e2e-tests.skipTests>
       <distributionDir>${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}</distributionDir>
       <container-service-argline>-DContainerService.artemis-image.version=${project.version} -DContainerService.artemis-image.userid="1000"</container-service-argline>
    </properties>
