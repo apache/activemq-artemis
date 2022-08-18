@@ -20,8 +20,7 @@
  * and within some specific hornetQ versions.
  *
  * The integration tests pom will use the artemis-maven-plugin/dependency-scan to lookup for specific verions.
- * The tests will only work if the plugin was executed and the system property was filled,
- * or if it was manually added within the IDE running for debug purposes.
+ * The tests will only work if the plugin was executed and the file with a definition to the class (.CP files) is found
  */
 
 package org.apache.activemq.artemis.tests.compatibility;
