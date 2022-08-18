@@ -1,25 +1,27 @@
 # Unit Testing
 
-The package `artemis-junit` provides tools to facilitate how to run Artemis resources inside JUnit Tests.
+Artemis resources can be run inside JUnit Tests by using provided Rules (for JUnit 4) or Extensions (for JUnit 5). This can make it easier to embed messaging functionality in your tests.
 
-These are provided as JUnit "rules" and can make it easier to embed messaging functionality on your tests.
+These are provided by the packages `artemis-junit` (JUnit 4) and `artemis-junit-5` (JUnit 5).
 
 
-## Example
+## Examples
 
-### Import this on your pom.xml
+### JUnit 4
+
+#### Add Maven dependency
 
 ```xml
 <dependency>
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-junit</artifactId>
    <!-- replace this for the version you are using -->
-   <version>2.5.0</version>
+   <version>@PROJECT_VERSION_FILTER_TOKEN@</version>
    <scope>test</scope>
 </dependency>
 ```
 
-### Declare a rule on your JUnit Test
+#### Declare a rule on your JUnit Test
 
 ```java
 import org.apache.activemq.artemis.junit.EmbeddedActiveMQResource;
@@ -29,43 +31,89 @@ import org.junit.Test;
 public class MyTest {
 
    @Rule
-   public EmbeddedActiveMQResource resource = new EmbeddedActiveMQResource();
+   public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
 
    @Test
    public void myTest() {
-
+     // test something, eg. create a queue
+     server.createQueue("test.adress", "test.queue");
    }
 }
 ```
 
-This will start a server that will be available for your test:
+### JUnit 5
 
+#### Add Maven dependency
+
+```xml
+<dependency>
+   <groupId>org.apache.activemq</groupId>
+   <artifactId>artemis-junit-5</artifactId>
+   <!-- replace this for the version you are using -->
+   <version>@PROJECT_VERSION_FILTER_TOKEN@</version>
+   <scope>test</scope>
+</dependency>
 ```
-[main] 17:00:16,644 INFO  [org.apache.activemq.artemis.core.server] AMQ221000: live Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=data/journal,bindingsDirectory=data/bindings,largeMessagesDirectory=data/largemessages,pagingDirectory=data/paging)
-[main] 17:00:16,666 INFO  [org.apache.activemq.artemis.core.server] AMQ221045: libaio is not available, switching the configuration into NIO
-[main] 17:00:16,688 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
-[main] 17:00:16,801 INFO  [org.apache.activemq.artemis.core.server] AMQ221007: Server is now live
-[main] 17:00:16,801 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 2.5.0-SNAPSHOT [embedded-server, nodeID=39e78380-842c-11e6-9e43-f45c8992f3c7]
-[main] 17:00:16,891 INFO  [org.apache.activemq.artemis.core.server] AMQ221002: Apache ActiveMQ Artemis Message Broker version 2.5.0-SNAPSHOT [39e78380-842c-11e6-9e43-f45c8992f3c7] stopped, uptime 0.272 seconds
-```
 
-### Ordering rules
-
-This is actually a JUnit feature, but this could be helpful on pre-determining the order on which rules are executed. 
+#### Declare a rule on your JUnit Test
 
 ```java
-ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
+import org.apache.activemq.artemis.junit.EmbeddedActiveMQExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Rule
-public RuleChain ruleChain = RuleChain.outerRule(new ThreadLeakCheckRule()).around(server).around(producer);
+public class MyTest {
+
+   @RegisterExtension
+   public EmbeddedActiveMQExtension server = new EmbeddedActiveMQExtension();
+
+   @Test
+   public void myTest() {
+     // test something, eg. create a queue
+     server.createQueue("test.adress", "test.queue");
+   }
+}
 ```
 
-### Available Rules
 
-Name | Description
---- | ---
-EmbeddedActiveMQResource | Run a Server, without the JMS manager	
-EmbeddedJMSResource | Run a Server, including the JMS Manager
-ActiveMQConsumerResource | Automate the creation of a consumer		
-ActiveMQProducerResource | Automate the creation of a producer
-ThreadLeakCheckRule | Check that all threads have been finished after the test is finished
+## Ordering rules / extensions
+
+This is actually a JUnit feature, but this could be helpful on pre-determining the order on which rules are executed.
+
+### JUnit 4 
+
+```java
+import org.junit.Rule;
+import org.junit.rules.RuleChain;
+
+public EmbeddedActiveMQResource server = new EmbeddedActiveMQResource();
+public ActiveMQDynamicProducerResource producer = new ActiveMQDynamicProducerResource(server.getVmURL());
+
+@Rule
+public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
+```
+
+### JUnit 5 
+
+```java
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.extension.RegisterExtension;
+
+@RegisterExtension
+@Order(1)
+public EmbeddedActiveMQExtension producer = new EmbeddedActiveMQExtension();
+
+@RegisterExtension
+@Order(2)
+public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL());
+```
+
+## Available Rules / Extensions
+
+JUnit 4 Rule | JUnit 5 Extension | Description
+--- | --- | ---
+EmbeddedActiveMQResource | EmbeddedActiveMQExtension | Run a Server, without the JMS manager	
+EmbeddedJMSResource | EmbeddedJMSExtension | Run a Server, including the JMS Manager
+ActiveMQConsumerResource | ActiveMQConsumerExtension | Automate the creation of a consumer		
+ActiveMQDynamicProducerResource | ActiveMQDynamicProducerExtension | Automate the creation of a producer
+ActiveMQProducerResource | ActiveMQProducerExtension | Automate the creation of a producer

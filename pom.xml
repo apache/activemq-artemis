@@ -150,6 +150,7 @@
       <version.micrometer>1.9.5</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
       <junit.version>4.13.2</junit.version>
+      <junit5.version>5.8.2</junit5.version>
       <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
@@ -285,12 +286,38 @@
       <dependencies>
          <!-- ## Test Dependencies ## -->
          <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit5.version}</version>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+
+         <!-- ## Test Dependencies ## Note: Run Junit5 test. -->
+         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit5.version}</version>
+            <scope>test</scope>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+
+         <!-- ## Test Dependencies ## Note: Run Junit4 tests. -->
+         <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit5.version}</version>
+            <!-- Eclipse Public License - v 2.0 -->
+         </dependency>
+
+         <!-- ## Test Dependencies ## Note: Junit 4 is required in certain module tests.  We should control versions from here. -->
+         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
-            <!-- License: EPL 1.0 -->
+            <!-- License: CPL 1.0 -->
          </dependency>
+         
          <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
