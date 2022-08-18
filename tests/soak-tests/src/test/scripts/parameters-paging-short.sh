@@ -16,9 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Setting the script to fail if anything goes wrong
-set -e
-
 # this script contains a suggest set of variables to run the HorizontalPagingTest in a medium environment and hit some issues we used to have with paging
 
 # It is possible to save the producer's time. If you set this variable the test will reuse previously sent data by zip and unzipping the data folder
