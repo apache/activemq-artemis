@@ -722,7 +722,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
@@ -792,7 +792,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
@@ -855,7 +855,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       server = createServer(true);
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024).setMaxSizeBytes(20 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       server.start();
 
@@ -1146,7 +1146,7 @@ public class XmlImportExportTest extends ActiveMQTestBase {
 
       //Create ANYCAST queue and set "AutoCreateDeadLetterResources"
       //Send message with ANYCAST RoutingType
-      server.getAddressSettingsRepository().addMatch(myAddress.toString(), new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setAutoCreateDeadLetterResources(true).setDeadLetterQueuePrefix(dlaPrefix));
+      server.getAddressSettingsRepository().addMatch(myAddress.toString(), new AddressSettings().setMaxDeliveryAttempts(1).setDeadLetterAddress(dla).setAutoCreateDeadLetterResources(true).setDeadLetterQueuePrefix(dlaPrefix).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1));
       session.createQueue(new QueueConfiguration(myQueue).setAddress(myAddress).setDurable(true).setRoutingType(RoutingType.ANYCAST));
 
       ClientProducer producer = session.createProducer(myAddress);

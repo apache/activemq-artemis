@@ -26,7 +26,11 @@ public class TestParameters {
    private static final Logger logger = Logger.getLogger(TestParameters.class);
 
    private static String propertyName(String testName, String property) {
-      return "TEST_" + testName + "_" + property;
+      if (testName == null) {
+         return "TEST_" + property;
+      } else {
+         return "TEST_" + testName + "_" + property;
+      }
    }
 
    public static int testProperty(String testName, String property, int defaultValue) {

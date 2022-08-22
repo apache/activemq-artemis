@@ -22,9 +22,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,28 +38,16 @@ public class ExclusiveDivertWithClusterTest extends ClusterTestBase {
    }
 
    @Override
-   protected ActiveMQServer createServer(final boolean realFiles,
-                                         final Configuration configuration,
-                                         final int pageSize,
-                                         final long maxAddressSize,
-                                         final Map<String, AddressSettings> settings) {
+   protected void applySettings(ActiveMQServer server,
+                                final Configuration configuration,
+                                final int pageSize,
+                                final long maxAddressSize,
+                                final Integer pageSize1,
+                                final Integer pageSize2,
+                                final Map<String, AddressSettings> settings) {
       DivertConfiguration divertConf = new DivertConfiguration().setName("notifications-divert").setAddress("*.Provider.*.Agent.*.Status").setForwardingAddress("Notifications").setExclusive(true);
 
       configuration.addDivertConfiguration(divertConf);
-
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
-
-      if (settings != null) {
-         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
-            server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
-         }
-      }
-
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setRedeliveryDelay(0).setMaxSizeBytes(maxAddressSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setRedistributionDelay(0).setAutoCreateQueues(true).setAutoCreateAddresses(true);
-
-      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
-
-      return server;
    }
 
    @Test

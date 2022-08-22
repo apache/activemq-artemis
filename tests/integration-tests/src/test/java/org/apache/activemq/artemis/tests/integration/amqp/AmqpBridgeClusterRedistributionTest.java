@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -83,24 +82,15 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
    }
 
    @Override
-   protected ActiveMQServer createServer(final boolean realFiles,
+   protected void applySettings(ActiveMQServer server,
                                          final Configuration configuration,
                                          final int pageSize,
                                          final long maxAddressSize,
+                                         final Integer pageSize1,
+                                         final Integer pageSize2,
                                          final Map<String, AddressSettings> settings) {
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
-
-      if (settings != null) {
-         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
-            server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
-         }
-      }
-
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(maxAddressSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setRedeliveryDelay(0).setRedistributionDelay(0).setAutoCreateQueues(true).setAutoCreateAddresses(true);
-
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
-
-      return server;
    }
 
    @Override

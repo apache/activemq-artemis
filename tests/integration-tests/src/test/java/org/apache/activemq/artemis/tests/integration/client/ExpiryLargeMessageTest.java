@@ -68,7 +68,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.getConfiguration().setMessageExpiryScanPeriod(600000);
 
-      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxDeliveryAttempts(5).setMaxSizeBytes(50 * 1024).setPageSizeBytes(10 * 1024).setExpiryAddress(EXPIRY).setDeadLetterAddress(DLQ);
+      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxDeliveryAttempts(5).setMaxSizeBytes(50 * 1024).setPageSizeBytes(10 * 1024).setExpiryAddress(EXPIRY).setDeadLetterAddress(DLQ).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       server.getAddressSettingsRepository().addMatch(MY_QUEUE.toString(), setting);
       server.getAddressSettingsRepository().addMatch(EXPIRY.toString(), setting);
 
@@ -262,7 +262,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
       server.getConfiguration().setMessageExpiryScanPeriod(6000);
 
-      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxDeliveryAttempts(5).setMaxSizeBytes(50 * 1024).setPageSizeBytes(10 * 1024).setExpiryAddress(EXPIRY).setDeadLetterAddress(DLQ);
+      AddressSettings setting = new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxDeliveryAttempts(5).setMaxSizeBytes(50 * 1024).setPageSizeBytes(10 * 1024).setExpiryAddress(EXPIRY).setDeadLetterAddress(DLQ).setMaxReadPageMessages(-1).setMaxReadPageBytes(-1);
       server.getAddressSettingsRepository().addMatch(MY_QUEUE.toString(), setting);
       server.getAddressSettingsRepository().addMatch(EXPIRY.toString(), setting);
 

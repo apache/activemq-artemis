@@ -26,7 +26,8 @@ under the License.
    <core xmlns="urn:activemq:core" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="urn:activemq:core ">
 
-      <name>ServerB</name>
+      <name>0.0.0.0</name>
+
 
       <persistence-enabled>true</persistence-enabled>
 
@@ -37,13 +38,26 @@ under the License.
        -->
       <journal-type>NIO</journal-type>
 
-      <paging-directory>data/paging</paging-directory>
+      <paging-directory>./data/paging</paging-directory>
 
-      <bindings-directory>data/bindings</bindings-directory>
+      <bindings-directory>./data/bindings</bindings-directory>
 
-      <journal-directory>data/journal</journal-directory>
+      <journal-directory>./data/journal</journal-directory>
 
-      <large-messages-directory>data/large-messages</large-messages-directory>
+      <large-messages-directory>./data/large-messages</large-messages-directory>
+
+      
+      <!-- if you want to retain your journal uncomment this following configuration.
+
+      This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.
+
+      it is recommended to use a separate storage unit from the journal for performance considerations.
+
+      <journal-retention-directory period="7" unit="DAYS" storage-limit="10G">data/retention</journal-retention-directory>
+
+      You can also enable retention by using the argument journal-retention on the `artemis create` command -->
+
+
 
       <journal-datasync>true</journal-datasync>
 
@@ -54,24 +68,7 @@ under the License.
       <journal-device-block-size>4096</journal-device-block-size>
 
       <journal-file-size>10M</journal-file-size>
-
-      <!--
-       This value was determined through a calculation.
-       Your system could perform 25 writes per millisecond
-       on the current journal configuration.
-       That translates as a sync write every 40000 nanoseconds.
-
-       Note: If you specify 0 the system will perform writes directly to the disk.
-             We recommend this to be 0 if you are using journalType=MAPPED and journal-datasync=false.
-      -->
-      <journal-buffer-timeout>40000</journal-buffer-timeout>
-
-
-      <!--
-        When using ASYNCIO, this will determine the writing queue depth for libaio.
-       -->
-      <journal-max-io>1</journal-max-io>
-      <!--
+            <!--
         You can verify the network health of a particular NIC by specifying the <network-check-NIC> element.
          <network-check-NIC>theNicName</network-check-NIC>
         -->
@@ -116,20 +113,51 @@ under the License.
 
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
+      
 
-      <page-sync-timeout>40000</page-sync-timeout>
+      <!-- the system will enter into page mode once you hit this limit. This is an estimate in bytes of how much the messages are using in memory
 
+      The system will use half of the available memory (-Xmx) by default for the global-max-size.
+      You may specify a different value here if you need to customize it to your needs.
+
+      <global-max-size>100Mb</global-max-size> -->
+
+      <!-- the maximum number of messages accepted before entering full address mode.
+           if global-max-size is specified the full address mode will be specified by whatever hits it first. -->
+      <global-max-messages>-1</global-max-messages>
 
       <acceptors>
-         <acceptor name="artemis">tcp://0.0.0.0:61617?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true</acceptor>
+
+         <!-- useEpoll means: it will use Netty epoll if you are on a system (Linux) that supports it -->
+         <!-- amqpCredits: The number of credits sent to AMQP producers -->
+         <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
+         <!-- amqpDuplicateDetection: If you are not using duplicate detection, set this to false
+                                      as duplicate detection requires applicationProperties to be parsed on the server. -->
+         <!-- amqpMinLargeMessageSize: Determines how many bytes are considered large, so we start using files to hold their data.
+                                       default: 102400, -1 would mean to disable large mesasge control -->
+
+         <!-- Note: If an acceptor needs to be compatible with HornetQ and/or Artemis 1.x clients add
+                    "anycastPrefix=jms.queue.;multicastPrefix=jms.topic." to the acceptor url.
+                    See https://issues.apache.org/jira/browse/ARTEMIS-1644 for more information. -->
+
+
+         <!-- Acceptor for every supported protocol -->
+         <acceptor name="artemis">tcp://0.0.0.0:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;amqpMinLargeMessageSize=102400;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpDuplicateDetection=true;supportAdvisory=false;suppressInternalManagementObjects=false</acceptor>
+
+         <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
+         <acceptor name="amqp">tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;amqpMinLargeMessageSize=102400;amqpDuplicateDetection=true</acceptor>
+
+         <!-- STOMP Acceptor. -->
+         <acceptor name="stomp">tcp://0.0.0.0:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
+
+         <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
+         <acceptor name="hornetq">tcp://0.0.0.0:5445?anycastPrefix=jms.queue.;multicastPrefix=jms.topic.;protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
+
+         <!-- MQTT Acceptor -->
+         <acceptor name="mqtt">tcp://0.0.0.0:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
+
       </acceptors>
 
-
-      <broker-connections>
-         <amqp-connection uri="tcp://localhost:61616" name="serverA" user="artemis" password="artemis" retry-interval="100" reconnect-attempts="-1">
-            <mirror durable="true"/>
-         </amqp-connection>
-      </broker-connections>
 
       <security-settings>
          <security-setting match="#">
@@ -165,14 +193,21 @@ under the License.
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
-            <max-size-bytes>100000</max-size-bytes>
-            <page-size-bytes>10000</page-size-bytes>
+
+
+            <!-- if max-size-bytes and max-size-messages were both enabled, the system will enter into paging
+                 based on the first attribute to hits the maximum value -->
+            <!-- limit for the address in bytes, -1 means unlimited -->
+            <max-size-bytes>0</max-size-bytes>
+            <!-- limit for the address in messages, -1 means unlimited -->
+            <max-size-messages>0</max-size-messages>
+
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
             <auto-create-addresses>true</auto-create-addresses>
-            <max-read-page-messages>-1</max-read-page-messages>
-            <max-read-page-bytes>-1</max-read-page-bytes>
+            <auto-delete-queues>false</auto-delete-queues>
+            <auto-delete-addresses>false</auto-delete-addresses>
          </address-setting>
       </address-settings>
 
@@ -187,11 +222,10 @@ under the License.
                <queue name="ExpiryQueue" />
             </anycast>
          </address>
-         <address name="someQueue">
-            <anycast>
-               <queue name="someQueue" />
-            </anycast>
+         <address name="SUB_TEST">
+            <multicast/>
          </address>
+
       </addresses>
 
 

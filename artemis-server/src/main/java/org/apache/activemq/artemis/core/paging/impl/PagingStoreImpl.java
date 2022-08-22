@@ -280,11 +280,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public int getMaxPageReadBytes() {
-      if (maxPageReadBytes <= 0) {
-         return pageSize * 2;
-      } else {
-         return maxPageReadBytes;
-      }
+      return maxPageReadBytes;
    }
 
    @Override

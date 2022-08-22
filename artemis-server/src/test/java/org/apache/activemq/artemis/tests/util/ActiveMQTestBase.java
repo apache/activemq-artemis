@@ -1484,52 +1484,74 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    }
 
-   protected ActiveMQServer createServer(final boolean realFiles,
-                                               final Configuration configuration,
-                                               final int pageSize,
-                                               final long maxAddressSize) {
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                         final Configuration configuration,
+                                         final int pageSize,
+                                         final long maxAddressSize) {
       return createServer(realFiles, configuration, pageSize, maxAddressSize, (Map<String, AddressSettings>) null);
    }
 
-   protected ActiveMQServer createServer(final boolean realFiles,
+   protected final ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
                                          final int pageSize,
                                          final long maxAddressSize,
+                                         final int maxReadMessages,
+                                         final int maxReadBytes) {
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, maxReadMessages, maxReadBytes, (Map<String, AddressSettings>) null);
+   }
+
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                         final Configuration configuration,
+                                         final int pageSize,
+                                         final long maxAddressSize,
+                                         final Map<String, AddressSettings> settings) {
+
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, null, null, settings);
+   }
+
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                         final Configuration configuration,
+                                         final int pageSize,
+                                         final long maxAddressSize,
+                                         final Integer maxReadPageMessages,
+                                         final Integer maxReadPageBytes,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
 
       if (settings != null) {
          for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
+            if (maxReadPageBytes != null) {
+               setting.getValue().setMaxReadPageBytes(maxReadPageBytes.intValue());
+            }
+            if (maxReadPageMessages != null) {
+               setting.getValue().setMaxReadPageMessages(maxReadPageMessages.intValue());
+            }
             server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
          }
       }
 
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(maxAddressSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      if (maxReadPageBytes != null) {
+         defaultSetting.setMaxReadPageBytes(maxReadPageBytes.intValue());
+      }
+      if (maxReadPageMessages != null) {
+         defaultSetting.setMaxReadPageMessages(maxReadPageMessages.intValue());
+      }
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
+
+      applySettings(server, configuration, pageSize, maxAddressSize, maxReadPageMessages, maxReadPageBytes, settings);
 
       return server;
    }
 
-   protected ActiveMQServer createServer(final boolean realFiles,
-                                         final Configuration configuration,
-                                         final int pageSize,
-                                         final long maxAddressSize,
-                                         final int maxReadPageMessages,
-                                         final Map<String, AddressSettings> settings) {
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
-
-      if (settings != null) {
-         for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
-            server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
-         }
-      }
-
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(maxAddressSize).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageMessages(1);
-
-      server.getAddressSettingsRepository().addMatch("#", defaultSetting);
-
-      return server;
+   protected void applySettings(ActiveMQServer server,
+                                final Configuration configuration,
+                                final int pageSize,
+                                final long maxAddressSize,
+                                final Integer maxReadPageMessages,
+                                final Integer maxReadPageBytes,
+                                final Map<String, AddressSettings> settings) {
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles,
@@ -1541,7 +1563,7 @@ public abstract class ActiveMQTestBase extends Assert {
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
          setDBStoreType(configuration);
       }
-      return createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
+      return createServer(realFiles, configuration, pageSize, maxAddressSize, -1, -1, settings);
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles) throws Exception {
@@ -1549,7 +1571,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final ActiveMQServer createServer(final boolean realFiles, final boolean netty) throws Exception {
-      return createServer(realFiles, createDefaultConfig(netty), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES);
+      return createServer(realFiles, createDefaultConfig(netty), AddressSettings.DEFAULT_PAGE_SIZE, AddressSettings.DEFAULT_MAX_SIZE_BYTES, -1, -1);
    }
 
    protected ActiveMQServer createServer(final boolean realFiles, final Configuration configuration) {
@@ -1595,7 +1617,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
          AddressSettings defaultSetting = new AddressSettings();
          defaultSetting.setPageSizeBytes(pageSize);
-         defaultSetting.setMaxSizeBytes(maxAddressSize);
+         defaultSetting.setMaxSizeBytes(maxAddressSize).setMaxReadPageBytes(-1).setMaxSizeBytes(-1);
 
          server.getAddressSettingsRepository().addMatch("#", defaultSetting);
 

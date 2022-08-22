@@ -42,7 +42,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public static final long DEFAULT_MAX_SIZE_MESSAGES = -1;
 
-   public static final int DEFAULT_MAX_READ_PAGE_MESSAGES = 1000;
+   public static final int DEFAULT_MAX_READ_PAGE_MESSAGES = -1;
 
    public static final AddressFullMessagePolicy DEFAULT_ADDRESS_FULL_MESSAGE_POLICY = AddressFullMessagePolicy.PAGE;
 
@@ -87,8 +87,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    public static final DeletionPolicy DEFAULT_CONFIG_DELETE_QUEUES = DeletionPolicy.OFF;
 
    public static final boolean DEFAULT_AUTO_CREATE_ADDRESSES = true;
-
-   public static final boolean DEFAULT_PAGE_FLOW_CONTROL = false;
 
    public static final boolean DEFAULT_AUTO_DELETE_ADDRESSES = true;
 
@@ -148,8 +146,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
    private Integer maxReadPageBytes = null;
 
    private Integer maxReadPageMessages = null;
-
-   private Boolean pageFlowControl = null;
 
    private Long maxSizeMessages = null;
 
@@ -355,7 +351,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.managementMessageAttributeSizeLimit = other.managementMessageAttributeSizeLimit;
       this.slowConsumerThresholdMeasurementUnit = other.slowConsumerThresholdMeasurementUnit;
       this.enableIngressTimestamp = other.enableIngressTimestamp;
-      this.pageFlowControl = other.pageFlowControl;
    }
 
    public AddressSettings() {
@@ -448,15 +443,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setAutoDeleteQueuesMessageCount(final long autoDeleteQueuesMessageCount) {
       this.autoDeleteQueuesMessageCount = autoDeleteQueuesMessageCount;
-      return this;
-   }
-
-   public boolean isPageFlowControl() {
-      return pageFlowControl != null ? pageFlowControl : AddressSettings.DEFAULT_PAGE_FLOW_CONTROL;
-   }
-
-   public AddressSettings setPageFlowControl(Boolean pageFlowControl) {
-      this.pageFlowControl = pageFlowControl;
       return this;
    }
 
@@ -1237,9 +1223,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (enableIngressTimestamp == null) {
          enableIngressTimestamp = merged.enableIngressTimestamp;
       }
-      if (pageFlowControl == null) {
-         pageFlowControl = merged.pageFlowControl;
-      }
    }
 
    @Override
@@ -1489,10 +1472,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          maxReadPageMessages = BufferHelper.readNullableInteger(buffer);
       }
-
-      if (buffer.readableBytes() > 0) {
-         pageFlowControl = BufferHelper.readNullableBoolean(buffer);
-      }
    }
 
    @Override
@@ -1563,8 +1542,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(enableIngressTimestamp) +
          BufferHelper.sizeOfNullableLong(maxSizeMessages) +
          BufferHelper.sizeOfNullableInteger(maxReadPageMessages) +
-         BufferHelper.sizeOfNullableInteger(maxReadPageBytes) +
-         BufferHelper.sizeOfNullableBoolean(pageFlowControl);
+         BufferHelper.sizeOfNullableInteger(maxReadPageBytes);
    }
 
    @Override
@@ -1704,8 +1682,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableInteger(buffer, maxReadPageBytes);
 
       BufferHelper.writeNullableInteger(buffer, maxReadPageMessages);
-
-      BufferHelper.writeNullableBoolean(buffer, pageFlowControl);
    }
 
    /* (non-Javadoc)
@@ -1782,7 +1758,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((slowConsumerThresholdMeasurementUnit == null) ? 0 : slowConsumerThresholdMeasurementUnit.hashCode());
       result = prime * result + ((enableIngressTimestamp == null) ? 0 : enableIngressTimestamp.hashCode());
       result = prime * result + ((maxSizeMessages == null) ? 0 : maxSizeMessages.hashCode());
-      result = prime * result + ((pageFlowControl == null) ? 0 : pageFlowControl.hashCode());
       return result;
    }
 
@@ -2155,12 +2130,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!maxSizeMessages.equals(other.maxSizeMessages))
          return false;
 
-      if (pageFlowControl == null) {
-         if (other.pageFlowControl != null)
-            return false;
-      } else if (!pageFlowControl.equals(other.pageFlowControl))
-         return false;
-
       return true;
    }
 
@@ -2298,7 +2267,6 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          enableMetrics +
          ", enableIngressTime=" +
          enableIngressTimestamp +
-         ", deliveringControl=" + pageFlowControl +
          "]";
    }
 }

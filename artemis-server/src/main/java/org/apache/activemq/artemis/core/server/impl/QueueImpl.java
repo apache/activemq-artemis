@@ -175,6 +175,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile boolean queueDestroyed = false;
 
+   // once we delivered messages from paging, we need to call asyncDelivery upon acks
+   // if we flow control paging, ack more messages will open the space to deliver more messages
+   // hence we will need this flag to determine if it was paging before.
+   private volatile boolean pageDelivered = false;
+
    private final PagingStore pagingStore;
 
    protected final PageSubscription pageSubscription;
@@ -3172,8 +3177,15 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (queueDestroyed) {
          return;
       }
-      if (pageIterator != null && pageSubscription.isPaging() && !depagePending && needsDepage() && pageIterator.tryNext() != PageIterator.NextResult.noElements) {
-         scheduleDepage(false);
+      if (pageIterator != null && pageSubscription.isPaging()) {
+         // we will issue a delivery runnable to check for released space from acks and resume depage
+         pageDelivered = true;
+
+         if (!depagePending && needsDepage() && pageIterator.tryNext() != PageIterator.NextResult.noElements) {
+            scheduleDepage(false);
+         }
+      } else {
+         pageDelivered = false;
       }
    }
 
@@ -3184,14 +3196,18 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
     * @return
     */
    private boolean needsDepage() {
-      AddressSettings thisSettings = this.addressSettings;
-      if (thisSettings != null && thisSettings.isPageFlowControl()) {
-         // if deliveringControl is set, we will use the deliveringMetrics to decide on depaging
-         // this is particularly needed when paging is used with a client that does not have flow control
-         // (OpenWire has it usually off by default)
-         return (queueMemorySize.getSize() + deliveringMetrics.getPersistentSize()) < pageSubscription.getPagingStore().getMaxPageReadBytes() && (queueMemorySize.getElements() + deliveringMetrics.getMessageCount()) < pageSubscription.getPagingStore().getMaxPageReadMessages();
+      final int maxReadMessages = pageSubscription.getPagingStore().getMaxPageReadMessages();
+      final int maxReadBytes = pageSubscription.getPagingStore().getMaxPageReadBytes();
+
+      if (maxReadMessages <= 0 && maxReadBytes <= 0) {
+         // if both maxValues are disabled, we will protect the broker using an older semantic
+         // where we don't look for deliveringMetrics..
+         // this would give users a chance to switch to older protection mode.
+         return queueMemorySize.getSize() < pageSubscription.getPagingStore().getMaxSize() &&
+            intermediateMessageReferences.size() + messageReferences.size() < MAX_DEPAGE_NUM;
       } else {
-         return queueMemorySize.getSize() < pageSubscription.getPagingStore().getMaxPageReadBytes() && queueMemorySize.getElements() < pageSubscription.getPagingStore().getMaxPageReadMessages();
+         return (maxReadBytes <= 0 || (queueMemorySize.getSize() + deliveringMetrics.getPersistentSize()) < maxReadBytes) &&
+            (maxReadMessages <= 0 || (queueMemorySize.getElements() + deliveringMetrics.getMessageCount()) < maxReadMessages);
       }
    }
 
@@ -4449,10 +4465,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    public void decDelivering(final MessageReference reference) {
       deliveringMetrics.decrementMetrics(reference);
-      AddressSettings theSettings = this.addressSettings;
-      if (theSettings != null && theSettings.isPageFlowControl()) {
-         deliverAsync(); // we check for async delivery after acks
-                         // in case paging stopped for lack of space
+      if (pageDelivered) {
+         /* we check for async delivery after acks
+            in case paging stopped for lack of space */
+         deliverAsync();
       }
    }
 

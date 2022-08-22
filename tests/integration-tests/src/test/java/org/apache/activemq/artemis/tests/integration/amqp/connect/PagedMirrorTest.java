@@ -66,14 +66,14 @@ public class PagedMirrorTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      server1 = createServer(true, createDefaultConfig(0, true), 1024, 10 * 1024);
+      server1 = createServer(true, createDefaultConfig(0, true), 1024, 10 * 1024, -1, -1);
       server1.getConfiguration().getAcceptorConfigurations().clear();
       server1.getConfiguration().addAcceptorConfiguration("server", "tcp://localhost:61616");
       AMQPBrokerConnectConfiguration brokerConnectConfiguration = new AMQPBrokerConnectConfiguration("other", "tcp://localhost:61617").setReconnectAttempts(-1).setRetryInterval(1000);
       brokerConnectConfiguration.addElement(new AMQPMirrorBrokerConnectionElement());
       server1.getConfiguration().addAMQPConnection(brokerConnectConfiguration);
 
-      server2 = createServer(true, createDefaultConfig(1, true), 1024, 10 * 1024);
+      server2 = createServer(true, createDefaultConfig(1, true), 1024, 10 * 1024, -1, -1);
       server2.getConfiguration().getAcceptorConfigurations().clear();
       server2.getConfiguration().addAcceptorConfiguration("server", "tcp://localhost:61617");
       brokerConnectConfiguration = new AMQPBrokerConnectConfiguration("other", "tcp://localhost:61616").setReconnectAttempts(-1).setRetryInterval(1000);
