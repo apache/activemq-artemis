@@ -291,11 +291,14 @@ public final class XmlDataImporter extends ActionAbstract {
    }
 
    private void sendMessage(List<String> queues, Message message, File tempFileName) throws Exception {
-      StringBuilder logMessage = new StringBuilder();
-      String destination = addressMap.get(queues.get(0));
+      final String destination = addressMap.get(queues.get(0));
+      final ByteBuffer buffer = ByteBuffer.allocate(queues.size() * 8);
 
-      logMessage.append("Sending ").append(message).append(" to address: ").append(destination).append("; routed to queues: ");
-      ByteBuffer buffer = ByteBuffer.allocate(queues.size() * 8);
+      final boolean debugLog = logger.isDebugEnabled();
+      final StringBuilder debugLogMessage = debugLog ? new StringBuilder() : null;
+      if (debugLog) {
+         debugLogMessage.append("Sending ").append(message).append(" to address: ").append(destination).append("; routed to queues: ");
+      }
 
       for (String queue : queues) {
          long queueID;
@@ -310,26 +313,29 @@ public final class XmlDataImporter extends ActionAbstract {
                ClientMessage managementMessage = managementSession.createMessage(false);
                ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queue, "ID");
                managementSession.start();
-               if (logger.isDebugEnabled()) {
+               if (debugLog) {
                   logger.debug("Requesting ID for: " + queue);
                }
                ClientMessage reply = requestor.request(managementMessage);
                Number idObject = (Number) ManagementHelper.getResult(reply);
                queueID = idObject.longValue();
             }
-            if (logger.isDebugEnabled()) {
+
+            if (debugLog) {
                logger.debug("ID for " + queue + " is: " + queueID);
             }
             queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
          }
 
-         logMessage.append(queue).append(", ");
          buffer.putLong(queueID);
+         if (debugLog) {
+            debugLogMessage.append(queue).append(", ");
+         }
       }
 
-      logMessage.delete(logMessage.length() - 2, logMessage.length()); // take off the trailing comma
-      if (logger.isDebugEnabled()) {
-         logger.debug(logMessage);
+      if (debugLog) {
+         debugLogMessage.delete(debugLogMessage.length() - 2, debugLogMessage.length()); // take off the trailing comma+space
+         logger.debug(debugLogMessage.toString());
       }
 
       message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
