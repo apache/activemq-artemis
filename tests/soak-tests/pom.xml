@@ -107,6 +107,48 @@
                      </args>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-flow-paging</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/flowControlPaging</instance>
+                     <configuration>${basedir}/target/classes/servers/flowControlPaging</configuration>
+                     <args>
+                        <arg>--java-memory</arg>
+                        <!-- some limited memory to make it more likely to fail -->
+                        <arg>512M</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-subscription-paging</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/subscriptionPaging</instance>
+                     <configuration>${basedir}/target/classes/servers/subscriptionPaging</configuration>
+                     <args>
+                        <arg>--java-memory</arg>
+                        <!-- some limited memory to make it more likely to fail -->
+                        <arg>512M</arg>
+                     </args>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
 

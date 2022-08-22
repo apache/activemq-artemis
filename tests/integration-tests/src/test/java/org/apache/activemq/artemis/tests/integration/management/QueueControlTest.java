@@ -323,15 +323,7 @@ public class QueueControlTest extends ManagementTestBase {
       QueueControl queueControl = createManagementControl(address, queue);
       Assert.assertNull(queueControl.getDeadLetterAddress());
 
-      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings() {
-         private static final long serialVersionUID = -4919035864731465338L;
-
-         @Override
-         public SimpleString getDeadLetterAddress() {
-            return deadLetterAddress;
-         }
-      });
-
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setDeadLetterAddress(deadLetterAddress));
       Assert.assertEquals(deadLetterAddress.toString(), queueControl.getDeadLetterAddress());
 
       session.deleteQueue(queue);

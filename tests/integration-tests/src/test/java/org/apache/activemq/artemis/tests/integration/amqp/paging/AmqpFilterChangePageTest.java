@@ -51,7 +51,7 @@ public class AmqpFilterChangePageTest extends ActiveMQTestBase {
 
       int NUMBER_OF_MESSAGES = 2000;
 
-      server = createServer(true, config, 100 * 1024, 1024 * 1024);
+      server = createServer(true, config, 100 * 1024, 1024 * 1024, -1, -1);
       server.start();
 
       server.addAddressInfo(new AddressInfo("AD1").addRoutingType(RoutingType.MULTICAST));

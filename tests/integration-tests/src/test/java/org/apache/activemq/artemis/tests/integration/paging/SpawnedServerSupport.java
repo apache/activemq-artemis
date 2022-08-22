@@ -49,7 +49,7 @@ public class SpawnedServerSupport {
    }
 
    static Configuration createConfig(String folder) {
-      AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(10 * 1024).setMaxSizeBytes(100 * 1024);
+      AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setPageSizeBytes(10 * 1024).setMaxSizeBytes(100 * 1024).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
 
       Configuration config = new ConfigurationImpl().setSecurityEnabled(false).setJournalMinFiles(2).setJournalFileSize(100 * 1024).setJournalType(ActiveMQTestBase.getDefaultJournalType()).setJournalCompactMinFiles(0).setJournalCompactPercentage(0).setClusterPassword(ActiveMQTestBase.CLUSTER_PASSWORD).setJournalDirectory(ActiveMQTestBase.getJournalDir(folder, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(folder, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(folder, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(folder, 0, false)).setPersistenceEnabled(true).addAddressSetting("#", settings).addAcceptorConfiguration(new TransportConfiguration(ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY));
 

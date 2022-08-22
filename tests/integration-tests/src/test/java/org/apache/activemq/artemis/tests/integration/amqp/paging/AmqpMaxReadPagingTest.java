@@ -50,7 +50,7 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
          .getAddressSettings();
       addressesSettings.get("#").setMaxSizeMessages(1)
          .setMaxSizeBytes(100000)
-         .setPageSizeBytes(10000).setMaxReadPageMessages(10).setMaxReadPageBytes(10 * 1024 * 1024).setPageFlowControl(true);
+         .setPageSizeBytes(10000).setMaxReadPageMessages(10).setMaxReadPageBytes(10 * 1024 * 1024);
 
       server.getConfiguration().setMessageExpiryScanPeriod(-1);
    }

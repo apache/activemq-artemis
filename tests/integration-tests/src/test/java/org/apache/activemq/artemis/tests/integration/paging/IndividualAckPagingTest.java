@@ -79,12 +79,12 @@ public class IndividualAckPagingTest extends ActiveMQTestBase {
       if (paging) {
          server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
          server.getAddressSettingsRepository().clear();
-         AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PAGE_SIZE).setMaxSizeBytes(PAGE_MAX).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setAutoCreateAddresses(false).setAutoCreateQueues(false);
+         AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PAGE_SIZE).setMaxSizeBytes(PAGE_MAX).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setAutoCreateAddresses(false).setAutoCreateQueues(false).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
          server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       } else {
          server = createServer(true, config, 10 * 1024 * 1024, -1);
          server.getAddressSettingsRepository().clear();
-         AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024 * 1024).setMaxSizeBytes(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setAutoCreateAddresses(false).setAutoCreateQueues(false);
+         AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(10 * 1024 * 1024).setMaxSizeBytes(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setAutoCreateAddresses(false).setAutoCreateQueues(false).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
          server.getAddressSettingsRepository().addMatch("#", defaultSetting);
       }
 

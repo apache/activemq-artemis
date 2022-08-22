@@ -2224,5 +2224,4 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224117, value = "\"page-max-cache-size\" being used on broker.xml. This configuration attribute is no longer used and it will be ignored.", format = Message.Format.MESSAGE_FORMAT)
    void pageMaxSizeUsed();
 
-
 }

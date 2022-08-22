@@ -75,9 +75,13 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
    private final MethodCalledVerifier verifier = new MethodCalledVerifier(methodCalls);
 
    @Override
-   protected ActiveMQServer createServer(boolean realFiles, Configuration configuration, int pageSize,
-                                         long maxAddressSize, Map<String, AddressSettings> settings) {
-      ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize, settings);
+   protected void applySettings(ActiveMQServer server,
+                                final Configuration configuration,
+                                final int pageSize,
+                                final long maxAddressSize,
+                                final Integer maxReadPageMessages,
+                                final Integer maxReadPageBytes,
+                                final Map<String, AddressSettings> settings) {
       server.registerBrokerPlugin(verifier);
       server.registerBrokerPlugin(new ActiveMQServerPlugin() {
 
@@ -93,10 +97,8 @@ public class OpenwirePluginTest extends BasicOpenWireTest {
          }
       });
 
-      configuration.getAddressSettings().put("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
-            .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true));
-
-      return server;
+      server.getAddressSettingsRepository().addMatch("autoCreated", new AddressSettings().setAutoDeleteAddresses(true)
+            .setAutoDeleteQueues(true).setAutoCreateQueues(true).setAutoCreateAddresses(true).setMaxReadPageMessages(-1).setMaxReadPageBytes(-1));
    }
 
    @Test(timeout = 10000)

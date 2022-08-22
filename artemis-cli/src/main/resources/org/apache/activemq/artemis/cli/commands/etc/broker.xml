@@ -134,20 +134,27 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
 
-
             <!-- if max-size-bytes and max-size-messages were both enabled, the system will enter into paging
                  based on the first attribute to hits the maximum value -->
             <!-- limit for the address in bytes, -1 means unlimited -->
             <max-size-bytes>-1</max-size-bytes>
+
             <!-- limit for the address in messages, -1 means unlimited -->
             <max-size-messages>-1</max-size-messages>
+
             <!-- the size of each file on paging. Notice we keep files in memory while they are in use.
                  Lower this setting if you have too many queues in memory. -->
             <page-size-bytes>10M</page-size-bytes>
-            <!-- how many messages are kept in memory from paging. The system will stop reading whenever this or max-read-page-bytes hits the max first. -->
-            <max-read-page-messages>1000</max-read-page-messages>
-            <!-- how many bytes equivalent of messages are kept in memory from paging (based on memory estimate). The system will stop reading whenever this or max-read-page-messages hits the max first. -->
-            <max-read-page-bytes>1M</max-read-page-bytes>
+
+            <!-- uncomment the next parameter if you want to customize how many messages are read from paging into queues.
+                 -1 means do not set a limit by messages. -->
+            <!-- <max-read-page-messages>-1</max-read-page-messages> -->
+
+            <!-- uncomment the next parameter if you want to customize how much memory is used to keep messages from paging on the queues.
+                 if you set it to -1 it means no limit is set. If both max-read-page-messages and max-read-page-bytes are -1, the system
+                 will just allow infinite reading as long as consumers are issuing credits, independently of the ack state of these messages. -->
+            <!-- <max-read-page-bytes>1M</max-read-page-bytes> -->
+
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>${full-policy}</address-full-policy>
             <auto-create-queues>${auto-create}</auto-create-queues>

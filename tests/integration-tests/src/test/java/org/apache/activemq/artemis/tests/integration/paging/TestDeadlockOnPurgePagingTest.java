@@ -46,16 +46,10 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
    protected ServerLocator locator;
    protected ActiveMQServer server;
    protected ClientSessionFactory sf;
-   static final int MESSAGE_SIZE = 1024; // 1k
-   static final int LARGE_MESSAGE_SIZE = 100 * 1024;
-
-   protected static final int RECEIVE_TIMEOUT = 5000;
 
    protected static final int PAGE_MAX = 100 * 1024;
 
    protected static final int PAGE_SIZE = 10 * 1024;
-
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
    @Override
    @Before
@@ -72,7 +66,7 @@ public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultNettyConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, TestDeadlockOnPurgePagingTest.PAGE_SIZE, TestDeadlockOnPurgePagingTest.PAGE_MAX);
+      server = createServer(true, config, TestDeadlockOnPurgePagingTest.PAGE_SIZE, TestDeadlockOnPurgePagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 

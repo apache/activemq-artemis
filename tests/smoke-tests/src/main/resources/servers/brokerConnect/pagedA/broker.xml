@@ -171,6 +171,8 @@ under the License.
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>
             <auto-create-addresses>true</auto-create-addresses>
+            <max-read-page-messages>-1</max-read-page-messages>
+            <max-read-page-bytes>-1</max-read-page-bytes>
          </address-setting>
       </address-settings>
 

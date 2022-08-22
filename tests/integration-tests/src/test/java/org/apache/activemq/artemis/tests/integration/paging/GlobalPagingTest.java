@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.integration.paging;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -42,7 +43,6 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -69,13 +70,18 @@ public class GlobalPagingTest extends PagingTest {
       super.setUp();
    }
 
+   boolean customServerCreated = true;
+
    @Override
-   protected ActiveMQServer createServer(final boolean realFiles,
-                                         final Configuration configuration,
-                                         final int pageSize,
-                                         final long maxAddressSize,
-                                         final Map<String, AddressSettings> settings) {
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
+   protected void applySettings(ActiveMQServer server,
+                                final Configuration configuration,
+                                final int pageSize,
+                                final long maxAddressSize,
+                                final Integer maxReadPageMessages,
+                                final Integer maxReadPageBytes,
+                                final Map<String, AddressSettings> settings) {
+      super.applySettings(server, configuration, pageSize, maxAddressSize, maxReadPageMessages, maxReadPageBytes, settings);
+      customServerCreated = true;
 
       if (settings != null) {
          for (Map.Entry<String, AddressSettings> setting : settings.entrySet()) {
@@ -84,11 +90,9 @@ public class GlobalPagingTest extends PagingTest {
       }
 
       server.getConfiguration().setGlobalMaxSize(maxAddressSize);
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(pageSize).setMaxSizeBytes(-1).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageMessages(-1).setMaxReadPageBytes(-1);
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
-
-      return server;
    }
 
    // test doesn't make sense on GlobalPaging due to configuration issues
@@ -98,13 +102,14 @@ public class GlobalPagingTest extends PagingTest {
 
    @Test
    public void testPagingOverFullDisk() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) return;
+      Assume.assumeTrue(storeType != StoreConfiguration.StoreType.DATABASE);
 
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1, new HashMap<>());
+      Assert.assertTrue(customServerCreated);
       server.getConfiguration().setGlobalMaxSize(-1);
       server.getConfiguration().setAddressQueueScanPeriod(100);
 
@@ -153,7 +158,7 @@ public class GlobalPagingTest extends PagingTest {
                sendFewMessages(numberOfMessages, session, producer, body);
             } catch (Exception e) {
                errors.incrementAndGet();
-               e.printStackTrace();
+               e.printStackTrace(System.out);
             }
          }
       };

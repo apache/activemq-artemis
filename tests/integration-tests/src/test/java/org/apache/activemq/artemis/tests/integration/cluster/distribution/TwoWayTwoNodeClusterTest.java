@@ -165,7 +165,7 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
          addrSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
          addrSettings.setPageSizeBytes(524288);
          addrSettings.setMessageCounterHistoryDayLimit(10);
-         addrSettings.setRedistributionDelay(1000);
+         addrSettings.setRedistributionDelay(1000).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
       }
    }
 

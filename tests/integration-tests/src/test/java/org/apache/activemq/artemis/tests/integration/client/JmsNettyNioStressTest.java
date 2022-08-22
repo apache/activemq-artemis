@@ -91,7 +91,6 @@ public class JmsNettyNioStressTest extends ActiveMQTestBase {
       Configuration config = createBasicConfig().setJMXManagementEnabled(false).clearAcceptorConfigurations().addAcceptorConfiguration(transportConfig);
       ActiveMQServer server = createServer(true, config);
 
-
       server.getAddressSettingsRepository().clear();
       AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(AddressSettings.DEFAULT_PAGE_SIZE).
          setMaxSizeBytes(AddressSettings.DEFAULT_MAX_SIZE_BYTES).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).

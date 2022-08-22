@@ -204,7 +204,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
       ActiveMQServer server;
 
       if (isPaging) {
-         server = createServer(true, createDefaultConfig(isNetty), PAGE_SIZE, PAGE_MAX, new HashMap<String, AddressSettings>());
+         server = createServer(true, createDefaultConfig(isNetty), PAGE_SIZE, PAGE_MAX, -1, -1, new HashMap<String, AddressSettings>());
       } else {
          server = createServer(true, isNetty);
       }

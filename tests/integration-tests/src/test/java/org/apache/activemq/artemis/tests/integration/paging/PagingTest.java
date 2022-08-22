@@ -218,7 +218,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       final int PAGE_SIZE = 10 * 1024;
 
-      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX);
+      ActiveMQServer server = createServer(true, config, PAGE_SIZE, PAGE_MAX, -1, -1);
       server.start();
 
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
@@ -513,7 +513,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -923,11 +923,12 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, 1, new HashMap<>());
+      // one message max, maxReadPageBytes disabled
+      server = createServer(true, config, PAGE_SIZE, PAGE_MAX, 1, -1, new HashMap<>());
 
       server.start();
 
-      final int numberOfMessages = 100;
+      final int numberOfMessages = 10;
 
       locator = createInVMNonHALocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setBlockOnAcknowledge(true);
 
@@ -980,9 +981,9 @@ public class PagingTest extends ActiveMQTestBase {
             Assert.assertNotNull(messReceived);
             System.out.println("Receiving " + messReceived);
             messReceived.acknowledge();
+            session.commit();
          }
          consumer.close();
-         session.commit();
          Wait.assertFalse(queue.getPagingStore()::isPaging, 5000, 100);
 
          Wait.assertEquals(1, () -> PagingStoreTestAccessor.getUsedPagesSize(queue.getPagingStore()), 1000, 100);
@@ -1152,7 +1153,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       String address = "testSimpleResume";
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -1593,7 +1594,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -1994,9 +1995,9 @@ public class PagingTest extends ActiveMQTestBase {
       Configuration config = createDefaultInVMConfig().setJournalDirectory(getJournalDir()).setJournalSyncNonTransactional(false).setJournalCompactMinFiles(0) // disable compact
          .setMessageExpiryScanPeriod(10);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
-      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PAGE_SIZE).setMaxSizeBytes(PAGE_MAX).setExpiryAddress(new SimpleString("EXP")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
+      AddressSettings defaultSetting = new AddressSettings().setPageSizeBytes(PAGE_SIZE).setMaxSizeBytes(PAGE_MAX).setExpiryAddress(new SimpleString("EXP")).setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxReadPageBytes(-1).setMaxReadPageMessages(-1);
 
       server.getAddressSettingsRepository().clear();
 
@@ -2245,7 +2246,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -2300,7 +2301,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       server.stop();
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
       server.start();
 
       locator = createInVMNonHALocator();
@@ -2496,7 +2497,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -2546,7 +2547,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       server.stop();
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
       server.start();
 
       locator = createInVMNonHALocator();
@@ -3228,7 +3229,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -3796,7 +3797,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -4018,7 +4019,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig();
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -4109,7 +4110,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalSyncTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -5471,7 +5472,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setJournalFileSize(10 * 1024 * 1024);
 
-      server = createServer(true, config, 100 * 1024, 1024 * 1024 / 2);
+      server = createServer(true, config, 100 * 1024, 1024 * 1024 / 2, -1, -1);
 
       server.start();
 
@@ -5570,7 +5571,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -5652,7 +5653,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -5818,7 +5819,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -5922,7 +5923,7 @@ public class PagingTest extends ActiveMQTestBase {
       AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(5).setDeadLetterAddress(new SimpleString("DLA")).setRedeliveryDelay(0);
       settings.put(ADDRESS.toString(), dla);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, settings);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1, settings);
 
       server.start();
 
@@ -6133,7 +6134,7 @@ public class PagingTest extends ActiveMQTestBase {
       AddressSettings dla = new AddressSettings().setMaxDeliveryAttempts(5).setDeadLetterAddress(new SimpleString("DLA")).setExpiryAddress(new SimpleString("DLA"));
       settings.put(ADDRESS.toString(), dla);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, settings);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1, settings);
 
       server.start();
 
@@ -6852,7 +6853,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -7599,7 +7600,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1);
 
       server.start();
 
@@ -7796,14 +7797,16 @@ public class PagingTest extends ActiveMQTestBase {
       session.close();
    }
 
+
    @Override
-   protected final ActiveMQServer createServer(final boolean realFiles,
-                                               final Configuration configuration,
-                                               final int pageSize,
-                                               final long maxAddressSize) {
-      ActiveMQServer server = super.createServer(realFiles, configuration, pageSize, maxAddressSize);
+   protected void applySettings(ActiveMQServer server,
+                                final Configuration configuration,
+                                final int pageSize,
+                                final long maxAddressSize,
+                                final Integer maxReadPageMessages,
+                                final Integer maxReadPageBytes,
+                                final Map<String, AddressSettings> settings) {
       server.getConfiguration().setAddressQueueScanPeriod(100);
-      return server;
    }
 
    @Override

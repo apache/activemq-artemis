@@ -96,7 +96,7 @@ Property Name|Description|Default
 `max-size-messages`|The max number of messages the address could have before entering on page mode.| -1 (disabled)
 `page-size-bytes`|The size of each page file used on the paging system|10MB
 `address-full-policy`|This must be set to `PAGE` for paging to enable. If the value is `PAGE` then further messages will be paged to disk. If the value is `DROP` then further messages will be silently dropped. If the value is `FAIL` then the messages will be dropped and the client message producers will receive an exception. If the value is `BLOCK` then client message producers will block when they try and send further messages.|`PAGE`
-`max-read-page-messages` | how many message can be read from paging into the Queue whenever more messages are needed. The system wtill stop reading if `max-read-page-bytes hits the limit first. | 1000
+`max-read-page-messages` | how many message can be read from paging into the Queue whenever more messages are needed. The system wtill stop reading if `max-read-page-bytes hits the limit first. | -1
 `max-read-page-bytes` | how much memory the messages read from paging can take on the Queue whenever more messages are needed. The system will stop reading if `max-read-page-messages` hits the limit first. | 2 * page-size-bytes
 
 ### max-size-bytes and max-size-messages simultaneous usage
@@ -106,6 +106,8 @@ It is possible to define max-size-messages (as the maximum number of messages) a
 #### Maximum read from page
 
 `max-read-page-messages` and `max-read-page-bytes` are used to control messaging reading from paged file into the Queue. The broker will add messages on the Queue until either `max-read-page-meessages` or `max-read-page-bytes` reaches the limit.
+
+If both values are set to -1 the broker will keep reading messages as long as the consumer is reaching for more messages. However this would keep the broker unprotected from consumers allocating huge transactions or consumers that don't have flow control enabled.
 
 ## Global Max Size
 
