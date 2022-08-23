@@ -500,13 +500,8 @@ public class ChannelImplTest {
       }
 
       @Override
-      public void setAuditSubject(Subject subject) {
+      public void setSubject(Subject subject) {
 
-      }
-
-      @Override
-      public Subject getAuditSubject() {
-         return null;
       }
 
       @Override

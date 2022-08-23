@@ -227,15 +227,14 @@ public interface RemotingConnection extends BufferHandler {
     */
    boolean isSupportsFlowControl();
 
-   /*
-   * sets the currently associated subject for this connection
-   * */
-   void setAuditSubject(Subject subject);
-
-   Subject getAuditSubject();
+   /**
+    * sets the currently associated subject for this connection
+    * @param subject
+    */
+   void setSubject(Subject subject);
 
    /**
-    * the possibly null identity associated with this connection
+    * the possibly null subject associated with this connection
     * @return
     */
    Subject getSubject();

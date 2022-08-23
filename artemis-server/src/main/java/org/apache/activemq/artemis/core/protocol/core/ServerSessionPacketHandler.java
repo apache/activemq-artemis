@@ -273,7 +273,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       }
       if (AuditLogger.isAnyLoggingEnabled()) {
          AuditLogger.setRemoteAddress(remotingConnection.getRemoteAddress());
-         AuditLogger.setCurrentCaller(remotingConnection.getAuditSubject());
+         AuditLogger.setCurrentCaller(remotingConnection.getSubject());
       }
       final byte type = packet.getType();
       switch (type) {

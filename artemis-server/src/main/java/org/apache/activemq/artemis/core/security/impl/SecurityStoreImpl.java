@@ -190,7 +190,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          if (connection != null) {
-            connection.setAuditSubject(subject);
+            connection.setSubject(subject);
          }
          if (AuditLogger.isResourceLoggingEnabled()) {
             AuditLogger.userSuccesfullyAuthenticatedInAudit(subject, connection.getRemoteAddress());

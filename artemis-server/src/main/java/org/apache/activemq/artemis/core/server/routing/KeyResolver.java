@@ -84,7 +84,7 @@ public class KeyResolver {
             break;
          case ROLE_NAME:
             if (connection != null &&  connection.getProtocolConnection() != null) {
-               Subject subject = connection.getProtocolConnection().getAuditSubject();
+               Subject subject = connection.getProtocolConnection().getSubject();
                if (subject != null) {
                   for (RolePrincipal candidateRole : subject.getPrincipals(RolePrincipal.class)) {
                      String roleName = candidateRole.getName();
