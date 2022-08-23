@@ -858,18 +858,13 @@ public final class StompConnection implements RemotingConnection {
    }
 
    @Override
-   public void setAuditSubject(Subject subject) {
+   public void setSubject(Subject subject) {
       this.subject = subject;
    }
 
    @Override
-   public Subject getAuditSubject() {
-      return subject;
-   }
-
-   @Override
    public Subject getSubject() {
-      return null;
+      return subject;
    }
 
    /**

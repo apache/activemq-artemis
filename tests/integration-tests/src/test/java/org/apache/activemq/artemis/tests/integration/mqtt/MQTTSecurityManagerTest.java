@@ -54,7 +54,6 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
                                      RemotingConnection remotingConnection,
                                      String securityDomain) {
             remotingConnection.setClientID(clientID);
-            System.out.println("Setting: " + clientID);
             return new Subject();
          }
 

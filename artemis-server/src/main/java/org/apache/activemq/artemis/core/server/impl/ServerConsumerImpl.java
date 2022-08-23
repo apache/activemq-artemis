@@ -490,7 +490,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          Message message = reference.getMessage();
 
          if (AuditLogger.isMessageLoggingEnabled()) {
-            AuditLogger.coreConsumeMessage(session.getRemotingConnection().getAuditSubject(), session.getRemotingConnection().getRemoteAddress(), getQueueName().toString(), reference.toString());
+            AuditLogger.coreConsumeMessage(session.getRemotingConnection().getSubject(), session.getRemotingConnection().getRemoteAddress(), getQueueName().toString(), reference.toString());
          }
          if (server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.beforeDeliver(this, reference));

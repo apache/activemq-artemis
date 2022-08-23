@@ -147,7 +147,7 @@ public class KeyResolverTest {
       RemotingConnection protocolConnection = Mockito.mock(RemotingConnection.class);
       Mockito.when(connection.getProtocolConnection()).thenReturn(protocolConnection);
       Subject subject = Mockito.mock(Subject.class);
-      Mockito.when(protocolConnection.getAuditSubject()).thenReturn(subject);
+      Mockito.when(protocolConnection.getSubject()).thenReturn(subject);
 
       Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 
@@ -175,7 +175,7 @@ public class KeyResolverTest {
       RemotingConnection protocolConnection = Mockito.mock(RemotingConnection.class);
       Mockito.when(connection.getProtocolConnection()).thenReturn(protocolConnection);
       Subject subject = Mockito.mock(Subject.class);
-      Mockito.when(protocolConnection.getAuditSubject()).thenReturn(subject);
+      Mockito.when(protocolConnection.getSubject()).thenReturn(subject);
 
       Assert.assertEquals(KeyResolver.NULL_KEY_VALUE, keyResolver.resolve(connection, null, null));
 

@@ -179,7 +179,7 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
 
       final CountDownLatch numConnectionsCreatedViaAdvisoryNotificationsLatch = new CountDownLatch(19);
       connections[0].createSession(false, Session.AUTO_ACKNOWLEDGE)
-         .createConsumer(AdvisorySupport.getConnectionAdvisoryTopic()).setMessageListener(message -> numConnectionsCreatedViaAdvisoryNotificationsLatch.countDown());
+                    .createConsumer(AdvisorySupport.getConnectionAdvisoryTopic()).setMessageListener(message -> numConnectionsCreatedViaAdvisoryNotificationsLatch.countDown());
 
       try {
          for (int i = 1; i < connections.length; i++) {
@@ -201,6 +201,5 @@ public class AdvisoryOpenWireTest extends BasicOpenWireTest {
       }
 
    }
-
 
 }

@@ -163,10 +163,10 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    @Override
    public Subject getSubject() {
       SASLResult saslResult = amqpConnection.getSASLResult();
-      if (saslResult != null) {
+      if (saslResult != null && saslResult.getSubject() != null) {
          return saslResult.getSubject();
       }
-      return null;
+      return super.getSubject();
    }
 
    /**

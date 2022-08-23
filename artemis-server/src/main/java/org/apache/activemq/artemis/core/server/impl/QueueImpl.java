@@ -1884,7 +1884,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          if (AuditLogger.isMessageLoggingEnabled()) {
             // it's possible for the consumer to be null (e.g. acking the message administratively)
             final ServerSession session = consumer != null ? server.getSessionByID(consumer.getSessionID()) : null;
-            final Subject subject = session == null ? null : session.getRemotingConnection().getAuditSubject();
+            final Subject subject = session == null ? null : session.getRemotingConnection().getSubject();
             final String remoteAddress = session == null ? null : session.getRemotingConnection().getRemoteAddress();
 
             if (transactional) {
