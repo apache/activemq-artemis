@@ -96,6 +96,9 @@ public interface ClientConsumer extends AutoCloseable {
    /**
     * Sets the MessageHandler for this consumer to consume messages asynchronously.
     * <p>
+    * Note that setting a handler dedicates the parent session, and its child producers
+    * and consumers, to the session-wide handler delivery thread of control.
+    * <p>
     * Calling this method on a closed consumer will throw a ActiveMQException.
     *
     * @param handler a MessageHandler

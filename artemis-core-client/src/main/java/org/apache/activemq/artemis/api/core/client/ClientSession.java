@@ -28,7 +28,12 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.RoutingType;
 
 /**
- * A ClientSession is a single-thread object required for producing and consuming messages.
+ * A ClientSession is a single-threaded parent object required for producing and consuming messages.
+ * <p>
+ * Only a single thread may be used to operate on the session and its child producers and consumers,
+ * other than close() methods which may be called from another thread. Setting a MessageHandler on a
+ * consumer renders the session, and all its child producers and consumers, to be dedicated to the
+ * session-wide handler delivery thread of control.
  */
 public interface ClientSession extends XAResource, AutoCloseable {
 
