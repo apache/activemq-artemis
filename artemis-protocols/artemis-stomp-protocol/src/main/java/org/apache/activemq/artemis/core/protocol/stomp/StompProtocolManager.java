@@ -134,8 +134,6 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    public void handleBuffer(final RemotingConnection connection, final ActiveMQBuffer buffer) {
       StompConnection conn = (StompConnection) connection;
 
-      conn.setDataReceived();
-
       do {
          StompFrame request;
          try {

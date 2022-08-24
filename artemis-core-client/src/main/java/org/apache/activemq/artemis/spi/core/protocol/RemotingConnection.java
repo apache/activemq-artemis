@@ -35,7 +35,6 @@ import javax.security.auth.Subject;
 /**
  * A RemotingConnection is a connection between a client and a server.
  *
- *
  * Perhaps a better name for this class now would be ProtocolConnection as this
  * represents the link with the used protocol
  */
