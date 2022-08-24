@@ -576,7 +576,7 @@ public class ScaleDownHandler {
 
             MessageReference initialRef = null;
             for (int i = 0; i < numberOfScans; i++) {
-               logger.debug("iterating on queue " + queue + " while looking for reference " + reference);
+               logger.debug("Iterating on queue " + queue + " while looking for reference " + reference);
                memoryIterator = queue.iterator();
 
                while (memoryIterator.hasNext()) {
@@ -610,8 +610,10 @@ public class ScaleDownHandler {
 
          // if we reached two iterations without finding anything.. we just go away by cleaning everything up
          lastRef = null;
-         memoryIterator.close();
-         memoryIterator = null;
+         if (memoryIterator != null) {
+            memoryIterator.close();
+            memoryIterator = null;
+         }
 
          return false;
       }
