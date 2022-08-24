@@ -236,6 +236,8 @@ public class NettyConnector extends AbstractConnector {
 
    private String keyStorePassword;
 
+   private String keyStoreAlias;
+
    private String trustStoreProvider;
 
    private String trustStoreType;
@@ -399,6 +401,8 @@ public class NettyConnector extends AbstractConnector {
 
          keyStorePassword = ConfigurationHelper.getPasswordProperty(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_PASSWORD, configuration, ActiveMQDefaultConfiguration.getPropMaskPassword(), ActiveMQDefaultConfiguration.getPropPasswordCodec());
 
+         keyStoreAlias = ConfigurationHelper.getStringProperty(TransportConstants.KEYSTORE_ALIAS_PROP_NAME, TransportConstants.DEFAULT_KEYSTORE_ALIAS, configuration);
+
          trustStoreProvider = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_PROVIDER_PROP_NAME, TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER, configuration);
 
          trustStoreType = ConfigurationHelper.getStringProperty(TransportConstants.TRUSTSTORE_TYPE_PROP_NAME, TransportConstants.DEFAULT_TRUSTSTORE_TYPE, configuration);
@@ -431,6 +435,7 @@ public class NettyConnector extends AbstractConnector {
          keyStoreType = TransportConstants.DEFAULT_KEYSTORE_TYPE;
          keyStorePath = TransportConstants.DEFAULT_KEYSTORE_PATH;
          keyStorePassword = TransportConstants.DEFAULT_KEYSTORE_PASSWORD;
+         keyStoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
          trustStoreProvider = TransportConstants.DEFAULT_TRUSTSTORE_PROVIDER;
          trustStoreType = TransportConstants.DEFAULT_TRUSTSTORE_TYPE;
          trustStorePath = TransportConstants.DEFAULT_TRUSTSTORE_PATH;
@@ -567,6 +572,7 @@ public class NettyConnector extends AbstractConnector {
       final String realKeyStoreProvider;
       final String realKeyStoreType;
       final String realKeyStorePassword;
+      final String realKeyStoreAlias;
       final String realTrustStorePath;
       final String realTrustStoreProvider;
       final String realTrustStoreType;
@@ -578,6 +584,7 @@ public class NettyConnector extends AbstractConnector {
             realKeyStoreProvider = keyStoreProvider;
             realKeyStoreType = keyStoreType;
             realKeyStorePassword = keyStorePassword;
+            realKeyStoreAlias = keyStoreAlias;
             realTrustStorePath = trustStorePath;
             realTrustStoreProvider = trustStoreProvider;
             realTrustStoreType = trustStoreType;
@@ -585,6 +592,7 @@ public class NettyConnector extends AbstractConnector {
          } else {
             realKeyStorePath = Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PATH_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PATH_PROP_NAME), keyStorePath).map(v -> useDefaultSslContext ? keyStorePath : v).filter(Objects::nonNull).findFirst().orElse(null);
             realKeyStorePassword = Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PASSWORD_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PASSWORD_PROP_NAME), keyStorePassword).map(v -> useDefaultSslContext ? keyStorePassword : v).filter(Objects::nonNull).findFirst().orElse(null);
+            realKeyStoreAlias = keyStoreAlias;
 
             Pair<String, String> keyStoreCompat = SSLSupport.getValidProviderAndType(Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_PROVIDER_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_PROVIDER_PROP_NAME), keyStoreProvider).map(v -> useDefaultSslContext ? keyStoreProvider : v).filter(Objects::nonNull).findFirst().orElse(null),
                                                                                      Stream.of(System.getProperty(ACTIVEMQ_KEYSTORE_TYPE_PROP_NAME), System.getProperty(JAVAX_KEYSTORE_TYPE_PROP_NAME), keyStoreType).map(v -> useDefaultSslContext ? keyStoreType : v).filter(Objects::nonNull).findFirst().orElse(null));
@@ -604,6 +612,7 @@ public class NettyConnector extends AbstractConnector {
          realKeyStoreProvider = null;
          realKeyStoreType = null;
          realKeyStorePassword = null;
+         realKeyStoreAlias = null;
          realTrustStorePath = null;
          realTrustStoreProvider = null;
          realTrustStoreType = null;
@@ -645,6 +654,7 @@ public class NettyConnector extends AbstractConnector {
                   .keystorePath(realKeyStorePath)
                   .keystoreType(realKeyStoreType)
                   .keystorePassword(realKeyStorePassword)
+                  .keystoreAlias(realKeyStoreAlias)
                   .truststoreProvider(realTrustStoreProvider)
                   .truststorePath(realTrustStorePath)
                   .truststoreType(realTrustStoreType)

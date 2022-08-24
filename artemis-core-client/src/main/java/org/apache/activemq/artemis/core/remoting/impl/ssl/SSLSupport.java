@@ -22,6 +22,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509KeyManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,15 +30,21 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.PrivilegedAction;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CRL;
 import java.security.cert.CertStore;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CollectionCertStoreParameters;
 import java.security.cert.PKIXBuilderParameters;
 import java.security.cert.X509CertSelector;
+import java.security.cert.X509Certificate;
 import java.util.Collection;
 
 import io.netty.handler.ssl.SslContext;
@@ -47,6 +54,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TrustManagerFactoryPlugin;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
@@ -72,6 +80,7 @@ public class SSLSupport {
    private String sslProvider = TransportConstants.DEFAULT_SSL_PROVIDER;
    private boolean trustAll = TransportConstants.DEFAULT_TRUST_ALL;
    private String trustManagerFactoryPlugin = TransportConstants.DEFAULT_TRUST_MANAGER_FACTORY_PLUGIN;
+   private String keystoreAlias = TransportConstants.DEFAULT_KEYSTORE_ALIAS;
 
    public SSLSupport() {
    }
@@ -88,6 +97,7 @@ public class SSLSupport {
       crlPath = config.getCrlPath();
       trustAll = config.isTrustAll();
       trustManagerFactoryPlugin = config.getTrustManagerFactoryPlugin();
+      keystoreAlias = config.getKeystoreAlias();
    }
 
    public String getKeystoreProvider() {
@@ -123,6 +133,15 @@ public class SSLSupport {
 
    public SSLSupport setKeystorePassword(String keystorePassword) {
       this.keystorePassword = keystorePassword;
+      return this;
+   }
+
+   public String getKeystoreAlias() {
+      return keystoreAlias;
+   }
+
+   public SSLSupport setKeystoreAlias(String keystoreAlias) {
+      this.keystoreAlias = keystoreAlias;
       return this;
    }
 
@@ -208,18 +227,34 @@ public class SSLSupport {
 
    public SslContext createNettyContext() throws Exception {
       KeyStore keyStore = SSLSupport.loadKeystore(keystoreProvider, keystoreType, keystorePath, keystorePassword);
-      KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-      keyManagerFactory.init(keyStore, keystorePassword.toCharArray());
-      return SslContextBuilder.forServer(keyManagerFactory).sslProvider(SslProvider.valueOf(sslProvider)).trustManager(loadTrustManagerFactory()).build();
+      SslContextBuilder sslContextBuilder;
+      if (keystoreAlias != null) {
+         Pair<PrivateKey, X509Certificate[]> privateKeyAndCertChain = getPrivateKeyAndCertChain(keyStore);
+         sslContextBuilder = SslContextBuilder.forServer(privateKeyAndCertChain.getA(), privateKeyAndCertChain.getB());
+      } else {
+         sslContextBuilder = SslContextBuilder.forServer(getKeyManagerFactory(keyStore, keystorePassword == null ? null : keystorePassword.toCharArray()));
+      }
+      return sslContextBuilder
+         .sslProvider(SslProvider.valueOf(sslProvider))
+         .trustManager(loadTrustManagerFactory())
+         .build();
    }
 
    public SslContext createNettyClientContext() throws Exception {
       KeyStore keyStore = SSLSupport.loadKeystore(keystoreProvider, keystoreType, keystorePath, keystorePassword);
-      KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-      keyManagerFactory.init(keyStore, keystorePassword == null ? null : keystorePassword.toCharArray());
-      return SslContextBuilder.forClient().sslProvider(SslProvider.valueOf(sslProvider)).keyManager(keyManagerFactory).trustManager(loadTrustManagerFactory()).build();
-   }
+      SslContextBuilder sslContextBuilder = SslContextBuilder
+         .forClient()
+         .sslProvider(SslProvider.valueOf(sslProvider))
+         .trustManager(loadTrustManagerFactory());
+      if (keystoreAlias != null) {
+         Pair<PrivateKey, X509Certificate[]> privateKeyAndCertChain = getPrivateKeyAndCertChain(keyStore);
+         sslContextBuilder.keyManager(privateKeyAndCertChain.getA(), privateKeyAndCertChain.getB());
+      } else {
+         sslContextBuilder.keyManager(getKeyManagerFactory(keyStore, keystorePassword == null ? null : keystorePassword.toCharArray()));
+      }
 
+      return sslContextBuilder.build();
+   }
 
    public static String[] parseCommaSeparatedListIntoArray(String suites) {
       String[] cipherSuites = suites.split(",");
@@ -321,7 +356,15 @@ public class SSLSupport {
       if (factory == null) {
          return null;
       }
-      return factory.getKeyManagers();
+      KeyManager[] keyManagers = factory.getKeyManagers();
+      if (keystoreAlias != null) {
+         for (int i = 0; i < keyManagers.length; i++) {
+            if (keyManagers[i] instanceof X509KeyManager) {
+               keyManagers[i] = new AliasedKeyManager((X509KeyManager) keyManagers[i], keystoreAlias);
+            }
+         }
+      }
+      return keyManagers;
    }
 
    private KeyManagerFactory loadKeyManagerFactory() throws Exception {
@@ -368,6 +411,24 @@ public class SSLSupport {
             return ClassloadingUtil.findResource(resourceName);
          }
       });
+   }
+
+   private Pair<PrivateKey, X509Certificate[]> getPrivateKeyAndCertChain(KeyStore keyStore) throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
+      PrivateKey key = (PrivateKey) keyStore.getKey(keystoreAlias, keystorePassword.toCharArray());
+      if (key == null) {
+         throw ActiveMQClientMessageBundle.BUNDLE.keystoreAliasNotFound(keystoreAlias, keystorePath);
+      }
+
+      Certificate[] chain = keyStore.getCertificateChain(keystoreAlias);
+      X509Certificate[] certChain = new X509Certificate[chain.length];
+      System.arraycopy(chain, 0, certChain, 0, chain.length);
+      return new Pair(key, certChain);
+   }
+
+   private KeyManagerFactory getKeyManagerFactory(KeyStore keyStore, char[] keystorePassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
+      KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+      keyManagerFactory.init(keyStore, keystorePassword);
+      return keyManagerFactory;
    }
 
    /**
