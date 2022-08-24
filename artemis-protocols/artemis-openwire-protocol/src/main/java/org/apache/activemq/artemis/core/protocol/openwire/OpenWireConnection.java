@@ -479,16 +479,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    @Override
-   public boolean isClient() {
-      return false;
-   }
-
-   @Override
-   public boolean isDestroyed() {
-      return destroyed;
-   }
-
-   @Override
    public void disconnect(boolean criticalError) {
       this.disconnect(null, null, criticalError);
    }
@@ -1835,8 +1825,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    @Override
-   public void killMessage(SimpleString nodeID) {
-      //unsupported
+   public boolean isSupportsFlowControl() {
+      return true;
    }
 
    @Override
@@ -1847,11 +1837,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    @Override
    public String getClientID() {
       return context != null ? context.getClientId() : null;
-   }
-
-   @Override
-   public String getTransportLocalAddress() {
-      return transportConnection.getLocalAddress();
    }
 
    public CoreMessageObjectPools getCoreMessageObjectPools() {

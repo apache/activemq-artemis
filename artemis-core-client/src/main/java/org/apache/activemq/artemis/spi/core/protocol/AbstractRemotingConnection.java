@@ -26,6 +26,7 @@ import java.util.concurrent.FutureTask;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.apache.activemq.artemis.core.remoting.CloseListener;
@@ -45,6 +46,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    protected final Connection transportConnection;
    protected final Executor executor;
    protected final long creationTime;
+   protected volatile boolean destroyed;
    protected volatile boolean dataReceived;
    private String clientId;
    private Subject subject;
@@ -63,6 +65,21 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    @Override
    public List<FailureListener> getFailureListeners() {
       return new ArrayList<>(failureListeners);
+   }
+
+   @Override
+   public boolean isClient() {
+      return false;
+   }
+
+   @Override
+   public boolean isDestroyed() {
+      return destroyed;
+   }
+
+   @Override
+   public void flush() {
+      // noop
    }
 
    @Override
@@ -204,11 +221,6 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
       return res;
    }
 
-   @Override
-   public boolean isSupportReconnect() {
-      return false;
-   }
-
    /*
     * This can be called concurrently by more than one thread so needs to be locked
     */
@@ -240,8 +252,18 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    }
 
    @Override
+   public void killMessage(SimpleString nodeID) {
+      // noop
+   }
+
+   @Override
+   public boolean isSupportReconnect() {
+      return false;
+   }
+
+   @Override
    public boolean isSupportsFlowControl() {
-      return true;
+      return false;
    }
 
    @Override
@@ -262,5 +284,10 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
    @Override
    public String getClientID() {
       return clientId;
+   }
+
+   @Override
+   public String getTransportLocalAddress() {
+      return transportConnection.getLocalAddress();
    }
 }

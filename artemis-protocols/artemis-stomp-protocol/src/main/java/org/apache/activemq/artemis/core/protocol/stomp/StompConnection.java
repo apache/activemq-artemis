@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-import javax.security.auth.Subject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -24,14 +23,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
-import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -43,14 +40,13 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.protocol.stomp.v10.StompFrameHandlerV10;
 import org.apache.activemq.artemis.core.protocol.stomp.v12.StompFrameHandlerV12;
-import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
@@ -63,7 +59,7 @@ import org.jboss.logging.Logger;
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
 
-public final class StompConnection implements RemotingConnection {
+public final class StompConnection extends AbstractRemotingConnection {
 
    private static final Logger logger = Logger.getLogger(StompConnection.class);
 
@@ -72,30 +68,18 @@ public final class StompConnection implements RemotingConnection {
 
    private final StompProtocolManager manager;
 
-   private final Connection transportConnection;
-
    private String login;
 
    private String passcode;
-
-   private String clientID;
 
    //this means login is valid. (stomp connection ok)
    private boolean valid;
 
    private boolean destroyed = false;
 
-   private final long creationTime;
-
    private final Acceptor acceptorUsed;
 
-   private final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
-
-   private final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();
-
    private final Object failLock = new Object();
-
-   private boolean dataReceived;
 
    private final boolean enableMessageID;
 
@@ -115,22 +99,11 @@ public final class StompConnection implements RemotingConnection {
    private final ScheduledExecutorService scheduledExecutorService;
 
    private final ExecutorFactory executorFactory;
-   private Subject subject;
-
-   @Override
-   public boolean isSupportReconnect() {
-      return false;
-   }
 
    public VersionedStompFrameHandler getStompVersionHandler() {
       return frameHandler;
    }
 
-
-   @Override
-   public void scheduledFlush() {
-      flush();
-   }
 
    public StompFrame decode(ActiveMQBuffer buffer) throws ActiveMQStompException {
       StompFrame frame = null;
@@ -170,103 +143,20 @@ public final class StompConnection implements RemotingConnection {
                    final StompProtocolManager manager,
                    final ScheduledExecutorService scheduledExecutorService,
                    final ExecutorFactory executorFactory) {
+      super(transportConnection, null);
+
       this.scheduledExecutorService = scheduledExecutorService;
 
       this.executorFactory = executorFactory;
-
-      this.transportConnection = transportConnection;
 
       this.manager = manager;
 
       this.frameHandler = new StompFrameHandlerV10(this, scheduledExecutorService, executorFactory);
 
-      this.creationTime = System.currentTimeMillis();
-
       this.acceptorUsed = acceptorUsed;
 
       this.enableMessageID = ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID_DEPRECATED, false, acceptorUsed.getConfiguration()) || ConfigurationHelper.getBooleanProperty(TransportConstants.STOMP_ENABLE_MESSAGE_ID, false, acceptorUsed.getConfiguration());
       this.minLargeMessageSize = ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE, ConfigurationHelper.getIntProperty(TransportConstants.STOMP_MIN_LARGE_MESSAGE_SIZE_DEPRECATED, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, acceptorUsed.getConfiguration()), acceptorUsed.getConfiguration());
-   }
-
-   @Override
-   public void addFailureListener(final FailureListener listener) {
-      if (listener == null) {
-         throw new IllegalStateException("FailureListener cannot be null");
-      }
-
-      failureListeners.add(listener);
-   }
-
-   @Override
-   public boolean removeFailureListener(final FailureListener listener) {
-      if (listener == null) {
-         throw new IllegalStateException("FailureListener cannot be null");
-      }
-
-      return failureListeners.remove(listener);
-   }
-
-   @Override
-   public void addCloseListener(final CloseListener listener) {
-      if (listener == null) {
-         throw new IllegalStateException("CloseListener cannot be null");
-      }
-
-      closeListeners.add(listener);
-   }
-
-   @Override
-   public boolean removeCloseListener(final CloseListener listener) {
-      if (listener == null) {
-         throw new IllegalStateException("CloseListener cannot be null");
-      }
-
-      return closeListeners.remove(listener);
-   }
-
-   @Override
-   public List<CloseListener> removeCloseListeners() {
-      List<CloseListener> ret = new ArrayList<>(closeListeners);
-
-      closeListeners.clear();
-
-      return ret;
-   }
-
-   @Override
-   public List<FailureListener> removeFailureListeners() {
-      List<FailureListener> ret = new ArrayList<>(failureListeners);
-
-      failureListeners.clear();
-
-      return ret;
-   }
-
-   @Override
-   public void setCloseListeners(List<CloseListener> listeners) {
-      closeListeners.clear();
-
-      closeListeners.addAll(listeners);
-   }
-
-   @Override
-   public void setFailureListeners(final List<FailureListener> listeners) {
-      failureListeners.clear();
-
-      failureListeners.addAll(listeners);
-   }
-
-   protected synchronized void setDataReceived() {
-      dataReceived = true;
-   }
-
-   @Override
-   public synchronized boolean checkDataReceived() {
-      boolean res = dataReceived;
-
-      dataReceived = false;
-
-      return res;
    }
 
    // TODO this should take a type - send or receive so it knows whether to check the address or the queue
@@ -324,11 +214,6 @@ public final class StompConnection implements RemotingConnection {
             throw BUNDLE.illegalSemantics(routingType.toString(), actualDeliveryModesOfAddress.toString());
          }
       }
-   }
-
-   @Override
-   public ActiveMQBuffer createTransportBuffer(int size) {
-      return ActiveMQBuffers.dynamicBuffer(size);
    }
 
    @Override
@@ -408,10 +293,6 @@ public final class StompConnection implements RemotingConnection {
    }
 
    @Override
-   public void flush() {
-   }
-
-   @Override
    public List<FailureListener> getFailureListeners() {
       // we do not return the listeners otherwise the remoting service
       // would NOT destroy the connection.
@@ -419,37 +300,8 @@ public final class StompConnection implements RemotingConnection {
    }
 
    @Override
-   public Object getID() {
-      return transportConnection.getID();
-   }
-
-   @Override
-   public String getRemoteAddress() {
-      return transportConnection.getRemoteAddress();
-   }
-
-   @Override
-   public long getCreationTime() {
-      return creationTime;
-   }
-
-   @Override
-   public Connection getTransportConnection() {
-      return transportConnection;
-   }
-
-   @Override
-   public boolean isClient() {
-      return false;
-   }
-
-   @Override
-   public boolean isDestroyed() {
-      return destroyed;
-   }
-
-   @Override
    public void bufferReceived(Object connectionID, ActiveMQBuffer buffer) {
+      super.bufferReceived(connectionID, buffer);
       manager.handleBuffer(this, buffer);
    }
 
@@ -469,16 +321,6 @@ public final class StompConnection implements RemotingConnection {
       this.passcode = passcode;
    }
 
-   @Override
-   public void setClientID(String clientID) {
-      this.clientID = clientID;
-   }
-
-   @Override
-   public String getClientID() {
-      return clientID;
-   }
-
    public boolean isValid() {
       return valid;
    }
@@ -494,24 +336,7 @@ public final class StompConnection implements RemotingConnection {
          try {
             listener.connectionFailed(me, false);
          } catch (final Throwable t) {
-            // Failure of one listener to execute shouldn't prevent others
-            // from
-            // executing
-            ActiveMQServerLogger.LOGGER.errorCallingFailureListener(t);
-         }
-      }
-   }
-
-   private void callClosingListeners() {
-      final List<CloseListener> listenersClone = new ArrayList<>(closeListeners);
-
-      for (final CloseListener listener : listenersClone) {
-         try {
-            listener.connectionClosed();
-         } catch (final Throwable t) {
-            // Failure of one listener to execute shouldn't prevent others
-            // from
-            // executing
+            // Failure of one listener to execute shouldn't prevent others from executing
             ActiveMQServerLogger.LOGGER.errorCallingFailureListener(t);
          }
       }
@@ -828,7 +653,6 @@ public final class StompConnection implements RemotingConnection {
          }
          ActiveMQStompProtocolLogger.LOGGER.sentErrorToClient(getTransportConnection().getRemoteAddress(), message);
       }
-
    }
 
    public VersionedStompFrameHandler getFrameHandler() {
@@ -847,26 +671,6 @@ public final class StompConnection implements RemotingConnection {
       return manager;
    }
 
-   @Override
-   public void killMessage(SimpleString nodeID) {
-      //unsupported
-   }
-
-   @Override
-   public boolean isSupportsFlowControl() {
-      return false;
-   }
-
-   @Override
-   public void setSubject(Subject subject) {
-      this.subject = subject;
-   }
-
-   @Override
-   public Subject getSubject() {
-      return subject;
-   }
-
    /**
     * Returns the name of the protocol for this Remoting Connection
     *
@@ -876,11 +680,4 @@ public final class StompConnection implements RemotingConnection {
    public String getProtocolName() {
       return StompProtocolManagerFactory.STOMP_PROTOCOL_NAME;
    }
-
-   @Override
-   public String getTransportLocalAddress() {
-      // TODO Auto-generated method stub
-      return getTransportConnection().getLocalAddress();
-   }
-
 }

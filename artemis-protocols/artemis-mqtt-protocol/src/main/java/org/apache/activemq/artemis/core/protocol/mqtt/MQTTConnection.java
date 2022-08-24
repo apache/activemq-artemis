@@ -24,7 +24,6 @@ import java.util.concurrent.FutureTask;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
@@ -58,12 +57,7 @@ public class MQTTConnection extends AbstractRemotingConnection {
 
    @Override
    public void fail(ActiveMQException me, String scaleDownTargetNodeID) {
-      synchronized (failureListeners) {
-         for (FailureListener listener : failureListeners) {
-            //FIXME(mtaylor) How do we check if the node has failed over?
-            listener.connectionFailed(me, false);
-         }
-      }
+      fail(me);
    }
 
    @Override
@@ -86,16 +80,6 @@ public class MQTTConnection extends AbstractRemotingConnection {
    public void destroy() {
       destroyed = true;
       disconnect(false);
-   }
-
-   @Override
-   public boolean isClient() {
-      return false;
-   }
-
-   @Override
-   public boolean isDestroyed() {
-      return destroyed;
    }
 
    @Override
@@ -129,16 +113,6 @@ public class MQTTConnection extends AbstractRemotingConnection {
       return connected;
    }
 
-   @Override
-   public void killMessage(SimpleString nodeID) {
-      //unsupported
-   }
-
-   @Override
-   public boolean isSupportsFlowControl() {
-      return false;
-   }
-
    /**
     * Returns the name of the protocol for this Remoting Connection
     *
@@ -147,11 +121,6 @@ public class MQTTConnection extends AbstractRemotingConnection {
    @Override
    public String getProtocolName() {
       return MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME + (protocolVersion != null ? protocolVersion : "");
-   }
-
-   @Override
-   public String getTransportLocalAddress() {
-      return getTransportConnection().getLocalAddress();
    }
 
    public int getReceiveMaximum() {

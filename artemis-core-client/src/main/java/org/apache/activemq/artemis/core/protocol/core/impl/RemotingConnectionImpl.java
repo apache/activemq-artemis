@@ -64,8 +64,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
    private final List<Interceptor> outgoingInterceptors;
 
-   private volatile boolean destroyed;
-
    private final boolean client;
 
    private int channelVersion;
@@ -79,12 +77,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    private final Object failLock = new Object();
 
    private final SimpleString nodeID;
-
-   @Override
-   public void scheduledFlush() {
-      flush();
-   }
-
 
    /*
     * Create a client side connection
@@ -327,11 +319,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
    }
 
    @Override
-   public boolean isDestroyed() {
-      return destroyed;
-   }
-
-   @Override
    public long getBlockingCallTimeout() {
       return blockingCallTimeout;
    }
@@ -368,6 +355,11 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       return false;
    }
 
+   @Override
+   public boolean isSupportsFlowControl() {
+      return true;
+   }
+
    /**
     * Returns the name of the protocol for this Remoting Connection
     *
@@ -389,8 +381,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
             logger.trace("RemotingConnectionID=" + getID() + " handling packet " + packet);
          }
 
-         dataReceived = true;
-
          doBufferReceived(packet);
 
          super.bufferReceived(connectionID, buffer);
@@ -407,11 +397,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
       synchronized (transferLock) {
          channels.forEach((channelID, channel) -> channel.endOfBatch());
       }
-   }
-
-   @Override
-   public String getTransportLocalAddress() {
-      return getTransportConnection().getLocalAddress();
    }
 
    private void doBufferReceived(final Packet packet) {

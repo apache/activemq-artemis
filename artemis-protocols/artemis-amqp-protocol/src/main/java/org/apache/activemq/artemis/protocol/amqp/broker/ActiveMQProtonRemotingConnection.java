@@ -16,12 +16,12 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.broker;
 
+import javax.security.auth.Subject;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.protocol.amqp.proton.AMQPConnectionContext;
 import org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport;
@@ -30,16 +30,12 @@ import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 
-import javax.security.auth.Subject;
-
 /**
  * This is a Server's Connection representation used by ActiveMQ Artemis.
  */
 public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection {
 
    private final AMQPConnectionContext amqpConnection;
-
-   private boolean destroyed = false;
 
    private final ProtonProtocolManager manager;
 
@@ -104,17 +100,6 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
       callClosingListeners();
 
       internalClose();
-
-   }
-
-   @Override
-   public boolean isClient() {
-      return false;
-   }
-
-   @Override
-   public boolean isDestroyed() {
-      return destroyed;
    }
 
    @Override
@@ -156,17 +141,17 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
    }
 
    @Override
-   public void killMessage(SimpleString nodeID) {
-      //unsupported
-   }
-
-   @Override
    public Subject getSubject() {
       SASLResult saslResult = amqpConnection.getSASLResult();
       if (saslResult != null && saslResult.getSubject() != null) {
          return saslResult.getSubject();
       }
       return super.getSubject();
+   }
+
+   @Override
+   public boolean isSupportsFlowControl() {
+      return true;
    }
 
    /**
@@ -186,11 +171,6 @@ public class ActiveMQProtonRemotingConnection extends AbstractRemotingConnection
 
    public void open() {
       amqpConnection.open();
-   }
-
-   @Override
-   public String getTransportLocalAddress() {
-      return getTransportConnection().getLocalAddress();
    }
 
 }
