@@ -102,7 +102,9 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                                        .maximumSize(authorizationCacheSize)
                                        .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                        .build();
-      this.securityRepository.registerListener(this);
+      if (securityRepository != null) {
+         this.securityRepository.registerListener(this);
+      }
    }
 
    // SecurityManager implementation --------------------------------
@@ -376,6 +378,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     * @return the authenticated Subject with all associated role principals
     */
    private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
+      Subject subject = auth.getRemotingConnection() == null ? null : auth.getRemotingConnection().getSubject();
+      if (subject != null) {
+         return subject;
+      }
+
       Pair<Boolean, Subject> cached = authenticationCache.getIfPresent(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()));
       /*
        * We don't need to worry about the cached boolean being false as users always have to
