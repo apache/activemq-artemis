@@ -49,11 +49,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OpenTracingPluginTest {
+public class OpenTelemetryPluginTest {
 
    private final InMemorySpanExporter exporter = InMemorySpanExporter.create();
    @InjectMocks
-   private OpenTracingPlugin plugin;
+   private OpenTelemetryPlugin plugin;
 
    @Mock
    private SpanBuilder spanBuilder;

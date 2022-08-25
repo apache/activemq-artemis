@@ -32,7 +32,7 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 /**
  * A simple example which shows how to use a QueueBrowser to look at messages of a queue without removing them from the queue
  */
-public class OpenTracingPluginExample {
+public class OpenTelemetryPluginExample {
 
    public static void main(final String[] args) throws Exception {
 

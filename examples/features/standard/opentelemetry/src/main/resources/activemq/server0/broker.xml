@@ -107,7 +107,7 @@ under the License.
       -->
 
       <broker-plugins>
-         <broker-plugin class-name="org.apache.activemq.artemis.jms.example.OpenTracingPlugin"/>
+         <broker-plugin class-name="org.apache.activemq.artemis.jms.example.OpenTelemetryPlugin"/>
       </broker-plugins>
 
       <acceptors>

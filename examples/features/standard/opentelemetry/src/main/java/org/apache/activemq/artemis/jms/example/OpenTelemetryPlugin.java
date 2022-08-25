@@ -36,15 +36,15 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
-public class OpenTracingPlugin implements ActiveMQServerPlugin {
+public class OpenTelemetryPlugin implements ActiveMQServerPlugin {
 
    private static final String OPERATION_NAME = "ArtemisMessageDelivery";
-   private static OpenTelemetrySdk sdk = initOpenTracing();
-   private static Tracer tracer = GlobalOpenTelemetry.getTracer(OpenTracingPlugin.class.getName());
+   private static OpenTelemetrySdk sdk = initopentelemetry();
+   private static Tracer tracer = GlobalOpenTelemetry.getTracer(OpenTelemetryPlugin.class.getName());
 
-   public static OpenTelemetrySdk initOpenTracing() {
+   public static OpenTelemetrySdk initopentelemetry() {
       try {
-         InputStream input = OpenTracingPlugin.class.getClassLoader().getResourceAsStream("tracing.properties");
+         InputStream input = OpenTelemetryPlugin.class.getClassLoader().getResourceAsStream("tracing.properties");
          if (input == null) {
             throw new NullPointerException("Unable to find tracing.properties file");
          }
@@ -66,6 +66,10 @@ public class OpenTracingPlugin implements ActiveMQServerPlugin {
                           Message message,
                           boolean direct,
                           boolean noAutoCreateQueue) throws ActiveMQException {
+
+      // TODO: find a way to inject a context based in https://github.com/kittylyst/OTel/blob/8faea2aab7b19680f78804ddff3d59b7b1135aab/src/main/java/io/opentelemetry/examples/utils/OpenTelemetryConfig.java#L96-L100
+      // if a client has the metadata, we should get the parent context here
+
       SpanBuilder spanBuilder = getTracer().spanBuilder(OPERATION_NAME).setAttribute("message", message.toString()).setSpanKind(SpanKind.SERVER);
       Span span = spanBuilder.startSpan();
       message.setUserContext(Span.class, span);
