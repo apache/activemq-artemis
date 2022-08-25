@@ -1624,6 +1624,16 @@ public class ScheduledDeliveryHandlerTest extends Assert {
       }
 
       @Override
+      public void deliverScheduledMessages(String filter) throws ActiveMQException {
+
+      }
+
+      @Override
+      public void deliverScheduledMessage(long messageId) throws ActiveMQException {
+
+      }
+
+      @Override
       public void route(Message message, RoutingContext context) throws Exception {
 
       }

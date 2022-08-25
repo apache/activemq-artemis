@@ -30,12 +30,15 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
@@ -497,6 +500,87 @@ public class ScheduledMessageTest extends ActiveMQTestBase {
 
          assertEquals(i, message.getIntProperty("value").intValue());
       }
+
+      session.commit();
+
+      Assert.assertNull(consumer.receiveImmediate());
+
+      session.close();
+   }
+
+   @Test
+   public void testManagementDeliveryById() throws Exception {
+
+      ClientSessionFactory sessionFactory = createSessionFactory(locator);
+      ClientSession session = sessionFactory.createSession(false, false, false);
+      session.createQueue(new QueueConfiguration(atestq));
+      ClientProducer producer = session.createProducer(atestq);
+      long time = System.currentTimeMillis();
+      time += 999_999_999;
+
+      ClientMessage messageToSend = session.createMessage(true);
+      messageToSend.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
+      producer.send(messageToSend);
+
+      session.commit();
+
+      session.start();
+      ClientConsumer consumer = session.createConsumer(atestq);
+      ClientMessage message = consumer.receive(500);
+      assertNull(message);
+
+      QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + atestq);
+      queueControl.deliverScheduledMessage((long) queueControl.listScheduledMessages()[0].get("messageID"));
+
+      message = consumer.receive(500);
+      assertNotNull(message);
+      message.acknowledge();
+
+      session.commit();
+
+      Assert.assertNull(consumer.receiveImmediate());
+
+      session.close();
+   }
+
+   @Test
+   public void testManagementDeliveryByFilter() throws Exception {
+      final String propertyValue = RandomUtil.randomString();
+      final String propertyName = "X" + RandomUtil.randomString().replace("-","");
+      ClientSessionFactory sessionFactory = createSessionFactory(locator);
+      ClientSession session = sessionFactory.createSession(false, false, false);
+      session.createQueue(new QueueConfiguration(atestq));
+      ClientProducer producer = session.createProducer(atestq);
+      long time = System.currentTimeMillis();
+      time += 999_999_999;
+
+      ClientMessage messageToSend = session.createMessage(true);
+      messageToSend.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
+      messageToSend.putStringProperty(propertyName, propertyValue);
+      producer.send(messageToSend);
+
+      messageToSend = session.createMessage(true);
+      messageToSend.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
+      messageToSend.putStringProperty(propertyName, propertyValue);
+      producer.send(messageToSend);
+
+      session.commit();
+
+      session.start();
+      ClientConsumer consumer = session.createConsumer(atestq);
+      ClientMessage message = consumer.receive(500);
+      assertNull(message);
+
+      QueueControl queueControl = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + atestq);
+      queueControl.deliverScheduledMessages(propertyName + " = '" + propertyValue + "'");
+
+      message = consumer.receive(500);
+      assertNotNull(message);
+      message.acknowledge();
+
+      message = consumer.receive(500);
+      assertNotNull(message);
+      message.acknowledge();
 
       session.commit();
 

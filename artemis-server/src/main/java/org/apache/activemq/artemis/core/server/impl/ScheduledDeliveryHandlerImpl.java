@@ -27,9 +27,9 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
@@ -117,7 +117,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
    }
 
    @Override
-   public List<MessageReference> cancel(final Filter filter) throws ActiveMQException {
+   public List<MessageReference> cancel(Predicate<MessageReference> predicate) throws ActiveMQException {
       List<MessageReference> refs = new ArrayList<>();
 
       synchronized (scheduledReferences) {
@@ -125,7 +125,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
          while (iter.hasNext()) {
             MessageReference ref = iter.next().getRef();
-            if (filter == null || filter.match(ref.getMessage())) {
+            if (predicate.test(ref)) {
                iter.remove();
                refs.add(ref);
                metrics.decrementMetrics(ref);

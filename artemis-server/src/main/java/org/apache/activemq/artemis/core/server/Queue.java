@@ -504,6 +504,16 @@ public interface Queue extends Bindable,CriticalComponent {
     */
    void deliverScheduledMessages() throws ActiveMQException;
 
+   /**
+    * cancels scheduled messages which match the filter and send them to the head of the queue.
+    */
+   void deliverScheduledMessages(String filter) throws ActiveMQException;
+
+   /**
+    * cancels scheduled message with the corresponding message ID and sends it to the head of the queue.
+    */
+   void deliverScheduledMessage(long messageId) throws ActiveMQException;
+
    void postAcknowledge(MessageReference ref, AckReason reason);
 
    void postAcknowledge(MessageReference ref, AckReason reason, boolean delivering);
