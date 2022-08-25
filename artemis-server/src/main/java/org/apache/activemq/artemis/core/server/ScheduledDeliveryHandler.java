@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
-import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface ScheduledDeliveryHandler {
@@ -36,7 +36,7 @@ public interface ScheduledDeliveryHandler {
 
    List<MessageReference> getScheduledReferences();
 
-   List<MessageReference> cancel(Filter filter) throws ActiveMQException;
+   List<MessageReference> cancel(Predicate<MessageReference> predicate) throws ActiveMQException;
 
    MessageReference removeReferenceWithID(long id) throws Exception;
 

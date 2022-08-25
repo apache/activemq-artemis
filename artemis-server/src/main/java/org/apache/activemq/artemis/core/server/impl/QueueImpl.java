@@ -2035,7 +2035,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    @Override
    public void deliverScheduledMessages() throws ActiveMQException {
-      List<MessageReference> scheduledMessages = scheduledDeliveryHandler.cancel(null);
+      internalDeliverScheduleMessages(scheduledDeliveryHandler.cancel(ref -> true));
+   }
+
+   @Override
+   public void deliverScheduledMessages(String filterString) throws ActiveMQException {
+      final Filter filter = filterString == null || filterString.length() == 0 ? null : FilterImpl.createFilter(filterString);
+      internalDeliverScheduleMessages(scheduledDeliveryHandler.cancel(ref -> filter == null ? true : filter.match(ref.getMessage())));
+   }
+
+   @Override
+   public void deliverScheduledMessage(long messageId) throws ActiveMQException {
+      internalDeliverScheduleMessages(scheduledDeliveryHandler.cancel(ref -> ref.getMessageID() == messageId));
+   }
+
+   private void internalDeliverScheduleMessages(List<MessageReference> scheduledMessages) {
       if (scheduledMessages != null && scheduledMessages.size() > 0) {
          for (MessageReference ref : scheduledMessages) {
             ref.getMessage().setScheduledDeliveryTime(ref.getScheduledDeliveryTime());
@@ -2170,7 +2184,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   txCount = 0;
                }
 
-               List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(filter1);
+               List<MessageReference> cancelled = scheduledDeliveryHandler.cancel(ref -> filter1.match(ref.getMessage()));
                for (MessageReference messageReference : cancelled) {
                   messageAction.actMessage(tx, messageReference);
                   count++;

@@ -59,6 +59,24 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public void deliverScheduledMessages(String filter) throws Exception {
+            try {
+               proxy.invokeOperation("deliverScheduledMessages", filter);
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
+         public void deliverScheduledMessage(long messageId) throws Exception {
+            try {
+               proxy.invokeOperation("deliverScheduledMessage", messageId);
+            } catch (Exception e) {
+               throw new RuntimeException(e.getMessage(), e);
+            }
+         }
+
+         @Override
          public void resetAllGroups() {
             try {
                proxy.invokeOperation("resetAllGroups");

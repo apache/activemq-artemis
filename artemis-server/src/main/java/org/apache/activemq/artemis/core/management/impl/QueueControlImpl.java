@@ -1962,8 +1962,35 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
+   @Override
+   public void deliverScheduledMessages(String filter) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.deliverScheduledMessage(queue, filter);
+      }
+      checkStarted();
 
+      clearIO();
+      try {
+         queue.deliverScheduledMessages(filter);
+      } finally {
+         blockOnIO();
+      }
+   }
 
+   @Override
+   public void deliverScheduledMessage(long messageId) throws Exception {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.deliverScheduledMessage(queue, messageId);
+      }
+      checkStarted();
+
+      clearIO();
+      try {
+         queue.deliverScheduledMessage(messageId);
+      } finally {
+         blockOnIO();
+      }
+   }
 
    private void checkStarted() {
       if (!server.getPostOffice().isStarted()) {

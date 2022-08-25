@@ -2976,4 +2976,12 @@ public interface AuditLogger extends BasicLogger {
    @LogMessage(level = Logger.Level.INFO)
    @Message(id = 601763, value = "User {0} is remove a connector on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void removeConnector(String user, Object source, Object... args);
+
+   static void deliverScheduledMessage(Object source, Object... args) {
+      BASE_LOGGER.deliverScheduledMessage(getCaller(), source, arrayToString(args));
+   }
+
+   @LogMessage(level = Logger.Level.INFO)
+   @Message(id = 601764, value = "User {0} is calling deliverScheduledMessage on queue: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   void deliverScheduledMessage(String user, Object source, Object... args);
 }
