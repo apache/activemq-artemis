@@ -1,10 +1,10 @@
-# Opentracing Plugin Example
+# opentelemetry Plugin Example
 
 This plugin
 embraces [OpenTelemetry Autoconfiguration](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure)
 using environment-based properties to configure OpenTelemetry SDK.
 
-## Run Opentracing Plugin Example
+## Run OpenTelemetry Plugin Example
 
 [![Running the Example Demo](https://img.youtube.com/vi/MVGx7QrztZQ/0.jpg)](https://www.youtube.com/watch?v=MVGx7QrztZQ)
 
@@ -16,7 +16,7 @@ and create the broker manually.
 
 After seeing a **`Build Success`**, open the browser, connect to your Jeager running instance and check for spans.
 
-## Customise Opentracing Plugin Example
+## Customise OpenTelemetry Plugin Example
 
 The [`tracing.properties`](./src/main/resources/tracing.properties) has configuration properties that
 autoconfigure [Opentelemetry Exporter](https://github.com/open-telemetry/opentelemetry-java/tree/main/sdk-extensions/autoconfigure#exporters)
@@ -40,7 +40,7 @@ You can change this by choosing to use:
   > **Note:** command to start Zipkin instance `docker run -p 9411:9411 openzipkin/zipkin`
  
   
-You can also change the default service name from `opentracing_plugin` to any string by changing the value
+You can also change the default service name from `opentelemetry_plugin` to any string by changing the value
 of `otel.service.name`
 
 ## How to start exporters

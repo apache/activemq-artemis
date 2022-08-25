@@ -27,7 +27,7 @@ under the License.
       <version>2.25.0-SNAPSHOT</version>
    </parent>
 
-   <artifactId>opentracing</artifactId>
+   <artifactId>opentelemetry</artifactId>
    <packaging>jar</packaging>
    <name>ActiveMQ Artemis Broker Plugin Example</name>
 
@@ -123,7 +123,7 @@ under the License.
                   <configuration>
                      <!-- The broker plugin will install this library on the server's classpath -->
                      <libList>
-                        <arg>org.apache.activemq.examples.broker:opentracing:${project.version}</arg>
+                        <arg>org.apache.activemq.examples.broker:opentelemetry:${project.version}</arg>
                      </libList>
                      <libListWithDeps>
                         <arg>io.opentelemetry:opentelemetry-api:${opentelemetry.version}</arg>
@@ -167,7 +167,7 @@ under the License.
                      <goal>runClient</goal>
                   </goals>
                   <configuration>
-                     <clientClass>org.apache.activemq.artemis.jms.example.OpenTracingPluginExample</clientClass>
+                     <clientClass>org.apache.activemq.artemis.jms.example.OpenTelemetryPluginExample</clientClass>
                   </configuration>
                </execution>
                <execution>
@@ -186,7 +186,7 @@ under the License.
             <dependencies>
                <dependency>
                   <groupId>org.apache.activemq.examples.broker</groupId>
-                  <artifactId>opentracing</artifactId>
+                  <artifactId>opentelemetry</artifactId>
                   <version>${project.version}</version>
                </dependency>
             </dependencies>
