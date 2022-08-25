@@ -2970,11 +2970,11 @@ public interface AuditLogger extends BasicLogger {
    void addConnector(String user, Object source, Object... args);
 
    static void removeConnector(Object source, Object... args) {
-      BASE_LOGGER.addConnector(getCaller(), source, arrayToString(args));
+      BASE_LOGGER.removeConnector(getCaller(), source, arrayToString(args));
    }
 
    @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 601763, value = "User {0} is remove a connector on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 601763, value = "User {0} is removing a connector on target resource: {1} {2}", format = Message.Format.MESSAGE_FORMAT)
    void removeConnector(String user, Object source, Object... args);
 
    static void deliverScheduledMessage(Object source, Object... args) {
