@@ -1823,6 +1823,13 @@ public interface ActiveMQServerControl {
    @Operation(desc = "Destroy a bridge", impact = MBeanOperationInfo.ACTION)
    void destroyBridge(@Parameter(name = "name", desc = "Name of the bridge") String name) throws Exception;
 
+   @Operation(desc = "Add a connector", impact = MBeanOperationInfo.ACTION)
+   void addConnector(@Parameter(name = "name", desc = "the unique name of the connector to add; may be referenced from other components (e.g. bridges)") String name,
+                     @Parameter(name = "url", desc = "the URL of the connector") String url) throws Exception;
+
+   @Operation(desc = "Remove a connector", impact = MBeanOperationInfo.ACTION)
+   void removeConnector(@Parameter(name = "name", desc = "the name of the connector to remove") String name) throws Exception;
+
    @Operation(desc = "List the existing broker connections", impact = MBeanOperationInfo.INFO)
    String listBrokerConnections();
 

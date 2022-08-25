@@ -1984,6 +1984,15 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
    @Test
    public void testCreateAndDestroyBridgeFromJson() throws Exception {
+      internalTestCreateAndDestroyBridgeFromJson(false);
+   }
+
+   @Test
+   public void testCreateAndDestroyBridgeFromJsonDynamicConnector() throws Exception {
+      internalTestCreateAndDestroyBridgeFromJson(true);
+   }
+
+   private void internalTestCreateAndDestroyBridgeFromJson(boolean dynamicConnector) throws Exception {
       String name = RandomUtil.randomString();
       String sourceAddress = RandomUtil.randomString();
       String sourceQueue = RandomUtil.randomString();
@@ -2007,13 +2016,19 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          session.createQueue(new QueueConfiguration(targetQueue).setAddress(targetAddress).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
+      String connectorName = connectorConfig.getName();
+      if (dynamicConnector) {
+         connectorName = RandomUtil.randomString();
+         serverControl.addConnector(connectorName, "vm://0");
+      }
+
       BridgeConfiguration bridgeConfiguration = new BridgeConfiguration(name)
          .setQueueName(sourceQueue)
          .setForwardingAddress(targetAddress)
          .setUseDuplicateDetection(false)
          .setConfirmationWindowSize(1)
          .setProducerWindowSize(-1)
-         .setStaticConnectors(Collections.singletonList(connectorConfig.getName()))
+         .setStaticConnectors(Collections.singletonList(connectorName))
          .setHA(false)
          .setUser(null)
          .setPassword(null);
@@ -2070,6 +2085,16 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session.close();
 
       locator.close();
+   }
+
+   @Test
+   public void testAddAndRemoveConnector() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+      String connectorName = RandomUtil.randomString();
+      serverControl.addConnector(connectorName, "vm://0");
+      assertEquals(connectorName, server.getConfiguration().getConnectorConfigurations().get(connectorName).getName());
+      serverControl.removeConnector(connectorName);
+      assertNull(server.getConfiguration().getConnectorConfigurations().get(connectorName));
    }
 
    @Test

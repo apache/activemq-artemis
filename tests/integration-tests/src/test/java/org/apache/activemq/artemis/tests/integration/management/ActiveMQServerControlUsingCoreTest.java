@@ -1588,6 +1588,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public void addConnector(String name, String url) throws Exception {
+            proxy.invokeOperation("addConnector", name, url);
+         }
+
+         @Override
+         public void removeConnector(String name) throws Exception {
+            proxy.invokeOperation("removeConnector", name);
+         }
+
+         @Override
          public String listProducersInfoAsJSON() throws Exception {
             return (String) proxy.invokeOperation("listProducersInfoAsJSON");
          }
