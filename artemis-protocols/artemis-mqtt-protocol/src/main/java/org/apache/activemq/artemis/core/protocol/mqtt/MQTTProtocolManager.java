@@ -195,7 +195,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
          if (!state.isAttached() && sessionExpiryInterval > 0 && state.getDisconnectedTime() + (sessionExpiryInterval * 1000) < System.currentTimeMillis()) {
             toRemove.add(entry.getKey());
          }
-         if (state.isWill() && !state.isAttached() && state.isFailed() && !state.isWillSent() && state.getWillDelayInterval() > 0 && state.getDisconnectedTime() + (state.getWillDelayInterval() * 1000) < System.currentTimeMillis()) {
+         if (state.isWill() && !state.isAttached() && state.isFailed() && state.getWillDelayInterval() > 0 && state.getDisconnectedTime() + (state.getWillDelayInterval() * 1000) < System.currentTimeMillis()) {
             state.getSession().sendWillMessage();
          }
       }
@@ -203,7 +203,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       for (String key : toRemove) {
          logger.debugf("Removing state for session: %s", key);
          MQTTSessionState state = removeSessionState(key);
-         if (state != null && state.isWill() && !state.isAttached() && state.isFailed() && !state.isWillSent()) {
+         if (state != null && state.isWill() && !state.isAttached() && state.isFailed()) {
             state.getSession().sendWillMessage();
          }
       }

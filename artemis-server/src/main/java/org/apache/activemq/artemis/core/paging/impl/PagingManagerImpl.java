@@ -251,6 +251,13 @@ public final class PagingManagerImpl implements PagingManager {
       }
    }
 
+   /*
+    * For tests only!
+    */
+   protected void setDiskFull(boolean diskFull) {
+      this.diskFull = diskFull;
+   }
+
    @Override
    public boolean isDiskFull() {
       return diskFull;

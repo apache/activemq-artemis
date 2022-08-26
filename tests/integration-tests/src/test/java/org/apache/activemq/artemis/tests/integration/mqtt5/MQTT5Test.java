@@ -27,10 +27,14 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
+import org.apache.activemq.artemis.core.paging.impl.PagingManagerImplAccessor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
@@ -224,5 +228,22 @@ public class MQTT5Test extends MQTT5TestSupport {
       server.stop();
       server.start();
       org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> getSubscriptionQueue(topic, clientId) != null, 3000, 10);
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testRecursiveWill() throws Exception {
+      AssertionLoggerHandler.startCapture(true);
+      try {
+         final String WILL_QUEUE = "will";
+         server.createQueue(new QueueConfiguration(WILL_QUEUE).setRoutingType(RoutingType.ANYCAST));
+         PagingManagerImplAccessor.setDiskFull((PagingManagerImpl) server.getPagingManager(), true);
+         MqttClient client = createPahoClient("willGenerator");
+         MqttConnectionOptions options = new MqttConnectionOptionsBuilder().will(WILL_QUEUE, new MqttMessage(RandomUtil.randomBytes())).build();
+         client.connect(options);
+         client.disconnectForcibly(0, 0, false);
+         Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ229119"), 2000, 100);
+      } finally {
+         AssertionLoggerHandler.stopCapture();
+      }
    }
 }

@@ -78,7 +78,7 @@ public class MQTTSessionState {
 
    private List<? extends MqttProperties.MqttProperty> willUserProperties;
 
-   private boolean willSent = false;
+   private WillStatus willStatus = WillStatus.NOT_SENT;
 
    private boolean failed = false;
 
@@ -113,7 +113,7 @@ public class MQTTSessionState {
          willMessage.clear();
          willMessage = null;
       }
-      willSent = false;
+      willStatus = WillStatus.NOT_SENT;
       failed = false;
       willDelayInterval = 0;
       willRetain = false;
@@ -282,12 +282,12 @@ public class MQTTSessionState {
       return willUserProperties;
    }
 
-   public boolean isWillSent() {
-      return willSent;
+   public WillStatus getWillStatus() {
+      return willStatus;
    }
 
-   public void setWillSent(boolean willSent) {
-      this.willSent = willSent;
+   public void setWillStatus(WillStatus willStatus) {
+      this.willStatus = willStatus;
    }
 
    public boolean isFailed() {
@@ -447,5 +447,35 @@ public class MQTTSessionState {
    @Override
    public String toString() {
       return "MQTTSessionState[" + "session=" + session + ", clientId='" + clientId + "', subscriptions=" + subscriptions + ", messageRefStore=" + messageRefStore + ", addressMessageMap=" + addressMessageMap + ", pubRec=" + pubRec + ", attached=" + attached + ", outboundStore=" + outboundStore + ", disconnectedTime=" + disconnectedTime + ", sessionExpiryInterval=" + clientSessionExpiryInterval + ", isWill=" + isWill + ", willMessage=" + willMessage + ", willTopic='" + willTopic + "', willQoSLevel=" + willQoSLevel + ", willRetain=" + willRetain + ", willDelayInterval=" + willDelayInterval + ", failed=" + failed + ", maxPacketSize=" + clientMaxPacketSize + ']';
+   }
+
+   public enum WillStatus {
+      NOT_SENT, SENT, SENDING;
+
+      public byte getStatus() {
+         switch (this) {
+            case NOT_SENT:
+               return 0;
+            case SENT:
+               return 1;
+            case SENDING:
+               return 2;
+            default:
+               return -1;
+         }
+      }
+
+      public static WillStatus getStatus(byte status) {
+         switch (status) {
+            case 0:
+               return NOT_SENT;
+            case 1:
+               return SENT;
+            case 2:
+               return SENDING;
+            default:
+               return null;
+         }
+      }
    }
 }
