@@ -256,32 +256,30 @@ public class MQTTSession {
    }
 
    public void sendWillMessage() {
-      try {
-         MqttProperties properties;
-         if (state.getWillUserProperties() == null) {
-            properties = MqttProperties.NO_PROPERTIES;
-         } else {
-            properties = new MqttProperties();
-            for (MqttProperties.MqttProperty userProperty : state.getWillUserProperties()) {
-               properties.add(userProperty);
+      if (state.getWillStatus() == MQTTSessionState.WillStatus.NOT_SENT) {
+         try {
+            state.setWillStatus(MQTTSessionState.WillStatus.SENDING);
+            MqttProperties properties;
+            if (state.getWillUserProperties() == null) {
+               properties = MqttProperties.NO_PROPERTIES;
+            } else {
+               properties = new MqttProperties();
+               for (MqttProperties.MqttProperty userProperty : state.getWillUserProperties()) {
+                  properties.add(userProperty);
+               }
             }
+            MqttPublishMessage publishMessage = MqttMessageBuilders.publish().messageId(0).qos(MqttQoS.valueOf(state.getWillQoSLevel())).retained(state.isWillRetain()).topicName(state.getWillTopic()).payload(state.getWillMessage() == null ? new EmptyByteBuf(PooledByteBufAllocator.DEFAULT) : state.getWillMessage()).properties(properties).build();
+            logger.debugf("%s sending will message: %s", this, publishMessage);
+            getMqttPublishManager().sendToQueue(publishMessage, true);
+            state.setWillStatus(MQTTSessionState.WillStatus.SENT);
+            state.setWillMessage(null);
+         } catch (ActiveMQSecurityException e) {
+            state.setWillStatus(MQTTSessionState.WillStatus.NOT_SENT);
+            MQTTLogger.LOGGER.authorizationFailureSendingWillMessage(e.getMessage());
+         } catch (Exception e) {
+            state.setWillStatus(MQTTSessionState.WillStatus.NOT_SENT);
+            MQTTLogger.LOGGER.errorSendingWillMessage(e);
          }
-         MqttPublishMessage publishMessage = MqttMessageBuilders.publish()
-            .messageId(0)
-            .qos(MqttQoS.valueOf(state.getWillQoSLevel()))
-            .retained(state.isWillRetain())
-            .topicName(state.getWillTopic())
-            .payload(state.getWillMessage() == null ? new EmptyByteBuf(PooledByteBufAllocator.DEFAULT) : state.getWillMessage())
-            .properties(properties)
-            .build();
-         logger.debugf("%s sending will message: %s", this, publishMessage);
-         getMqttPublishManager().sendToQueue(publishMessage, true);
-         state.setWillSent(true);
-         state.setWillMessage(null);
-      } catch (ActiveMQSecurityException e) {
-         MQTTLogger.LOGGER.authorizationFailureSendingWillMessage(e.getMessage());
-      } catch (Exception e) {
-         MQTTLogger.LOGGER.errorSendingWillMessage(e);
       }
    }
 
