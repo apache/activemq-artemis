@@ -1,7 +1,7 @@
 {
-  "name": "artemis-websiteb",
+  "name": "artemis-website",
   "version": "1.5.1",
-  "description": "ActiveMQ Artemis Web",
+  "description": "ActiveMQ Artemis Website",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
