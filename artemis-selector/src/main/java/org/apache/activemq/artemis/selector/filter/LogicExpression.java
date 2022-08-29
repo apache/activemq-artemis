@@ -16,78 +16,170 @@
  */
 package org.apache.activemq.artemis.selector.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * A filter performing a comparison of two objects
+ * A sequence of expressions, to be combined with OR or AND conjunctions.
  *
- * @version $Revision: 1.2 $
  */
-public abstract class LogicExpression extends BinaryExpression implements BooleanExpression {
+public abstract class LogicExpression implements BooleanExpression {
+
+   protected final List<BooleanExpression> expressions = new ArrayList<>(2);
+
+   private LogicExpression(BooleanExpression lvalue, BooleanExpression rvalue) {
+      expressions.add(lvalue);
+      expressions.add(rvalue);
+   }
+
+   protected void addExpression(BooleanExpression expression) {
+      expressions.add(expression);
+   }
+
+   public BooleanExpression getLeft() {
+      if (expressions.size() == 2) {
+         return expressions.get(0);
+      }
+      throw new IllegalStateException("This expression is not binary: " + this);
+   }
+
+   public BooleanExpression getRight() {
+      if (expressions.size() == 2) {
+         return expressions.get(1);
+      }
+      throw new IllegalStateException("This expression is not binary: " + this);
+   }
 
    /**
-    * @param left
-    * @param right
+    * Returns the symbol that represents this binary expression.  For example, addition is
+    * represented by "+"
+    *
+    * @return
     */
-   public LogicExpression(BooleanExpression left, BooleanExpression right) {
-      super(left, right);
+   public abstract String getExpressionSymbol();
+
+   @Override
+   public String toString() {
+      if (expressions.size() == 2) {
+         return "( " + expressions.get(0) + " " + getExpressionSymbol() + " " + expressions.get(1) + " )";
+      }
+      StringBuilder result = new StringBuilder("(");
+      int count = 0;
+      for (BooleanExpression expression : expressions) {
+         if (count++ > 0) {
+            result.append(" " + getExpressionSymbol() + " ");
+         }
+         result.append(expression.toString());
+      }
+      result.append(")");
+      return result.toString();
    }
 
    public static BooleanExpression createOR(BooleanExpression lvalue, BooleanExpression rvalue) {
-      return new LogicExpression(lvalue, rvalue) {
-
-         @Override
-         public Object evaluate(Filterable message) throws FilterException {
-
-            Boolean lv = (Boolean) left.evaluate(message);
-            // Can we do an OR shortcut??
-            if (lv != null && lv.booleanValue()) {
-               return Boolean.TRUE;
-            }
-
-            Boolean rv = (Boolean) right.evaluate(message);
-            return rv == null ? null : rv;
-         }
-
-         @Override
-         public String getExpressionSymbol() {
-            return "OR";
-         }
-      };
+      if (lvalue instanceof ORExpression) {
+         ORExpression orExpression = (ORExpression) lvalue;
+         orExpression.addExpression(rvalue);
+         return orExpression;
+      } else {
+         return new ORExpression(lvalue, rvalue);
+      }
    }
 
    public static BooleanExpression createAND(BooleanExpression lvalue, BooleanExpression rvalue) {
-      return new LogicExpression(lvalue, rvalue) {
-
-         @Override
-         public Object evaluate(Filterable message) throws FilterException {
-
-            Boolean lv = (Boolean) left.evaluate(message);
-
-            // Can we do an AND shortcut??
-            if (lv == null) {
-               return null;
-            }
-            if (!lv.booleanValue()) {
-               return Boolean.FALSE;
-            }
-
-            Boolean rv = (Boolean) right.evaluate(message);
-            return rv == null ? null : rv;
-         }
-
-         @Override
-         public String getExpressionSymbol() {
-            return "AND";
-         }
-      };
+      if (lvalue instanceof ANDExpression) {
+         ANDExpression orExpression = (ANDExpression) lvalue;
+         orExpression.addExpression(rvalue);
+         return orExpression;
+      } else {
+         return new ANDExpression(lvalue, rvalue);
+      }
    }
 
    @Override
    public abstract Object evaluate(Filterable message) throws FilterException;
 
    @Override
-   public boolean matches(Filterable message) throws FilterException {
-      Object object = evaluate(message);
-      return object == Boolean.TRUE;
+   public abstract boolean matches(Filterable message) throws FilterException;
+
+   private static class ORExpression extends LogicExpression {
+
+      ORExpression(BooleanExpression lvalue, BooleanExpression rvalue) {
+         super(lvalue, rvalue);
+      }
+
+      @Override
+      public Object evaluate(Filterable message) throws FilterException {
+         boolean someNulls = false;
+         for (BooleanExpression expression : expressions) {
+            Boolean lv = (Boolean)expression.evaluate(message);
+            if (lv != null && lv.booleanValue()) {
+               return Boolean.TRUE;
+            }
+            if (lv == null) {
+               someNulls = true;
+            }
+         }
+         if (someNulls) {
+            return null;
+         }
+         return Boolean.FALSE;
+      }
+
+      @Override
+      public boolean matches(Filterable message) throws FilterException {
+         for (BooleanExpression expression : expressions) {
+            boolean lv = expression.matches(message);
+            if (lv) {
+               return true;
+            }
+         }
+         return false;
+      }
+
+      @Override
+      public String getExpressionSymbol() {
+         return "OR";
+      }
    }
 
+   private static class ANDExpression extends LogicExpression {
+
+      ANDExpression(BooleanExpression lvalue, BooleanExpression rvalue) {
+         super(lvalue, rvalue);
+      }
+
+      @Override
+      public Object evaluate(Filterable message) throws FilterException {
+         boolean someNulls = false;
+         for (BooleanExpression expression : expressions) {
+            Boolean lv = (Boolean)expression.evaluate(message);
+            if (lv != null && !lv.booleanValue()) {
+               return Boolean.FALSE;
+            }
+            if (lv == null) {
+               someNulls = true;
+            }
+         }
+         if (someNulls) {
+            return null;
+         }
+         return Boolean.TRUE;
+      }
+
+      @Override
+      public boolean matches(Filterable message) throws FilterException {
+         for (BooleanExpression expression : expressions) {
+            boolean lv = expression.matches(message);
+            if (!lv) {
+               return false;
+            }
+         }
+         return true;
+      }
+
+      @Override
+      public String getExpressionSymbol() {
+         return "AND";
+      }
+   }
 }

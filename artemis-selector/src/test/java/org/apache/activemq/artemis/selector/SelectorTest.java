@@ -126,7 +126,10 @@ public class SelectorTest {
 
       assertSelector(message, "(trueProp OR falseProp) AND trueProp", true);
       assertSelector(message, "(trueProp OR falseProp) AND falseProp", false);
-
+      assertSelector(message, "(falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR trueProp)", true);
+      assertSelector(message, "(falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR falseProp)", false);
+      assertSelector(message, "(trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND falseProp)", false);
+      assertSelector(message, "(trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND trueProp)", true);
    }
 
    @Test
