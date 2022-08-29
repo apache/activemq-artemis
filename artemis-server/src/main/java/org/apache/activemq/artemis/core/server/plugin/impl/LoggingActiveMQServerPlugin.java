@@ -189,7 +189,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
       if (logAll || logSessionEvents) {
          LoggingActiveMQServerPluginLogger.LOGGER.beforeCreateSession(name, username, minLargeMessageSize, connection,
                                                                       autoCommitSends, autoCommitAcks, preAcknowledge,
-                                                                      xa, publicAddress, context);
+                                                                      xa, publicAddress);
       }
 
    }

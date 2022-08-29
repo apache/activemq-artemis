@@ -1722,7 +1722,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.createCoreSession(this, connection.getSubject(), connection.getRemoteAddress(), name, username, "****", minLargeMessageSize, connection, autoCommitSends,
-                                       autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, context, prefixes);
+                                       autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, autoCreateQueues, prefixes);
       }
 
       final ServerSessionImpl session = internalCreateSession(name, username, password, validatedUser, minLargeMessageSize, connection, autoCommitSends, autoCommitAcks, preAcknowledge, xa, defaultAddress, callback, context, autoCreateQueues, prefixes, securityDomain);

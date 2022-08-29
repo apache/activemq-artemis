@@ -386,13 +386,6 @@ public class OperationContextImpl implements OperationContext {
 
    @Override
    public String toString() {
-      StringBuffer buffer = new StringBuffer();
-      if (tasks != null) {
-         for (TaskHolder hold : tasks) {
-            buffer.append("Task = " + hold + "\n");
-         }
-      }
-
       return "OperationContextImpl [" + hashCode() + "] [minimalStore=" + minimalStore +
          ", storeLineUp=" +
          storeLineUpField +
@@ -416,7 +409,6 @@ public class OperationContextImpl implements OperationContext {
          errorMessage +
          ", executorsPending=" +
          executorsPendingField +
-         ", executor=" + this.executor +
-         "]" + buffer.toString();
+         "]";
    }
 }
