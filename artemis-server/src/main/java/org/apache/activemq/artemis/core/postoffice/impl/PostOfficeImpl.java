@@ -1797,6 +1797,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          message.usageDown(); // this will cause large message delete
          return DuplicateCheckResult.DuplicateNotStartedTX;
       }
+      final byte[] duplicateIDBytes = message.getDuplicateIDBytes();
+      if (duplicateIDBytes != null) {
+         final DuplicateIDCache cache = getDuplicateIDCache(context.getAddress(message));
+         cache.addToCache(duplicateIDBytes, context.getTransaction(), startedTX);
+      }
       return startedTX ? DuplicateCheckResult.NoDuplicateStartedTX : DuplicateCheckResult.NoDuplicateNotStartedTX;
    }
 

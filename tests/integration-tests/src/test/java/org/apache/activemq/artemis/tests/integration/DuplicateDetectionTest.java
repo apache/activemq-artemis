@@ -20,8 +20,10 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -36,6 +38,7 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
@@ -1814,6 +1817,47 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
 
       message2 = consumer.receiveImmediate();
       Assert.assertNull(message2);
+   }
+
+   @Test
+   public void testBridgedDuplicateDetecion() throws Exception {
+      ClientSession session = sf.createSession(false, true, true);
+
+      session.start();
+
+      final SimpleString queueName = new SimpleString("DuplicateDetectionTestQueue");
+      final SimpleString forwardQueueName = new SimpleString("DuplicateDetectionTestForwardQueue");
+      final String connector = new String("connector1");
+
+      session.createQueue(new QueueConfiguration(queueName));
+      session.createQueue(new QueueConfiguration(forwardQueueName));
+
+      server.getConfiguration().addConnectorConfiguration(connector, "vm://0");
+      List<String> connectors = new ArrayList<>();
+      connectors.add(connector);
+
+      BridgeConfiguration bridgeConfig = new BridgeConfiguration().setName("bridge1")
+         .setQueueName(queueName.toString())
+         .setForwardingAddress(forwardQueueName.toString())
+         .setUseDuplicateDetection(true)
+         .setStaticConnectors(connectors);
+
+      server.deployBridge(bridgeConfig);
+      PostOfficeImpl postOffice = ((PostOfficeImpl) server.getPostOffice());
+      ClientProducer producer = session.createProducer(queueName);
+      ClientConsumer consumer = session.createConsumer(forwardQueueName);
+      ClientMessage message = createMessage(session, 1);
+      SimpleString dupID = new SimpleString("abcdefg");
+
+      message.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupID.getData());
+      producer.send(message);
+      ClientMessage message2 = consumer.receive(1000);
+      Assert.assertEquals(1, message2.getObjectProperty(propKey));
+
+      Assert.assertTrue(postOffice.getDuplicateIDCaches().get(queueName).contains(dupID.getData()));
+      Assert.assertNotNull(postOffice.getDuplicateIDCaches().get(forwardQueueName));
+      Assert.assertTrue(postOffice.getDuplicateIDCaches().get(forwardQueueName).contains(dupID.getData()));
+
    }
 
    private Configuration config;
