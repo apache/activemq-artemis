@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server.plugin.impl;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.BridgeConfiguration;
-import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
@@ -153,7 +152,7 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
 
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 843000, value = "beforeCreateSession called with name: {0}, username: {1}, minLargeMessageSize: {2}, connection: {3},"
-      + " autoCommitSends: {4}, autoCommitAcks: {5}, preAcknowledge: {6}, xa: {7}, publicAddress: {8}, context: {9}",
+      + " autoCommitSends: {4}, autoCommitAcks: {5}, preAcknowledge: {6}, xa: {7}, publicAddress: {8}",
       format = Message.Format.MESSAGE_FORMAT)
    void beforeCreateSession(String name,
                             String username,
@@ -163,8 +162,7 @@ public interface LoggingActiveMQServerPluginLogger extends BasicLogger {
                             boolean autoCommitAcks,
                             boolean preAcknowledge,
                             boolean xa,
-                            String publicAddress,
-                            OperationContext context);
+                            String publicAddress);
 
    @LogMessage(level = Logger.Level.DEBUG)
    @Message(id = 843001, value = "beforeCloseSession called with session name : {0}, session: {1}, failed: {2}", format = Message.Format.MESSAGE_FORMAT)
