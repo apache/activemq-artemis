@@ -2222,7 +2222,7 @@ public class StompV11Test extends StompTestBase {
          return server.getRemotingService().getConnections().size() == 0;
       });
 
-      Assert.assertFalse(stompFrameHandler.getHeartBeater().isStarted());
+      Wait.assertFalse(stompFrameHandler.getHeartBeater()::isStarted);
    }
 
    @Test
@@ -2281,7 +2281,7 @@ public class StompV11Test extends StompTestBase {
          return server.getRemotingService().getConnections().size() == 0;
       });
 
-      Assert.assertFalse("HeartBeater is still running!!", stompFrameHandler.getHeartBeater().isStarted());
+      Wait.assertFalse("HeartBeater is still running!!", stompFrameHandler.getHeartBeater()::isStarted);
    }
 
 
