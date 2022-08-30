@@ -221,6 +221,9 @@ public abstract class ComparisonExpression extends BinaryExpression implements B
 
             // Iff one of the values is null
             if (lv == null ^ rv == null) {
+               if (lv == null) {
+                  return null;
+               }
                return Boolean.FALSE;
             }
             if (lv == rv || lv.equals(rv)) {

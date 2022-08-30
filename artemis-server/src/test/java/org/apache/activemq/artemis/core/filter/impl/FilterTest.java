@@ -170,9 +170,15 @@ public class FilterTest extends SilentTestCase {
    @Test
    public void testDifferentNullString() throws Exception {
       filter = FilterImpl.createFilter(new SimpleString("prop <> 'foo'"));
+      Assert.assertFalse(filter.match(message));
+
+      filter = FilterImpl.createFilter(new SimpleString("prop <> 'foo' OR prop IS NULL"));
       Assert.assertTrue(filter.match(message));
 
       filter = FilterImpl.createFilter(new SimpleString("NOT (prop = 'foo')"));
+      Assert.assertFalse(filter.match(message));
+
+      filter = FilterImpl.createFilter(new SimpleString("NOT (prop = 'foo') OR prop IS NULL"));
       Assert.assertTrue(filter.match(message));
 
       filter = FilterImpl.createFilter(new SimpleString("prop <> 'foo'"));
