@@ -8,6 +8,13 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.25.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352143&projectId=12315920)
+
+Highlights:
+- Improvement on Paging Flow Control
+- Many other bug fixes and improvements
+
 ## 2.24.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12351822&projectId=12315920)
 
