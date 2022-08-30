@@ -146,14 +146,11 @@ ${cluster-security.settings}${cluster.settings}${replicated.settings}${shared-st
                  Lower this setting if you have too many queues in memory. -->
             <page-size-bytes>10M</page-size-bytes>
 
-            <!-- uncomment the next parameter if you want to customize how many messages are read from paging into queues.
-                 -1 means do not set a limit by messages. -->
-            <!-- <max-read-page-messages>-1</max-read-page-messages> -->
+            <!-- limit how many messages are read from paging into the Queue. -->
+            <max-read-page-messages>-1</max-read-page-messages>
 
-            <!-- uncomment the next parameter if you want to customize how much memory is used to keep messages from paging on the queues.
-                 if you set it to -1 it means no limit is set. If both max-read-page-messages and max-read-page-bytes are -1, the system
-                 will just allow infinite reading as long as consumers are issuing credits, independently of the ack state of these messages. -->
-            <!-- <max-read-page-bytes>1M</max-read-page-bytes> -->
+            <!-- limit how much memory is read from paging into the Queue. -->
+            <max-read-page-bytes>20M</max-read-page-bytes>
 
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>${full-policy}</address-full-policy>

@@ -3988,11 +3988,11 @@
                </xsd:annotation>
             </xsd:element>
 
-            <xsd:element name="max-read-page-messages" type="xsd:int" default="10" maxOccurs="1" minOccurs="0">
+            <xsd:element name="max-read-page-messages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     How many messages are we allowed to read from page into memory each time. We should read more data from pages as messages are acknowledged until it fills up the size.
-                     Between this and max-read-page-bytes the system will stop reading based on whatever hits the mark first
+                     How many messages are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
+                     Between this and max-read-page-bytes the system will stop reading based on whatever hits the mark first.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -4000,8 +4000,8 @@
             <xsd:element name="max-read-page-bytes" type="xsd:string" default="20M" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     How many bytes are we allowed to read from page into memory each time. We should read more data from pages as messages are acknowledged until it fills up the size.
-                     Between this and max-read-page-messages the system will stop reading based on whatever hits the mark first
+                     How many bytes are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
+                     Between this and max-read-page-messages the system will stop reading based on whatever hits the mark first.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
