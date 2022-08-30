@@ -31,6 +31,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.security.AccessController;
@@ -2967,9 +2968,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
          }
 
          // we don't know the type, infer from add method add(X x) or add(String key, X x)
-         final Method[] methods = hostingBean.getClass().getMethods();
+         final Method[] methods = hostingBean.getClass().getDeclaredMethods();
          for (Method candidate : methods) {
-            if (candidate.getName().equals(addPropertyName) &&
+            if (Modifier.isPublic(candidate.getModifiers()) && candidate.getName().equals(addPropertyName) &&
                (candidate.getParameterCount() == 1 ||
                   (candidate.getParameterCount() == 2
                      // has a String key
