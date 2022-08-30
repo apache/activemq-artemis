@@ -43,7 +43,7 @@ public class ClusterConnectionImplMockTest extends ActiveMQTestBase {
       tc.getParams().put(TransportConstants.LOCAL_ADDRESS_PROP_NAME, "localAddress");
       tc.getParams().put(TransportConstants.LOCAL_PORT_PROP_NAME, "localPort");
 
-      ArtemisExecutor executor = ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory()));
+      ArtemisExecutor executor = ArtemisExecutor.delegate(Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName())));
 
       ClusterConnectionImpl cci = new ClusterConnectionImpl(
                 null, //final ClusterManager manager,

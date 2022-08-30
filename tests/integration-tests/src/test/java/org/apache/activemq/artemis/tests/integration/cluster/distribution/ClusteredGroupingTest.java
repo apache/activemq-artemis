@@ -606,7 +606,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
       session.close();
 
       // need thread pool to service both consumers and producers plus a thread to cycle nodes
-      ExecutorService executorService = Executors.newFixedThreadPool(groups.size() * 2 + 1, ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executorService = Executors.newFixedThreadPool(groups.size() * 2 + 1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       final AtomicInteger producerCounter = new AtomicInteger(0);
       final CountDownLatch okToConsume = new CountDownLatch(groups.size() + 1);

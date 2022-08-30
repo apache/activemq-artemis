@@ -55,7 +55,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       super.setUp();
 
       scheduledExecutor = new ScheduledThreadPoolExecutor(1);
-      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
    }
 
    @Override

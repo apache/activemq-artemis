@@ -36,9 +36,9 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
 public final class FakeQueueFactory implements QueueFactory {
 
-   private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+   private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
-   private final ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+   private final ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
    private PostOffice postOffice;
 

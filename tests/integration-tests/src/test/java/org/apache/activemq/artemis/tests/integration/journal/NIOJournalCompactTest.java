@@ -1830,15 +1830,15 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       final AtomicLong seqGenerator = new AtomicLong(1);
 
-      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
-      final ExecutorService ioexecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService ioexecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       OrderedExecutorFactory factory = new OrderedExecutorFactory(executor);
 
       OrderedExecutorFactory iofactory = new OrderedExecutorFactory(ioexecutor);
 
-      final ExecutorService deleteExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService deleteExecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       final JournalStorageManager storage = new JournalStorageManager(config, EmptyCriticalAnalyzer.getInstance(), factory, iofactory);
 

@@ -68,7 +68,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       server2.getConfiguration().setJournalLockAcquisitionTimeout(5000);
 
       // if something happens that causes the timeout to misbehave we don't want the test to hang
-      ExecutorService service = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService service = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       Runnable r = new Runnable() {
          @Override
          public void run() {

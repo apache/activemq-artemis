@@ -60,8 +60,8 @@ public class PageTest extends ActiveMQTestBase {
    @Test
    public void testLargeMessagePageWithNIO() throws Exception {
       recreateDirectory(getTestDir());
-      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
-      final ExecutorService ioexecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      final ExecutorService ioexecutor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       OrderedExecutorFactory factory = new OrderedExecutorFactory(executor);
       OrderedExecutorFactory iofactory = new OrderedExecutorFactory(ioexecutor);
       final JournalStorageManager storageManager = new JournalStorageManager(

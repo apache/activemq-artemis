@@ -69,9 +69,9 @@ public class SocksProxyTest extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      closeExecutor       = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
-      threadPool          = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
-      scheduledThreadPool = Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory());
+      closeExecutor       = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      threadPool          = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      scheduledThreadPool = Executors.newScheduledThreadPool(5, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
       startSocksProxy();
    }

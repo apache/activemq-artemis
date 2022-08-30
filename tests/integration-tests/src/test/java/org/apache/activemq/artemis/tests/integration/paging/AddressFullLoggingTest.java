@@ -111,7 +111,7 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
       final ClientMessage message = session.createMessage(false);
       message.getBodyBuffer().writeBytes(new byte[1024]);
 
-      ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory());
+      ExecutorService executor = Executors.newFixedThreadPool(1, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       Callable<Object> sendMessageTask = new Callable<Object>() {
          @Override
          public Object call() throws ActiveMQException {

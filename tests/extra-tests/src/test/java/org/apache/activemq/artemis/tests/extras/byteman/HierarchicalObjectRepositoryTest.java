@@ -52,7 +52,7 @@ public class HierarchicalObjectRepositoryTest {
    public void setUp() {
       latch = new CountDownLatch(1);
       latch2 = new CountDownLatch(1);
-      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       repo = new HierarchicalObjectRepository<>();
       addToRepo(repo, A);
    }

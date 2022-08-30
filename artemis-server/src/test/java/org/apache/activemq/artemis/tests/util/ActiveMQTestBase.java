@@ -660,7 +660,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected final OrderedExecutorFactory getOrderedExecutor() {
-      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory());
+      final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       executorSet.add(executor);
       return new OrderedExecutorFactory(executor);
    }

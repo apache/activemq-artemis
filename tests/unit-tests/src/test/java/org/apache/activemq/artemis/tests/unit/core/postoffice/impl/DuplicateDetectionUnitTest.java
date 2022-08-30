@@ -67,7 +67,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory());
+      executor = Executors.newFixedThreadPool(10, ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
       factory = new OrderedExecutorFactory(executor);
    }
 
@@ -86,7 +86,7 @@ public class DuplicateDetectionUnitTest extends ActiveMQTestBase {
 
          PostOffice postOffice = new FakePostOffice();
 
-         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory());
+         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(ActiveMQDefaultConfiguration.getDefaultScheduledThreadPoolMaxSize(), ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
 
          journal = new JournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), factory, factory);
 
