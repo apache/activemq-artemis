@@ -50,9 +50,9 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    private final Set<URL> urls = new ConcurrentHashSet<>();
    private NetworkInterface networkInterface;
 
-   public static final String IPV6_DEFAULT_COMMAND = Env.isWindowsOs() ? "ping -n 1 -w %d %s" : "ping6 -c 1 %2$s";
+   public static final String IPV6_DEFAULT_COMMAND = Env.isWindowsOs() ? "ping -n 1 -w %d000 %s" : "ping6 -c 1 %2$s";
 
-   public static final String IPV4_DEFAULT_COMMAND = Env.isMacOs() ? "ping -c 1 -t %d %s" : Env.isWindowsOs() ? "cmd /C ping -n 1 -w %d %s | findstr /i TTL" : "ping -c 1 -w %d %s";
+   public static final String IPV4_DEFAULT_COMMAND = Env.isMacOs() ? "ping -c 1 -t %d %s" : Env.isWindowsOs() ? "cmd /C ping -n 1 -w %d000 %s | findstr /i TTL" : "ping -c 1 -w %d %s";
 
    private String ipv4Command = IPV4_DEFAULT_COMMAND;
 
