@@ -16,6 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-mvn -Ptests,jacoco -DfailIfNoTests=false -Pextra-tests -DskipStyleCheck=true -DskipPerformanceTests=false -Dtest=$1 test
+mvn -Ptests,jacoco -DfailIfNoTests=false -DskipStyleCheck=true -DskipPerformanceTests=false -Dtest=$1 test
 mvn jacoco:merge -N -Pjacoco
 mvn verify -Pjacoco-generate-report -DskipTests

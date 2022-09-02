@@ -9,7 +9,7 @@ agent and stored in JaCoCo exec files. All you need to do
 is run the tests with `jacoco` maven profile.
 
 ```
-mvn test -Ptests,extra-tests,jacoco
+mvn test -Ptests,jacoco
 ```
 
 ## Generate JaCoCo reports
