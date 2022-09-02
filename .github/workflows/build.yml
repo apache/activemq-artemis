@@ -71,7 +71,7 @@ jobs:
 
       - name: Build Main
         run: |
-          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pextra-tests -Pjmh install
+          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Pdev -Pjmh install
 
       - name: Build Examples (JDK11 / -Prelease)
         if: matrix.java == '11'
