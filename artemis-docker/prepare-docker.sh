@@ -125,6 +125,9 @@ if [ -n "${FROM_RELEASE}" ]; then
   cleanup
   
   ARTEMIS_BASE_URL="$(curl -s https://www.apache.org/dyn/closer.cgi\?preferred=true)activemq/activemq-artemis/${ARTEMIS_VERSION}/"
+  if ! curl --output /dev/null --silent --head --fail "${ARTEMIS_BASE_URL}"; then
+    ARTEMIS_BASE_URL="https://archive.apache.org/dist/activemq/activemq-artemis/${ARTEMIS_VERSION}/"
+  fi
   ARTEMIS_DIST_FILE_NAME="apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz"
   CURL_OUTPUT="${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}"
 
