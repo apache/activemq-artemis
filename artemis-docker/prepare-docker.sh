@@ -131,7 +131,7 @@ if [ -n "${FROM_RELEASE}" ]; then
   if [ -z "$(ls -A ${BASE_TMPDIR}/${ARTEMIS_VERSION})" ]
   then
     echo "Downloading ${ARTEMIS_DIST_FILE_NAME} from ${ARTEMIS_BASE_URL}..."
-    curl --progress-bar "${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME}" --output "${CURL_OUTPUT}"
+    curl -f --progress-bar "${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME}" --output "${CURL_OUTPUT}"
 
     echo "Expanding ${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}..."
     tar xzf "$CURL_OUTPUT" --directory "${BASE_TMPDIR}/${ARTEMIS_VERSION}" --strip 1
