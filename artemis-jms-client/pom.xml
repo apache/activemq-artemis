@@ -82,6 +82,7 @@
                      <useStandardDocletOptions>true</useStandardDocletOptions>
                      <minmemory>128m</minmemory>
                      <maxmemory>512m</maxmemory>
+                     <noindex>true</noindex>
                      <quiet>false</quiet>
                      <aggregate>true</aggregate>
                      <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils</excludePackageNames>

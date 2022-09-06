@@ -63,9 +63,9 @@
                      <doctitle>ActiveMQ Artemis ${project.version} API Placeholder</doctitle>
                      <minmemory>128m</minmemory>
                      <maxmemory>512m</maxmemory>
+                     <noindex>true</noindex>
                      <skip>${skipPlaceholderJavadocGeneration}</skip>
                      <javadocDirectory>${placeholderJavadocDir}</javadocDirectory>
-                     <noindex>true</noindex>
                      <nohelp>true</nohelp>
                      <notimestamp>true</notimestamp>
                      <notree>true</notree>
@@ -146,6 +146,7 @@
                            <source>8</source>
                            <minmemory>128m</minmemory>
                            <maxmemory>512m</maxmemory>
+                           <noindex>true</noindex>
                            <skip>${skipWebsiteJavadocGeneration}</skip>
                            <!-- switch on dependency-driven aggregation -->
                            <includeDependencySources>true</includeDependencySources>

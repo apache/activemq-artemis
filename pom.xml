@@ -1853,6 +1853,9 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+               <noindex>true</noindex>
+            </configuration>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -1966,6 +1969,7 @@
             <configuration>
                <minmemory>128m</minmemory>
                <maxmemory>1024m</maxmemory>
+               <noindex>true</noindex>
                <quiet>false</quiet>
                <!-- XXX FIXME 'aggregate' is deprecated -->
                <aggregate>true</aggregate>
