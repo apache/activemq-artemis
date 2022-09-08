@@ -45,6 +45,9 @@ under the License.
           <snapshots>
               <enabled>true</enabled>
           </snapshots>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
       </repository>
    </repositories>
 
@@ -56,6 +59,9 @@ under the License.
          <snapshots>
             <enabled>true</enabled>
          </snapshots>
+         <releases>
+            <enabled>false</enabled>
+         </releases>
       </pluginRepository>
    </pluginRepositories>
 
