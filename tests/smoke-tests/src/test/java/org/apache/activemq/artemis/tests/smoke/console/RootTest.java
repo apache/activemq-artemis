@@ -15,21 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.console.pages;
+package org.apache.activemq.artemis.tests.smoke.console;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.junit.Assert;
+import org.junit.Test;
+import org.openqa.selenium.MutableCapabilities;
 
-public class IndexPage extends ConsolePage {
-   private By logoImageLocator = By.xpath("//div[@class='logo']/img");
+public class RootTest extends ConsoleTest {
 
-   public IndexPage(WebDriver driver) {
-      super(driver);
+   public RootTest(MutableCapabilities browserOptions) {
+      super(browserOptions);
    }
 
-   public String getLogoImage(int timeout) {
-      waitForElementToBeVisible(logoImageLocator, timeout);
-
-      return driver.findElement(logoImageLocator).getAttribute("src");
+   @Test
+   public void testRedirect() {
+      driver.get(serverUrl);
+      Assert.assertTrue(driver.getCurrentUrl().startsWith(serverUrl + "/console"));
    }
 }

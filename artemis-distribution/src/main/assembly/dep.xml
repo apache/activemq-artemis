@@ -82,29 +82,6 @@
          <directoryMode>0755</directoryMode>
          <fileMode>0644</fileMode>
       </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.apache.activemq:artemis-website</include>
-         </includes>
-         <excludes>
-            <exclude>org.apache.activemq:artemis-website:jar:javadoc</exclude>
-         </excludes>
-         <outputDirectory>web</outputDirectory>
-         <unpack>true</unpack>
-         <useProjectArtifact>false</useProjectArtifact>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </dependencySet>
-      <dependencySet>
-         <includes>
-            <include>org.apache.activemq:artemis-website:jar:javadoc</include>
-         </includes>
-         <outputDirectory>web/api</outputDirectory>
-         <unpack>true</unpack>
-         <useProjectArtifact>false</useProjectArtifact>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-      </dependencySet>
 
       <!-- Management Console Dependencies -->
       <dependencySet>

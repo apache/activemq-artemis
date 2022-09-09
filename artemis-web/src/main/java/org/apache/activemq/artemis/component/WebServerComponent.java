@@ -46,7 +46,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -166,12 +165,18 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
       DefaultHandler defaultHandler = new DefaultHandler();
       defaultHandler.setServeIcon(false);
+      defaultHandler.setRootRedirectLocation(this.webServerConfig.rootRedirectLocation);
 
       if (this.webServerConfig.requestLog != null) {
          handlers.addHandler(getLogHandler());
       }
-      handlers.addHandler(homeContext);
-      handlers.addHandler(instanceContext);
+
+      if (this.webServerConfig.webContentEnabled != null &&
+         this.webServerConfig.webContentEnabled) {
+         handlers.addHandler(homeContext);
+         handlers.addHandler(instanceContext);
+      }
+
       handlers.addHandler(defaultHandler); // this should be last
 
       server.setHandler(handlers);

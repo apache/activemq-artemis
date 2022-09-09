@@ -60,12 +60,12 @@ var Branding = (function (Branding) {
         "description": "ActiveMQ Artemis Management Console",
         "links": [
           {
-            "url": "/user-manual/index.html",
-            "text": "User Manual"
+            "text": "Documentation",
+            "url": "https://activemq.apache.org/components/artemis/documentation/",
           },
           {
-            "url": "https://activemq.apache.org/",
-            "text": "Website"
+            "text": "Website",
+            "url": "https://activemq.apache.org/"
           }
         ]
       },

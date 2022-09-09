@@ -1,5 +1,5 @@
    <!-- The web server is only bound to localhost by default -->
-   <web path="web">
+   <web path="web" rootRedirectLocation="console">
        <binding uri="${web.protocol}://${http.host}:${http.port}"${extra.web.attributes}>
            <app url="activemq-branding" war="activemq-branding.war"/>
            <app url="artemis-plugin" war="artemis-plugin.war"/>
