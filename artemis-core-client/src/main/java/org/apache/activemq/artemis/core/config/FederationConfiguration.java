@@ -24,8 +24,11 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationDownstreamConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicy;
+import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
+import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationTransformerConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 
@@ -33,7 +36,7 @@ public class FederationConfiguration implements Serializable {
 
    private String name;
 
-   private Credentials credentials;
+   private Credentials credentials = new FederationConfiguration.Credentials();
 
    private List<FederationUpstreamConfiguration> upstreamConfigurations = new ArrayList<>();
 
@@ -66,6 +69,34 @@ public class FederationConfiguration implements Serializable {
       return this;
    }
 
+   public Map<String, FederationPolicy> getQueuePolicies() {
+      return federationPolicyMap;
+   }
+
+   // strange spelling!, it allows a type match for singular of correct plural Policies from properties
+   public FederationConfiguration addQueuePolicie(FederationQueuePolicyConfiguration federationPolicy) {
+      federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
+      return this;
+   }
+
+   public Map<String, FederationPolicy> getAddressPolicies() {
+      return federationPolicyMap;
+   }
+
+   public FederationConfiguration addAddressPolicie(FederationAddressPolicyConfiguration federationPolicy) {
+      federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
+      return this;
+   }
+
+   public Map<String, FederationPolicy> getPolicySets() {
+      return federationPolicyMap;
+   }
+
+   public FederationConfiguration addPolicySet(FederationPolicySet federationPolicy) {
+      federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
+      return this;
+   }
+
    public void clearDownstreamConfigurations() {
       this.downstreamConfigurations.clear();
    }
@@ -87,6 +118,9 @@ public class FederationConfiguration implements Serializable {
       return transformerConfigurationMap;
    }
 
+   public Map<String, FederationTransformerConfiguration> getTransformerConfigurations() {
+      return transformerConfigurationMap;
+   }
 
    public String getName() {
       return name;

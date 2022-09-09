@@ -44,6 +44,13 @@ public abstract class FederationStreamConfiguration <T extends FederationStreamC
       return policyRefs;
    }
 
+   public T setPolicyRefs(Set<String> refs) {
+      for (String ref : refs) {
+         policyRefs.add(ref);
+      }
+      return (T) this;
+   }
+
    public T addPolicyRef(String name) {
       policyRefs.add(name);
       return (T) this;

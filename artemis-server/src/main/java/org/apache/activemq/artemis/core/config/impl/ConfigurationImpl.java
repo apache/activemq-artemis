@@ -103,6 +103,7 @@ import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
+import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
@@ -521,6 +522,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                key = entry.getKey().toString().substring(prefix.length());
             }
             String value = XMLUtil.replaceSystemPropsInString(entry.getValue().toString());
+            value = PasswordMaskingUtil.resolveMask(isMaskPassword(), value, getPasswordCodec());
             key = XMLUtil.replaceSystemPropsInString(key);
             logger.debug("Property config, " + key + "=" + value);
             beanProperties.put(key, value);
@@ -573,6 +575,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return (T) convertedValue;
          }
       }, java.util.List.class);
+
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            Set convertedValue = new HashSet();
+            for (String entry : value.toString().split(",")) {
+               convertedValue.add(entry);
+            }
+            return (T) convertedValue;
+         }
+      }, java.util.Set.class);
 
       // support 25K or 25m etc like xml config
       beanUtils.getConvertUtils().register(new Converter() {
@@ -1957,6 +1970,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public List<FederationConfiguration> getFederationConfigurations() {
       return federationConfigurations;
+   }
+
+   public void addFederationConfiguration(FederationConfiguration federationConfiguration) {
+      federationConfigurations.add(federationConfiguration);
    }
 
    @Override
