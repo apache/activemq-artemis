@@ -74,7 +74,6 @@ cd queue-requestor; mvn verify; cd ..
 cd queue-selector; mvn verify; cd ..
 cd reattach-node; mvn verify; cd ..
 cd request-reply; mvn verify; cd ..
-cd rest; mvn verify; cd ..
 cd scheduled-message; mvn verify; cd ..
 cd security; mvn verify; cd ..
 cd security-ldap; mvn verify; cd ..

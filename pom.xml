@@ -54,7 +54,6 @@
       <module>artemis-journal</module>
       <module>artemis-ra</module>
       <module>artemis-jakarta-ra</module>
-      <module>artemis-rest</module>
       <module>artemis-service-extensions</module>
       <module>artemis-jakarta-service-extensions</module>
       <module>artemis-jdbc-store</module>
@@ -1487,7 +1486,6 @@
                                        <fileset dir="${activemq.basedir}/artemis-journal/target/classes" />
                                        <fileset dir="${activemq.basedir}/activemq-artemis-native/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-ra/target/classes" />
-                                       <fileset dir="${activemq.basedir}/artemis-rest/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-selector/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-server/target/classes" />
                                        <fileset dir="${activemq.basedir}/artemis-server-osgi/target/classes" />
@@ -1507,7 +1505,6 @@
                                        <fileset dir="${activemq.basedir}/artemis-journal/src/main/java" />
                                        <fileset dir="${activemq.basedir}/activemq-artemis-native/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-ra/src/main/java" />
-                                       <fileset dir="${activemq.basedir}/artemis-rest/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-selector/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-server/src/main/java" />
                                        <fileset dir="${activemq.basedir}/artemis-server-osgi/src/main/java" />
