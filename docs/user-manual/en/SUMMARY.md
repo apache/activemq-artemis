@@ -75,7 +75,6 @@
 * [Thread management](thread-pooling.md)
 * [Embedded Web Server](web-server.md)
 * [Logging](logging.md)
-* [REST Interface](rest.md)
 * [Embedding the Broker](embedding-activemq.md)
 * [Apache Karaf](karaf.md)
 * [Apache Tomcat](tomcat.md)
