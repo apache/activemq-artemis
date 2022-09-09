@@ -120,6 +120,7 @@ public class WebServerComponentTest extends Assert {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
       if (useCustomizer) {
          webServerDTO.customizer = TestCustomizer.class.getName();
       }
@@ -163,6 +164,7 @@ public class WebServerComponentTest extends Assert {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
@@ -186,6 +188,7 @@ public class WebServerComponentTest extends Assert {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
@@ -228,6 +231,7 @@ public class WebServerComponentTest extends Assert {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());
@@ -298,6 +302,7 @@ public class WebServerComponentTest extends Assert {
       WebServerDTO webServerDTO = new WebServerDTO();
       webServerDTO.setBindings(Collections.singletonList(bindingDTO));
       webServerDTO.path = "webapps";
+      webServerDTO.webContentEnabled = true;
 
       WebServerComponent webServerComponent = new WebServerComponent();
       Assert.assertFalse(webServerComponent.isStarted());

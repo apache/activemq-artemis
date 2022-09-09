@@ -27,6 +27,10 @@ The `web` element has the following attributes:
   archives (i.e. WAR files). This is a subdirectory of the broker's home or
   instance directory.
 - `customizer` The name of customizer class to load.
+- `rootRedirectLocation` The location to redirect the requests with the root
+  target.
+- `webContentEnabled` Whether or not the content included in the web folder of
+  the home and the instance directories is accessible. Default is false.
 
 The `web` element should contain at least one `binding` element to configure how 
 clients can connect to the web-server. A `binding` element has the following

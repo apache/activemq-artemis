@@ -88,6 +88,12 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    private String excludedCipherSuites;
 
+   @XmlAttribute
+   public String rootRedirectLocation;
+
+   @XmlAttribute
+   public Boolean webContentEnabled;
+
    public WebServerDTO() {
       componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
    }
