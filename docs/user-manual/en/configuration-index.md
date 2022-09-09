@@ -76,6 +76,43 @@ You can also change the prefix through the `broker.xml` by setting:
 
 This is to help you customize artemis on embedded systems.
 
+### Broker properties
+
+Broker properties extends the use of properties to allow updates and additions to the broker configuration after
+any xml has been parsed. In the absence of any broker.xml, the hard coded defaults can be modified.
+Internally, any xml configuration is applied to a java bean style configuration object. Typically, there are
+setters for each of the xml attributes. However, for properties, the naming convention changes from 'a-b' to 'aB' to
+reflect the camelCase java naming convention.
+
+Collections need some special treatment to allow additions and reference. We utilise the name attribute of configuration
+entities to find existing entries and when populating new entities, we set the name to match the requested key.
+
+For example, a properties file containing:
+
+```
+securityEnabled=false
+acceptorConfigurations.tcp.factoryClassName=org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptorFactory
+acceptorConfigurations.tcp.params.HOST=localhost
+acceptorConfigurations.tcp.params.PORT=61616
+```
+would:
+1) disable RBAC security checks
+2) add or modify an acceptor named "tcp" that will use Netty
+3) set the acceptor named "tcp" 'HOST' parameter to localhost
+4) set the acceptor named "tcp" 'PORT' parameter to 61616
+
+The configuration properties are low level, lower level than xml, however it is very powerful; any accessible attribute of the
+internal `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` objects can be modified.
+
+With great power one must take great care!
+
+The `artemis run` command script supports `--properties <properties file url>`, where a properties file can be configured.
+
+_Note_: one shortcoming of this method of configuration is that any property that does not match is ignored with no fanfare.
+Enable debug logging for `org.apache.activemq.artemis.core.config.impl.ConfigurationImpl` to get more insight.
+
+There are a growing number of examples of what can be explicitly configured in this way in the [unit test](https://github.com/apache/activemq-artemis/blob/065bfe14f532858f2c2a20b0afb1a226b08ce013/artemis-server/src/test/java/org/apache/activemq/artemis/core/config/impl/ConfigurationImplTest.java#L675).
+
 
 ## The core configuration
 
