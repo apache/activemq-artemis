@@ -33,10 +33,17 @@ public final class TransformerConfiguration implements Serializable {
    public static final String CLASS_NAME = "class-name";
    public static final String PROPERTIES = "properties";
 
-   private final String className;
+   private String className;
    private Map<String, String> properties = new HashMap<>();
 
    public TransformerConfiguration(String className) {
+      this.className = className;
+   }
+
+   public TransformerConfiguration() {
+   }
+
+   public void setClassName(String className) {
       this.className = className;
    }
 

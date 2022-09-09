@@ -44,6 +44,9 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBroker
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
+import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.security.Role;
@@ -756,6 +759,56 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals("c", configuration.getBridgeConfigurations().get(0).getStaticConnectors().get(1));
 
       Assert.assertEquals(ComponentConfigurationRoutingType.STRIP, configuration.getBridgeConfigurations().get(0).getRoutingType());
+   }
+
+   @Test
+   public void testFederationUpstreamConfiguration() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      properties.put("federationConfigurations.f1.upstreamConfigurations.joe.connectionConfiguration.reconnectAttempts", "1");
+      properties.put("federationConfigurations.f1.upstreamConfigurations.joe.connectionConfiguration.staticConnectors", "a,b,c");
+      properties.put("federationConfigurations.f1.upstreamConfigurations.joe.policyRefs", "pq1,pq2");
+
+      properties.put("federationConfigurations.f1.queuePolicies.qp1.transformerRef", "simpleTransform");
+      properties.put("federationConfigurations.f1.queuePolicies.qp2.includes.all-N.queueMatch", "N#");
+
+      properties.put("federationConfigurations.f1.addressPolicies.a1.transformerRef", "simpleTransform");
+      properties.put("federationConfigurations.f1.addressPolicies.a1.excludes.just-b.addressMatch", "b");
+
+      properties.put("federationConfigurations.f1.policySets.combined.policyRefs", "qp1,qp2,a1");
+
+      properties.put("federationConfigurations.f1.transformerConfigurations.simpleTransform.transformerConfiguration.className", "a.b");
+      properties.put("federationConfigurations.f1.transformerConfigurations.simpleTransform.transformerConfiguration.properties.a", "b");
+
+      properties.put("federationConfigurations.f1.credentials.user", "u");
+      properties.put("federationConfigurations.f1.credentials.password", "ENC(2a7c211d21c295cdbcde3589c205decb)");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getFederationConfigurations().size());
+      Assert.assertEquals(1, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getConnectionConfiguration().getReconnectAttempts());
+      Assert.assertEquals(3, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getConnectionConfiguration().getStaticConnectors().size());
+
+      Assert.assertEquals(2, configuration.getFederationConfigurations().get(0).getUpstreamConfigurations().get(0).getPolicyRefs().size());
+
+      Assert.assertEquals(4, configuration.getFederationConfigurations().get(0).getFederationPolicyMap().size());
+      Assert.assertEquals("qp1", configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp1").getName());
+
+      Assert.assertEquals("combined", configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("combined").getName());
+      Assert.assertEquals(3, ((FederationPolicySet)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("combined")).getPolicyRefs().size());
+
+      Assert.assertEquals("simpleTransform", ((FederationQueuePolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp1")).getTransformerRef());
+
+      Assert.assertEquals("N#", ((FederationQueuePolicyConfiguration.Matcher)((FederationQueuePolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("qp2")).getIncludes().toArray()[0]).getQueueMatch());
+      Assert.assertEquals("b", ((FederationAddressPolicyConfiguration.Matcher)((FederationAddressPolicyConfiguration)configuration.getFederationConfigurations().get(0).getFederationPolicyMap().get("a1")).getExcludes().toArray()[0]).getAddressMatch());
+
+      Assert.assertEquals("b", configuration.getFederationConfigurations().get(0).getTransformerConfigurations().get("simpleTransform").getTransformerConfiguration().getProperties().get("a"));
+      Assert.assertEquals("a.b", configuration.getFederationConfigurations().get(0).getTransformerConfigurations().get("simpleTransform").getTransformerConfiguration().getClassName());
+
+      Assert.assertEquals("u", configuration.getFederationConfigurations().get(0).getCredentials().getUser());
+      Assert.assertEquals("secureexample", configuration.getFederationConfigurations().get(0).getCredentials().getPassword());
    }
 
    @Test

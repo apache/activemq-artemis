@@ -50,6 +50,13 @@ public class FederationPolicySet implements FederationPolicy<FederationPolicySet
       return this;
    }
 
+   public FederationPolicySet setPolicyRefs(Set<String> refs) {
+      for (String ref : refs) {
+         policyRefs.add(ref);
+      }
+      return this;
+   }
+
    public FederationPolicySet addPolicyRefs(Collection<String> name) {
       policyRefs.addAll(name);
       return this;

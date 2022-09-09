@@ -28,7 +28,7 @@ public class FederationTransformerConfiguration implements Serializable {
 
    private String name;
 
-   private TransformerConfiguration transformerConfiguration;
+   private TransformerConfiguration transformerConfiguration = new TransformerConfiguration();
 
    public FederationTransformerConfiguration() {
    }
@@ -40,6 +40,10 @@ public class FederationTransformerConfiguration implements Serializable {
 
    public String getName() {
       return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
    }
 
    public TransformerConfiguration getTransformerConfiguration() {
