@@ -476,17 +476,8 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       try {
          processSearchResult(newRoles, (SearchResult) namingEvent.getNewBinding());
          for (Map.Entry<String, Set<Role>> entry : newRoles.entrySet()) {
-            Set<Role> existingRoles = securityRepository.getMatch(entry.getKey());
-            // see if this the *actual* default object, not just "equals"; we don't want to change the default security match
-            if (existingRoles != securityRepository.getDefault()) {
-               for (Role role : entry.getValue()) {
-                  logger.debug("adding role " + role + " to existing roles " + existingRoles + " at " + entry.getKey());
-                  existingRoles.add(role);
-               }
-            } else {
-               logger.debug("adding new roles " + entry.getValue() + " at " + entry.getKey());
-               securityRepository.addMatch(entry.getKey(), entry.getValue());
-            }
+            logger.debug("adding match " + entry.getKey() + ": " + entry.getValue());
+            securityRepository.addMatch(entry.getKey(), entry.getValue());
          }
       } catch (NamingException e) {
          ActiveMQServerLogger.LOGGER.failedToProcessEvent(e);
