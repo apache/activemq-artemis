@@ -89,7 +89,7 @@
       <pax.exam.version>4.13.4</pax.exam.version>
       <commons.config.version>2.8.0</commons.config.version>
       <commons.lang.version>3.12.0</commons.lang.version>
-      <activemq5-version>5.17.1</activemq5-version>
+      <activemq5-version>5.17.2</activemq5-version>
       <apache.derby.version>10.14.2.0</apache.derby.version>
       <commons.beanutils.version>1.9.4</commons.beanutils.version>
       <commons.dbcp2.version>2.7.0</commons.dbcp2.version>
