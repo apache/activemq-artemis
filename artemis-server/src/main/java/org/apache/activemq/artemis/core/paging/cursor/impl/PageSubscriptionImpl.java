@@ -904,7 +904,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       getPageInfo(pageNr);
    }
 
-   private PageCursorInfo getPageInfo(final PagePosition pos) {
+   PageCursorInfo getPageInfo(final PagePosition pos) {
       return getPageInfo(pos.getPageNr());
    }
 
@@ -1057,7 +1057,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       // expressions
       private final AtomicInteger confirmed = new AtomicInteger(0);
 
-      public boolean isAck(int messageNumber) {
+      public synchronized boolean isAck(int messageNumber) {
          return completePage != null || acks.get(messageNumber) != null;
       }
 
@@ -1082,7 +1082,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
       }
 
-      private PageCursorInfo(final long pageId, final int numberOfMessages) {
+      PageCursorInfo(final long pageId, final int numberOfMessages) {
          if (numberOfMessages < 0) {
             throw new IllegalStateException("numberOfMessages = " + numberOfMessages + " instead of being >=0");
          }
@@ -1145,11 +1145,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
          checkDone();
       }
 
-      public boolean isRemoved(final int messageNr) {
+      public synchronized boolean isRemoved(final int messageNr) {
          return removedReferences.get(messageNr) != null;
       }
 
-      public void remove(final int messageNr) {
+      public synchronized void remove(final int messageNr) {
          if (logger.isTraceEnabled()) {
             logger.tracef("PageCursor Removing messageNr %s on page %s", messageNr, pageId);
          }
@@ -1187,7 +1187,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
       }
 
-      private boolean internalAddACK(final PagePosition position) {
+      synchronized boolean internalAddACK(final PagePosition position) {
          removedReferences.put(position.getMessageNr(), DUMMY);
          return acks.put(position.getMessageNr(), position) == null;
       }
