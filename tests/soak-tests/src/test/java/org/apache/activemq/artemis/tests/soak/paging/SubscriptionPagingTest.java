@@ -45,6 +45,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
 
 /**
@@ -93,12 +94,12 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    public SubscriptionPagingTest(String protocol) {
       this.protocol = protocol;
-      MESSAGES = testProperty(TEST_NAME, protocol + "_MESSAGES", 10000);
-      COMMIT_INTERVAL = testProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL", 1000);
+      MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGES");
+      COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL");
       // if 0 will use AUTO_ACK
-      RECEIVE_COMMIT_INTERVAL = testProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL", 0);
-      MESSAGE_SIZE = testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 30000);
-      SLOW_SUBSCRIPTIONS = testProperty(TEST_NAME, "SLOW_SUBSCRIPTIONS", 1);
+      RECEIVE_COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL");
+      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
+      SLOW_SUBSCRIPTIONS = intMandatoryProperty(TEST_NAME, "SLOW_SUBSCRIPTIONS");
       SLEEP_SLOW = testProperty(TEST_NAME, "SLEEP_SLOW", 1000);
    }
 

@@ -43,6 +43,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
 
 /**
@@ -91,13 +92,13 @@ public class HorizontalPagingTest extends SoakTestBase {
 
    public HorizontalPagingTest(String protocol) {
       this.protocol = protocol;
-      DESTINATIONS = testProperty(TEST_NAME, protocol + "_DESTINATIONS", 10);
-      MESSAGES = testProperty(TEST_NAME, protocol + "_MESSAGES", 100);
-      COMMIT_INTERVAL = testProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL", 10);
+      DESTINATIONS = intMandatoryProperty(TEST_NAME, protocol + "_DESTINATIONS");
+      MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGES");
+      COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_COMMIT_INTERVAL");
       // if 0 will use AUTO_ACK
-      RECEIVE_COMMIT_INTERVAL = testProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL", 1);
-      MESSAGE_SIZE = testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 60_000);
-      PARALLEL_SENDS = testProperty(TEST_NAME, protocol + "_PARALLEL_SENDS", 2);
+      RECEIVE_COMMIT_INTERVAL = intMandatoryProperty(TEST_NAME, protocol + "_RECEIVE_COMMIT_INTERVAL");
+      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
+      PARALLEL_SENDS = intMandatoryProperty(TEST_NAME, protocol + "_PARALLEL_SENDS");
    }
 
    Process serverProcess;

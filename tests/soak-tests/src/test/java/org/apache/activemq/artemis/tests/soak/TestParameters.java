@@ -18,6 +18,7 @@
 package org.apache.activemq.artemis.tests.soak;
 
 import org.jboss.logging.Logger;
+import org.junit.Assert;
 
 /** Encapsulates System properties that could be passed on to the test. */
 public class TestParameters {
@@ -42,6 +43,15 @@ public class TestParameters {
       }
    }
 
+   public static int intMandatoryProperty(String testName, String property) {
+      try {
+         return Integer.parseInt(mandatoryProperty(testName, property));
+      } catch (Throwable e) {
+         Assert.fail(e.getMessage());
+         return -1; // never happening, just to make it compile
+      }
+   }
+
    public static String testProperty(String testName, String property, String defaultValue) {
 
       property = propertyName(testName, property);
@@ -62,6 +72,26 @@ public class TestParameters {
 
       return value;
 
+   }
+
+
+   public static String mandatoryProperty(String testName, String property) {
+      property = propertyName(testName, property);
+
+      String value = System.getenv(property);
+      if (value == null) {
+         value = System.getProperty(property);
+      }
+
+      if (value == null) {
+         Assert.fail("mandatory System property '" + property + "' not defined");
+      } else {
+         logger.debug("Using " + property + "=" + value);
+      }
+
+      logger.info(property + "=" + value);
+
+      return value;
    }
 
 
