@@ -77,6 +77,7 @@ import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManage
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -1016,34 +1017,72 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       String rolesAsJSON = serverControl.getRolesAsJSON(exactAddress);
       RoleInfo[] roleInfos = RoleInfo.from(rolesAsJSON);
       assertEquals(2, roleInfos.length);
-      RoleInfo fooRole = null;
-      RoleInfo barRole = null;
-      if (roleInfos[0].getName().equals("foo")) {
-         fooRole = roleInfos[0];
-         barRole = roleInfos[1];
+      RoleInfo fooRoleInfo = null;
+      RoleInfo barRoleInfo = null;
+      if ("foo".equals(roleInfos[0].getName())) {
+         fooRoleInfo = roleInfos[0];
+         barRoleInfo = roleInfos[1];
       } else {
-         fooRole = roleInfos[1];
-         barRole = roleInfos[0];
+         fooRoleInfo = roleInfos[1];
+         barRoleInfo = roleInfos[0];
       }
-      assertTrue(fooRole.isSend());
-      assertTrue(fooRole.isConsume());
-      assertFalse(fooRole.isCreateDurableQueue());
-      assertFalse(fooRole.isDeleteDurableQueue());
-      assertTrue(fooRole.isCreateNonDurableQueue());
-      assertFalse(fooRole.isDeleteNonDurableQueue());
-      assertFalse(fooRole.isManage());
-      assertFalse(fooRole.isBrowse());
-      assertTrue(fooRole.isCreateAddress());
+      assertTrue(fooRoleInfo.isSend());
+      assertTrue(fooRoleInfo.isConsume());
+      assertFalse(fooRoleInfo.isCreateDurableQueue());
+      assertFalse(fooRoleInfo.isDeleteDurableQueue());
+      assertTrue(fooRoleInfo.isCreateNonDurableQueue());
+      assertFalse(fooRoleInfo.isDeleteNonDurableQueue());
+      assertFalse(fooRoleInfo.isManage());
+      assertFalse(fooRoleInfo.isBrowse());
+      assertTrue(fooRoleInfo.isCreateAddress());
+      assertTrue(fooRoleInfo.isDeleteAddress());
 
-      assertFalse(barRole.isSend());
-      assertTrue(barRole.isConsume());
-      assertFalse(barRole.isCreateDurableQueue());
-      assertTrue(barRole.isDeleteDurableQueue());
-      assertTrue(barRole.isCreateNonDurableQueue());
-      assertFalse(barRole.isDeleteNonDurableQueue());
-      assertFalse(barRole.isManage());
-      assertTrue(barRole.isBrowse());
-      assertFalse(barRole.isCreateAddress());
+      assertFalse(barRoleInfo.isSend());
+      assertTrue(barRoleInfo.isConsume());
+      assertFalse(barRoleInfo.isCreateDurableQueue());
+      assertTrue(barRoleInfo.isDeleteDurableQueue());
+      assertTrue(barRoleInfo.isCreateNonDurableQueue());
+      assertFalse(barRoleInfo.isDeleteNonDurableQueue());
+      assertFalse(barRoleInfo.isManage());
+      assertTrue(barRoleInfo.isBrowse());
+      assertFalse(barRoleInfo.isCreateAddress());
+      assertFalse(barRoleInfo.isDeleteAddress());
+
+      Object[] roles = serverControl.getRoles(exactAddress);
+      assertEquals(2, roles.length);
+      Object[] fooRole = null;
+      Object[] barRole = null;
+      if ("foo".equals(((Object[])roles[0])[0])) {
+         fooRole = (Object[]) roles[0];
+         barRole = (Object[]) roles[1];
+      } else {
+         fooRole = (Object[]) roles[1];
+         barRole = (Object[]) roles[0];
+      }
+      Assert.assertEquals(CheckType.values().length + 1, fooRole.length);
+      Assert.assertEquals(CheckType.values().length + 1, barRole.length);
+
+      assertTrue((boolean)fooRole[1]);
+      assertTrue((boolean)fooRole[2]);
+      assertFalse((boolean)fooRole[3]);
+      assertFalse((boolean)fooRole[4]);
+      assertTrue((boolean)fooRole[5]);
+      assertFalse((boolean)fooRole[6]);
+      assertFalse((boolean)fooRole[7]);
+      assertFalse((boolean)fooRole[8]);
+      assertTrue((boolean)fooRole[9]);
+      assertTrue((boolean)fooRole[10]);
+
+      assertFalse((boolean)barRole[1]);
+      assertTrue((boolean)barRole[2]);
+      assertFalse((boolean)barRole[3]);
+      assertTrue((boolean)barRole[4]);
+      assertTrue((boolean)barRole[5]);
+      assertFalse((boolean)barRole[6]);
+      assertFalse((boolean)barRole[7]);
+      assertTrue((boolean)barRole[8]);
+      assertFalse((boolean)barRole[9]);
+      assertFalse((boolean)barRole[10]);
 
       serverControl.removeSecuritySettings(addressMatch);
       assertEquals(1, serverControl.getRoles(exactAddress).length);
