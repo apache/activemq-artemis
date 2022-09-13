@@ -550,14 +550,30 @@ The default Broker configuration ships with the [Jolokia](https://jolokia.org)
 HTTP agent deployed as a web application. Jolokia is a remote JMX-over-HTTP
 bridge that exposes MBeans. For a full guide as to how to use it refer to
 [Jolokia Documentation](https://jolokia.org/documentation.html), however a
-simple example to query the broker's version would be to use a browser and go
-to the URL
-[http://username:password@localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker="0.0.0.0"/Version]().
-
-This would give you back something like the following:
+simple example to query the broker's version would be to use a `curl` command
+like this:
 
 ```
-{"request":{"mbean":"org.apache.activemq.artemis:broker=\"0.0.0.0\"","attribute":"Version","type":"read"},"value":"2.0.0-SNAPSHOT","timestamp":1487017918,"status":200}
+curl -v -H "Origin: http://localhost" -u myUser:myPass http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=\"0.0.0.0\"/Active
+```
+
+By default it's necessary to pass the `Origin` header due to the CORS checking
+which is configured in `etc/jolokia-access.xml`.
+
+Such a `curl` command would give you back something like the following (after
+formatting):
+
+```json
+{
+  "request": {
+    "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"",
+    "attribute": "Version",
+    "type": "read"
+  },
+  "value": "2.24.0",
+  "timestamp": 1663086398,
+  "status": 200
+}
 ```
 
 ### JMX and the Web Console
