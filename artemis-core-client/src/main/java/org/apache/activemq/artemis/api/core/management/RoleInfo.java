@@ -47,6 +47,8 @@ public final class RoleInfo {
 
    private final boolean createAddress;
 
+   private final boolean deleteAddress;
+
    /**
     * Returns an array of RoleInfo corresponding to the JSON serialization returned
     * by {@link AddressControl#getRolesAsJSON()}.
@@ -56,7 +58,18 @@ public final class RoleInfo {
       RoleInfo[] roles = new RoleInfo[array.size()];
       for (int i = 0; i < array.size(); i++) {
          JsonObject r = array.getJsonObject(i);
-         RoleInfo role = new RoleInfo(r.getString("name"), r.getBoolean("send"), r.getBoolean("consume"), r.getBoolean("createDurableQueue"), r.getBoolean("deleteDurableQueue"), r.getBoolean("createNonDurableQueue"), r.getBoolean("deleteNonDurableQueue"), r.getBoolean("manage"), r.getBoolean("browse"), r.getBoolean("createAddress"));
+         RoleInfo role = new RoleInfo(
+                 r.getString("name"),
+                 r.getBoolean("send"),
+                 r.getBoolean("consume"),
+                 r.getBoolean("createDurableQueue"),
+                 r.getBoolean("deleteDurableQueue"),
+                 r.getBoolean("createNonDurableQueue"),
+                 r.getBoolean("deleteNonDurableQueue"),
+                 r.getBoolean("manage"),
+                 r.getBoolean("browse"),
+                 r.getBoolean("createAddress"),
+                 r.getBoolean("deleteAddress"));
          roles[i] = role;
       }
       return roles;
@@ -71,7 +84,8 @@ public final class RoleInfo {
                     final boolean deleteNonDurableQueue,
                     final boolean manage,
                     final boolean browse,
-                    final boolean createAddress) {
+                    final boolean createAddress,
+                    final boolean deleteAddress) {
       this.name = name;
       this.send = send;
       this.consume = consume;
@@ -82,6 +96,7 @@ public final class RoleInfo {
       this.manage = manage;
       this.browse = browse;
       this.createAddress = createAddress;
+      this.deleteAddress = deleteAddress;
    }
 
    /**
@@ -152,5 +167,12 @@ public final class RoleInfo {
     */
    public boolean isCreateAddress() {
       return createAddress;
+   }
+
+   /**
+    * Returns whether this role can delete addresses.
+    */
+   public boolean isDeleteAddress() {
+      return deleteAddress;
    }
 }
