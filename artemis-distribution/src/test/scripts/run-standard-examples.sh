@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# This script will run all the examples on the distribution
+# This script will run all the 'standard' examples on the distribution
 
 rm -rf target
 mkdir target
@@ -46,6 +46,7 @@ cd divert; mvn verify; cd ..
 cd durable-subscription; mvn verify; cd ..
 cd embedded; mvn verify; cd ..
 cd embedded-simple; mvn verify; cd ..
+cd exclusive-queue; mvn verify; cd ..
 cd expiry; mvn verify; cd ..
 cd http-transport; mvn verify; cd ..
 cd instantiate-connection-factory; mvn verify; cd ..
@@ -56,10 +57,7 @@ cd interceptor-mqtt; mvn verify; cd ..
 cd jms-bridge; mvn verify; cd ..
 cd jmx; mvn verify; cd ..
 cd jmx-ssl; mvn verify; cd ..
-
-# too big for most CI machines
-#cd large-message; mvn verify; cd ..
-
+#cd large-message; mvn verify; cd .. # too big for most CI machines, keeping it out
 cd last-value-queue; mvn verify; cd ..
 cd management; mvn verify; cd ..
 cd management-notifications; mvn verify; cd ..

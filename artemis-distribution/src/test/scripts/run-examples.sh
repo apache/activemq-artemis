@@ -29,6 +29,7 @@ export TEST_TARGET="./target"
 . ./installHome.sh
 
 cd $ARTEMIS_HOME/examples/features/standard/
+
 cd auto-closeable; mvn verify; cd ..
 cd broker-plugin; mvn verify; cd ..
 cd browser; mvn verify; cd ..
