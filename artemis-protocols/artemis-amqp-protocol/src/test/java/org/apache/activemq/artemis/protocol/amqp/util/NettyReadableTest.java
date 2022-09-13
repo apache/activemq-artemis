@@ -438,7 +438,9 @@ public class NettyReadableTest {
 
       NettyReadable buffer = new NettyReadable(byteBuffer);
 
+      assertEquals(asUtf8bytes.length, buffer.remaining());
       assertEquals(testString, buffer.readUTF8());
+      assertEquals(0, buffer.remaining());
    }
 
    @Test
@@ -449,6 +451,8 @@ public class NettyReadableTest {
 
       NettyReadable buffer = new NettyReadable(byteBuffer);
 
+      assertEquals(asUtf8bytes.length, buffer.remaining());
       assertEquals(testString, buffer.readString(StandardCharsets.UTF_8.newDecoder()));
+      assertEquals(0, buffer.remaining());
    }
 }

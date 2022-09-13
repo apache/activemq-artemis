@@ -145,7 +145,7 @@ public class NettyReadable implements ReadableBuffer {
 
    @Override
    public String readUTF8() {
-      return buffer.toString(Charset_UTF8);
+      return buffer.readCharSequence(buffer.readableBytes(), Charset_UTF8).toString();
    }
 
    @Override
@@ -192,7 +192,7 @@ public class NettyReadable implements ReadableBuffer {
 
    @Override
    public String readString(CharsetDecoder decoder) throws CharacterCodingException {
-      return buffer.toString(decoder.charset());
+      return buffer.readCharSequence(buffer.readableBytes(), decoder.charset()).toString();
    }
 
    @Override
