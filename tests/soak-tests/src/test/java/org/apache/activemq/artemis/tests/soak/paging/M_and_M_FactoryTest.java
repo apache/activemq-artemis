@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.mmfactory;
+package org.apache.activemq.artemis.tests.soak.paging;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -34,8 +34,6 @@ import javax.management.remote.JMXConnector;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -43,7 +41,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
@@ -51,47 +49,27 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class MMSFactoryTest extends SmokeTestBase {
+public class M_and_M_FactoryTest extends SoakTestBase {
 
-   private static final Logger logger = Logger.getLogger(MMSFactoryTest.class);
+   private static final Logger logger = Logger.getLogger(M_and_M_FactoryTest.class);
 
    public static final String SERVER_NAME_0 = "mmfactory";
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT = 11099;
 
-   final String theprotocol;
-   final int BATCH_SIZE;
+   String theprotocol;
+   int BATCH_SIZE;
    // how many times the server will be restarted
-   final int restarts;
+   int restarts;
    // how many times the clients will run per restart
-   final int clientRuns;
+   int clientRuns;
    // As the produces sends messages, a client will be killed every X messages. This is it!
-   final int killClientEveryX;
-
-
-   @Parameterized.Parameters(name = "protocol={0}, batchSize={1}, restarts={2}, clientRuns={3}, killEveryX={4}")
-   public static Collection<Object[]> parameters() {
-      return Arrays.asList(new Object[][]{{"CORE", 2000, 2, 2, 500}, {"AMQP", 2000, 2, 2, 500}});
-   }
-
-   public MMSFactoryTest(String protocol, int batchSize, int restarts, int clientRuns, int killClientEveryX) {
-      this.theprotocol = protocol;
-      this.BATCH_SIZE = batchSize;
-      this.restarts = restarts;
-      this.clientRuns = clientRuns;
-      this.killClientEveryX = killClientEveryX;
-   }
-
+   int killClientEveryX;
 
    public static void main(String[] arg) {
-
       try {
          Consumer consumer = new Consumer(arg[0], Integer.parseInt(arg[1]), arg[2], Integer.parseInt(arg[3]), arg[4], Integer.parseInt(arg[5]));
-         //consumer.run();
          consumer.runListener();
 
          while (true) {
@@ -112,7 +90,7 @@ public class MMSFactoryTest extends SmokeTestBase {
                                 int credits,
                                 int consumerID) throws Exception {
 
-      return SpawnedVMSupport.spawnVM(MMSFactoryTest.class.getName(), protocol, "" + slowTime, queueName, "" + credits, getConsumerLog(consumerID), "" + consumerID);
+      return SpawnedVMSupport.spawnVM(M_and_M_FactoryTest.class.getName(), protocol, "" + slowTime, queueName, "" + credits, getConsumerLog(consumerID), "" + consumerID);
    }
 
    Process serverProcess;
@@ -124,8 +102,23 @@ public class MMSFactoryTest extends SmokeTestBase {
       serverProcess = startServer(SERVER_NAME_0, 0, 30000);
    }
 
+
    @Test
-   public void testMMSorting() throws Exception {
+   public void testM_and_M_AMQP() throws Exception {
+      test_M_and_M_Sorting( "AMQP", 2000, 2, 2, 500);
+   }
+
+   @Test
+   public void testM_and_M_CORE() throws Exception {
+      test_M_and_M_Sorting( "CORE", 2000, 2, 2, 500);
+   }
+
+   public void test_M_and_M_Sorting(String protocol, int batchSize, int restarts, int clientRuns, int killClientEveryX) throws Exception {
+      this.theprotocol = protocol;
+      this.BATCH_SIZE = batchSize;
+      this.restarts = restarts;
+      this.clientRuns = clientRuns;
+      this.killClientEveryX = killClientEveryX;
       for (int i = 0; i < restarts; i++) {
          logger.debug("*******************************************************************************************************************************");
          logger.debug("Starting " + clientRuns);
@@ -143,7 +136,7 @@ public class MMSFactoryTest extends SmokeTestBase {
       }
    }
 
-   public void testMMSorting(int countStart, int countEnd) throws Exception {
+   private void testMMSorting(int countStart, int countEnd) throws Exception {
 
       JMXConnector jmxConnector = getJmxConnector(JMX_SERVER_HOSTNAME, JMX_SERVER_PORT);
 
