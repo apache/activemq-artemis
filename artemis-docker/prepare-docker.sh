@@ -39,7 +39,7 @@ Usage:
 
 Example:
   ./prepare-docker.sh --from-local-dist --local-dist-path ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
-  ./prepare-docker.sh --from-release --artemis-version 2.16.0  
+  ./prepare-docker.sh --from-release --artemis-version 2.16.0
 
 HERE
   exit 1
@@ -51,7 +51,7 @@ next_step () {
 Well done! Now you can continue with the Docker image build.
 Building the Docker Image:
   Go to $ARTEMIS_DIST where you prepared the binary with Docker files.
-  
+
   # Go to $ARTEMIS_DIST
   $ cd $ARTEMIS_DIST
 
@@ -67,7 +67,7 @@ Building the Docker Image:
   # For AdoptOpen JDK 11 (Build for linux ARMv7/ARM64)
   $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-eclipse-temurin-11 .
 
-Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just 
+Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just
 tag names for the purpose of this guide
 
 For more info read the readme.md
@@ -123,10 +123,16 @@ if [ -n "${FROM_RELEASE}" ]; then
   [ -n "${ARTEMIS_VERSION}" ] || usage "You must specify the release version (es.: --artemis-version 2.16.0)"
 
   cleanup
-  
+
   ARTEMIS_BASE_URL="$(curl -s https://www.apache.org/dyn/closer.cgi\?preferred=true)activemq/activemq-artemis/${ARTEMIS_VERSION}/"
   ARTEMIS_DIST_FILE_NAME="apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz"
   CURL_OUTPUT="${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}"
+
+  # Fallback to the Apache archive if the version doesn't exist on the CDN anymore
+  if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
+  then
+    ARTEMIS_BASE_URL="https://archive.apache.org/dist/activemq/activemq-artemis/${ARTEMIS_VERSION}/"
+  fi
 
   if [ -z "$(ls -A ${BASE_TMPDIR}/${ARTEMIS_VERSION})" ]
   then
@@ -141,15 +147,15 @@ if [ -n "${FROM_RELEASE}" ]; then
   fi
 
   ARTEMIS_DIST="${BASE_TMPDIR}/${ARTEMIS_VERSION}"
-  
+
   echo "Using Artemis dist: ${ARTEMIS_DIST}"
 
 elif [ -n "${FROM_LOCAL}" ]; then
-  
+
   if [ -n "${LOCAL_DIST_PATH}" ]; then
     ARTEMIS_DIST=${LOCAL_DIST_PATH}
     echo "Using Artemis dist: ${ARTEMIS_DIST}"
-  else 
+  else
      usage "You must specify the local distribution directory"
   fi
 
