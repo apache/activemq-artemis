@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManager;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTSessionState;
+import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
 import org.apache.activemq.artemis.core.remoting.impl.AbstractAcceptor;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
@@ -33,11 +34,14 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.fusesource.mqtt.client.MQTTException;
+import org.fusesource.mqtt.codec.CONNACK;
 import org.junit.Test;
 
 public class MQTTSecurityManagerTest extends MQTTTestSupport {
 
    private String clientID = "new-" + RandomUtil.randomString();
+   private boolean rejectClientId = false;
 
    @Override
    public boolean isSecurityEnabled() {
@@ -53,6 +57,9 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
                                      String password,
                                      RemotingConnection remotingConnection,
                                      String securityDomain) {
+            if (rejectClientId) {
+               throw new InvalidClientIdException();
+            }
             remotingConnection.setClientID(clientID);
             return new Subject();
          }
@@ -146,6 +153,27 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
          }
       } finally {
          if (connection1 != null && connection1.isConnected()) connection1.disconnect();
+      }
+   }
+
+   @Test(timeout = 30000)
+   public void testSecurityManagerRejectClientID() throws Exception {
+      rejectClientId = true;
+      BlockingConnection connection = null;
+      try {
+         MQTT mqtt = createMQTTConnection(RandomUtil.randomString(), true);
+         mqtt.setUserName(fullUser);
+         mqtt.setPassword(fullPass);
+         mqtt.setConnectAttemptsMax(1);
+         connection = mqtt.blockingConnection();
+         try {
+            connection.connect();
+            fail("Should have thrown exception");
+         } catch (MQTTException e) {
+            assertEquals(CONNACK.Code.CONNECTION_REFUSED_IDENTIFIER_REJECTED, e.connack.code());
+         }
+      } finally {
+         if (connection != null && connection.isConnected()) connection.disconnect();
       }
    }
 }

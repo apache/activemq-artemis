@@ -45,6 +45,7 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
@@ -241,8 +242,14 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
        */
       String password = connect.payload().passwordInBytes() == null ? null : new String(connect.payload().passwordInBytes(), CharsetUtil.UTF_8);
       String username = connect.payload().userName();
-      Pair<Boolean, String> validationData = validateUser(username, password);
-      if (!validationData.getA()) {
+      Pair<Boolean, String> validationData = null;
+      try {
+         validationData = validateUser(username, password);
+         if (!validationData.getA()) {
+            return;
+         }
+      } catch (InvalidClientIdException e) {
+         handleInvalidClientId();
          return;
       }
 
@@ -487,15 +494,19 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
             session.getConnection().setClientIdAssignedByBroker(true);
          } else {
             // [MQTT-3.1.3-8] Return ID rejected and disconnect if clean session = false and client id is null
-            if (session.getVersion() == MQTTVersion.MQTT_5) {
-               session.getProtocolHandler().sendConnack(MQTTReasonCodes.CLIENT_IDENTIFIER_NOT_VALID);
-            } else {
-               session.getProtocolHandler().sendConnack(MQTTReasonCodes.IDENTIFIER_REJECTED_3);
-            }
-            disconnect(true);
-            return false;
+            return handleInvalidClientId();
          }
       }
       return true;
+   }
+
+   private boolean handleInvalidClientId() {
+      if (session.getVersion() == MQTTVersion.MQTT_5) {
+         session.getProtocolHandler().sendConnack(MQTTReasonCodes.CLIENT_IDENTIFIER_NOT_VALID);
+      } else {
+         session.getProtocolHandler().sendConnack(MQTTReasonCodes.IDENTIFIER_REJECTED_3);
+      }
+      disconnect(true);
+      return false;
    }
 }
