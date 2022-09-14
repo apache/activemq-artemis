@@ -66,7 +66,7 @@ public class ListUser extends UserAction {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to list user " + userCommandUser + ". Reason: " + errMsg);
+            getActionContext().err.println("Failed to list user " + userCommandUser + ". Reason: " + errMsg);
          }
       });
 
@@ -86,7 +86,7 @@ public class ListUser extends UserAction {
          userCount++;
       }
       logMessage.append("\n Total: ").append(userCount);
-      context.out.println(logMessage);
+      getActionContext().out.println(logMessage);
    }
 
 }

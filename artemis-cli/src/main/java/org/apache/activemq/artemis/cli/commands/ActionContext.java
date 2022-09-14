@@ -35,8 +35,14 @@ public class ActionContext {
    public PrintStream out;
    public PrintStream err;
 
+   private static ThreadLocal<ActionContext> contextThreadLocal = ThreadLocal.withInitial(() -> new ActionContext());
+
+   public static void setSystem(ActionContext context) {
+      contextThreadLocal.set(context);
+   }
+
    public static ActionContext system() {
-      return new ActionContext(System.in, System.out, System.err);
+      return contextThreadLocal.get();
    }
 
 }

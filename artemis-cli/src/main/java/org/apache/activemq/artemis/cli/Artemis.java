@@ -88,7 +88,7 @@ public class Artemis {
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
 
-      execute(true, fileHome, fileInstance, args);
+      execute(true, true, fileHome, fileInstance, args);
    }
 
    public static Object internalExecute(String... args) throws Exception {
@@ -96,23 +96,34 @@ public class Artemis {
    }
 
    public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Exception {
-      return execute(false, artemisHome, artemisInstance, args.toArray(new String[args.size()]));
+      return execute(false, false, artemisHome, artemisInstance, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, ActionContext context, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled, boolean useSystemOut, File artemisHome, File artemisInstance, String... args) throws Exception {
 
       if (inputEnabled) {
          InputAbstract.enableInput();
       }
+
+      final ActionContext context;
+
+      if (useSystemOut) {
+         context = new ActionContext();
+      } else {
+         context = new ActionContext(InputStream.nullInputStream(), new PrintStream(OutputStream.nullOutputStream()), System.err);
+      }
+
+      ActionContext.setSystem(context);
+
       try {
          return internalExecute(artemisHome, artemisInstance, args, context);
       } catch (ConfigurationException configException) {
-         System.err.println(configException.getMessage());
-         System.out.println();
-         System.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'");
+         context.err.println(configException.getMessage());
+         context.out.println();
+         context.out.println("Configuration should be specified as 'scheme:location'. Default configuration is 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'");
          return configException;
       } catch (CLIException cliException) {
-         System.err.println(cliException.getMessage());
+         context.err.println(cliException.getMessage());
          return cliException;
       } catch (NullPointerException e) {
          // Yeah.. I really meant System.err..
@@ -121,18 +132,16 @@ public class Artemis {
          e.printStackTrace();
          return e;
       } catch (RuntimeException | InvalidOptionsError re) {
-         System.err.println(re.getMessage());
-         System.out.println();
+         context.err.println(re.getMessage());
+         context.out.println();
 
          Cli<Action> parser = builder(null).build();
 
          parser.parse("help").execute(context);
          return re;
+      } finally {
+         ActionContext.setSystem(new ActionContext());
       }
-   }
-
-   public static Object execute(boolean inputEnabled, File artemisHome, File artemisInstance, String... args) throws Exception {
-      return execute(inputEnabled, artemisHome, artemisInstance, ActionContext.system(), args);
    }
 
    /**
@@ -148,12 +157,12 @@ public class Artemis {
       action.setHomeValues(artemisHome, artemisInstance);
 
       if (action.isVerbose()) {
-         System.out.print("Executing " + action.getClass().getName() + " ");
+         context.out.print("Executing " + action.getClass().getName() + " ");
          for (String arg : args) {
-            System.out.print(arg + " ");
+            context.out.print(arg + " ");
          }
-         System.out.println();
-         System.out.println("Home::" + action.getBrokerHome() + ", Instance::" + action.getBrokerInstance());
+         context.out.println();
+         context.out.println("Home::" + action.getBrokerHome() + ", Instance::" + action.getBrokerInstance());
       }
 
       action.checkOptions(args);
@@ -196,10 +205,6 @@ public class Artemis {
       }
 
       return builder;
-   }
-
-   public static void printBanner() throws Exception {
-      printBanner(System.out);
    }
 
    public static void printBanner(PrintStream out) throws Exception {

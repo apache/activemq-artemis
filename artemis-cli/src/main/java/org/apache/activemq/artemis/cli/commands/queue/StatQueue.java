@@ -142,10 +142,10 @@ public class StatQueue extends AbstractAction {
       }
 
       if (verbose) {
-         context.out.println("filter is '" + filter + "'");
-         context.out.println("maxRows='" + maxRows + "'");
+         getActionContext().out.println("filter is '" + filter + "'");
+         getActionContext().out.println("maxRows='" + maxRows + "'");
       }
-      printStats(context, filter);
+      printStats(getActionContext(), filter);
       return null;
    }
 
@@ -165,7 +165,7 @@ public class StatQueue extends AbstractAction {
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to get Stats for Queues. Reason: " + errMsg);
+            getActionContext().err.println("Failed to get Stats for Queues. Reason: " + errMsg);
          }
       });
    }
@@ -175,7 +175,7 @@ public class StatQueue extends AbstractAction {
       //should not happen but...
       if (result == null) {
          if (verbose) {
-            context.err.println("printStats(): got NULL result string.");
+            getActionContext().err.println("printStats(): got NULL result string.");
          }
          return;
       }
@@ -202,7 +202,7 @@ public class StatQueue extends AbstractAction {
       }
 
       if (count > maxRows) {
-         context.out.println(String.format("WARNING: the displayed queues are %d/%d, set maxRows to display more queues.", maxRows, count));
+         getActionContext().out.println(String.format("WARNING: the displayed queues are %d/%d, set maxRows to display more queues.", maxRows, count));
       }
    }
 
@@ -229,7 +229,7 @@ public class StatQueue extends AbstractAction {
          stringBuilder.append(paddingString(new StringBuilder(e.toString()), columnSizes[i++])).append('|');
       }
 
-      context.out.println(stringBuilder);
+      getActionContext().out.println(stringBuilder);
    }
 
    private void printQueueStats(JsonObject jsonObject, int[] columnSizes) {
@@ -237,7 +237,7 @@ public class StatQueue extends AbstractAction {
       //should not happen but just in case..
       if (jsonObject == null) {
          if (verbose) {
-            context.err.println("printQueueStats(): jsonObject is null");
+            getActionContext().err.println("printQueueStats(): jsonObject is null");
          }
          return;
       }
@@ -250,7 +250,7 @@ public class StatQueue extends AbstractAction {
          stringBuilder.append(paddingString(new StringBuilder(jsonObject.getString(e.jsonId)), columnSizes[i++])).append('|');
       }
 
-      context.out.println(stringBuilder);
+      getActionContext().out.println(stringBuilder);
    }
 
    private StringBuilder paddingString(StringBuilder value, int maxColumnSize) {
@@ -285,7 +285,7 @@ public class StatQueue extends AbstractAction {
       HashMap<String, Object> filterMap = new HashMap<>();
 
       if (((fieldName != null) && (fieldName.trim().length() > 0)) && ((queueName != null && queueName.trim().length() > 0))) {
-         context.err.println("'--field' and '--queueName' cannot be specified together.");
+         getActionContext().err.println("'--field' and '--queueName' cannot be specified together.");
          return null;
       }
 
@@ -300,19 +300,19 @@ public class StatQueue extends AbstractAction {
 
             filterMap.put("field", field.toString());
          } catch (IllegalArgumentException ex) {
-            context.err.println("'--field' must be set to one of the following " + Arrays.toString(FIELD.values()));
+            getActionContext().err.println("'--field' must be set to one of the following " + Arrays.toString(FIELD.values()));
             return null;
          }
 
          //full filter being set ensure value is set
          if (value == null || value.trim().length() == 0) {
-            context.err.println("'--value' needs to be set when '--field' is specified");
+            getActionContext().err.println("'--value' needs to be set when '--field' is specified");
             return null;
          }
          filterMap.put("value", value);
 
          if (operationName == null) {
-            context.err.println("'--operation' must be set when '--field' is specified " + Arrays.toString(OPERATION.values()));
+            getActionContext().err.println("'--operation' must be set when '--field' is specified " + Arrays.toString(OPERATION.values()));
             return null;
          }
 
@@ -320,7 +320,7 @@ public class StatQueue extends AbstractAction {
             OPERATION operation = OPERATION.valueOf(operationName);
             filterMap.put("operation", operation.toString());
          } catch (IllegalArgumentException ex) {
-            context.err.println("'--operation' must be set to one of the following " + Arrays.toString(OPERATION.values()));
+            getActionContext().err.println("'--operation' must be set to one of the following " + Arrays.toString(OPERATION.values()));
             return null;
          }
 

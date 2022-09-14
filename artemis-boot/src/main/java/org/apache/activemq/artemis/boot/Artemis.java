@@ -47,7 +47,7 @@ public class Artemis {
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
 
-      Object result = execute(fileHome, fileInstance, args);
+      Object result = execute(fileHome, fileInstance, true, args);
       if (result instanceof Exception) {
          // Set a nonzero status code for the exceptions caught and printed by org.apache.activemq.artemis.cli.Artemis.execute
          System.exit(1);
@@ -57,14 +57,14 @@ public class Artemis {
    /**
     * This is a good method for booting an embedded command
     */
-   public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Throwable {
-      return execute(artemisHome, artemisInstance, args.toArray(new String[args.size()]));
+   public static Object execute(File artemisHome, File artemisInstance, boolean useSystemOut, List<String> args) throws Throwable {
+      return execute(artemisHome, artemisInstance, useSystemOut, args.toArray(new String[args.size()]));
    }
 
    /**
     * This is a good method for booting an embedded command
     */
-   public static Object execute(File fileHome, File fileInstance, String... args) throws Throwable {
+   public static Object execute(File fileHome, File fileInstance, boolean useSystemOut, String... args) throws Throwable {
       ArrayList<File> dirs = new ArrayList<>();
       if (fileHome != null) {
          dirs.add(new File(fileHome, "lib"));
@@ -128,10 +128,10 @@ public class Artemis {
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
-      Method method = clazz.getMethod("execute", Boolean.TYPE, File.class, File.class, args.getClass());
+      Method method = clazz.getMethod("execute", Boolean.TYPE, Boolean.TYPE, File.class, File.class, args.getClass());
 
       try {
-         return method.invoke(null, true, fileHome, fileInstance, args);
+         return method.invoke(null, useSystemOut, useSystemOut, fileHome, fileInstance, args);
       } catch (InvocationTargetException e) {
          throw e.getTargetException();
       } finally {

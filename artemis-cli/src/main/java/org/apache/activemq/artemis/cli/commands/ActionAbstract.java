@@ -47,7 +47,14 @@ public abstract class ActionAbstract implements Action {
 
    private URI brokerInstanceURI;
 
-   protected ActionContext context;
+   private ActionContext actionContext;
+
+   protected ActionContext getActionContext() {
+      if (actionContext == null) {
+         actionContext = ActionContext.system();
+      }
+      return actionContext;
+   }
 
    @Override
    public boolean isVerbose() {
@@ -105,7 +112,7 @@ public abstract class ActionAbstract implements Action {
             }
          } catch (Exception e) {
             if (isVerbose()) {
-               System.out.print("Can not get the broker url instance: " + e.toString());
+               getActionContext().out.print("Can not get the broker url instance: " + e.toString());
             }
          }
       }
@@ -178,7 +185,8 @@ public abstract class ActionAbstract implements Action {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
-      this.context = context;
+      this.actionContext = context;
+      ActionContext.setSystem(context);
 
       return null;
    }

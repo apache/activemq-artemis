@@ -82,7 +82,7 @@ public class Run extends LockAbstract {
          ManagementContextDTO managementDTO = getManagementDTO();
          managementContext = ManagementFactory.create(managementDTO, securityManager);
 
-         Artemis.printBanner();
+         Artemis.printBanner(getActionContext().out);
 
          addShutdownHook(broker.server.getConfigurationFile().getParentFile());
 
@@ -190,8 +190,8 @@ public class Run extends LockAbstract {
                   stop();
                   shutdownTimer.cancel();
                } finally {
-                  System.out.println("Server stopped!");
-                  System.out.flush();
+                  getActionContext().out.println("Server stopped!");
+                  getActionContext().out.flush();
                   latchRunning.countDown();
                   if (!embedded) {
                      Runtime.getRuntime().exit(0);

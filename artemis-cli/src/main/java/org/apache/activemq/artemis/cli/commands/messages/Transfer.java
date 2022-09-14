@@ -497,7 +497,7 @@ public class Transfer extends InputAbstract {
          return cf;
       } catch (JMSSecurityException e) {
          // if a security exception will get the user and password through an input
-         context.err.println("Connection failed::" + e.getMessage());
+         getActionContext().err.println("Connection failed::" + e.getMessage());
          userPassword(brokerURL);
          cf = new JmsConnectionFactory(user, password, brokerURL);
          if (clientID != null) {
@@ -506,7 +506,7 @@ public class Transfer extends InputAbstract {
          return cf;
       } catch (JMSException e) {
          // if a connection exception will ask for the URL, user and password
-         context.err.println("Connection failed::" + e.getMessage());
+         getActionContext().err.println("Connection failed::" + e.getMessage());
          brokerURL = input("--url", "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", brokerURL);
          userPassword(brokerURL);
          cf = new JmsConnectionFactory(user, password, brokerURL);
@@ -533,9 +533,7 @@ public class Transfer extends InputAbstract {
          return cf;
       } catch (JMSSecurityException e) {
          // if a security exception will get the user and password through an input
-         if (context != null) {
-            context.err.println("Connection failed::" + e.getMessage());
-         }
+         getActionContext().err.println("Connection failed::" + e.getMessage());
          Pair<String, String> userPair = userPassword(brokerURL);
          cf = new ActiveMQConnectionFactory(brokerURL, userPair.getA(), userPair.getB());
          if (clientID != null) {
@@ -544,9 +542,7 @@ public class Transfer extends InputAbstract {
          return cf;
       } catch (JMSException e) {
          // if a connection exception will ask for the URL, user and password
-         if (context != null) {
-            context.err.println("Connection failed::" + e.getMessage());
-         }
+         getActionContext().err.println("Connection failed::" + e.getMessage());
          brokerURL = input("--url", "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", brokerURL);
          Pair<String, String> userPair = userPassword(brokerURL);
          cf = new ActiveMQConnectionFactory(brokerURL, userPair.getA(), userPair.getB());

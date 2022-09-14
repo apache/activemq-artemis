@@ -147,6 +147,8 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "${noServer}")
    boolean ignore;
 
+   @Parameter boolean useSystemOutput = getLog().isDebugEnabled();
+
    private void add(List<String> list, String... str) {
       for (String s : str) {
          list.add(s);
@@ -160,7 +162,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
    @Override
    protected void doExecute() throws MojoExecutionException, MojoFailureException {
-      getLog().info("Local " + localRepository);
+      getLog().debug("Local " + localRepository);
       MavenProject project = (MavenProject) getPluginContext().get("project");
 
       if (!isArtemisHome(home.toPath())) {
@@ -180,9 +182,11 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
       Set<Map.Entry> entries = properties.entrySet();
 
-      getLog().info("Entries.size " + entries.size());
-      for (Map.Entry entry : entries) {
-         getLog().info("... key=" + entry.getKey() + " = " + entry.getValue());
+      if (getLog().isDebugEnabled()) {
+         getLog().debug("Entries.size " + entries.size());
+         for (Map.Entry entry : entries) {
+            getLog().debug("... key=" + entry.getKey() + " = " + entry.getValue());
+         }
       }
 
       ArrayList<String> listCommands = new ArrayList<>();
@@ -260,7 +264,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          commandLineStream.println("# These are the commands used to create " + instance.getName());
          commandLineStream.println(getCommandline(listCommands));
 
-         Artemis.execute(home, null, listCommands);
+         Artemis.execute(home, null, useSystemOutput, listCommands);
 
          if (configuration != null) {
             String[] list = configuration.list();
@@ -297,10 +301,12 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
 
          FileUtil.makeExec(commandLine);
 
-         getLog().info("###################################################################################################");
-         getLog().info(commandLine.getName() + " created with commands to reproduce " + instance.getName());
-         getLog().info("under " + commandLine.getParent());
-         getLog().info("###################################################################################################");
+         if (getLog().isDebugEnabled()) {
+            getLog().debug("###################################################################################################");
+            getLog().debug(commandLine.getName() + " created with commands to reproduce " + instance.getName());
+            getLog().debug("under " + commandLine.getParent());
+            getLog().debug("###################################################################################################");
+         }
 
       } catch (Throwable e) {
          getLog().error(e);

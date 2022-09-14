@@ -36,7 +36,7 @@ public class Browse extends DestAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      System.out.println("Consumer:: filter = " + filter);
+      context.out.println("Consumer:: filter = " + filter);
 
       ConnectionFactory factory = createConnectionFactory();
 

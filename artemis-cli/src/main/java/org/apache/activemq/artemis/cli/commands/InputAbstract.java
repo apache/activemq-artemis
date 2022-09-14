@@ -101,13 +101,13 @@ public class InputAbstract extends ActionAbstract {
 
       String inputStr;
       boolean valid = false;
-      System.out.println();
+      getActionContext().out.println();
       do {
-         context.out.println(propertyName + ":");
-         context.out.println(prompt);
+         getActionContext().out.println(propertyName + ":");
+         getActionContext().out.println(prompt);
          inputStr = scanner.nextLine();
          if (!acceptNull && inputStr.trim().equals("")) {
-            System.out.println("Invalid Entry!");
+            getActionContext().out.println("Invalid Entry!");
          } else {
             valid = true;
          }
@@ -124,22 +124,22 @@ public class InputAbstract extends ActionAbstract {
 
       String inputStr = "";
       boolean valid = false;
-      System.out.println();
+      getActionContext().out.println();
       do {
-         context.out.println(propertyName + ": is mandatory with this configuration:");
-         context.out.println(prompt);
+         getActionContext().out.println(propertyName + ": is mandatory with this configuration:");
+         getActionContext().out.println(prompt);
          char[] chars = System.console().readPassword();
 
          // could be null if the user input something weird like Ctrl-d
          if (chars == null) {
-            System.out.println("Invalid Entry!");
+            getActionContext().out.println("Invalid Entry!");
             continue;
          }
 
          inputStr = new String(chars);
 
          if (inputStr.trim().equals("")) {
-            System.out.println("Invalid Entry!");
+            getActionContext().out.println("Invalid Entry!");
          } else {
             valid = true;
          }
