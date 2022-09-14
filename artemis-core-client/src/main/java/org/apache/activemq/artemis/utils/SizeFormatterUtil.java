@@ -36,7 +36,7 @@ public class SizeFormatterUtil {
          suffix = "MiB";
       } else if (s > SizeFormatterUtil.oneKiB) {
          s /= SizeFormatterUtil.oneKiB;
-         suffix = "kiB";
+         suffix = "KiB";
       }
       return String.format("%.2f %s", s, suffix);
    }

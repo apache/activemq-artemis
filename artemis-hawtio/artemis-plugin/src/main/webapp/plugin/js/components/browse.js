@@ -554,9 +554,9 @@ var Artemis;
         function formatPersistentSize(bytes) {
             if(isNaN(bytes) || typeof bytes !== "number" || bytes < 0) return "N/A";
             if(bytes < 10240) return bytes.toLocaleString() + " Bytes";
-            if(bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
-            if(bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MB";
-            return (bytes / 1073741824).toFixed(2) + " GB";
+            if(bytes < 1048576) return (bytes / 1024).toFixed(2) + " KiB";
+            if(bytes < 1073741824) return (bytes / 1048576).toFixed(2) + " MiB";
+            return (bytes / 1073741824).toFixed(2) + " GiB";
         }
 
         ctrl.openMoveDialog = function () {
