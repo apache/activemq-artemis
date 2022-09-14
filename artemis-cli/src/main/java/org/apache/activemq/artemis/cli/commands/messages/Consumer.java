@@ -53,7 +53,7 @@ public class Consumer extends DestAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
-      System.out.println("Consumer:: filter = " + filter);
+      context.out.println("Consumer:: filter = " + filter);
 
       SerialiserMessageListener listener = null;
       MessageSerializer serializer = null;

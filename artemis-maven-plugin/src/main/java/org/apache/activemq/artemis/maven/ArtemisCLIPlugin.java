@@ -71,6 +71,8 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String testPassword = null;
 
+   @Parameter boolean useSystemOutput = getLog().isDebugEnabled();
+
    @Override
    protected boolean isIgnore() {
       return ignore;
@@ -125,7 +127,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
                }
             }
          } else {
-            Artemis.execute(home, location, args);
+            Artemis.execute(home, location, useSystemOutput, args);
          }
 
          Thread.sleep(600);

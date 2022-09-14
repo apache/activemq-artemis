@@ -506,7 +506,7 @@ public class Create extends InputAbstract {
          password = inputPassword("--password", "Please provide the default password:", "admin");
       }
 
-      password = HashUtil.tryHash(context, password);
+      password = HashUtil.tryHash(getActionContext(), password);
 
       return password;
    }
@@ -874,9 +874,9 @@ public class Create extends InputAbstract {
 
       if (jdbc) {
          noAutoTune = true;
-         System.out.println();
+         context.out.println();
          printStar("Copy a jar containing the JDBC Driver '" + jdbcClassName + "' into " + directory.getAbsolutePath() + "/lib");
-         System.out.println();
+         context.out.println();
       }
 
       performAutoTune(filters, journalType, dataFolder);
@@ -958,11 +958,11 @@ public class Create extends InputAbstract {
       for (int i = 0; i < size; i++) {
          buffer.append("*");
       }
-      System.out.println(buffer.toString());
-      System.out.println();
-      System.out.println(message);
-      System.out.println();
-      System.out.println(buffer.toString());
+      getActionContext().out.println(buffer.toString());
+      getActionContext().out.println();
+      getActionContext().out.println(message);
+      getActionContext().out.println();
+      getActionContext().out.println(buffer.toString());
    }
 
    private void setupJournalType() {
@@ -1081,8 +1081,8 @@ public class Create extends InputAbstract {
       } else {
          try {
             int writes = 250;
-            System.out.println("");
-            System.out.println("Auto tuning journal ...");
+            getActionContext().out.println("");
+            getActionContext().out.println("Auto tuning journal ...");
 
             if (mapped && noJournalSync) {
                HashMap<String, String> syncFilter = new HashMap<>();
@@ -1090,7 +1090,7 @@ public class Create extends InputAbstract {
                syncFilter.put("${writesPerMillisecond}", "0");
                syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
 
-               System.out.println("...Since you disabled sync and are using MAPPED journal, we are diabling buffer times");
+               getActionContext().out.println("...Since you disabled sync and are using MAPPED journal, we are diabling buffer times");
 
                filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
 
@@ -1107,7 +1107,7 @@ public class Create extends InputAbstract {
                syncFilter.put("${writesPerMillisecond}", writesPerMillisecondStr);
                syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
 
-               System.out.println("done! Your system can make " + writesPerMillisecondStr +
+               getActionContext().out.println("done! Your system can make " + writesPerMillisecondStr +
                                      " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
 
                filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
@@ -1222,7 +1222,7 @@ public class Create extends InputAbstract {
             try {
                content = replace(content, entry.getKey(), entry.getValue());
             } catch (Throwable e) {
-               System.out.println("Error on " + entry.getKey());
+               getActionContext().out.println("Error on " + entry.getKey());
                e.printStackTrace();
                System.exit(-1);
             }

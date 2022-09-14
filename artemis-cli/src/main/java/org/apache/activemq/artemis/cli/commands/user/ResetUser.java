@@ -51,13 +51,13 @@ public class ResetUser extends PasswordAction {
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println(userCommandUser + " reset successfully.");
+            getActionContext().out.println(userCommandUser + " reset successfully.");
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to reset user " + userCommandUser + ". Reason: " + errMsg);
+            getActionContext().err.println("Failed to reset user " + userCommandUser + ". Reason: " + errMsg);
          }
       });
    }

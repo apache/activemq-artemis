@@ -2111,7 +2111,9 @@ public class ArtemisTest extends CliTestBase {
 
       String currentLine = bufferedReader.readLine();
       while (currentLine != null) {
-         lines.add(currentLine);
+         if (!currentLine.startsWith("Connection brokerURL")) {
+            lines.add(currentLine);
+         }
          currentLine = bufferedReader.readLine();
       }
 

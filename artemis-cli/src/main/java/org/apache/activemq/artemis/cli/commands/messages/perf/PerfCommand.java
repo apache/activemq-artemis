@@ -112,7 +112,7 @@ public abstract class PerfCommand extends ConnectionAbstract {
          skratchBuffer.setLength(0);
          statistics.outAtInterval(warmingUp, skratchBuffer, LiveStatistics.ReportInterval.sec, showLatency);
          if (!isSilentInput()) {
-            context.out.println(skratchBuffer);
+            getActionContext().out.println(skratchBuffer);
          }
          LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1));
       }

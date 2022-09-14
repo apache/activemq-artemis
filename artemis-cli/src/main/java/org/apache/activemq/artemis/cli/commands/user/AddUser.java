@@ -57,13 +57,13 @@ public class AddUser extends PasswordAction {
 
          @Override
          public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println(userCommandUser + " added successfully.");
+            getActionContext().out.println(userCommandUser + " added successfully.");
          }
 
          @Override
          public void requestFailed(ClientMessage reply) throws Exception {
             String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to add user " + userCommandUser + ". Reason: " + errMsg);
+            getActionContext().err.println("Failed to add user " + userCommandUser + ". Reason: " + errMsg);
          }
       });
    }

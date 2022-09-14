@@ -75,6 +75,8 @@ public class RecoverMessages extends DBOption {
 
    public static void recover(Configuration configuration, String journallocation, File journalOutput, File largeMessage, boolean reclaimed) throws Exception {
 
+      final ActionContext context =  ActionContext.system();
+
       File journal = new File(journallocation);
 
       if (!journalOutput.exists()) {
@@ -115,7 +117,7 @@ public class RecoverMessages extends DBOption {
       for (JournalFile file : files) {
          // For reviewers and future maintainers: I really meant System.out.println here
          // This is part of the CLI, hence this is like user's output
-         System.out.println("Recovering messages from file " + file);
+         context.out.println("Recovering messages from file " + file);
 
          JournalImpl.readJournalFile(messagesFF, file, new JournalReaderCallback() {
             long lastlargeMessageId = -1;
@@ -163,14 +165,14 @@ public class RecoverMessages extends DBOption {
 
                   if (targetJournal.getRecords().get(info.id) != null) {
                      // Really meant System.out.. user's information on the CLI
-                     System.out.println("RecordID " + info.id + " would been duplicated, ignoring it");
+                     context.out.println("RecordID " + info.id + " would been duplicated, ignoring it");
                      return;
                   }
                   try {
                      targetJournal.appendAddRecord(info.id, info.userRecordType, info.data, false);
                   } catch (Exception e) {
                      // Really meant System.out.. user's information on the CLI
-                     System.out.println("Cannot append record for " + info.id + "->" + e.getMessage());
+                     context.out.println("Cannot append record for " + info.id + "->" + e.getMessage());
                   }
                }
             }
@@ -183,7 +185,7 @@ public class RecoverMessages extends DBOption {
                      Pair<Long, Long> pairQueue = new Pair<>(info.id, queue);
                      if (routeBindigns.contains(pairQueue)) {
                         // really meant system.out
-                        System.out.println("AddReference on " + info.id + " / queue=" + queue + " has already been recorded, ignoring it");
+                        context.out.println("AddReference on " + info.id + " / queue=" + queue + " has already been recorded, ignoring it");
                         return;
                      }
 
@@ -192,8 +194,8 @@ public class RecoverMessages extends DBOption {
                   try {
                      targetJournal.appendUpdateRecord(info.id, info.userRecordType, info.data, true);
                   } catch (Exception e) {
-                     System.out.println("Cannot update record " + info.id + "-> " + e.getMessage());
-                     e.printStackTrace(System.out);
+                     context.out.println("Cannot update record " + info.id + "-> " + e.getMessage());
+                     e.printStackTrace(context.err);
                   }
                }
             }
