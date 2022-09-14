@@ -2188,6 +2188,7 @@ public class StompV11Test extends StompTestBase {
    public void testHeartBeat3() throws Exception {
 
       connection.close();
+      Assert.assertEquals(0, server.getRemotingService().getConnections().size());
       ClientStompFrame frame = conn.createFrame("CONNECT");
       frame.addHeader("host", "127.0.0.1");
       frame.addHeader("login", this.defUser);
@@ -2217,12 +2218,10 @@ public class StompV11Test extends StompTestBase {
       int size = conn.getServerPingNumber();
 
       conn.stopPinger();
-      //((AbstractStompClientConnection)conn).killReaderThread();
-      Wait.waitFor(() -> {
-         return server.getRemotingService().getConnections().size() == 0;
-      });
 
-      Wait.assertFalse(stompFrameHandler.getHeartBeater()::isStarted);
+      Wait.assertEquals(0, () -> server.getRemotingService().getConnections().size());
+
+      Wait.assertFalse("HeartBeater is still running!!", () -> stompFrameHandler.getHeartBeater().isStarted());
    }
 
    @Test
@@ -2274,14 +2273,9 @@ public class StompV11Test extends StompTestBase {
 
       conn.stopPinger();
 
-      // give it some time to detect and close connections
-      Thread.sleep(2000);
+      Wait.assertEquals(0, () -> server.getRemotingService().getConnections().size());
 
-      Wait.waitFor(() -> {
-         return server.getRemotingService().getConnections().size() == 0;
-      });
-
-      Wait.assertFalse("HeartBeater is still running!!", stompFrameHandler.getHeartBeater()::isStarted);
+      Wait.assertFalse("HeartBeater is still running!!", () -> stompFrameHandler.getHeartBeater().isStarted());
    }
 
 
