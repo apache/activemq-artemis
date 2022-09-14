@@ -526,6 +526,27 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testNotations() throws Exception {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<global-max-size>100MiB</global-max-size>");
+      stream.println("<journal-file-size>10M</journal-file-size>");
+      stream.println("<journal-buffer-size>5Mb</journal-buffer-size>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = parser.parseMainConfig(inputStream);
+
+      // check that suffixes were interpreted well
+      Assert.assertEquals(100 * 1024 * 1024, configuration.getGlobalMaxSize());
+      Assert.assertEquals(10 * 1024 * 1024, configuration.getJournalFileSize());
+      Assert.assertEquals(5 * 1024 * 1024, configuration.getJournalBufferSize_NIO());
+   }
+
+   @Test
    public void testRetentionJournalOptionsDays() throws Exception {
       testStreamDatesOption("DAYS", TimeUnit.DAYS);
    }

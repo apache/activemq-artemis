@@ -104,7 +104,7 @@ var Artemis;
         };
         ctrl.addressMemoryConfig = {
             'chartId': 'addressMemoryChart',
-            'units': 'MB',
+            'units': 'MiB',
             'thresholds':{'warning':'75','error':'90'}
         };
 

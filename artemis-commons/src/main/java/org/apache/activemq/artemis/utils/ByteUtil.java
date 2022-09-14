@@ -39,9 +39,9 @@ public class ByteUtil {
    private static final String prefix = "^\\s*(\\d+)\\s*";
    private static final String suffix = "(b)?\\s*$";
    private static final Pattern ONE = Pattern.compile(prefix + suffix, Pattern.CASE_INSENSITIVE);
-   private static final Pattern KILO = Pattern.compile(prefix + "k" + suffix, Pattern.CASE_INSENSITIVE);
-   private static final Pattern MEGA = Pattern.compile(prefix + "m" + suffix, Pattern.CASE_INSENSITIVE);
-   private static final Pattern GIGA = Pattern.compile(prefix + "g" + suffix, Pattern.CASE_INSENSITIVE);
+   private static final Pattern KILO = Pattern.compile(prefix + "ki?" + suffix, Pattern.CASE_INSENSITIVE);
+   private static final Pattern MEGA = Pattern.compile(prefix + "mi?" + suffix, Pattern.CASE_INSENSITIVE);
+   private static final Pattern GIGA = Pattern.compile(prefix + "gi?" + suffix, Pattern.CASE_INSENSITIVE);
    private static final String[] BYTE_SUFFIXES = new String[] {"E", "P", "T", "G", "M", "K", ""};
    private static final double[] BYTE_MAGNITUDES = new double[7];
 
