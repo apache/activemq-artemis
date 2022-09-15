@@ -31,7 +31,6 @@ import java.io.StringWriter;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URL;
 import java.security.AccessController;
@@ -2978,41 +2977,43 @@ public class ConfigurationImpl implements Configuration, Serializable {
       private Object newNamedInstanceForCollection(String collectionPropertyName, Object hostingBean, String name) {
          // find the add X and init an instance of the type with name=name
 
-         String addPropertyName = "add";
+         StringBuilder addPropertyNameBuilder = new StringBuilder("add");
          // expect an add... without the plural for named accessors
          if (collectionPropertyName != null && collectionPropertyName.length() > 0) {
-            addPropertyName += Character.toUpperCase(collectionPropertyName.charAt(0)) + collectionPropertyName.substring(1, collectionPropertyName.length() - 1);
+            addPropertyNameBuilder.append(Character.toUpperCase(collectionPropertyName.charAt(0)));
+            addPropertyNameBuilder.append(collectionPropertyName, 1, collectionPropertyName.length() - 1);
          }
 
          // we don't know the type, infer from add method add(X x) or add(String key, X x)
-         final Method[] methods = hostingBean.getClass().getDeclaredMethods();
-         for (Method candidate : methods) {
-            if (Modifier.isPublic(candidate.getModifiers()) && candidate.getName().equals(addPropertyName) &&
-               (candidate.getParameterCount() == 1 ||
-                  (candidate.getParameterCount() == 2
-                     // has a String key
-                     && String.class.equals(candidate.getParameterTypes()[0])
-                     // but not initialised from a String form (eg: uri)
-                     && !String.class.equals(candidate.getParameterTypes()[1])))) {
+         final String addPropertyName = addPropertyNameBuilder.toString();
+         final Method[] methods = hostingBean.getClass().getMethods();
+         final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) &&
+            ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
+               // has a String key
+               && String.class.equals(method.getParameterTypes()[0])
+               // but not initialised from a String form (eg: uri)
+               && !String.class.equals(method.getParameterTypes()[1]))))
+            .sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
 
-               // create one and initialise with name
-               try {
-                  Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
-                  beanUtilsBean.setProperty(instance, "name", name);
-
-                  // this is always going to be a little hacky b/c our config is not natively property friendly
-                  if (instance instanceof TransportConfiguration) {
-                     beanUtilsBean.setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
-                  }
-                  return instance;
-
-               } catch (Exception e) {
-                  logger.debug("Failed to add entry for " + name + " with method: " + candidate, e);
-                  throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
-               }
-            }
+         if (candidate == null) {
+            throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
          }
-         throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
+
+         // create one and initialise with name
+         try {
+            Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
+            beanUtilsBean.setProperty(instance, "name", name);
+
+            // this is always going to be a little hacky b/c our config is not natively property friendly
+            if (instance instanceof TransportConfiguration) {
+               beanUtilsBean.setProperty(instance, "factoryClassName", "invm".equals(name) ? InVMConnectorFactory.class.getName() : NettyConnectorFactory.class.getName());
+            }
+            return instance;
+
+         } catch (Exception e) {
+            logger.debug("Failed to add entry for " + name + " with method: " + candidate, e);
+            throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
+         }
       }
 
       public void setBeanUtilsBean(BeanUtilsBean beanUtilsBean) {

@@ -676,8 +676,15 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
    @Test
    public void testSetConnectionRoutersPolicyConfiguration() throws Throwable {
-      ConfigurationImpl configuration = new ConfigurationImpl();
+      testSetConnectionRoutersPolicyConfiguration(new ConfigurationImpl());
+   }
 
+   @Test
+   public void testSetConnectionRoutersPolicyFileConfiguration() throws Throwable {
+      testSetConnectionRoutersPolicyConfiguration(new FileConfiguration());
+   }
+
+   private void testSetConnectionRoutersPolicyConfiguration(ConfigurationImpl configuration) throws Throwable {
       Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
       insertionOrderedProperties.put("connectionRouters.autoShard.localTargetFilter", "NULL|$STATEFUL_SET_ORDINAL");
       insertionOrderedProperties.put("connectionRouters.autoShard.keyType", KeyType.CLIENT_ID);
