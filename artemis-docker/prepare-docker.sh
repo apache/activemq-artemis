@@ -126,14 +126,14 @@ if [ -n "${FROM_RELEASE}" ]; then
 
   CDN="$(curl -s https://www.apache.org/dyn/closer.cgi\?preferred=true)activemq/activemq-artemis/${ARTEMIS_VERSION}/"
   ARCHIVE="https://archive.apache.org/dist/activemq/activemq-artemis/${ARTEMIS_VERSION}/"
-  ARTEMIS_BASE_URL=CDN
+  ARTEMIS_BASE_URL=${CDN}
   ARTEMIS_DIST_FILE_NAME="apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz"
   CURL_OUTPUT="${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}"
 
   # Fallback to the Apache archive if the version doesn't exist on the CDN anymore
   if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
   then
-    ARTEMIS_BASE_URL=ARCHIVE
+    ARTEMIS_BASE_URL=${ARCHIVE}
   fi
 
   # If the CDN doesn't work then report the failure and abort
