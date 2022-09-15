@@ -125,7 +125,7 @@
 
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.54.Final</netty-tcnative-version>
-      <proton.version>0.33.10</proton.version>
+      <proton.version>0.34.0</proton.version>
       <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.36</slf4j.version>
       <qpid.jms.version>1.6.0</qpid.jms.version>
