@@ -134,13 +134,13 @@ if [ -n "${FROM_RELEASE}" ]; then
   if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
   then
     ARTEMIS_BASE_URL=${ARCHIVE}
-  fi
 
-  # If the CDN doesn't work then report the failure and abort
-  if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
-  then
-    echo "Failed to download ${ARTEMIS_DIST_FILE_NAME}. Tried both ${CDN} and ${ARCHIVE}."
-    exit 1
+    # If the archive also doesn't work then report the failure and abort
+    if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
+    then
+      echo "Failed to download ${ARTEMIS_DIST_FILE_NAME}. Tried both ${CDN} and ${ARCHIVE}."
+      exit 1
+    fi
   fi
 
   if [ -z "$(ls -A ${BASE_TMPDIR}/${ARTEMIS_VERSION})" ]
