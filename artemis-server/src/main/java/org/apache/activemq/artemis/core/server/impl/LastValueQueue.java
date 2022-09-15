@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.core.server.impl;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -54,7 +54,7 @@ import org.jboss.logging.Logger;
 public class LastValueQueue extends QueueImpl {
 
    private static final Logger logger = Logger.getLogger(LastValueQueue.class);
-   private final Map<SimpleString, MessageReference> map = new HashMap<>();
+   private final Map<SimpleString, MessageReference> map = new ConcurrentHashMap<>();
    private final SimpleString lastValueKey;
 
 
