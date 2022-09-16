@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
@@ -919,6 +920,38 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
       Assert.assertEquals(SimpleString.toSimpleString("LB.TEST"), configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).getAddress());
       Assert.assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
+   }
+
+
+   @Test
+   public void testAcceptorViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      configuration.getAcceptorConfigurations().add(ConfigurationUtils.parseAcceptorURI(
+         "artemis", "tcp://0.0.0.0:61616?protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;supportAdvisory=false;suppressInternalManagementObjects=false").get(0));
+
+      Properties properties = new Properties();
+
+      properties.put("acceptorConfigurations.artemis.extraParams.supportAdvisory", "true");
+      properties.put("acceptorConfigurations.new.extraParams.supportAdvisory", "true");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(2, configuration.getAcceptorConfigurations().size());
+
+      TransportConfiguration artemisTransportConfiguration = configuration.getAcceptorConfigurations().stream().filter(
+         transportConfiguration -> transportConfiguration.getName().equals("artemis")).findFirst().get();
+      Assert.assertTrue(artemisTransportConfiguration.getParams().containsKey("protocols"));
+      Assert.assertEquals("CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE", artemisTransportConfiguration.getParams().get("protocols"));
+      Assert.assertTrue(artemisTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
+      Assert.assertEquals("true", artemisTransportConfiguration.getExtraParams().get("supportAdvisory"));
+      Assert.assertTrue(artemisTransportConfiguration.getExtraParams().containsKey("suppressInternalManagementObjects"));
+      Assert.assertEquals("false", artemisTransportConfiguration.getExtraParams().get("suppressInternalManagementObjects"));
+
+      TransportConfiguration newTransportConfiguration = configuration.getAcceptorConfigurations().stream().filter(
+         transportConfiguration -> transportConfiguration.getName().equals("new")).findFirst().get();
+      Assert.assertTrue(newTransportConfiguration.getExtraParams().containsKey("supportAdvisory"));
+      Assert.assertEquals("true", newTransportConfiguration.getExtraParams().get("supportAdvisory"));
    }
 
 

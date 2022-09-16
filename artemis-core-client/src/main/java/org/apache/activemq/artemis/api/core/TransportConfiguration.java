@@ -92,6 +92,7 @@ public class TransportConfiguration implements Serializable {
     */
    public TransportConfiguration() {
       this.params = new HashMap<>();
+      this.extraProps = new HashMap<>();
    }
 
    /**
@@ -103,7 +104,7 @@ public class TransportConfiguration implements Serializable {
     * @param name      The name of this TransportConfiguration
     */
    public TransportConfiguration(final String className, final Map<String, Object> params, final String name) {
-      this(className, params, name, null);
+      this(className, params, name, new HashMap<>());
    }
 
    /**
