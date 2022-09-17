@@ -48,12 +48,10 @@ HERE
 next_step () {
   cat <<HERE
 
-Well done! Now you can continue with the Docker image build.
-Building the Docker Image:
-  Go to $ARTEMIS_DIST where you prepared the binary with Docker files.
+Well done! Now you can continue with building the Docker image:
 
-  # Go to $ARTEMIS_DIST
-  $ cd $ARTEMIS_DIST
+  # Go to $ARTEMIS_DIST_DIR
+  $ cd $ARTEMIS_DIST_DIR
 
   # For Debian
   $ docker build -f ./docker/Dockerfile-debian -t artemis-debian .
@@ -70,7 +68,7 @@ Building the Docker Image:
 Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just
 tag names for the purpose of this guide
 
-For more info read the readme.md
+For more info see readme.md
 
 HERE
   exit 0
@@ -106,77 +104,72 @@ key="$1"
 done
 
 # TMPDIR must be contained within the working directory so it is part of the
-# Docker context. (i.e. it can't be mktemp'd in /tmp)
+# Docker context. (i.e. it can't be in /tmp)
 BASE_TMPDIR="_TMP_/artemis"
 
-cleanup() {
-  if [ -d "${BASE_TMPDIR}/${ARTEMIS_VERSION}" ]
-  then
-    echo "Clean up the ${BASE_TMPDIR}/${ARTEMIS_VERSION} directory"
-    find "${BASE_TMPDIR}" -name "${ARTEMIS_VERSION}" -type d -mmin +60 -exec rm -rf "{}" \;
-  else
-    mkdir -p "${BASE_TMPDIR}/${ARTEMIS_VERSION}"
-  fi
-}
+if [ -n "${FROM_RELEASE}" ] && [ -z "${ARTEMIS_VERSION}" ]; then
+  usage "You must specify the release version (e.g. --artemis-version 2.16.0)"
+fi
 
 if [ -n "${FROM_RELEASE}" ]; then
-  [ -n "${ARTEMIS_VERSION}" ] || usage "You must specify the release version (es.: --artemis-version 2.16.0)"
+  ARTEMIS_DIST_DIR="${BASE_TMPDIR}/${ARTEMIS_VERSION}"
 
-  cleanup
-
-  CDN="$(curl -s https://www.apache.org/dyn/closer.cgi\?preferred=true)activemq/activemq-artemis/${ARTEMIS_VERSION}/"
-  ARCHIVE="https://archive.apache.org/dist/activemq/activemq-artemis/${ARTEMIS_VERSION}/"
-  ARTEMIS_BASE_URL=${CDN}
-  ARTEMIS_DIST_FILE_NAME="apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz"
-  CURL_OUTPUT="${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}"
-
-  # Fallback to the Apache archive if the version doesn't exist on the CDN anymore
-  if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
-  then
-    ARTEMIS_BASE_URL=${ARCHIVE}
-
-    # If the archive also doesn't work then report the failure and abort
-    if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]
-    then
-      echo "Failed to download ${ARTEMIS_DIST_FILE_NAME}. Tried both ${CDN} and ${ARCHIVE}."
-      exit 1
-    fi
+  # Prepare directory
+  if [ ! -d "${ARTEMIS_DIST_DIR}" ]; then
+    echo "Creating ${ARTEMIS_DIST_DIR}"
+    mkdir -p "${ARTEMIS_DIST_DIR}"
+  elif [ ! -z "$(find "${BASE_TMPDIR}" -name "${ARTEMIS_VERSION}" -type d -mmin +60)" ]; then
+    echo "Cleaning up ${ARTEMIS_DIST_DIR}"
+    rm -rf ${ARTEMIS_DIST_DIR}/*
+  else
+    echo "Using ${ARTEMIS_DIST_DIR}"
   fi
 
-  if [ -z "$(ls -A ${BASE_TMPDIR}/${ARTEMIS_VERSION})" ]
-  then
+  # Check if the release is already available locally, if not try to download it
+  if [ -z "$(ls -A ${ARTEMIS_DIST_DIR})" ]; then
+    CDN="$(curl -s https://www.apache.org/dyn/closer.cgi\?preferred=true)activemq/activemq-artemis/${ARTEMIS_VERSION}/"
+    ARCHIVE="https://archive.apache.org/dist/activemq/activemq-artemis/${ARTEMIS_VERSION}/"
+    ARTEMIS_BASE_URL=${CDN}
+    ARTEMIS_DIST_FILE_NAME="apache-artemis-${ARTEMIS_VERSION}-bin.tar.gz"
+    CURL_OUTPUT="${ARTEMIS_DIST_DIR}/${ARTEMIS_DIST_FILE_NAME}"
+
+    # Fallback to the Apache archive if the version doesn't exist on the CDN anymore
+    if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]; then
+      ARTEMIS_BASE_URL=${ARCHIVE}
+
+      # If the archive also doesn't work then report the failure and abort
+      if [ -z "$(curl -Is ${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME} | head -n 1 | grep 200)" ]; then
+        echo "Failed to find ${ARTEMIS_DIST_FILE_NAME}. Tried both ${CDN} and ${ARCHIVE}."
+        exit 1
+      fi
+    fi
+
     echo "Downloading ${ARTEMIS_DIST_FILE_NAME} from ${ARTEMIS_BASE_URL}..."
     curl --progress-bar "${ARTEMIS_BASE_URL}${ARTEMIS_DIST_FILE_NAME}" --output "${CURL_OUTPUT}"
 
-    echo "Expanding ${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}..."
-    tar xzf "$CURL_OUTPUT" --directory "${BASE_TMPDIR}/${ARTEMIS_VERSION}" --strip 1
+    echo "Expanding ${ARTEMIS_DIST_DIR}/${ARTEMIS_DIST_FILE_NAME}..."
+    tar xzf "$CURL_OUTPUT" --directory "${ARTEMIS_DIST_DIR}" --strip 1
 
-    echo "Removing ${BASE_TMPDIR}/${ARTEMIS_VERSION}/${ARTEMIS_DIST_FILE_NAME}..."
-    rm -rf "${BASE_TMPDIR}/${ARTEMIS_VERSION}"/"${ARTEMIS_DIST_FILE_NAME}"
+    echo "Removing ${ARTEMIS_DIST_DIR}/${ARTEMIS_DIST_FILE_NAME}..."
+    rm -rf "${ARTEMIS_DIST_DIR}"/"${ARTEMIS_DIST_FILE_NAME}"
   fi
-
-  ARTEMIS_DIST="${BASE_TMPDIR}/${ARTEMIS_VERSION}"
-
-  echo "Using Artemis dist: ${ARTEMIS_DIST}"
 
 elif [ -n "${FROM_LOCAL}" ]; then
 
   if [ -n "${LOCAL_DIST_PATH}" ]; then
-    ARTEMIS_DIST=${LOCAL_DIST_PATH}
-    echo "Using Artemis dist: ${ARTEMIS_DIST}"
+    ARTEMIS_DIST_DIR=${LOCAL_DIST_PATH}
+    echo "Using Artemis dist: ${ARTEMIS_DIST_DIR}"
   else
      usage "You must specify the local distribution directory"
   fi
 
-  if [ ! -d "${ARTEMIS_DIST}" ]
-  then
-    usage "Directory ${ARTEMIS_DIST} does not exist"
+  if [ ! -d "${ARTEMIS_DIST_DIR}" ]; then
+    usage "Directory ${ARTEMIS_DIST_DIR} does not exist"
   fi
 
-  if [ -d "${ARTEMIS_DIST}/docker" ]
-  then
-    echo "Clean up the ${ARTEMIS_DIST}/docker directory"
-    rm -rf "${ARTEMIS_DIST}/docker"
+  if [ -d "${ARTEMIS_DIST_DIR}/docker" ]; then
+    echo "Clean up the ${ARTEMIS_DIST_DIR}/docker directory"
+    rm -rf "${ARTEMIS_DIST_DIR}/docker"
   fi
 
 else
@@ -185,15 +178,14 @@ else
 
 fi
 
-if [ ! -d "${ARTEMIS_DIST}/docker" ]
-then
-  mkdir "${ARTEMIS_DIST}/docker"
+if [ ! -d "${ARTEMIS_DIST_DIR}/docker" ]; then
+  mkdir "${ARTEMIS_DIST_DIR}/docker"
 fi
 
-cp ./Dockerfile-* "$ARTEMIS_DIST/docker"
-cp ./docker-run.sh "$ARTEMIS_DIST/docker"
+cp ./Dockerfile-* "$ARTEMIS_DIST_DIR/docker"
+cp ./docker-run.sh "$ARTEMIS_DIST_DIR/docker"
 
-echo "Docker file support files at : $ARTEMIS_DIST/docker"
-tree "$ARTEMIS_DIST/docker"
+echo "Docker file support files at:"
+tree "$ARTEMIS_DIST_DIR/docker"
 
 next_step
