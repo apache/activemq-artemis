@@ -1,7 +1,7 @@
 # Docker Image Example
 
 This is an example on how you could create your own Docker Image For Apache 
-ActiveMQ Artemis based on CentOS or Debian (JDK 8) or AdoptOpen JDK 11 (Ubuntu).
+ActiveMQ Artemis based on CentOS or Ubuntu (Eclipse Temurin JDK images).
 
 # Preparing
 
@@ -10,6 +10,7 @@ binary distribution.
 
 Below is shown the command to prepare the build of the Docker Image starting 
 from the local distribution (from the source codes of ActiveMQ Artemis)
+
 ```
 # Prepare for build the Docker Image from the local distribution. Replace the 
 # {local-distribution-directory} with your directory.
@@ -25,9 +26,9 @@ Using Artemis dist: ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHO
 Clean up the ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker directory
 Docker file support files at : ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
 ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
-├── Dockerfile-eclipse-temurin-11
-├── Dockerfile-centos
-├── Dockerfile-debian
+├── Dockerfile-centos7-11
+├── Dockerfile-ubuntu-11
+├── Dockerfile-ubuntu-11-jre
 └── docker-run.sh
 
 0 directories, 4 files
@@ -39,24 +40,23 @@ Building the Docker Image:
   # Go to ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
   $ cd ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
 
-  # For Debian
-  $ docker build -f ./docker/Dockerfile-debian -t artemis-debian .
-
   # For CentOS
-  $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
+  $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 
-  # For AdoptOpen JDK 11
-  $ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
+  # For Ubuntu
+  $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 
-Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just
-tag names for the purpose of this guide
+  # Smaller Ubuntu image with just JRE
+  $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
+
+Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
 
 For more info read the readme.md
-
 ```
 
 The command to prepare the build of the Docker Image starting from the official 
 release of ActiveMQ Artemis is shown below
+
 ```
 # Prepare for build the Docker Image from the release version. Replace the
 # {release-version} with the version that you want 
@@ -75,9 +75,9 @@ Removing _TMP_/artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz...
 Using Artemis dist: _TMP_/artemis/2.16.0
 Docker file support files at : _TMP_/artemis/2.16.0/docker
 _TMP_/artemis/2.16.0/docker
-├── Dockerfile-eclipse-temurin-11
-├── Dockerfile-centos
-├── Dockerfile-debian
+├── Dockerfile-centos7-11
+├── Dockerfile-ubuntu-11
+├── Dockerfile-ubuntu-11-jre
 └── docker-run.sh
 
 0 directories, 4 files
@@ -89,17 +89,16 @@ Building the Docker Image:
   # Go to _TMP_/artemis/2.16.0
   $ cd _TMP_/artemis/2.16.0
 
-  # For Debian
-  $ docker build -f ./docker/Dockerfile-debian -t artemis-debian .
-
   # For CentOS
-  $ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
+  $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 
-  # For AdoptOpen JDK 11
-  $ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
+  # For Ubuntu
+  $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 
-Note: -t artemis-debian, -t artemis-centos and artemis-eclipse-temurin-11 are just
-tag names for the purpose of this guide
+  # Smaller Ubuntu image with just JRE
+  $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
+
+Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
 
 For more info read the readme.md
 ```
@@ -108,34 +107,33 @@ For more info read the readme.md
 
 Go to `$ARTEMIS_DIST` where you prepared the binary with Docker files.
 
-## For Debian
-
-From within the `$ARTEMIS_DIST` folder:
-```
-$ docker build -f ./docker/Dockerfile-debian -t artemis-debian .
-```
-
 ## For CentOS
 
 From within the `$ARTEMIS_DIST` folder:
 ```
-$ docker build -f ./docker/Dockerfile-centos -t artemis-centos .
+$ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 ```
 
-## For AdoptOpen JDK 11
+## For Ubuntu
+
 From within the `$ARTEMIS_DIST` folder:
 ```
-$ docker build -f ./docker/Dockerfile-eclipse-temurin-11 -t artemis-eclipse-temurin-11 .
+$ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 ```
 
-# For AdoptOpen JDK 11 (Build for linux ARMv7/ARM64)
+## Smaller Ubuntu image with just JRE
+From within the `$ARTEMIS_DIST` folder:
 ```
-$ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-eclipse-temurin-11 .
+$ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
+```
+
+# For Ubuntu (Build for linux ARMv7/ARM64)
+```
+$ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-ubuntu-11 .
 ```
 
 **Note:**
-`-t artemis-debian`,`-t artemis-centos`,`artemis-eclipse-temurin-11` are just tag 
-names for the purpose of this guide
+`-t artemis-centos` and `-t artemis-ubuntu` are just tag names for the purpose of this guide
 
 
 # Environment Variables
