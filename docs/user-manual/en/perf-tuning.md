@@ -186,10 +186,6 @@ We highly recommend you use the latest Java JVM for the best performance. We
 test internally using the Sun JVM, so some of these tunings won't apply to JDKs
 from other providers (e.g. IBM or JRockit)
 
-- Garbage collection. For smooth server operation we recommend using a parallel
-  garbage collection algorithm, e.g. using the JVM argument
-  `-XX:+UseParallelOldGC` on Sun JDKs.
-
 - Memory settings. Give as much memory as you can to the server.  Apache
   ActiveMQ Artemis can run in low memory by using paging (described in
   [Paging](paging.md)) but if it can run with all queues in RAM this will improve
