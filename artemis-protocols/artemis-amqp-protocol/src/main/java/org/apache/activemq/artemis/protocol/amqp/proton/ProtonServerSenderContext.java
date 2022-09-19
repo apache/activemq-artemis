@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -47,11 +48,13 @@ import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccesso
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.converter.CoreAmqpConverter;
+import org.apache.activemq.artemis.protocol.amqp.converter.coreWrapper.ConversionException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPNotFoundException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
+import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionImpl;
 import org.apache.activemq.artemis.protocol.amqp.util.NettyReadable;
@@ -545,6 +548,16 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
 
       } catch (Exception e) {
+         if (e instanceof ConversionException && brokerConsumer.getBinding() instanceof LocalQueueBinding) {
+            ActiveMQAMQPProtocolLogger.LOGGER.messageConversionFailed(e);
+            LocalQueueBinding queueBinding = (LocalQueueBinding) brokerConsumer.getBinding();
+            try {
+               queueBinding.getQueue().sendToDeadLetterAddress(null, messageReference);
+            } catch (Exception e1) {
+               ActiveMQAMQPProtocolLogger.LOGGER.unableToSendMessageToDLA(messageReference, e1);
+            }
+            return;
+         }
          log.warn(e.getMessage(), e);
          brokerConsumer.errorProcessing(e, messageReference);
       }

@@ -3712,10 +3712,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          Bindings bindingList = postOffice.lookupBindingsForAddress(deadLetterAddress);
 
          if (bindingList == null || bindingList.getBindings().isEmpty()) {
-            ActiveMQServerLogger.LOGGER.messageExceededMaxDelivery(ref, deadLetterAddress);
+            ActiveMQServerLogger.LOGGER.noBindingsOnDLA(ref, deadLetterAddress);
             ref.acknowledge(tx, AckReason.KILLED, null);
          } else {
-            ActiveMQServerLogger.LOGGER.messageExceededMaxDeliverySendtoDLA(ref, deadLetterAddress, name);
+            ActiveMQServerLogger.LOGGER.sendingMessageToDLA(ref, deadLetterAddress, name);
             RoutingStatus status = move(tx, deadLetterAddress, null, ref, false, AckReason.KILLED, null, null, true);
 
             // this shouldn't happen, but in case it does it's better to log a message than just drop the message silently
@@ -3725,7 +3725,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             return true;
          }
       } else {
-         ActiveMQServerLogger.LOGGER.messageExceededMaxDeliveryNoDLA(ref, name);
+         ActiveMQServerLogger.LOGGER.sendingMessageToDLAnoDLA(ref, name);
          ref.acknowledge(tx, AckReason.KILLED, null);
       }
 
