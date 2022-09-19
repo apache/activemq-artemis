@@ -17,7 +17,7 @@
 
 # ActiveMQ Artemis
 
-FROM jboss/base-jdk:11
+FROM eclipse-temurin:11-jre
 LABEL maintainer="Apache ActiveMQ Team"
 # Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -28,11 +28,11 @@ ENV ARTEMIS_PASSWORD artemis
 ENV ANONYMOUS_LOGIN false
 ENV EXTRA_ARGS --http-host 0.0.0.0 --relax-jolokia
 
-USER root
-
 # add user and group for artemis
 RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
- && yum install -y libaio && yum -y clean all
+ && apt-get -qq -o=Dpkg::Use-Pty=0 update && \
+    apt-get -qq -o=Dpkg::Use-Pty=0 install -y libaio1 && \
+    rm -rf /var/lib/apt/lists/*
 
 USER artemis
 
