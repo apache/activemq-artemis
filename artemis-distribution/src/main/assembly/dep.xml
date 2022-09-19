@@ -48,7 +48,6 @@
             <exclude>org.apache.activemq:artemis-console:war</exclude>
             <exclude>org.apache.activemq:activemq-branding:war</exclude>
             <exclude>org.apache.activemq:artemis-plugin:war</exclude>
-            <exclude>org.apache.activemq:artemis-website</exclude>
          </excludes>
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
