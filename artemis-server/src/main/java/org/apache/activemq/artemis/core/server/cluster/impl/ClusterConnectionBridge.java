@@ -251,29 +251,31 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
          SimpleString notifQueueName = new SimpleString(qName);
 
-         SimpleString filter = new SimpleString(ManagementHelper.HDR_BINDING_TYPE + "<>" +
-                                                   BindingType.DIVERT.toInt() +
+         SimpleString filter = new SimpleString("(" + ManagementHelper.HDR_BINDING_TYPE + " <> " + BindingType.DIVERT.toInt() +
+                                                   " OR "
+                                                   + ManagementHelper.HDR_BINDING_TYPE + " IS NULL)" +
                                                    " AND " +
                                                    ManagementHelper.HDR_NOTIFICATION_TYPE +
                                                    " IN ('" +
                                                    CoreNotificationType.SESSION_CREATED +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.BINDING_ADDED +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.BINDING_REMOVED +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.CONSUMER_CREATED +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.CONSUMER_CLOSED +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.PROPOSAL +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.PROPOSAL_RESPONSE +
-                                                   "','" +
+                                                   "', '" +
                                                    CoreNotificationType.UNPROPOSAL +
-                                                   "') AND " +
+                                                   "')" +
+                                                   " AND " +
                                                    ManagementHelper.HDR_DISTANCE +
-                                                   "<" +
+                                                   " < " +
                                                    flowRecord.getMaxHops() +
                                                    " AND (" +
                                                    createSelectorFromAddress(appendIgnoresToFilter(flowRecord.getAddress())) +

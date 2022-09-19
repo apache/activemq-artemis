@@ -16,109 +16,13 @@
  */
 package org.apache.activemq.artemis.selector;
 
-import java.util.HashMap;
-
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.selector.filter.BooleanExpression;
 import org.apache.activemq.artemis.selector.filter.FilterException;
-import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class SelectorTest {
-
-   class MockMessage implements Filterable {
-
-      HashMap<String, Object> properties = new HashMap<>();
-      private String text;
-      private Object destination;
-      private String messageId;
-      private String type;
-      private Object localConnectionId;
-
-      public void setDestination(Object destination) {
-         this.destination = destination;
-      }
-
-      public void setJMSMessageID(String messageId) {
-         this.messageId = messageId;
-      }
-
-      public void setJMSType(String type) {
-         this.type = type;
-      }
-
-      public void setText(String text) {
-         this.text = text;
-      }
-
-      public void setBooleanProperty(String key, boolean value) {
-         properties.put(key, value);
-      }
-
-      public void setStringProperty(String key, String value) {
-         properties.put(key, value);
-      }
-
-      public void setByteProperty(String key, byte value) {
-         properties.put(key, value);
-      }
-
-      public void setDoubleProperty(String key, double value) {
-         properties.put(key, value);
-      }
-
-      public void setFloatProperty(String key, float value) {
-         properties.put(key, value);
-      }
-
-      public void setLongProperty(String key, long value) {
-         properties.put(key, value);
-      }
-
-      public void setIntProperty(String key, int value) {
-         properties.put(key, value);
-      }
-
-      public void setShortProperty(String key, short value) {
-         properties.put(key, value);
-      }
-
-      public void setObjectProperty(String key, Object value) {
-         properties.put(key, value);
-      }
-
-      @Override
-      public <T> T getBodyAs(Class<T> type) throws FilterException {
-         if (type == String.class) {
-            return type.cast(text);
-         }
-         return null;
-      }
-
-      @Override
-      public Object getProperty(SimpleString name) {
-         String stringName = name.toString();
-         if ("JMSType".equals(stringName)) {
-            return type;
-         }
-         if ("JMSMessageID".equals(stringName)) {
-            return messageId;
-         }
-         return properties.get(stringName);
-      }
-
-      public Object getDestination() {
-         return destination;
-      }
-
-      @Override
-      public Object getLocalConnectionId() {
-         return localConnectionId;
-      }
-
-   }
 
    @Test
    public void testBooleanSelector() throws Exception {
@@ -126,7 +30,10 @@ public class SelectorTest {
 
       assertSelector(message, "(trueProp OR falseProp) AND trueProp", true);
       assertSelector(message, "(trueProp OR falseProp) AND falseProp", false);
-
+      assertSelector(message, "(falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR trueProp)", true);
+      assertSelector(message, "(falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR falseProp OR falseProp)", false);
+      assertSelector(message, "(trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND falseProp)", false);
+      assertSelector(message, "(trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND trueProp AND trueProp)", true);
    }
 
    @Test

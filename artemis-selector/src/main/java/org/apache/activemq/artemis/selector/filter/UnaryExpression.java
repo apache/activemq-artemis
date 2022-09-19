@@ -140,6 +140,16 @@ public abstract class UnaryExpression implements Expression {
          }
 
          @Override
+         public boolean matches(Filterable message) throws FilterException {
+            Boolean lvalue = (Boolean) right.evaluate(message);
+            if (lvalue == null) {
+               // NOT NULL returns NULL that eventually fails the selector
+               return false;
+            }
+            return !lvalue;
+         }
+
+         @Override
          public String getExpressionSymbol() {
             return "NOT";
          }
