@@ -117,7 +117,9 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
             logger.debug("Validating lastModified " + lastModified + " modified = " + fileModified + " on " + uri);
          }
 
-         if (lastModified > 0 && fileModified > lastModified) {
+         if ((lastModified > 0 && fileModified > lastModified) ||
+            // newly created file, first valid modified time
+            (fileModified > 0 && lastModified == 0)) {
 
             for (ReloadCallback callback : callbacks) {
                try {

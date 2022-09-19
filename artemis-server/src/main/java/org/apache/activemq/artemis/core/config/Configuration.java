@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
@@ -1426,4 +1427,7 @@ public interface Configuration {
 
    Configuration setSuppressSessionNotifications(boolean suppressSessionNotifications);
 
+   default String resolvePropertiesSources(String propertiesFileUrl) {
+      return System.getProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, propertiesFileUrl);
+   }
 }

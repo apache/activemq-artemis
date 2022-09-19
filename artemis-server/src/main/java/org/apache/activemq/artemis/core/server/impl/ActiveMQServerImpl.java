@@ -173,6 +173,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
+import org.apache.activemq.artemis.core.server.reload.ReloadCallback;
 import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManagerImpl;
@@ -3252,7 +3253,21 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          this.reloadManager = new ReloadManagerImpl(getScheduledPool(), executorFactory.getExecutor(), configurationFileRefreshPeriod);
 
          if (configuration.getConfigurationUrl() != null && getScheduledPool() != null) {
-            reloadManager.addCallback(configuration.getConfigurationUrl(), uri -> reloadConfigurationFile(uri));
+            final URL configUrl = configuration.getConfigurationUrl();
+            ReloadCallback xmlConfigReload = uri -> {
+               // ignore the argument from the callback such that we can respond
+               // to property file locations with a full reload
+               reloadConfigurationFile(configUrl);
+            };
+            reloadManager.addCallback(configUrl, xmlConfigReload);
+
+            // watch properties and reload xml config
+            String propsLocations = configuration.resolvePropertiesSources(propertiesFileUrl);
+            if (propsLocations != null) {
+               for (String fileUrl : propsLocations.split(",")) {
+                  reloadManager.addCallback(new File(fileUrl).toURI().toURL(), xmlConfigReload);
+               }
+            }
          }
 
          if (System.getProperty("logging.configuration") != null) {
