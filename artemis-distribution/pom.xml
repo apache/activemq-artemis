@@ -112,11 +112,6 @@
          <artifactId>artemis-jdbc-store</artifactId>
          <version>${project.version}</version>
       </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-website</artifactId>
-         <version>${project.version}</version>
-      </dependency>
 
       <!-- Must be optional to avoid passing on, as they clash
            with each other, and contain duplicates of their deps
@@ -159,12 +154,6 @@
            <version>${project.version} </version>
            <type>war</type>
        </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-website</artifactId>
-         <version>${project.version}</version>
-         <classifier>javadoc</classifier>
-      </dependency>
       <!-- quorum -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
