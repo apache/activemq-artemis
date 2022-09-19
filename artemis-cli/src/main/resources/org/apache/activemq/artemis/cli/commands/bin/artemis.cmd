@@ -49,7 +49,7 @@ set ARTEMIS_INSTANCE_ETC="${artemis.instance.etc}"
 call %ARTEMIS_INSTANCE_ETC%\artemis.profile.cmd %*
 
 rem "Set Defaults."
-set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties
+if "%ARTEMIS_LOGGING_CONF%"=="" set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties
 set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 if not exist "%ARTEMIS_OOME_DUMP%" goto NO_ARTEMIS_OOME_DUMP

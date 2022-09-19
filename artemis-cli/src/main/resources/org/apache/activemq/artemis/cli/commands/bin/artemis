@@ -51,7 +51,11 @@ ARTEMIS_INSTANCE_ETC='${artemis.instance.etc}'
 . "$ARTEMIS_INSTANCE_ETC/artemis.profile"
 
 # Set Defaults Properties
-ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_ETC_URI/logging.properties"
+
+if [ -z "ARTEMIS_LOGGING_CONF" ] ; then
+  ARTEMIS_LOGGING_CONF="$ARTEMIS_INSTANCE_ETC_URI/logging.properties"
+fi
+
 ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 
 
