@@ -16,9 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.io.File;
+import java.io.FileOutputStream;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.CoreQueueConfiguration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
+import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -29,6 +33,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.Wait;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ConfigurationTest extends ActiveMQTestBase {
@@ -57,6 +63,65 @@ public class ConfigurationTest extends ActiveMQTestBase {
          server.getConfiguration().addQueueConfiguration(new CoreQueueConfiguration().setName(QUEUE_NAME.toString()));
          server.start();
          assertTrue(server.getAddressInfo(QUEUE_NAME) != null);
+      } finally {
+         try {
+            server.stop();
+         } catch (Exception e) {
+         }
+      }
+   }
+
+   @Test
+   public void testPropertiesConfigReload() throws Exception {
+
+      File propsFile = new File(getTestDirfile(),"some.props");
+      propsFile.createNewFile();
+
+      ConfigurationImpl.InsertionOrderedProperties config = new ConfigurationImpl.InsertionOrderedProperties();
+      config.put("configurationFileRefreshPeriod", "500");
+
+      config.put("addressConfigurations.mytopic_3.routingTypes", "MULTICAST");
+
+      config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.A3\".address", "mytopic_3");
+      config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.A3\".routingType", "MULTICAST");
+
+      config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.B3\".address", "mytopic_3");
+      config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.B3\".routingType", "MULTICAST");
+
+      try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
+         config.store(outStream, null);
+      }
+
+      Assert.assertTrue(propsFile.exists());
+
+      System.out.println("props: " + propsFile.getAbsolutePath());
+
+      ActiveMQServer server = getActiveMQServer("duplicate-queues.xml");
+      server.setProperties(propsFile.getAbsolutePath());
+      try {
+
+         server.start();
+         Bindings mytopic_1 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_1"));
+         assertEquals(mytopic_1.getBindings().size(), 0);
+         Bindings mytopic_2 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_2"));
+         assertEquals(mytopic_2.getBindings().size(), 3);
+
+         Bindings mytopic_3 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_3"));
+         assertEquals(mytopic_3.getBindings().size(), 2);
+
+
+         // add new binding from props update
+         config.put("addressConfigurations.mytopic_3.queueConfigs.\"queue.C3\".address", "mytopic_3");
+
+         try (FileOutputStream outStream = new FileOutputStream(propsFile)) {
+            config.store(outStream, null);
+         }
+
+         Wait.assertTrue(() -> {
+            Bindings mytopic_31 = server.getPostOffice().getBindingsForAddress(new SimpleString("mytopic_3"));
+            return mytopic_31.getBindings().size() == 3;
+         });
+
       } finally {
          try {
             server.stop();

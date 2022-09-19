@@ -470,7 +470,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    @Override
    public Configuration parseProperties(String fileUrlToProperties) throws Exception {
       // system property overrides location of file(s)
-      fileUrlToProperties = System.getProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, fileUrlToProperties);
+      fileUrlToProperties = resolvePropertiesSources(fileUrlToProperties);
       if (fileUrlToProperties != null) {
          for (String fileUrl : fileUrlToProperties.split(",")) {
             Properties brokerProperties = new InsertionOrderedProperties();
@@ -3051,7 +3051,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
       }
    }
 
-   static class InsertionOrderedProperties extends Properties {
+   public static class InsertionOrderedProperties extends Properties {
 
       final LinkedHashMap<Object, Object> orderedMap = new LinkedHashMap<>();
 

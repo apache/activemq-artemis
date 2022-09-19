@@ -74,6 +74,62 @@ public class ReloadManagerTest extends ActiveMQTestBase {
       internalTest(manager, file);
    }
 
+   @Test
+   public void testUpdateOnDirectory() throws Exception {
+      File nested = new File(getTemporaryDir(), "./sub/nested.txt");
+      nested.mkdirs();
+      nested.createNewFile();
+
+      File parentDir = nested.getParentFile();
+
+      Assert.assertTrue(parentDir.isDirectory());
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      ReloadCallback reloadCallback = new ReloadCallback() {
+         @Override
+         public void reload(URL uri) {
+            latch.countDown();
+         }
+      };
+      manager.addCallback(parentDir.toURI().toURL(), reloadCallback);
+
+      Assert.assertFalse(latch.await(1, TimeUnit.SECONDS));
+
+      parentDir.setLastModified(System.currentTimeMillis());
+
+      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+
+   }
+
+   @Test
+   public void testUpdateOnNewNotExistingDirectory() throws Exception {
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      ReloadCallback reloadCallback = new ReloadCallback() {
+         @Override
+         public void reload(URL uri) {
+            latch.countDown();
+         }
+      };
+
+      // verify not existing dir is not a problem
+      File notExistFile = new File(getTemporaryDir(), "./sub2/not-there");
+      File notExistDir = notExistFile.getParentFile();
+
+      Assert.assertFalse(notExistDir.exists());
+
+      manager.addCallback(notExistDir.toURI().toURL(), reloadCallback);
+
+      Assert.assertFalse(latch.await(1, TimeUnit.SECONDS));
+
+      // create that non-existent file now
+      notExistFile.mkdirs();
+      notExistFile.createNewFile();
+
+      Assert.assertTrue(latch.await(1, TimeUnit.SECONDS));
+   }
+
    private void internalTest(ReloadManagerImpl manager, File file) throws IOException, InterruptedException {
       file.createNewFile();
 
