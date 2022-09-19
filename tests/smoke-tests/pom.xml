@@ -1134,6 +1134,63 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
+                  <id>create-clustered-large-message1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/clusteredLargeMessage/cluster1</instance>
+                     <configuration>${basedir}/target/classes/servers/clusteredLargeMessage/cluster1</configuration>
+                     <args>
+                        <arg>--name</arg>
+                        <arg>cluster1</arg>
+                        <arg>--clustered</arg>
+                        <arg>--staticCluster</arg>
+                        <arg>tcp://localhost:61716</arg>
+                        <arg>--max-hops</arg>
+                        <arg>1</arg>
+                        <arg>--queues</arg>
+                        <arg>testQueue</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-cluster-large-message2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/clusteredLargeMessage/cluster2</instance>
+                     <configuration>${basedir}/target/classes/servers/clusteredLargeMessage/cluster2</configuration>
+                     <args>
+                        <arg>--name</arg>
+                        <arg>cluster2</arg>
+                        <arg>--clustered</arg>
+                        <arg>--staticCluster</arg>
+                        <arg>tcp://localhost:61616</arg>
+                        <arg>--max-hops</arg>
+                        <arg>1</arg>
+                        <arg>--port-offset</arg>
+                        <arg>100</arg>
+                        <arg>--queues</arg>
+                        <arg>testQueue</arg>
+                     </args>
+                  </configuration>
+               </execution>
+
+               <execution>
+                  <phase>test-compile</phase>
                   <id>create-create-nettynative</id>
                   <goals>
                      <goal>create</goal>
