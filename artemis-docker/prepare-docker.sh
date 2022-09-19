@@ -53,21 +53,21 @@ Well done! Now you can continue with building the Docker image:
   # Go to $ARTEMIS_DIST_DIR
   $ cd $ARTEMIS_DIST_DIR
 
-  # For CentOS
+  # For CentOS with full JDK
   $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 
-  # For Ubuntu
+  # For Ubuntu with full JDK
   $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 
-  # Smaller Ubuntu image with just JRE
+  # For Ubuntu with just JRE
   $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
 
-  # For Ubuntu (Build for linux ARMv7/ARM64)
+  # For Ubuntu on Linux ARMv7/ARM64 with full JDK
   $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-ubuntu-11 .
 
 Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
 
-For more info read the readme.md
+For more info see readme.md
 
 HERE
   exit 0
@@ -157,7 +157,7 @@ elif [ -n "${FROM_LOCAL}" ]; then
 
   if [ -n "${LOCAL_DIST_PATH}" ]; then
     ARTEMIS_DIST_DIR=${LOCAL_DIST_PATH}
-    echo "Using Artemis dist: ${ARTEMIS_DIST_DIR}"
+    echo "Using ${ARTEMIS_DIST_DIR}"
   else
      usage "You must specify the local distribution directory"
   fi
@@ -167,7 +167,7 @@ elif [ -n "${FROM_LOCAL}" ]; then
   fi
 
   if [ -d "${ARTEMIS_DIST_DIR}/docker" ]; then
-    echo "Clean up the ${ARTEMIS_DIST_DIR}/docker directory"
+    echo "Cleaning up ${ARTEMIS_DIST_DIR}/docker"
     rm -rf "${ARTEMIS_DIST_DIR}/docker"
   fi
 

@@ -1,14 +1,14 @@
 # Docker Image Example
 
-This is an example on how you could create your own Docker Image For Apache 
+This is an example on how you could create your own Docker Image For Apache
 ActiveMQ Artemis based on CentOS or Ubuntu (Eclipse Temurin JDK images).
 
 # Preparing
 
-Use the script ./prepare-docker.sh as it will copy the docker files under the 
+Use the script ./prepare-docker.sh as it will copy the docker files under the
 binary distribution.
 
-Below is shown the command to prepare the build of the Docker Image starting 
+Below is shown the command to prepare the build of the Docker Image starting
 from the local distribution (from the source codes of ActiveMQ Artemis)
 
 ```
@@ -22,9 +22,9 @@ The output of the previous command is shown below.
 ```
 $ ./prepare-docker.sh --from-local-dist --local-dist-path ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
 
-Using Artemis dist: ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
-Clean up the ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker directory
-Docker file support files at : ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
+Using ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
+Cleaning up ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
+Docker file support files at:
 ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
 ├── Dockerfile-centos7-11
 ├── Dockerfile-ubuntu-11
@@ -33,28 +33,29 @@ Docker file support files at : ../artemis-distribution/target/apache-artemis-2.1
 
 0 directories, 4 files
 
-Well done! Now you can continue with the Docker image build.
-Building the Docker Image:
-  Go to ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT where you prepared the binary with Docker files.
+Well done! Now you can continue with building the Docker image:
 
   # Go to ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
   $ cd ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
 
-  # For CentOS
+  # For CentOS with full JDK
   $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 
-  # For Ubuntu
+  # For Ubuntu with full JDK
   $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 
-  # Smaller Ubuntu image with just JRE
+  # For Ubuntu with just JRE
   $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
+
+  # For Ubuntu on Linux ARMv7/ARM64 with full JDK
+  $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-ubuntu-11 .
 
 Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
 
-For more info read the readme.md
+For more info see readme.md.
 ```
 
-The command to prepare the build of the Docker Image starting from the official 
+The command to prepare the build of the Docker Image starting from the official
 release of ActiveMQ Artemis is shown below
 
 ```
@@ -67,13 +68,12 @@ The output of the previous command is shown below.
 
 ```
 $ ./prepare-docker.sh --from-release --artemis-version 2.16.0
-
+Creating _TMP_/artemis/2.16.0
 Downloading apache-artemis-2.16.0-bin.tar.gz from https://downloads.apache.org/activemq/activemq-artemis/2.16.0/...
 ################################################################################################################################################################################################################################ 100,0%
 Expanding _TMP_/artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz...
 Removing _TMP_/artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz...
-Using Artemis dist: _TMP_/artemis/2.16.0
-Docker file support files at : _TMP_/artemis/2.16.0/docker
+Docker file support files at:
 _TMP_/artemis/2.16.0/docker
 ├── Dockerfile-centos7-11
 ├── Dockerfile-ubuntu-11
@@ -82,21 +82,22 @@ _TMP_/artemis/2.16.0/docker
 
 0 directories, 4 files
 
-Well done! Now you can continue with the Docker image build.
-Building the Docker Image:
-  Go to _TMP_/artemis/2.16.0 where you prepared the binary with Docker files.
+Well done! Now you can continue with building the Docker image:
 
   # Go to _TMP_/artemis/2.16.0
   $ cd _TMP_/artemis/2.16.0
 
-  # For CentOS
+  # For CentOS with full JDK
   $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 
-  # For Ubuntu
+  # For Ubuntu with full JDK
   $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 
-  # Smaller Ubuntu image with just JRE
+  # For Ubuntu with just JRE
   $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
+
+  # For Ubuntu on Linux ARMv7/ARM64 with full JDK
+  $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.16.0 -f ./docker/Dockerfile-ubuntu-11 .
 
 Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose of this guide
 
@@ -139,7 +140,7 @@ $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-reposi
 # Environment Variables
 
 Environment variables determine the options sent to `artemis create` on first execution of the Docker
-container. The available options are: 
+container. The available options are:
 
 **`ARTEMIS_USER`**
 
@@ -192,5 +193,5 @@ The image will also support mapped folders and mapped ports. To run the image wi
 ```
 docker run -it -p 61616:61616 -p 8161:8161 -v <broker folder on host>:/var/lib/artemis-instance artemis-centos 
 ```
-where `<broker folder on host>` is a folder where the broker instance is supposed to 
+where `<broker folder on host>` is a folder where the broker instance is supposed to
 be saved and reused on each run.
