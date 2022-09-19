@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.logger;
 
+import org.apache.activemq.artemis.core.server.MessageReference;
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Logger;
+import org.jboss.logging.annotations.Cause;
 import org.jboss.logging.annotations.LogMessage;
 import org.jboss.logging.annotations.Message;
 import org.jboss.logging.annotations.MessageLogger;
@@ -71,4 +73,14 @@ public interface ActiveMQAMQPProtocolLogger extends BasicLogger {
    @Message(id = 111004, value = "AddressFullPolicy clash on an anonymous producer between destinations {0}(addressFullPolicy={1}) and {2}(addressFullPolicy={3}). This could lead to semantic inconsistencies on your clients. Notice you could have other instances of this scenario however this message will only be logged once. log.debug output would show all instances of this event.",
       format = Message.Format.MESSAGE_FORMAT)
    void incompatibleAddressFullMessagePolicy(String oldAddress, String oldPolicy, String newAddress, String newPolicy);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 111005, value = "Failed to convert message. Sending it to Dead Letter Address.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void messageConversionFailed(@Cause Throwable t);
+
+   @LogMessage(level = Logger.Level.WARN)
+   @Message(id = 111006, value = "Unable to send message {0} to Dead Letter Address.",
+      format = Message.Format.MESSAGE_FORMAT)
+   void unableToSendMessageToDLA(MessageReference ref, @Cause Throwable t);
 }

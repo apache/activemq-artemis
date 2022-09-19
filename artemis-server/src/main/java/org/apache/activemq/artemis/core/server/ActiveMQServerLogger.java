@@ -1062,19 +1062,19 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void errorExpiringReferencesNoAddress(SimpleString name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222148, value = "Message {0} has exceeded max delivery attempts. No bindings for Dead Letter Address {1} so dropping it",
+   @Message(id = 222148, value = "Sending message {0} to Dead Letter Address {1}, but it has no bindings so dropping it",
       format = Message.Format.MESSAGE_FORMAT)
-   void messageExceededMaxDelivery(MessageReference ref, SimpleString name);
+   void noBindingsOnDLA(MessageReference ref, SimpleString name);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222149, value = "Message {0} has reached maximum delivery attempts, sending it to Dead Letter Address {1} from {2}",
+   @Message(id = 222149, value = "Sending message {0} to Dead Letter Address {1} from {2}",
       format = Message.Format.MESSAGE_FORMAT)
-   void messageExceededMaxDeliverySendtoDLA(MessageReference ref, SimpleString name, SimpleString simpleString);
+   void sendingMessageToDLA(MessageReference ref, SimpleString name, SimpleString simpleString);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222150, value = "Message {0} has exceeded max delivery attempts. No Dead Letter Address configured for queue {1} so dropping it",
+   @Message(id = 222150, value = "Sending message {0} to Dead Letter Address, but there is no Dead Letter Address configured for queue {1} so dropping it",
       format = Message.Format.MESSAGE_FORMAT)
-   void messageExceededMaxDeliveryNoDLA(MessageReference ref, SimpleString name);
+   void sendingMessageToDLAnoDLA(MessageReference ref, SimpleString name);
 
    @LogMessage(level = Logger.Level.WARN)
    @Message(id = 222151, value = "removing consumer which did not handle a message, consumer={0}, message={1}",
