@@ -113,22 +113,6 @@
          <version>${project.version}</version>
       </dependency>
 
-      <!-- Must be optional to avoid passing on, as they clash
-           with each other, and contain duplicates of their deps
-           with those from the original jms client dep  -->
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-client-all</artifactId>
-         <version>${project.version}</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jakarta-client-all</artifactId>
-         <version>${project.version}</version>
-         <optional>true</optional>
-      </dependency>
-
       <!-- dependencies -->
        <dependency>
            <groupId>org.apache.activemq</groupId>

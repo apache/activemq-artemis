@@ -40,10 +40,6 @@
             <!-- Handled above -->
             <exclude>org.apache.activemq:artemis-boot</exclude>
 
-            <!-- Handled later in lib/client subdir -->
-            <exclude>org.apache.activemq:artemis-jms-client-all</exclude>
-            <exclude>org.apache.activemq:artemis-jakarta-client-all</exclude>
-
             <!-- Handled later in web subdir for console bits -->
             <exclude>org.apache.activemq:artemis-console:war</exclude>
             <exclude>org.apache.activemq:activemq-branding:war</exclude>
@@ -53,17 +49,6 @@
          <unpack>false</unpack>
          <useProjectArtifact>false</useProjectArtifact>
          <useTransitiveFiltering>true</useTransitiveFiltering>
-      </dependencySet>
-      <dependencySet>
-         <directoryMode>0755</directoryMode>
-         <fileMode>0644</fileMode>
-         <includes>
-            <include>org.apache.activemq:artemis-jms-client-all</include>
-            <include>org.apache.activemq:artemis-jakarta-client-all</include>
-         </includes>
-         <outputDirectory>lib/client</outputDirectory>
-         <unpack>false</unpack>
-         <useProjectArtifact>false</useProjectArtifact>
       </dependencySet>
       <!-- native -->
       <dependencySet>

@@ -38,15 +38,14 @@ For more information of the clients individual dependencies, see:
 
 ## Repackaged '-all' clients
 
-Even though it is highly recommend using maven, in cases this isnt a possibility and neither is using the individual dependencies detailed above, the all-inclusive repackaged jar could be used.
+Even though it is highly recommend to use the maven dependencies, in cases this isnt a possibility and neither is using the individual dependencies as detailed above then the all-inclusive repackaged jar could be used as an alternative.
 
-These jars are available under `./lib/client` on the main distribution (or also as linked at Maven Central):
+These jars are available at Maven Central:
 - [artemis-jms-client-all-{{ config.version }}.jar](https://repo.maven.apache.org/maven2/org/apache/activemq/artemis-jms-client-all/{{ config.version }}/)
 - [artemis-jakarta-client-all-{{ config.version }}.jar](https://repo.maven.apache.org/maven2/org/apache/activemq/artemis-jakarta-client-all/{{ config.version }}/)
 
-Whether you are using JMS or just the Core API simply add the
-`artemis-jms-client-all` jar from the `lib/client` directory to your client
-classpath. For Jakarta Messaging add the `artemis-jakarta-client-all` jar instead.
+Whether you are using JMS or just the Core API simply add the `artemis-jms-client-all` jar to your client classpath.
+For Jakarta Messaging add the `artemis-jakarta-client-all` jar instead.
 
 **Warning:**These repackaged jars include all the [client's dependencies](client-classpath-jms.md). Be careful with mixing other components jars in your application as they may clash with each other.
 
