@@ -8,6 +8,16 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.26.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352297&projectId=12315920)
+
+Highlights:
+- Bug fixes and improvements
+
+#### Upgrading from older versions
+1. We removed all *all clients from ./artemis/client as part of [ARTEMIS-4006](https://issues.apache.org/jira/browse/ARTEMIS-4006). If you used to rely on these libraries please refer to the [client class path documentation](client-classpath.md) for more information.
+
+
 ## 2.25.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352143&projectId=12315920)
 
@@ -22,7 +32,6 @@ Highlights:
 - Streamlined page caches and files are just read into queues without the need of soft caches.
 
 #### Upgrading from older versions
-
  1. Due to [ARTEMIS-3851](https://issues.apache.org/jira/browse/ARTEMIS-3851) 
     the queue created for an MQTT 3.x subscriber using `CleanSession=1` is now
     **non-durable** rather than durable. This may impact `security-settings`
