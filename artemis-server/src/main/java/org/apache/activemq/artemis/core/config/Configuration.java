@@ -1430,4 +1430,8 @@ public interface Configuration {
    default String resolvePropertiesSources(String propertiesFileUrl) {
       return System.getProperty(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME, propertiesFileUrl);
    }
+
+   String getStatus();
+
+   void setStatus(String status);
 }

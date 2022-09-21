@@ -4491,6 +4491,16 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public String getStatus() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getStatus(this.server);
+      }
+      checkStarted();
+
+      return server.getConfiguration().getStatus();
+   }
+
+   @Override
    public void resetUser(String username, String password, String roles, boolean plaintext) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.resetUser(this.server, username, "****", roles, plaintext);

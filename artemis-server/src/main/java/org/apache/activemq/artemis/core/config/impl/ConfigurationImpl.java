@@ -401,6 +401,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
     * Parent folder for all data folders.
     */
    private File artemisInstance;
+   private String status;
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -2846,6 +2847,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public Configuration setSuppressSessionNotifications(boolean suppressSessionNotifications) {
       this.suppressSessionNotifications = suppressSessionNotifications;
       return this;
+   }
+
+   @Override
+   public String getStatus() {
+      return status;
+   }
+
+   // This value can reflect a desired state (revision) of config. Useful when configurationFileRefreshPeriod > 0
+   // Eventually with some coordination we can update it from various server components.
+   // Inspired by https://kubernetes.io/docs/concepts/overview/working-with-objects/kubernetes-objects/#:~:text=The%20status%20describes%20the%20current,the%20desired%20state%20you%20supplied
+   @Override
+   public void setStatus(String status) {
+      this.status = status;
    }
 
    // extend property utils with ability to auto-fill and locate from collections

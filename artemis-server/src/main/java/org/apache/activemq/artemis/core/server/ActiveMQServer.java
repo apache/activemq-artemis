@@ -964,4 +964,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    default void setProperties(String fileUrltoBrokerProperties) {
    }
+
+   default String getStatus() {
+      return "";
+   }
 }
