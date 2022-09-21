@@ -839,6 +839,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public String getStatus() {
+            return (String) proxy.retrieveAttributeValue("Status", String.class);
+         }
+
+         @Override
          public double getDiskStoreUsage() {
             try {
                return (Double) proxy.invokeOperation("getDiskStoreUsage");
