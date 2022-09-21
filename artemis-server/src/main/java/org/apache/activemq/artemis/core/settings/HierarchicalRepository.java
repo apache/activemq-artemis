@@ -109,4 +109,6 @@ public interface HierarchicalRepository<T> {
    int getCacheSize();
 
    boolean containsExactMatch(String match);
+
+   boolean containsExactWildcardMatch(String match);
 }

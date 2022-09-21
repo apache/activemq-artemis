@@ -317,4 +317,17 @@ public class Role implements Serializable {
       result = 31 * result + (browse ? 1 : 0);
       return result;
    }
+
+   public void merge(Role other) {
+      send = send || other.send;
+      consume = consume || other.consume;
+      createAddress = createAddress || other.createAddress;
+      deleteAddress = deleteAddress || other.deleteAddress;
+      createDurableQueue = createDurableQueue || other.createDurableQueue;
+      deleteDurableQueue = deleteDurableQueue || other.deleteDurableQueue;
+      createNonDurableQueue = createNonDurableQueue || other.createNonDurableQueue;
+      deleteNonDurableQueue = deleteNonDurableQueue || other.deleteNonDurableQueue;
+      manage = manage || other.manage;
+      browse = browse || other.browse;
+   }
 }

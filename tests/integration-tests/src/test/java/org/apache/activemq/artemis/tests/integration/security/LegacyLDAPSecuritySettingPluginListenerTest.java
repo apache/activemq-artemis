@@ -243,7 +243,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
       try {
          session.createConsumer(queue);
-         Assert.fail("Sending here should fail due to the modified security data.");
+         Assert.fail("Creating consumer here should fail due to the modified security data.");
       } catch (ActiveMQException e) {
          // ok
       }
