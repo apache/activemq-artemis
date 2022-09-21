@@ -249,6 +249,11 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
       return exactMatches.containsKey(match);
    }
 
+   @Override
+   public boolean containsExactWildcardMatch(String match) {
+      return wildcardMatches.containsKey(match);
+   }
+
    /**
     * merge all the possible matches, if the values implement Mergeable then a full merge is done
     *
