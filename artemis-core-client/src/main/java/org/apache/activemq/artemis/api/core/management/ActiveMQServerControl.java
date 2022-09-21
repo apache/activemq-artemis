@@ -521,6 +521,9 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "The runtime size of the authorization cache")
    long getAuthorizationCacheSize();
 
+   @Attribute(desc = "The current status in JSON format")
+   String getStatus();
+
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
    boolean freezeReplication();

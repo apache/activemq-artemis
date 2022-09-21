@@ -401,6 +401,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
     * Parent folder for all data folders.
     */
    private File artemisInstance;
+   private String status;
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -2846,6 +2847,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public Configuration setSuppressSessionNotifications(boolean suppressSessionNotifications) {
       this.suppressSessionNotifications = suppressSessionNotifications;
       return this;
+   }
+
+   @Override
+   public String getStatus() {
+      return status;
+   }
+
+   @Override
+   public void setStatus(String status) {
+      this.status = status;
    }
 
    // extend property utils with ability to auto-fill and locate from collections
