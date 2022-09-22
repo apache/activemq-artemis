@@ -30,9 +30,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Handler;
-import java.util.logging.LogRecord;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
@@ -45,8 +42,6 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.hamcrest.MatcherAssert;
-import org.jboss.logmanager.Level;
-import org.jboss.logmanager.LogManager;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -55,15 +50,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(Parameterized.class)
 public class JdbcLeaseLockTest extends ActiveMQTestBase {
@@ -434,31 +425,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void shouldLogWaringIfTimeDiffIsOutsideAllowedRange() {
-      Handler mockHandler = Mockito.mock(Handler.class);
-      LogManager.getLogManager().getLogger(JdbcLeaseLock.class.getName()).addHandler(mockHandler);
-
-      final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(10), -1, -10);
-      Assume.assumeThat(lock, instanceOf(JdbcLeaseLock.class));
-      final JdbcLeaseLock jdbcLock = JdbcLeaseLock.class.cast(lock);
-      jdbcLock.dbCurrentTimeMillis();
-
-      ArgumentCaptor<LogRecord> captor = ArgumentCaptor.forClass(LogRecord.class);
-      verify(mockHandler, times(2)).publish(captor.capture());
-      List<String> warningLogs = captor
-         .getAllValues()
-         .stream()
-         .filter(logRecord -> logRecord.getLevel() == Level.WARN)
-         .map(LogRecord::getMessage)
-         .collect(Collectors.toList());
-      Assert.assertTrue(warningLogs.contains("currentTimestamp = %d on database should happen BEFORE %d on broker"));
-      Assert.assertTrue(warningLogs.contains("currentTimestamp = %d on database should happen AFTER %d on broker"));
-
-      LogManager.getLogManager().getLogger(JdbcLeaseLock.class.getName()).removeHandler(mockHandler);
-   }
-
-   @Test
-   public void shouldNotLogWaringIfTimeDiffIsInsideAllowedRange() {
+   public void validateTimeDiffsOnLeaseLock() {
       AssertionLoggerHandler.startCapture();
       runAfter(AssertionLoggerHandler::stopCapture);
 
