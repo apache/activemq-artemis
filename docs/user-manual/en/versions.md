@@ -16,7 +16,7 @@ Highlights:
 
 #### Upgrading from older versions
 1. We removed all *all clients from ./artemis/client as part of [ARTEMIS-4006](https://issues.apache.org/jira/browse/ARTEMIS-4006). If you used to rely on these libraries please refer to the [client class path documentation](client-classpath.md) for more information.
-
+2. We removed ActiveMQ-Artemis rest as part of 2.26.0. If you still require activemq rest you can still have access to its latest version at [Maven central](https://mvnrepository.com/artifact/org.apache.activemq.rest/artemis-rest/2.25.0). You can still follow the steps on Rest from any [previous documentation](https://activemq.apache.org/components/artemis/documentation/2.24.0/rest.html), however you should stop using the module as it will not be maintained any more.
 
 ## 2.25.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352143&projectId=12315920)
