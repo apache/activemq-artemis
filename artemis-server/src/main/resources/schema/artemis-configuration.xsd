@@ -2937,6 +2937,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="jdbc-allowed-time-diff" type="xsd:long" minOccurs="0" maxOccurs="1" default="250">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The maximal time offset between the broker and the database in milliseconds when requesting the
+                  current time of the database while updating and validating live and backup locks.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
