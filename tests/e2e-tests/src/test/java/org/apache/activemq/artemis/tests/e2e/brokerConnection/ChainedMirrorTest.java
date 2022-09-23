@@ -99,6 +99,7 @@ public class ChainedMirrorTest extends E2ETestBase {
 
    @Test
    public void testChained() throws Throwable {
+      Thread.sleep(10000);
       ConnectionFactory factory = service.createCF(serverRoot, "amqp");
       ConnectionFactory factory2 = service.createCF(serverMainA, "amqp");
       ConnectionFactory factory3 = service.createCF(serverMainB, "amqp");
@@ -111,7 +112,7 @@ public class ChainedMirrorTest extends E2ETestBase {
          }
       }
 
-      Thread.sleep(5000); // some time to allow eventual loops
+      Thread.sleep(10000); // some time to allow eventual loops
 
       try (Connection conn = factory.createConnection()) {
          Session session = conn.createSession();
@@ -154,7 +155,7 @@ public class ChainedMirrorTest extends E2ETestBase {
       }
 
 
-      Thread.sleep(5000); // some time to allow eventual loops
+      Thread.sleep(10000); // some time to allow eventual loops
 
       try (Connection conn = factory.createConnection()) {
          Session session = conn.createSession();
