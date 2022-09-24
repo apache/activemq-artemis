@@ -20,6 +20,11 @@ dc: example
 objectclass: domain
 objectclass: top
 
+dn: ou=ActiveMQ,dc=example,dc=com
+objectClass: organizationalUnit
+objectClass: top
+ou: ActiveMQ
+
 dn: ou=users,dc=example,dc=com
 objectclass: organizationalUnit
 objectclass: top
@@ -47,6 +52,50 @@ givenName: user2
 uid: user2
 userPassword: secret
 
+dn: uid=user3,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: user3
+sn: user3
+givenName: user3
+uid: user3
+userPassword: secret
+
+dn: uid=user4,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: user4
+sn: user4
+givenName: user4
+uid: user4
+userPassword: secret
+
+dn: uid=amq,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: amq
+sn: amq
+givenName: amq
+uid: amq
+userPassword: secret
+
+dn: uid=adminUser,ou=users,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+cn: adminUser
+sn: adminUser
+givenName: adminUser
+uid: adminUser
+userPassword: secret
+
 dn: ou=roles,dc=example,dc=com
 objectclass: organizationalUnit
 objectclass: top
@@ -64,10 +113,29 @@ objectClass: top
 cn: team2
 uniqueMember: uid=user2,ou=users,dc=example,dc=com
 
-dn: ou=ActiveMQ,dc=example,dc=com
-objectClass: organizationalUnit
+dn: cn=team3,ou=roles,dc=example,dc=com
+objectClass: groupOfUniqueNames
 objectClass: top
-ou: ActiveMQ
+cn: team3
+uniqueMember: uid=user3,ou=users,dc=example,dc=com
+
+dn: cn=team4,ou=roles,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: team4
+uniqueMember: uid=user4,ou=users,dc=example,dc=com
+
+dn: cn=amq,ou=roles,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: amq
+uniqueMember: uid=amq,ou=users,dc=example,dc=com
+
+dn: cn=admin,ou=roles,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniqueMember: uid=adminUser,ou=users,dc=example,dc=com
 
 dn: ou=destinations,ou=ActiveMQ,dc=example,dc=com
 objectClass: organizationalUnit
@@ -79,15 +147,53 @@ objectClass: organizationalUnit
 objectClass: top
 ou: queues
 
+dn: cn=$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: applicationProcess
+objectClass: top
+cn: $
+
+dn: cn=read,cn=$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: read
+uniqueMember: cn=admin,ou=roles,dc=example,dc=com
+
+dn: cn=write,cn=$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: write
+uniqueMember: cn=admin,ou=roles,dc=example,dc=com
+
+dn: cn=admin,cn=$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniqueMember: cn=admin,ou=roles,dc=example,dc=com
+
 dn: cn=project1.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
 objectClass: applicationProcess
 objectClass: top
 cn: project1.$
 
-dn: cn=write,cn=project1.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
-objectClass: top
+dn: cn=read,cn=project1.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
 objectClass: groupOfUniqueNames
+objectClass: top
+cn: read
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team1,ou=roles,dc=example,dc=com
+
+dn: cn=write,cn=project1.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
 cn: write
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team1,ou=roles,dc=example,dc=com
+
+dn: cn=admin,cn=project1.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
 uniqueMember: cn=team1,ou=roles,dc=example,dc=com
 
 dn: cn=project2.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
@@ -99,15 +205,71 @@ dn: cn=read,cn=project2.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=co
 objectClass: groupOfUniqueNames
 objectClass: top
 cn: read
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
 uniqueMember: cn=team2,ou=roles,dc=example,dc=com
 
-dn: cn=$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
-objectClass: top
-objectClass: applicationProcess
-cn: $
-
-dn: cn=write,cn=$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
-objectClass: top
+dn: cn=write,cn=project2.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
 objectClass: groupOfUniqueNames
+objectClass: top
 cn: write
-uniqueMember: cn=some_role,ou=roles,dc=example,dc=com
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team2,ou=roles,dc=example,dc=com
+
+dn: cn=admin,cn=project2.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team2,ou=roles,dc=example,dc=com
+
+dn: cn=project3.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: applicationProcess
+objectClass: top
+cn: project3.$
+
+dn: cn=read,cn=project3.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: read
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team3,ou=roles,dc=example,dc=com
+
+dn: cn=write,cn=project3.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: write
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team3,ou=roles,dc=example,dc=com
+
+dn: cn=admin,cn=project3.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team3,ou=roles,dc=example,dc=com
+
+dn: cn=project4.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: applicationProcess
+objectClass: top
+cn: project4.$
+
+dn: cn=read,cn=project4.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: read
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team4,ou=roles,dc=example,dc=com
+
+dn: cn=write,cn=project4.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: write
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team4,ou=roles,dc=example,dc=com
+
+dn: cn=admin,cn=project4.$,ou=queues,ou=destinations,ou=ActiveMQ,dc=example,dc=com
+objectClass: groupOfUniqueNames
+objectClass: top
+cn: admin
+uniqueMember: cn=amq,ou=roles,dc=example,dc=com
+uniqueMember: cn=team4,ou=roles,dc=example,dc=com

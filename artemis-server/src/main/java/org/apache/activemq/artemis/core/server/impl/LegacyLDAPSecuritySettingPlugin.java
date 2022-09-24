@@ -420,7 +420,13 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          boolean write = permissionType.equalsIgnoreCase(writePermissionValue);
          boolean read = permissionType.equalsIgnoreCase(readPermissionValue);
          boolean admin = permissionType.equalsIgnoreCase(adminPermissionValue);
-         Role role = new Role(roleName,
+         Role existingRole = null;
+         for (Role role : roles) {
+            if (role.getName().equals(roleName)) {
+               existingRole = role;
+            }
+         }
+         Role newRole = new Role(roleName,
                               write,                                     // send
                               read,                                      // consume
                               (allowQueueAdminOnRead && read) || admin,  // createDurableQueue
@@ -431,7 +437,11 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                               read,                                      // browse
                               admin,                                     // createAddress
                               admin);                                    // deleteAddress
-         roles.add(role);
+         if (existingRole != null) {
+            existingRole.merge(newRole);
+         } else {
+            roles.add(newRole);
+         }
       }
 
       if (logger.isDebugEnabled()) {
@@ -475,9 +485,35 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
       try {
          processSearchResult(newRoles, (SearchResult) namingEvent.getNewBinding());
-         for (Map.Entry<String, Set<Role>> entry : newRoles.entrySet()) {
-            logger.debug("adding match " + entry.getKey() + ": " + entry.getValue());
-            securityRepository.addMatch(entry.getKey(), entry.getValue());
+         for (Map.Entry<String, Set<Role>> newRole : newRoles.entrySet()) {
+            Set<Role> existingRoles = securityRepository.getMatch(newRole.getKey());
+            if (securityRepository.containsExactWildcardMatch(newRole.getKey()) || securityRepository.containsExactMatch(newRole.getKey()) && existingRoles != securityRepository.getDefault()) {
+               Set<Role> merged = new HashSet<>();
+               for (Role existingRole : existingRoles) {
+                  for (Role role : newRole.getValue()) {
+                     if (existingRole.getName().equals(role.getName())) {
+                        if (logger.isDebugEnabled()) {
+                           logger.debug("merging role " + role + " with existing role " + existingRole + " at " + newRole.getKey());
+                        }
+                        existingRole.merge(role);
+                        merged.add(role);
+                     }
+                  }
+               }
+               for (Role role : newRole.getValue()) {
+                  if (!merged.contains(role)) {
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("add new role " + role + " to existing roles " + existingRoles);
+                     }
+                     existingRoles.add(role);
+                  }
+               }
+            } else {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("adding new match " + newRole.getKey() + ": " + newRole.getValue());
+               }
+               securityRepository.addMatch(newRole.getKey(), newRole.getValue());
+            }
          }
       } catch (NamingException e) {
          ActiveMQServerLogger.LOGGER.failedToProcessEvent(e);
@@ -537,10 +573,10 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
                      }
                   }
                }
+            }
 
-               for (Role roleToRemove : rolesToRemove) {
-                  roles.remove(roleToRemove);
-               }
+            if (roles.removeAll(rolesToRemove)) {
+               logger.debug("Removed roles: " + rolesToRemove + ". Remaining roles: " + roles);
             }
          }
       } catch (NamingException e) {
