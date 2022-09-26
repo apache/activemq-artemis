@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObject;
@@ -31,6 +32,8 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
+import org.apache.activemq.artemis.utils.BufferHelper;
+import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.JsonLoader;
 
 public final class BridgeConfiguration implements Serializable {
@@ -62,6 +65,7 @@ public final class BridgeConfiguration implements Serializable {
    public static String CALL_TIMEOUT = "call-timeout";
    public static String ROUTING_TYPE = "routing-type";
    public static String CONCURRENCY = "concurrency";
+   public static String CONFIGURATION_MANAGED = "configuration-managed";
 
    private String name = null;
 
@@ -118,6 +122,8 @@ public final class BridgeConfiguration implements Serializable {
 
    private String parentName = null;
 
+   private boolean configurationManaged = true;
+
    public BridgeConfiguration() {
    }
 
@@ -148,6 +154,7 @@ public final class BridgeConfiguration implements Serializable {
       callTimeout = other.callTimeout;
       routingType = other.routingType;
       concurrency = other.concurrency;
+      configurationManaged = other.configurationManaged;
    }
 
    public BridgeConfiguration(String name) {
@@ -527,6 +534,15 @@ public final class BridgeConfiguration implements Serializable {
       return this;
    }
 
+   public boolean isConfigurationManaged() {
+      return configurationManaged;
+   }
+
+   public BridgeConfiguration setConfigurationManaged(boolean configurationManaged) {
+      this.configurationManaged = configurationManaged;
+      return this;
+   }
+
    public ComponentConfigurationRoutingType getRoutingType() {
       return routingType;
    }
@@ -611,6 +627,7 @@ public final class BridgeConfiguration implements Serializable {
       builder.add(MIN_LARGE_MESSAGE_SIZE, getMinLargeMessageSize());
       builder.add(CALL_TIMEOUT, getCallTimeout());
       builder.add(CONCURRENCY, getConcurrency());
+      builder.add(CONFIGURATION_MANAGED, isConfigurationManaged());
 
       // complex fields (only serialize if value is not null)
 
@@ -705,6 +722,7 @@ public final class BridgeConfiguration implements Serializable {
       result = prime * result + (useDuplicateDetection ? 1231 : 1237);
       result = prime * result + ((user == null) ? 0 : user.hashCode());
       result = prime * result + concurrency;
+      result = prime * result + (configurationManaged ? 1231 : 1237);
       return result;
    }
 
@@ -790,7 +808,147 @@ public final class BridgeConfiguration implements Serializable {
          return false;
       if (concurrency != other.concurrency)
          return false;
+      if (configurationManaged != other.configurationManaged)
+         return false;
       return true;
+   }
+
+   public int getEncodeSize() {
+      int transformerSize = 0;
+      if (transformerConfiguration != null) {
+         transformerSize += BufferHelper.sizeOfNullableString(transformerConfiguration.getClassName());
+         transformerSize += DataConstants.INT;
+         Map<String, String> properties = transformerConfiguration.getProperties();
+         for (Map.Entry<String, String> entry : properties.entrySet()) {
+            transformerSize += BufferHelper.sizeOfNullableString(entry.getKey());
+            transformerSize += BufferHelper.sizeOfNullableString(entry.getValue());
+         }
+      }
+      int staticConnectorSize = 0;
+      if (staticConnectors != null) {
+         staticConnectorSize += BufferHelper.sizeOfNullableInteger(staticConnectors.size());
+         for (String connector : staticConnectors) {
+            staticConnectorSize += BufferHelper.sizeOfNullableString(connector);
+         }
+      }
+      int size =  BufferHelper.sizeOfNullableString(name) +
+         BufferHelper.sizeOfNullableString(parentName) +
+         BufferHelper.sizeOfNullableString(queueName) +
+         BufferHelper.sizeOfNullableString(forwardingAddress) +
+         BufferHelper.sizeOfNullableString(filterString) +
+         BufferHelper.sizeOfNullableString(discoveryGroupName) +
+         BufferHelper.sizeOfNullableBoolean(ha) +
+         BufferHelper.sizeOfNullableLong(retryInterval) +
+         BufferHelper.sizeOfNullableDouble(retryIntervalMultiplier) +
+         BufferHelper.sizeOfNullableInteger(initialConnectAttempts) +
+         BufferHelper.sizeOfNullableInteger(reconnectAttempts) +
+         BufferHelper.sizeOfNullableInteger(reconnectAttemptsOnSameNode) +
+         BufferHelper.sizeOfNullableBoolean(useDuplicateDetection) +
+         BufferHelper.sizeOfNullableInteger(confirmationWindowSize) +
+         BufferHelper.sizeOfNullableInteger(producerWindowSize) +
+         BufferHelper.sizeOfNullableLong(clientFailureCheckPeriod) +
+         BufferHelper.sizeOfNullableString(user) +
+         BufferHelper.sizeOfNullableString(password) +
+         BufferHelper.sizeOfNullableLong(connectionTTL) +
+         BufferHelper.sizeOfNullableLong(maxRetryInterval) +
+         BufferHelper.sizeOfNullableInteger(minLargeMessageSize) +
+         BufferHelper.sizeOfNullableLong(callTimeout) +
+         BufferHelper.sizeOfNullableInteger(concurrency) +
+         BufferHelper.sizeOfNullableBoolean(configurationManaged) +
+         DataConstants.SIZE_BYTE +
+         transformerSize +
+         staticConnectorSize;
+      return size;
+   }
+
+   public void encode(ActiveMQBuffer buffer) {
+      buffer.writeNullableString(name);
+      buffer.writeNullableString(parentName);
+      buffer.writeNullableString(queueName);
+      buffer.writeNullableString(forwardingAddress);
+      buffer.writeNullableString(filterString);
+      buffer.writeNullableString(discoveryGroupName);
+      buffer.writeNullableBoolean(ha);
+      buffer.writeNullableLong(retryInterval);
+      BufferHelper.writeNullableDouble(buffer, retryIntervalMultiplier);
+      buffer.writeNullableInt(initialConnectAttempts);
+      buffer.writeNullableInt(reconnectAttempts);
+      buffer.writeNullableInt(reconnectAttemptsOnSameNode);
+      buffer.writeNullableBoolean(useDuplicateDetection);
+      buffer.writeNullableInt(confirmationWindowSize);
+      buffer.writeNullableInt(producerWindowSize);
+      buffer.writeNullableLong(clientFailureCheckPeriod);
+      buffer.writeNullableString(user);
+      buffer.writeNullableString(password);
+      buffer.writeNullableLong(connectionTTL);
+      buffer.writeNullableLong(maxRetryInterval);
+      buffer.writeNullableInt(minLargeMessageSize);
+      buffer.writeNullableLong(callTimeout);
+      buffer.writeNullableInt(concurrency);
+      buffer.writeNullableBoolean(configurationManaged);
+      buffer.writeByte(routingType != null ? routingType.getType() : ComponentConfigurationRoutingType.valueOf(ActiveMQDefaultConfiguration.getDefaultDivertRoutingType()).getType());
+      if (transformerConfiguration != null) {
+         buffer.writeString(transformerConfiguration.getClassName());
+         Map<String, String> properties = transformerConfiguration.getProperties();
+         buffer.writeInt(properties.size());
+         for (Map.Entry<String, String> entry : properties.entrySet()) {
+            buffer.writeNullableString(entry.getKey());
+            buffer.writeNullableString(entry.getValue());
+         }
+      } else {
+         buffer.writeNullableString(null);
+      }
+      if (staticConnectors != null) {
+         buffer.writeInt(staticConnectors.size());
+         for (String connector : staticConnectors) {
+            buffer.writeNullableString(connector);
+         }
+      } else {
+         buffer.writeInt(0);
+      }
+   }
+
+   public void decode(ActiveMQBuffer buffer) {
+      name = buffer.readNullableString();
+      parentName = buffer.readNullableString();
+      queueName = buffer.readNullableString();
+      forwardingAddress = buffer.readNullableString();
+      filterString = buffer.readNullableString();
+      discoveryGroupName = buffer.readNullableString();
+      ha = buffer.readNullableBoolean();
+      retryInterval = buffer.readNullableLong();
+      retryIntervalMultiplier = BufferHelper.readNullableDouble(buffer);
+      initialConnectAttempts = buffer.readNullableInt();
+      reconnectAttempts = buffer.readNullableInt();
+      reconnectAttemptsOnSameNode = buffer.readNullableInt();
+      useDuplicateDetection = buffer.readNullableBoolean();
+      confirmationWindowSize = buffer.readNullableInt();
+      producerWindowSize = buffer.readNullableInt();
+      clientFailureCheckPeriod = buffer.readNullableLong();
+      user = buffer.readNullableString();
+      password = buffer.readNullableString();
+      connectionTTL = buffer.readNullableLong();
+      maxRetryInterval = buffer.readNullableLong();
+      minLargeMessageSize = buffer.readNullableInt();
+      callTimeout = buffer.readNullableLong();
+      concurrency = buffer.readNullableInt();
+      configurationManaged = buffer.readNullableBoolean();
+      routingType = ComponentConfigurationRoutingType.getType(buffer.readByte());
+      String transformerClassName = buffer.readNullableString();
+      if (transformerClassName != null) {
+         transformerConfiguration = new TransformerConfiguration(transformerClassName);
+         int propsSize = buffer.readInt();
+         for (int i = 0; i < propsSize; i++) {
+            transformerConfiguration.getProperties().put(buffer.readNullableString(), buffer.readNullableString());
+         }
+      }
+      int numStaticConnectors = buffer.readInt();
+      if (numStaticConnectors > 0) {
+         staticConnectors = new ArrayList<>();
+         for (int i = 0; i < numStaticConnectors; i++) {
+            staticConnectors.add(buffer.readNullableString());
+         }
+      }
    }
 
 }

@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
@@ -463,6 +464,19 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
+      return null;
+   }
+
+   @Override
+   public void storeBridgeConfiguration(PersistedBridgeConfiguration persistedBridgeConfiguration) throws Exception {
+   }
+
+   @Override
+   public void deleteBridgeConfiguration(String bridgeName) throws Exception {
+   }
+
+   @Override
+   public List<PersistedBridgeConfiguration> recoverBridgeConfigurations() {
       return null;
    }
 
