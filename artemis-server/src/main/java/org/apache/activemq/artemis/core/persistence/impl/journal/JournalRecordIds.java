@@ -49,6 +49,8 @@ public final class JournalRecordIds {
 
    public static final byte DIVERT_RECORD = 27;
 
+   public static final byte BRIDGE_RECORD = 28;
+
    // Message journal record types
 
    /**

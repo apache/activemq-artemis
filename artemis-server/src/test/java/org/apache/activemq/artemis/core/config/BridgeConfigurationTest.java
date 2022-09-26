@@ -192,6 +192,7 @@ public class BridgeConfigurationTest {
       objectBuilder.add(BridgeConfiguration.CALL_TIMEOUT, 12);
       objectBuilder.add(BridgeConfiguration.ROUTING_TYPE, "MULTICAST");
       objectBuilder.add(BridgeConfiguration.CONCURRENCY, 1);
+      objectBuilder.add(BridgeConfiguration.CONFIGURATION_MANAGED, true);
 
       return objectBuilder.build();
    }

@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
 import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
+import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.BatchingIDGenerator.IDCounterEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAckRecordEncoding;
@@ -99,6 +100,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.UPDATE_DELIVERY_COUNT;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.USER_RECORD;
+import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.BRIDGE_RECORD;
 
 /**
  * Outputs a String description of the Journals contents.
@@ -603,6 +605,12 @@ public final class DescribeJournal {
             PersistedDivertConfiguration persistedDivertConfiguration = new PersistedDivertConfiguration();
             persistedDivertConfiguration.decode(buffer);
             return persistedDivertConfiguration;
+
+         case BRIDGE_RECORD: {
+            PersistedBridgeConfiguration persistedBridgeConfiguration = new PersistedBridgeConfiguration();
+            persistedBridgeConfiguration.decode(buffer);
+            return persistedBridgeConfiguration;
+         }
 
          case ADD_LARGE_MESSAGE_PENDING: {
             PendingLargeMessageEncoding lmEncoding = new PendingLargeMessageEncoding();

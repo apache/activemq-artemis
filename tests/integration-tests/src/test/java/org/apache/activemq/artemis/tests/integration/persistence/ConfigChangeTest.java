@@ -21,17 +21,23 @@ import javax.jms.JMSContext;
 import javax.jms.Message;
 import javax.jms.TextMessage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.CoreAddressConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ConfigChangeTest extends ActiveMQTestBase {
@@ -142,4 +148,49 @@ public class ConfigChangeTest extends ActiveMQTestBase {
       server.stop();
 
    }
+
+   @Test
+   public void bridgeConfigChagesPersist() throws Exception {
+
+      server = createServer(true);
+      server.start();
+
+      ServerLocator locator = createInVMNonHALocator();
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession session = addClientSession(sf.createSession(false, true, true));
+
+      String bridgeName = "bridgeName";
+      String queue = "Q1";
+      String forward = "Q2";
+
+      session.createQueue(new QueueConfiguration("Q1").setAddress("Q1").setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
+      session.createQueue(new QueueConfiguration("Q2").setAddress("Q2").setRoutingType(RoutingType.ANYCAST).setAutoDelete(false));
+      session.close();
+
+      BridgeConfiguration bridgeConfiguration = new BridgeConfiguration().setName(bridgeName)
+         .setQueueName(queue)
+         .setConcurrency(2)
+         .setForwardingAddress(forward)
+         .setProducerWindowSize(1234)
+         .setConfirmationWindowSize(1234)
+         .setStaticConnectors(Arrays.asList("connector1", "connector2"));
+
+      server.getActiveMQServerControl().addConnector("connector1", "tcp://localhost:61616");
+      server.getActiveMQServerControl().addConnector("connector2", "tcp://localhost:61616");
+      server.getActiveMQServerControl().createBridge(bridgeConfiguration.toJSON());
+
+      Assert.assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
+      server.stop();
+      server.start();
+      Assert.assertEquals(2, server.getActiveMQServerControl().getBridgeNames().length);
+
+      server.getActiveMQServerControl().destroyBridge(bridgeName);
+      Assert.assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
+      server.stop();
+      server.start();
+      Assert.assertEquals(0, server.getActiveMQServerControl().getBridgeNames().length);
+      server.stop();
+
+   }
+
 }

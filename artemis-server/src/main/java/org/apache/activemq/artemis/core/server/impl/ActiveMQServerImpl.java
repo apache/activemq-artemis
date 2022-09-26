@@ -93,6 +93,7 @@ import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
@@ -2945,8 +2946,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public boolean deployBridge(BridgeConfiguration config) throws Exception {
-      if (clusterManager != null) {
-         return clusterManager.deployBridge(config);
+      if (clusterManager != null && clusterManager.deployBridge(config)) {
+         //copying and modifying bridgeConfig before storing to deal with "concurrency > 1" bridges
+         for (Bridge bridge : clusterManager.getBridges().values()) {
+            BridgeConfiguration copyConfig = new BridgeConfiguration(bridge.getConfiguration());
+            if (copyConfig.getConcurrency() > 1 && !copyConfig.getName().endsWith("-0")) {
+               continue;
+            }
+            copyConfig.setName(copyConfig.getParentName());
+            storageManager.storeBridgeConfiguration(new PersistedBridgeConfiguration(copyConfig));
+         }
+         return true;
       }
       return false;
    }
@@ -2954,7 +2964,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public void destroyBridge(String name) throws Exception {
       if (clusterManager != null) {
-         clusterManager.destroyBridge(name);
+         //Iterating through all bridges to catch "concurrency > 1" bridges matching supplied name
+         for (Bridge bridge : clusterManager.getBridges().values()) {
+            if (bridge.getConfiguration().getParentName().equals(name)) {
+               clusterManager.destroyBridge(bridge.getConfiguration().getName());
+            }
+         }
+         storageManager.deleteBridgeConfiguration(name);
       }
    }
 
@@ -3431,6 +3447,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          postOffice.startExpiryScanner();
 
          postOffice.startAddressQueueScanner();
+
+         recoverStoredBridges();
       }
 
       if (configuration.getMaxDiskUsage() != -1) {
@@ -4236,6 +4254,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
+   private void recoverStoredBridges() throws Exception {
+      if (storageManager.recoverBridgeConfigurations() != null) {
+         for (PersistedBridgeConfiguration persistedBridgeConfiguration : storageManager.recoverBridgeConfigurations()) {
+            deployBridge(persistedBridgeConfiguration.getBridgeConfiguration());
+         }
+      }
+   }
+
    private void deployGroupingHandlerConfiguration(final GroupingHandlerConfiguration config) throws Exception {
       if (config != null) {
          GroupingHandler groupingHandler1;
@@ -4544,7 +4570,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          for (BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
             newBridgeConfig.setParentName(newBridgeConfig.getName());
             Bridge existingBridge = clusterManager.getBridges().get(newBridgeConfig.getParentName());
-            if (existingBridge != null && !existingBridge.getConfiguration().equals(newBridgeConfig)) {
+            if (existingBridge != null && !existingBridge.getConfiguration().equals(newBridgeConfig) && existingBridge.getConfiguration().isConfigurationManaged()) {
                // this is an existing bridge but the config changed so stop the current bridge and deploy the new one
                destroyBridge(existingBridge.getName().toString());
                deployBridge(newBridgeConfig);
@@ -4557,11 +4583,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             List<BridgeConfiguration> newConfig = configuration.getBridgeConfigurations();
             BridgeConfiguration running = new BridgeConfiguration(runningBridge.getConfiguration());
             running.set("name", running.getParentName());
-            if (!configuration.getBridgeConfigurations().contains(running)) {
+            if (!configuration.getBridgeConfigurations().contains(running) && running.isConfigurationManaged()) {
                // this bridge is running but it isn't in the new config which means it was removed so destroy it
                destroyBridge(runningBridge.getName().toString());
             }
          }
+         recoverStoredBridges();
       }
    }
 

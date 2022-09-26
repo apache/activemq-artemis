@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
@@ -222,6 +223,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected final Map<SimpleString, PersistedAddressSetting> mapPersistedAddressSettings = new ConcurrentHashMap<>();
 
    protected final Map<String, PersistedDivertConfiguration> mapPersistedDivertConfigurations = new ConcurrentHashMap<>();
+
+   protected final Map<String, PersistedBridgeConfiguration> mapPersistedBridgeConfigurations = new ConcurrentHashMap<>();
 
    protected final Map<String, PersistedUser> mapPersistedUsers = new ConcurrentHashMap<>();
 
@@ -766,6 +769,32 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    @Override
    public List<PersistedDivertConfiguration> recoverDivertConfigurations() {
       return new ArrayList<>(mapPersistedDivertConfigurations.values());
+   }
+
+   @Override
+   public void storeBridgeConfiguration(PersistedBridgeConfiguration persistedBridgeConfiguration) throws Exception {
+      deleteBridgeConfiguration(persistedBridgeConfiguration.getName());
+      try (ArtemisCloseable lock = closeableReadLock()) {
+         final long id = idGenerator.generateID();
+         persistedBridgeConfiguration.setStoreId(id);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.BRIDGE_RECORD, persistedBridgeConfiguration, true);
+         mapPersistedBridgeConfigurations.put(persistedBridgeConfiguration.getName(), persistedBridgeConfiguration);
+      }
+   }
+
+   @Override
+   public void deleteBridgeConfiguration(String bridgeName) throws Exception {
+      PersistedBridgeConfiguration oldBridge = mapPersistedBridgeConfigurations.remove(bridgeName);
+      if (oldBridge != null) {
+         try (ArtemisCloseable lock = closeableReadLock()) {
+            bindingsJournal.tryAppendDeleteRecord(oldBridge.getStoreId(), this::recordNotFoundCallback, false);
+         }
+      }
+   }
+
+   @Override
+   public List<PersistedBridgeConfiguration> recoverBridgeConfigurations() {
+      return new ArrayList<>(mapPersistedBridgeConfigurations.values());
    }
 
    @Override
@@ -1565,6 +1594,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             } else if (rec == JournalRecordIds.DIVERT_RECORD) {
                PersistedDivertConfiguration divertConfiguration = newDivertEncoding(id, buffer);
                mapPersistedDivertConfigurations.put(divertConfiguration.getName(), divertConfiguration);
+            } else if (rec == JournalRecordIds.BRIDGE_RECORD) {
+               PersistedBridgeConfiguration bridgeConfiguration = newBridgeEncoding(id, buffer);
+               mapPersistedBridgeConfigurations.put(bridgeConfiguration.getName(), bridgeConfiguration);
             } else if (rec == JournalRecordIds.USER_RECORD) {
                PersistedUser user = newUserEncoding(id, buffer);
                mapPersistedUsers.put(user.getUsername(), user);
@@ -2045,6 +2077,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       persistedDivertConfiguration.decode(buffer);
       persistedDivertConfiguration.setStoreId(id);
       return persistedDivertConfiguration;
+   }
+
+   static PersistedBridgeConfiguration newBridgeEncoding(long id, ActiveMQBuffer buffer) {
+      PersistedBridgeConfiguration persistedBridgeConfiguration = new PersistedBridgeConfiguration();
+      persistedBridgeConfiguration.decode(buffer);
+      persistedBridgeConfiguration.setStoreId(id);
+      return persistedBridgeConfiguration;
    }
 
    static PersistedUser newUserEncoding(long id, ActiveMQBuffer buffer) {
