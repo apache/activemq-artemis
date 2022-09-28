@@ -240,7 +240,7 @@ public class ResourceManagerImpl implements ResourceManager {
                try {
                   removedTX = removeTransaction(tx.getXid(), null);
                } catch (ActiveMQException e) {
-                  ActiveMQServerLogger.LOGGER.errorRemovingTX(e, tx.getXid());
+                  ActiveMQServerLogger.LOGGER.errorRemovingTX(tx.getXid(), e);
                }
                if (removedTX != null) {
                   ActiveMQServerLogger.LOGGER.timedOutXID(removedTX.getXid());
@@ -253,7 +253,7 @@ public class ResourceManagerImpl implements ResourceManager {
             try {
                failedTransaction.rollback();
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.errorTimingOutTX(e, failedTransaction.getXid());
+               ActiveMQServerLogger.LOGGER.errorTimingOutTX(failedTransaction.getXid(), e);
             }
          }
       }

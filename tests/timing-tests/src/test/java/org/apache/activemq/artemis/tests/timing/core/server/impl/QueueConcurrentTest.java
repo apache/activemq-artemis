@@ -29,10 +29,11 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeConsumer;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeQueueFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A concurrent QueueTest
@@ -41,7 +42,7 @@ import org.junit.Test;
  */
 public class QueueConcurrentTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(QueueConcurrentTest.class);
+   private static final Logger log = LoggerFactory.getLogger(QueueConcurrentTest.class);
 
    private FakeQueueFactory queueFactory = new FakeQueueFactory();
 
@@ -99,9 +100,9 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
 
       assertRefListsIdenticalRefs(sender.getReferences(), consumer.getReferences());
 
-      log.info("num refs: " + sender.getReferences().size());
+      log.info("num refs: {}", sender.getReferences().size());
 
-      log.info("num toggles: " + toggler.getNumToggles());
+      log.info("num toggles: {}", toggler.getNumToggles());
 
    }
 

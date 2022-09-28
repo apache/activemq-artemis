@@ -25,13 +25,10 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 
 public class MessageDeliveryRetryTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(MessageDeliveryRetryTests.class);
 
    public MessageDeliveryRetryTests(String protocol) {
       super(protocol);

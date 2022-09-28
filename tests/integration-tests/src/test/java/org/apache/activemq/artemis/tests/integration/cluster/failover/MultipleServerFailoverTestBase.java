@@ -37,7 +37,6 @@ import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfig
 import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
@@ -48,9 +47,12 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MultipleServerFailoverTestBase.class);
    private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
 
    private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {
@@ -271,7 +273,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    }
 
    protected boolean waitForDistribution(SimpleString address, ActiveMQServer server, int messageCount) throws Exception {
-      ActiveMQServerLogger.LOGGER.debug("waiting for distribution of messages on server " + server);
+      logger.debug("waiting for distribution of messages on server {}", server);
 
       Queue q = (Queue) server.getPostOffice().getBinding(address).getBindable();
 

@@ -25,7 +25,6 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -35,8 +34,6 @@ import org.junit.Test;
  */
 
 public class MessageReceiptTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(MessageReceiptTests.class);
 
    public MessageReceiptTests(String protocol) {
       super(protocol);

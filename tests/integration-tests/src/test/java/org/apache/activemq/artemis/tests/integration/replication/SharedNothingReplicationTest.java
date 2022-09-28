@@ -50,13 +50,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(SharedNothingReplicationTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(SharedNothingReplicationTest.class);
 
    @Rule
    public TemporaryFolder brokersFolder = new TemporaryFolder();
@@ -110,7 +111,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       locator.addClusterTopologyListener(new ClusterTopologyListener() {
          @Override
          public void nodeUP(TopologyMember member, boolean last) {
-            logger.debugf("nodeUP fired last=%s, live=%s, backup=%s", last, member.getLive(), member.getBackup());
+            logger.debug("nodeUP fired last={}, live={}, backup={}", last, member.getLive(), member.getBackup());
             if (member.getBackup() != null) {
                replicated.countDown();
             }
@@ -139,9 +140,9 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
                ClientMessage message = session.createMessage(true);
                // this will make journal's append executor busy
                message.putLongProperty("delay", 500L);
-               logger.debugf("try to send a message before replicated");
+               logger.debug("try to send a message before replicated");
                producer.send(message);
-               logger.debugf("send message done");
+               logger.debug("send message done");
                producer.close();
                session.close();
 
@@ -169,9 +170,9 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
                ClientProducer producer = session.createProducer("slow");
                ClientMessage message = session.createMessage(true);
                message.putLongProperty("delay", 0L);
-               logger.debugf("try to send a message after replicated");
+               logger.debug("try to send a message after replicated");
                producer.send(message);
-               logger.debugf("send message done");
+               logger.debug("send message done");
                producer.close();
                session.close();
 
@@ -205,7 +206,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.debugf("got live message %d", info.id);
+            logger.debug("got live message {}", info.id);
             liveJournalCounter.incrementAndGet();
          }
       });
@@ -225,12 +226,12 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.debugf("replicated message %d", info.id);
+            logger.debug("replicated message {}", info.id);
             replicationCounter.incrementAndGet();
          }
       });
 
-      logger.debugf("expected %d messages, live=%d, backup=%d", j, liveJournalCounter.get(), replicationCounter.get());
+      logger.debug("expected {} messages, live={}, backup={}", j, liveJournalCounter.get(), replicationCounter.get());
       Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
       Assert.assertEquals("Backup did not replicated all journal", j, replicationCounter.get());
 
@@ -306,7 +307,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
       boolean used = false;
 
-      private static final Logger logger = Logger.getLogger(SlowMessagePersister.class);
+      private static final Logger logger = LoggerFactory.getLogger(SlowMessagePersister.class);
 
       static SlowMessagePersister theInstance;
 
@@ -339,9 +340,9 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
          try {
             Long delay = record.getLongProperty("delay");
             if (delay == null || delay.longValue() <= 0) {
-               logger.debugf("encode message %d, caller=%s", record.getMessageID(), Thread.currentThread().getName());
+               logger.debug("encode message {}, caller={}", record.getMessageID(), Thread.currentThread().getName());
             } else {
-               logger.debugf("sleep %d ms before encode message %d, caller=%s", delay.longValue(), record.getMessageID(), Thread.currentThread().getName());
+               logger.debug("sleep {} ms before encode message {}, caller={}", delay.longValue(), record.getMessageID(), Thread.currentThread().getName());
                Thread.sleep(delay.longValue());
             }
          } catch (InterruptedException e) {

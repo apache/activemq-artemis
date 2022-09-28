@@ -59,7 +59,8 @@ import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.apache.activemq.artemis.ra.recovery.RecoveryManager;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jgroups.JChannel;
 
 /**
@@ -67,7 +68,7 @@ import org.jgroups.JChannel;
  */
 public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQResourceAdapter.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQResourceAdapter.class);
 
    private static final long serialVersionUID = 4756893709825838770L;
 
@@ -268,7 +269,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          try {
             entry.getValue().stop();
          } catch (Exception ignored) {
-            ActiveMQRALogger.LOGGER.debug("Ignored", ignored);
+            logger.debug("Ignored", ignored);
          }
       }
 
@@ -635,7 +636,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    public void setCacheDestinations(final Boolean cacheDestinations) {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setCacheDestinations(" + cacheDestinations + ")");
+         logger.trace("setCacheDestinations(" + cacheDestinations + ")");
       }
 
       raProperties.setCacheDestinations(cacheDestinations);
@@ -648,7 +649,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    public Boolean isCacheDestinations() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isCacheDestinations()");
+         logger.trace("isCacheDestinations()");
       }
 
       return raProperties.isCacheDestinations();
@@ -661,7 +662,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
+         logger.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
       }
 
       raProperties.setEnable1xPrefixes(enable1xPrefixes);
@@ -674,7 +675,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    public Boolean isEnable1xPrefixes() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isEnable1xPrefixes()");
+         logger.trace("isEnable1xPrefixes()");
       }
 
       return raProperties.isEnable1xPrefixes();
@@ -1620,7 +1621,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
       }
 
-      ActiveMQRALogger.LOGGER.debug("Using queue connection " + result);
+      logger.debug("Using queue connection " + result);
 
       return result;
 
@@ -1749,8 +1750,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setRefreshTimeout(refreshTimeout).setDiscoveryInitialWaitTimeout(initialTimeout).setBroadcastEndpointFactory(endpointFactory);
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for discovery=" + groupConfiguration + " with ha=" + ha);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Creating Connection Factory on the resource adapter for discovery=" + groupConfiguration + " with ha=" + ha);
          }
 
          if (ha) {
@@ -1772,7 +1773,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             TransportConfiguration tc;
             if (connectionParams == null || i >= connectionParams.size()) {
                tc = new TransportConfiguration(connectorClassName.get(i));
-               ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
+               logger.debug("No connector params provided using default");
             } else {
                tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
             }
@@ -1780,8 +1781,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             transportConfigurations[i] = tc;
          }
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations) + " with ha=" + ha);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Creating Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations) + " with ha=" + ha);
          }
 
          if (ha) {
@@ -1824,8 +1825,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          groupConfiguration.setRefreshTimeout(refreshTimeout);
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Recovery Connection Factory on the resource adapter for discovery=" + groupConfiguration);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Creating Recovery Connection Factory on the resource adapter for discovery=" + groupConfiguration);
          }
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
@@ -1843,7 +1844,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             TransportConfiguration tc;
             if (connectionParams == null || i >= connectionParams.size()) {
                tc = new TransportConfiguration(connectorClassName.get(i));
-               ActiveMQRALogger.LOGGER.debug("No connector params provided using default");
+               logger.debug("No connector params provided using default");
             } else {
                tc = new TransportConfiguration(connectorClassName.get(i), connectionParams.get(i));
             }
@@ -1851,8 +1852,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             transportConfigurations[i] = tc;
          }
 
-         if (ActiveMQRALogger.LOGGER.isDebugEnabled()) {
-            ActiveMQRALogger.LOGGER.debug("Creating Recovery Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations));
+         if (logger.isDebugEnabled()) {
+            logger.debug("Creating Recovery Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations));
          }
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);

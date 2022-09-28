@@ -34,14 +34,11 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestDeadlockOnPurgePagingTest extends ActiveMQTestBase {
-
-   private static final Logger logger = Logger.getLogger(TestDeadlockOnPurgePagingTest.class);
 
    protected ServerLocator locator;
    protected ActiveMQServer server;

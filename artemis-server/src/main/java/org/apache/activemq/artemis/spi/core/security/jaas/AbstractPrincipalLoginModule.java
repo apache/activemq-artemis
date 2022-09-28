@@ -29,13 +29,14 @@ import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract login module that uses an external authenticated principal
  */
 public abstract class AbstractPrincipalLoginModule implements AuditLoginModule {
-   private final Logger logger = Logger.getLogger(getClass());
+   private final Logger logger = LoggerFactory.getLogger(getClass());
 
    private Subject subject;
    private final List<Principal> authenticatedPrincipals = new LinkedList<>();

@@ -38,15 +38,16 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageGroupingTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(MessageGroupingTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MessageGroupingTest.class);
 
    private ActiveMQServer server;
 

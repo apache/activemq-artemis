@@ -29,14 +29,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A LoginModule that propagates TLS certificates subject DN as a UserPrincipal.
  */
 public class ExternalCertificateLoginModule implements AuditLoginModule {
 
-   private static final Logger logger = Logger.getLogger(ExternalCertificateLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(ExternalCertificateLoginModule.class);
 
    private CallbackHandler callbackHandler;
    private Subject subject;

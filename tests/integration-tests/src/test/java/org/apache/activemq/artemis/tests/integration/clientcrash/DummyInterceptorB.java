@@ -22,11 +22,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DummyInterceptorB implements Interceptor {
 
-   private static final Logger log = Logger.getLogger(DummyInterceptorB.class);
+   private static final Logger log = LoggerFactory.getLogger(DummyInterceptorB.class);
 
    static AtomicInteger syncCounter = new AtomicInteger(0);
 
@@ -41,7 +42,7 @@ public class DummyInterceptorB implements Interceptor {
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
       DummyInterceptorB.syncCounter.addAndGet(1);
-      log.debug("DummyFilter packet = " + packet);
+      log.debug("DummyFilter packet = {}", packet);
       return true;
    }
 }

@@ -29,12 +29,13 @@ import java.util.List;
 import org.apache.activemq.artemis.jdbc.store.drivers.AbstractJDBCDriver;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
-   private static final Logger logger = Logger.getLogger(JDBCSequentialFileFactoryDriver.class);
+   private static final Logger logger = LoggerFactory.getLogger(JDBCSequentialFileFactoryDriver.class);
 
    protected String deleteFile;
    protected String createFile;
@@ -317,7 +318,7 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
                      final long filePosition = file.position();
                      readLength = (int) calculateReadLength(blobLength, bytesRemaining, filePosition);
                      if (logger.isDebugEnabled()) {
-                        logger.debugf("trying read %d bytes: blobLength = %d bytesRemaining = %d filePosition = %d",
+                        logger.debug("trying read {} bytes: blobLength = {} bytesRemaining = {} filePosition = {}",
                                 readLength, blobLength, bytesRemaining, filePosition);
                      }
                      if (readLength < 0) {

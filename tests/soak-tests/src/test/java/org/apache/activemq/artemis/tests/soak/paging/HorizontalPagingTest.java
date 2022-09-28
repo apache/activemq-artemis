@@ -35,13 +35,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
@@ -73,7 +74,7 @@ public class HorizontalPagingTest extends SoakTestBase {
    private final int PARALLEL_SENDS;
 
 
-   private static final Logger logger = Logger.getLogger(HorizontalPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(HorizontalPagingTest.class);
 
    public static final String SERVER_NAME_0 = "horizontalPaging";
 
@@ -83,7 +84,7 @@ public class HorizontalPagingTest extends SoakTestBase {
 
       ArrayList<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
-         logger.info("Adding " + str + " to the list for the test");
+         logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
       }
 
@@ -158,14 +159,14 @@ public class HorizontalPagingTest extends SoakTestBase {
             Queue queue = session.createQueue("queue_" + i);
             service.execute(() -> {
                try {
-                  logger.info("*******************************************************************************************************************************\ndestination " + queue.getQueueName());
+                  logger.info("*******************************************************************************************************************************\ndestination {}", queue.getQueueName());
                   MessageProducer producer = session.createProducer(queue);
                   for (int m = 0; m < MESSAGES; m++) {
                      TextMessage message = session.createTextMessage(text);
                      message.setIntProperty("m", m);
                      producer.send(message);
                      if (m > 0 && m % COMMIT_INTERVAL == 0) {
-                        logger.info("Sent " + m + " " + protocol + " messages on queue " + queue.getQueueName());
+                        logger.info("Sent {} {} messages on queue {}", m, protocol, queue.getQueueName());
                         session.commit();
                      }
                   }
@@ -229,7 +230,7 @@ public class HorizontalPagingTest extends SoakTestBase {
 
                   // The sending commit interval here will be used for printing
                   if (PRINT_INTERVAL > 0 && m % PRINT_INTERVAL == 0) {
-                     logger.info("Destination " + destination + " received " + m + " " + protocol + " messages");
+                     logger.info("Destination {} received {} {} messages", destination, m, protocol);
                   }
 
                   Assert.assertEquals(m, message.getIntProperty("m"));

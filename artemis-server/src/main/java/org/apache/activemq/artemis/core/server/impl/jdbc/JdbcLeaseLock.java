@@ -29,14 +29,15 @@ import java.util.function.Predicate;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JDBC implementation of a {@link LeaseLock} with a {@code String} defined {@link #holderId()}.
  */
 class JdbcLeaseLock implements LeaseLock {
 
-   private static final Logger LOGGER = Logger.getLogger(JdbcLeaseLock.class);
+   private static final Logger logger = LoggerFactory.getLogger(JdbcLeaseLock.class);
    private static final int MAX_HOLDER_ID_LENGTH = 128;
    private final JDBCConnectionProvider connectionProvider;
    private final String holderId;
@@ -89,7 +90,7 @@ class JdbcLeaseLock implements LeaseLock {
       if (queryTimeoutMillis >= 0) {
          expectedTimeout = (int) TimeUnit.MILLISECONDS.toSeconds(queryTimeoutMillis);
          if (expectedTimeout <= 0) {
-            LOGGER.warn("queryTimeoutMillis is too low: it's suggested to configure a multi-seconds value. Disabling it because too low.");
+            logger.warn("queryTimeoutMillis is too low: it's suggested to configure a multi-seconds value. Disabling it because too low.");
             expectedTimeout = -1;
          }
       }
@@ -207,8 +208,8 @@ class JdbcLeaseLock implements LeaseLock {
          try (PreparedStatement preparedStatement = connection.prepareStatement(this.renewLock)) {
             final long now = dbCurrentTimeMillis(connection);
             final long localExpirationTime = now + expirationMillis;
-            if (LOGGER.isDebugEnabled()) {
-               LOGGER.debugf("[%s] %s is renewing lock with expirationTime = %s",
+            if (logger.isDebugEnabled()) {
+               logger.debug("[{}] {} is renewing lock with expirationTime = {}",
                              lockName, holderId, localExpirationTime);
             }
             preparedStatement.setLong(1, localExpirationTime);
@@ -219,13 +220,13 @@ class JdbcLeaseLock implements LeaseLock {
             connection.commit();
             if (!renewed) {
                this.localExpirationTime = -1;
-               if (LOGGER.isDebugEnabled()) {
-                  LOGGER.debugf("[%s] %s has failed to renew lock: lock status = { %s }",
+               if (logger.isDebugEnabled()) {
+                  logger.debug("[{}] {} has failed to renew lock: lock status = { {} }",
                                 lockName, holderId, readableLockStatus());
                }
             } else {
                this.localExpirationTime = stripMilliseconds(localExpirationTime);
-               LOGGER.debugf("[%s] %s has renewed lock", lockName, holderId);
+               logger.debug("[{}] {} has renewed lock", lockName, holderId);
             }
             return renewed;
          } catch (SQLException ie) {
@@ -255,17 +256,17 @@ class JdbcLeaseLock implements LeaseLock {
             final long localExpirationTime = now + expirationMillis;
             preparedStatement.setLong(2, localExpirationTime);
             preparedStatement.setLong(3, now);
-            LOGGER.debugf("[%s] %s is trying to acquire lock with expirationTime %l",
+            logger.debug("[{}] {} is trying to acquire lock with expirationTime {}",
                           lockName, holderId, localExpirationTime);
             final boolean acquired = preparedStatement.executeUpdate() == 1;
             connection.commit();
             if (acquired) {
                this.maybeAcquired = true;
                this.localExpirationTime = stripMilliseconds(localExpirationTime);
-               LOGGER.debugf("[%s] %s has acquired lock", lockName, holderId);
+               logger.debug("[{}] {} has acquired lock", lockName, holderId);
             } else {
-               if (LOGGER.isDebugEnabled()) {
-                  LOGGER.debugf("[%s] %s has failed to acquire lock: lock status = { %s }",
+               if (logger.isDebugEnabled()) {
+                  logger.debug("[{}] {} has failed to acquire lock: lock status = { {} }",
                                 lockName, holderId, readableLockStatus());
                }
             }
@@ -314,8 +315,8 @@ class JdbcLeaseLock implements LeaseLock {
                         zombie = true;
                      }
                   }
-                  if (LOGGER.isDebugEnabled()) {
-                     LOGGER.debugf("[%s] %s has found %s with holderId = %s expirationTime = %s currentTimestamp = %s",
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("[{}] {} has found {} with holderId = {} expirationTime = {} currentTimestamp = {}",
                                    lockName, holderId, zombie ? "zombie lock" : "lock",
                                    currentHolderId, lockExpirationTime, currentTimestampMillis);
                   }
@@ -348,12 +349,12 @@ class JdbcLeaseLock implements LeaseLock {
             this.maybeAcquired = false;
             connection.commit();
             if (!released) {
-               if (LOGGER.isDebugEnabled()) {
-                  LOGGER.debugf("[%s] %s has failed to release lock: lock status = { %s }",
+               if (logger.isDebugEnabled()) {
+                  logger.debug("[{}] {} has failed to release lock: lock status = { {} }",
                                 lockName, holderId, readableLockStatus());
                }
             } else {
-               LOGGER.debugf("[%s] %s has released lock", lockName, holderId);
+               logger.debug("[{}] {} has released lock", lockName, holderId);
             }
          } catch (SQLException ie) {
             connection.rollback();

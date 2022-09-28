@@ -40,13 +40,14 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResourceBrokerPluginTest extends ActiveMQTestBase {
-   private static final Logger logger = Logger.getLogger(ResourceBrokerPluginTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(ResourceBrokerPluginTest.class);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -145,8 +146,8 @@ public class ResourceBrokerPluginTest extends ActiveMQTestBase {
                if (clientAddress != null && !clientAddress.equals(remotingConnection.getRemoteAddress())) {
                   latch.countDown();
 
-                  logger.warn("Possible XA client misconfiguration. Two addresses with the same node name " +
-                                 nodeName + ": " + clientAddress + "/" + remotingConnection.getRemoteAddress());
+                  logger.warn("Possible XA client misconfiguration. Two addresses with the same node name {}: {}/{}",
+                                 nodeName, clientAddress, remotingConnection.getRemoteAddress());
                }
             }
          }

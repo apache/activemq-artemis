@@ -54,53 +54,46 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationSyncFileMessage;
 import org.apache.activemq.artemis.core.security.CheckType;
-import org.jboss.logging.Messages;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 22
- * <p>
- * Each message id must be 6 digits long starting with 22, the 3rd digit should be 9. So the range
- * is from 229000 to 229999.
- * <p>
- * Once released, methods should not be deleted as they may be referenced by knowledge base
- * articles. Unused methods should be marked as deprecated.
  */
-@MessageBundle(projectCode = "AMQ")
+@LogBundle(projectCode = "AMQ", regexID = "22[0-9]{4}")
 public interface ActiveMQMessageBundle {
 
-   ActiveMQMessageBundle BUNDLE = Messages.getBundle(ActiveMQMessageBundle.class);
+   ActiveMQMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQMessageBundle.class);
 
-   @Message(id = 229000, value = "Activation for server {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229000, value = "Activation for server {}")
    String activationForServer(ActiveMQServer server);
 
-   @Message(id = 229001, value = "Generating thread dump", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229001, value = "Generating thread dump")
    String generatingThreadDump();
 
-   @Message(id = 229002, value = "Thread {0} name = {1} id = {2} group = {3}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229002, value = "Thread {} name = {} id = {} group = {}")
    String threadDump(Thread key, String name, Long id, ThreadGroup threadGroup);
 
    @Message(id = 229003, value = "End Thread dump")
    String endThreadDump();
 
-   @Message(id = 229004, value = "Information about server {0}\nCluster Connection:{1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229004, value = "Information about server {}\nCluster Connection:{}")
    String serverDescribe(String identity, String describe);
 
-   @Message(id = 229005, value = "connections for {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229005, value = "connections for {} closed by management")
    ActiveMQInternalErrorException connectionsClosedByManagement(String ipAddress);
 
-   @Message(id = 229006, value = "journals are not JournalImpl. You can''t set a replicator!")
+   @Message(id = 229006, value = "journals are not JournalImpl. You can't set a replicator!")
    ActiveMQInternalErrorException notJournalImpl();
 
    @Message(id = 229007, value = "unhandled error during replication")
-   ActiveMQInternalErrorException replicationUnhandledError(@Cause Exception e);
+   ActiveMQInternalErrorException replicationUnhandledError(Exception e);
 
    @Message(id = 229008, value = "Live Node contains more journals than the backup node. Probably a version match error")
    ActiveMQInternalErrorException replicationTooManyJournals();
 
-   @Message(id = 229009, value = "Unhandled file type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229009, value = "Unhandled file type {}")
    ActiveMQInternalErrorException replicationUnhandledFileType(ReplicationSyncFileMessage.FileType fileType);
 
    @Message(id = 229010, value = "Remote Backup can not be up-to-date!")
@@ -109,30 +102,29 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229011, value = "unhandled data type!")
    ActiveMQInternalErrorException replicationUnhandledDataType();
 
-   @Message(id = 229012, value = "No binding for divert {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229012, value = "No binding for divert {}")
    ActiveMQInternalErrorException noBindingForDivert(SimpleString name);
 
-   @Message(id = 229013, value = "Binding {0} is not a divert", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229013, value = "Binding {} is not a divert")
    ActiveMQInternalErrorException bindingNotDivert(SimpleString name);
 
-   @Message(id = 229014,
-      value = "Did not receive data from {0} within the {1}ms connection TTL. The connection will now be closed.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229014, value = "Did not receive data from {} within the {}ms connection TTL. The connection will now be closed.")
    ActiveMQConnectionTimedOutException clientExited(String remoteAddress, long ttl);
 
-   @Message(id = 229015, value = "Must specify a name for each divert. This one will not be deployed.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229015, value = "Must specify a name for each divert. This one will not be deployed.")
    ActiveMQInternalErrorException divertWithNoName();
 
-   @Message(id = 229017, value = "Queue {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229017, value = "Queue {} does not exist")
    ActiveMQNonExistentQueueException noSuchQueue(SimpleString queueName);
 
-   @Message(id = 229018, value = "Binding already exists {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229018, value = "Binding already exists {}")
    ActiveMQQueueExistsException bindingAlreadyExists(Binding binding);
 
-   @Message(id = 229019, value = "Queue {0} already exists on address {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229019, value = "Queue {} already exists on address {}")
    ActiveMQQueueExistsException queueAlreadyExists(SimpleString queueName, SimpleString addressName);
 
-   @Message(id = 229020, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
+   @Message(id = 229020, value = "Invalid filter: {}")
+   ActiveMQInvalidFilterExpressionException invalidFilter(SimpleString filter, Throwable e);
 
    @Message(id = 229021, value = "MessageId was not assigned to Message")
    ActiveMQIllegalStateException messageIdNotAssigned();
@@ -146,28 +138,28 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229024, value = "Backup replication server is already connected to another server")
    ActiveMQIllegalStateException alreadyHaveReplicationServer();
 
-   @Message(id = 229025, value = "Cannot delete queue {0} on binding {1} - it has consumers = {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229025, value = "Cannot delete queue {} on binding {} - it has consumers = {}")
    ActiveMQIllegalStateException cannotDeleteQueueWithConsumers(SimpleString name, SimpleString queueName, String s);
 
    @Message(id = 229026, value = "Backup Server was not yet in sync with live")
    ActiveMQIllegalStateException backupServerNotInSync();
 
-   @Message(id = 229027, value = "Could not find reference on consumer ID={0}, messageId = {1} queue = {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229027, value = "Could not find reference on consumer ID={}, messageId = {} queue = {}")
    ActiveMQIllegalStateException consumerNoReference(Long id, Long messageID, SimpleString name);
 
-   @Message(id = 229028, value = "Consumer {0} doesn''t exist on the server", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229028, value = "Consumer {} doesn't exist on the server")
    ActiveMQIllegalStateException consumerDoesntExist(long consumerID);
 
-   @Message(id = 229029, value = "No address configured on the Server''s Session")
+   @Message(id = 229029, value = "No address configured on the Server's Session")
    ActiveMQIllegalStateException noAddress();
 
    @Message(id = 229030, value = "large-message not initialized on server")
    ActiveMQIllegalStateException largeMessageNotInitialised();
 
-   @Message(id = 229031, value = "Unable to validate user from {0}. Username: {1}; SSL certificate subject DN: {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229031, value = "Unable to validate user from {}. Username: {}; SSL certificate subject DN: {}")
    ActiveMQSecurityException unableToValidateUser(String remoteAddress, String user, String certMessage);
 
-   @Message(id = 229032, value = "User: {0} does not have permission=''{1}'' on address {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229032, value = "User: {} does not have permission='{}' on address {}")
    ActiveMQSecurityException userNoPermissions(String username, CheckType checkType, SimpleString address);
 
    @Message(id = 229033, value = "Server and client versions incompatible")
@@ -176,55 +168,55 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229034, value = "Server not started")
    ActiveMQSessionCreationException serverNotStarted();
 
-   @Message(id = 229035, value = "Metadata {0}={1} had been set already", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229035, value = "Metadata {}={} had been set already")
    ActiveMQDuplicateMetaDataException duplicateMetadata(String key, String data);
 
-   @Message(id = 229036, value = "Invalid type: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229036, value = "Invalid type: {}")
    IllegalArgumentException invalidType(Object type);
 
-   @Message(id = 229038, value = "{0} must neither be null nor empty", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229038, value = "{} must neither be null nor empty")
    IllegalArgumentException emptyOrNull(String name);
 
-   @Message(id = 229039, value = "{0}  must be greater than 0 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229039, value = "{}  must be greater than 0 (actual value: {})")
    IllegalArgumentException greaterThanZero(String name, Number val);
 
-   @Message(id = 229040, value = "{0} must be a valid percentual value between 0 and 100 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229040, value = "{} must be a valid percentual value between 0 and 100 (actual value: {})")
    IllegalArgumentException notPercent(String name, Number val);
 
-   @Message(id = 229041, value = "{0}  must be equals to -1 or greater than 0 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229041, value = "{}  must be equals to -1 or greater than 0 (actual value: {})")
    IllegalArgumentException greaterThanMinusOne(String name, Number val);
 
-   @Message(id = 229042, value = "{0}  must be equals to -1 or greater or equals to 0 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229042, value = "{}  must be equals to -1 or greater or equals to 0 (actual value: {})")
    IllegalArgumentException greaterThanZeroOrMinusOne(String name, Number val);
 
-   @Message(id = 229043, value = "{0} must be between {1} and {2} inclusive (actual value: {3})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229043, value = "{} must be between {} and {} inclusive (actual value: {})")
    IllegalArgumentException mustbeBetween(String name, Integer minPriority, Integer maxPriority, Object value);
 
-   @Message(id = 229044, value = "Invalid journal type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229044, value = "Invalid journal type {}")
    IllegalArgumentException invalidJournalType(String val);
 
-   @Message(id = 229045, value = "Invalid address full message policy type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229045, value = "Invalid address full message policy type {}")
    IllegalArgumentException invalidAddressFullPolicyType(String val);
 
-   @Message(id = 229046, value = "invalid value: {0} count must be greater than 0", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229046, value = "invalid value: {} count must be greater than 0")
    IllegalArgumentException greaterThanZero(Integer count);
 
-   @Message(id = 229047, value = "invalid value: {0} sample period must be greater than 0", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229047, value = "invalid value: {} sample period must be greater than 0")
    IllegalArgumentException periodMustGreaterThanZero(Long newPeriod);
 
-   @Message(id = 229048, value = "invalid new Priority value: {0}. It must be between 0 and 9 (both included)", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229048, value = "invalid new Priority value: {}. It must be between 0 and 9 (both included)")
    IllegalArgumentException invalidNewPriority(Integer period);
 
-   @Message(id = 229049, value = "No queue found for {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229049, value = "No queue found for {}")
    IllegalArgumentException noQueueFound(String otherQueueName);
 
    @Message(id = 229050, value = "Only NIO and AsyncIO are supported journals")
    IllegalArgumentException invalidJournal();
 
-   @Message(id = 229051, value = "Invalid journal type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229051, value = "Invalid journal type {}")
    IllegalArgumentException invalidJournalType2(JournalType journalType);
 
-   @Message(id = 229052, value = "Directory {0} does not exist and cannot be created", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229052, value = "Directory {} does not exist and cannot be created")
    IllegalArgumentException cannotCreateDir(String dir);
 
    @Message(id = 229054, value = "Cannot convert to int")
@@ -248,16 +240,16 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229060, value = "Distance is null")
    IllegalArgumentException distancenotSpecified();
 
-   @Message(id = 229061, value = "Connection already exists with id {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229061, value = "Connection already exists with id {}")
    IllegalArgumentException connectionExists(Object id);
 
-   @Message(id = 229062, value = "Acceptor with id {0} already registered", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229062, value = "Acceptor with id {} already registered")
    IllegalArgumentException acceptorExists(Integer id);
 
-   @Message(id = 229063, value = "Acceptor with id {0} not registered", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229063, value = "Acceptor with id {} not registered")
    IllegalArgumentException acceptorNotExists(Integer id);
 
-   @Message(id = 229064, value = "Unknown protocol {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229064, value = "Unknown protocol {}")
    IllegalArgumentException unknownProtocol(String protocol);
 
    @Message(id = 229065, value = "node id is null")
@@ -266,13 +258,13 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229066, value = "Queue name is null")
    IllegalArgumentException queueNameIsNull();
 
-   @Message(id = 229067, value = "Cannot find resource with name {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229067, value = "Cannot find resource with name {}")
    IllegalArgumentException cannotFindResource(String resourceName);
 
-   @Message(id = 229068, value = "no getter method for {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229068, value = "no getter method for {}")
    IllegalArgumentException noGetterMethod(String resourceName);
 
-   @Message(id = 229069, value = "no operation {0}/{1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229069, value = "no operation {}/{}")
    IllegalArgumentException noOperation(String operation, Integer length);
 
    @Message(id = 229070, value = "match can not be null")
@@ -287,62 +279,59 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229073, value = "Password cannot be null")
    IllegalArgumentException nullPassword();
 
-   @Message(id = 229074, value = "Error instantiating transformer class {0}", format = Message.Format.MESSAGE_FORMAT)
-   IllegalArgumentException errorCreatingTransformerClass(@Cause Exception e, String transformerClassName);
+   @Message(id = 229074, value = "Error instantiating transformer class {}")
+   IllegalArgumentException errorCreatingTransformerClass(String transformerClassName, Exception e);
 
-   @Message(id = 229075, value = "method autoEncode doesn''t know how to convert {0} yet", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229075, value = "method autoEncode doesn't know how to convert {} yet")
    IllegalArgumentException autoConvertError(Class<? extends Object> aClass);
 
    /**
     * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
-   @Message(id = 229076, value = "Executing destroyConnection with {0}={1} through management''s request", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229076, value = "Executing destroyConnection with {}={} through management's request")
    String destroyConnectionWithSessionMetadataHeader(String key, String value);
 
    /**
     * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
-   @Message(id = 229077, value = "Closing connection {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229077, value = "Closing connection {}")
    String destroyConnectionWithSessionMetadataClosingConnection(String serverSessionString);
 
    /**
     * Exception used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
-   @Message(id = 229078, value = "Disconnected per admin''s request on {0}={1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229078, value = "Disconnected per admin's request on {}={}")
    ActiveMQDisconnectedException destroyConnectionWithSessionMetadataSendException(String key, String value);
 
    /**
     * Message used on on {@link org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl#destroyConnectionWithSessionMetadata(String, String)}
     */
-   @Message(id = 229079, value = "No session found with {0}={1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229079, value = "No session found with {}={}")
    String destroyConnectionWithSessionMetadataNoSessionFound(String key, String value);
 
    @Message(id = 229080, value = "Invalid Page IO, PagingManager was stopped or closed")
    ActiveMQIllegalStateException invalidPageIO();
 
-   @Message(id = 229081, value = "No Discovery Group configuration named {0} found", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229081, value = "No Discovery Group configuration named {} found")
    ActiveMQException noDiscoveryGroupFound(DiscoveryGroupConfiguration dg);
 
-   @Message(id = 229082, value = "Queue {0} already exists on another subscription", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229082, value = "Queue {} already exists on another subscription")
    ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentAddress(SimpleString queueName);
 
-   @Message(id = 229083, value = "Queue {0} has a different filter than requested", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229083, value = "Queue {} has a different filter than requested")
    ActiveMQInvalidTransientQueueUseException queueSubscriptionBelongsToDifferentFilter(SimpleString queueName);
 
    // this code has to match with version 2.3.x as it's used on integration tests at Wildfly and JBoss EAP
-   @Message(id = 229099, value = "Unable to authenticate cluster user: {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229099, value = "Unable to authenticate cluster user: {}")
    ActiveMQClusterSecurityException unableToValidateClusterUser(String user);
 
-   @Message(id = 229100, value = "Trying to move a journal file that refers to a file instead of a directory: {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229100, value = "Trying to move a journal file that refers to a file instead of a directory: {}")
    IllegalStateException journalDirIsFile(File fDir);
 
-   @Message(id = 229101, value = "error trying to backup journal files at directory: {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229101, value = "error trying to backup journal files at directory: {}")
    IllegalStateException couldNotMoveJournal(File dir);
 
-   @Message(id = 229102, value = "Address \"{0}\" is full.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229102, value = "Address \"{}\" is full.")
    ActiveMQAddressFullException addressIsFull(String addressName);
 
    @Message(id = 229103, value = "No Connectors or Discovery Groups configured for Scale Down")
@@ -351,37 +340,37 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229104, value = "Server is stopping. Message grouping not allowed")
    ActiveMQException groupWhileStopping();
 
-   @Message(id = 229106, value = "Invalid slow consumer policy type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229106, value = "Invalid slow consumer policy type {}")
    IllegalArgumentException invalidSlowConsumerPolicyType(String val);
 
-   @Message(id = 229107, value = "consumer connections for address {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229107, value = "consumer connections for address {} closed by management")
    ActiveMQInternalErrorException consumerConnectionsClosedByManagement(String address);
 
-   @Message(id = 229108, value = "connections for user {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229108, value = "connections for user {} closed by management")
    ActiveMQInternalErrorException connectionsForUserClosedByManagement(String userName);
 
-   @Message(id = 229109, value = "unsupported HA Policy Configuration {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229109, value = "unsupported HA Policy Configuration {}")
    ActiveMQIllegalStateException unsupportedHAPolicyConfiguration(Object o);
 
-   @Message(id = 229110, value = "Too many sessions for user ''{0}''. Sessions allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229110, value = "Too many sessions for user '{}'. Sessions allowed: {}.")
    ActiveMQSessionCreationException sessionLimitReached(String username, int limit);
 
-   @Message(id = 229111, value = "Too many queues created by user ''{0}''. Queues allowed: {1}.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229111, value = "Too many queues created by user '{}'. Queues allowed: {}.")
    ActiveMQSecurityException queueLimitReached(String username, int limit);
 
    @Message(id = 229112, value = "Cannot set MBeanServer during startup or while started")
    IllegalStateException cannotSetMBeanserver();
 
-   @Message(id = 229113, value = "Invalid message load balancing type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229113, value = "Invalid message load balancing type {}")
    IllegalArgumentException invalidMessageLoadBalancingType(String val);
 
-   @Message(id = 229114, value = "Replication synchronization process timed out after waiting {0} milliseconds", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229114, value = "Replication synchronization process timed out after waiting {} milliseconds")
    ActiveMQReplicationTimeooutException replicationSynchronizationTimeout(long timeout);
 
-   @Message(id = 229115, value = "Colocated Policy hasn''t different type live and backup", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229115, value = "Colocated Policy hasn't different type live and backup")
    ActiveMQIllegalStateException liveBackupMismatch();
 
-   @Message(id = 229116, value = "Netty Acceptor unavailable", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229116, value = "Netty Acceptor unavailable")
    IllegalStateException acceptorUnavailable();
 
    @Message(id = 229117, value = "Replicator is null. Replication was likely terminated.")
@@ -390,69 +379,69 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229118, value = "Management method not applicable for current server configuration")
    IllegalStateException methodNotApplicable();
 
-   @Message(id = 229119, value = "Free storage space is at {0} of {1} total. Usage rate is {2} which is beyond the configured <max-disk-usage>. System will start blocking producers.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229119, value = "Free storage space is at {} of {} total. Usage rate is {} which is beyond the configured <max-disk-usage>. System will start blocking producers.")
    ActiveMQIOErrorException diskBeyondLimit(String usableSpace, String totalSpace, String usage);
 
-   @Message(id = 229120, value = "connection with ID {0} closed by management", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229120, value = "connection with ID {} closed by management")
    ActiveMQInternalErrorException connectionWithIDClosedByManagement(String ID);
 
-   @Message(id = 229200, value = "Maximum Consumer Limit Reached on Queue:(address={0},queue={1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229200, value = "Maximum Consumer Limit Reached on Queue:(address={},queue={})")
    ActiveMQQueueMaxConsumerLimitReached maxConsumerLimitReachedForQueue(SimpleString address, SimpleString queueName);
 
-   @Message(id = 229201, value = "Expected Routing Type {1} but found {2} for address {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQUnexpectedRoutingTypeForAddress unexpectedRoutingTypeForAddress(SimpleString address, RoutingType expectedRoutingType, Set<RoutingType> supportedRoutingTypes);
+   @Message(id = 229201, value = "Expected Routing Type {} but found {} for address {}")
+   ActiveMQUnexpectedRoutingTypeForAddress unexpectedRoutingTypeForAddress(RoutingType expectedRoutingType, Set<RoutingType> supportedRoutingTypes, SimpleString address);
 
-   @Message(id = 229202, value = "Invalid Queue Configuration for Queue {0}, Address {1}.  Expected {2} to be {3} but was {4}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString address, SimpleString queueName, String queuePropertyName, Object expectedValue, Object actualValue);
+   @Message(id = 229202, value = "Invalid Queue Configuration for Queue {}, Address {}.  Expected {} to be {} but was {}")
+   ActiveMQInvalidQueueConfiguration invalidQueueConfiguration(SimpleString queueName, SimpleString address, String queuePropertyName, Object expectedValue, Object actualValue);
 
-   @Message(id = 229203, value = "Address Does Not Exist: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229203, value = "Address Does Not Exist: {}")
    ActiveMQAddressDoesNotExistException addressDoesNotExist(SimpleString address);
 
-   @Message(id = 229204, value = "Address already exists: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229204, value = "Address already exists: {}")
    ActiveMQAddressExistsException addressAlreadyExists(SimpleString address);
 
-   @Message(id = 229205, value = "Address {0} has bindings", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229205, value = "Address {} has bindings")
    ActiveMQDeleteAddressException addressHasBindings(SimpleString address);
 
-   @Message(id = 229206, value = "Queue {0} has invalid max consumer setting: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229206, value = "Queue {} has invalid max consumer setting: {}")
    IllegalArgumentException invalidMaxConsumers(String queueName, int value);
 
-   @Message(id = 229207, value = "Can not create queue with routing type: {0}, Supported routing types for address: {1} are {2}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229207, value = "Can not create queue with routing type: {}, Supported routing types for address: {} are {}")
    IllegalArgumentException invalidRoutingTypeForAddress(RoutingType routingType,
                                                          String address,
                                                          Set<RoutingType> supportedRoutingTypes);
 
-   @Message(id = 229208, value = "Invalid routing type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229208, value = "Invalid routing type {}")
    IllegalArgumentException invalidRoutingType(String val);
 
-   @Message(id = 229209, value = "Can''t remove routing type {0}, queues exists for address: {1}. Please delete queues before removing this routing type.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229209, value = "Can't remove routing type {}, queues exists for address: {}. Please delete queues before removing this routing type.")
    IllegalStateException invalidRoutingTypeDelete(RoutingType routingType, String address);
 
-   @Message(id = 229210, value = "Can''t update queue {0} with maxConsumers: {1}. Current consumers are {2}.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229210, value = "Can't update queue {} with maxConsumers: {}. Current consumers are {}.")
    IllegalStateException invalidMaxConsumersUpdate(String queueName, int maxConsumers, int consumers);
 
-   @Message(id = 229211, value = "Can''t update queue {0} with routing type: {1}, Supported routing types for address: {2} are {3}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229211, value = "Can't update queue {} with routing type: {}, Supported routing types for address: {} are {}")
    IllegalStateException invalidRoutingTypeUpdate(String queueName,
                                                   RoutingType routingType,
                                                   String address,
                                                   Set<RoutingType> supportedRoutingTypes);
 
-   @Message(id = 229212, value = "Invalid deletion policy type {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229212, value = "Invalid deletion policy type {}")
    IllegalArgumentException invalidDeletionPolicyType(String val);
 
-   @Message(id = 229213, value = "User: {0} does not have permission=''{1}'' for queue {2} on address {3}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229213, value = "User: {} does not have permission='{}' for queue {} on address {}")
    ActiveMQSecurityException userNoPermissionsQueue(String username, CheckType checkType, SimpleString queue, SimpleString address);
 
-   @Message(id = 229214, value = "{0} must be a valid percentage value between 0 and 100 or -1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229214, value = "{} must be a valid percentage value between 0 and 100 or -1 (actual value: {})")
    IllegalArgumentException notPercentOrMinusOne(String name, Number val);
 
-   @Message(id = 229215, value = "Cannot delete queue {0} on binding {1} - it has {2} messages", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229215, value = "Cannot delete queue {} on binding {} - it has {} messages")
    ActiveMQIllegalStateException cannotDeleteQueueWithMessages(SimpleString name, SimpleString queueName, long messageCount);
 
-   @Message(id = 229216, value = "Invalid queue name: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229216, value = "Invalid queue name: {}")
    ActiveMQIllegalStateException invalidQueueName(SimpleString queueName);
 
-   @Message(id = 119217, value = "Cannot write to closed file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229217, value = "Cannot write to closed file: {}")
    ActiveMQIOErrorException cannotWriteToClosedFile(SequentialFile file);
 
    @Message(id = 229218, value = "Failed to locate broker configuration URL")
@@ -461,75 +450,75 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229219, value = "Failed to load security configuration")
    ActiveMQIllegalStateException failedToLoadSecurityConfig();
 
-   @Message(id = 229220, value = "Failed to load user file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229220, value = "Failed to load user file: {}")
    ActiveMQIllegalStateException failedToLoadUserFile(String path);
 
-   @Message(id = 229221, value = "Failed to load role file: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229221, value = "Failed to load role file: {}")
    ActiveMQIllegalStateException failedToLoadRoleFile(String path);
 
-   @Message(id = 229222, value = "Failed to find login module entry {0} from JAAS configuration", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229222, value = "Failed to find login module entry {} from JAAS configuration")
    ActiveMQIllegalStateException failedToFindLoginModuleEntry(String entry);
 
-   @Message(id = 229223, value = "User {0} already exists", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229223, value = "User {} already exists")
    IllegalArgumentException userAlreadyExists(String user);
 
-   @Message(id = 229224, value = "User {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229224, value = "User {} does not exist")
    IllegalArgumentException userDoesNotExist(String user);
 
-   @Message(id = 229225, value = "Validated User is not set", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229225, value = "Validated User is not set")
    ActiveMQIllegalStateException rejectEmptyValidatedUser();
 
-   @Message(id = 229226, value = "{0}  must be greater than 0 and less than or equal to Integer.MAX_VALUE (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229226, value = "{}  must be greater than 0 and less than or equal to Integer.MAX_VALUE (actual value: {})")
    IllegalArgumentException inRangeOfPositiveInt(String name, Number val);
 
-   @Message(id = 229227, value = "{0}  must be equals to -1 or greater than 0 and less than or equal to Integer.MAX_VALUE (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229227, value = "{}  must be equals to -1 or greater than 0 and less than or equal to Integer.MAX_VALUE (actual value: {})")
    IllegalArgumentException inRangeOfPositiveIntThanMinusOne(String name, Number val);
 
-   @Message(id = 229228, value = "{0} must be less than or equal to 1 (actual value: {1})", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229228, value = "{} must be less than or equal to 1 (actual value: {})")
    IllegalArgumentException lessThanOrEqualToOne(String name, Number val);
 
-   @Message(id = 229229, value = "Failed to parse JSON queue configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229229, value = "Failed to parse JSON queue configuration: {}")
    IllegalArgumentException failedToParseJson(String json);
 
-   @Message(id = 229230, value = "Failed to bind acceptor {0} to {1}", format = Message.Format.MESSAGE_FORMAT)
-   IllegalStateException failedToBind(String acceptor, String hostPort, @Cause Exception e);
+   @Message(id = 229230, value = "Failed to bind acceptor {} to {}")
+   IllegalStateException failedToBind(String acceptor, String hostPort, Exception e);
 
-   @Message(id = 229231, value = "Divert Does Not Exist: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229231, value = "Divert Does Not Exist: {}")
    ActiveMQDivertDoesNotExistException divertDoesNotExist(String divert);
 
-   @Message(id = 229232, value = "Cannot create consumer on {0}. Session is closed.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229232, value = "Cannot create consumer on {}. Session is closed.")
    ActiveMQIllegalStateException cannotCreateConsumerOnClosedSession(SimpleString queueName);
 
    @Message(id = 229233, value = "Cannot set ActiveMQSecurityManager during startup or while started")
    IllegalStateException cannotSetSecurityManager();
 
-   @Message(id = 229234, value = "Invalid slow consumer threshold measurement unit {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229234, value = "Invalid slow consumer threshold measurement unit {}")
    IllegalArgumentException invalidSlowConsumerThresholdMeasurementUnit(String val);
 
-   @Message(id = 229235, value = "Incompatible binding with name {0} already exists: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229235, value = "Incompatible binding with name {} already exists: {}")
    ActiveMQIllegalStateException bindingAlreadyExists(String name, String binding);
 
-   @Message(id = 229236, value = "Invalid connection router key {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229236, value = "Invalid connection router key {}")
    IllegalArgumentException invalidConnectionRouterKey(String val);
 
-   @Message(id = 229237, value = "Connection router {0} redirected the connection to {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229237, value = "Connection router {} redirected the connection to {}")
    ActiveMQRoutingException connectionRedirected(String connectionRouter, TransportConfiguration connector);
 
-   @Message(id = 229238, value = "Connection router {0} not ready", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229238, value = "Connection router {} not ready")
    ActiveMQRoutingException connectionRouterNotReady(String connectionRouter);
 
    @Message(id = 229239, value = "There is no retention configured. In order to use the replay method you must specify journal-retention-directory element on the broker.xml")
    IllegalArgumentException noRetention();
 
-   @Message(id = 229240, value = "Connection router {0} rejected the connection", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229240, value = "Connection router {} rejected the connection")
    ActiveMQRemoteDisconnectException connectionRejected(String connectionRouter);
 
    @Message(id = 229241, value = "Embedded web server not found")
    ActiveMQIllegalStateException embeddedWebServerNotFound();
 
-   @Message(id = 229242, value = "Embedded web server not restarted in {0} milliseconds", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 229242, value = "Embedded web server not restarted in {} milliseconds")
    ActiveMQTimeoutException embeddedWebServerRestartTimeout(long timeout);
 
-   @Message(id = 229243, value = "Embedded web server restart failed", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQException embeddedWebServerRestartFailed(@Cause Exception e);
+   @Message(id = 229243, value = "Embedded web server restart failed")
+   ActiveMQException embeddedWebServerRestartFailed(Exception e);
 }

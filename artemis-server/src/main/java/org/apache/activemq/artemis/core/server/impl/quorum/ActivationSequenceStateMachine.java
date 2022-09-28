@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
 
 /**
  * This class contains the activation sequence logic of the pluggable quorum vote:
@@ -92,7 +92,7 @@ public final class ActivationSequenceStateMachine {
             }
             // SelfRepair, MaybeInSync, InSync
             if (!activationLock.tryLock(timeout, TimeUnit.MILLISECONDS)) {
-               logger.debugf("Candidate for Node ID = %s, with local activation sequence: %d, cannot acquire live lock within %dms; retrying",
+               logger.debug("Candidate for Node ID = {}, with local activation sequence: {}, cannot acquire live lock within {}; retrying",
                              nodeId, nodeActivationSequence, timeout);
                if (timeout == 0) {
                   Thread.sleep(CHECK_ACTIVATION_SEQUENCE_WAIT_MILLIS);
@@ -106,11 +106,11 @@ public final class ActivationSequenceStateMachine {
                   return null;
                case InSync:
                   // we are an in_sync_replica, good to go live as UNREPLICATED
-                  logger.infof("Assuming live role for NodeID = %s, local activation sequence %d matches current coordinated activation sequence %d", nodeId, nodeActivationSequence, nodeActivationSequence);
+                  logger.info("Assuming live role for NodeID = {}, local activation sequence {} matches current coordinated activation sequence {}", nodeId, nodeActivationSequence, nodeActivationSequence);
                   return activationLock;
                case SelfRepair:
                   // Self-repair sequence
-                  logger.infof("Assuming live role for NodeID = %s: local activation sequence %d matches claimed coordinated activation sequence %d. Repairing sequence", nodeId, nodeActivationSequence, nodeActivationSequence);
+                  logger.info("Assuming live role for NodeID = {}: local activation sequence {} matches claimed coordinated activation sequence {}. Repairing sequence", nodeId, nodeActivationSequence, nodeActivationSequence);
                   try {
                      repairActivationSequence(nodeManager, coordinatedNodeSequence, nodeActivationSequence, true);
                      return activationLock;
@@ -120,7 +120,7 @@ public final class ActivationSequenceStateMachine {
                   }
                case MaybeInSync:
                   // Auto-repair sequence
-                  logger.warnf("Assuming live role for NodeID = %s: repairing claimed activation sequence", nodeId);
+                  logger.warn("Assuming live role for NodeID = {}: repairing claimed activation sequence", nodeId);
                   try {
                      repairActivationSequence(nodeManager, coordinatedNodeSequence, nodeActivationSequence, false);
                      return activationLock;
@@ -175,7 +175,7 @@ public final class ActivationSequenceStateMachine {
          return ValidationResult.InSync;
       }
       if (currentCoordinatedNodeSequence > 0) {
-         logger.infof("Not a candidate for NodeID = %s activation, local activation sequence %d does not match coordinated activation sequence %d",
+         logger.info("Not a candidate for NodeID = {} activation, local activation sequence {} does not match coordinated activation sequence {}",
                       lockAndLongId, nodeActivationSequence, currentCoordinatedNodeSequence);
          return ValidationResult.Stale;
       }
@@ -191,7 +191,7 @@ public final class ActivationSequenceStateMachine {
       }
       assert sequenceGap > 1;
       // sequence is moved so much that data is no longer valuable
-      logger.infof("Not a candidate for NodeID = %s activation, local activation sequence %d does not match coordinated activation sequence %d",
+      logger.info("Not a candidate for NodeID = {} activation, local activation sequence {} does not match coordinated activation sequence {}",
                    lockAndLongId, nodeActivationSequence, claimedCoordinatedNodeSequence);
       return ValidationResult.Stale;
    }
@@ -225,7 +225,7 @@ public final class ActivationSequenceStateMachine {
          final long coordinatedValue = coordinatedActivationSequence.get();
          if (coordinatedValue > activationSequence) {
             // all good, some activation has gone ahead
-            logger.infof("Detected a new activation sequence with NodeID = %s: and sequence: %d", coordinatedLockAndNodeId, coordinatedValue);
+            logger.info("Detected a new activation sequence with NodeID = {}: and sequence: {}", coordinatedLockAndNodeId, coordinatedValue);
             anyNext = true;
             break;
          }
@@ -235,12 +235,12 @@ public final class ActivationSequenceStateMachine {
             final long activationsGap = claimedSequence - activationSequence;
             if (activationsGap > 1) {
                // all good, some activation has gone ahead
-               logger.infof("Detected furthers sequential server activations from sequence %d, with NodeID = %s: and claimed sequence: %d", activationSequence, coordinatedLockAndNodeId, claimedSequence);
+               logger.info("Detected furthers sequential server activations from sequence {}, with NodeID = {}: and claimed sequence: {}", activationSequence, coordinatedLockAndNodeId, claimedSequence);
                anyNext = true;
                break;
             }
             // activation is still in progress
-            logger.debugf("Detected claiming of activation sequence = %d for NodeID = %s", claimedSequence, coordinatedLockAndNodeId);
+            logger.debug("Detected claiming of activation sequence = {} for NodeID = {}", claimedSequence, coordinatedLockAndNodeId);
          }
          try {
             TimeUnit.MILLISECONDS.sleep(CHECK_ACTIVATION_SEQUENCE_WAIT_MILLIS);
@@ -289,27 +289,27 @@ public final class ActivationSequenceStateMachine {
       if (!coordinatedNodeActivationSequence.compareAndSet(nodeActivationSequence, -nextActivationSequence)) {
          final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, activation sequence claim failed, local activation sequence %d no longer matches current coordinated sequence %d",
                                               serverDescription, lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
-         logger.infof(message);
+         logger.info(message);
          throw new ActiveMQException(message);
       }
       // claim success: write locally
       try {
          nodeManager.writeNodeActivationSequence(nextActivationSequence);
       } catch (NodeManager.NodeManagerException fatal) {
-         logger.errorf("Server [%s] failed to set local activation sequence to: %d for NodeId =%s. Cannot continue committing coordinated activation sequence: REQUIRES ADMIN INTERVENTION",
+         logger.error("Server [{}] failed to set local activation sequence to: {} for NodeId ={}. Cannot continue committing coordinated activation sequence: REQUIRES ADMIN INTERVENTION",
                        serverDescription, nextActivationSequence, lockAndLongId);
          throw new UnavailableStateException(fatal);
       }
-      logger.infof("Server [%s], incremented local activation sequence to: %d for NodeId = %s",
+      logger.info("Server [{}], incremented local activation sequence to: {} for NodeId = {}",
                    serverDescription, nextActivationSequence, lockAndLongId);
       // commit
       if (!coordinatedNodeActivationSequence.compareAndSet(-nextActivationSequence, nextActivationSequence)) {
          final String message = String.format("Server [%s], cannot assume live role for NodeID = %s, activation sequence commit failed, local activation sequence %d no longer matches current coordinated sequence %d",
                                               serverDescription, lockAndLongId, nodeActivationSequence, coordinatedNodeActivationSequence.get());
-         logger.infof(message);
+         logger.info(message);
          throw new ActiveMQException(message);
       }
-      logger.infof("Server [%s], incremented coordinated activation sequence to: %d for NodeId = %s",
+      logger.info("Server [{}], incremented coordinated activation sequence to: {} for NodeId = {}",
                    serverDescription, nextActivationSequence, lockAndLongId);
    }
 

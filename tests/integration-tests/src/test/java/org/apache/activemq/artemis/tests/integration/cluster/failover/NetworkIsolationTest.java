@@ -28,14 +28,15 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetworkIsolationTest extends FailoverTestBase {
 
-   private static final Logger logger = Logger.getLogger(NetworkIsolationTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(NetworkIsolationTest.class);
 
    // This address is guaranteed to fail... reserved for documentation https://tools.ietf.org/html/rfc5737
    private static final String badAddress = "203.0.113.1";

@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttException;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -44,8 +43,6 @@ import org.junit.Test;
  */
 
 public class EnhancedAuthenticationTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(EnhancedAuthenticationTests.class);
 
    public EnhancedAuthenticationTests(String protocol) {
       super(protocol);

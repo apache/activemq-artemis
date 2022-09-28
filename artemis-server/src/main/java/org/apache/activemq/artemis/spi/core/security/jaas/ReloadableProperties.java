@@ -30,11 +30,12 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReloadableProperties {
 
-   private static final Logger logger = Logger.getLogger(ReloadableProperties.class);
+   private static final Logger logger = LoggerFactory.getLogger(ReloadableProperties.class);
 
    // use this whenever writing to the underlying properties files from another component
    public static final ReadWriteLock LOCK = new ReentrantReadWriteLock();
@@ -66,7 +67,7 @@ public class ReloadableProperties {
                logger.debug("Load of: " + key);
             }
          } catch (IOException e) {
-            ActiveMQServerLogger.LOGGER.failedToLoadProperty(e, key.toString(), e.getLocalizedMessage());
+            ActiveMQServerLogger.LOGGER.failedToLoadProperty(key.toString(), e.getLocalizedMessage(), e);
             if (key.isDebug()) {
                logger.debug("Load of: " + key + ", failure exception" + e);
             }
@@ -117,7 +118,7 @@ public class ReloadableProperties {
                   Pattern p = Pattern.compile(str.substring(1, str.length() - 1));
                   regexpProps.put((String) val.getKey(), p);
                } catch (PatternSyntaxException e) {
-                  ActiveMQServerLogger.LOGGER.warn("Ignoring invalid regexp: " + str);
+                  logger.warn("Ignoring invalid regexp: " + str, e);
                }
             }
          }
@@ -135,7 +136,7 @@ public class ReloadableProperties {
          //                } catch (NoClassDefFoundError e) {
          //                    // this Happens whe jasypt is not on the classpath..
          //                    key.setDecrypt(false);
-         //                    ActiveMQServerLogger.LOGGER.info("jasypt is not on the classpath: password decryption disabled.");
+         //                    logger.info("jasypt is not on the classpath: password decryption disabled.");
          //                }
          //            }
       } finally {

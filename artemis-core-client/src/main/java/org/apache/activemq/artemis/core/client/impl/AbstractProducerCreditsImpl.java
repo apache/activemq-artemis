@@ -21,11 +21,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractProducerCreditsImpl implements ClientProducerCredits {
 
-   private static final Logger logger = Logger.getLogger(AbstractProducerCreditsImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(AbstractProducerCreditsImpl.class);
 
    protected int pendingCredits;
 
@@ -85,7 +86,7 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
 
    protected void afterAcquired(int credits) throws ActiveMQAddressFullException {
       if (logger.isDebugEnabled()) {
-         logger.debugf("AfterAcquire %s credits on address %s", credits, address);
+         logger.debug("AfterAcquire {} credits on address {}", credits, address);
       }
       synchronized (this) {
          pendingCredits -= credits;
@@ -117,7 +118,7 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
 
    @Override
    public synchronized void reset() {
-      logger.debugf("reset credits on address %s", address);
+      logger.debug("reset credits on address {}", address);
       // Any pendingCredits credits from before failover won't arrive, so we re-initialise
 
       int beforeFailure = pendingCredits;
@@ -151,7 +152,7 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
    protected void checkCredits(final int credits) {
       int needed = Math.max(credits, windowSize);
       if (logger.isTraceEnabled()) {
-         logger.tracef("CheckCredits %s on address %s, needed=%s, credits=%s, window=%s", credits, address, needed, credits, windowSize);
+         logger.trace("CheckCredits {} on address {}, needed={}, credits={}, window={}", credits, address, needed, credits, windowSize);
       }
 
       int toRequest = -1;
@@ -161,27 +162,27 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
             toRequest = needed - arriving;
 
             if (logger.isTraceEnabled()) {
-               logger.tracef("CheckCredits on Address %s, requesting=%s, arriving=%s, balance=%s", address, toRequest, arriving, getBalance());
+               logger.trace("CheckCredits on Address {}, requesting={}, arriving={}, balance={}", address, toRequest, arriving, getBalance());
             }
          } else {
             if (logger.isTraceEnabled()) {
-               logger.tracef("CheckCredits did not need it, balance=%s, arriving=%s,  needed=%s, getbalance + arriving < needed=%s", getBalance(), arriving, needed, (boolean)(getBalance() + arriving < needed));
+               logger.trace("CheckCredits did not need it, balance={}, arriving={},  needed={}, getbalance + arriving < needed={}", getBalance(), arriving, needed, (boolean)(getBalance() + arriving < needed));
             }
          }
       }
 
       if (toRequest > 0) {
          if (logger.isDebugEnabled()) {
-            logger.debugf("Requesting %s credits on address %s, needed = %s, arriving = %s", toRequest, address, needed, arriving);
+            logger.debug("Requesting {} credits on address {}, needed = {}, arriving = {}", toRequest, address, needed, arriving);
          }
          requestCredits(toRequest);
       } else {
-         logger.debugf("not asking for %s credits on %s", toRequest, address);
+         logger.debug("not asking for {} credits on {}", toRequest, address);
       }
    }
 
    protected void requestCredits(final int credits) {
-      logger.debugf("Request %s credits on address %s", credits, address);
+      logger.debug("Request {} credits on address {}", credits, address);
       synchronized (this) {
          pendingCredits += credits;
          arriving += credits;

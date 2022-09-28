@@ -113,6 +113,13 @@
          <version>${project.version}</version>
       </dependency>
 
+      <!-- Logging implementation -->
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+         <scope>runtime</scope>
+      </dependency>
+
       <!-- dependencies -->
        <dependency>
            <groupId>org.apache.activemq</groupId>

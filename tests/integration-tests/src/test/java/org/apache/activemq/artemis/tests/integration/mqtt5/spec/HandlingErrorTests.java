@@ -23,7 +23,6 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttException;
-import org.jboss.logging.Logger;
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -34,8 +33,6 @@ import org.junit.Test;
  */
 
 public class HandlingErrorTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(HandlingErrorTests.class);
 
    public HandlingErrorTests(String protocol) {
       this.protocol = protocol;

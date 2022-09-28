@@ -40,11 +40,12 @@ import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQPSessionContext extends ProtonInitializable {
 
-   private static final Logger log = Logger.getLogger(AMQPSessionContext.class);
+   private static final Logger log = LoggerFactory.getLogger(AMQPSessionContext.class);
    protected final AMQPConnectionContext connection;
 
    protected final AMQPSessionCallback sessionSPI;

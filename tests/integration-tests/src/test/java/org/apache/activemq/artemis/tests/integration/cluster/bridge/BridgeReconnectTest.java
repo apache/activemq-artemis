@@ -63,13 +63,14 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class BridgeReconnectTest extends BridgeTestBase {
@@ -84,7 +85,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    @Parameterized.Parameter(0)
    public boolean persistCache;
 
-   private static final Logger log = Logger.getLogger(BridgeReconnectTest.class);
+   private static final Logger log = LoggerFactory.getLogger(BridgeReconnectTest.class);
 
    private static final int NUM_MESSAGES = 100;
 
@@ -505,7 +506,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
                // Simulate CPU load until bridge delivery after failure
                deliveryAfterFailureLatch.await();
             } catch (InterruptedException e) {
-               log.debug(e);
+               log.debug("Interrupted", e);
             }
          }
 
@@ -517,9 +518,9 @@ public class BridgeReconnectTest extends BridgeTestBase {
                   // before routing messages delivered by bridge before failure
                   routingBarrier.await();
                } catch (InterruptedException e) {
-                  log.debug(e);
+                  log.debug("Interrupted", e);
                } catch (BrokenBarrierException e) {
-                  log.debug(e);
+                  log.debug("Interrupted", e);
                }
             }
          }

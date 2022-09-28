@@ -51,7 +51,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.utils.actors.Actor;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_DATA;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_METHOD;
@@ -63,7 +64,7 @@ import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SESSIO
  */
 public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
-   private static final Logger logger = Logger.getLogger(MQTTProtocolHandler.class);
+   private static final Logger logger = LoggerFactory.getLogger(MQTTProtocolHandler.class);
 
    private ConnectionEntry connectionEntry;
 
@@ -112,7 +113,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
       // Disconnect if Netty codec failed to decode the stream.
       if (message.decoderResult().isFailure()) {
-         logger.debugf(message.decoderResult().cause(), "Disconnecting client due to message decoding failure.");
+         logger.debug("Disconnecting client due to message decoding failure.", message.decoderResult().cause());
          if (session.getVersion() == MQTTVersion.MQTT_5) {
             sendDisconnect(MQTTReasonCodes.MALFORMED_PACKET);
          }
@@ -122,7 +123,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
       String interceptResult = this.protocolManager.invokeIncoming(message, this.connection);
       if (interceptResult != null) {
-         logger.debugf("Interceptor %s rejected MQTT control packet: %s", interceptResult, message);
+         logger.debug("Interceptor {} rejected MQTT control packet: {}", interceptResult, message);
          disconnect(true);
          return;
       }

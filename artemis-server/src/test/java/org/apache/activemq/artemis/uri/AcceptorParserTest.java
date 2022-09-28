@@ -25,19 +25,20 @@ import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyAcceptor;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class AcceptorParserTest {
-   private static final Logger log = Logger.getLogger(AcceptorParserTest.class);
+   private static final Logger log = LoggerFactory.getLogger(AcceptorParserTest.class);
 
    @Test
    public void testAcceptor() throws Exception {
       List<TransportConfiguration> configs = ConfigurationUtils.parseAcceptorURI("test", "tcp://localhost:8080?tcpSendBufferSize=1048576&tcpReceiveBufferSize=1048576&protocols=openwire&banana=x");
 
       for (TransportConfiguration config : configs) {
-         log.debug("config:" + config);
+         log.debug("config: {}", config);
          Assert.assertTrue(config.getExtraParams().get("banana").equals("x"));
       }
    }
@@ -62,8 +63,8 @@ public class AcceptorParserTest {
       List<TransportConfiguration> configs = ConfigurationUtils.parseAcceptorURI("test", "tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;virtualTopicConsumerWildcards=Consumer.*.%3E%3B2");
 
       for (TransportConfiguration config : configs) {
-         log.debug("config:" + config);
-         log.debug(config.getExtraParams().get("virtualTopicConsumerWildcards"));
+         log.debug("config: {}", config);
+         log.debug("{}", config.getExtraParams().get("virtualTopicConsumerWildcards"));
          Assert.assertTrue(config.getExtraParams().get("virtualTopicConsumerWildcards").equals("Consumer.*.>;2"));
       }
    }

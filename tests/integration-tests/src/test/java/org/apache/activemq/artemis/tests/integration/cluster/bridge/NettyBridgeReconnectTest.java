@@ -45,15 +45,12 @@ import org.apache.activemq.artemis.core.server.cluster.impl.BridgeTestAccessor;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class NettyBridgeReconnectTest extends BridgeTestBase {
-
-   private static final Logger log = Logger.getLogger(NettyBridgeReconnectTest.class);
 
    final String bridgeName = "bridge1";
    final String testAddress = "testAddress";

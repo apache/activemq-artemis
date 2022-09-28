@@ -37,12 +37,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SoakTestBase extends ActiveMQTestBase {
-   private static final Logger logger = Logger.getLogger(SoakTestBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(SoakTestBase.class);
    Set<Process> processes = new HashSet<>();
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT = 10099;
@@ -54,16 +55,16 @@ public class SoakTestBase extends ActiveMQTestBase {
 
       Process process = zipBuilder.start();
       SpawnedVMSupport.startLogger("zip", process);
-      logger.info("Zip finished with " + process.waitFor());
+      logger.info("Zip finished with {}", process.waitFor());
    }
 
 
    protected static void zip(File zipFile, File serverFolder) throws IOException, ClassNotFoundException, InterruptedException {
-      logger.info("Zipping data folder for " + zipFile);
+      logger.info("Zipping data folder for {}", zipFile);
       ProcessBuilder zipBuilder = new ProcessBuilder("zip", "-r", zipFile.getAbsolutePath(), "data").directory(serverFolder);
       Process process = zipBuilder.start();
       SpawnedVMSupport.startLogger("zip", process);
-      logger.info("Zip finished with " + process.waitFor());
+      logger.info("Zip finished with {}", process.waitFor());
    }
 
 

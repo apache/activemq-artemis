@@ -32,17 +32,18 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * From https://jira.jboss.org/jira/browse/HORNETQ-144
  */
 public class ActiveMQCrashTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(ActiveMQCrashTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ActiveMQCrashTest.class);
 
    public ActiveMQServer server;
 
@@ -98,7 +99,7 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-         log.debug("AckInterceptor.intercept " + packet);
+         log.debug("AckInterceptor.intercept {}", packet);
 
          if (packet.getType() == PacketImpl.SESS_SEND) {
             try {

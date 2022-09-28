@@ -40,7 +40,7 @@ public class DefaultSSLContextFactory implements SSLContextFactory {
          return SSLContext.getDefault();
       }
 
-      log.debugf("Creating JDK SSLContext with %s", config);
+      log.debug("Creating JDK SSLContext with {}", config);
       return new SSLSupport(config).createContext();
    }
 

@@ -31,20 +31,21 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class BridgeTransferingTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "bridgeTransfer/serverA";
    public static final String SERVER_NAME_1 = "bridgeTransfer/serverB";
-   private static final Logger logger = Logger.getLogger(BridgeTransferingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(BridgeTransferingTest.class);
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT = 11099;
 
@@ -117,13 +118,13 @@ public class BridgeTransferingTest extends SmokeTestBase {
             producer.send(session.createTextMessage(body + " " + i));
 
             if (++txElement == commitInterval) {
-               logger.debug("Sent " + (i + 1) + " messages");
+               logger.debug("Sent {} messages", (i + 1));
                txElement = 0;
                session.commit();
             }
 
             if (++killElement == killServerInterval) {
-               logger.debug("Killing server at " + (i + 1));
+               logger.debug("Killing server at {}", (i + 1));
                killElement = 0;
                if (killBothServers) {
                   serverProcess.destroyForcibly();
@@ -158,7 +159,7 @@ public class BridgeTransferingTest extends SmokeTestBase {
 
          for (int i = 0; i < numberOfMessages; i++) {
             if (i % 100 == 0) {
-               logger.debug("consuming " + i);
+               logger.debug("consuming {}", i);
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
             Assert.assertNotNull(message);

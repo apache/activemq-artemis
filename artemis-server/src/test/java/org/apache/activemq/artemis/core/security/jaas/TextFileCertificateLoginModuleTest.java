@@ -29,20 +29,20 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateCallback;
 import org.apache.activemq.artemis.spi.core.security.jaas.CertificateLoginModule;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.spi.core.security.jaas.TextFileCertificateLoginModule;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TextFileCertificateLoginModuleTest {
 
-   private static final Logger logger = Logger.getLogger(TextFileCertificateLoginModuleTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(TextFileCertificateLoginModuleTest.class);
 
    private static final String CERT_USERS_FILE_SMALL = "cert-users-SMALL.properties";
    private static final String CERT_USERS_FILE_LARGE = "cert-users-LARGE.properties";
@@ -121,10 +121,10 @@ public class TextFileCertificateLoginModuleTest {
       long timeTaken = endTime - startTime;
 
       for (int i = 0; i < NUMBER_SUBJECTS; i++) {
-         ActiveMQServerLogger.LOGGER.info("subject is: " + subjects[i].getPrincipals().toString());
+         logger.info("subject is: " + subjects[i].getPrincipals().toString());
       }
 
-      ActiveMQServerLogger.LOGGER.info(usersFiles + ": Time taken is " + timeTaken);
+      logger.info(usersFiles + ": Time taken is " + timeTaken);
 
    }
 

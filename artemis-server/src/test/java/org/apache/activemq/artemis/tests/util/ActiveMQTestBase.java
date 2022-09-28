@@ -116,7 +116,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -153,7 +152,8 @@ import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -172,17 +172,17 @@ import org.junit.runner.Description;
  */
 public abstract class ActiveMQTestBase extends Assert {
 
-   private static final Logger log = Logger.getLogger(ActiveMQTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(ActiveMQTestBase.class);
 
-   private static final Logger baseLog = Logger.getLogger(ActiveMQTestBase.class);
+   private static final Logger baseLog = LoggerFactory.getLogger(ActiveMQTestBase.class);
 
-   protected final Logger instanceLog = Logger.getLogger(this.getClass());
+   protected final Logger instanceLog = LoggerFactory.getLogger(this.getClass());
 
    static {
       Env.setTestEnv(true);
    }
 
-   private static final Logger logger = Logger.getLogger(ActiveMQTestBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQTestBase.class);
 
    /** This will make sure threads are not leaking between tests */
    @ClassRule
@@ -748,8 +748,7 @@ public abstract class ActiveMQTestBase extends Assert {
       if (e != null) {
          e.printStackTrace(System.out);
       }
-      ActiveMQServerLogger log0 = ActiveMQServerLogger.LOGGER;
-      log0.debug(message, e);
+      logger.debug(message, e);
    }
 
    /**
@@ -1250,7 +1249,7 @@ public abstract class ActiveMQTestBase extends Assert {
          topology.describe() +
          ")";
 
-      ActiveMQServerLogger.LOGGER.error(msg);
+      logger.error(msg);
 
       throw new Exception(msg);
    }
@@ -1283,7 +1282,7 @@ public abstract class ActiveMQTestBase extends Assert {
          topology +
          ")";
 
-      ActiveMQServerLogger.LOGGER.error(msg);
+      logger.error(msg);
 
       throw new Exception(msg);
    }

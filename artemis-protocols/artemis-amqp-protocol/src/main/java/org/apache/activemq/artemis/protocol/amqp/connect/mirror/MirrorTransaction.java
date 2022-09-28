@@ -22,18 +22,19 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MirrorTransaction extends TransactionImpl {
 
-   private static final Logger logger = Logger.getLogger(MirrorTransaction.class);
+   private static final Logger logger = LoggerFactory.getLogger(MirrorTransaction.class);
 
    MirrorController controlInUse;
 
    public MirrorTransaction(StorageManager storageManager) {
       super(storageManager);
       this.controlInUse = AMQPMirrorControllerTarget.getControllerInUse();
-      logger.debug("controlTarget = " + controlInUse + " transactionID = " + getID());
+      logger.debug("controlTarget = {} transactionID = {}", controlInUse, getID());
    }
 
    @Override

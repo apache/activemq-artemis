@@ -101,7 +101,8 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.MaxSizeMap;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Server side Session implementation
@@ -109,7 +110,7 @@ import org.jboss.logging.Logger;
 public class ServerSessionImpl implements ServerSession, FailureListener {
 
 
-   private static final Logger logger = Logger.getLogger(ServerSessionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ServerSessionImpl.class);
 
 
 
@@ -1138,7 +1139,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                logger.debug(e.getMessage(), e);
             }
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, bindingName);
+            ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(bindingName, e);
          }
       }
 

@@ -111,7 +111,8 @@ import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -122,7 +123,7 @@ import org.w3c.dom.NodeList;
  */
 public final class FileConfigurationParser extends XMLConfigurationUtil {
 
-   private static final Logger logger = Logger.getLogger(FileConfigurationParser.class);
+   private static final Logger logger = LoggerFactory.getLogger(FileConfigurationParser.class);
 
    // Security Parsing
    public static final String SECURITY_ELEMENT_NAME = "security-setting";
@@ -358,7 +359,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       try {
          validator.validate(new DOMSource(e));
       } catch (Exception ex) {
-         ActiveMQServerLogger.LOGGER.error(ex.getMessage());
+         logger.error(ex.getMessage(), ex);
       }
       Configuration config = new ConfigurationImpl();
       parseMainConfig(e, config);

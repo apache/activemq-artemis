@@ -31,14 +31,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FailureDeadlockTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(FailureDeadlockTest.class);
+   private static final Logger log = LoggerFactory.getLogger(FailureDeadlockTest.class);
 
    private ActiveMQServer server;
 

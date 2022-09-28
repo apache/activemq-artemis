@@ -20,11 +20,12 @@ package org.apache.activemq.artemis.tests.unit;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -37,7 +38,7 @@ import java.util.List;
 
 @RunWith(value = Parameterized.class)
 public class AllClassesTest {
-   private static final Logger log = Logger.getLogger(AllClassesTest.class);
+   private static final Logger log = LoggerFactory.getLogger(AllClassesTest.class);
 
    @Parameterized.Parameters(name = "classInfo={0}")
    public static Collection getParameters() {
@@ -56,7 +57,9 @@ public class AllClassesTest {
                      parameters.add(loadedClass);
                   }
                } catch (Throwable loadThrowable) {
-                  log.debug("cannot load " + classInfo.getName() + ": " + loadThrowable);
+                  if (log.isDebugEnabled()) {
+                     log.debug("cannot load " + classInfo.getName() + ": " + loadThrowable);
+                  }
                }
             }
          }
@@ -92,7 +95,7 @@ public class AllClassesTest {
 
       try {
          String targetOutput = targetInstance.toString();
-         log.debug("targetOutput: " + targetOutput);
+         log.debug("targetOutput: {}", targetOutput);
       } finally {
          if (targetInstance instanceof AutoCloseable) {
             try {
@@ -140,7 +143,9 @@ public class AllClassesTest {
          try {
             return targetConstructor.newInstance(initArgs.toArray());
          } catch (Throwable t) {
-            log.debug("Cannot construct " + targetClass.getName() + ": " + t);
+            if (log.isDebugEnabled()) {
+               log.debug("Cannot construct " + targetClass.getName() + ": " + t);
+            }
          }
       }
 

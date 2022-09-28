@@ -84,7 +84,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
             Message m2 = sess.createTextMessage("This is the response");
             sender.send(queue, m2);
          } catch (JMSException e) {
-            instanceLog.error(e);
+            instanceLog.error(e.getMessage(), e);
          }
       }
    }

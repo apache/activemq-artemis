@@ -34,12 +34,13 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionPro
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.jboss.logging.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FailoverOnFlowControlTest extends FailoverTestBase {
 
-   private static final Logger log = Logger.getLogger(FailoverOnFlowControlTest.class);
+   private static final Logger log = LoggerFactory.getLogger(FailoverOnFlowControlTest.class);
    @Test
    public void testOverflowSend() throws Exception {
       ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setProducerWindowSize(1000).setRetryInterval(100);
@@ -49,12 +50,12 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
 
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            log.debug("Intercept..." + packet.getClass().getName());
+            log.debug("Intercept...{}", packet.getClass().getName());
 
             if (packet instanceof SessionProducerCreditsMessage) {
                SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
 
-               log.debug("Credits: " + credit.getCredits());
+               log.debug("Credits: {}", credit.getCredits());
                if (count.incrementAndGet() == 2) {
                   log.debug("### crashing server");
                   try {

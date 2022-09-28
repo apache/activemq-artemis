@@ -46,11 +46,12 @@ import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class BindingsImpl implements Bindings {
 
-   private static final Logger logger = Logger.getLogger(BindingsImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(BindingsImpl.class);
 
    // This is public as we use on test assertions
    public static final int MAX_GROUP_RETRY = 10;
@@ -189,7 +190,7 @@ public final class BindingsImpl implements Bindings {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.tracef("Redistributing message %s", message);
+         logger.trace("Redistributing message {}", message);
       }
 
       final SimpleString routingName = CompositeAddress.isFullyQualified(message.getAddress()) && originatingQueue.getRoutingType() == RoutingType.ANYCAST ? CompositeAddress.extractAddressName(message.getAddressSimpleString()) : originatingQueue.getName();
@@ -336,9 +337,7 @@ public final class BindingsImpl implements Bindings {
    private void simpleRouting(final Message message,
                               final RoutingContext context,
                               final int currentVersion) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.tracef("Routing message %s on binding=%s current context::$s", message, this, context);
-      }
+      logger.trace("Routing message {} on binding={} current context::{}", message, this, context);
 
       routingNameBindingMap.forEachBindings((bindings, nextPosition) -> {
          final Binding nextBinding = getNextBinding(message, bindings, nextPosition, getMessageLoadBalancingType(context));
@@ -453,7 +452,7 @@ public final class BindingsImpl implements Bindings {
             resp = groupingGroupingHandler.propose(new Proposal(fullID, theBinding.getClusterName()));
 
             if (resp == null) {
-               logger.debug("it got a timeout on propose, trying again, number of retries: " + tries);
+               logger.debug("it got a timeout on propose, trying again, number of retries: {}", tries);
                // it timed out, so we will check it through routeAndcheckNull
                theBinding = null;
             }

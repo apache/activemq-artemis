@@ -118,7 +118,7 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
 
       createQueue("DLQ");
       Queue dlqServerQueue = server.locateQueue("DLQ");
-      org.wildfly.common.Assert.assertNotNull(dlqServerQueue);
+      Assert.assertNotNull(dlqServerQueue);
       Topic topic = createTopic("test-topic");
       AddressControl control = ManagementControlHelper.createAddressControl(new SimpleString(topic.getTopicName()), mbeanServer);
 
@@ -162,7 +162,7 @@ public class MoveMessageDuplicateIDTest extends JMSTestBase {
 
       createQueue("JUNKYARD");
       Queue junkQueue = server.locateQueue("JUNKYARD");
-      org.wildfly.common.Assert.assertNotNull(junkQueue);
+      Assert.assertNotNull(junkQueue);
       javax.jms.Queue queue1 = createQueue("q1");
       javax.jms.Queue queue2 = createQueue("q2");
 

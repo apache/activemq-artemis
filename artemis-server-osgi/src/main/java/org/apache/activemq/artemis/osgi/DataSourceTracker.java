@@ -54,7 +54,7 @@ public class DataSourceTracker implements ServiceTrackerCustomizer<DataSource, D
       try {
          callback.start();
       } catch (Exception ex) {
-         ActiveMQOsgiLogger.LOGGER.errorStartingBroker(ex, name);
+         ActiveMQOsgiLogger.LOGGER.errorStartingBroker(name, ex);
       }
       return dataSource;
    }
@@ -70,7 +70,7 @@ public class DataSourceTracker implements ServiceTrackerCustomizer<DataSource, D
       try {
          callback.stop();
       } catch (Exception ex) {
-         ActiveMQOsgiLogger.LOGGER.errorStoppingBroker(ex, name);
+         ActiveMQOsgiLogger.LOGGER.errorStoppingBroker(name, ex);
       }
    }
 }

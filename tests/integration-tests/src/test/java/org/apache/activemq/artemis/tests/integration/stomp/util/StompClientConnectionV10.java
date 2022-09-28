@@ -20,11 +20,12 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
-   private static final Logger log = Logger.getLogger(StompClientConnectionV10.class);
+   private static final Logger log = LoggerFactory.getLogger(StompClientConnectionV10.class);
 
    public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);
@@ -62,7 +63,7 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
       if (response.getCommand().equals(Stomp.Responses.CONNECTED)) {
          connected = true;
       } else {
-         log.warn("Connection failed with: " + response);
+         log.warn("Connection failed with: {}", response);
          connected = false;
       }
       return response;

@@ -20,11 +20,12 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PropertiesLoader {
 
-   private static final Logger logger = Logger.getLogger(PropertiesLoader.class);
+   private static final Logger logger = LoggerFactory.getLogger(PropertiesLoader.class);
 
    static final Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
    protected boolean debug;

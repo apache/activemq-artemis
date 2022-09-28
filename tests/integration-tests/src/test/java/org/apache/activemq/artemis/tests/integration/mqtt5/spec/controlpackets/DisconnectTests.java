@@ -31,7 +31,6 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -54,8 +53,6 @@ import org.junit.Test;
  */
 
 public class DisconnectTests  extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(DisconnectTests.class);
 
    public DisconnectTests(String protocol) {
       super(protocol);

@@ -107,7 +107,7 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
       receiver.flow(1);
       AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(receive);
-      instanceLog.info(receive);
+      instanceLog.info("{}", receive);
       Object ingressTimestampHeader = receive.getMessageAnnotation(AMQPMessageSupport.X_OPT_INGRESS_TIME);
       assertNotNull(ingressTimestampHeader);
       assertTrue(ingressTimestampHeader instanceof Long);

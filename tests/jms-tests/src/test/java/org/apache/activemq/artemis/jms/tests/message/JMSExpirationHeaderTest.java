@@ -27,9 +27,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(JMSExpirationHeaderTest.class);
 
    private volatile boolean testFailed;
 
@@ -113,7 +116,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
             try {
                expectedMessage = queueConsumer.receive(100);
             } catch (Exception e) {
-               log.trace("receive() exits with an exception", e);
+               logger.trace("receive() exits with an exception", e);
             } finally {
                latch.countDown();
             }
@@ -140,7 +143,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                expectedMessage = queueConsumer.receive(timeToWaitForReceive);
                effectiveReceiveTime = System.currentTimeMillis() - t1;
             } catch (Exception e) {
-               log.trace("receive() exits with an exception", e);
+               logger.trace("receive() exits with an exception", e);
             } finally {
                receiverLatch.countDown();
             }
@@ -165,12 +168,12 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                ActiveMQMessage msg = (ActiveMQMessage) m;
 
                if (!msg.getCoreMessage().isExpired()) {
-                  log.error("The message " + m + " should have expired");
+                  logger.error("The message " + m + " should have expired");
                   testFailed = true;
                   return;
                }
             } catch (Exception e) {
-               log.error("This exception will fail the test", e);
+               logger.error("This exception will fail the test", e);
                testFailed = true;
             } finally {
                senderLatch.countDown();
@@ -186,7 +189,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
          ProxyAssertSupport.fail("Test failed by the sender thread. Watch for exception in logs");
       }
 
-      log.trace("planned waiting time: " + timeToWaitForReceive + " effective waiting time " + effectiveReceiveTime);
+      logger.trace("planned waiting time: " + timeToWaitForReceive + " effective waiting time " + effectiveReceiveTime);
       ProxyAssertSupport.assertTrue(effectiveReceiveTime >= timeToWaitForReceive);
       ProxyAssertSupport.assertTrue(effectiveReceiveTime < timeToWaitForReceive * 1.5); // well, how exactly I did come
       // up with this coeficient is
@@ -224,20 +227,20 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
          @Override
          public void run() {
             try {
-               log.trace("Attempting to receive");
+               logger.trace("Attempting to receive");
                expectedMessage = queueConsumer.receive();
 
                // NOTE on close, the receive() call will return with null
-               log.trace("Receive exited without exception:" + expectedMessage);
+               logger.trace("Receive exited without exception:" + expectedMessage);
 
                if (expectedMessage == null) {
                   received.set(false);
                }
             } catch (Exception e) {
-               log.trace("receive() exits with an exception", e);
+               logger.trace("receive() exits with an exception", e);
                ProxyAssertSupport.fail();
             } catch (Throwable t) {
-               log.trace("receive() exits with a throwable", t);
+               logger.trace("receive() exits with a throwable", t);
                ProxyAssertSupport.fail();
             } finally {
                latch.countDown();
@@ -254,7 +257,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       // wait for the reading thread to conclude
       ActiveMQTestBase.waitForLatch(latch);
 
-      log.trace("Expected message:" + expectedMessage);
+      logger.trace("Expected message:" + expectedMessage);
 
       ProxyAssertSupport.assertFalse(received.get());
    }

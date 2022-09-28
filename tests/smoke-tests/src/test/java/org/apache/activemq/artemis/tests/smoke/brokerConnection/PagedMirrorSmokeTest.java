@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,8 +41,6 @@ public class PagedMirrorSmokeTest extends SmokeTestBase {
 
    // Change this to true to generate a print-data in certain cases on this test
    private static final boolean PRINT_DATA = false;
-
-   private static final Logger logger = Logger.getLogger(PagedMirrorSmokeTest.class);
 
    public static final String SERVER_NAME_A = "brokerConnect/pagedA";
    public static final String SERVER_NAME_B = "brokerConnect/pagedB";

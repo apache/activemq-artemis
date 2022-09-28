@@ -100,7 +100,8 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -110,7 +111,7 @@ import static org.apache.activemq.artemis.utils.collections.IterableStream.itera
  */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory {
 
-   private static final Logger logger = Logger.getLogger(PostOfficeImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(PostOfficeImpl.class);
 
    public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_AMQ_RESET_QUEUE_DATA");
 
@@ -1174,18 +1175,14 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             addressInfo.incrementUnRoutedMessageCount();
          }
          // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)
-         if (logger.isDebugEnabled()) {
-            logger.debugf("Couldn't find any bindings for address=%s on message=%s", message, address, message);
-         }
+         logger.debug("Couldn't find any bindings for address={} on message={}", address, message);
       }
 
       if (server.hasBrokerMessagePlugins()) {
          server.callBrokerMessagePlugins(plugin -> plugin.beforeMessageRoute(message, context, direct, rejectDuplicates));
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.tracef("Message after routed=%s\n%s", message, context);
-      }
+      logger.trace("Message after routed={}\n{}", message, context);
 
       try {
          final RoutingStatus status;
@@ -1235,9 +1232,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (sendToDLA) {
          // Send to the DLA for the address
          final SimpleString dlaAddress = addressSettings != null ? addressSettings.getDeadLetterAddress() : null;
-         if (logger.isDebugEnabled()) {
-            logger.debugf("sending message to dla address = %s, message=%s", dlaAddress, message);
-         }
+         logger.debug("sending message to dla address = {}, message={}", dlaAddress, message);
          if (dlaAddress == null) {
             status = RoutingStatus.NO_BINDINGS;
             ActiveMQServerLogger.LOGGER.noDLA(address);
@@ -1255,9 +1250,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
       } else {
          status = RoutingStatus.NO_BINDINGS;
-         if (logger.isDebugEnabled()) {
-            logger.debugf("Message %s is not going anywhere as it didn't have a binding on address:%s", message, address);
-         }
+         logger.debug("Message {} is not going anywhere as it didn't have a binding on address:{}", message, address);
          if (message.isLargeMessage()) {
             ((LargeServerMessage) message).deleteFile();
          }
@@ -1858,7 +1851,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       @Override
       public void run() {
          if (iterator != null) {
-            logger.debugf("A previous reaping call has not finished yet, and it is currently working on %s", currentQueue);
+            logger.debug("A previous reaping call has not finished yet, and it is currently working on {}", currentQueue);
             return;
          }
 
@@ -1967,7 +1960,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                // that the address is removed before the reaper removes it
                logger.debug(e.getMessage(), e);
             } else {
-               ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedDestination(e, address, "address");
+               ActiveMQServerLogger.LOGGER.errorRemovingAutoCreatedDestination("address", address, e);
             }
          }
       }

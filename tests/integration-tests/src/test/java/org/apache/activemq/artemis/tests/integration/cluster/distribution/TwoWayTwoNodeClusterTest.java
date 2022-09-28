@@ -26,15 +26,16 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(TwoWayTwoNodeClusterTest.class);
+   private static final Logger log = LoggerFactory.getLogger(TwoWayTwoNodeClusterTest.class);
 
    @Override
    @Before
@@ -235,13 +236,13 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
          waitForTopology(servers[1], 2);
 
          for (int i = 0; i < 10; i++) {
-            log.debug("Sleep #test " + i);
-            log.debug("#stop #test #" + i);
+            log.debug("Sleep #test {}", i);
+            log.debug("#stop #test #{}", i);
             Thread.sleep(500);
             stopServers(1);
 
             waitForTopology(servers[0], 1, -1, 2000);
-            log.debug("#start #test #" + i);
+            log.debug("#start #test #{}", i);
             startServers(1);
             waitForTopology(servers[0], 2, -1, 2000);
             waitForTopology(servers[1], 2, -1, 2000);

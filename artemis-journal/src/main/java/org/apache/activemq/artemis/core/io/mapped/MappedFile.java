@@ -30,11 +30,12 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.PowerOf2Util;
 import org.apache.activemq.artemis.utils.Env;
-import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 final class MappedFile implements AutoCloseable {
 
-   private static final Logger logger = Logger.getLogger(MappedFile.class);
+   private static final Logger logger = LoggerFactory.getLogger(MappedFile.class);
 
    private static final int OS_PAGE_SIZE = Env.osPageSize();
    private final MappedByteBuffer buffer;

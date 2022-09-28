@@ -515,7 +515,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          return copy;
 
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.lareMessageErrorCopying(e, this);
+         ActiveMQServerLogger.LOGGER.lareMessageErrorCopying(this, e);
          return null;
       }
    }

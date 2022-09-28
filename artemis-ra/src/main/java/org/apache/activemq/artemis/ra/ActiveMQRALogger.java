@@ -16,151 +16,108 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
 
 import javax.jms.IllegalStateException;
 
 /**
  * Logger Code 15
- * <br>
- * each message id must be 6 digits long starting with 15, the 3rd digit donates
- * the level so
- * <br>
- * <pre>
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- * </pre>
- * <br>
- * so an INFO message would be 151000 to 151999
  */
-@MessageLogger(projectCode = "AMQ")
-public interface ActiveMQRALogger extends BasicLogger {
+@LogBundle(projectCode = "AMQ", regexID = "15[0-9]{4}")
+public interface ActiveMQRALogger {
 
    /**
-    * The default logger. Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName()
+    * Note this uses ActiveMQRALogger.class.getName() instead of ActiveMQRALogger.class.getPackage().getName()
     * like the other loggers, this is because some Application Servers use introspection to identify properties which can
     * sometimes use a classloader when the rar is uploaded and its possible getpackage() can return null
     */
-   ActiveMQRALogger LOGGER = Logger.getMessageLogger(ActiveMQRALogger.class, ActiveMQRALogger.class.getName());
+   ActiveMQRALogger LOGGER = BundleFactory.newBundle(ActiveMQRALogger.class, ActiveMQRALogger.class.getName());
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151000, value = "awaiting topic/queue creation {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151000, value = "awaiting topic/queue creation {}", level = LogMessage.Level.INFO)
    void awaitingTopicQueueCreation(String destination);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151001, value = "Attempting to reconnect {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151001, value = "Attempting to reconnect {}", level = LogMessage.Level.INFO)
    void attemptingReconnect(ActiveMQActivationSpec spec);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151002, value = "Reconnected with broker", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151002, value = "Reconnected with broker", level = LogMessage.Level.INFO)
    void reconnected();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151003, value = "resource adaptor stopped", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151003, value = "resource adaptor stopped", level = LogMessage.Level.INFO)
    void raStopped();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151004, value = "Instantiating {0} \"{1}\" directly since UseJNDI=false.", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151004, value = "Instantiating {} \"{}\" directly since UseJNDI=false.", level = LogMessage.Level.INFO)
    void instantiatingDestination(String destinationType, String destination);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151005, value = "awaiting server availability", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151005, value = "awaiting server availability", level = LogMessage.Level.INFO)
    void awaitingJMSServerCreation();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151006, value = "Cluster topology change detected. Re-balancing connections on even {0}.", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151006, value = "Cluster topology change detected. Re-balancing connections on even {}.", level = LogMessage.Level.INFO)
    void rebalancingConnections(String event);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 151007, value = "Resource adaptor started", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 151007, value = "Resource adaptor started", level = LogMessage.Level.INFO)
    void resourceAdaptorStarted();
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152001, value = "problem resetting xa session after failure", format = Message.Format.MESSAGE_FORMAT)
-   void problemResettingXASession(@Cause Throwable t);
+   @LogMessage(id = 152001, value = "problem resetting xa session after failure", level = LogMessage.Level.WARN)
+   void problemResettingXASession(Throwable t);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152002, value = "Unable to roll local transaction back", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 152002, value = "Unable to roll local transaction back", level = LogMessage.Level.WARN)
    void unableToRollbackTX();
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152003, value = "unable to reset session after failure, we will place the MDB Inflow now in setup mode for activation={0}", format = Message.Format.MESSAGE_FORMAT)
-   void unableToResetSession(String spec, @Cause Exception e);
+   @LogMessage(id = 152003, value = "unable to reset session after failure, we will place the MDB Inflow now in setup mode for activation={}", level = LogMessage.Level.WARN)
+   void unableToResetSession(String spec, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152004, value = "Handling JMS exception failure", format = Message.Format.MESSAGE_FORMAT)
-   void handlingJMSFailure(@Cause Exception e);
+   @LogMessage(id = 152004, value = "Handling JMS exception failure", level = LogMessage.Level.WARN)
+   void handlingJMSFailure(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152005, value = "Failure in broker activation {0}", format = Message.Format.MESSAGE_FORMAT)
-   void failureInActivation(@Cause Throwable t, ActiveMQActivationSpec spec);
+   @LogMessage(id = 152005, value = "Failure in broker activation {}", level = LogMessage.Level.WARN)
+   void failureInActivation(ActiveMQActivationSpec spec, Throwable t);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152006, value = "Unable to call after delivery", format = Message.Format.MESSAGE_FORMAT)
-   void unableToCallAfterDelivery(@Cause Exception e);
+   @LogMessage(id = 152006, value = "Unable to call after delivery", level = LogMessage.Level.WARN)
+   void unableToCallAfterDelivery(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152007, value = "Thread {0} could not be finished", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 152007, value = "Thread {} could not be finished", level = LogMessage.Level.WARN)
    void threadCouldNotFinish(String thread);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152008, value = "Error interrupting handler on endpoint {0} handler = {1}", format = Message.Format.MESSAGE_FORMAT)
-   void errorInterruptingHandler(String endpoint, String handler, @Cause Throwable cause);
+   @LogMessage(id = 152008, value = "Error interrupting handler on endpoint {} handler = {}", level = LogMessage.Level.WARN)
+   void errorInterruptingHandler(String endpoint, String handler, Throwable cause);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152009, value = "Unable to validate properties", format = Message.Format.MESSAGE_FORMAT)
-   void unableToValidateProperties(@Cause Exception e);
+   @LogMessage(id = 152009, value = "Unable to validate properties", level = LogMessage.Level.WARN)
+   void unableToValidateProperties(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152010, value = "Unable to clear the transaction", format = Message.Format.MESSAGE_FORMAT)
-   void unableToClearTheTransaction(@Cause Exception e);
+   @LogMessage(id = 152010, value = "Unable to clear the transaction", level = LogMessage.Level.WARN)
+   void unableToClearTheTransaction(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 152011, value = "Unable to close the factory", format = Message.Format.MESSAGE_FORMAT)
-   void unableToCloseFactory(@Cause Throwable e);
+   @LogMessage(id = 152011, value = "Unable to close the factory", level = LogMessage.Level.WARN)
+   void unableToCloseFactory(Throwable e);
 
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 154000, value = "Error while creating object Reference.", format = Message.Format.MESSAGE_FORMAT)
-   void errorCreatingReference(@Cause Exception e);
+   @LogMessage(id = 154000, value = "Error while creating object Reference.", level = LogMessage.Level.ERROR)
+   void errorCreatingReference(Exception e);
 
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 154001, value = "Unable to stop resource adapter.", format = Message.Format.MESSAGE_FORMAT)
-   void errorStoppingRA(@Cause Exception e);
+   @LogMessage(id = 154001, value = "Unable to stop resource adapter.", level = LogMessage.Level.ERROR)
+   void errorStoppingRA(Exception e);
 
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 154003, value = "Unable to reconnect {0}", format = Message.Format.MESSAGE_FORMAT)
-   void errorReconnecting(@Cause Throwable t, ActiveMQActivationSpec spec);
+   @LogMessage(id = 154003, value = "Unable to reconnect {}", level = LogMessage.Level.ERROR)
+   void errorReconnecting(ActiveMQActivationSpec spec, Throwable t);
 
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 154004, value = "Failed to deliver message", format = Message.Format.MESSAGE_FORMAT)
-   void errorDeliveringMessage(@Cause Throwable t);
+   @LogMessage(id = 154004, value = "Failed to deliver message", level = LogMessage.Level.ERROR)
+   void errorDeliveringMessage(Throwable t);
 
-   @LogMessage(level = Logger.Level.DEBUG)
-   @Message(id = 153001, value = "using different ActiveMQRAConnectionFactory", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 153001, value = "using different ActiveMQRAConnectionFactory", level = LogMessage.Level.DEBUG)
    void warnDifferentConnectionfactory();
 
    @Message(id = 153002, value = "Cannot create a subscriber on the durable subscription since it already has subscriber(s)")
    IllegalStateException canNotCreatedNonSharedSubscriber();
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 153003, value = "Unsupported acknowledgement mode {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 153003, value = "Unsupported acknowledgement mode {}", level = LogMessage.Level.WARN)
    void invalidAcknowledgementMode(String mode);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 153004, value = "Invalid number of session (negative) {0}, defaulting to {1}.", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 153004, value = "Invalid number of session (negative) {}, defaulting to {}.", level = LogMessage.Level.WARN)
    void invalidNumberOfMaxSession(int value, int defaultValue);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 153005, value =  "Unable to retrieve \"{0}\" from JNDI. Creating a new \"{1}\" named \"{2}\" to be used by the MDB.", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 153005, value =  "Unable to retrieve \"{}\" from JNDI. Creating a new \"{}\" named \"{}\" to be used by the MDB.", level = LogMessage.Level.WARN)
    void unableToRetrieveDestinationName(String destinationName, String name, String calculatedDestinationName);
 }

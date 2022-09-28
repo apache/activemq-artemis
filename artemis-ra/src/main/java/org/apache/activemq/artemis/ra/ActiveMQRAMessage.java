@@ -22,12 +22,17 @@ import javax.jms.Message;
 import java.util.Arrays;
 import java.util.Enumeration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 /**
  * A wrapper for a message
  */
 public class ActiveMQRAMessage implements Message {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAMessage.class);
 
    /**
     * The message
@@ -49,8 +54,8 @@ public class ActiveMQRAMessage implements Message {
       checkNotNull(message);
       checkNotNull(session);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + message + ", " + session + ")");
       }
 
       this.message = message;
@@ -64,8 +69,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void acknowledge() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("acknowledge()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("acknowledge()");
       }
 
       session.getSession(); // Check for closed
@@ -79,8 +84,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void clearBody() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("clearBody()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("clearBody()");
       }
 
       message.clearBody();
@@ -93,8 +98,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void clearProperties() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("clearProperties()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("clearProperties()");
       }
 
       message.clearProperties();
@@ -109,8 +114,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public boolean getBooleanProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getBooleanProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getBooleanProperty(" + name + ")");
       }
 
       return message.getBooleanProperty(name);
@@ -125,8 +130,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public byte getByteProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getByteProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getByteProperty(" + name + ")");
       }
 
       return message.getByteProperty(name);
@@ -141,8 +146,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public double getDoubleProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDoubleProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDoubleProperty(" + name + ")");
       }
 
       return message.getDoubleProperty(name);
@@ -157,8 +162,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public float getFloatProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getFloatProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getFloatProperty(" + name + ")");
       }
 
       return message.getFloatProperty(name);
@@ -173,8 +178,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public int getIntProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getIntProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getIntProperty(" + name + ")");
       }
 
       return message.getIntProperty(name);
@@ -188,8 +193,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public String getJMSCorrelationID() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSCorrelationID()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSCorrelationID()");
       }
 
       return message.getJMSCorrelationID();
@@ -203,8 +208,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public byte[] getJMSCorrelationIDAsBytes() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSCorrelationIDAsBytes()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSCorrelationIDAsBytes()");
       }
 
       return message.getJMSCorrelationIDAsBytes();
@@ -218,8 +223,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public int getJMSDeliveryMode() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSDeliveryMode()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSDeliveryMode()");
       }
 
       return message.getJMSDeliveryMode();
@@ -233,8 +238,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public Destination getJMSDestination() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSDestination()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSDestination()");
       }
 
       return message.getJMSDestination();
@@ -248,8 +253,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public long getJMSExpiration() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSExpiration()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSExpiration()");
       }
 
       return message.getJMSExpiration();
@@ -263,8 +268,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public String getJMSMessageID() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSMessageID()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSMessageID()");
       }
 
       return message.getJMSMessageID();
@@ -278,8 +283,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public int getJMSPriority() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSPriority()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSPriority()");
       }
 
       return message.getJMSPriority();
@@ -293,8 +298,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public boolean getJMSRedelivered() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSRedelivered()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSRedelivered()");
       }
 
       return message.getJMSRedelivered();
@@ -308,8 +313,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public Destination getJMSReplyTo() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSReplyTo()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSReplyTo()");
       }
 
       return message.getJMSReplyTo();
@@ -323,8 +328,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public long getJMSTimestamp() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSTimestamp()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSTimestamp()");
       }
 
       return message.getJMSTimestamp();
@@ -338,8 +343,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public String getJMSType() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSType()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSType()");
       }
 
       return message.getJMSType();
@@ -354,8 +359,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public long getLongProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getLongProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getLongProperty(" + name + ")");
       }
 
       return message.getLongProperty(name);
@@ -370,8 +375,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public Object getObjectProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getObjectProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getObjectProperty(" + name + ")");
       }
 
       return message.getObjectProperty(name);
@@ -385,8 +390,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public Enumeration getPropertyNames() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getPropertyNames()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getPropertyNames()");
       }
 
       return message.getPropertyNames();
@@ -401,8 +406,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public short getShortProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getShortProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getShortProperty(" + name + ")");
       }
 
       return message.getShortProperty(name);
@@ -417,8 +422,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public String getStringProperty(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getStringProperty(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getStringProperty(" + name + ")");
       }
 
       return message.getStringProperty(name);
@@ -433,8 +438,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public boolean propertyExists(final String name) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("propertyExists(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("propertyExists(" + name + ")");
       }
 
       return message.propertyExists(name);
@@ -449,8 +454,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setBooleanProperty(final String name, final boolean value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setBooleanProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setBooleanProperty(" + name + ", " + value + ")");
       }
 
       message.setBooleanProperty(name, value);
@@ -465,8 +470,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setByteProperty(final String name, final byte value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setByteProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setByteProperty(" + name + ", " + value + ")");
       }
 
       message.setByteProperty(name, value);
@@ -481,8 +486,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setDoubleProperty(final String name, final double value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDoubleProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDoubleProperty(" + name + ", " + value + ")");
       }
 
       message.setDoubleProperty(name, value);
@@ -497,8 +502,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setFloatProperty(final String name, final float value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setFloatProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setFloatProperty(" + name + ", " + value + ")");
       }
 
       message.setFloatProperty(name, value);
@@ -513,8 +518,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setIntProperty(final String name, final int value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setIntProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setIntProperty(" + name + ", " + value + ")");
       }
 
       message.setIntProperty(name, value);
@@ -528,8 +533,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSCorrelationID(final String correlationID) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSCorrelationID(" + correlationID + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSCorrelationID(" + correlationID + ")");
       }
 
       message.setJMSCorrelationID(correlationID);
@@ -543,8 +548,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSCorrelationIDAsBytes(final byte[] correlationID) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSCorrelationIDAsBytes(" + Arrays.toString(correlationID) + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSCorrelationIDAsBytes(" + Arrays.toString(correlationID) + ")");
       }
 
       message.setJMSCorrelationIDAsBytes(correlationID);
@@ -558,8 +563,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSDeliveryMode(final int deliveryMode) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSDeliveryMode(" + deliveryMode + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSDeliveryMode(" + deliveryMode + ")");
       }
 
       message.setJMSDeliveryMode(deliveryMode);
@@ -573,8 +578,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSDestination(final Destination destination) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSDestination(" + destination + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSDestination(" + destination + ")");
       }
 
       message.setJMSDestination(destination);
@@ -588,8 +593,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSExpiration(final long expiration) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSExpiration(" + expiration + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSExpiration(" + expiration + ")");
       }
 
       message.setJMSExpiration(expiration);
@@ -603,8 +608,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSMessageID(final String id) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSMessageID(" + id + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSMessageID(" + id + ")");
       }
 
       message.setJMSMessageID(id);
@@ -618,8 +623,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSPriority(final int priority) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSPriority(" + priority + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSPriority(" + priority + ")");
       }
 
       message.setJMSPriority(priority);
@@ -633,8 +638,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSRedelivered(final boolean redelivered) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSRedelivered(" + redelivered + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSRedelivered(" + redelivered + ")");
       }
 
       message.setJMSRedelivered(redelivered);
@@ -648,8 +653,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSReplyTo(final Destination replyTo) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSReplyTo(" + replyTo + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSReplyTo(" + replyTo + ")");
       }
 
       message.setJMSReplyTo(replyTo);
@@ -663,8 +668,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSTimestamp(final long timestamp) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSTimestamp(" + timestamp + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSTimestamp(" + timestamp + ")");
       }
 
       message.setJMSTimestamp(timestamp);
@@ -678,8 +683,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setJMSType(final String type) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSType(" + type + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSType(" + type + ")");
       }
 
       message.setJMSType(type);
@@ -694,8 +699,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setLongProperty(final String name, final long value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setLongProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setLongProperty(" + name + ", " + value + ")");
       }
 
       message.setLongProperty(name, value);
@@ -710,8 +715,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setObjectProperty(final String name, final Object value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setObjectProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setObjectProperty(" + name + ", " + value + ")");
       }
 
       message.setObjectProperty(name, value);
@@ -726,8 +731,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setShortProperty(final String name, final short value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setShortProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setShortProperty(" + name + ", " + value + ")");
       }
 
       message.setShortProperty(name, value);
@@ -742,8 +747,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public void setStringProperty(final String name, final String value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setStringProperty(" + name + ", " + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setStringProperty(" + name + ", " + value + ")");
       }
 
       message.setStringProperty(name, value);
@@ -751,8 +756,8 @@ public class ActiveMQRAMessage implements Message {
 
    @Override
    public long getJMSDeliveryTime() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getJMSDeliveryTime()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getJMSDeliveryTime()");
       }
       return message.getJMSDeliveryTime();
    }
@@ -760,24 +765,24 @@ public class ActiveMQRAMessage implements Message {
    @Override
    public void setJMSDeliveryTime(long deliveryTime) throws JMSException {
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setJMSDeliveryTime(" + deliveryTime + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setJMSDeliveryTime(" + deliveryTime + ")");
       }
       message.setJMSDeliveryTime(deliveryTime);
    }
 
    @Override
    public <T> T getBody(Class<T> c) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getBody(" + c + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getBody(" + c + ")");
       }
       return message.getBody(c);
    }
 
    @Override
    public boolean isBodyAssignableTo(Class c) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isBodyAssignableTo(" + c + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isBodyAssignableTo(" + c + ")");
       }
       return message.isBodyAssignableTo(c);
    }
@@ -789,8 +794,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public int hashCode() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("hashCode()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("hashCode()");
       }
 
       return message.hashCode();
@@ -804,8 +809,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public boolean equals(final Object object) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("equals(" + object + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("equals(" + object + ")");
       }
 
       if (object != null && object instanceof ActiveMQRAMessage) {
@@ -822,8 +827,8 @@ public class ActiveMQRAMessage implements Message {
     */
    @Override
    public String toString() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("toString()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("toString()");
       }
 
       return message.toString();

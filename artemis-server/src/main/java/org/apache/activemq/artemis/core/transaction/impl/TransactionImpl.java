@@ -36,11 +36,12 @@ import org.apache.activemq.artemis.core.server.impl.RefsOperation;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactionImpl implements Transaction {
 
-   private static final Logger logger = Logger.getLogger(TransactionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(TransactionImpl.class);
 
    private List<TransactionOperation> operations;
 

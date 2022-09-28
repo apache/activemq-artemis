@@ -34,11 +34,12 @@ import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator.BackupRegistrationListener;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class ReplicationObserver implements ClusterTopologyListener, SessionFailureListener, BackupRegistrationListener, ReplicationEndpoint.ReplicationEndpointEventListener, AutoCloseable {
 
-   private static final Logger LOGGER = Logger.getLogger(ReplicationObserver.class);
+   private static final Logger logger = LoggerFactory.getLogger(ReplicationObserver.class);
 
    public enum ReplicationFailure {
       VoluntaryFailOver, BackupNotInSync, NonVoluntaryFailover, RegistrationError, AlreadyReplicating, ClosedObserver, WrongNodeId, WrongActivationSequence
@@ -267,7 +268,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
             // because live has to increase the sequence before replicating
             stopForcedFailoverAfterDelay();
             unlistenConnectionFailures();
-            LOGGER.errorf("Illegal activation sequence %d from NodeID = %s", activationSequence, nodeId);
+            logger.error("Illegal activation sequence {} from NodeID = {}", activationSequence, nodeId);
             replicationFailure.complete(ReplicationFailure.WrongActivationSequence);
             return;
          }
@@ -348,7 +349,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
                onLiveDown(true);
                break;
             default:
-               LOGGER.errorf("unsupported LiveStopping type: %s", finalMessage);
+               logger.error("unsupported LiveStopping type: {}", finalMessage);
          }
       }
    }

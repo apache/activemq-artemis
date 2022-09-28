@@ -48,11 +48,16 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContextImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the JMS Connection API and produces {@link ActiveMQRASession} objects.
  */
 public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForContextImpl implements ActiveMQRASessionFactory, ActiveMQConnectionForContext, Referenceable {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAConnectionMetaData.class);
+
 
    /**
     * Are we closed?
@@ -140,8 +145,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
 
       this.type = type;
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + mcf + ", " + cm + ", " + type);
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + mcf + ", " + cm + ", " + type);
       }
    }
 
@@ -191,8 +196,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void setReference(final Reference reference) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setReference(" + reference + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setReference(" + reference + ")");
       }
 
       this.reference = reference;
@@ -205,8 +210,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public Reference getReference() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getReference()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getReference()");
       }
 
       return reference;
@@ -218,8 +223,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @param name The user name
     */
    public void setUserName(final String name) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setUserName(" + name + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setUserName(" + name + ")");
       }
 
       userName = name;
@@ -231,8 +236,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @param password The password
     */
    public void setPassword(final String password) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setPassword(****)");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setPassword(****)");
       }
 
       this.password = password;
@@ -246,8 +251,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public String getClientID() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getClientID()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getClientID()");
       }
 
       checkClosed();
@@ -267,8 +272,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void setClientID(final String cID) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setClientID(" + cID + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setClientID(" + cID + ")");
       }
 
       throw new IllegalStateException(ISE);
@@ -284,8 +289,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public QueueSession createQueueSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createQueueSession(" + transacted + ", " + acknowledgeMode + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("createQueueSession(" + transacted + ", " + acknowledgeMode + ")");
       }
 
       checkClosed();
@@ -305,8 +310,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public XAQueueSession createXAQueueSession() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createXAQueueSession()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("createXAQueueSession()");
       }
 
       checkClosed();
@@ -334,8 +339,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
                                                       final int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createConnectionConsumer(" + queue +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createConnectionConsumer(" + queue +
                                           ", " +
                                           messageSelector +
                                           ", " +
@@ -358,8 +363,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public TopicSession createTopicSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createTopicSession(" + transacted + ", " + acknowledgeMode + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("createTopicSession(" + transacted + ", " + acknowledgeMode + ")");
       }
 
       checkClosed();
@@ -379,8 +384,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public XATopicSession createXATopicSession() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createXATopicSession()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("createXATopicSession()");
       }
 
       checkClosed();
@@ -408,8 +413,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                                       final String messageSelector,
                                                       final ServerSessionPool sessionPool,
                                                       final int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createConnectionConsumer(" + topic +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createConnectionConsumer(" + topic +
                                           ", " +
                                           messageSelector +
                                           ", " +
@@ -439,8 +444,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                                              final String messageSelector,
                                                              final ServerSessionPool sessionPool,
                                                              final int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createConnectionConsumer(" + topic +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createConnectionConsumer(" + topic +
                                           ", " +
                                           subscriptionName +
                                           ", " +
@@ -467,8 +472,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    public ConnectionConsumer createConnectionConsumer(final Destination destination,
                                                       final ServerSessionPool pool,
                                                       final int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createConnectionConsumer(" + destination +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createConnectionConsumer(" + destination +
                                           ", " +
                                           pool +
                                           ", " +
@@ -494,8 +499,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                                       final String name,
                                                       final ServerSessionPool pool,
                                                       final int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createConnectionConsumer(" + destination +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createConnectionConsumer(" + destination +
                                           ", " +
                                           name +
                                           ", " +
@@ -518,8 +523,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public Session createSession(final boolean transacted, final int acknowledgeMode) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createSession(" + transacted + ", " + acknowledgeMode + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("createSession(" + transacted + ", " + acknowledgeMode + ")");
       }
 
       checkClosed();
@@ -534,8 +539,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public XASession createXASession() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createXASession()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("createXASession()");
       }
 
       checkClosed();
@@ -550,8 +555,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public ConnectionMetaData getMetaData() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getMetaData()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getMetaData()");
       }
 
       checkClosed();
@@ -566,8 +571,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public ExceptionListener getExceptionListener() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getExceptionListener()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getExceptionListener()");
       }
 
       throw new IllegalStateException(ISE);
@@ -581,8 +586,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void setExceptionListener(final ExceptionListener listener) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setExceptionListener(" + listener + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setExceptionListener(" + listener + ")");
       }
 
       throw new IllegalStateException(ISE);
@@ -597,8 +602,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    public void start() throws JMSException {
       checkClosed();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("start() " + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("start() " + this);
       }
 
       synchronized (sessions) {
@@ -620,8 +625,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void stop() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("stop() " + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("stop() " + this);
       }
 
       throw new IllegalStateException(ISE);
@@ -634,8 +639,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void close() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("close() " + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("close() " + this);
       }
 
       if (closed) {
@@ -650,7 +655,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             try {
                session.closeSession();
             } catch (Throwable t) {
-               ActiveMQRALogger.LOGGER.trace("Error closing session", t);
+               logger.trace("Error closing session", t);
             }
             i.remove();
          }
@@ -660,12 +665,12 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
          for (Iterator<TemporaryQueue> i = tempQueues.iterator(); i.hasNext(); ) {
             TemporaryQueue temp = i.next();
             try {
-               if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-                  ActiveMQRALogger.LOGGER.trace("Closing temporary queue " + temp + " for " + this);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Closing temporary queue " + temp + " for " + this);
                }
                temp.delete();
             } catch (Throwable t) {
-               ActiveMQRALogger.LOGGER.trace("Error deleting temporary queue", t);
+               logger.trace("Error deleting temporary queue", t);
             }
             i.remove();
          }
@@ -675,12 +680,12 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
          for (Iterator<TemporaryTopic> i = tempTopics.iterator(); i.hasNext(); ) {
             TemporaryTopic temp = i.next();
             try {
-               if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-                  ActiveMQRALogger.LOGGER.trace("Closing temporary topic " + temp + " for " + this);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Closing temporary topic " + temp + " for " + this);
                }
                temp.delete();
             } catch (Throwable t) {
-               ActiveMQRALogger.LOGGER.trace("Error deleting temporary queue", t);
+               logger.trace("Error deleting temporary queue", t);
             }
             i.remove();
          }
@@ -695,8 +700,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void closeSession(final ActiveMQRASession session) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("closeSession(" + session + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("closeSession(" + session + ")");
       }
 
       synchronized (sessions) {
@@ -711,8 +716,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void addTemporaryQueue(final TemporaryQueue temp) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("addTemporaryQueue(" + temp + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("addTemporaryQueue(" + temp + ")");
       }
 
       synchronized (tempQueues) {
@@ -727,8 +732,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    @Override
    public void addTemporaryTopic(final TemporaryTopic temp) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("addTemporaryTopic(" + temp + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("addTemporaryTopic(" + temp + ")");
       }
 
       synchronized (tempTopics) {
@@ -752,8 +757,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                                             String messageSelector,
                                                             ServerSessionPool sessionPool,
                                                             int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createSharedConnectionConsumer(" + topic + ", " + subscriptionName + ", " +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createSharedConnectionConsumer(" + topic + ", " + subscriptionName + ", " +
                                           messageSelector + ", " + sessionPool + ", " + maxMessages + ")");
       }
 
@@ -766,8 +771,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
                                                                    String messageSelector,
                                                                    ServerSessionPool sessionPool,
                                                                    int maxMessages) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createSharedDurableConnectionConsumer(" + topic + ", " + subscriptionName +
+      if (logger.isTraceEnabled()) {
+         logger.trace("createSharedDurableConnectionConsumer(" + topic + ", " + subscriptionName +
                                           ", " + messageSelector + ", " + sessionPool + ", " + maxMessages + ")");
       }
 
@@ -797,8 +802,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
    protected ActiveMQRASession allocateConnection(boolean transacted,
                                                   int acknowledgeMode,
                                                   final int sessionType) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("allocateConnection(" + transacted +
+      if (logger.isTraceEnabled()) {
+         logger.trace("allocateConnection(" + transacted +
                                           ", " +
                                           acknowledgeMode +
                                           ", " +
@@ -860,15 +865,15 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
             info.setClientID(clientID);
             info.setDefaults(((ActiveMQResourceAdapter) mcf.getResourceAdapter()).getProperties());
 
-            if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-               ActiveMQRALogger.LOGGER.trace("Allocating session for " + this + " with request info=" + info);
+            if (logger.isTraceEnabled()) {
+               logger.trace("Allocating session for " + this + " with request info=" + info);
             }
 
             ActiveMQRASession session = (ActiveMQRASession) cm.allocateConnection(mcf, info);
 
             try {
-               if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-                  ActiveMQRALogger.LOGGER.trace("Allocated  " + this + " session=" + session);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Allocated  " + this + " session=" + session);
                }
 
                session.setActiveMQSessionFactory(this);
@@ -915,8 +920,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * @throws IllegalStateException Thrown if closed
     */
    protected void checkClosed() throws IllegalStateException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("checkClosed()" + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("checkClosed()" + this);
       }
 
       if (closed) {

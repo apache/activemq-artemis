@@ -30,6 +30,7 @@
    </parent>
 
    <modules>
+      <module>artemis-log-annotation-processor</module>
       <module>artemis-protocols</module>
       <module>artemis-dto</module>
       <module>artemis-cdi-client</module>
@@ -80,10 +81,10 @@
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
       <retryTests>false</retryTests>
-      <logging.config>logging.properties</logging.config>
+      <logging.config>log4j2-tests-config.properties</logging.config>
       <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
 
-      <activemq-artemis-native-version>1.0.2</activemq-artemis-native-version>
+      <activemq-artemis-native-version>2.0.0</activemq-artemis-native-version>
       <karaf.version>4.3.3</karaf.version>
       <pax.exam.version>4.13.4</pax.exam.version>
       <commons.config.version>2.8.0</commons.config.version>
@@ -101,7 +102,6 @@
       <guava.version>30.1-jre</guava.version>
       <hawtio.version>2.15.0</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
-      <jboss.logging.version>3.5.0.Final</jboss.logging.version>
       <jetty.version>10.0.11</jetty.version>
       <tomcat.servlet-api.version>8.5.78</tomcat.servlet-api.version>
       <jgroups.version>5.2.0.Final</jgroups.version>
@@ -128,12 +128,10 @@
       <proton.version>0.34.0</proton.version>
       <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.36</slf4j.version>
+      <log4j.version>2.19.0</log4j.version>
       <qpid.jms.version>1.7.0</qpid.jms.version>
       <johnzon.version>1.2.16</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
-      <jb.logmanager.version>2.1.18.Final</jb.logmanager.version>
-      <jb.slf4j-jboss-logmanager.version>1.0.4.GA</jb.slf4j-jboss-logmanager.version>
-      <version.org.wildfly.common.wildfly-common>1.5.2.Final</version.org.wildfly.common.wildfly-common>
       <airlift.version>0.8</airlift.version>
       <jakarta.activation-api.version>1.2.2</jakarta.activation-api.version>
       <jakarta.annotation-api.version>1.3.5</jakarta.annotation-api.version>
@@ -229,11 +227,11 @@
 
       -->
 
-      <activemq-surefire-argline>-Dorg.apache.commons.logging.Log=org.apache.activemq.artemis.logs.JBossLoggingApacheLoggerBridge -Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
-         -Dlogging.configuration="file:${activemq.basedir}/tests/config/${logging.config}"
+      <activemq-surefire-argline>-Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
          -Djdk.attach.allowAttachSelf=true
+         -Dlog4j2.configurationFile="file:${activemq.basedir}/tests/config/${logging.config}"
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipOWASP>true</skipOWASP>
@@ -391,27 +389,6 @@
          </dependency>
 
          <!-- ## End Test Dependencies ## -->
-
-         <!-- ### Build Time Dependencies ### -->
-         <!-- This is a build dependency of this project, but is not needed at compile or runtime by other
-         projects that depend on this project. This should be in the compiler plugin but can't because of a bug,
-         see https://issues.apache.org/jira/browse/MCOMPILER-203-->
-         <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging-processor</artifactId>
-            <version>2.2.1.Final</version>
-            <optional>true</optional>
-            <scope>provided</scope>
-            <!-- License: LGPL-->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging-annotations</artifactId>
-            <version>2.2.1.Final</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-            <!-- License: Apache 2.0-->
-         </dependency>
          <dependency>
              <groupId>com.google.errorprone</groupId>
              <artifactId>error_prone_core</artifactId>
@@ -475,30 +452,6 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>org.jboss.logging</groupId>
-            <artifactId>jboss-logging</artifactId>
-            <version>${jboss.logging.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.logmanager</groupId>
-            <artifactId>jboss-logmanager</artifactId>
-            <version>${jb.logmanager.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.slf4j</groupId>
-            <artifactId>slf4j-jboss-logmanager</artifactId>
-            <version>${jb.slf4j-jboss-logmanager.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-             <groupId>org.wildfly.common</groupId>
-             <artifactId>wildfly-common</artifactId>
-             <version>${version.org.wildfly.common.wildfly-common}</version>
-             <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
             <groupId>net.java.dev.javacc</groupId>
             <artifactId>javacc</artifactId>
             <version>4.0</version>
@@ -552,8 +505,6 @@
              <version>${commons.lang.version}</version>
              <!-- License: Apache 2.0 -->
          </dependency>
-
-         <!-- End JMS Injection -->
 
          <!-- ## Examples Dependencies ## -->
          <dependency>
@@ -752,6 +703,22 @@
            <version>${slf4j.version}</version>
            <!-- License: MIT -->
          </dependency>
+         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>${log4j.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+         </dependency>
+
          <!--needed for the rest support-->
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -1307,14 +1274,6 @@
          </properties>
       </profile>
       <profile>
-         <!-- this will activate the property required to limit logging on the testsuite -->
-         <id>tests-CI</id>
-         <properties>
-            <!-- notice I did not intend to use retryTests on this profile, as this will be optional depending on where you run the tests -->
-            <logging.config>logging-CI.properties</logging.config>
-         </properties>
-      </profile>
-      <profile>
          <!-- tests is the profile we use to run the entire testsuite
                Running this entire build could take up to 2 hours -->
          <id>tests</id>
@@ -1344,7 +1303,7 @@
             <skipJoramTests>false</skipJoramTests>
             <skipCompatibilityTests>false</skipCompatibilityTests>
             <testFailureIgnore>false</testFailureIgnore>
-            <!-- This enables the karaf-client-integration-tests and
+            <!-- This enables the karaf-<foo>-integration-tests and
                  integration-tests module tests, see fast-tests profile
                  in the latter for specific tests it then runs -->
             <skipIntegrationTests>false</skipIntegrationTests>
@@ -1373,8 +1332,8 @@
             <!-- Property set by Jacoco plugin -->
             <jacoco.agent />
 
-            <activemq-surefire-argline>-Djava.util.logging.manager=org.jboss.logmanager.LogManager
-               -Dlogging.configuration="file:${activemq.basedir}/tests/config/logging.properties"
+            <activemq-surefire-argline>
+               -Dlog4j2.configurationFile="file:${activemq.basedir}/tests/config/${logging.config}"
                -Djava.library.path="${activemq.basedir}/activemq-artemis-native/bin" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
                -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
                @{jacoco.agent} -Djacoco.agent=@{jacoco.agent}
@@ -1749,6 +1708,8 @@
                      <exclude>docs/**/_book/</exclude>
                      <exclude>docs/**/_layouts/</exclude>
                      <exclude>docs/user-manual/en/diagrams/*.svg</exclude>
+                     <exclude>docs/user-manual/en/02-27-00-scripts-profiles.diff</exclude>
+                     <exclude>docs/user-manual/en/02-27-00-scripts-profiles-windows.diff</exclude>
                      <exclude>**/target/</exclude>
                      <exclude>**/META-INF/services/*</exclude>
                      <exclude>**/META-INF/MANIFEST.MF</exclude>

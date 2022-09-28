@@ -193,7 +193,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_DURABLE_QUEUE' for queue durableQueue on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='CREATE_DURABLE_QUEUE' for queue durableQueue on address address"));
       }
 
       // DELETE_DURABLE_QUEUE
@@ -201,7 +201,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          session.deleteQueue(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='DELETE_DURABLE_QUEUE' for queue durableQueue on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='DELETE_DURABLE_QUEUE' for queue durableQueue on address address"));
       }
 
       // CREATE_NON_DURABLE_QUEUE
@@ -209,7 +209,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='CREATE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='CREATE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
       }
 
       // DELETE_NON_DURABLE_QUEUE
@@ -217,7 +217,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          session.deleteQueue(NON_DURABLE_QUEUE);
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='DELETE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='DELETE_NON_DURABLE_QUEUE' for queue nonDurableQueue on address address"));
       }
 
       // PRODUCE
@@ -226,7 +226,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='SEND' on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='SEND' on address address"));
       }
 
       // CONSUME
@@ -234,7 +234,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='CONSUME' for queue durableQueue on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='CONSUME' for queue durableQueue on address address"));
       }
 
       // MANAGE
@@ -243,7 +243,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          producer.send(session.createMessage(true));
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='MANAGE' on address activemq.management"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='MANAGE' on address activemq.management"));
       }
 
       // BROWSE
@@ -251,7 +251,7 @@ public class BasicSecurityManagerTest extends ActiveMQTestBase {
          ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
          Assert.fail("should throw exception here");
       } catch (ActiveMQException e) {
-         assertTrue(e.getMessage().contains("User: first does not have permission='BROWSE' for queue durableQueue on address address"));
+         assertTrue("Unexpected exception message: " + e.getMessage(), e.getMessage().contains("User: first does not have permission='BROWSE' for queue durableQueue on address address"));
       }
    }
 

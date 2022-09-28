@@ -32,13 +32,14 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientSoakTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(ClientSoakTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(ClientSoakTest.class);
 
    private static final SimpleString ADDRESS = new SimpleString("ADD");
 
@@ -116,7 +117,7 @@ public class ClientSoakTest extends ActiveMQTestBase {
          producer.send(msg);
 
          if (i % 1000 == 0) {
-            logger.info("Sent " + i + " messages");
+            logger.info("Sent {} messages", i);
             session.commit();
          }
       }

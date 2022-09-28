@@ -29,11 +29,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReloadManagerImpl extends ActiveMQScheduledComponent implements ReloadManager {
 
-   private static final Logger logger = Logger.getLogger(ReloadManagerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ReloadManagerImpl.class);
 
    private volatile Runnable tick;
 

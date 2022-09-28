@@ -24,9 +24,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
 import static org.apache.activemq.artemis.tests.util.Jmx.decodeNetworkTopologyJson;
@@ -39,7 +40,7 @@ import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 
 public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSinglePairTest {
 
-   private static final Logger LOGGER = Logger.getLogger(ZookeeperPluggableQuorumPeerTest.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPluggableQuorumPeerTest.class);
 
    public ZookeeperPluggableQuorumPeerTest() {
       super();
@@ -71,7 +72,7 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       Wait.waitFor(() -> primary.listNetworkTopology().isPresent(), timeout);
       final String urlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPeerA);
-      LOGGER.infof("peer a acceptor: %s", urlPeerA);
+      LOGGER.info("peer a acceptor: {}", urlPeerA);
       LOGGER.info("killing peer a");
       ServerUtil.killServer(live, forceKill);
       LOGGER.info("starting peer b");
@@ -109,7 +110,7 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
 
       final String nodeID = backup.getNodeID().get();
       Assert.assertNotNull(nodeID);
-      LOGGER.infof("NodeID: %s", nodeID);
+      LOGGER.info("NodeID: {}", nodeID);
 
       LOGGER.info("starting peer a primary");
       primary.startServer(this, 0);
@@ -126,8 +127,8 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
                                                           .and(withNodes(2))), timeout);
       }
 
-      LOGGER.infof("primary topology is: %s", primary.listNetworkTopology().get());
-      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      LOGGER.info("primary topology is: {}", primary.listNetworkTopology().get());
+      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertTrue(backup.isReplicaSync().get());
       Assert.assertTrue(primary.isReplicaSync().get());
 

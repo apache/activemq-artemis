@@ -79,7 +79,7 @@ public final class ConnectorsService implements ActiveMQComponent {
          try {
             createService(pair.getB(), pair.getA());
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.errorStartingConnectorService(e, pair.getB().getConnectorName());
+            ActiveMQServerLogger.LOGGER.errorStartingConnectorService(pair.getB().getConnectorName(), e);
          }
       }
 
@@ -126,7 +126,7 @@ public final class ConnectorsService implements ActiveMQComponent {
          try {
             connector.getValue().stop();
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(e, connector.getKey());
+            ActiveMQServerLogger.LOGGER.errorStoppingConnectorService(connector.getKey(), e);
          }
       }
       connectors.clear();

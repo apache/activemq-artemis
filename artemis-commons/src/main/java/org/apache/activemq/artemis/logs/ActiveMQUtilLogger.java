@@ -16,127 +16,71 @@
  */
 package org.apache.activemq.artemis.logs;
 
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.LogMessage;
 
 /**
  * Logger Code 20
- *
- * each message id must be 6 digits long starting with 20, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 201000 to 201999
  */
-@MessageLogger(projectCode = "AMQ")
-public interface ActiveMQUtilLogger extends BasicLogger {
+@LogBundle(projectCode = "AMQ", regexID = "20[0-9]{4}")
+public interface ActiveMQUtilLogger {
 
-   /**
-    * The default logger.
-    */
-   ActiveMQUtilLogger LOGGER = Logger.getMessageLogger(ActiveMQUtilLogger.class, ActiveMQUtilLogger.class.getPackage().getName());
+   ActiveMQUtilLogger LOGGER = BundleFactory.newBundle(ActiveMQUtilLogger.class, ActiveMQUtilLogger.class.getPackage().getName());
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 201000, value = "Network is healthy, starting service {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 201000, value = "Network is healthy, starting service {}", level = LogMessage.Level.INFO)
    void startingService(String component);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 201001, value = "Network is unhealthy, stopping service {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 201001, value = "Network is unhealthy, stopping service {}", level = LogMessage.Level.WARN)
    void stoppingService(String component);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202000, value = "Missing privileges to set Thread Context Class Loader on Thread Factory. Using current Thread Context Class Loader",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202000, value = "Missing privileges to set Thread Context Class Loader on Thread Factory. Using current Thread Context Class Loader", level = LogMessage.Level.WARN)
    void missingPrivsForClassloader();
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202001, value = "{0} is a loopback address and will be discarded.",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202001, value = "{} is a loopback address and will be discarded.", level = LogMessage.Level.WARN)
    void addressloopback(String address);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202002, value = "Ping Address {0} wasn't reacheable.",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202002, value = "Ping Address {} wasn't reacheable.", level = LogMessage.Level.WARN)
    void addressWasntReacheable(String address);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202003, value = "Ping Url {0} wasn't reacheable.",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202003, value = "Ping Url {} wasn't reacheable.", level = LogMessage.Level.WARN)
    void urlWasntReacheable(String url);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202004, value = "Error starting component {0} ",
-      format = Message.Format.MESSAGE_FORMAT)
-   void errorStartingComponent(@Cause Exception e, String component);
+   @LogMessage(id = 202004, value = "Error starting component {} ", level = LogMessage.Level.WARN)
+   void errorStartingComponent(String component, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202005, value = "Error stopping component {0} ",
-      format = Message.Format.MESSAGE_FORMAT)
-   void errorStoppingComponent(@Cause Exception e, String component);
+   @LogMessage(id = 202005, value = "Error stopping component {} ", level = LogMessage.Level.WARN)
+   void errorStoppingComponent(String component, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202006, value = "Failed to check Url {0}.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToCheckURL(@Cause Exception e, String url);
+   @LogMessage(id = 202006, value = "Failed to check Url {}.", level = LogMessage.Level.WARN)
+   void failedToCheckURL(String url, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202007, value = "Failed to check Address {0}.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToCheckAddress(@Cause Exception e, String address);
+   @LogMessage(id = 202007, value = "Failed to check Address {}.", level = LogMessage.Level.WARN)
+   void failedToCheckAddress(String address, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202008, value = "Failed to check Address list {0}.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToParseAddressList(@Cause Exception e, String addressList);
+   @LogMessage(id = 202008, value = "Failed to check Address list {}.", level = LogMessage.Level.WARN)
+   void failedToParseAddressList(String addressList, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202009, value = "Failed to check Url list {0}.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToParseUrlList(@Cause Exception e, String urlList);
+   @LogMessage(id = 202009, value = "Failed to check Url list {}.", level = LogMessage.Level.WARN)
+   void failedToParseUrlList(String urlList, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202010, value = "Failed to set NIC {0}.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToSetNIC(@Cause Exception e, String nic);
+   @LogMessage(id = 202010, value = "Failed to set NIC {}.", level = LogMessage.Level.WARN)
+   void failedToSetNIC(String nic, Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202011, value = "Failed to read from stream {0}.",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202011, value = "Failed to read from stream {}.", level = LogMessage.Level.WARN)
    void failedToReadFromStream(String stream);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202012, value = "Object cannot be serialized.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToSerializeObject(@Cause Exception e);
+   @LogMessage(id = 202012, value = "Object cannot be serialized.", level = LogMessage.Level.WARN)
+   void failedToSerializeObject(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202013, value = "Unable to deserialize object.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToDeserializeObject(@Cause Exception e);
+   @LogMessage(id = 202013, value = "Unable to deserialize object.", level = LogMessage.Level.WARN)
+   void failedToDeserializeObject(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202014, value = "Unable to encode byte array into Base64 notation.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void failedToEncodeByteArrayToBase64Notation(@Cause Exception e);
+   @LogMessage(id = 202014, value = "Unable to encode byte array into Base64 notation.", level = LogMessage.Level.WARN)
+   void failedToEncodeByteArrayToBase64Notation(Exception e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202015, value = "Failed to clean up file {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202015, value = "Failed to clean up file {}", level = LogMessage.Level.WARN)
    void failedToCleanupFile(String file);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 202016, value = "Could not list files to clean up in {0}",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 202016, value = "Could not list files to clean up in {}", level = LogMessage.Level.WARN)
    void failedListFilesToCleanup(String path);
 }

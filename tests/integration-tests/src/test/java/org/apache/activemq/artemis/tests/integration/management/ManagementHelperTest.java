@@ -24,15 +24,14 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ManagementHelperTest extends Assert {
 
-
-   private static final Logger log = Logger.getLogger(ManagementHelperTest.class);
-
+   private static final Logger log = LoggerFactory.getLogger(ManagementHelperTest.class);
 
    @Test
    public void testArrayOfStringParameter() throws Exception {
@@ -47,7 +46,7 @@ public class ManagementHelperTest extends Assert {
       Assert.assertEquals(2, parameters.length);
       Assert.assertEquals(param, parameters[0]);
       Object parameter_2 = parameters[1];
-      log.debug("type " + parameter_2);
+      log.debug("type {}", parameter_2);
       Assert.assertTrue(parameter_2 instanceof Object[]);
       Object[] retrievedParams = (Object[]) parameter_2;
       Assert.assertEquals(params.length, retrievedParams.length);
@@ -181,12 +180,16 @@ public class ManagementHelperTest extends Assert {
       String key1 = RandomUtil.randomString();
       String[] val1 = new String[]{"a", "b", "c"};
 
-      log.debug("val1 type is " + Arrays.toString(val1));
+      if (log.isDebugEnabled()) {
+         log.debug("val1 type is " + Arrays.toString(val1));
+      }
 
       String key2 = RandomUtil.randomString();
       Long[] val2 = new Long[]{1L, 2L, 3L, 4L, 5L};
 
-      log.debug("val2 type is " + Arrays.toString(val2));
+      if (log.isDebugEnabled()) {
+         log.debug("val2 type is " + Arrays.toString(val2));
+      }
 
       map.put(key1, val1);
       map.put(key2, val2);

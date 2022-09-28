@@ -124,7 +124,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                conditionalCreate.set(conditionalCreate.get() && plugin.federatedAddressConditionalCreateConsumer(queue));
             });
          } catch (ActiveMQException t) {
-            ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "federatedAddressConditionalCreateConsumer");
+            ActiveMQServerLogger.LOGGER.federationPluginExecutionError("federatedAddressConditionalCreateConsumer", t);
             throw new IllegalStateException(t.getMessage(), t.getCause());
          }
          if (!conditionalCreate.get()) {
@@ -145,7 +145,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                .stream().filter(binding -> binding instanceof DivertBinding)
                .forEach(this::afterAddBinding);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, addressInfo.getName());
+            ActiveMQServerLogger.LOGGER.federationBindingsLookupError(addressInfo.getName(), e);
          }
       }
    }
@@ -184,7 +184,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                      .stream().filter(b -> b instanceof QueueBinding).map(b -> (QueueBinding) b)
                      .forEach(queueBinding -> conditionalCreateRemoteConsumer(divertBinding, matchingQueues, queueBinding));
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, forwardAddress);
+                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(forwardAddress, e);
                }
             }
          }
@@ -199,7 +199,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                conditionalCreate.set(conditionalCreate.get() && plugin.federatedAddressConditionalCreateDivertConsumer(divertBinding, queueBinding));
             });
          } catch (ActiveMQException t) {
-            ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "federatedAddressConditionalCreateDivertConsumer");
+            ActiveMQServerLogger.LOGGER.federationPluginExecutionError("federatedAddressConditionalCreateDivertConsumer", t);
             throw new IllegalStateException(t.getMessage(), t.getCause());
          }
          if (!conditionalCreate.get()) {
@@ -266,7 +266,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
                         .forEach(queueBinding -> removeRemoteConsumer(getKey(addressInfo)));
                   }
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(e, forwardAddress);
+                  ActiveMQServerLogger.LOGGER.federationBindingsLookupError(forwardAddress, e);
                }
             }
          }

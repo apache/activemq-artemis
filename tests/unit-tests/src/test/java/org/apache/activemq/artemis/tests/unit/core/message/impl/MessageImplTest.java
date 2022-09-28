@@ -41,12 +41,13 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageImplTest extends ActiveMQTestBase {
-   private static final Logger log = Logger.getLogger(MessageImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MessageImplTest.class);
 
    @Test
    public void getSetAttributes() {
@@ -240,7 +241,7 @@ public class MessageImplTest extends ActiveMQTestBase {
    public void testMessageCopyIssue() throws Exception {
       for (long i = 0; i < 300; i++) {
          if (i % 10 == 0)
-            log.debug("#test " + i);
+            log.debug("#test {}", i);
          internalMessageCopy();
       }
    }

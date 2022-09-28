@@ -27,15 +27,12 @@ import javax.jms.Session;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 /** This test would fail only if your hostname contains dot on its name.
  * my box name was in the format of xxx-xxx.xxx when it failed. */
 public class TempQueueWithDotTest extends BasicOpenWireTest {
-
-   private static final Logger log = Logger.getLogger(TempQueueWithDotTest.class);
 
    @Override
    protected Configuration createDefaultConfig(final int serverID, final boolean netty) throws Exception {

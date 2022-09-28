@@ -24,7 +24,6 @@ import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttSubAck;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -35,8 +34,6 @@ import org.junit.Test;
  */
 
 public class SubAckTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(SubAckTests.class);
 
    public SubAckTests(String protocol) {
       super(protocol);

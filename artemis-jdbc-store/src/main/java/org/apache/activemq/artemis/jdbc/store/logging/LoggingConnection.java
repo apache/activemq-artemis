@@ -37,7 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
 
 public class LoggingConnection implements Connection {
 
@@ -46,8 +46,6 @@ public class LoggingConnection implements Connection {
    private final String connectionID;
 
    private Logger logger;
-
-   private Logger.Level level = Logger.Level.TRACE;
 
    public LoggingConnection(Connection connection, Logger logger) {
       this.connection = connection;
@@ -66,132 +64,132 @@ public class LoggingConnection implements Connection {
    @Override
    public Statement createStatement() throws SQLException {
       LoggingStatement statement = new LoggingStatement(connection.createStatement(), logger);
-      logger.logf(level, "%s.createStatement() = %s", connectionID, statement.getStatementID());
+      logger.trace("{}.createStatement() = {}", connectionID, statement.getStatementID());
       return statement;
    }
 
    @Override
    public PreparedStatement prepareStatement(String sql) throws SQLException {
       LoggingPreparedStatement statement = new LoggingPreparedStatement(connection.prepareStatement(sql), logger);
-      logger.logf(level, "%s.prepareStatement(%s) = %s", connectionID, sql, statement.getStatementID());
+      logger.trace("{}.prepareStatement({}) = {}", connectionID, sql, statement.getStatementID());
       return statement;
    }
 
    @Override
    public CallableStatement prepareCall(String sql) throws SQLException {
       CallableStatement statement = connection.prepareCall(sql);
-      logger.logf(level, "%s.prepareCall(%s) = %s", connectionID, sql, LoggingUtil.getID(statement));
+      logger.trace("{}.prepareCall({}) = {}", connectionID, sql, LoggingUtil.getID(statement));
       return statement;
    }
 
    @Override
    public String nativeSQL(String sql) throws SQLException {
       String x = connection.nativeSQL(sql);
-      logger.logf(level, "%s.nativeSQL(%s) = %s", connectionID, sql, x);
+      logger.trace("{}.nativeSQL({}) = {}", connectionID, sql, x);
       return x;
    }
 
    @Override
    public void setAutoCommit(boolean autoCommit) throws SQLException {
-      logger.logf(level, "%s.setAutoCommit(%s)", connectionID, autoCommit);
+      logger.trace("{}.setAutoCommit({})", connectionID, autoCommit);
       connection.setAutoCommit(autoCommit);
    }
 
    @Override
    public boolean getAutoCommit() throws SQLException {
       boolean x = connection.getAutoCommit();
-      logger.logf(level, "%s.getAutoCommit() = %s", connectionID, x);
+      logger.trace("{}.getAutoCommit() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void commit() throws SQLException {
-      logger.logf(level, "%s.commit()", connectionID);
+      logger.trace("{}.commit()", connectionID);
       connection.commit();
    }
 
    @Override
    public void rollback() throws SQLException {
-      logger.logf(level, "%s.rollback()", connectionID);
+      logger.trace("{}.rollback()", connectionID);
       connection.rollback();
    }
 
    @Override
    public void close() throws SQLException {
-      logger.logf(level, "%s.close()", connectionID);
+      logger.trace("{}.close()", connectionID);
       connection.close();
    }
 
    @Override
    public boolean isClosed() throws SQLException {
       boolean x = connection.isClosed();
-      logger.logf(level, "%s.isClosed() = %s", connectionID, x);
+      logger.trace("{}.isClosed() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public DatabaseMetaData getMetaData() throws SQLException {
       DatabaseMetaData x = connection.getMetaData();
-      logger.logf(level, "%s.getMetaData() = %s", connectionID, x);
+      logger.trace("{}.getMetaData() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void setReadOnly(boolean readOnly) throws SQLException {
-      logger.logf(level, "%s.setReadOnly(%s)", connectionID, readOnly);
+      logger.trace("{}.setReadOnly({})", connectionID, readOnly);
       connection.setReadOnly(readOnly);
    }
 
    @Override
    public boolean isReadOnly() throws SQLException {
       boolean x = connection.isReadOnly();
-      logger.logf(level, "%s.isReadOnly() = %s", connectionID, x);
+      logger.trace("{}.isReadOnly() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void setCatalog(String catalog) throws SQLException {
-      logger.logf(level, "%s.setCatalog(%s)", connectionID, catalog);
+      logger.trace("{}.setCatalog({})", connectionID, catalog);
       connection.setCatalog(catalog);
    }
 
    @Override
    public String getCatalog() throws SQLException {
       String x = connection.getCatalog();
-      logger.logf(level, "%s.getCatalog() = %s", connectionID, x);
+      logger.trace("{}.getCatalog() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void setTransactionIsolation(int level) throws SQLException {
-      logger.logf(this.level, "%s.setTransactionIsolation(%s)", connectionID, level);
+      logger.trace("{}.setTransactionIsolation({})", connectionID, level);
       connection.setTransactionIsolation(level);
    }
 
    @Override
    public int getTransactionIsolation() throws SQLException {
       int x = connection.getTransactionIsolation();
-      logger.logf(level, "%s.getTransactionIsolation() = %s", connectionID, x);
+      logger.trace("{}.getTransactionIsolation() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public SQLWarning getWarnings() throws SQLException {
       SQLWarning x = connection.getWarnings();
-      logger.logf(level, "%s.getWarnings() = %s", connectionID, x);
+      logger.trace("{}.getWarnings() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void clearWarnings() throws SQLException {
-      logger.logf(level, "%s.clearWarnings()", connectionID);
+      logger.trace("{}.clearWarnings()", connectionID);
       connection.clearWarnings();
    }
 
    @Override
    public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
       LoggingStatement statement = new LoggingStatement(connection.createStatement(resultSetType, resultSetConcurrency), logger);
-      logger.logf(level, "%s.createStatement(%s, %s) = %s", connectionID, resultSetType, resultSetConcurrency, statement.getStatementID());
+      logger.trace("{}.createStatement({}, {}) = {}", connectionID, resultSetType, resultSetConcurrency, statement.getStatementID());
       return statement;
    }
 
@@ -200,66 +198,66 @@ public class LoggingConnection implements Connection {
                                              int resultSetType,
                                              int resultSetConcurrency) throws SQLException {
       LoggingPreparedStatement statement = new LoggingPreparedStatement(connection.prepareStatement(sql, resultSetType, resultSetConcurrency), logger);
-      logger.logf(level, "%s.prepareStatement(%s, %s, %s) = %s", connectionID, sql, resultSetType, resultSetConcurrency, statement.getStatementID());
+      logger.trace("{}.prepareStatement({}, {}, {}) = {}", connectionID, sql, resultSetType, resultSetConcurrency, statement.getStatementID());
       return statement;
    }
 
    @Override
    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
       CallableStatement statement = connection.prepareCall(sql, resultSetType, resultSetConcurrency);
-      logger.logf(level, "%s.createStatement(%s, %s) = %s", connectionID, sql, resultSetType, resultSetConcurrency, LoggingUtil.getID(statement));
+      logger.trace("{}.createStatement({}, {}) = {}", connectionID, sql, resultSetType, resultSetConcurrency, LoggingUtil.getID(statement));
       return statement;
    }
 
    @Override
    public Map<String, Class<?>> getTypeMap() throws SQLException {
       Map<String, Class<?>> x = connection.getTypeMap();
-      logger.logf(level, "%s.getTypeMap() = %s", connectionID, x);
+      logger.trace("{}.getTypeMap() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
-      logger.logf(level, "%s.setTypeMap(%s)", connectionID, map);
+      logger.trace("{}.setTypeMap({})", connectionID, map);
       connection.setTypeMap(map);
    }
 
    @Override
    public void setHoldability(int holdability) throws SQLException {
-      logger.logf(level, "%s.setHoldability(%s)", connectionID, holdability);
+      logger.trace("{}.setHoldability({})", connectionID, holdability);
       connection.setHoldability(holdability);
    }
 
    @Override
    public int getHoldability() throws SQLException {
       int x = connection.getHoldability();
-      logger.logf(level, "%s.getHoldability() = %s", connectionID, x);
+      logger.trace("{}.getHoldability() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public Savepoint setSavepoint() throws SQLException {
       Savepoint x = connection.setSavepoint();
-      logger.logf(level, "%s.setSavepoint() = %s", connectionID, x);
+      logger.trace("{}.setSavepoint() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public Savepoint setSavepoint(String name) throws SQLException {
       Savepoint x = connection.setSavepoint(name);
-      logger.logf(level, "%s.setSavepoint(%s) = %s", connectionID, name, x);
+      logger.trace("{}.setSavepoint({}) = {}", connectionID, name, x);
       return x;
    }
 
    @Override
    public void rollback(Savepoint savepoint) throws SQLException {
-      logger.logf(level, "%s.rollback(%s)", connectionID, savepoint);
+      logger.trace("{}.rollback({})", connectionID, savepoint);
       connection.rollback(savepoint);
    }
 
    @Override
    public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-      logger.logf(level, "%s.releaseSavepoint(%s)", connectionID, savepoint);
+      logger.trace("{}.releaseSavepoint({})", connectionID, savepoint);
       connection.releaseSavepoint(savepoint);
    }
 
@@ -268,7 +266,7 @@ public class LoggingConnection implements Connection {
                                     int resultSetConcurrency,
                                     int resultSetHoldability) throws SQLException {
       LoggingStatement statement = new LoggingStatement(connection.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability), logger);
-      logger.logf(level, "%s.createStatement(%s, %s, %s) = %s", connectionID, resultSetType, resultSetConcurrency, resultSetHoldability, statement.getStatementID());
+      logger.trace("{}.createStatement({}, {}, {}) = {}", connectionID, resultSetType, resultSetConcurrency, resultSetHoldability, statement.getStatementID());
       return statement;
    }
 
@@ -278,7 +276,7 @@ public class LoggingConnection implements Connection {
                                              int resultSetConcurrency,
                                              int resultSetHoldability) throws SQLException {
       LoggingPreparedStatement statement = new LoggingPreparedStatement(connection.prepareStatement(sql, resultSetType, resultSetConcurrency, resultSetHoldability), logger);
-      logger.logf(level, "%s.prepareStatement(%s, %s, %s, %s) = %s", connectionID, sql, resultSetType, resultSetConcurrency, resultSetHoldability, statement.getStatementID());
+      logger.trace("{}.prepareStatement({}, {}, {}, {}) = {}", connectionID, sql, resultSetType, resultSetConcurrency, resultSetHoldability, statement.getStatementID());
       return statement;
    }
 
@@ -288,149 +286,149 @@ public class LoggingConnection implements Connection {
                                         int resultSetConcurrency,
                                         int resultSetHoldability) throws SQLException {
       CallableStatement statement = connection.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
-      logger.logf(level, "%s.prepareCall(%s, %s, %s, %s) = %s", connectionID, sql, resultSetType, resultSetConcurrency, resultSetHoldability, LoggingUtil.getID(statement));
+      logger.trace("{}.prepareCall({}, {}, {}, {}) = {}", connectionID, sql, resultSetType, resultSetConcurrency, resultSetHoldability, LoggingUtil.getID(statement));
       return statement;
    }
 
    @Override
    public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
       LoggingPreparedStatement preparedStatement = new LoggingPreparedStatement(connection.prepareStatement(sql, autoGeneratedKeys), logger);
-      logger.logf(level, "%s.prepareStatement(%s, %s) = %s", connectionID, sql, autoGeneratedKeys, preparedStatement.getStatementID());
+      logger.trace("{}.prepareStatement({}, {}) = {}", connectionID, sql, autoGeneratedKeys, preparedStatement.getStatementID());
       return preparedStatement;
    }
 
    @Override
    public PreparedStatement prepareStatement(String sql, int[] columnIndexes) throws SQLException {
       LoggingPreparedStatement statement = new LoggingPreparedStatement(connection.prepareStatement(sql, columnIndexes), logger);
-      logger.logf(level, "%s.prepareStatement(%s, %s) = %s", connectionID, sql, Arrays.toString(columnIndexes), statement.getStatementID());
+      logger.trace("{}.prepareStatement({}, {}) = {}", connectionID, sql, Arrays.toString(columnIndexes), statement.getStatementID());
       return statement;
    }
 
    @Override
    public PreparedStatement prepareStatement(String sql, String[] columnNames) throws SQLException {
       LoggingPreparedStatement statement = new LoggingPreparedStatement(connection.prepareStatement(sql, columnNames), logger);
-      logger.logf(level, "%s.prepareStatement(%s, %s) = %s", connectionID, sql, Arrays.toString(columnNames), statement.getStatementID());
+      logger.trace("{}.prepareStatement({}, {}) = {}", connectionID, sql, Arrays.toString(columnNames), statement.getStatementID());
       return statement;
    }
 
    @Override
    public Clob createClob() throws SQLException {
       Clob x = connection.createClob();
-      logger.logf(level, "%s.createClob() = %s", connectionID, x);
+      logger.trace("{}.createClob() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public Blob createBlob() throws SQLException {
       Blob x = connection.createBlob();
-      logger.logf(level, "%s.createBlob() = %s", connectionID, x);
+      logger.trace("{}.createBlob() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public NClob createNClob() throws SQLException {
       NClob x = connection.createNClob();
-      logger.logf(level, "%s.createNClob() = %s", connectionID, x);
+      logger.trace("{}.createNClob() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public SQLXML createSQLXML() throws SQLException {
       SQLXML x = connection.createSQLXML();
-      logger.logf(level, "%s.createSQLXML() = %s", connectionID, x);
+      logger.trace("{}.createSQLXML() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public boolean isValid(int timeout) throws SQLException {
       boolean x = connection.isValid(timeout);
-      logger.logf(level, "%s.isValid(%s) = %s", connectionID, timeout, x);
+      logger.trace("{}.isValid({}) = {}", connectionID, timeout, x);
       return x;
    }
 
    @Override
    public void setClientInfo(String name, String value) throws SQLClientInfoException {
-      logger.logf(level, "%s.setClientInfo(%s, %s)", connectionID, name, value);
+      logger.trace("{}.setClientInfo({}, {})", connectionID, name, value);
       connection.setClientInfo(name, value);
    }
 
    @Override
    public void setClientInfo(Properties properties) throws SQLClientInfoException {
-      logger.logf(level, "%s.setClientInfo(%s)", connectionID, properties);
+      logger.trace("{}.setClientInfo({})", connectionID, properties);
       connection.setClientInfo(properties);
    }
 
    @Override
    public String getClientInfo(String name) throws SQLException {
       String x = connection.getClientInfo(name);
-      logger.logf(level, "%s.getClientInfo(%s) = %s", connectionID, name, x);
+      logger.trace("{}.getClientInfo({}) = {}", connectionID, name, x);
       return x;
    }
 
    @Override
    public Properties getClientInfo() throws SQLException {
       Properties x = connection.getClientInfo();
-      logger.logf(level, "%s.getClientInfo() = %s", connectionID, x);
+      logger.trace("{}.getClientInfo() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
       Array x = connection.createArrayOf(typeName, elements);
-      logger.logf(level, "%s.createArrayOf(%s, %s) = %s", connectionID, typeName, Arrays.toString(elements), x);
+      logger.trace("{}.createArrayOf({}, {}) = {}", connectionID, typeName, Arrays.toString(elements), x);
       return x;
    }
 
    @Override
    public Struct createStruct(String typeName, Object[] attributes) throws SQLException {
       Struct x = connection.createStruct(typeName, attributes);
-      logger.logf(level, "%s.createStruct(%s, %s) = %s", connectionID, typeName, Arrays.toString(attributes), x);
+      logger.trace("{}.createStruct({}, {}) = {}", connectionID, typeName, Arrays.toString(attributes), x);
       return x;
    }
 
    @Override
    public void setSchema(String schema) throws SQLException {
-      logger.logf(level, "%s.setSchema(%s)", connectionID, schema);
+      logger.trace("{}.setSchema({})", connectionID, schema);
       connection.setSchema(schema);
    }
 
    @Override
    public String getSchema() throws SQLException {
       String x = connection.getSchema();
-      logger.logf(level, "%s.getSchema() = %s", connectionID, x);
+      logger.trace("{}.getSchema() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public void abort(Executor executor) throws SQLException {
-      logger.logf(level, "%s.abort(%s)", connectionID, executor);
+      logger.trace("{}.abort({})", connectionID, executor);
       connection.abort(executor);
    }
 
    @Override
    public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
-      logger.logf(level, "%s.setNetworkTimeout(%s, %d)", connectionID, executor, milliseconds);
+      logger.trace("{}.setNetworkTimeout({}, {})", connectionID, executor, milliseconds);
       connection.setNetworkTimeout(executor, milliseconds);
    }
 
    @Override
    public int getNetworkTimeout() throws SQLException {
       int x = connection.getNetworkTimeout();
-      logger.logf(level, "%s.getNetworkTimeout() = %s", connectionID, x);
+      logger.trace("{}.getNetworkTimeout() = {}", connectionID, x);
       return x;
    }
 
    @Override
    public <T> T unwrap(Class<T> iface) throws SQLException {
       T x = connection.unwrap(iface);
-      logger.logf(level, "%s.unwrap(%s) = %s", connectionID, iface, x);
+      logger.trace("{}.unwrap({}) = {}", connectionID, iface, x);
       return x;
    }
 
    @Override
    public boolean isWrapperFor(Class<?> iface) throws SQLException {
       boolean x = connection.isWrapperFor(iface);
-      logger.logf(level, "%s.isWrapperFor() = %s", connectionID, iface, x);
+      logger.trace("{}.isWrapperFor() = {}", connectionID, iface, x);
       return x;
    }
 }

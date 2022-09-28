@@ -63,11 +63,12 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PostOfficeJournalLoader implements JournalLoader {
 
-   private static final Logger logger = Logger.getLogger(PostOfficeJournalLoader.class);
+   private static final Logger logger = LoggerFactory.getLogger(PostOfficeJournalLoader.class);
 
    protected final PostOffice postOffice;
    protected final PagingManager pagingManager;
@@ -257,7 +258,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
             try {
                storageManager.deleteMessage(msg.getMessageID());
             } catch (Exception ignored) {
-               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(ignored, msg.getMessageID());
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(msg.getMessageID(), ignored);
             }
          }
       }
@@ -415,7 +416,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
                for (Map.Entry<Long, List<PageCountPending>> entry : perQueue.entrySet()) {
                   for (PageCountPending record : entry.getValue()) {
-                     logger.debug("Deleting pg tempCount " + record.getID());
+                     logger.debug("Deleting pg tempCount {}", record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                   }
 
@@ -425,18 +426,18 @@ public class PostOfficeJournalLoader implements JournalLoader {
                   AtomicLong sizeValue = sizePerQueueOnPage.get(entry.getKey());
 
                   if (value == null) {
-                     logger.debug("Page " + entry.getKey() + " wasn't open, so we will just ignore");
+                     logger.debug("Page {} wasn't open, so we will just ignore", entry.getKey());
                   } else {
-                     logger.debug("Replacing counter " + value.get());
+                     logger.debug("Replacing counter {}", value.get());
                      counter.increment(txRecoverCounter, value.get(), sizeValue.get());
                   }
                }
             } else {
                // on this case the page file didn't exist, we just remove all the records since the page is already gone
-               logger.debug("Page " + pageId + " didn't exist on address " + addressPageMapEntry.getKey() + ", so we are just removing records");
+               logger.debug("Page {} didn't exist on address {}, so we are just removing records",  pageId, addressPageMapEntry.getKey());
                for (List<PageCountPending> records : perQueue.values()) {
                   for (PageCountPending record : records) {
-                     logger.debug("Removing pending page counter " + record.getID());
+                     logger.debug("Removing pending page counter {}", record.getID());
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                      txRecoverCounter.setContainsPersistent();
                   }

@@ -71,6 +71,8 @@ import org.apache.activemq.artemis.cli.commands.user.HelpUser;
 import org.apache.activemq.artemis.cli.commands.user.ListUser;
 import org.apache.activemq.artemis.cli.commands.user.RemoveUser;
 import org.apache.activemq.artemis.cli.commands.user.ResetUser;
+import org.apache.activemq.artemis.dto.ManagementContextDTO;
+import org.apache.activemq.artemis.dto.XmlUtil;
 
 /**
  * Artemis is the main CLI entry point for managing/running a broker.
@@ -79,6 +81,9 @@ import org.apache.activemq.artemis.cli.commands.user.ResetUser;
  * run.  Make sure set the -Dartemis.instance=path/to/instance system property.
  * You should also use the 'apache-artemis' module for the class path since that
  * includes all artemis modules.
+ *
+ * Notice that this class should not use any logging as it's part of the bootstrap and using logging here could
+ *        disrupt the order of bootstrapping on certain components (e.g. JMX being started from log4j)
  */
 public class Artemis {
 
@@ -88,7 +93,29 @@ public class Artemis {
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
 
+      verifyManagementDTO(fileInstance);
+
       execute(true, true, fileHome, fileInstance, args);
+   }
+
+
+   // Notice this has to happen before any Log4j is used.
+   //        otherwise Log4j's JMX will start the JMX before this property was able to tbe set
+   public static void verifyManagementDTO(File fileInstance) {
+      if (fileInstance != null) {
+
+         File etc = new File(fileInstance, "etc");
+         File management = new File(etc, "management.xml");
+
+         try {
+            ManagementContextDTO managementContextDTO = XmlUtil.decode(ManagementContextDTO.class, management);
+            if (managementContextDTO != null && managementContextDTO.getAuthorisation() != null) {
+               System.setProperty("javax.management.builder.initial", "org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerBuilder");
+            }
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+      }
    }
 
    public static Object internalExecute(String... args) throws Exception {
@@ -100,6 +127,8 @@ public class Artemis {
    }
 
    public static Object execute(boolean inputEnabled, boolean useSystemOut, File artemisHome, File artemisInstance, String... args) throws Exception {
+
+      verifyManagementDTO(artemisInstance);
 
       if (inputEnabled) {
          InputAbstract.enableInput();

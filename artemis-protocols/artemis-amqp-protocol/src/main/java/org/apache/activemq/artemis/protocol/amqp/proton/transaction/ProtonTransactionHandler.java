@@ -37,14 +37,15 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * handles an amqp Coordinator to deal with transaction boundaries etc
  */
 public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
-   private static final Logger log = Logger.getLogger(ProtonTransactionHandler.class);
+   private static final Logger log = LoggerFactory.getLogger(ProtonTransactionHandler.class);
 
    private final int amqpCredit;
    private final int amqpLowMark;

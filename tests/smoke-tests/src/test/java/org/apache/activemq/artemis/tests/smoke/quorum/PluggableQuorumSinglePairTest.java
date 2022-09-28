@@ -31,13 +31,14 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.Jmx;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.util.Jmx.backupOf;
 import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
@@ -52,7 +53,7 @@ import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 @RunWith(Parameterized.class)
 public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
 
-   private static final Logger LOGGER = Logger.getLogger(PluggableQuorumSinglePairTest.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(PluggableQuorumSinglePairTest.class);
 
    static final String JMX_SERVER_HOSTNAME = "localhost";
    static final int JMX_PORT_PRIMARY = 10099;
@@ -188,7 +189,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
       final String nodeID = primary.getNodeID().get();
       Assert.assertNotNull(nodeID);
-      LOGGER.infof("NodeID: %s", nodeID);
+      LOGGER.info("NodeID: {}", nodeID);
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                            containsExactNodeIds(nodeID)
@@ -197,16 +198,16 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
       }
-      LOGGER.infof("primary topology is: %s", primary.listNetworkTopology().get());
-      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      LOGGER.info("primary topology is: {}", primary.listNetworkTopology().get());
+      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertTrue(backup.isReplicaSync().get());
-      LOGGER.infof("backup is synchronized with live");
+      LOGGER.info("backup is synchronized with live");
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
       Assert.assertNotNull(urlBackup);
-      LOGGER.infof("backup: %s", urlBackup);
+      LOGGER.info("backup: {}", urlBackup);
       final String urlPrimary = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPrimary);
-      LOGGER.infof("primary: %s", urlPrimary);
+      LOGGER.info("primary: {}", urlPrimary);
       Assert.assertNotEquals(urlPrimary, urlBackup);
 
       // primary REPLICATED, backup matches (has replicated) activation sequence
@@ -223,7 +224,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
-      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertEquals(nodeID, backup.getNodeID().get());
 
       // backup UN REPLICATED (new version)
@@ -245,17 +246,17 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
       }
-      LOGGER.infof("primary topology is: %s", primary.listNetworkTopology().get());
-      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      LOGGER.info("primary topology is: {}", primary.listNetworkTopology().get());
+      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertTrue(backup.isReplicaSync().get());
-      LOGGER.infof("backup is synchronized with live");
+      LOGGER.info("backup is synchronized with live");
       Assert.assertEquals(nodeID, primary.getNodeID().get());
 
       // primary ran un replicated for a short while after failback, before backup was in sync
       Assert.assertEquals(3L, primary.getActivationSequence().get().longValue());
       Assert.assertEquals(3L, backup.getActivationSequence().get().longValue());
 
-      LOGGER.infof("Done, killing both");
+      LOGGER.info("Done, killing both");
       ServerUtil.killServer(primaryInstance);
       ServerUtil.killServer(backupInstance);
    }
@@ -335,7 +336,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
       final String nodeID = primary.getNodeID().get();
       Assert.assertNotNull(nodeID);
-      LOGGER.infof("NodeID: %s", nodeID);
+      LOGGER.info("NodeID: {}", nodeID);
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
@@ -344,16 +345,16 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
       }
-      LOGGER.infof("primary topology is: %s", primary.listNetworkTopology().get());
-      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      LOGGER.info("primary topology is: {}", primary.listNetworkTopology().get());
+      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertTrue(backup.isReplicaSync().get());
-      LOGGER.infof("backup is synchronized with live");
+      LOGGER.info("backup is synchronized with live");
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
       Assert.assertNotNull(urlBackup);
-      LOGGER.infof("backup: %s", urlBackup);
+      LOGGER.info("backup: {}", urlBackup);
       final String urlPrimary = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPrimary);
-      LOGGER.infof("primary: %s", urlPrimary);
+      LOGGER.info("primary: {}", urlPrimary);
       Assert.assertNotEquals(urlPrimary, urlBackup);
 
 
@@ -371,7 +372,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
-      LOGGER.infof("backup topology is: %s", backup.listNetworkTopology().get());
+      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertEquals(nodeID, backup.getNodeID().get());
 
 

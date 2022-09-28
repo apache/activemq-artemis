@@ -34,11 +34,12 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.buffer.TimedBuffer;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JDBCSequentialFile implements SequentialFile {
 
-   private static final Logger logger = Logger.getLogger(JDBCSequentialFile.class);
+   private static final Logger logger = LoggerFactory.getLogger(JDBCSequentialFile.class);
 
    private final String filename;
 

@@ -8,6 +8,34 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.27.0
+
+Highlights:
+- The client and broker now use [SLF4J](https://www.slf4j.org/) for their logging API.
+- The broker distribution now uses [Log4J 2](https://logging.apache.org/log4j/2.x/manual/) as its logging implementation.
+
+#### Upgrading from older versions
+
+Client applications wanting logging will now need to supply an appropriate SLF4J-supporting logging implementation
+configured appropriately for their needs. See [client application logging](logging.md#logging-in-a-client-application)
+for more information plus an example around using Log4J 2.
+
+The broker distribution now includes and configures Log4J 2 as its logging implementation, see [logging](logging.md)
+for more details. If upgrading an existing broker instance rather than creating a new instance, some configuration
+etc updates will be necessary for the brokers existing instance /etc and /bin files:
+
+ 1. The new `<instance>/etc/log4j2.properties` file should be created with Log4J 2 configuration. The file
+    used by the "artemis create" CLI command can be downloaded from:
+    [log4j2.properties](https://github.com/apache/activemq-artemis/blob/2.27.0/artemis-cli/src/main/resources/org/apache/activemq/artemis/cli/commands/etc/log4j2.properties)
+ 2. The old `<instance>/etc/logging.properties` JBoss Logging configuration file should be deleted.
+ 3. Related startup script or profile cleanups are needed: a diff file demonstrating the removals needed
+    is available [here](02-27-00-scripts-profiles.diff) for \*nix or [here](02-27-00-scripts-profiles-windows.diff) for Windows.
+
+Note also that brokers `configuration-file-refresh-period` setting no longer covers logging configuration refresh.
+Log4J 2 has its own configuration reload handling, configured via the `monitorInterval` property within the Log4J
+configuration file itself. The default `<instance>/etc/log4j2.properties` file created has a 5 second monitorInterval
+value set to align with the prior default broker behaviour.
+
 ## 2.26.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352297&projectId=12315920)
 

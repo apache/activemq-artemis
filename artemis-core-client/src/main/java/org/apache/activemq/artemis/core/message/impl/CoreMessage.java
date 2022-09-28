@@ -58,7 +58,8 @@ import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.utils.ByteUtil.ensureExactWritable;
 
@@ -70,7 +71,7 @@ public class CoreMessage extends RefCountMessage implements ICoreMessage {
 
    protected volatile int memoryEstimate = -1;
 
-   private static final Logger logger = Logger.getLogger(CoreMessage.class);
+   private static final Logger logger = LoggerFactory.getLogger(CoreMessage.class);
 
    // There's an integer with the number of bytes for the body
    public static final int BODY_OFFSET = DataConstants.SIZE_INT;

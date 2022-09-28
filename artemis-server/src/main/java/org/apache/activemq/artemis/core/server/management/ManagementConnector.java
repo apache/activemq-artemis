@@ -18,9 +18,10 @@ package org.apache.activemq.artemis.core.server.management;
 
 import org.apache.activemq.artemis.core.config.JMXConnectorConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -30,6 +31,8 @@ import java.util.Map;
 
 
 public class ManagementConnector implements ActiveMQComponent {
+
+   private static final Logger logger = LoggerFactory.getLogger(ManagementConnector.class);
 
    private final JMXConnectorConfiguration configuration;
    private ConnectorServerFactory connectorServerFactory;
@@ -90,7 +93,7 @@ public class ManagementConnector implements ActiveMQComponent {
          connectorServerFactory.setTrustStorePassword(configuration.getTrustStorePassword());
          connectorServerFactory.init();
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.error("Can't init JMXConnectorServer: " + e.getMessage());
+         logger.error("Can't init JMXConnectorServer: " + e.getMessage(), e);
       }
    }
 
@@ -100,7 +103,7 @@ public class ManagementConnector implements ActiveMQComponent {
          try {
             connectorServerFactory.destroy();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn("Error destroying ConnectorServerFactory", e);
+            logger.warn("Error destroying ConnectorServerFactory", e);
          }
          connectorServerFactory = null;
       }
@@ -108,7 +111,7 @@ public class ManagementConnector implements ActiveMQComponent {
          try {
             mbeanServerFactory.destroy();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn("Error destroying MBeanServerFactory", e);
+            logger.warn("Error destroying MBeanServerFactory", e);
          }
          mbeanServerFactory = null;
       }
@@ -116,7 +119,7 @@ public class ManagementConnector implements ActiveMQComponent {
          try {
             rmiRegistryFactory.destroy();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn("Error destroying RMIRegistryFactory", e);
+            logger.warn("Error destroying RMIRegistryFactory", e);
          }
          rmiRegistryFactory = null;
       }

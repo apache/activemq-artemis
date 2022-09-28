@@ -25,12 +25,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JDBCConnectionProvider {
 
-   private static final Logger logger = Logger.getLogger(JDBCConnectionProvider.class);
+   private static final Logger logger = LoggerFactory.getLogger(JDBCConnectionProvider.class);
    private DataSource dataSource;
    private Executor networkTimeoutExecutor;
    private int networkTimeoutMillis;
@@ -64,7 +64,7 @@ public class JDBCConnectionProvider {
             connection = new LoggingConnection(connection, logger);
          }
       } catch (SQLException e) {
-         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e).toString());
          throw e;
       }
 
@@ -78,8 +78,8 @@ public class JDBCConnectionProvider {
                connection.setNetworkTimeout(this.networkTimeoutExecutor, this.networkTimeoutMillis);
             } catch (SQLException e) {
                supportNetworkTimeout = false;
-               logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
-               ActiveMQJournalLogger.LOGGER.warn("Unable to set a network timeout on the JDBC connection: won't retry again in the future");
+               logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e).toString());
+               logger.warn("Unable to set a network timeout on the JDBC connection: won't retry again in the future");
             } catch (Throwable throwable) {
                supportNetworkTimeout = false;
                //it included SecurityExceptions and UnsupportedOperationException
@@ -112,7 +112,7 @@ public class JDBCConnectionProvider {
             }
          }
       } catch (SQLException e) {
-         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e));
+         logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e).toString());
       }
    }
 

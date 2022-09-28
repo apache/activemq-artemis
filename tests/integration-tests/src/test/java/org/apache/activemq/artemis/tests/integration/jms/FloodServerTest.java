@@ -30,22 +30,19 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A FloodServerTest
  */
 public class FloodServerTest extends ActiveMQTestBase {
 
-
-   private static final Logger log = Logger.getLogger(FloodServerTest.class);
+   private static final Logger log = LoggerFactory.getLogger(FloodServerTest.class);
 
    private ActiveMQServer server;
-
-   private final String topicName = "my-topic";
-
 
    @Override
    @Before

@@ -26,12 +26,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class OrderedExecutorSanityTest {
-   private static final Logger log = Logger.getLogger(OrderedExecutorSanityTest.class);
+   private static final Logger log = LoggerFactory.getLogger(OrderedExecutorSanityTest.class);
 
    @Test
    public void shouldExecuteTasksInOrder() throws InterruptedException {

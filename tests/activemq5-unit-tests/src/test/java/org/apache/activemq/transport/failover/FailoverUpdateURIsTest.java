@@ -33,15 +33,16 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FailoverUpdateURIsTest extends OpenwireArtemisBaseTest {
 
    private static final String QUEUE_NAME = "test.failoverupdateuris";
-   private static final Logger LOG = Logger.getLogger(FailoverUpdateURIsTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(FailoverUpdateURIsTest.class);
 
    String firstTcpUri = newURI(0);
    String secondTcpUri = newURI(10);
@@ -68,10 +69,10 @@ public class FailoverUpdateURIsTest extends OpenwireArtemisBaseTest {
       String targetDir = "target/testUpdateURIsViaFile";
       new File(targetDir).mkdir();
       File updateFile = new File(targetDir + "/updateURIsFile.txt");
-      LOG.info(updateFile);
-      LOG.info(updateFile.toURI());
-      LOG.info(updateFile.getAbsoluteFile());
-      LOG.info(updateFile.getAbsoluteFile().toURI());
+      LOG.info(updateFile.toString());
+      LOG.info("" + updateFile.toURI());
+      LOG.info("" + updateFile.getAbsoluteFile());
+      LOG.info("" + updateFile.getAbsoluteFile().toURI());
       FileOutputStream out = new FileOutputStream(updateFile);
       out.write(firstTcpUri.getBytes());
       out.close();

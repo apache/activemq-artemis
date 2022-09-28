@@ -101,6 +101,7 @@
                 <exclude>img/**/*</exclude>
                 <exclude>fonts/glyphicons**</exclude>
                 <exclude>WEB-INF/lib/guava*.jar</exclude>
+                <exclude>WEB-INF/classes/log4j2.properties</exclude>
               </excludes>
             </overlay>
           </overlays>

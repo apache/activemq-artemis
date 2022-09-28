@@ -28,13 +28,18 @@ import org.junit.Test;
 
 /**
  * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
- * -Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
+ * -Dlog4j2.configurationFile=file:<path_to_source>/tests/config/log4j2-tests-config.properties
  */
 public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase {
 
    @BeforeClass
    public static void prepareLogger() {
       AssertionLoggerHandler.startCapture();
+   }
+
+   @AfterClass
+   public static void clearLogger() {
+      AssertionLoggerHandler.stopCapture();
    }
 
    /**
@@ -51,11 +56,6 @@ public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase {
       // Using the code only because I don't want a test failing just for someone editing Log text
       assertTrue(AssertionLoggerHandler.findText("AMQ222177", "create-durable-queue"));
       assertTrue(AssertionLoggerHandler.findText("AMQ222177", "delete-durable-queue"));
-   }
-
-   @AfterClass
-   public static void clearLogger() {
-      AssertionLoggerHandler.stopCapture();
    }
 
    private static final String configuration = "<configuration xmlns=\"urn:activemq\"\n" +

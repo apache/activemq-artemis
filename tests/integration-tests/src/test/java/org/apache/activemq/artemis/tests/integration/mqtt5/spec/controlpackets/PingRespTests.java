@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.jboss.logging.Logger;
 import org.junit.Ignore;
 
 /**
@@ -28,8 +27,6 @@ import org.junit.Ignore;
 
 @Ignore
 public class PingRespTests  extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(PingRespTests.class);
 
    public PingRespTests(String protocol) {
       super(protocol);

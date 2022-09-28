@@ -49,13 +49,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQXAQueueConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQXATopicConnectionFactory;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectionFactoryURITest {
 
-   private static final Logger log = Logger.getLogger(ConnectionFactoryURITest.class);
+   private static final Logger log = LoggerFactory.getLogger(ConnectionFactoryURITest.class);
 
    ConnectionFactoryParser parser = new ConnectionFactoryParser();
 
@@ -407,7 +408,7 @@ public class ConnectionFactoryURITest {
          if (ignoreList.contains(descriptor.getName())) {
             continue;
          }
-         log.info("name::" + descriptor.getName());
+         log.info("name::{}", descriptor.getName());
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
             if (descriptor.getPropertyType() == String.class) {
                String value = RandomUtil.randomString();

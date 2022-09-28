@@ -23,11 +23,15 @@ import javax.transaction.xa.Xid;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.core.client.impl.ActiveMQXAResource;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ActiveMQXAResource.
  */
 public class ActiveMQRAXAResource implements ActiveMQXAResource {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAXAResource.class);
 
    /**
     * The managed connection
@@ -46,8 +50,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     * @param xaResource        the xa resource
     */
    public ActiveMQRAXAResource(final ActiveMQRAManagedConnection managedConnection, final XAResource xaResource) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + managedConnection + ", " + xaResource + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + managedConnection + ", " + xaResource + ")");
       }
 
       this.managedConnection = managedConnection;
@@ -63,8 +67,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void start(final Xid xid, final int flags) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("start(" + xid + ", " + flags + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("start(" + xid + ", " + flags + ")");
       }
 
       managedConnection.lock();
@@ -98,8 +102,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void end(final Xid xid, final int flags) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("end(" + xid + ", " + flags + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("end(" + xid + ", " + flags + ")");
       }
 
       managedConnection.lock();
@@ -120,8 +124,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public int prepare(final Xid xid) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("prepare(" + xid + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("prepare(" + xid + ")");
       }
 
       return xaResource.prepare(xid);
@@ -136,8 +140,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("commit(" + xid + ", " + onePhase + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("commit(" + xid + ", " + onePhase + ")");
       }
 
       xaResource.commit(xid, onePhase);
@@ -151,8 +155,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void rollback(final Xid xid) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("rollback(" + xid + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("rollback(" + xid + ")");
       }
 
       xaResource.rollback(xid);
@@ -166,8 +170,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void forget(final Xid xid) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("forget(" + xid + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("forget(" + xid + ")");
       }
 
       managedConnection.lock();
@@ -189,8 +193,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public boolean isSameRM(final XAResource xaRes) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isSameRM(" + xaRes + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isSameRM(" + xaRes + ")");
       }
 
       return xaResource.isSameRM(xaRes);
@@ -205,8 +209,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public Xid[] recover(final int flag) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("recover(" + flag + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("recover(" + flag + ")");
       }
 
       return xaResource.recover(flag);
@@ -220,8 +224,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public int getTransactionTimeout() throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getTransactionTimeout()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getTransactionTimeout()");
       }
 
       return xaResource.getTransactionTimeout();
@@ -236,8 +240,8 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public boolean setTransactionTimeout(final int seconds) throws XAException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setTransactionTimeout(" + seconds + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setTransactionTimeout(" + seconds + ")");
       }
 
       return xaResource.setTransactionTimeout(seconds);

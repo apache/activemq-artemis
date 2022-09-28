@@ -46,11 +46,12 @@ import org.apache.activemq.artemis.core.security.ActiveMQPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.AbstractRemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
 
-   private static final Logger logger = Logger.getLogger(RemotingConnectionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(RemotingConnectionImpl.class);
 
    private final PacketDecoder packetDecoder;
 

@@ -42,7 +42,6 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.client.MqttDisconnectResponse;
 import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.packet.MqttReturnCode;
-import org.jboss.logging.Logger;
 import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -83,8 +82,6 @@ import org.junit.Test;
  */
 
 public class ConnAckTests  extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(ConnAckTests.class);
 
    public ConnAckTests(String protocol) {
       this.protocol = protocol;

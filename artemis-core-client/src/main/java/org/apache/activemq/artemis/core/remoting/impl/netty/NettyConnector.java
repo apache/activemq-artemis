@@ -123,7 +123,8 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvid
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.IPV6Util;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
@@ -133,7 +134,7 @@ public class NettyConnector extends AbstractConnector {
    public static String EPOLL_CONNECTOR_TYPE = "EPOLL";
    public static String KQUEUE_CONNECTOR_TYPE = "KQUEUE";
 
-   private static final Logger logger = Logger.getLogger(NettyConnector.class);
+   private static final Logger logger = LoggerFactory.getLogger(NettyConnector.class);
 
    public static final String JAVAX_KEYSTORE_PATH_PROP_NAME = "javax.net.ssl.keyStore";
    public static final String JAVAX_KEYSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.keyStorePassword";
@@ -740,7 +741,7 @@ public class NettyConnector extends AbstractConnector {
 
             if (handler != null) {
                pipeline.addLast(new ActiveMQClientChannelHandler(channelGroup, handler, new Listener(), closeExecutor));
-               logger.debugf("Added ActiveMQClientChannelHandler to Channel with id = %s ", channel.id());
+               logger.debug("Added ActiveMQClientChannelHandler to Channel with id = {} ", channel.id());
             }
          }
       });
@@ -750,7 +751,7 @@ public class NettyConnector extends AbstractConnector {
 
          batchFlusherFuture = scheduledThreadPool.scheduleWithFixedDelay(flusher, batchDelay, batchDelay, TimeUnit.MILLISECONDS);
       }
-      ActiveMQClientLogger.LOGGER.startedNettyConnector(connectorType, TransportConstants.NETTY_VERSION, host, port);
+      logger.debug("Started {} Netty Connector version {} to {}:{}", connectorType, TransportConstants.NETTY_VERSION, host, port);
    }
 
    private SSLEngine loadJdkSslEngine(final SSLContextConfig sslContextConfig) throws Exception {
@@ -927,7 +928,7 @@ public class NettyConnector extends AbstractConnector {
                request.headers().set(SEC_ACTIVEMQ_REMOTING_KEY, key);
                ch.attr(REMOTING_KEY).set(key);
 
-               logger.debugf("Sending HTTP request %s", request);
+               logger.debug("Sending HTTP request {}", request);
 
                // Send the HTTP request.
                ch.writeAndFlush(request);
@@ -1026,7 +1027,7 @@ public class NettyConnector extends AbstractConnector {
                   handshakeComplete = true;
                } else {
                   // HTTP upgrade failed
-                  ActiveMQClientLogger.LOGGER.httpHandshakeFailed(msg);
+                  logger.debug("HTTP Handshake failed, received {}", msg);
                   ctx.close();
                   latch.countDown();
                }
@@ -1040,7 +1041,7 @@ public class NettyConnector extends AbstractConnector {
             channelHandler.active = true;
          }
          if (!handshakeComplete) {
-            ActiveMQClientLogger.LOGGER.httpHandshakeFailed(msg);
+            logger.debug("HTTP Handshake failed, received {}", msg);
             ctx.close();
          }
          latch.countDown();
@@ -1305,7 +1306,7 @@ public class NettyConnector extends AbstractConnector {
          InetAddress address = InetAddress.getByName(host);
          return address.isLoopbackAddress();
       } catch (UnknownHostException e) {
-         ActiveMQClientLogger.LOGGER.error("Cannot resolve host", e);
+         logger.error("Cannot resolve host", e);
       }
       return false;
    }

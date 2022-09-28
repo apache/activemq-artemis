@@ -32,11 +32,12 @@ import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RemoteQueueBindingImpl implements RemoteQueueBinding {
 
-   private static final Logger logger = Logger.getLogger(RemoteQueueBindingImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(RemoteQueueBindingImpl.class);
 
    private final SimpleString address;
 

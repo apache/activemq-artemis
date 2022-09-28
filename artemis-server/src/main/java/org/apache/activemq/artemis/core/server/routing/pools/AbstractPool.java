@@ -22,7 +22,8 @@ import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetFactory;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetMonitor;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetProbe;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +37,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.stream.Collectors;
 
 public abstract class AbstractPool implements Pool {
-   private static final Logger logger = Logger.getLogger(AbstractPool.class);
+   private static final Logger logger = LoggerFactory.getLogger(AbstractPool.class);
 
    private final TargetFactory targetFactory;
 
@@ -132,7 +133,7 @@ public abstract class AbstractPool implements Pool {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debugf("Ready targets are " + targets + " / " + targetMonitors + " and quorumSize is " + quorumSize);
+         logger.debug("Ready targets are " + targets + " / " + targetMonitors + " and quorumSize is " + quorumSize);
       }
 
       return targets.size() < quorumSize ? Collections.emptyList() : targets;

@@ -25,9 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.Test;
 
-import org.apache.activemq.util.DefaultTestAppender;
-import org.apache.log4j.Appender;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,20 +48,8 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
    }
 
    public void testReconnectMultipleTimesWithSameClientID() throws Exception {
+      AssertionLoggerHandler.startCapture();
 
-      org.apache.log4j.Logger log4jLogger = org.apache.log4j.Logger.getLogger(org.apache.activemq.broker.jmx.ManagedTransportConnection.class);
-      final AtomicBoolean failed = new AtomicBoolean(false);
-
-      Appender appender = new DefaultTestAppender() {
-         @Override
-         public void doAppend(LoggingEvent event) {
-            if (event.getMessage().toString().startsWith("Failed to register MBean")) {
-               LOG.info("received unexpected log message: " + event.getMessage());
-               failed.set(true);
-            }
-         }
-      };
-      log4jLogger.addAppender(appender);
       try {
          connection = connectionFactory.createConnection();
          useConnection(connection);
@@ -85,10 +72,10 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
          connection.close();
          connection = connectionFactory.createConnection();
          useConnection(connection);
+         Assert.assertFalse(AssertionLoggerHandler.findText("Failed to register MBean"));
       } finally {
-         log4jLogger.removeAppender(appender);
+         AssertionLoggerHandler.stopCapture();
       }
-      assertFalse("failed on unexpected log event", failed.get());
    }
 
    @Override

@@ -58,17 +58,18 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.QoS;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class SoakPagingTest extends SmokeTestBase {
 
-   private static final Logger log = Logger.getLogger(SoakPagingTest.class);
+   private static final Logger log = LoggerFactory.getLogger(SoakPagingTest.class);
 
    public static final int LAG_CONSUMER_TIME = 1000;
    public static final int TIME_RUNNING = 4000;
@@ -196,7 +197,7 @@ public class SoakPagingTest extends SmokeTestBase {
          Thread.sleep(time);
 
          int exitStatus = consumed.get() > 0 ? 1 : 0;
-         log.debug("Exiting with the status: " + exitStatus);
+         log.debug("Exiting with the status: {}", exitStatus);
          System.exit(exitStatus);
       } catch (Throwable t) {
          System.err.println("Exiting with the status 0. Reason: " + t);
@@ -253,7 +254,7 @@ public class SoakPagingTest extends SmokeTestBase {
          latch.countDown();
 
          connection.start();
-         log.debug("Producer" + index + " started");
+         log.debug("Producer{} started", index);
 
          final Session session;
 
@@ -287,7 +288,7 @@ public class SoakPagingTest extends SmokeTestBase {
             produced.incrementAndGet();
             i++;
             if (i % 100 == 0) {
-               log.debug("Producer" + index + " published " + i + " messages");
+               log.debug("Producer{} published {} messages", index, i);
                if (transaction) {
                   session.commit();
                }
@@ -332,17 +333,17 @@ public class SoakPagingTest extends SmokeTestBase {
 
          latch.countDown();
          connection.start();
-         log.debug("Consumer" + index + " started");
+         log.debug("Consumer{} started", index);
 
          int i = 0;
          while (true) {
             Message m = messageConsumer.receive(1000);
             consumed.incrementAndGet();
             if (m == null)
-               log.debug("Consumer" + index + "received null");
+               log.debug("Consumer{} received null", index);
             i++;
             if (i % 100 == 0) {
-               log.debug("Consumer" + index + "received " + i + " messages");
+               log.debug("Consumer{} received {} messages", index, i);
                if (transaction) {
                   session.commit();
                }

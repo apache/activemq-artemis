@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.jboss.logging.Logger;
 import org.junit.Ignore;
 
 /**
@@ -33,8 +32,6 @@ import org.junit.Ignore;
 
 @Ignore
 public class DataFormatTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(DataFormatTests.class);
 
    public DataFormatTests(String protocol) {
       super(protocol);

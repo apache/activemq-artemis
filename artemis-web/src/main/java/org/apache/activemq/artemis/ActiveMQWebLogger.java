@@ -16,62 +16,41 @@
  */
 package org.apache.activemq.artemis;
 
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 import java.io.File;
 
 /**
  * Logger Code 24
- *
- * each message id must be 6 digits long starting with 24, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 181000 to 181999
  */
-@MessageLogger(projectCode = "AMQ")
-public interface ActiveMQWebLogger extends BasicLogger {
+@LogBundle(projectCode = "AMQ", regexID = "24[0-9]{4}")
+public interface ActiveMQWebLogger  {
 
-   ActiveMQWebLogger LOGGER = Logger.getMessageLogger(ActiveMQWebLogger.class, ActiveMQWebLogger.class.getPackage().getName());
+   ActiveMQWebLogger LOGGER = BundleFactory.newBundle(ActiveMQWebLogger.class, ActiveMQWebLogger.class.getPackage().getName());
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241001, value = "Embedded web server started at {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 241001, value = "HTTP Server started at {}", level = LogMessage.Level.INFO)
    void webserverStarted(String bind);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241002, value = "Artemis Jolokia REST API available at {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 241002, value = "Artemis Jolokia REST API available at {}", level = LogMessage.Level.INFO)
    void jolokiaAvailable(String bind);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241003, value = "Starting embedded web server", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 241003, value = "Starting embedded web server", level = LogMessage.Level.INFO)
    void startingEmbeddedWebServer();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241004, value = "Artemis Console available at {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 241004, value = "Artemis Console available at {}", level = LogMessage.Level.INFO)
    void consoleAvailable(String bind);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241005, value = "Stopping embedded web server", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 241005, value = "Stopping embedded web server", level = LogMessage.Level.INFO)
    void stoppingEmbeddedWebServer();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 241006, value = "Stopped embedded web server", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 241006, value = "Stopped embedded web server", level = LogMessage.Level.INFO)
    void stoppedEmbeddedWebServer();
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 244003, value = "Temporary file not deleted on shutdown: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 244003, value = "Temporary file not deleted on shutdown: {}", level = LogMessage.Level.WARN)
    void tmpFileNotDeleted(File tmpdir);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 244005, value = "Web customizer {0} not loaded: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 244005, value = "Web customizer {} not loaded: {}", level = LogMessage.Level.WARN)
    void customizerNotLoaded(String customizer, Throwable t);
 }

@@ -31,13 +31,13 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /** This class is implementing Runnable to reuse a callback to close it. */
 public class AIOSequentialFile extends AbstractSequentialFile  {
 
-   private static final Logger logger = Logger.getLogger(AIOSequentialFileFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(AIOSequentialFileFactory.class);
 
    private boolean opened = false;
 
@@ -227,7 +227,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
       try {
          checkOpened();
       } catch (Exception e) {
-         ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
          completion.onError(-1, e.getMessage());
          return;
       }
@@ -251,7 +251,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
       try {
          checkOpened();
       } catch (Exception e) {
-         ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
          callback.onError(-1, e.getMessage());
          return;
       }

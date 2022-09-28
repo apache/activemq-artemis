@@ -26,8 +26,9 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,7 +41,7 @@ import org.xml.sax.InputSource;
  * add a description for each new property added and try and put it in the config some where appropriate.
  */
 public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
-   private static final Logger log = Logger.getLogger(ActiveMQResourceAdapterConfigTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ActiveMQResourceAdapterConfigTest.class);
 
    private static String config = "" +
       "<config-property>\n" +
@@ -476,7 +477,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
             newConfig.append("         \"         <config-property-value></config-property-value>\" + \n");
             newConfig.append("         \"      </config-property>\" + \n");
          }
-         log.debug(newConfig);
+         log.debug(newConfig.toString());
          fail("methods not shown please see previous and add");
       }
    }

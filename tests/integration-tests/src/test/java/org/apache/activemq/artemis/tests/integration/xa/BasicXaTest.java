@@ -48,17 +48,18 @@ import org.apache.activemq.artemis.ra.ActiveMQRAXAResource;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class BasicXaTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(BasicXaTest.class);
+   private static final Logger log = LoggerFactory.getLogger(BasicXaTest.class);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 

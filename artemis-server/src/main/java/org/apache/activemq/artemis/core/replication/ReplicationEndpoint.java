@@ -84,7 +84,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles all the synchronization necessary for replication on the backup side (that is the
@@ -101,7 +102,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       void onLiveNodeId(String nodeId);
    }
 
-   private static final Logger logger = Logger.getLogger(ReplicationEndpoint.class);
+   private static final Logger logger = LoggerFactory.getLogger(ReplicationEndpoint.class);
 
    private final ActiveMQServerImpl server;
    private final boolean wantedFailBack;
@@ -240,11 +241,11 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
       } catch (ActiveMQException e) {
          logger.warn(e.getMessage(), e);
-         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
+         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(packet, e);
          response = new ActiveMQExceptionMessage(e);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(e, packet);
+         ActiveMQServerLogger.LOGGER.errorHandlingReplicationPacket(packet, e);
          response = new ActiveMQExceptionMessage(ActiveMQMessageBundle.BUNDLE.replicationUnhandledError(e));
       }
 
@@ -636,7 +637,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
                      }
                      message.deleteFile();
                   } catch (Exception e) {
-                     ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(e, packet.getMessageId());
+                     ActiveMQServerLogger.LOGGER.errorDeletingLargeMessage(packet.getMessageId(), e);
                   }
                }
             });

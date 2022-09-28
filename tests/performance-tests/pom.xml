@@ -85,21 +85,25 @@
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
       </dependency>
+      <!-- logging -->
       <dependency>
-         <groupId>org.jboss.logmanager</groupId>
-         <artifactId>jboss-logmanager</artifactId>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-api</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.wildfly.common</groupId>
-          <artifactId>wildfly-common</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging</artifactId>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>

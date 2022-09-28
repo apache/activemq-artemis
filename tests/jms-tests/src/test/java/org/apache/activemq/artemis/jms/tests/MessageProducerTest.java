@@ -44,11 +44,15 @@ import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMessage;
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class MessageProducerTest extends JMSTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MessageProducerTest.class);
 
    @Test
    public void testSendForeignWithForeignDestinationSet() throws Exception {
@@ -188,7 +192,7 @@ public class MessageProducerTest extends JMSTestCase {
          try {
             prod.send(m);
          } catch (Exception e) {
-            log.error(e);
+            logger.error(e.getMessage(), e);
 
             ex = e;
          }
@@ -270,7 +274,7 @@ public class MessageProducerTest extends JMSTestCase {
                try {
                   anonProducer.send(ActiveMQServerTestCase.topic2, m1);
                } catch (Exception e) {
-                  log.error(e);
+                  logger.error(e.getMessage(), e);
                }
             }
          }, "Producer Thread").start();
@@ -278,7 +282,7 @@ public class MessageProducerTest extends JMSTestCase {
          Message m2 = c2.receive(3000);
          ProxyAssertSupport.assertEquals(m1.getJMSMessageID(), m2.getJMSMessageID());
 
-         log.debug("ending test");
+         logger.debug("ending test");
       } finally {
          pconn.close();
          cconn.close();

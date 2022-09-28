@@ -16,68 +16,30 @@
  */
 package org.apache.activemq.artemis.integration.bootstrap;
 
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 10
- *
- * each message id must be 6 digits long starting with 10, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 101000 to 101999
  */
-@MessageLogger(projectCode = "AMQ")
-public interface ActiveMQBootstrapLogger extends BasicLogger {
+@LogBundle(projectCode = "AMQ", regexID = "10[0-9]{4}")
+public interface ActiveMQBootstrapLogger {
 
-   /**
-    * The default logger.
-    */
-   ActiveMQBootstrapLogger LOGGER = Logger.getMessageLogger(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
+   ActiveMQBootstrapLogger LOGGER = BundleFactory.newBundle(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101000, value = "Starting ActiveMQ Artemis Server", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 101000, value = "Starting ActiveMQ Artemis Server", level = LogMessage.Level.INFO)
    void serverStarting();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101001, value = "Stopping ActiveMQ Artemis Server", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 101001, value = "Stopping ActiveMQ Artemis Server", level = LogMessage.Level.INFO)
    void serverStopping();
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101002, value = "Starting Naming server on {0}:{1,number,#} (rmi {2}:{3,number,#})", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 101002, value = "Starting Naming server on {}:{} (rmi {}:{})", level = LogMessage.Level.INFO)
    void startedNamingService(String bindAddress, int port, String rmiBindAddress, int rmiPort);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 101003, value = "Halting ActiveMQ Artemis Server after user request", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 101003, value = "Halting ActiveMQ Artemis Server after user request", level = LogMessage.Level.INFO)
    void serverKilled();
 
-   @LogMessage(level = Logger.Level.DEBUG)
-   @Message(id = 101005, value = "Using broker configuration: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void usingBrokerConfig(String location);
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 102000, value = "Error during undeployment: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void errorDuringUndeployment(@Cause Throwable t, String name);
-
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 104000, value = "Failed to delete file {0}", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 104000, value = "Failed to delete file {}", level = LogMessage.Level.ERROR)
    void errorDeletingFile(String name);
-
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 104001, value = "Failed to start server", format = Message.Format.MESSAGE_FORMAT)
-   void errorStartingServer(@Cause Exception e);
-
-   @LogMessage(level = Logger.Level.ERROR)
-   @Message(id = 104002, value = "The print data operation failed: {0}", format = Message.Format.MESSAGE_FORMAT)
-   void printDataFailed(String exceptionMessage);
 }

@@ -116,12 +116,6 @@ public class Artemis {
          System.setProperty("java.io.tmpdir", new File(fileInstance, "tmp").getCanonicalPath());
       }
 
-      // Lets try to covert the logging.configuration setting to a valid URI
-      String loggingConfig = System.getProperty("logging.configuration");
-      if (loggingConfig != null) {
-         System.setProperty("logging.configuration", fixupFileURI(loggingConfig));
-      }
-
       ClassLoader originalCL = Thread.currentThread().getContextClassLoader();
 
       // Now setup our classloader..
@@ -138,14 +132,6 @@ public class Artemis {
          Thread.currentThread().setContextClassLoader(originalCL);
       }
 
-   }
-
-   static String fixupFileURI(String value) {
-      if (value != null && value.startsWith("file:")) {
-         value = value.substring("file:".length());
-         value = new File(value).toURI().toString();
-      }
-      return value;
    }
 
    private static void add(ArrayList<URL> urls, File file) {

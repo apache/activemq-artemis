@@ -20,7 +20,8 @@ package org.apache.activemq.artemis.tests.util;
 import java.io.File;
 
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -30,7 +31,7 @@ import org.junit.runner.Description;
  */
 public class NoFilesBehind extends TestWatcher {
 
-   private static Logger log = Logger.getLogger(NoFilesBehind.class);
+   private static Logger log = LoggerFactory.getLogger(NoFilesBehind.class);
 
    private final String[] filesToCheck;
 

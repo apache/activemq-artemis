@@ -40,10 +40,11 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientConnectionLifeCycleListener {
-   private static final Logger logger = Logger.getLogger(AMQPBrokerConnectionManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(AMQPBrokerConnectionManager.class);
 
    private final ProtonProtocolManagerFactory protonProtocolManagerFactory;
    private final ActiveMQServer server;

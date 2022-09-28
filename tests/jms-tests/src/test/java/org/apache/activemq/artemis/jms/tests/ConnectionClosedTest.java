@@ -30,11 +30,15 @@ import javax.jms.TopicSubscriber;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * All tests related to closing a Connection.
  */
 public class ConnectionClosedTest extends JMSTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(ConnectionClosedTest.class);
 
 
    @Test
@@ -97,7 +101,7 @@ public class ConnectionClosedTest extends JMSTestCase {
          ProxyAssertSupport.assertEquals("hello", tm.getText());
       }
 
-      log.debug("all messages received by sub2");
+      logger.debug("all messages received by sub2");
 
       conn1.close();
 
@@ -140,7 +144,7 @@ public class ConnectionClosedTest extends JMSTestCase {
                   }
                }
             } catch (Exception e) {
-               log.error(e);
+               logger.error(e.getMessage(), e);
                failed = e.getMessage();
             }
          }

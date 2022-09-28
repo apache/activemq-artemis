@@ -34,14 +34,15 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AsyncOpenCloseTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(AsyncOpenCloseTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(AsyncOpenCloseTest.class);
 
    @Test
    public void testCloseOnSubmit() throws Exception {
@@ -72,7 +73,7 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
 
          byte writtenByte = (byte) 'a';
          for (int nclose = 0; nclose < OPEN_TIMES; nclose++) {
-            logger.debug("************************************************** test " + nclose);
+            logger.debug("************************************************** test {}", nclose);
             writtenByte++;
             if (writtenByte >= (byte) 'z') {
                writtenByte = (byte) 'a';

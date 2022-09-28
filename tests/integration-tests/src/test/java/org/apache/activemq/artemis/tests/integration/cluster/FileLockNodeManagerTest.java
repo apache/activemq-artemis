@@ -34,7 +34,7 @@ public class FileLockNodeManagerTest extends NodeManagerTest {
          final String[] args = new String[action.works() + 1];
          args[0] = getTemporaryDir();
          action.getWork(args, 1);
-         Process p = SpawnedVMSupport.spawnVM(this.getClass().getName(), "-Xms50m", "-Xmx512m", new String[0], true, true, true, args);
+         Process p = SpawnedVMSupport.spawnVM(this.getClass().getName(), "-Xms50m", "-Xmx512m", new String[0], true, true, args);
          processes.add(p);
       }
       for (Process process : processes) {

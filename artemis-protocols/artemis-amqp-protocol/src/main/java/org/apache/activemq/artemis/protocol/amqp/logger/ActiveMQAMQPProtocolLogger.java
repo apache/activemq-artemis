@@ -17,70 +17,42 @@
 package org.apache.activemq.artemis.protocol.amqp.logger;
 
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 11
- *
- * each message id must be 6 digits long starting with 33, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 111000 to 111999
  */
+@LogBundle(projectCode = "AMQ", regexID = "11[0-9]{4}")
+public interface ActiveMQAMQPProtocolLogger {
 
-@MessageLogger(projectCode = "AMQ")
-public interface ActiveMQAMQPProtocolLogger extends BasicLogger {
+   ActiveMQAMQPProtocolLogger LOGGER = BundleFactory.newBundle(ActiveMQAMQPProtocolLogger.class, ActiveMQAMQPProtocolLogger.class.getPackage().getName());
 
-   /**
-    * The default logger.
-    */
-   ActiveMQAMQPProtocolLogger LOGGER = Logger.getMessageLogger(ActiveMQAMQPProtocolLogger.class, ActiveMQAMQPProtocolLogger.class.getPackage().getName());
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 111000, value = "Scheduled task can't be removed from scheduledPool.", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 111000, value = "Scheduled task can't be removed from scheduledPool.", level = LogMessage.Level.WARN)
    void cantRemovingScheduledTask();
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 111001, value = "\n*******************************************************************************************************************************" +
-      "\nCould not re-establish AMQP Server Connection {0} on {1} after {2} retries" +
-      "\n*******************************************************************************************************************************\n", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 111001, value = "\n*******************************************************************************************************************************" +
+      "\nCould not re-establish AMQP Server Connection {} on {} after {} retries" +
+      "\n*******************************************************************************************************************************\n", level = LogMessage.Level.WARN)
    void retryConnectionFailed(String name, String hostAndPort, int currentRetry);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 111002, value = "\n*******************************************************************************************************************************" +
-                                 "\nRetrying Server AMQP Connection {0} on {1} retry {2} of {3}" +
-                                 "\n*******************************************************************************************************************************\n", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 111002, value = "\n*******************************************************************************************************************************" +
+                                 "\nRetrying Server AMQP Connection {} on {} retry {} of {}" +
+                                 "\n*******************************************************************************************************************************\n", level = LogMessage.Level.INFO)
    void retryConnection(String name, String hostAndPort, int currentRetry, int maxRetry);
 
-   @LogMessage(level = Logger.Level.INFO)
-   @Message(id = 111003, value = "\n*******************************************************************************************************************************" +
-      "\nConnected on Server AMQP Connection {0} on {1} after {2} retries" +
-      "\n*******************************************************************************************************************************\n", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 111003, value = "\n*******************************************************************************************************************************" +
+      "\nConnected on Server AMQP Connection {} on {} after {} retries" +
+      "\n*******************************************************************************************************************************\n", level = LogMessage.Level.INFO)
    void successReconnect(String name, String hostAndPort, int currentRetry);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 111004, value = "AddressFullPolicy clash on an anonymous producer between destinations {0}(addressFullPolicy={1}) and {2}(addressFullPolicy={3}). This could lead to semantic inconsistencies on your clients. Notice you could have other instances of this scenario however this message will only be logged once. log.debug output would show all instances of this event.",
-      format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 111004, value = "AddressFullPolicy clash on an anonymous producer between destinations {}(addressFullPolicy={}) and {}(addressFullPolicy={}). This could lead to semantic inconsistencies on your clients. Notice you could have other instances of this scenario however this message will only be logged once. log.debug output would show all instances of this event.", level = LogMessage.Level.WARN)
    void incompatibleAddressFullMessagePolicy(String oldAddress, String oldPolicy, String newAddress, String newPolicy);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 111005, value = "Failed to convert message. Sending it to Dead Letter Address.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void messageConversionFailed(@Cause Throwable t);
+   @LogMessage(id = 111005, value = "Failed to convert message. Sending it to Dead Letter Address.", level = LogMessage.Level.WARN)
+   void messageConversionFailed(Throwable t);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 111006, value = "Unable to send message {0} to Dead Letter Address.",
-      format = Message.Format.MESSAGE_FORMAT)
-   void unableToSendMessageToDLA(MessageReference ref, @Cause Throwable t);
+   @LogMessage(id = 111006, value = "Unable to send message {} to Dead Letter Address.", level = LogMessage.Level.WARN)
+   void unableToSendMessageToDLA(MessageReference ref, Throwable t);
 }

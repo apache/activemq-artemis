@@ -35,14 +35,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScaleDown3NodeTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(ScaleDown3NodeTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ScaleDown3NodeTest.class);
 
    @Override
    @Before
@@ -75,9 +76,9 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       setupSessionFactory(1, isNetty(), false, servers[1].getConfiguration().getClusterUser(), servers[1].getConfiguration().getClusterPassword());
       setupSessionFactory(2, isNetty(), false, servers[2].getConfiguration().getClusterUser(), servers[2].getConfiguration().getClusterPassword());
       log.debug("===============================");
-      log.debug("Node 0: " + servers[0].getClusterManager().getNodeId());
-      log.debug("Node 1: " + servers[1].getClusterManager().getNodeId());
-      log.debug("Node 2: " + servers[2].getClusterManager().getNodeId());
+      log.debug("Node 0: {}", servers[0].getClusterManager().getNodeId());
+      log.debug("Node 1: {}", servers[1].getClusterManager().getNodeId());
+      log.debug("Node 2: {}", servers[2].getClusterManager().getNodeId());
       log.debug("===============================");
 
       servers[0].setIdentity("Node0");
@@ -169,7 +170,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Assert.assertEquals(TEST_SIZE, getMessageCount(snfQueue));
 
       // trigger scaleDown from node 0 to node 1
-      log.debug("============ Stopping " + servers[0].getNodeID());
+      log.debug("============ Stopping {}", servers[0].getNodeID());
       removeConsumer(0);
       servers[0].stop();
 
@@ -194,7 +195,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
                Assert.assertEquals(ActiveMQTestBase.getSamplebyte(j), clientMessage.getBodyBuffer().readByte());
             }
          }
-         log.debug("Received: " + clientMessage);
+         log.debug("Received: {}", clientMessage);
          clientMessage.acknowledge();
       }
 
@@ -261,7 +262,7 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       Wait.assertEquals(TEST_SIZE * 2, snfQueue::getMessageCount);
 
       // trigger scaleDown from node 0 to node 1
-      log.debug("============ Stopping " + servers[0].getNodeID());
+      log.debug("============ Stopping {}", servers[0].getNodeID());
       removeConsumer(0);
       removeConsumer(1);
       servers[0].stop();
@@ -282,12 +283,12 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
       for (int i = 0; i < TEST_SIZE; i++) {
          ClientMessage clientMessage = consumers[0].getConsumer().receive(1000);
          Assert.assertNotNull(clientMessage);
-         log.debug("Received: " + clientMessage);
+         log.debug("Received: {}", clientMessage);
          clientMessage.acknowledge();
 
          clientMessage = consumers[1].getConsumer().receive(1000);
          Assert.assertNotNull(clientMessage);
-         log.debug("Received: " + clientMessage);
+         log.debug("Received: {}", clientMessage);
          clientMessage.acknowledge();
       }
 

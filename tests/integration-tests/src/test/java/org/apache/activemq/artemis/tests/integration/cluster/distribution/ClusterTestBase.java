@@ -92,15 +92,16 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.quorum.file.FileBasedPrimitiveManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.PortCheckRule;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ClusterTestBase extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(ClusterTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(ClusterTestBase.class);
 
    private static final int[] PORTS = {TransportConstants.DEFAULT_PORT, TransportConstants.DEFAULT_PORT + 1, TransportConstants.DEFAULT_PORT + 2, TransportConstants.DEFAULT_PORT + 3, TransportConstants.DEFAULT_PORT + 4, TransportConstants.DEFAULT_PORT + 5, TransportConstants.DEFAULT_PORT + 6, TransportConstants.DEFAULT_PORT + 7, TransportConstants.DEFAULT_PORT + 8, TransportConstants.DEFAULT_PORT + 9,};
 
@@ -148,7 +149,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       try {
          pluggableQuorumConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
       } catch (IOException ioException) {
-         log.error(ioException);
+         log.error(ioException.getMessage(), ioException);
          return null;
       }
       return pluggableQuorumConfiguration;
@@ -279,7 +280,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    protected void waitForFailoverTopology(final int bNode, final int... nodes) throws Exception {
       ActiveMQServer server = servers[bNode];
 
-      log.debug("waiting for " + Arrays.toString(nodes) + " on the topology for server = " + server);
+      if (log.isDebugEnabled()) {
+         log.debug("waiting for " + Arrays.toString(nodes) + " on the topology for server = " + server);
+      }
 
       long start = System.currentTimeMillis();
 
@@ -333,6 +336,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    private void logTopologyDiagram() {
+      if (!log.isDebugEnabled()) {
+         return;
+      }
+
       try {
          StringBuffer topologyDiagram = new StringBuffer();
          for (ActiveMQServer activeMQServer : servers) {
@@ -435,7 +442,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                   final int expectedBindingCount,
                                   final int expectedConsumerCount,
                                   final boolean local) throws Exception {
-      log.debug("waiting for bindings on node " + node +
+      if (log.isDebugEnabled()) {
+         log.debug("waiting for bindings on node " + node +
                    " address " +
                    address +
                    " expectedBindingCount " +
@@ -444,6 +452,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                    expectedConsumerCount +
                    " local " +
                    local);
+      }
 
       ActiveMQServer server = servers[node];
 
@@ -461,13 +470,13 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
 
       log.debug("=======================================================================");
-      log.debug("Binding information for address = " + address + " on node " + node);
+      log.debug("Binding information for address = {} on node {}", address, node);
 
       for (Binding binding : bindings.getBindings()) {
          if (binding.isConnected() && (binding instanceof LocalQueueBinding && local || binding instanceof RemoteQueueBinding && !local)) {
             QueueBinding qBinding = (QueueBinding) binding;
 
-            log.debug("Binding = " + qBinding + ", queue=" + qBinding.getQueue());
+            log.debug("Binding = {}, queue={}", qBinding, qBinding.getQueue());
          }
       }
 
@@ -574,7 +583,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          filterString = ClusterTestBase.FILTER_PROP.toString() + "='" + filterVal + "'";
       }
 
-      log.debug("Creating " + queueName + " , address " + address + " on " + servers[node]);
+      log.debug("Creating {} , address {} on {}", queueName, address, servers[node]);
 
       session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filterString).setDurable(durable));
 
@@ -1023,11 +1032,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                      message.getObjectProperty(ClusterTestBase.COUNT_PROP);
                }
                outOfOrder = true;
-               log.debug("Message j=" + j + " was received out of order = " +
-                                     message.getObjectProperty(ClusterTestBase.COUNT_PROP));
-               log.debug("Message j=" + j +
-                           " was received out of order = " +
-                           message.getObjectProperty(ClusterTestBase.COUNT_PROP));
+               log.debug("Message j={} was received out of order = {}", j, message.getObjectProperty(ClusterTestBase.COUNT_PROP));
             }
          }
       }
@@ -1038,7 +1043,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    private void dumpConsumers() throws Exception {
       for (int i = 0; i < consumers.length; i++) {
          if (consumers[i] != null && !consumers[i].consumer.isClosed()) {
-            log.debug("Dumping consumer " + i);
+            log.debug("Dumping consumer {}", i);
 
             checkReceive(i);
          }
@@ -1091,11 +1096,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             message = holder.consumer.receive(500);
 
             if (message != null) {
-               log.debug("check receive Consumer " + consumerID +
-                           " received message " +
-                           message.getObjectProperty(ClusterTestBase.COUNT_PROP));
+               log.debug("check receive Consumer {} received message {}", consumerID, message.getObjectProperty(ClusterTestBase.COUNT_PROP));
             } else {
-               log.debug("check receive Consumer " + consumerID + " null message");
+               log.debug("check receive Consumer {} null message", consumerID);
             }
          }
          while (message != null);
@@ -1995,7 +1998,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected void startServers(final int... nodes) throws Exception {
       for (int node : nodes) {
-         log.debug("#test start node " + node);
+         log.debug("#test start node {}", node);
          final long currentTime = System.currentTimeMillis();
          boolean waitForSelf = currentTime - timeStarts[node] < TIMEOUT_START_SERVER;
          boolean waitForPrevious = node > 0 && currentTime - timeStarts[node - 1] < TIMEOUT_START_SERVER;
@@ -2003,10 +2006,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             Thread.sleep(TIMEOUT_START_SERVER);
          }
          timeStarts[node] = System.currentTimeMillis();
-         log.debug("starting server " + servers[node]);
+         log.debug("starting server {}", servers[node]);
          servers[node].start();
 
-         log.debug("started server " + servers[node]);
+         log.debug("started server {}", servers[node]);
          waitForServerToStart(servers[node]);
 
          if (servers[node].getStorageManager() != null && isForceUniqueStorageManagerIds()) {
@@ -2031,7 +2034,10 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void stopServers(final int... nodes) throws Exception {
-      log.debug("Stopping nodes " + Arrays.toString(nodes));
+      if (log.isDebugEnabled()) {
+         log.debug("Stopping nodes " + Arrays.toString(nodes));
+      }
+
       Exception exception = null;
       for (int node : nodes) {
          if (servers[node] != null && servers[node].isStarted()) {
@@ -2043,9 +2049,9 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                timeStarts[node] = System.currentTimeMillis();
 
-               log.debug("stopping server " + node);
+               log.debug("stopping server {}", node);
                servers[node].stop();
-               log.debug("server " + node + " stopped");
+               log.debug("server {} stopped", node);
             } catch (Exception e) {
                exception = e;
             }

@@ -42,7 +42,8 @@ import org.apache.activemq.artemis.spi.core.security.jaas.HmacCallback;
 import org.apache.activemq.artemis.spi.core.security.jaas.SCRAMMechanismCallback;
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * abstract class that implements the SASL-SCRAM authentication scheme, concrete implementations
@@ -50,7 +51,7 @@ import org.jboss.logging.Logger;
  */
 public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
-   private final Logger logger = Logger.getLogger(getClass());
+   private final Logger logger = LoggerFactory.getLogger(getClass());
    private final SCRAM scramType;
 
    public SCRAMServerSASLFactory(SCRAM scram) {

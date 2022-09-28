@@ -265,7 +265,7 @@ public class ServiceRegistryImpl implements ServiceRegistry {
             transformer = new RegisteredTransformer(loadClass(transformerConfiguration.getClassName()));
             transformer.init(Collections.unmodifiableMap(transformerConfiguration.getProperties()));
          } catch (Exception e) {
-            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(e, transformerConfiguration.getClassName());
+            throw ActiveMQMessageBundle.BUNDLE.errorCreatingTransformerClass(transformerConfiguration.getClassName(), e);
          }
       }
       return transformer;

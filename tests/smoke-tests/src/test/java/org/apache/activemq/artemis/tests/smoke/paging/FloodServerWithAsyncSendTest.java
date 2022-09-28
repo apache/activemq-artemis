@@ -32,14 +32,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
-   private static final Logger logger = Logger.getLogger(FloodServerWithAsyncSendTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(FloodServerWithAsyncSendTest.class);
    public static final String SERVER_NAME_0 = "paging";
 
    volatile boolean running = true;
@@ -131,7 +132,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
                break;
             }
             if (rec % 10 == 0) {
-               logger.info(queueName + " receive " + rec);
+               logger.info("{} receive {}", queueName, rec);
             }
          }
 
@@ -167,7 +168,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
                break;
             }
             if (rec % 10 == 0) {
-               logger.info(queueName + " receive " + rec);
+               logger.info("{} receive {}", queueName, rec);
             }
          }
 
@@ -202,7 +203,7 @@ public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
          while (running) {
             if (++produced % 10 == 0) {
-               logger.info(queueName + " produced " + produced + " messages");
+               logger.info("{} produced {} messages", queueName, produced);
             }
             producer.send(session.createTextMessage(randomString));
          }

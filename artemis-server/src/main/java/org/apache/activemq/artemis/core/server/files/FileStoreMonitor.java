@@ -29,7 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This will keep a list of fileStores. It will make a comparison on all file stores registered. if any is over the limit,
@@ -40,7 +41,7 @@ import org.jboss.logging.Logger;
  */
 public class FileStoreMonitor extends ActiveMQScheduledComponent {
 
-   private static final Logger logger = Logger.getLogger(FileStoreMonitor.class);
+   private static final Logger logger = LoggerFactory.getLogger(FileStoreMonitor.class);
 
    private final Set<Callback> callbackList = new HashSet<>();
    private final Set<FileStore> stores = new HashSet<>();

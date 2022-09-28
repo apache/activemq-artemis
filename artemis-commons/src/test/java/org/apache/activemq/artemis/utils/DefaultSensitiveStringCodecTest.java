@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ import static org.junit.Assert.fail;
 
 public class DefaultSensitiveStringCodecTest {
 
-   private static final Logger log = Logger.getLogger(DefaultSensitiveStringCodecTest.class);
+   private static final Logger log = LoggerFactory.getLogger(DefaultSensitiveStringCodecTest.class);
 
    @Test
    public void testDefaultAlgorithm() throws Exception {

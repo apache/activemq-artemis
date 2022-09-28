@@ -79,13 +79,14 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
@@ -101,7 +102,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       sendMessageExecutor.shutdownNow();
    }
 
-   private static final Logger logger = Logger.getLogger(SharedNothingReplicationFlowControlTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(SharedNothingReplicationFlowControlTest.class);
 
    @Rule
    public TemporaryFolder brokersFolder = new TemporaryFolder();
@@ -149,7 +150,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
                ClientProducer producer = session.createProducer("flowcontrol");
                ClientMessage message = session.createMessage(true);
                message.writeBodyBufferBytes(body);
-               logger.infof("try to send a message after replicated");
+               logger.info("try to send a message after replicated");
                producer.send(message);
                logger.info("send message done");
                producer.close();
@@ -186,7 +187,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.infof("got live message %d %d", info.id, info.userRecordType);
+            logger.info("got live message {} {}", info.id, info.userRecordType);
             liveJournalCounter.incrementAndGet();
          }
       });
@@ -206,12 +207,12 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.infof("replicated message %d", info.id);
+            logger.info("replicated message {}", info.id);
             replicationCounter.incrementAndGet();
          }
       });
 
-      logger.infof("expected %d messages, live=%d, backup=%d", j, liveJournalCounter.get(), replicationCounter.get());
+      logger.info("expected {} messages, live={}, backup={}", j, liveJournalCounter.get(), replicationCounter.get());
       Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
       Assert.assertEquals("Backup did not replicated all journal", j, replicationCounter.get());
    }

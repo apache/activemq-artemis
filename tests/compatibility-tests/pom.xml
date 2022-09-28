@@ -213,30 +213,6 @@
          <artifactId>junit</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging-processor</artifactId>
-         <scope>provided</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging-annotations</artifactId>
-         <scope>provided</scope>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.logmanager</groupId>
-         <artifactId>jboss-logmanager</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.wildfly.common</groupId>
-         <artifactId>wildfly-common</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
       </dependency>
@@ -244,9 +220,15 @@
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-j</artifactId>
       </dependency>
+      <!-- logging -->
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.marshalling</groupId>
@@ -301,6 +283,7 @@
                         <arg>org.apache.groovy:groovy-all:pom:${groovy.version}</arg>
                      </libListWithDeps>
                      <libList>
+                        <arg>org.apache.activemq:artemis-unit-test-support:${project.version}</arg>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
                      <file>${basedir}/target/ARTEMIS-SNAPSHOT.cp</file>
@@ -329,6 +312,7 @@
                         <arg>org.apache.activemq:artemis-jakarta-server:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-jakarta-client:${project.version}</arg>
                         <arg>org.apache.activemq:artemis-jakarta-service-extensions:${project.version}</arg>
+                        <arg>org.apache.activemq:artemis-unit-test-support:${project.version}</arg>
                         <arg>org.apache.activemq.tests:compatibility-tests:${project.version}</arg>
                      </libList>
                      <file>${basedir}/target/ARTEMIS-JAKARTAEE.cp</file>

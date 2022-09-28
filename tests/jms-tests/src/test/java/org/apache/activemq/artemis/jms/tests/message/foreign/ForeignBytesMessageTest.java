@@ -22,17 +22,21 @@ import javax.jms.Message;
 
 import org.apache.activemq.artemis.jms.tests.message.SimpleJMSBytesMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the delivery/receipt of a foreign byte message
  */
 public class ForeignBytesMessageTest extends ForeignMessageTest {
 
+   private static final Logger logger = LoggerFactory.getLogger(ForeignBytesMessageTest.class);
+
    @Override
    protected Message createForeignMessage() throws Exception {
       SimpleJMSBytesMessage m = new SimpleJMSBytesMessage();
 
-      log.debug("creating JMS Message type " + m.getClass().getName());
+      logger.debug("creating JMS Message type " + m.getClass().getName());
 
       String bytes = "ActiveMQ";
       m.writeBytes(bytes.getBytes());

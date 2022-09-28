@@ -37,7 +37,6 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.MqttSubAck;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -51,8 +50,6 @@ import org.junit.Test;
  */
 
 public class SubscribeTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(SubscribeTests.class);
 
    public SubscribeTests(String protocol) {
       super(protocol);

@@ -23,7 +23,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * WARNING: This is not a sample on how you should handle XA. You are supposed to use a
@@ -36,7 +37,7 @@ import org.jboss.logging.Logger;
  */
 public abstract class ClientAbstract extends Thread {
 
-   private static final Logger log = Logger.getLogger(ClientAbstract.class);
+   private static final Logger log = LoggerFactory.getLogger(ClientAbstract.class);
 
    protected ClientSession session;
 

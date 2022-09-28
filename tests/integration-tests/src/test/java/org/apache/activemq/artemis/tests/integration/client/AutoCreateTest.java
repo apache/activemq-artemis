@@ -45,14 +45,15 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoCreateTest extends ActiveMQTestBase {
-   private static final Logger logger = Logger.getLogger(AutoCreateTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(AutoCreateTest.class);
 
    public final SimpleString addressA = new SimpleString("addressA");
    public final SimpleString queueA = new SimpleString("queueA");
@@ -91,7 +92,7 @@ public class AutoCreateTest extends ActiveMQTestBase {
          for (int i = 0; i < 50; i++) {
             ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
             logger.debug("*******************************************************************************************************************************");
-            logger.debug("run " + i);
+            logger.debug("run {}", i);
             CyclicBarrier barrier = new CyclicBarrier(THREADS + 1);
             CountDownLatch done = new CountDownLatch(THREADS);
             Runnable consumerThread = () -> {

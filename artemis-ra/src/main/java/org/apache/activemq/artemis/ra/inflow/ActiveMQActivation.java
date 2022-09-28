@@ -63,14 +63,15 @@ import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConf
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The activation.
  */
 public class ActiveMQActivation {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQActivation.class);
 
    /**
     * The onMessage method
@@ -400,9 +401,9 @@ public class ActiveMQActivation {
                Thread interruptThread = handler.getCurrentThread();
                if (interruptThread != null) {
                   try {
-                     logger.tracef("Interrupting thread %s", interruptThread.getName());
+                     logger.trace("Interrupting thread {}", interruptThread.getName());
                   } catch (Throwable justLog) {
-                     logger.warn(justLog);
+                     logger.warn(justLog.getMessage(), justLog);
                   }
                   try {
                      interruptThread.interrupt();
@@ -705,7 +706,7 @@ public class ActiveMQActivation {
          } else if (failure instanceof ActiveMQException && ((ActiveMQException) failure).getType() == ActiveMQExceptionType.NOT_CONNECTED) {
             ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
          } else {
-            ActiveMQRALogger.LOGGER.failureInActivation(failure, spec);
+            ActiveMQRALogger.LOGGER.failureInActivation(spec, failure);
          }
       }
       int reconnectCount = 0;
@@ -746,7 +747,7 @@ public class ActiveMQActivation {
                      ActiveMQRALogger.LOGGER.awaitingJMSServerCreation();
                   }
                } else {
-                  ActiveMQRALogger.LOGGER.errorReconnecting(t, spec);
+                  ActiveMQRALogger.LOGGER.errorReconnecting(spec, t);
                }
             }
             ++reconnectCount;
@@ -798,7 +799,7 @@ public class ActiveMQActivation {
 
       @Override
       public void run() {
-         logger.tracef("Starting reconnect for %s", cause);
+         logger.trace("Starting reconnect for {}", cause);
          reconnect(null, false);
       }
 

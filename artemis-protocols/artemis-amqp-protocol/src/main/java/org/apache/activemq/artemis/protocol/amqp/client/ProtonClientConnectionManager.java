@@ -28,7 +28,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +40,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProtonClientConnectionManager implements BaseConnectionLifeCycleListener<ProtonProtocolManager>, BufferHandler {
    private final Map<Object, ActiveMQProtonRemotingConnection> connectionMap = new ConcurrentHashMap<>();
-   private static final Logger log = Logger.getLogger(ProtonClientConnectionManager.class);
+   private static final Logger log = LoggerFactory.getLogger(ProtonClientConnectionManager.class);
    private final AMQPClientConnectionFactory connectionFactory;
    private final Optional<EventHandler> eventHandler;
    private final ClientSASLFactory clientSASLFactory;
@@ -56,17 +57,17 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       connectionMap.put(connection.getID(), amqpConnection);
       amqpConnection.open();
 
-      log.info("Connection " + amqpConnection.getRemoteAddress() + " created");
+      log.info("Connection {} created", amqpConnection.getRemoteAddress());
    }
 
    @Override
    public void connectionDestroyed(Object connectionID) {
       RemotingConnection connection = connectionMap.remove(connectionID);
       if (connection != null) {
-         log.info("Connection " + connection.getRemoteAddress() + " destroyed");
+         log.info("Connection {} destroyed", connection.getRemoteAddress());
          connection.fail(new ActiveMQRemoteDisconnectException());
       } else {
-         log.error("Connection with id " + connectionID + " not found in connectionDestroyed");
+         log.error("Connection with id {} not found in connectionDestroyed", connectionID);
       }
    }
 
@@ -74,10 +75,10 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
    public void connectionException(Object connectionID, ActiveMQException me) {
       RemotingConnection connection = connectionMap.get(connectionID);
       if (connection != null) {
-         log.info("Connection " + connection.getRemoteAddress() + " exception: " + me.getMessage());
+         log.info("Connection {} exception: {}", connection.getRemoteAddress(),  me.getMessage());
          connection.fail(me);
       } else {
-         log.error("Connection with id " + connectionID + " not found in connectionException");
+         log.error("Connection with id {} not found in connectionException", connectionID);
       }
    }
 
@@ -104,7 +105,7 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       if (connection != null) {
          connection.bufferReceived(connectionID, buffer);
       } else {
-         log.error("Connection with id " + connectionID + " not found in bufferReceived()!");
+         log.error("Connection with id {} not found in bufferReceived()!", connectionID);
       }
    }
 

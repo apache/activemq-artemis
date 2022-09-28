@@ -48,10 +48,6 @@ rem "Load Profile Config"
 set ARTEMIS_INSTANCE_ETC="${artemis.instance.etc}"
 call %ARTEMIS_INSTANCE_ETC%\artemis.profile.cmd %*
 
-rem "Set Defaults."
-set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties
-set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
-
 if not exist "%ARTEMIS_OOME_DUMP%" goto NO_ARTEMIS_OOME_DUMP
 rem "Backup the last OOME heap dump"
 move /Y "%ARTEMIS_OOME_DUMP%" "%ARTEMIS_OOME_DUMP%.bkp"
@@ -66,8 +62,6 @@ set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.instance=%ARTEMIS_INSTANCE%
 set JVM_ARGS=%JVM_ARGS% -Ddata.dir=%ARTEMIS_DATA_DIR%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%
-set JVM_ARGS=%JVM_ARGS% -Djava.util.logging.manager=%ARTEMIS_LOG_MANAGER%
-set JVM_ARGS=%JVM_ARGS% -Dlogging.configuration=%ARTEMIS_LOGGING_CONF%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.default.sensitive.string.codec.key=%ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY%
 
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%

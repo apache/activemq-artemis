@@ -41,7 +41,8 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
-import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * This is a helper class for the Journal, which will control access to dataFiles, openedFiles and freeFiles
@@ -49,7 +50,7 @@ import org.jboss.logging.Logger;
  */
 public class JournalFilesRepository {
 
-   private static final Logger logger = Logger.getLogger(JournalFilesRepository.class);
+   private static final Logger logger = LoggerFactory.getLogger(JournalFilesRepository.class);
 
    /**
     * Used to debug the consistency of the journal ordering.
@@ -291,14 +292,14 @@ public class JournalFilesRepository {
       for (JournalFile file : dataFiles) {
          if (file.getFileID() <= seq) {
             ActiveMQJournalLogger.LOGGER.checkFiles();
-            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            logger.info(debugFiles());
             ActiveMQJournalLogger.LOGGER.seqOutOfOrder();
             throw new IllegalStateException("Sequence out of order");
          }
 
          if (journal.getCurrentFile() != null && journal.getCurrentFile().getFileID() <= file.getFileID()) {
             ActiveMQJournalLogger.LOGGER.checkFiles();
-            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            logger.info(debugFiles());
             ActiveMQJournalLogger.LOGGER.currentFile(file.getFileID(), journal.getCurrentFile().getFileID(), file.getFileID(), (journal.getCurrentFile() == file));
 
             // throw new RuntimeException ("Check failure!");
@@ -315,7 +316,7 @@ public class JournalFilesRepository {
       for (JournalFile file : freeFiles) {
          if (file.getFileID() <= lastFreeId) {
             ActiveMQJournalLogger.LOGGER.checkFiles();
-            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            logger.info(debugFiles());
             ActiveMQJournalLogger.LOGGER.fileIdOutOfOrder();
 
             throw new RuntimeException("Check failure!");
@@ -325,7 +326,7 @@ public class JournalFilesRepository {
 
          if (file.getFileID() < seq) {
             ActiveMQJournalLogger.LOGGER.checkFiles();
-            ActiveMQJournalLogger.LOGGER.info(debugFiles());
+            logger.info(debugFiles());
             ActiveMQJournalLogger.LOGGER.fileTooSmall();
 
             // throw new RuntimeException ("Check failure!");
@@ -712,7 +713,7 @@ public class JournalFilesRepository {
          try {
             return Long.parseLong(fileName.substring(fileName.lastIndexOf("-") + 1, fileName.indexOf('.')));
          } catch (Throwable e2) {
-            ActiveMQJournalLogger.LOGGER.errorRetrievingID(e, fileName);
+            ActiveMQJournalLogger.LOGGER.errorRetrievingID(fileName, e);
          }
          return 0;
       }

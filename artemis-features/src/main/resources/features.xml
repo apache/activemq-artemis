@@ -53,7 +53,6 @@
 		<bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons.beanutils.version}</bundle>
 		<bundle dependency="true">mvn:commons-collections/commons-collections/${commons.collections.version}</bundle>
 
-		<bundle dependency="true">mvn:org.jboss.logging/jboss-logging/${jboss.logging.version}</bundle>
 		<bundle dependency="true">wrap:mvn:org.jgroups/jgroups/${jgroups.version}</bundle>
 	</feature>
 

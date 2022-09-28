@@ -21,28 +21,29 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JDBCUtils {
 
-   private static final Logger logger = Logger.getLogger(JDBCUtils.class);
+   private static final Logger logger = LoggerFactory.getLogger(JDBCUtils.class);
 
    public static SQLProvider.Factory getSQLProviderFactory(String url) {
       PropertySQLProvider.Factory.SQLDialect dialect = PropertySQLProvider.Factory.identifyDialect(url);
-      logger.tracef("getSQLProvider Returning SQL provider for dialect %s for url::%s", dialect, url);
+      logger.trace("getSQLProvider Returning SQL provider for dialect {} for url::{}", dialect, url);
       return new PropertySQLProvider.Factory(dialect);
    }
 
    public static SQLProvider getSQLProvider(String driverClass, String tableName, SQLProvider.DatabaseStoreType storeType) {
       PropertySQLProvider.Factory.SQLDialect dialect = PropertySQLProvider.Factory.identifyDialect(driverClass);
-      logger.tracef("getSQLProvider Returning SQL provider for dialect %s for driver::%s, tableName::%s", dialect, driverClass, tableName);
+      logger.trace("getSQLProvider Returning SQL provider for dialect {} for driver::{}, tableName::{}", dialect, driverClass, tableName);
       PropertySQLProvider.Factory factory = new PropertySQLProvider.Factory(dialect);
       return factory.create(tableName, storeType);
    }
 
    public static SQLProvider getSQLProvider(Map<String, Object> dataSourceProperties, String tableName, SQLProvider.DatabaseStoreType storeType) {
       PropertySQLProvider.Factory.SQLDialect dialect = PropertySQLProvider.Factory.investigateDialect(dataSourceProperties);
-      logger.tracef("getSQLProvider Returning SQL provider for dialect %s, tableName::%s", dialect, tableName);
+      logger.trace("getSQLProvider Returning SQL provider for dialect {}, tableName::{}", dialect, tableName);
       PropertySQLProvider.Factory factory = new PropertySQLProvider.Factory(dialect);
       return factory.create(tableName, storeType);
    }

@@ -117,7 +117,6 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -126,16 +125,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class PagingTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(PagingTest.class);
+   private static final Logger log = LoggerFactory.getLogger(PagingTest.class);
 
    @Rule
    public RetryRule retryMethod = new RetryRule(1);
-
-   private static final Logger logger = Logger.getLogger(PagingTest.class);
 
    protected ServerLocator locator;
    protected ActiveMQServer server;
@@ -894,8 +893,8 @@ public class PagingTest extends ActiveMQTestBase {
       sf = createSessionFactory(locator);
       session = sf.createSession(false, true, true);
 
-      logger.info("*******************************************************************************************************************************");
-      logger.info("Creating consumer");
+      log.info("*******************************************************************************************************************************");
+      log.info("Creating consumer");
 
       consumer = session.createConsumer(ADDRESS);
       session.start();
@@ -1067,7 +1066,7 @@ public class PagingTest extends ActiveMQTestBase {
       for (int i = 0; i < 10; i++) {
          ClientMessage msgRec = consumer.receive(1000);
          Assert.assertNotNull(msgRec);
-         logger.debugf("received i=%s page=%s",msgRec.getIntProperty("i"), msgRec.getIntProperty("page"));
+         log.debug("received i={} page={}", msgRec.getIntProperty("i"), msgRec.getIntProperty("page"));
          msgRec.acknowledge();
       }
       session.commit();
@@ -1123,7 +1122,7 @@ public class PagingTest extends ActiveMQTestBase {
             ClientMessage msgRec = browser.receive(1000);
             Assert.assertNotNull(msgRec);
 
-            logger.debugf("received i=%s page=%s", msgRec.getIntProperty("i"), msgRec.getIntProperty("page"));
+            log.debug("received i={} page={}", msgRec.getIntProperty("i"), msgRec.getIntProperty("page"));
 
             int pageProperty = msgRec.getIntProperty("page");
             Assert.assertTrue(pageProperty != 5 && pageProperty != 3);
@@ -1211,7 +1210,7 @@ public class PagingTest extends ActiveMQTestBase {
          for (int i = 0; i < numberOfMessages; i++) {
             ClientMessage msgRec = consumer.receive(1000);
             Assert.assertNotNull(msgRec);
-            logger.debug("msgRec, i=" + msgRec.getIntProperty("i") + ", page=" + msgRec.getIntProperty("page"));
+            log.debug("msgRec, i={}, page={}", msgRec.getIntProperty("i"), msgRec.getIntProperty("page"));
             msgRec.acknowledge();
          }
          session.commit();
@@ -2654,10 +2653,13 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
          locator.close();
       } finally {
-         if (storeType != StoreConfiguration.StoreType.DATABASE) {
-            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ144010"));
+         try {
+            if (storeType != StoreConfiguration.StoreType.DATABASE) {
+               Assert.assertTrue(AssertionLoggerHandler.findText("AMQ144010"));
+            }
+         } finally {
+            AssertionLoggerHandler.stopCapture();
          }
-         AssertionLoggerHandler.stopCapture();
       }
    }
 
@@ -2737,7 +2739,7 @@ public class PagingTest extends ActiveMQTestBase {
       sessionConsumer.start();
       ClientConsumer consumer = sessionConsumer.createConsumer(PagingTest.ADDRESS);
       for (int msgCount = 0; msgCount < numberOfMessages; msgCount++) {
-         log.debug("Received " + msgCount);
+         log.debug("Received {}", msgCount);
          msgReceived++;
          ClientMessage msg = consumer.receive(5000);
          if (msg == null) {
@@ -2819,7 +2821,7 @@ public class PagingTest extends ActiveMQTestBase {
       sessionConsumer.start();
       consumer = sessionConsumer.createConsumer(PagingTest.ADDRESS);
       for (int msgCount = 0; msgCount < numberOfMessages; msgCount++) {
-         log.debug("Received " + msgCount);
+         log.debug("Received {}", msgCount);
          msgReceived++;
          ClientMessage msg = consumer.receive(5000);
          if (msg == null) {
@@ -2943,7 +2945,7 @@ public class PagingTest extends ActiveMQTestBase {
       // a dumb user, or anything that will remove the data
       deleteDirectory(new File(getPageDir()));
 
-      logger.trace("Server restart");
+      log.trace("Server restart");
 
       server.start();
 
@@ -3393,7 +3395,7 @@ public class PagingTest extends ActiveMQTestBase {
 
             for (int i = 0; i < numberOfMessages; i++) {
                if (i % 500 == 0) {
-                  log.debug("Sent " + i + " messages");
+                  log.debug("Sent {} messages", i);
                   session.commit();
                }
                message = session.createMessage(true);
@@ -3639,8 +3641,8 @@ public class PagingTest extends ActiveMQTestBase {
                   try {
                      assertBodiesEqual(body, message2.getBodyBuffer());
                   } catch (AssertionError e) {
-                     PagingTest.log.debug("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
-                     PagingTest.log.debug("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+                     log.debug("Expected buffer: {}", ActiveMQTestBase.dumpBytesHex(body, 40));
+                     log.debug("Arriving buffer: {}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
                      throw e;
                   }
                }
@@ -4275,7 +4277,7 @@ public class PagingTest extends ActiveMQTestBase {
          ClientMessage msg = consumer.receive(5000);
          assertNotNull(msg);
          if (i != msg.getIntProperty("count").intValue()) {
-            log.debug("Received " + i + " with property = " + msg.getIntProperty("count"));
+            log.debug("Received {} with property = {}", i,  msg.getIntProperty("count"));
             log.debug("###### different");
          }
          // assertEquals(i, msg.getIntProperty("count").intValue());
@@ -4382,8 +4384,8 @@ public class PagingTest extends ActiveMQTestBase {
          try {
             assertBodiesEqual(body, message2.getBodyBuffer());
          } catch (AssertionError e) {
-            PagingTest.log.debug("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
-            PagingTest.log.debug("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+            log.debug("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
+            log.debug("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
             throw e;
          }
       }
@@ -4628,7 +4630,7 @@ public class PagingTest extends ActiveMQTestBase {
       server.stop();
       mainCleanup.set(false);
 
-      logger.trace("Server restart");
+      log.trace("Server restart");
 
       server.start();
 
@@ -5015,7 +5017,7 @@ public class PagingTest extends ActiveMQTestBase {
             count++;
 
             if (count % 1000 == 0) {
-               log.debug("received " + count);
+               log.debug("received {}", count);
             }
 
             try {
@@ -5955,7 +5957,7 @@ public class PagingTest extends ActiveMQTestBase {
          ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
 
          for (int i = 0; i < 100; i++) {
-            log.debug("send message #" + i);
+            log.debug("send message #{}", i);
             ClientMessage message = session.createMessage(true);
 
             message.putStringProperty("id", "str" + i);
@@ -5994,7 +5996,7 @@ public class PagingTest extends ActiveMQTestBase {
          }
 
          for (int i = 2; i < 100; i++) {
-            log.debug("Received message " + i);
+            log.debug("Received message {}", i);
             ClientMessage message = cons.receive(5000);
             assertNotNull("Message " + i + " wasn't received", message);
             message.acknowledge();
@@ -6014,7 +6016,7 @@ public class PagingTest extends ActiveMQTestBase {
                   fail("Couldn't finish large message receiving");
                }
             } catch (Throwable e) {
-               log.debug("output bytes = " + bytesOutput);
+               log.debug("output bytes = {}", bytesOutput);
                log.debug(threadDump("dump"));
                fail("Couldn't finish large message receiving for id=" + message.getStringProperty("id") + " with messageID=" + message.getMessageID());
             }
@@ -6052,7 +6054,7 @@ public class PagingTest extends ActiveMQTestBase {
          cons = session.createConsumer(ADDRESS);
 
          for (int i = 2; i < 100; i++) {
-            log.debug("Received message " + i);
+            log.debug("Received message {}", i);
             ClientMessage message = cons.receive(5000);
             assertNotNull(message);
 
@@ -6161,7 +6163,7 @@ public class PagingTest extends ActiveMQTestBase {
 
          for (int i = 0; i < 500; i++) {
             if (i % 100 == 0)
-               log.debug("send message #" + i);
+               log.debug("send message #{}", i);
             message = session.createMessage(true);
 
             message.putStringProperty("id", "str" + i);
@@ -6215,7 +6217,7 @@ public class PagingTest extends ActiveMQTestBase {
          ClientConsumer cons = session.createConsumer("DLA");
 
          for (int i = 0; i < 500; i++) {
-            log.debug("Received message " + i);
+            log.debug("Received message {}",  i);
             message = cons.receive(10000);
             assertNotNull(message);
             message.acknowledge();
@@ -6248,14 +6250,15 @@ public class PagingTest extends ActiveMQTestBase {
       }
    }
 
-   @Test
    /**
     * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
     *
-    *   -Djava.util.logging.manager=org.jboss.logmanager.LogManager  -Dlogging.configuration=file:<path_to_source>/tests/config/logging.properties
+    *   -Dlog4j2.configurationFile=file:<path_to_source>/tests/config/log4j2-tests-config.properties
     *
     *   Note: Idea should get these from the pom and you shouldn't need to do this.
-    */ public void testFailMessagesNonDurable() throws Exception {
+    */
+   @Test
+   public void testFailMessagesNonDurable() throws Exception {
       AssertionLoggerHandler.startCapture();
 
       try {

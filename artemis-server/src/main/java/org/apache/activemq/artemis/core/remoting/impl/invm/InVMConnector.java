@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.spi.core.remoting.AbstractConnector;
@@ -44,13 +43,14 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InVMConnector extends AbstractConnector {
 
    public static String INVM_CONNECTOR_TYPE = "IN-VM";
 
-   private static final Logger logger = Logger.getLogger(InVMConnector.class);
+   private static final Logger logger = LoggerFactory.getLogger(InVMConnector.class);
 
    public static final Map<String, Object> DEFAULT_CONFIG;
 
@@ -200,7 +200,7 @@ public class InVMConnector extends AbstractConnector {
          return conn;
       } else {
          if (logger.isDebugEnabled()) {
-            logger.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection."));
+            logger.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection.").toString());
          }
          return null;
       }
@@ -209,7 +209,7 @@ public class InVMConnector extends AbstractConnector {
    @Override
    public synchronized void start() {
       started = true;
-      ActiveMQClientLogger.LOGGER.startedInVMConnector();
+      logger.debug("Started InVM Connector");
    }
 
    public BufferHandler getHandler() {

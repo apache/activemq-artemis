@@ -49,17 +49,18 @@ import org.apache.activemq.artemis.core.server.impl.LastValueQueue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RetryRule;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class JMSNonDestructiveTest extends JMSClientTestSupport {
 
-   private static final Logger logger = Logger.getLogger(JMSNonDestructiveTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(JMSNonDestructiveTest.class);
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);

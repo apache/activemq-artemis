@@ -84,16 +84,17 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FailoverTest extends FailoverTestBase {
 
-   private static final Logger log = Logger.getLogger(FailoverTest.class);
+   private static final Logger log = LoggerFactory.getLogger(FailoverTest.class);
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -239,8 +240,7 @@ public class FailoverTest extends FailoverTestBase {
             Integer counter = message.getIntProperty("counter");
             received.put(counter, message);
             try {
-               log.debug("acking message = id = " + message.getMessageID() + ", counter = " +
-                            message.getIntProperty("counter"));
+               log.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
                message.acknowledge();
                session.commit();
             } catch (ActiveMQException e) {
@@ -252,7 +252,7 @@ public class FailoverTest extends FailoverTestBase {
                e.printStackTrace();
                return;
             }
-            log.debug("Acked counter = " + counter);
+            log.debug("Acked counter = {}", counter);
             if (counter.equals(10)) {
                latch.countDown();
             }
@@ -310,15 +310,13 @@ public class FailoverTest extends FailoverTestBase {
                   Integer counter = message.getIntProperty("counter");
                   received.put(counter, message);
                   try {
-                     log.debug("acking message = id = " + message.getMessageID() +
-                                 ", counter = " +
-                                 message.getIntProperty("counter"));
+                     log.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
                      message.acknowledge();
                   } catch (ActiveMQException e) {
                      e.printStackTrace();
                      continue;
                   }
-                  log.debug("Acked counter = " + counter);
+                  log.debug("Acked counter = {}", counter);
                   if (counter.equals(10)) {
                      latch.countDown();
                   }
@@ -700,14 +698,14 @@ public class FailoverTest extends FailoverTestBase {
       TransportConfiguration initialLive = getFieldFromSF(sf, "currentConnectorConfig");
       TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
 
-      instanceLog.debug("initlive: " + initialLive);
-      instanceLog.debug("initback: " + initialBackup);
+      instanceLog.debug("initlive: {}", initialLive);
+      instanceLog.debug("initback: {}", initialBackup);
 
       TransportConfiguration last = getFieldFromSF(sf, "connectorConfig");
       TransportConfiguration current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      instanceLog.debug("now last: " + last);
-      instanceLog.debug("now current: " + current);
+      instanceLog.debug("now last: {}", last);
+      instanceLog.debug("now current: {}", current);
       assertTrue(current.equals(initialLive));
 
       ClientSession session = createSession(sf, true, true);
@@ -723,8 +721,8 @@ public class FailoverTest extends FailoverTestBase {
       last = getFieldFromSF(sf, "connectorConfig");
       current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      instanceLog.debug("now after live crashed last: " + last);
-      instanceLog.debug("now current: " + current);
+      instanceLog.debug("now after live crashed last: {}", last);
+      instanceLog.debug("now current: {}", current);
 
       assertTrue(current.equals(initialBackup));
 
@@ -744,8 +742,8 @@ public class FailoverTest extends FailoverTestBase {
       last = getFieldFromSF(sf, "connectorConfig");
       current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      instanceLog.debug("now after live back again last: " + last);
-      instanceLog.debug("now current: " + current);
+      instanceLog.debug("now after live back again last: {}", last);
+      instanceLog.debug("now current: {}", current);
 
       //cannot use equals here because the config's name (uuid) changes
       //after failover

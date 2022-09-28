@@ -37,14 +37,15 @@ import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.FakeSequen
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AlignedJournalImplTest extends ActiveMQTestBase {
-   private static final Logger log = Logger.getLogger(AlignedJournalImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(AlignedJournalImplTest.class);
 
 
    private static final LoaderCallback dummyLoader = new LoaderCallback() {
@@ -373,7 +374,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       } catch (Exception e) {
-         log.warn(e);
+         log.warn(e.getMessage(), e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -1325,7 +1326,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          public void failedTransaction(final long transactionID,
                                        final List<RecordInfo> records,
                                        final List<RecordInfo> recordsToDelete) {
-            log.debug("records.length = " + records.size());
+            log.debug("records.length = {}", records.size());
             incompleteTransactions.add(transactionID);
          }
 

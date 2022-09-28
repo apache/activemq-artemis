@@ -35,11 +35,15 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class SelectorTest extends ActiveMQServerTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(SelectorTest.class);
 
    /**
     * Test case for http://jira.jboss.org/jira/browse/JBMESSAGING-105
@@ -74,7 +78,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
          prod.send(redMessage);
          prod.send(blueMessage);
 
-         log.debug("sent message");
+         logger.debug("sent message");
 
          Message rec = redConsumer.receive();
          ProxyAssertSupport.assertEquals(redMessage.getJMSMessageID(), rec.getJMSMessageID());
@@ -84,7 +88,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
          redConsumer.close();
 
-         log.debug("closed first consumer");
+         logger.debug("closed first consumer");
 
          MessageConsumer universalConsumer = session.createConsumer(queue1);
 
@@ -191,7 +195,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertEquals("john", m.getStringProperty("beatle"));
 
-            log.debug("Got message " + j);
+            logger.debug("Got message " + j);
          }
 
          Message m = cons1.receiveNoWait();
@@ -534,7 +538,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
                      }
                   }
                } catch (Exception e) {
-                  log.error("receive failed", e);
+                  logger.error("receive failed", e);
                }
             }
          }, "consumer thread 1").start();
@@ -553,7 +557,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
                      }
                   }
                } catch (Exception e) {
-                  log.error("receive failed", e);
+                  logger.error("receive failed", e);
                }
             }
          }, "consumer thread 2").start();
@@ -902,38 +906,38 @@ public class SelectorTest extends ActiveMQServerTestCase {
          tm.setText("1");
          tm.setStringProperty("PROP1", "VALUE1");
          msgProducer.send(tm);
-         log.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
 
          tm = session.createTextMessage();
          tm.setText("2");
          tm.setStringProperty("PROP1", "VALUE1");
          msgProducer.send(tm);
-         log.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
 
          tm = session.createTextMessage();
          tm.setText("3");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         log.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
 
          tm = session.createTextMessage();
          tm.setText("4");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         log.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
 
          tm = session.createTextMessage();
          tm.setText("5");
          tm.setStringProperty("PROP1", "VALUE1");
          msgProducer.send(tm);
-         log.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
 
          tm = session.createTextMessage();
          tm.setText("6");
          tm.setStringProperty("PROP1", "VALUE1");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         log.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
          msgProducer.close();
          msgProducer = null;
 

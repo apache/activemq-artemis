@@ -44,14 +44,15 @@ import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple address manager that maintains the addresses and bindings.
  */
 public class SimpleAddressManager implements AddressManager {
 
-   private static final Logger logger = Logger.getLogger(SimpleAddressManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(SimpleAddressManager.class);
 
    private final ConcurrentMap<SimpleString, AddressInfo> addressInfoMap = new ConcurrentHashMap<>();
 

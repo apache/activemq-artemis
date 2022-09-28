@@ -113,11 +113,12 @@ import org.apache.commons.beanutils.MappedPropertyDescriptor;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.beanutils.expression.DefaultResolver;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigurationImpl implements Configuration, Serializable {
 
-   private static final Logger logger = Logger.getLogger(ConfigurationImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ConfigurationImpl.class);
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 

@@ -17,7 +17,8 @@
 package org.apache.activemq.artemis.core.server;
 
 import org.apache.activemq.artemis.utils.SizeFormatterUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A memory usage watcher.
@@ -27,7 +28,7 @@ import org.jboss.logging.Logger;
  */
 public class MemoryManager implements ActiveMQComponent {
 
-   private static final Logger logger = Logger.getLogger(MemoryManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MemoryManager.class);
 
    private final Runtime runtime;
 
@@ -129,7 +130,7 @@ public class MemoryManager implements ActiveMQComponent {
             info.append(String.format("available memory: %.2f%%%n", availableMemoryPercent));
 
             if (logger.isDebugEnabled()) {
-               logger.debug(info);
+               logger.debug(info.toString());
             }
 
             if (availableMemoryPercent <= memoryWarningThreshold) {

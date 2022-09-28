@@ -26,14 +26,15 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.core.server.Divert;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A DivertImpl simply diverts a message to a different forwardAddress
  */
 public class DivertImpl implements Divert {
 
-   private static final Logger logger = Logger.getLogger(DivertImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(DivertImpl.class);
 
    private final PostOffice postOffice;
 

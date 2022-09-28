@@ -36,7 +36,7 @@ public class DefaultOpenSSLContextFactory implements OpenSSLContextFactory {
     */
    @Override
    public SslContext getClientSslContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {
-      log.debugf("Creating Client OpenSSL Context with %s", config);
+      log.debug("Creating Client OpenSSL Context with {}", config);
       return new SSLSupport(config)
          .setSslProvider(TransportConstants.OPENSSL_PROVIDER)
          .createNettyClientContext();
@@ -49,7 +49,7 @@ public class DefaultOpenSSLContextFactory implements OpenSSLContextFactory {
     */
    @Override
    public SslContext getServerSslContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {
-      log.debugf("Creating Server OpenSSL Context with %s", config);
+      log.debug("Creating Server OpenSSL Context with {}", config);
       return new SSLSupport(config)
          .setSslProvider(TransportConstants.OPENSSL_PROVIDER)
          .createNettyContext();

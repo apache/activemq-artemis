@@ -58,13 +58,14 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.server.impl.QueueImpl.DELIVERY_TIMEOUT;
 
 public final class PageSubscriptionImpl implements PageSubscription {
 
-   private static final Logger logger = Logger.getLogger(PageSubscriptionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(PageSubscriptionImpl.class);
 
    private static final Object DUMMY = new Object();
 
@@ -453,10 +454,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
                   Page currentPage = pageStore.getCurrentPage();
 
                   if (currentPage != null && entry.getKey() == pageStore.getCurrentPage().getPageId()) {
-                     logger.tracef("We can't clear page %s 's the current page", entry.getKey());
+                     logger.trace("We can't clear page {} 's the current page", entry.getKey());
                   } else {
                      if (logger.isTraceEnabled()) {
-                        logger.tracef("cleanup marking page %s as complete", info.pageId);
+                        logger.trace("cleanup marking page {} as complete", info.pageId);
                      }
                      info.setPendingDelete();
                      completedPages.add(entry.getValue());
@@ -753,11 +754,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public boolean isComplete(long page) {
-      logger.tracef("%s isComplete %d", this, page);
+      logger.trace("{} isComplete {}", this, page);
       synchronized (consumedPages) {
          if (empty && consumedPages.isEmpty()) {
             if (logger.isTraceEnabled()) {
-               logger.tracef("isComplete(%d)::Subscription %s has empty=%s, consumedPages.isEmpty=%s", page, this, empty, consumedPages.isEmpty());
+               logger.trace("isComplete({})::Subscription {} has empty={}, consumedPages.isEmpty={}", page, this, empty, consumedPages.isEmpty());
             }
             return true;
          }
@@ -765,12 +766,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
          PageCursorInfo info = consumedPages.get(page);
 
          if (info == null && empty) {
-            logger.tracef("isComplete(%d)::::Couldn't find info and it is empty", page);
+            logger.trace("isComplete({})::::Couldn't find info and it is empty", page);
             return true;
          } else {
             boolean isDone = info != null && info.isDone();
             if (logger.isTraceEnabled()) {
-               logger.tracef("isComplete(%d):: found info=%s, isDone=%s", (Object) page, info, isDone);
+               logger.trace("isComplete({}):: found info={}, isDone={}", (Object) page, info, isDone);
             }
             return isDone;
          }
@@ -870,7 +871,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public void onDeletePage(Page deletedPage) throws Exception {
-      logger.tracef("removing page %s", deletedPage);
+      logger.trace("removing page {}", deletedPage);
       PageCursorInfo info;
       synchronized (consumedPages) {
          info = consumedPages.remove(Long.valueOf(deletedPage.getPageId()));
@@ -981,7 +982,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
       PageCursorInfo info = getPageInfo(position);
       if (info != null) {
-         logger.tracef("InstallTXCallback looking up pagePosition %s, result=%s", position, info);
+         logger.trace("InstallTXCallback looking up pagePosition {}, result={}", position, info);
 
          info.remove(position.getMessageNr());
 
@@ -1014,7 +1015,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
    private void onPageDone(final PageCursorInfo info) {
       if (autoCleanup) {
          if (logger.isTraceEnabled()) {
-            logger.tracef("onPageDone page %s", info.getPageId());
+            logger.trace("onPageDone page {}", info.getPageId());
          }
          scheduleCleanupCheck();
       }
@@ -1088,7 +1089,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
          this.pageId = pageId;
          this.numberOfMessages = numberOfMessages;
-         logger.tracef("Created PageCursorInfo for pageNr=%d, numberOfMessages=%d, not live", pageId, numberOfMessages);
+         logger.trace("Created PageCursorInfo for pageNr={}, numberOfMessages={}, not live", pageId, numberOfMessages);
       }
 
       private PageCursorInfo(long pageId) {
@@ -1101,7 +1102,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
        * @param completePage
        */
       public void setCompleteInfo(final PagePosition completePage) {
-         logger.tracef("Setting up complete page %s on cursor %s on subscription %s", completePage, this, PageSubscriptionImpl.this);
+         logger.trace("Setting up complete page {} on cursor {} on subscription {}", completePage, this, PageSubscriptionImpl.this);
          this.completePage = completePage;
       }
 
@@ -1151,7 +1152,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
       public synchronized void remove(final int messageNr) {
          if (logger.isTraceEnabled()) {
-            logger.tracef("PageCursor Removing messageNr %s on page %s", messageNr, pageId);
+            logger.trace("PageCursor Removing messageNr {} on page {}", messageNr, pageId);
          }
          removedReferences.put(messageNr, DUMMY);
       }
@@ -1287,7 +1288,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
             }
             currentPage = pageStore.usePage(page);
             if (logger.isTraceEnabled()) {
-               logger.tracef("CursorIterator: getting page " + page + " which will contain " + currentPage.getNumberOfMessages());
+               logger.trace("CursorIterator: getting page " + page + " which will contain " + currentPage.getNumberOfMessages());
             }
             currentPageIterator = currentPage.iterator();
          } catch (Exception e) {
@@ -1341,7 +1342,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
             }
 
             if (currentPage == null) {
-               logger.tracef("CursorIterator::next initializing first page as %s", pageStore.getFirstPage());
+               logger.trace("CursorIterator::next initializing first page as {}", pageStore.getFirstPage());
                initPage(pageStore.getFirstPage());
             }
 
@@ -1390,7 +1391,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
                valid = routed(message.getPagedMessage());
                if (!valid) {
-                  logger.tracef("CursorIterator::message %s was deemed invalid, marking it to ignore", message.getPagedMessage());
+                  logger.trace("CursorIterator::message {} was deemed invalid, marking it to ignore", message.getPagedMessage());
                   ignored = true;
                }
 
@@ -1399,13 +1400,13 @@ public final class PageSubscriptionImpl implements PageSubscription {
                if (!browsing && info != null && (info.isRemoved(message.getPagedMessage().getMessageNumber()) || info.getCompleteInfo() != null)) {
                   if (logger.isTraceEnabled()) {
                      boolean removed = info.isRemoved(message.getPagedMessage().getMessageNumber());
-                     logger.tracef("CursorIterator::Message from page %s # %s isRemoved=%s", message.getPagedMessage().getPageNumber(), message.getPagedMessage().getMessageNumber(), (Boolean)removed);
+                     logger.trace("CursorIterator::Message from page {} # {} isRemoved={}", message.getPagedMessage().getPageNumber(), message.getPagedMessage().getMessageNumber(), (Boolean)removed);
                   }
                   continue;
                }
 
                if (info != null && info.isAck(message.getPagedMessage().getMessageNumber())) {
-                  logger.tracef("CursorIterator::message %s is acked, moving next", message);
+                  logger.trace("CursorIterator::message {} is acked, moving next", message);
                   continue;
                }
 
@@ -1461,14 +1462,14 @@ public final class PageSubscriptionImpl implements PageSubscription {
       private PagedReference internalGetNext() {
          for (;;) {
             PagedMessage message = currentPageIterator.hasNext() ? currentPageIterator.next() : null;
-            logger.tracef("CursorIterator::internalGetNext:: new reference %s", message);
+            logger.trace("CursorIterator::internalGetNext:: new reference {}", message);
             if (message != null) {
                return cursorProvider.newReference(message, PageSubscriptionImpl.this);
             }
 
             if (currentPage.getPageId() < pageStore.getCurrentWritingPage()) {
                if (logger.isTraceEnabled()) {
-                  logger.tracef("CursorIterator::internalGetNext:: moving to currentPage %s", currentPage.getPageId() + 1);
+                  logger.trace("CursorIterator::internalGetNext:: moving to currentPage {}", currentPage.getPageId() + 1);
                }
                initPage(currentPage.getPageId() + 1);
             } else {

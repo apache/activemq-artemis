@@ -34,12 +34,13 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TimedBufferTest extends ActiveMQTestBase {
-   private static final Logger log = Logger.getLogger(TimedBufferTest.class);
+   private static final Logger log = LoggerFactory.getLogger(TimedBufferTest.class);
 
 
    private static final int ONE_SECOND_IN_NANOS = 1000000000; // in nanoseconds
@@ -383,7 +384,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          assert observer.flushesDone() == 2;
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
-         log.debug("elapsed time: " + elapsedTime + " with timeout: " + timeout);
+         log.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
          final long maxExpected = timeout + deviceTime;
          Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
       } finally {
@@ -424,7 +425,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          assert observer.flushesDone() == 2;
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
-         log.debug("elapsed time: " + elapsedTime + " with timeout: " + timeout);
+         log.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
          final long maxExpected = timeout + deviceTime;
          Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
       } finally {

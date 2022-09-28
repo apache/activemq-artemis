@@ -39,15 +39,16 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessagesExpiredPagingTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(MessagesExpiredPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MessagesExpiredPagingTest.class);
 
    private static final String ADDRESS = "MessagesExpiredPagingTest";
 

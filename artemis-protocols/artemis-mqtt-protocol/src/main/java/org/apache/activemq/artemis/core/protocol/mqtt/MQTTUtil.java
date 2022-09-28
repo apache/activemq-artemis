@@ -50,7 +50,8 @@ import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.reader.MessageUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -63,7 +64,7 @@ import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.USER_P
  * A Utility Class for creating Server Side objects and converting MQTT concepts to/from Artemis.
  */
 public class MQTTUtil {
-   private static final Logger logger = Logger.getLogger(MQTTUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MQTTUtil.class);
 
    public static final boolean DURABLE_MESSAGES = true;
 

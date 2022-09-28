@@ -77,11 +77,12 @@ import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQPSessionCallback implements SessionCallback {
 
-   private static final Logger logger = Logger.getLogger(AMQPSessionCallback.class);
+   private static final Logger logger = LoggerFactory.getLogger(AMQPSessionCallback.class);
 
    private static final Symbol PRIORITY = Symbol.getSymbol("priority");
 

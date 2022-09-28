@@ -112,12 +112,15 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    @After
    public void afterValidateLogging() {
-      if (this.generateWarning) {
-         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ212080"));
-      } else {
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ212080"));
+      try {
+         if (this.generateWarning) {
+            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ212080"));
+         } else {
+            Assert.assertFalse(AssertionLoggerHandler.findText("AMQ212080"));
+         }
+      } finally {
+         AssertionLoggerHandler.stopCapture();
       }
-      AssertionLoggerHandler.clear();
    }
 
    @Test

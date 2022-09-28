@@ -31,12 +31,13 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Env;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PageReadWriter {
 
 
-   private static Logger logger = Logger.getLogger(PageReadWriter.class);
+   private static Logger logger = LoggerFactory.getLogger(PageReadWriter.class);
 
    public static final int SIZE_RECORD = DataConstants.SIZE_BYTE + DataConstants.SIZE_INT + DataConstants.SIZE_BYTE;
 
@@ -179,7 +180,7 @@ public class PageReadWriter {
                            assert validateLargeMessageStorageManager(msg);
 
                            if (logger.isTraceEnabled()) {
-                              logger.tracef("Reading message %s on pageId=%d for address=%s", msg, pageId, storeName);
+                              logger.trace("Reading message {} on pageId={} for address={}", msg, pageId, storeName);
                            }
 
                            if (messages != null) {
@@ -227,7 +228,7 @@ public class PageReadWriter {
 
          //ignore incomplete messages at the end of the file
          if (logger.isTraceEnabled()) {
-            logger.tracef("%s has %d bytes of unknown data at position = %d", file.getFileName(), remainingBytes, processedBytes);
+            logger.trace("{} has {} bytes of unknown data at position = {}", file.getFileName(), remainingBytes, processedBytes);
          }
 
          return totalMessageCount;
@@ -317,7 +318,7 @@ public class PageReadWriter {
 
       boolean storageManager = largeServerMessage.getStorageManager() != null;
       if (!storageManager) {
-         logger.warn("storage manager is null at " + msg);
+         logger.warn("storage manager is null at {}", msg);
       }
 
       return storageManager;

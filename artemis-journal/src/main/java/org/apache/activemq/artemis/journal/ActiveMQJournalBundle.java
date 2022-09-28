@@ -17,23 +17,19 @@
 package org.apache.activemq.artemis.journal;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
-import org.jboss.logging.Messages;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 14
- *
- * each message id must be 6 digits long starting with 14, the 3rd digit should be 9
- *
- * so 149000 to 149999
  */
-@MessageBundle(projectCode = "AMQ")
+@LogBundle(projectCode = "AMQ", regexID = "14[0-9]{4}")
 public interface ActiveMQJournalBundle {
 
-   ActiveMQJournalBundle BUNDLE = Messages.getBundle(ActiveMQJournalBundle.class);
+   ActiveMQJournalBundle BUNDLE = BundleFactory.newBundle(ActiveMQJournalBundle.class);
 
-   @Message(id = 149000, value = "failed to rename file {0} to {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 149000, value = "failed to rename file {} to {}")
    ActiveMQIOErrorException ioRenameFileError(String name, String newFileName);
 
    @Message(id = 149001, value = "Journal data belong to a different version")
@@ -48,6 +44,6 @@ public interface ActiveMQJournalBundle {
    @Message(id = 149004, value = "unable to open file")
    String unableToOpenFile();
 
-   @Message(id = 149005, value = "Message of {0} bytes is bigger than the max record size of {1} bytes. You should try to move large application properties to the message body.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 149005, value = "Message of {} bytes is bigger than the max record size of {} bytes. You should try to move large application properties to the message body.")
    ActiveMQIOErrorException recordLargerThanStoreMax(long recordSize, long maxRecordSize);
 }

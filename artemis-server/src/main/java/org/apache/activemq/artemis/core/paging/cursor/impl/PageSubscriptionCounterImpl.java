@@ -35,14 +35,15 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription
  */
 public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
-   private static final Logger logger = Logger.getLogger(PageSubscriptionCounterImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(PageSubscriptionCounterImpl.class);
 
    private static final int FLUSH_COUNTER = 1000;
 

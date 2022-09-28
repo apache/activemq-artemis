@@ -22,7 +22,8 @@ import javax.security.auth.login.LoginException;
 import java.security.Principal;
 import java.util.Map;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * populate an empty (no UserPrincipal) subject with UserPrincipal seeded from existing principal
@@ -30,7 +31,7 @@ import org.jboss.logging.Logger;
  */
 public class PrincipalConversionLoginModule implements AuditLoginModule {
 
-   private static final Logger logger = Logger.getLogger(PrincipalConversionLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(PrincipalConversionLoginModule.class);
 
    public static final String PRINCIPAL_CLASS_LIST = "principalClassList";
    private Subject subject;

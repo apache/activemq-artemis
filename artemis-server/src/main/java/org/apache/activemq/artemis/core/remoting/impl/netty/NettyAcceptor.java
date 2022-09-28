@@ -96,14 +96,15 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvid
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Netty TCP Acceptor that is embedding Netty.
  */
 public class NettyAcceptor extends AbstractAcceptor {
 
-   private static final Logger logger = Logger.getLogger(NettyAcceptor.class);
+   private static final Logger logger = LoggerFactory.getLogger(NettyAcceptor.class);
 
 
    public static final String INVM_ACCEPTOR_TYPE = "IN-VM";
@@ -481,9 +482,7 @@ public class NettyAcceptor extends AbstractAcceptor {
                   Throwable rootCause = getRootCause(e);
                   ActiveMQServerLogger.LOGGER.gettingSslHandlerFailed(channel.remoteAddress().toString(), rootCause.getClass().getName() + ": " + rootCause.getMessage());
 
-                  if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-                     ActiveMQServerLogger.LOGGER.debug("Getting SSL handler failed", e);
-                  }
+                  logger.debug("Getting SSL handler failed", e);
                   throw e;
                }
             }
@@ -1042,9 +1041,7 @@ public class NettyAcceptor extends AbstractAcceptor {
 
             ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ctx.channel().remoteAddress().toString(), errorMessage);
 
-            if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQServerLogger.LOGGER.debug("SSL handshake failed", cause);
-            }
+            logger.debug("SSL handshake failed", cause);
          }
       }
    }

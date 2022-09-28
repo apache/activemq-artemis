@@ -44,14 +44,15 @@ import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ActiveMQ Artemis implementation of a JMS MessageProducer.
  */
 public class ActiveMQMessageProducer implements MessageProducer, QueueSender, TopicPublisher {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQMessageProducer.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQMessageProducer.class);
 
    private final ConnectionFactoryOptions options;
 

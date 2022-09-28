@@ -31,11 +31,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator.BackupRegistrationListener;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener, BackupRegistrationListener {
 
-   private static final Logger LOGGER = Logger.getLogger(SharedNothingBackupQuorum.class);
+   private static final Logger logger = LoggerFactory.getLogger(SharedNothingBackupQuorum.class);
 
    public enum BACKUP_ACTIVATION {
       FAIL_OVER, FAILURE_RETRY, FAILURE_REPLICATING, ALREADY_REPLICATING, STOP;
@@ -112,7 +113,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       //we may get called as sessionFactory or connection listener
       synchronized (onConnectionFailureGuard) {
          if (signal == BACKUP_ACTIVATION.FAIL_OVER) {
-            LOGGER.debug("Replication connection failure with signal == FAIL_OVER: no need to take any action");
+            logger.debug("Replication connection failure with signal == FAIL_OVER: no need to take any action");
             if (networkHealthCheck != null && !networkHealthCheck.check()) {
                signal = BACKUP_ACTIVATION.FAILURE_RETRY;
             }
@@ -233,7 +234,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             latch.countDown();
             break;
          default:
-            LOGGER.errorf("unsupported LiveStopping type: %s", finalMessage);
+            logger.error("unsupported LiveStopping type: {}", finalMessage);
       }
    }
 
@@ -283,11 +284,11 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    private synchronized void scheduleForcedFailoverAfterDelay(CountDownLatch signalChanged) {
       if (decisionGuard != null) {
          if (decisionGuard.isDone()) {
-            LOGGER.warn("A completed force failover task wasn't cleaned-up: a new one will be scheduled");
+            logger.warn("A completed force failover task wasn't cleaned-up: a new one will be scheduled");
          } else if (!decisionGuard.cancel(false)) {
-            LOGGER.warn("Failed to cancel an existing uncompleted force failover task: a new one will be scheduled anyway");
+            logger.warn("Failed to cancel an existing uncompleted force failover task: a new one will be scheduled anyway");
          } else {
-            LOGGER.warn("Cancelled an existing uncompleted force failover task: a new one will be scheduled in its place");
+            logger.warn("Cancelled an existing uncompleted force failover task: a new one will be scheduled in its place");
          }
       }
       decisionGuard = scheduledPool.schedule(signalChanged::countDown,

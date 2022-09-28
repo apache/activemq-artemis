@@ -50,14 +50,15 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerProducerImpl;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.logs.AuditLogger;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A packet handler for all packets that need to be handled at the server level
  */
 public class ActiveMQPacketHandler implements ChannelHandler {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQPacketHandler.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQPacketHandler.class);
 
    private final ActiveMQServer server;
 

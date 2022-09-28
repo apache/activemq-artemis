@@ -25,8 +25,12 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PersistenceTest extends JMSTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(PersistenceTest.class);
 
    /**
     * Test that the messages in a persistent queue survive starting and stopping and server,
@@ -394,7 +398,7 @@ public class PersistenceTest extends JMSTestCase {
          TextMessage tm = s.createTextMessage("thebody");
 
          p.send(tm);
-         log.debug("message sent");
+         logger.debug("message sent");
 
          conn.close();
 

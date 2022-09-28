@@ -50,11 +50,12 @@ import org.apache.qpid.proton.engine.Sasl;
 import org.apache.qpid.proton.engine.SaslListener;
 import org.apache.qpid.proton.engine.Transport;
 import org.apache.qpid.proton.engine.impl.TransportInternal;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
-   private static final Logger log = Logger.getLogger(ProtonHandler.class);
+   private static final Logger log = LoggerFactory.getLogger(ProtonHandler.class);
 
    private static final byte SASL = 0x03;
 
@@ -316,9 +317,9 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
             flush();
          } else {
             if (capacity == 0) {
-               log.debugf("abandoning: readableBytes=%d", buffer.readableBytes());
+               log.debug("abandoning: readableBytes={}", buffer.readableBytes());
             } else {
-               log.debugf("transport closed, discarding: readableBytes=%d, capacity=%d", buffer.readableBytes(), transport.capacity());
+               log.debug("transport closed, discarding: readableBytes={}, capacity={}", buffer.readableBytes(), transport.capacity());
             }
             break;
          }
@@ -391,7 +392,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    // server side SASL Listener
    @Override
    public void onSaslInit(Sasl sasl, Transport transport) {
-      log.debug("onSaslInit: " + sasl);
+      log.debug("onSaslInit: {}", sasl);
       dispatchRemoteMechanismChosen(sasl.getRemoteMechanisms()[0]);
 
       if (chosenMechanism != null) {
@@ -429,7 +430,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    @Override
    public void onSaslResponse(Sasl sasl, Transport transport) {
-      log.debug("onSaslResponse: " + sasl);
+      log.debug("onSaslResponse: {}", sasl);
       processPending(sasl);
    }
 
@@ -440,7 +441,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       dispatchMechanismsOffered(sasl.getRemoteMechanisms());
 
       if (clientSASLMechanism == null) {
-         log.infof("Outbound connection failed - unknown mechanism, offered mechanisms: %s",
+         log.info("Outbound connection failed - unknown mechanism, offered mechanisms: {}",
                    Arrays.asList(sasl.getRemoteMechanisms()));
          dispatchAuthFailed();
       } else {
@@ -463,7 +464,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    @Override
    public void onSaslOutcome(Sasl sasl, Transport transport) {
-      log.debug("onSaslOutcome: " + sasl);
+      log.debug("onSaslOutcome: {}", sasl);
       switch (sasl.getState()) {
          case PN_SASL_FAIL:
             log.info("Outbound connection failed, authentication failure");
@@ -504,7 +505,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    private void saslComplete(Sasl sasl, Sasl.SaslOutcome saslOutcome) {
-      log.debug("saslComplete: " + sasl);
+      log.debug("saslComplete: {}", sasl);
       sasl.done(saslOutcome);
       if (chosenMechanism != null) {
          chosenMechanism.done();

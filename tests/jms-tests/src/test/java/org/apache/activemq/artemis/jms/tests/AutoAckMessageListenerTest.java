@@ -27,12 +27,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AutoAckMessageListenerTest extends JMSTestCase {
 
-
-   private static final JmsTestLogger log = JmsTestLogger.LOGGER;
-
+   private static final Logger logger = LoggerFactory.getLogger(AutoAckMessageListenerTest.class);
 
 
    @Test
@@ -50,7 +50,7 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
          consumer.setMessageListener(listener);
 
          // create and send messages
-         log.debug("Send and receive two message");
+         logger.debug("Send and receive two message");
          Message messageSent = session.createMessage();
          messageSent.setBooleanProperty("last", false);
          producer.send(messageSent);
@@ -60,7 +60,7 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
          conn.start();
 
          // wait until message is received
-         log.debug("waiting until message has been received by message listener...");
+         logger.debug("waiting until message has been received by message listener...");
          latch.await(10, TimeUnit.SECONDS);
 
          // check message listener status
@@ -97,26 +97,26 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
       public void onMessage(Message message) {
          try {
             if (message.getBooleanProperty("last") == false) {
-               log.debug("Received first message.");
+               logger.debug("Received first message.");
                if (message.getJMSRedelivered() == true) {
                   // should not re-receive this one
-                  log.debug("Error: received first message twice");
+                  logger.debug("Error: received first message twice");
                   passed = false;
                }
             } else {
                if (message.getJMSRedelivered() == false) {
                   // received second message for first time
-                  log.debug("Received second message. Calling recover()");
+                  logger.debug("Received second message. Calling recover()");
                   session.recover();
                } else {
                   // should be redelivered after recover
-                  log.debug("Received second message again as expected");
+                  logger.debug("Received second message again as expected");
                   passed = true;
                   monitor.countDown();
                }
             }
          } catch (JMSException e) {
-            log.warn("Exception caught in message listener:\n" + e);
+            logger.warn("Exception caught in message listener:\n" + e);
             passed = false;
             monitor.countDown();
          }

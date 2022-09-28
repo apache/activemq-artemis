@@ -23,14 +23,11 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.jboss.logging.Logger;
 
 public class MQTTSessionCallback implements SessionCallback {
 
    private final MQTTSession session;
    private final MQTTConnection connection;
-
-   private static final Logger logger = Logger.getLogger(MQTTSessionCallback.class);
 
    public MQTTSessionCallback(MQTTSession session, MQTTConnection connection) throws Exception {
       this.session = session;

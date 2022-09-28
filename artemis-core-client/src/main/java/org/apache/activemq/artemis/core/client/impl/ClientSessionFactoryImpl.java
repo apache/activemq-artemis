@@ -70,11 +70,12 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
 
-   private static final Logger logger = Logger.getLogger(ClientSessionFactoryImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ClientSessionFactoryImpl.class);
 
    private final ServerLocatorInternal serverLocator;
 
@@ -555,7 +556,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    private void failoverOrReconnect(final Object connectionID,
                                     final ActiveMQException me,
                                     String scaleDownTargetNodeID) {
-      ActiveMQClientLogger.LOGGER.failoverOrReconnect(connectionID, me);
+      logger.debug("Failure captured on connectionID={}, performing failover or reconnection now", connectionID, me);
 
       for (ClientSessionInternal session : sessions) {
          SessionContext context = session.getSessionContext();

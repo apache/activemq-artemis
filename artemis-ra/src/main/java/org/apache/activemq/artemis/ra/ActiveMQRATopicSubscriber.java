@@ -20,10 +20,15 @@ import javax.jms.JMSException;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A wrapper for a topic subscriber
  */
 public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRATopicSubscriber.class);
 
    /**
     * Create a new wrapper
@@ -34,8 +39,8 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
    public ActiveMQRATopicSubscriber(final TopicSubscriber consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + consumer + ", " + session + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + consumer + ", " + session + ")");
       }
    }
 
@@ -47,8 +52,8 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     */
    @Override
    public boolean getNoLocal() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getNoLocal()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getNoLocal()");
       }
 
       checkState();
@@ -63,8 +68,8 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     */
    @Override
    public Topic getTopic() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getTopic()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getTopic()");
       }
 
       checkState();

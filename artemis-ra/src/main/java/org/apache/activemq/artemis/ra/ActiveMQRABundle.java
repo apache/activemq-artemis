@@ -21,19 +21,14 @@ import javax.jms.JMSRuntimeException;
 import javax.resource.NotSupportedException;
 
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
-import org.jboss.logging.Messages;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 15
- *
- * each message id must be 6 digits long starting with 15, the 3rd digit should be 9
- *
- * so 159000 to 159999
  */
-@MessageBundle(projectCode = "AMQ")
+@LogBundle(projectCode = "AMQ", regexID = "15[0-9]{4}")
 public interface ActiveMQRABundle {
 
    /**
@@ -41,10 +36,10 @@ public interface ActiveMQRABundle {
     */
    String ISE = "This method is not applicable inside the application server. See the JEE spec, e.g. JEE 7 Section 6.7";
 
-   ActiveMQRABundle BUNDLE = Messages.getBundle(ActiveMQRABundle.class);
+   ActiveMQRABundle BUNDLE = BundleFactory.newBundle(ActiveMQRABundle.class);
 
    @Message(id = 159000, value = "Error decoding password using codec instance")
-   ActiveMQIllegalStateException errorDecodingPassword(@Cause Exception e);
+   ActiveMQIllegalStateException errorDecodingPassword(Exception e);
 
    @Message(id = 159001, value = "MDB cannot be deployed as it has no Activation Spec. Please provide an Activation!")
    NotSupportedException noActivationSpec();
@@ -61,7 +56,7 @@ public interface ActiveMQRABundle {
    @Message(id = 159005, value = "Invalid Session Mode CLIENT_ACKNOWLEDGE")
    JMSRuntimeException invalidClientAcknowledgeModeRuntime();
 
-   @Message(id = 159006, value = "Invalid Session Mode {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 159006, value = "Invalid Session Mode {}")
    JMSRuntimeException invalidAcknowledgeMode(int sessionMode);
 
    @Message(id = 159007, value = "Invalid Session Mode SESSION_TRANSACTED, to enable Local Transacted Sessions you can " +

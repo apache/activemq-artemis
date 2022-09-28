@@ -24,7 +24,7 @@ import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Arrays;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
 
 public class LoggingStatement implements Statement {
 
@@ -33,8 +33,6 @@ public class LoggingStatement implements Statement {
    protected final String statementID;
 
    protected final Logger logger;
-
-   protected static Logger.Level level = Logger.Level.TRACE;
 
    public LoggingStatement(Statement statement, Logger logger) {
       this.statement = statement;
@@ -53,348 +51,348 @@ public class LoggingStatement implements Statement {
    @Override
    public ResultSet executeQuery(String sql) throws SQLException {
       LoggingResultSet rs = new LoggingResultSet(statement.executeQuery(sql), logger);
-      logger.logf(level, "%s.executeQuery(%s) = %s", statementID, sql, rs.getResultSetID());
+      logger.trace("{}.executeQuery({}) = {}", statementID, sql, rs.getResultSetID());
       return rs;
    }
 
    @Override
    public int executeUpdate(String sql) throws SQLException {
       int i = statement.executeUpdate(sql);
-      logger.logf(level, "%s.executeUpdate(%s) = %s", statementID, sql, i);
+      logger.trace("{}.executeUpdate({}) = {}", statementID, sql, i);
       return i;
    }
 
    @Override
    public void close() throws SQLException {
-      logger.logf(level, "%s.close()", statementID);
+      logger.trace("{}.close()", statementID);
       statement.close();
    }
 
    @Override
    public int getMaxFieldSize() throws SQLException {
       int i = statement.getMaxFieldSize();
-      logger.logf(level, "%s.getMaxFieldSize() = %s", statementID, i);
+      logger.trace("{}.getMaxFieldSize() = {}", statementID, i);
       return i;
    }
 
    @Override
    public void setMaxFieldSize(int max) throws SQLException {
-      logger.logf(level, "%s.setMaxFieldSize(%d)", statementID, max);
+      logger.trace("{}.setMaxFieldSize({})", statementID, max);
       statement.setMaxFieldSize(max);
    }
 
    @Override
    public int getMaxRows() throws SQLException {
       int i = statement.getMaxRows();
-      logger.logf(level, "%s.getMaxRows() = %s", statementID, i);
+      logger.trace("{}.getMaxRows() = {}", statementID, i);
       return i;
    }
 
    @Override
    public void setMaxRows(int max) throws SQLException {
-      logger.logf(level, "%s.setMaxRows()", statementID);
+      logger.trace("{}.setMaxRows()", statementID);
       statement.setMaxRows(max);
    }
 
    @Override
    public void setEscapeProcessing(boolean enable) throws SQLException {
-      logger.logf(level, "%s.setEscapeProcessing(%s)", statementID, enable);
+      logger.trace("{}.setEscapeProcessing({})", statementID, enable);
       statement.setEscapeProcessing(enable);
    }
 
    @Override
    public int getQueryTimeout() throws SQLException {
       int i = statement.getQueryTimeout();
-      logger.logf(level, "%s.getQueryTimeout() = %s", statementID, i);
+      logger.trace("{}.getQueryTimeout() = {}", statementID, i);
       return i;
    }
 
    @Override
    public void setQueryTimeout(int seconds) throws SQLException {
-      logger.logf(level, "%s.setQueryTimeout(%d)", statementID, seconds);
+      logger.trace("{}.setQueryTimeout({})", statementID, seconds);
       statement.setQueryTimeout(seconds);
    }
 
    @Override
    public void cancel() throws SQLException {
-      logger.logf(level, "%s.cancel()", statementID);
+      logger.trace("{}.cancel()", statementID);
       statement.cancel();
    }
 
    @Override
    public SQLWarning getWarnings() throws SQLException {
-      logger.logf(level, "%s.getWarnings()", statementID);
+      logger.trace("{}.getWarnings()", statementID);
       return statement.getWarnings();
    }
 
    @Override
    public void clearWarnings() throws SQLException {
-      logger.logf(level, "%s.clearWarnings()", statementID);
+      logger.trace("{}.clearWarnings()", statementID);
       statement.clearWarnings();
    }
 
    @Override
    public void setCursorName(String name) throws SQLException {
-      logger.logf(level, "%s.setCursorName(%s)", statementID, name);
+      logger.trace("{}.setCursorName({})", statementID, name);
       statement.setCursorName(name);
    }
 
    @Override
    public boolean execute(String sql) throws SQLException {
       boolean b = statement.execute(sql);
-      logger.logf(level, "%s.execute(%s) = %s", statementID, sql, b);
+      logger.trace("{}.execute({}) = {}", statementID, sql, b);
       return b;
    }
 
    @Override
    public ResultSet getResultSet() throws SQLException {
       LoggingResultSet rs = new LoggingResultSet(statement.getResultSet(), logger);
-      logger.logf(level, "%s.executeQuery() = %s", statementID, rs.getResultSetID());
+      logger.trace("{}.executeQuery() = {}", statementID, rs.getResultSetID());
       return rs;
    }
 
    @Override
    public int getUpdateCount() throws SQLException {
       int i = statement.getUpdateCount();
-      logger.logf(level, "%s.getUpdateCount() = %s", statementID, i);
+      logger.trace("{}.getUpdateCount() = {}", statementID, i);
       return i;
    }
 
    @Override
    public boolean getMoreResults() throws SQLException {
       boolean b = statement.getMoreResults();
-      logger.logf(level, "%s.getMoreResults() = %s", statementID, b);
+      logger.trace("{}.getMoreResults() = {}", statementID, b);
       return b;
    }
 
    @Override
    public void setFetchDirection(int direction) throws SQLException {
-      logger.logf(level, "%s.setFetchDirection()", statementID);
+      logger.trace("{}.setFetchDirection()", statementID);
       statement.setFetchDirection(direction);
    }
 
    @Override
    public int getFetchDirection() throws SQLException {
       int i = statement.getFetchDirection();
-      logger.logf(level, "%s.getFetchDirection() = %s", statementID, i);
+      logger.trace("{}.getFetchDirection() = {}", statementID, i);
       return i;
    }
 
    @Override
    public void setFetchSize(int rows) throws SQLException {
-      logger.logf(level, "%s.setFetchSize(%d)", statementID, rows);
+      logger.trace("{}.setFetchSize({})", statementID, rows);
       statement.setFetchSize(rows);
    }
 
    @Override
    public int getFetchSize() throws SQLException {
       int i = statement.getFetchSize();
-      logger.logf(level, "%s.getFetchSize() = %s", statementID, i);
+      logger.trace("{}.getFetchSize() = {}", statementID, i);
       return i;
    }
 
    @Override
    public int getResultSetConcurrency() throws SQLException {
       int i = statement.getResultSetConcurrency();
-      logger.logf(level, "%s.getResultSetConcurrency() = %s", statementID, i);
+      logger.trace("{}.getResultSetConcurrency() = {}", statementID, i);
       return i;
    }
 
    @Override
    public int getResultSetType() throws SQLException {
       int i = statement.getResultSetType();
-      logger.logf(level, "%s.getResultSetType() = %s", statementID, i);
+      logger.trace("{}.getResultSetType() = {}", statementID, i);
       return i;
    }
 
    @Override
    public void addBatch(String sql) throws SQLException {
-      logger.logf(level, "%s.addBatch(%d, %s)", statementID);
+      logger.trace("{}.addBatch({}, {})", statementID);
       statement.addBatch(sql);
    }
 
    @Override
    public void clearBatch() throws SQLException {
-      logger.logf(level, "%s.clearBatch()", statementID);
+      logger.trace("{}.clearBatch()", statementID);
       statement.clearBatch();
    }
 
    @Override
    public int[] executeBatch() throws SQLException {
       int[] i = statement.executeBatch();
-      logger.logf(level, "%s.executeBatch() = %s", statementID, Arrays.toString(i));
+      logger.trace("{}.executeBatch() = {}", statementID, Arrays.toString(i));
       return i;
    }
 
    @Override
    public Connection getConnection() throws SQLException {
       LoggingConnection connection = new LoggingConnection(statement.getConnection(), logger);
-      logger.logf(level, "%s.getConnection() = %s", statementID, connection.getConnectionID());
+      logger.trace("{}.getConnection() = {}", statementID, connection.getConnectionID());
       return connection;
    }
 
    @Override
    public boolean getMoreResults(int current) throws SQLException {
       boolean b = statement.getMoreResults(current);
-      logger.logf(level, "%s.getMoreResults(%s) = %s", statementID, current, b);
+      logger.trace("{}.getMoreResults({}) = {}", statementID, current, b);
       return b;
    }
 
    @Override
    public ResultSet getGeneratedKeys() throws SQLException {
       LoggingResultSet rs = new LoggingResultSet(statement.getGeneratedKeys(), logger);
-      logger.logf(level, "%s.getGeneratedKeys() = %s", statementID, rs.getResultSetID());
+      logger.trace("{}.getGeneratedKeys() = {}", statementID, rs.getResultSetID());
       return rs;
    }
 
    @Override
    public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
       int i = statement.executeUpdate(sql, autoGeneratedKeys);
-      logger.logf(level, "%s.executeUpdate(%s, %d) = %s", statementID, sql, autoGeneratedKeys, i);
+      logger.trace("{}.executeUpdate({}, {}) = {}", statementID, sql, autoGeneratedKeys, i);
       return i;
    }
 
    @Override
    public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
       int i = statement.executeUpdate(sql, columnIndexes);
-      logger.logf(level, "%s.executeUpdate(%s, %s) = %s", statementID, sql, Arrays.toString(columnIndexes), i);
+      logger.trace("{}.executeUpdate({}, {}) = {}", statementID, sql, Arrays.toString(columnIndexes), i);
       return i;
    }
 
    @Override
    public int executeUpdate(String sql, String[] columnNames) throws SQLException {
       int i = statement.executeUpdate(sql, columnNames);
-      logger.logf(level, "%s.executeUpdate(%s, %s) = %s", statementID, sql, Arrays.toString(columnNames), i);
+      logger.trace("{}.executeUpdate({}, {}) = {}", statementID, sql, Arrays.toString(columnNames), i);
       return i;
    }
 
    @Override
    public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
       boolean b = statement.execute(sql, autoGeneratedKeys);
-      logger.logf(level, "%s.execute(%s, %s) = %s", statementID, sql, autoGeneratedKeys, b);
+      logger.trace("{}.execute({}, {}) = {}", statementID, sql, autoGeneratedKeys, b);
       return b;
    }
 
    @Override
    public boolean execute(String sql, int[] columnIndexes) throws SQLException {
       boolean b = statement.execute(sql, columnIndexes);
-      logger.logf(level, "%s.execute(%s, %s) = %s", statementID, sql, Arrays.toString(columnIndexes), b);
+      logger.trace("{}.execute({}, {}) = {}", statementID, sql, Arrays.toString(columnIndexes), b);
       return b;
    }
 
    @Override
    public boolean execute(String sql, String[] columnNames) throws SQLException {
       boolean b = statement.execute(sql, columnNames);
-      logger.logf(level, "%s.execute(%s, %s) = %s", statementID, sql, Arrays.toString(columnNames), b);
+      logger.trace("{}.execute({}, {}) = {}", statementID, sql, Arrays.toString(columnNames), b);
       return b;
    }
 
    @Override
    public int getResultSetHoldability() throws SQLException {
       int i = statement.getResultSetHoldability();
-      logger.logf(level, "%s.getResultSetHoldability() = %s", statementID, i);
+      logger.trace("{}.getResultSetHoldability() = {}", statementID, i);
       return i;
    }
 
    @Override
    public boolean isClosed() throws SQLException {
       boolean b = statement.isClosed();
-      logger.logf(level, "%s.isClosed() = %s", statementID, b);
+      logger.trace("{}.isClosed() = {}", statementID, b);
       return b;
    }
 
    @Override
    public void setPoolable(boolean poolable) throws SQLException {
-      logger.logf(level, "%s.setPoolable(%s)", statementID, poolable);
+      logger.trace("{}.setPoolable({})", statementID, poolable);
       statement.setPoolable(poolable);
    }
 
    @Override
    public boolean isPoolable() throws SQLException {
       boolean b = statement.isPoolable();
-      logger.logf(level, "%s.isPoolable() = %s", statementID, b);
+      logger.trace("{}.isPoolable() = {}", statementID, b);
       return b;
    }
 
    @Override
    public void closeOnCompletion() throws SQLException {
-      logger.logf(level, "%s.closeOnCompletion()", statementID);
+      logger.trace("{}.closeOnCompletion()", statementID);
       statement.closeOnCompletion();
    }
 
    @Override
    public boolean isCloseOnCompletion() throws SQLException {
       boolean b = statement.isCloseOnCompletion();
-      logger.logf(level, "%s.isCloseOnCompletion() = %s", statementID, b);
+      logger.trace("{}.isCloseOnCompletion() = {}", statementID, b);
       return b;
    }
 
    @Override
    public long getLargeUpdateCount() throws SQLException {
       long x = statement.getLargeUpdateCount();
-      logger.logf(level, "%s.getLargeUpdateCount() = %s", statementID, x);
+      logger.trace("{}.getLargeUpdateCount() = {}", statementID, x);
       return x;
    }
 
    @Override
    public void setLargeMaxRows(long max) throws SQLException {
-      logger.logf(level, "%s.setLargeMaxRows(%d)", statementID, max);
+      logger.trace("{}.setLargeMaxRows({})", statementID, max);
       statement.setLargeMaxRows(max);
    }
 
    @Override
    public long getLargeMaxRows() throws SQLException {
       long x = statement.getLargeMaxRows();
-      logger.logf(level, "%s.getLargeMaxRows() = %s", statementID, x);
+      logger.trace("{}.getLargeMaxRows() = {}", statementID, x);
       return x;
    }
 
    @Override
    public long[] executeLargeBatch() throws SQLException {
       long[] x = statement.executeLargeBatch();
-      logger.logf(level, "%s.executeLargeBatch() = %s", statementID, x);
+      logger.trace("{}.executeLargeBatch() = {}", statementID, x);
       return x;
    }
 
    @Override
    public long executeLargeUpdate(String sql) throws SQLException {
       long x = statement.executeLargeUpdate(sql);
-      logger.logf(level, "%s.executeLargeUpdate(%s) = %s", statementID, sql, x);
+      logger.trace("{}.executeLargeUpdate({}) = {}", statementID, sql, x);
       return x;
    }
 
    @Override
    public long executeLargeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
       long x = statement.executeLargeUpdate(sql, autoGeneratedKeys);
-      logger.logf(level, "%s.executeLargeUpdate() = %s", statementID, sql, autoGeneratedKeys, x);
+      logger.trace("{}.executeLargeUpdate() = {}", statementID, sql, autoGeneratedKeys, x);
       return x;
    }
 
    @Override
    public long executeLargeUpdate(String sql, int[] columnIndexes) throws SQLException {
       long x = statement.executeLargeUpdate(sql, columnIndexes);
-      logger.logf(level, "%s.executeLargeUpdate(%s, %s) = %s", statementID, sql, Arrays.toString(columnIndexes), x);
+      logger.trace("{}.executeLargeUpdate({}, {}) = {}", statementID, sql, Arrays.toString(columnIndexes), x);
       return x;
    }
 
    @Override
    public long executeLargeUpdate(String sql, String[] columnNames) throws SQLException {
       long x = statement.executeLargeUpdate(sql, columnNames);
-      logger.logf(level, "%s.executeLargeUpdate(%s, %s) = %s", statementID, sql, Arrays.toString(columnNames), x);
+      logger.trace("{}.executeLargeUpdate({}, {}) = {}", statementID, sql, Arrays.toString(columnNames), x);
       return x;
    }
 
    @Override
    public <T> T unwrap(Class<T> iface) throws SQLException {
       T x = statement.unwrap(iface);
-      logger.logf(level, "%s.unwrap(%s) = %s", statementID, iface, x);
+      logger.trace("{}.unwrap({}) = {}", statementID, iface, x);
       return x;
    }
 
    @Override
    public boolean isWrapperFor(Class<?> iface) throws SQLException {
       boolean b = statement.isWrapperFor(iface);
-      logger.logf(level, "%s.isWrapperFor(%s) = %s", statementID, iface, b);
+      logger.trace("{}.isWrapperFor({}) = {}", statementID, iface, b);
       return b;
    }
 }

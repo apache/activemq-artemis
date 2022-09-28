@@ -18,14 +18,15 @@ package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OnewayTwoNodeClusterTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(OnewayTwoNodeClusterTest.class);
+   private static final Logger log = LoggerFactory.getLogger(OnewayTwoNodeClusterTest.class);
 
    @Override
    @Before
@@ -149,13 +150,13 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase {
 
       waitForTopology(servers[0], 1);
 
-      OnewayTwoNodeClusterTest.log.debug("restarting server 1(" + servers[1].getIdentity() + ")");
+      OnewayTwoNodeClusterTest.log.debug("restarting server 1({})", servers[1].getIdentity());
 
       startServers(1);
 
       waitForTopology(servers[0], 2);
 
-      log.debug("Server 1 id=" + servers[1].getNodeID());
+      log.debug("Server 1 id={}", servers[1].getNodeID());
 
       long end = System.currentTimeMillis();
 

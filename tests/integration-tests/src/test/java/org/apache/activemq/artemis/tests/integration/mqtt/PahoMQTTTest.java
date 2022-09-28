@@ -33,15 +33,16 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class PahoMQTTTest extends MQTTTestSupport {
 
-   private static final Logger log = Logger.getLogger(PahoMQTTTest.class);
+   private static final Logger log = LoggerFactory.getLogger(PahoMQTTTest.class);
 
    @Parameterized.Parameters(name = "protocol={0}")
    public static Collection<Object[]> getParams() {
@@ -58,7 +59,7 @@ public class PahoMQTTTest extends MQTTTestSupport {
    public void testLotsOfClients() throws Exception {
 
       final int CLIENTS = Integer.getInteger("PahoMQTTTest.CLIENTS", 100);
-      log.debug("Using: {} clients: " + CLIENTS);
+      log.debug("Using: {} clients: ", CLIENTS);
 
       final AtomicInteger receiveCounter = new AtomicInteger();
       MqttClient client = createPahoClient("consumer");

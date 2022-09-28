@@ -32,8 +32,12 @@ import java.util.HashSet;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageBodyTest extends MessageBodyTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MessageBodyTest.class);
 
    @Test
    public void testSMBodyReadable() throws Exception {
@@ -60,7 +64,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       float myFloat = Float.MAX_VALUE - 23465;
       double myDouble = Double.MAX_VALUE - 72387633;
       String myString = "abcdef&^*&!^ghijkl\uD5E2\uCAC7\uD2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
-      log.trace("String is length:" + myString.length());
+      logger.trace("String is length:" + myString.length());
       char myChar = 'q';
       byte[] myBytes = new byte[]{-23, 114, -126, -12, 74, 87};
 
@@ -846,6 +850,11 @@ public class MessageBodyTest extends MessageBodyTestCase {
       } catch (NumberFormatException e) {
       }
 
+   }
+
+   @Override
+   public void tearDown() throws Exception {
+      super.tearDown();
    }
 
    static class TestSerializable implements Serializable {

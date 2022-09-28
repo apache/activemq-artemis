@@ -44,14 +44,15 @@ import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
 
-   private static final Logger LOGGER = Logger.getLogger(ReplicatedMultipleFailbackTest.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(ReplicatedMultipleFailbackTest.class);
 
    @FunctionalInterface
    interface ThrowableFunction<T, R> {
@@ -102,7 +103,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
             final String backup = nodePair.getString("backup", null);
             networkTopology.put(nodeID, new Pair<>(live, backup));
          } catch (Exception e) {
-            LOGGER.warnf(e, "Error on %s", nodePair);
+            LOGGER.warn("Error on {}", nodePair, e);
          }
       }
       return networkTopology;
@@ -221,7 +222,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
 
    @Test
    public void testMultipleFailback() throws Exception {
-      LOGGER.infof("TEST BOOTSTRAPPING START: STARTING brokers %s", Arrays.toString(Broker.values()));
+      LOGGER.info("TEST BOOTSTRAPPING START: STARTING brokers {}", Arrays.toString(Broker.values()));
       final int failbackRetries = 10;
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       Process master1 = Broker.master1.startServer(this, timeout);
@@ -238,7 +239,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       final String nodeIDlive3 = Broker.master3.getNodeID().get();
 
       for (Broker broker : Broker.values()) {
-         LOGGER.infof("CHECKING NETWORK TOPOLOGY FOR %s", broker);
+         LOGGER.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
                                                           .and(withLive(nodeIDlive1, Objects::nonNull))
@@ -253,18 +254,18 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       Assert.assertNotNull(urlMaster1);
       Assert.assertNotEquals(urlMaster1, urlSlave1);
 
-      LOGGER.infof("Node ID live 1 is %s", nodeIDlive1);
-      LOGGER.infof("Node ID live 2 is %s", nodeIDlive2);
-      LOGGER.infof("Node ID live 3 is %s", nodeIDlive3);
+      LOGGER.info("Node ID live 1 is {}", nodeIDlive1);
+      LOGGER.info("Node ID live 2 is {}", nodeIDlive2);
+      LOGGER.info("Node ID live 3 is {}", nodeIDlive3);
 
-      LOGGER.infof("%s has url: %s", Broker.master1, urlMaster1);
-      LOGGER.infof("%s has url: %s", Broker.slave1, urlSlave1);
+      LOGGER.info("{} has url: {}", Broker.master1, urlMaster1);
+      LOGGER.info("{} has url: {}", Broker.slave1, urlSlave1);
 
       LOGGER.info("BOOTSTRAPPING ENDED: READ nodeIds and master1/slave1 urls");
 
       for (int i = 0; i < failbackRetries; i++) {
-         LOGGER.infof("START TEST %d", i + 1);
-         LOGGER.infof("KILLING master1");
+         LOGGER.info("START TEST {}", i + 1);
+         LOGGER.info("KILLING master1");
          killServer(master1);
          // wait until slave1 became live
          Wait.assertTrue(() -> !Broker.slave1.isBackup().orElse(true), timeout);
@@ -286,7 +287,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
          Wait.assertTrue(() -> !Broker.master1.isBackup().orElse(true), timeout);
          LOGGER.info("master1 is LIVE");
          for (Broker broker : Broker.values()) {
-            LOGGER.infof("CHECKING NETWORK TOPOLOGY FOR %s", broker);
+            LOGGER.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
             Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                           containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
                                                              .and(withLive(nodeIDlive1, urlMaster1::equals))

@@ -45,7 +45,8 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -67,15 +68,13 @@ import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_USER_
  */
 public class MQTTPublishManager {
 
-   private static final Logger logger = Logger.getLogger(MQTTPublishManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MQTTPublishManager.class);
 
    private SimpleString managementAddress;
 
    private ServerConsumer managementConsumer;
 
    private MQTTSession session;
-
-   private MQTTLogger log = MQTTLogger.LOGGER;
 
    private final Object lock = new Object();
 
@@ -344,7 +343,7 @@ public class MQTTPublishManager {
 
          @Override
          public void onError(int errorCode, String errorMessage) {
-            log.error("Pub Sync Failed");
+            logger.error("Pub Sync Failed");
          }
       });
    }
@@ -364,7 +363,7 @@ public class MQTTPublishManager {
             releaseFlowControl(ref.getB());
          }
       } catch (ActiveMQIllegalStateException e) {
-         log.warn("MQTT Client(" + session.getState().getClientId() + ") attempted to Ack already Ack'd message");
+         logger.warn("MQTT Client(" + session.getState().getClientId() + ") attempted to Ack already Ack'd message");
       }
    }
 
@@ -425,7 +424,7 @@ public class MQTTPublishManager {
              * [MQTT-3.1.2-25] Where a Packet is too large to send, the Server MUST discard it without sending it and then
              * behave as if it had completed sending that Application Message
              */
-            logger.debugf("Not sending message %s to client as its size (%d) exceeds the max (%d)", message, size, maxSize);
+            logger.debug("Not sending message {} to client as its size ({}) exceeds the max ({})", message, size, maxSize);
             session.getServerSession().individualAcknowledge(consumerId, message.getMessageID());
             return false;
          }

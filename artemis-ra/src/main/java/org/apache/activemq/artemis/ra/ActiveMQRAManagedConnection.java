@@ -55,14 +55,15 @@ import org.apache.activemq.artemis.jms.client.ActiveMQXAConnection;
 import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapper;
 import org.apache.activemq.artemis.utils.VersionLoader;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The managed connection
  */
 public final class ActiveMQRAManagedConnection implements ManagedConnection, ExceptionListener {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQRAManagedConnection.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAManagedConnection.class);
 
    /**
     * The managed connection factory
@@ -140,7 +141,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
                                       final String userName,
                                       final String password) throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + mcf + ", " + cri + ", " + userName + ", ****)");
+         logger.trace("constructor(" + mcf + ", " + cri + ", " + userName + ", ****)");
       }
 
       this.mcf = mcf;
@@ -187,7 +188,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    public synchronized Object getConnection(final Subject subject,
                                             final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getConnection(" + subject + ", " + cxRequestInfo + ")");
+         logger.trace("getConnection(" + subject + ", " + cxRequestInfo + ")");
       }
 
       // Check user first
@@ -218,7 +219,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    private void destroyHandles() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("destroyHandles()");
+         logger.trace("destroyHandles()");
       }
 
       for (ActiveMQRASession session : handles) {
@@ -236,7 +237,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public void destroy() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("destroy()");
+         logger.trace("destroy()");
       }
 
       if (isDestroyed.get() || connection == null) {
@@ -286,7 +287,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
                xaSession.close();
             }
          } catch (JMSException e) {
-            ActiveMQRALogger.LOGGER.debug("Error closing session " + this, e);
+            logger.debug("Error closing session " + this, e);
          }
 
       } catch (Throwable e) {
@@ -302,7 +303,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public void cleanup() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("cleanup()");
+         logger.trace("cleanup()");
       }
 
       if (isDestroyed.get()) {
@@ -332,7 +333,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public void associateConnection(final Object obj) throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("associateConnection(" + obj + ")");
+         logger.trace("associateConnection(" + obj + ")");
       }
 
       if (!isDestroyed.get() && obj instanceof ActiveMQRASession) {
@@ -369,7 +370,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected void lock() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("lock()");
+         logger.trace("lock()");
       }
 
       lock.lock();
@@ -382,7 +383,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected void tryLock() throws JMSException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("tryLock()");
+         logger.trace("tryLock()");
       }
 
       Integer tryLock = mcf.getUseTryLock();
@@ -404,7 +405,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected void unlock() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("unlock()");
+         logger.trace("unlock()");
       }
 
       lock.unlock();
@@ -418,7 +419,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public void addConnectionEventListener(final ConnectionEventListener l) {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("addConnectionEventListener(" + l + ")");
+         logger.trace("addConnectionEventListener(" + l + ")");
       }
 
       eventListeners.add(l);
@@ -432,7 +433,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public void removeConnectionEventListener(final ConnectionEventListener l) {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("removeConnectionEventListener(" + l + ")");
+         logger.trace("removeConnectionEventListener(" + l + ")");
       }
 
       eventListeners.remove(l);
@@ -447,7 +448,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public XAResource getXAResource() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getXAResource()");
+         logger.trace("getXAResource()");
       }
 
       //
@@ -466,7 +467,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       }
 
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("XAResource=" + xaResource);
+         logger.trace("XAResource=" + xaResource);
       }
 
       return xaResource;
@@ -481,13 +482,13 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public LocalTransaction getLocalTransaction() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getLocalTransaction()");
+         logger.trace("getLocalTransaction()");
       }
 
       LocalTransaction tx = new ActiveMQRALocalTransaction(this);
 
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("LocalTransaction=" + tx);
+         logger.trace("LocalTransaction=" + tx);
       }
 
       return tx;
@@ -503,7 +504,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public ManagedConnectionMetaData getMetaData() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getMetaData()");
+         logger.trace("getMetaData()");
       }
 
       if (isDestroyed.get()) {
@@ -522,7 +523,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public void setLogWriter(final PrintWriter out) throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setLogWriter(" + out + ")");
+         logger.trace("setLogWriter(" + out + ")");
       }
    }
 
@@ -535,7 +536,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    @Override
    public PrintWriter getLogWriter() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getLogWriter()");
+         logger.trace("getLogWriter()");
       }
 
       return null;
@@ -552,12 +553,12 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
          return;
       }
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("onException(" + exception + ")");
+         logger.trace("onException(" + exception + ")");
       }
 
       if (isDestroyed.get()) {
          if (logger.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("Ignoring error on already destroyed connection " + this, exception);
+            logger.trace("Ignoring error on already destroyed connection " + this, exception);
          }
          return;
       }
@@ -583,13 +584,13 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
    protected Session getSession() throws JMSException {
       if (xaResource != null && inManagedTx) {
          if (logger.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("getSession() -> XA session " + xaSession.getSession());
+            logger.trace("getSession() -> XA session " + xaSession.getSession());
          }
 
          return xaSession.getSession();
       } else {
          if (logger.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("getSession() -> non XA session " + nonXAsession);
+            logger.trace("getSession() -> non XA session " + nonXAsession);
          }
 
          return nonXAsession;
@@ -603,7 +604,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected void sendEvent(final ConnectionEvent event) {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("sendEvent(" + event + ")");
+         logger.trace("sendEvent(" + event + ")");
       }
 
       int type = event.getId();
@@ -646,7 +647,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected void removeHandle(final ActiveMQRASession handle) {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("removeHandle(" + handle + ")");
+         logger.trace("removeHandle(" + handle + ")");
       }
 
       handles.remove(handle);
@@ -659,7 +660,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected ActiveMQRAConnectionRequestInfo getCRI() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getCRI()");
+         logger.trace("getCRI()");
       }
 
       return cri;
@@ -672,7 +673,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected ActiveMQRAManagedConnectionFactory getManagedConnectionFactory() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getManagedConnectionFactory()");
+         logger.trace("getManagedConnectionFactory()");
       }
 
       return mcf;
@@ -685,7 +686,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    void start() throws JMSException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("start()");
+         logger.trace("start()");
       }
 
       if (connection != null) {
@@ -700,7 +701,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    void stop() throws JMSException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("stop()");
+         logger.trace("stop()");
       }
 
       if (connection != null) {
@@ -715,7 +716,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    protected String getUserName() {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getUserName()");
+         logger.trace("getUserName()");
       }
 
       return userName;
@@ -728,7 +729,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
     */
    private void setup() throws ResourceException {
       if (logger.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setup()");
+         logger.trace("setup()");
       }
 
       try {

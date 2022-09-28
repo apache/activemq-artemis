@@ -21,13 +21,10 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
 public class BasicSslTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(BasicSslTests.class);
 
    public BasicSslTests(String protocol) {
       super(protocol);

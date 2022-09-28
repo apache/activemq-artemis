@@ -17,14 +17,15 @@
 
 package org.apache.activemq.artemis.tests.soak;
 
-import org.jboss.logging.Logger;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Encapsulates System properties that could be passed on to the test. */
 public class TestParameters {
 
 
-   private static final Logger logger = Logger.getLogger(TestParameters.class);
+   private static final Logger logger = LoggerFactory.getLogger(TestParameters.class);
 
    private static String propertyName(String testName, String property) {
       if (testName == null) {
@@ -62,13 +63,11 @@ public class TestParameters {
       }
 
       if (value == null) {
-         logger.debug("System property '" + property + "' not defined, using default:" + defaultValue);
+         logger.debug("System property '{}' not defined, using default: {}", property, defaultValue);
          value = defaultValue;
-      } else {
-         logger.debug("Using " + property + "=" + value);
       }
 
-      logger.info(property + "=" + value);
+      logger.info("{}={}", property, value);
 
       return value;
 
@@ -85,11 +84,9 @@ public class TestParameters {
 
       if (value == null) {
          Assert.fail("mandatory System property '" + property + "' not defined");
-      } else {
-         logger.debug("Using " + property + "=" + value);
       }
 
-      logger.info(property + "=" + value);
+      logger.info("{}={}", property, value);
 
       return value;
    }

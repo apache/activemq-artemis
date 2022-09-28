@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -43,8 +42,6 @@ import org.junit.Test;
  */
 
 public class SubscriptionTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(SubscriptionTests.class);
 
    public SubscriptionTests(String protocol) {
       super(protocol);

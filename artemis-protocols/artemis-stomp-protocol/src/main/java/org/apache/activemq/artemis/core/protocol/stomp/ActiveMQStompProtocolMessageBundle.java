@@ -16,33 +16,25 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
-import org.jboss.logging.Messages;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 33
- * <p>
- * Each message id must be 6 digits long starting with 33, the 3rd digit should be 9. So the range
- * is from 339000 to 339999.
- * <p>
- * Once released, methods should not be deleted as they may be referenced by knowledge base
- * articles. Unused methods should be marked as deprecated.
  */
-
-@MessageBundle(projectCode = "AMQ")
+@LogBundle(projectCode = "AMQ", regexID = "33[0-9]{4}")
 public interface ActiveMQStompProtocolMessageBundle {
 
-   ActiveMQStompProtocolMessageBundle BUNDLE = Messages.getBundle(ActiveMQStompProtocolMessageBundle.class);
+   ActiveMQStompProtocolMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQStompProtocolMessageBundle.class);
 
-   @Message(id = 339000, value = "Stomp Connection TTL cannot be negative: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339000, value = "Stomp Connection TTL cannot be negative: {}")
    IllegalStateException negativeConnectionTTL(Long ttl);
 
-   @Message(id = 339001, value = "Destination does not exist: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339001, value = "Destination does not exist: {}")
    ActiveMQStompException destinationNotExist(String destination);
 
-   @Message(id = 339002, value = "Stomp versions not supported: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339002, value = "Stomp versions not supported: {}")
    ActiveMQStompException versionNotSupported(String acceptVersion);
 
    @Message(id = 339003, value = "Header host is null")
@@ -54,7 +46,7 @@ public interface ActiveMQStompProtocolMessageBundle {
    @Message(id = 339005, value = "Header host does not match server host")
    ActiveMQStompException hostNotMatch();
 
-   @Message(id = 339006, value = "host {0} does not match server host name", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339006, value = "host {} does not match server host name")
    String hostNotMatchDetails(String host);
 
    @Message(id = 339007, value = "Connection was destroyed.")
@@ -64,34 +56,34 @@ public interface ActiveMQStompProtocolMessageBundle {
    ActiveMQStompException connectionNotEstablished();
 
    @Message(id = 339009, value = "Exception getting session")
-   ActiveMQStompException errorGetSession(@Cause Exception e);
+   ActiveMQStompException errorGetSession(Exception e);
 
    @Message(id = 339010, value = "Connection is not valid.")
    ActiveMQStompException invalidConnection();
 
-   @Message(id = 339011, value = "Error sending message {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorSendMessage(org.apache.activemq.artemis.api.core.Message message, @Cause Exception e);
+   @Message(id = 339011, value = "Error sending message {}")
+   ActiveMQStompException errorSendMessage(org.apache.activemq.artemis.api.core.Message message, Exception e);
 
-   @Message(id = 339012, value = "Error beginning a transaction {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorBeginTx(String txID, @Cause Exception e);
+   @Message(id = 339012, value = "Error beginning a transaction {}")
+   ActiveMQStompException errorBeginTx(String txID, Exception e);
 
-   @Message(id = 339013, value = "Error committing {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorCommitTx(String txID, @Cause Exception e);
+   @Message(id = 339013, value = "Error committing {}")
+   ActiveMQStompException errorCommitTx(String txID, Exception e);
 
-   @Message(id = 339014, value = "Error aborting {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorAbortTx(String txID, @Cause Exception e);
+   @Message(id = 339014, value = "Error aborting {}")
+   ActiveMQStompException errorAbortTx(String txID, Exception e);
 
    @Message(id = 339015, value = "Client must set destination or id header to a SUBSCRIBE command")
    ActiveMQStompException noDestination();
 
-   @Message(id = 339016, value = "Error creating subscription {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorCreatingSubscription(String subscriptionID, @Cause Exception e);
+   @Message(id = 339016, value = "Error creating subscription {}")
+   ActiveMQStompException errorCreatingSubscription(String subscriptionID, Exception e);
 
-   @Message(id = 339017, value = "Error unsubscribing {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorUnsubscribing(String subscriptionID, @Cause Exception e);
+   @Message(id = 339017, value = "Error unsubscribing {}")
+   ActiveMQStompException errorUnsubscribing(String subscriptionID, Exception e);
 
-   @Message(id = 339018, value = "Error acknowledging message {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQStompException errorAck(String messageID, @Cause Exception e);
+   @Message(id = 339018, value = "Error acknowledging message {}")
+   ActiveMQStompException errorAck(String messageID, Exception e);
 
    @Message(id = 339019, value = "Invalid char sequence: two consecutive CRs.")
    ActiveMQStompException invalidTwoCRs();
@@ -99,22 +91,22 @@ public interface ActiveMQStompProtocolMessageBundle {
    @Message(id = 339020, value = "Invalid char sequence: There is a CR not followed by an LF")
    ActiveMQStompException badCRs();
 
-   @Message(id = 339021, value = "Expect new line char but is {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339021, value = "Expect new line char but is {}")
    ActiveMQStompException notValidNewLine(byte b);
 
-   @Message(id = 339022, value = "Expect new line char but is {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339022, value = "Expect new line char but is {}")
    String unexpectedNewLine(byte b);
 
-   @Message(id = 339023, value = "Invalid STOMP frame: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339023, value = "Invalid STOMP frame: {}")
    ActiveMQStompException invalidCommand(String dumpByteArray);
 
-   @Message(id = 339024, value = "Invalid STOMP frame: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339024, value = "Invalid STOMP frame: {}")
    String invalidFrame(String dumpByteArray);
 
-   @Message(id = 339025, value = "failed to ack because no message with id: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339025, value = "failed to ack because no message with id: {}")
    ActiveMQStompException failToAckMissingID(long id);
 
-   @Message(id = 339026, value = "subscription id {0} does not match {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339026, value = "subscription id {} does not match {}")
    ActiveMQStompException subscriptionIDMismatch(String subscriptionID, String actualID);
 
    @Message(id = 339027, value = "Cannot create a subscriber on the durable subscription if the client-id of the connection is not set")
@@ -123,14 +115,14 @@ public interface ActiveMQStompProtocolMessageBundle {
    @Message(id = 339028, value = "Message header too big, increase minLargeMessageSize please.")
    Exception headerTooBig();
 
-   @Message(id = 339029, value = "Unsupported command: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339029, value = "Unsupported command: {}")
    ActiveMQStompException unknownCommand(String command);
 
    @Message(id = 339030, value = "transaction header is mandatory to COMMIT a transaction")
    ActiveMQStompException needTxIDHeader();
 
    @Message(id = 339031, value = "Error handling send")
-   ActiveMQStompException errorHandleSend(@Cause Exception e);
+   ActiveMQStompException errorHandleSend(Exception e);
 
    @Message(id = 339032, value = "Need a transaction id to begin")
    ActiveMQStompException beginTxNoID();
@@ -141,18 +133,18 @@ public interface ActiveMQStompProtocolMessageBundle {
    @Message(id = 339034, value = "This method should not be called")
    IllegalStateException invalidCall();
 
-   @Message(id = 339035, value = "Must specify the subscription''s id or the destination you are unsubscribing from")
+   @Message(id = 339035, value = "Must specify the subscription's id or the destination you are unsubscribing from")
    ActiveMQStompException needIDorDestination();
 
-   @Message(id = 339037, value = "Must specify the subscription''s id")
+   @Message(id = 339037, value = "Must specify the subscription's id")
    ActiveMQStompException needSubscriptionID();
 
    @Message(id = 339039, value = "No id header in ACK/NACK frame.")
    ActiveMQStompException noIDInAck();
 
-   @Message(id = 339040, value = "Undefined escape sequence: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339040, value = "Undefined escape sequence: {}")
    ActiveMQStompException undefinedEscapeSequence(String sequence);
 
-   @Message(id = 339041, value = "Not allowed to specify {0} semantics on {1} address.", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 339041, value = "Not allowed to specify {} semantics on {} address.")
    ActiveMQStompException illegalSemantics(String requested, String exists);
 }

@@ -61,10 +61,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQStreamMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageHeaderTest extends MessageHeaderTestBase {
 
-
+   private static final Logger logger = LoggerFactory.getLogger(MessageHeaderTest.class);
 
    @Test
    public void testClearMessage() throws Exception {
@@ -593,7 +595,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
    @Test
    public void testSendReceiveForeignMessage() throws JMSException {
 
-      log.trace("Starting da test");
+      logger.trace("Starting da test");
 
       SimpleJMSMessage foreignMessage = new SimpleJMSMessage();
 
@@ -602,22 +604,22 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       // foreign messages don't have to be serializable
       ProxyAssertSupport.assertFalse(foreignMessage instanceof Serializable);
 
-      log.trace("Sending message");
+      logger.trace("Sending message");
 
       queueProducer.send(foreignMessage);
 
-      log.trace("Sent message");
+      logger.trace("Sent message");
 
       Message m2 = queueConsumer.receive(3000);
-      log.trace("The message is " + m2);
+      logger.trace("The message is " + m2);
 
       ProxyAssertSupport.assertNotNull(m2);
 
       ProxyAssertSupport.assertEquals("aardvark", m2.getStringProperty("animal"));
 
-      log.trace("Received message");
+      logger.trace("Received message");
 
-      log.trace("Done that test");
+      logger.trace("Done that test");
    }
 
    @Test
@@ -733,6 +735,11 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       Message receivedMessage = queueConsumer.receive(2000);
 
       MessageHeaderTestBase.ensureEquivalent(receivedMessage, (ActiveMQMessage) message);
+   }
+
+   @Override
+   public void tearDown() throws Exception {
+      super.tearDown();
    }
 
    private static class ForeignDestination implements Destination, Serializable {

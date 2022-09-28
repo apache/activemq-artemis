@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -38,6 +40,8 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  * The most comprehensive, yet simple, unit test.
  */
 public class JMSTest extends JMSTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(JMSTest.class);
 
    Connection conn = null;
 
@@ -262,7 +266,7 @@ public class JMSTest extends JMSTestCase {
                   }
                }
             } catch (Exception e) {
-               log.error("receive failed", e);
+               logger.error("receive failed", e);
             }
 
          }
