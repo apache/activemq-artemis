@@ -62,10 +62,11 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class SharedNothingLiveActivation extends LiveActivation {
 
-   private static final Logger logger = LoggerFactory.getLogger(SharedNothingLiveActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    //this is how we act when we initially start as a live
    private ReplicatedPolicy replicatedPolicy;

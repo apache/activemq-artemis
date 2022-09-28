@@ -75,6 +75,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static java.util.Collections.singletonList;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME;
@@ -110,7 +111,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       return new MqttAsyncClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
    }
 
-   private static final Logger log = LoggerFactory.getLogger(MQTT5TestSupport.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected static final long DEFAULT_TIMEOUT = 300000;
    protected ActiveMQServer server;
 

@@ -27,13 +27,14 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase {
 
    protected static final String QUEUE_NAME = "queue0";
    protected static final String QUEUES_TESTADDRESS = "queues.testaddress";
 
-   protected static final Logger log = LoggerFactory.getLogger(ClusterWithBackupFailoverTestBase.class);
+   protected static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected abstract void setupCluster(MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 

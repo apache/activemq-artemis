@@ -25,13 +25,14 @@ import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Default values of ActiveMQ Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQDefaultConfiguration.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /*
     * <p> In order to avoid compile time in-lining of constants, all access is done through methods

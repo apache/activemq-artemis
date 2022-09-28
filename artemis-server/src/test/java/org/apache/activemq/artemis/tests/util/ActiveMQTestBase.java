@@ -154,6 +154,7 @@ import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -172,9 +173,7 @@ import org.junit.runner.Description;
  */
 public abstract class ActiveMQTestBase extends Assert {
 
-   private static final Logger log = LoggerFactory.getLogger(ActiveMQTestBase.class);
-
-   private static final Logger baseLog = LoggerFactory.getLogger(ActiveMQTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final Logger instanceLog = LoggerFactory.getLogger(this.getClass());
 
@@ -182,7 +181,7 @@ public abstract class ActiveMQTestBase extends Assert {
       Env.setTestEnv(true);
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQTestBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /** This will make sure threads are not leaking between tests */
    @ClassRule
@@ -282,12 +281,12 @@ public abstract class ActiveMQTestBase extends Assert {
       @Override
       protected void starting(Description description) {
          testClassName = description.getClassName();
-         baseLog.info(String.format("**** start #test %s() ***", description.getMethodName()));
+         log.info(String.format("**** start #test %s() ***", description.getMethodName()));
       }
 
       @Override
       protected void finished(Description description) {
-         baseLog.info(String.format("**** end #test %s() ***", description.getMethodName()));
+         log.info(String.format("**** end #test %s() ***", description.getMethodName()));
       }
    };
 
@@ -1371,7 +1370,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (!server.isStarted()) {
-         baseLog.info(threadDump("Server didn't start"));
+         log.info(threadDump("Server didn't start"));
          fail("server didn't start: " + server);
       }
 
@@ -1393,7 +1392,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (server.isStarted()) {
-         baseLog.info(threadDump("Server didn't start"));
+         log.info(threadDump("Server didn't start"));
          fail("Server didn't start: " + server);
       }
    }
@@ -2062,7 +2061,7 @@ public abstract class ActiveMQTestBase extends Assert {
          ")" +
          ")";
 
-      baseLog.error(msg);
+      log.error(msg);
       return false;
    }
 
@@ -2185,7 +2184,7 @@ public abstract class ActiveMQTestBase extends Assert {
       int invmSize = InVMRegistry.instance.size();
       if (invmSize > 0) {
          InVMRegistry.instance.clear();
-         baseLog.info(threadDump("Thread dump"));
+         log.info(threadDump("Thread dump"));
          fail("invm registry still had acceptors registered");
       }
    }
@@ -2197,14 +2196,14 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          ServerLocatorImpl.clearThreadPools();
       } catch (Throwable e) {
-         baseLog.info(threadDump(e.getMessage()));
+         log.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
 
       try {
          NettyConnector.clearThreadPools();
       } catch (Exception e) {
-         baseLog.info(threadDump(e.getMessage()));
+         log.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
    }

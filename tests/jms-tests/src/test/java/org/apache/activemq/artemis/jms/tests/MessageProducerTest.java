@@ -46,13 +46,14 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class MessageProducerTest extends JMSTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(MessageProducerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testSendForeignWithForeignDestinationSet() throws Exception {

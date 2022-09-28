@@ -92,6 +92,7 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
@@ -101,7 +102,7 @@ import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
  */
 public class JournalImpl extends JournalBase implements TestableJournal, JournalRecordProvider {
-   private static final Logger logger = LoggerFactory.getLogger(JournalImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    /**

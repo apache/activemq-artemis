@@ -37,10 +37,11 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class FailoverOnFlowControlTest extends FailoverTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(FailoverOnFlowControlTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    @Test
    public void testOverflowSend() throws Exception {
       ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setProducerWindowSize(1000).setRetryInterval(100);

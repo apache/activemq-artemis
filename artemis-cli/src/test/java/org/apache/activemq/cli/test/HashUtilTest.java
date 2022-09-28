@@ -21,12 +21,13 @@ import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class HashUtilTest {
-   private static final Logger log = LoggerFactory.getLogger(HashUtilTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testDefaultHashFormat() throws Exception {

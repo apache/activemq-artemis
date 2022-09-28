@@ -22,13 +22,14 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A wrapper for a message
  */
 public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements ObjectMessage {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAObjectMessage.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Create a new wrapper

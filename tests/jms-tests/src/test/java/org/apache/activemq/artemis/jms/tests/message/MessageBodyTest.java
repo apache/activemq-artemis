@@ -34,10 +34,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MessageBodyTest extends MessageBodyTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(MessageBodyTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testSMBodyReadable() throws Exception {

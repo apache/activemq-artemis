@@ -125,6 +125,7 @@ import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.Base64.encodeBytes;
 
@@ -134,7 +135,7 @@ public class NettyConnector extends AbstractConnector {
    public static String EPOLL_CONNECTOR_TYPE = "EPOLL";
    public static String KQUEUE_CONNECTOR_TYPE = "KQUEUE";
 
-   private static final Logger logger = LoggerFactory.getLogger(NettyConnector.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String JAVAX_KEYSTORE_PATH_PROP_NAME = "javax.net.ssl.keyStore";
    public static final String JAVAX_KEYSTORE_PASSWORD_PROP_NAME = "javax.net.ssl.keyStorePassword";

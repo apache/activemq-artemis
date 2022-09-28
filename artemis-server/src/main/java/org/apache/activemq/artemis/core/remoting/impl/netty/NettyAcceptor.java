@@ -98,13 +98,14 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A Netty TCP Acceptor that is embedding Netty.
  */
 public class NettyAcceptor extends AbstractAcceptor {
 
-   private static final Logger logger = LoggerFactory.getLogger(NettyAcceptor.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    public static final String INVM_ACCEPTOR_TYPE = "IN-VM";

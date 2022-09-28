@@ -34,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * You need to build the Artemis Centos image before this test is executed.
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QpidDispatchPeerTest extends E2ETestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(QpidDispatchPeerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static Object network;
    static Object qpidServer;

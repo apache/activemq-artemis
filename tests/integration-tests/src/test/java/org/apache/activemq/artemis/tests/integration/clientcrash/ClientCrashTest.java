@@ -38,6 +38,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A test that makes sure that an ActiveMQ Artemis server cleans up the associated
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientCrashTest extends ClientTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(ClientCrashTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public SpawnedVMCheck spawnedVMCheck = new SpawnedVMCheck();

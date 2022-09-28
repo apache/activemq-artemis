@@ -34,13 +34,14 @@ import org.apache.qpid.jms.policy.JmsDefaultPrefetchPolicy;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests for various QueueBrowser scenarios with an AMQP JMS client.
  */
 public class JMSQueueBrowserTest extends JMSClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(JMSQueueBrowserTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testBrowseAllInQueueZeroPrefetch() throws Exception {

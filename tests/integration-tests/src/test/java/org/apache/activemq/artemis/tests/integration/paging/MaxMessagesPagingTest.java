@@ -54,10 +54,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(MaxMessagesPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected static final int PAGE_MAX = 100 * 1024;
    protected static final int PAGE_SIZE = 10 * 1024;

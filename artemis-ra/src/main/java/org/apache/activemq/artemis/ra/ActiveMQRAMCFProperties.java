@@ -22,13 +22,14 @@ import java.io.Serializable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * The MCF default properties - these are set in the tx-connection-factory at the jms-ds.xml
  */
 public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties implements Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAMCFProperties.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Serial version UID

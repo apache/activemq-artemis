@@ -28,13 +28,14 @@ import javax.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A wrapper for a message consumer
  */
 public class ActiveMQRAMessageConsumer implements MessageConsumer {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAMessageConsumer.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The wrapped message consumer

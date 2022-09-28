@@ -31,11 +31,12 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.utils.PowerOf2Util;
 import org.apache.activemq.artemis.utils.Env;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 final class MappedFile implements AutoCloseable {
 
-   private static final Logger logger = LoggerFactory.getLogger(MappedFile.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int OS_PAGE_SIZE = Env.osPageSize();
    private final MappedByteBuffer buffer;

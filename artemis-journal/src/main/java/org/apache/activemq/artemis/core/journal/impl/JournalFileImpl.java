@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
@@ -65,7 +66,7 @@ public class JournalFileImpl implements JournalFile {
 
    private final ConcurrentMap<JournalFile, AtomicInteger> negCounts = new ConcurrentHashMap<>();
 
-   private static final Logger logger = LoggerFactory.getLogger(JournalFileImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public JournalFileImpl(final SequentialFile file, final long fileID, final int version) {
       checkNotNull(file);

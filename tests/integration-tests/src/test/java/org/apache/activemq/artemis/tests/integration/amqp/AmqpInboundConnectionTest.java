@@ -43,13 +43,14 @@ import org.apache.qpid.proton.engine.Connection;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests for behaviors expected of the broker when clients connect to the broker
  */
 public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpInboundConnectionTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String BROKER_NAME = "localhost";
    private static final String PRODUCT_NAME = "apache-activemq-artemis";

@@ -33,10 +33,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class FileLockNodeManager extends FileBasedNodeManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(FileLockNodeManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int STATE_LOCK_POS = 0;
 

@@ -61,11 +61,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class BrokerInSyncTest extends AmqpClientTestSupport {
 
    protected static final int AMQP_PORT_2 = 5673;
-   private static final Logger logger = LoggerFactory.getLogger(BrokerInSyncTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    ActiveMQServer server_2;
 
    @After

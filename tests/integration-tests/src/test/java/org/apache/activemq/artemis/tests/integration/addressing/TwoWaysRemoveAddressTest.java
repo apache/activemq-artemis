@@ -30,13 +30,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This test is simulating a dead lock that may happen while removing addresses.
  */
 public class TwoWaysRemoveAddressTest extends ActiveMQTestBase {
 
-   private static Logger logger = LoggerFactory.getLogger(TwoWaysRemoveAddressTest.class);
+   private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60_000)
    public void testDeadLock() throws Throwable  {

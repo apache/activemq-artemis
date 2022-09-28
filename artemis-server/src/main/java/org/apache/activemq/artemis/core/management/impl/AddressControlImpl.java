@@ -54,10 +54,11 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
 
-   private static final Logger logger = LoggerFactory.getLogger(AddressControlImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private AddressInfo addressInfo;
 

@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  *
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractPersistentStatTestSupport extends JMSTestBase {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(AbstractPersistentStatTestSupport.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected static int defaultMessageSize = 1000;
 

@@ -42,6 +42,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import com.github.javafaker.ChuckNorris;
 import com.github.javafaker.Faker;
@@ -49,7 +50,7 @@ import com.github.javafaker.Faker;
 @SuppressWarnings("deprecation")
 public class MQTTRetainMessageManagerTest {
 
-   private Logger log = LoggerFactory.getLogger(MQTTRetainMessageManagerTest.class);
+   private Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public EmbeddedJMSResource jmsServer = new EmbeddedJMSResource("embedded-artemis-server-mqtt.xml");
 

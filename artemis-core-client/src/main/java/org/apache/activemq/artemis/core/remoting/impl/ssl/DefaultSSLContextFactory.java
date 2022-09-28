@@ -15,17 +15,22 @@
  */
 package org.apache.activemq.artemis.core.remoting.impl.ssl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple SSLContextFactory for use in NettyConnector and NettyAcceptor.
  */
 public class DefaultSSLContextFactory implements SSLContextFactory {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    public SSLContext getSSLContext(final SSLContextConfig config, final Map<String, Object> additionalOpts) throws Exception {
@@ -36,11 +41,11 @@ public class DefaultSSLContextFactory implements SSLContextFactory {
       );
 
       if (useDefaultSslContext) {
-         log.debug("Using the Default JDK SSLContext.");
+         logger.debug("Using the Default JDK SSLContext.");
          return SSLContext.getDefault();
       }
 
-      log.debug("Creating JDK SSLContext with {}", config);
+      logger.debug("Creating JDK SSLContext with {}", config);
       return new SSLSupport(config).createContext();
    }
 

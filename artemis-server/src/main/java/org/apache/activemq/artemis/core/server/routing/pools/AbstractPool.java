@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.core.server.routing.targets.TargetMonitor;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +38,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.stream.Collectors;
 
 public abstract class AbstractPool implements Pool {
-   private static final Logger logger = LoggerFactory.getLogger(AbstractPool.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final TargetFactory targetFactory;
 

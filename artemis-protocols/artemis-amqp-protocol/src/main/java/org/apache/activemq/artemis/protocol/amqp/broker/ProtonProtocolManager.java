@@ -51,13 +51,14 @@ import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.utils.DestinationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection, AMQPRoutingHandler> implements NotificationListener {
 
-   private static final Logger logger = LoggerFactory.getLogger(ProtonProtocolManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 

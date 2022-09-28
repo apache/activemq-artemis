@@ -34,13 +34,14 @@ import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEnco
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(JournalImplTestUnit.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @After

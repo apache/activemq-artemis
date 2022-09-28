@@ -24,6 +24,7 @@ import org.apache.qpid.proton.engine.Endpoint;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Abstract base for all AmqpResource implementations to extend.
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AmqpAbstractResource<E extends Endpoint> implements AmqpResource {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpAbstractResource.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected AsyncResult openRequest;
    protected AsyncResult closeRequest;

@@ -33,10 +33,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class NetworkIsolationTest extends FailoverTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(NetworkIsolationTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // This address is guaranteed to fail... reserved for documentation https://tools.ietf.org/html/rfc5737
    private static final String badAddress = "203.0.113.1";

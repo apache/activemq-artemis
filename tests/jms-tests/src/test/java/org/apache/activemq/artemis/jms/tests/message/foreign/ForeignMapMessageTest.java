@@ -24,13 +24,14 @@ import org.apache.activemq.artemis.jms.tests.message.SimpleJMSMapMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests the delivery/receipt of a foreign map message
  */
 public class ForeignMapMessageTest extends ForeignMessageTest {
 
-   private static final Logger logger = LoggerFactory.getLogger(ForeignMapMessageTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String obj = new String("stringobject");
 

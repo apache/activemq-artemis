@@ -33,6 +33,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -41,7 +42,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
  */
 public class JMSTest extends JMSTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(JMSTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    Connection conn = null;
 

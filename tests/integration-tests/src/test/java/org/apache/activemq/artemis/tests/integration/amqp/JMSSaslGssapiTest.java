@@ -74,10 +74,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(JMSSaslGssapiTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static {
       String path = System.getProperty("java.security.auth.login.config");

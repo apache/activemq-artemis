@@ -135,6 +135,7 @@ import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Represents an activemq connection.
@@ -145,7 +146,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    // to be used on the packet size estimate processing for the ThresholdActor
    private static final int MINIMAL_SIZE_ESTIAMTE = 1024;
 
-   private static final Logger logger = LoggerFactory.getLogger(OpenWireConnection.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final KeepAliveInfo PING = new KeepAliveInfo();
 

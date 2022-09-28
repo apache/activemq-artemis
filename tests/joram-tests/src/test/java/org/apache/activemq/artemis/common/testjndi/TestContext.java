@@ -40,6 +40,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.jndi.NameParserImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A read-only Context
@@ -64,7 +65,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class TestContext implements Context, Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(TestContext.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String SEPARATOR = "/";
    protected static final NameParser NAME_PARSER = new NameParserImpl();

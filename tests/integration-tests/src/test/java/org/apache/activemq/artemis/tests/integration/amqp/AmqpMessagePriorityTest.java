@@ -29,13 +29,14 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests for handling of the AMQP message priority header.
  */
 public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(AmqpMessagePriorityTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testMessageDefaultPriority() throws Exception {

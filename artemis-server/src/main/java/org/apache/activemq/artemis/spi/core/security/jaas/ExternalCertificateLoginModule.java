@@ -31,13 +31,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A LoginModule that propagates TLS certificates subject DN as a UserPrincipal.
  */
 public class ExternalCertificateLoginModule implements AuditLoginModule {
 
-   private static final Logger logger = LoggerFactory.getLogger(ExternalCertificateLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private CallbackHandler callbackHandler;
    private Subject subject;

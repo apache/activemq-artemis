@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.utils.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -40,7 +41,7 @@ import org.junit.runner.Description;
  */
 public class NoProcessFilesBehind extends TestWatcher {
 
-   private static Logger log = LoggerFactory.getLogger(NoProcessFilesBehind.class);
+   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public NoProcessFilesBehind(long maxFiles) {
       this(-1, maxFiles);

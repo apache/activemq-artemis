@@ -46,10 +46,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /** This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume exception. */
 public class QpidDispatchPeerTest extends AmqpClientTestSupport {
-   private static final Logger logger = LoggerFactory.getLogger(QpidDispatchPeerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    ExecuteUtil.ProcessHolder qpidProcess;
 

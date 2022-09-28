@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMess
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class EmbedMessageUtil {
 
@@ -37,7 +38,7 @@ public class EmbedMessageUtil {
 
    private static final byte[] signature = new byte[]{(byte) 'E', (byte) 'M', (byte) 'B'};
 
-   private static final Logger logger = LoggerFactory.getLogger(EmbedMessageUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static ICoreMessage embedAsCoreMessage(Message source) {
 

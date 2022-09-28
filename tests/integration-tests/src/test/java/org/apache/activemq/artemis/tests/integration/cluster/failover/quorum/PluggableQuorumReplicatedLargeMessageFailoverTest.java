@@ -22,12 +22,13 @@ import org.apache.activemq.artemis.tests.integration.cluster.failover.LargeMessa
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.tests.integration.cluster.failover.quorum.PluggableQuorumNettyNoGroupNameReplicatedFailoverTest.doDecrementActivationSequenceForForceRestartOf;
 
 public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest {
 
-   private static final Logger log = LoggerFactory.getLogger(PluggableQuorumReplicatedLargeMessageFailoverTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    @Override
    protected void createConfigs() throws Exception {
       createPluggableReplicatedConfigs();

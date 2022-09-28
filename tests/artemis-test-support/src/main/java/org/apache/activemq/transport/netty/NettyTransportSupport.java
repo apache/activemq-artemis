@@ -41,6 +41,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import io.netty.handler.ssl.SslHandler;
 
@@ -49,7 +50,7 @@ import io.netty.handler.ssl.SslHandler;
  */
 public class NettyTransportSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(NettyTransportSupport.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Creates a Netty SslHandler instance for use in Transports that require an SSL encoder /

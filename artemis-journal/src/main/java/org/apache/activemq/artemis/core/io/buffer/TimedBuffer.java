@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 public final class TimedBuffer extends CriticalComponentImpl {
@@ -48,7 +49,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
    protected static final int CRITICAL_PATH_ADD_BYTES = 4;
    protected static final int CRITICAL_PATH_SET_OBSERVER = 5;
 
-   private static final Logger logger = LoggerFactory.getLogger(TimedBuffer.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final double MAX_TIMEOUT_ERROR_FACTOR = 1.5;
 

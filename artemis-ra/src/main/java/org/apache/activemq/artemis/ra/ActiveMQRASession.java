@@ -57,13 +57,14 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A joint interface for JMS sessions
  */
 public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRASession.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The managed connection

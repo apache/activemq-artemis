@@ -25,13 +25,14 @@ import javax.resource.spi.ManagedConnectionFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * The connection manager used in non-managed environments.
  */
 public class ActiveMQRAConnectionManager implements ConnectionManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAConnectionManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    /**

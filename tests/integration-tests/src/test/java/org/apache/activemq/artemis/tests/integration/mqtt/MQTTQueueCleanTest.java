@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.util.HashSet;
 import java.util.Random;
@@ -32,7 +33,7 @@ import java.util.Set;
 
 public class MQTTQueueCleanTest extends MQTTTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MQTTQueueCleanTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testQueueClean() throws Exception {

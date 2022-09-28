@@ -43,10 +43,11 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AddressInfo {
 
-   private static final Logger logger = LoggerFactory.getLogger(AddressInfo.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private long id;
    private long pauseStatusRecord = -1;

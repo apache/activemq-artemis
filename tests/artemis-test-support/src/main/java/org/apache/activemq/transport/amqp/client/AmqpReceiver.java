@@ -55,13 +55,14 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Receiver class that manages a Proton receiver endpoint.
  */
 public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpReceiver.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AtomicBoolean closed = new AtomicBoolean();
    private final BlockingQueue<AmqpMessage> prefetch = new LinkedBlockingDeque<>();

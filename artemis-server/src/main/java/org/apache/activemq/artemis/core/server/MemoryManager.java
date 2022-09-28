@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.server;
 import org.apache.activemq.artemis.utils.SizeFormatterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A memory usage watcher.
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MemoryManager implements ActiveMQComponent {
 
-   private static final Logger logger = LoggerFactory.getLogger(MemoryManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Runtime runtime;
 

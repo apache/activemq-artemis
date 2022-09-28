@@ -25,10 +25,11 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.SessionSen
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class Outgoing implements Interceptor {
 
-   private static final Logger log = LoggerFactory.getLogger(Outgoing.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {

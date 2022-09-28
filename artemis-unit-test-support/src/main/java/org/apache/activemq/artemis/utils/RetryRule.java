@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
@@ -32,7 +33,7 @@ public class RetryRule implements MethodRule {
 
    public static final String PROPERTY_NAME = "org.apache.activemq.artemis.utils.RetryRule.retry";
 
-   private static Logger logger = LoggerFactory.getLogger(RetryRule.class);
+   private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    final int defaultNumberOfRetries;
    final boolean retrySuccess;

@@ -61,13 +61,14 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * @see PagingStore
  */
 public class PagingStoreImpl implements PagingStore {
 
-   private static final Logger logger = LoggerFactory.getLogger(PagingStoreImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final SimpleString address;
 

@@ -31,6 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Connection tests. Contains all connection tests, except tests relating to closing a connection,
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConnectionTest extends JMSTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(ConnectionTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    @Test

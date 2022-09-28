@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 /**
@@ -43,7 +44,7 @@ import org.slf4j.Logger;
  */
 public abstract class AbstractSequentialFileFactory implements SequentialFileFactory {
 
-   private static final Logger logger = LoggerFactory.getLogger(AbstractSequentialFileFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // Timeout used to wait executors to shutdown
    protected static final int EXECUTOR_TIMEOUT = 60;

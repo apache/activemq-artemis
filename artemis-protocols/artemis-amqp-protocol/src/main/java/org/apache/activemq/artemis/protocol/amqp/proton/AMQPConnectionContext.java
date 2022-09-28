@@ -74,6 +74,7 @@ import org.apache.qpid.proton.engine.Session;
 import org.apache.qpid.proton.engine.Transport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
@@ -83,7 +84,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEM
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
-   private static final Logger log = LoggerFactory.getLogger(AMQPConnectionContext.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final String AMQP_CONTAINER_ID = "amqp-container-id";

@@ -22,12 +22,13 @@ import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This is a simple cache where we keep Page objects only while they are being used. */
 public class PageCache {
 
-   private static final Logger logger = LoggerFactory.getLogger(PageCache.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final PagingStore owner;
 

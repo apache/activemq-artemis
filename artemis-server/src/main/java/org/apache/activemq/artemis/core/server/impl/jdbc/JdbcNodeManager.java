@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.server.impl.jdbc.LeaseLock.AcquireResult.Timeout;
 
@@ -44,7 +45,7 @@ import static org.apache.activemq.artemis.core.server.impl.jdbc.LeaseLock.Acquir
  */
 public final class JdbcNodeManager extends NodeManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(JdbcNodeManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final long MAX_PAUSE_MILLIS = 2000L;
 
    private final Supplier<? extends SharedStateManager> sharedStateManagerFactory;

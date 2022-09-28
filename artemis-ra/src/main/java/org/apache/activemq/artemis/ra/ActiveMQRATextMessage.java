@@ -21,13 +21,14 @@ import javax.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A wrapper for a message
  */
 public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMessage {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRATextMessage.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Create a new wrapper

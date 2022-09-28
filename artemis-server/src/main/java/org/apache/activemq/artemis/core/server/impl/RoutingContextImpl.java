@@ -35,10 +35,11 @@ import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class RoutingContextImpl implements RoutingContext {
 
-   private static final Logger logger  = LoggerFactory.getLogger(RoutingContextImpl.class);
+   private static final Logger logger  = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // The pair here is Durable and NonDurable
    private final Map<SimpleString, RouteContextList> map = new HashMap<>();

@@ -25,10 +25,11 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(QueueManagerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final SimpleString queueName;
 

@@ -24,10 +24,11 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class DummyInterceptorB implements Interceptor {
 
-   private static final Logger log = LoggerFactory.getLogger(DummyInterceptorB.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static AtomicInteger syncCounter = new AtomicInteger(0);
 

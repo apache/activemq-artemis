@@ -43,10 +43,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReattachSupportTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MultiThreadRandomReattachTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private static final int RECEIVE_TIMEOUT = 30000;

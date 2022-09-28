@@ -61,6 +61,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Validating connection retry scenarios where the DNS had changes
@@ -71,7 +72,7 @@ public class DNSSwitchTest extends SmokeTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 10099;
    private static final int JMX_SERVER_PORT_1 = 10199;
-   private static final Logger logger = LoggerFactory.getLogger(DNSSwitchTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final String SERVER_NAME_0 = "dnsswitch";
    private static final String SERVER_NAME_1 = "dnsswitch2";
    private static final String SERVER_STANDARD = "standard";

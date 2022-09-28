@@ -52,6 +52,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
 import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
@@ -59,7 +60,7 @@ import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresho
 
 public class SlowConsumerTest extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(SlowConsumerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private int threshold = 10;
    private long checkPeriod = 1;

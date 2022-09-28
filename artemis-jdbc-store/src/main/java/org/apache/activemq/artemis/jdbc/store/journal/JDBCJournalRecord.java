@@ -34,10 +34,11 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.utils.ActiveMQBufferInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 class JDBCJournalRecord {
 
-   private static final Logger logger = LoggerFactory.getLogger(JDBCJournalRecord.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    /*
    Database Table Schema:
 

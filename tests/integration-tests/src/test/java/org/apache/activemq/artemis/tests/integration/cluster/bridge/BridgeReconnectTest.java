@@ -71,6 +71,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
 public class BridgeReconnectTest extends BridgeTestBase {
@@ -85,7 +86,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    @Parameterized.Parameter(0)
    public boolean persistCache;
 
-   private static final Logger log = LoggerFactory.getLogger(BridgeReconnectTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int NUM_MESSAGES = 100;
 

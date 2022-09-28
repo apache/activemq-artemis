@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
@@ -38,7 +39,7 @@ import java.util.List;
 
 @RunWith(value = Parameterized.class)
 public class AllClassesTest {
-   private static final Logger log = LoggerFactory.getLogger(AllClassesTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameters(name = "classInfo={0}")
    public static Collection getParameters() {

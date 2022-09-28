@@ -37,13 +37,14 @@ import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests for temporary destination handling over AMQP
  */
 public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(AmqpTempDestinationTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testCreateDynamicSenderToTopic() throws Exception {

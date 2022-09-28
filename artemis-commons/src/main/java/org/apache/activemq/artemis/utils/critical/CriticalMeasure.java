@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class CriticalMeasure {
 
@@ -29,7 +30,7 @@ public class CriticalMeasure {
       return closeable == dummyCloseable;
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(CriticalMeasure.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // this is used on enterCritical, if the logger is in trace mode
    private volatile Exception traceEnter;

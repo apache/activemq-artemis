@@ -27,6 +27,7 @@ import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Stops the backup in case of an error at the start of Replication.
@@ -37,7 +38,7 @@ import org.slf4j.LoggerFactory;
  */
 final class ReplicationError implements Interceptor {
 
-   private static final Logger logger = LoggerFactory.getLogger(ReplicationError.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private LiveNodeLocator nodeLocator;
 

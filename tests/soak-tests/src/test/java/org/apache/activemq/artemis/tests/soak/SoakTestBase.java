@@ -41,9 +41,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class SoakTestBase extends ActiveMQTestBase {
-   private static final Logger logger = LoggerFactory.getLogger(SoakTestBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    Set<Process> processes = new HashSet<>();
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT = 10099;

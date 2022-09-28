@@ -38,10 +38,11 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class InVMContext implements Context, Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(InVMContext.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long serialVersionUID = 385743957345L;
 

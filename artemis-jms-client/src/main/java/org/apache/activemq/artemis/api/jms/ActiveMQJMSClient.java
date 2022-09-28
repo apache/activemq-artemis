@@ -28,12 +28,13 @@ import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A utility class for creating ActiveMQ Artemis client-side JMS managed resources.
  */
 public class ActiveMQJMSClient {
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQJMSClient.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final boolean DEFAULT_ENABLE_1X_PREFIXES;
 

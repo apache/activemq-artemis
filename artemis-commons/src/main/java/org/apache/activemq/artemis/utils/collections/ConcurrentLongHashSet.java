@@ -28,6 +28,7 @@ import java.util.concurrent.locks.StampedLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
 
@@ -41,7 +42,7 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkArgument;
  */
 public class ConcurrentLongHashSet {
 
-   private static final Logger logger = LoggerFactory.getLogger(ConcurrentLongHashSet.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long EmptyItem = -1L;
    private static final long DeletedItem = -2L;

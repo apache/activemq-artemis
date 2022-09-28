@@ -45,12 +45,13 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class InVMConnector extends AbstractConnector {
 
    public static String INVM_CONNECTOR_TYPE = "IN-VM";
 
-   private static final Logger logger = LoggerFactory.getLogger(InVMConnector.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final Map<String, Object> DEFAULT_CONFIG;
 

@@ -35,6 +35,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 
@@ -50,7 +51,7 @@ public class MqttClientService implements MqttCallback {
    private ScheduledExecutorService executorService;
    private int corePoolSize = 5;
 
-   private Logger log = LoggerFactory.getLogger(MqttClientService.class);
+   private Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public MqttClientService() {
       this("producer", null);

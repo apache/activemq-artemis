@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * JDBC implementation of a {@link SharedStateManager}.
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("SynchronizeOnNonFinalField")
 final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedStateManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(JdbcSharedStateManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final int MAX_SETUP_ATTEMPTS = 20;
    private final String holderId;
    private final long lockExpirationMillis;

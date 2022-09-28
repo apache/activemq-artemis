@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A SymmetricClusterTest
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SymmetricClusterTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(SymmetricClusterTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before

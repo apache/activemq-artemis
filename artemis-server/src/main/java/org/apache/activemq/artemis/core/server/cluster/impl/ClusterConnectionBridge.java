@@ -58,6 +58,7 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A bridge with extra functionality only available when the server is clustered.
@@ -65,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * Such as such adding extra properties and setting up notifications between the nodes.
  */
 public class ClusterConnectionBridge extends BridgeImpl {
-   private static final Logger logger = LoggerFactory.getLogger(ClusterConnectionBridge.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final ClusterConnection clusterConnection;
 

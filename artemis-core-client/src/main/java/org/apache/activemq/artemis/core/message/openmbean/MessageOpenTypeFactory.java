@@ -36,10 +36,11 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MessageOpenTypeFactory<M extends Message> {
 
-   private static final Logger logger = LoggerFactory.getLogger(MessageOpenTypeFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public MessageOpenTypeFactory() {
       try {

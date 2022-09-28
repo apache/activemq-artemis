@@ -23,13 +23,14 @@ import javax.jms.TopicPublisher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * ActiveMQQueueSender.
  */
 public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implements TopicPublisher {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRATopicPublisher.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Create a new wrapper

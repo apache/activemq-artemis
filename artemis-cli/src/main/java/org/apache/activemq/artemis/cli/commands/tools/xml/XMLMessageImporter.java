@@ -42,11 +42,12 @@ import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /** This is an Utility class that will import the outputs in XML format. */
 public class XMLMessageImporter {
 
-   private static final Logger logger = LoggerFactory.getLogger(XMLMessageImporter.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private XMLStreamReader reader;
 

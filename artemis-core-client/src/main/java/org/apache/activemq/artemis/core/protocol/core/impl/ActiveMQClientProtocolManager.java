@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.spi.core.remoting.TopologyResponseHandler;
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class will return specific packets for different types of actions happening on a messaging protocol.
@@ -80,7 +81,7 @@ import org.slf4j.LoggerFactory;
 
 public class ActiveMQClientProtocolManager implements ClientProtocolManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQClientProtocolManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String handshake = "ARTEMIS";
 

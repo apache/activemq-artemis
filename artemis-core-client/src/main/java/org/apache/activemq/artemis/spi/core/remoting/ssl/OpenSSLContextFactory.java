@@ -19,8 +19,6 @@ package org.apache.activemq.artemis.spi.core.remoting.ssl;
 import java.util.Map;
 
 import io.netty.handler.ssl.SslContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Service interface to create an {@link SslContext} for a configuration.
@@ -30,8 +28,6 @@ import org.slf4j.LoggerFactory;
  * in your jar and fill it with the full qualified name of your implementation.
  */
 public interface OpenSSLContextFactory extends Comparable<OpenSSLContextFactory> {
-
-   Logger log = LoggerFactory.getLogger(OpenSSLContextFactory.class);
 
    /**
     * Release any cached {@link SslContext} instances.

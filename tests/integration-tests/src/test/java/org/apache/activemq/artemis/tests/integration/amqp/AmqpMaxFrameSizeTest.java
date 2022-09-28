@@ -38,10 +38,11 @@ import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(AmqpMaxFrameSizeTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean maxFrameSizeConfigSet = false;
    private static final int CONFIGURED_FRAME_SIZE = 4321;

@@ -68,6 +68,7 @@ import org.apache.activemq.artemis.utils.XMLUtil;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -106,7 +107,7 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
  */
 public final class DescribeJournal {
 
-   private static final Logger logger = LoggerFactory.getLogger(DescribeJournal.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final List<RecordInfo> records;
    private final List<PreparedTransactionInfo> preparedTransactions;

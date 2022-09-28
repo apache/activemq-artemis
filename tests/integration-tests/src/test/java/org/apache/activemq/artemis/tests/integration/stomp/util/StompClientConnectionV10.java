@@ -22,10 +22,11 @@ import java.net.URI;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
-   private static final Logger log = LoggerFactory.getLogger(StompClientConnectionV10.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);

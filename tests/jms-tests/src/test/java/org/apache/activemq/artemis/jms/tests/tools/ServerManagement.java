@@ -25,6 +25,7 @@ import org.apache.activemq.artemis.jms.tests.tools.container.LocalTestServer;
 import org.apache.activemq.artemis.jms.tests.tools.container.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerManagement {
 
-   private static final Logger logger = LoggerFactory.getLogger(ServerManagement.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    // logging levels used by the remote client to forward log output on a remote server

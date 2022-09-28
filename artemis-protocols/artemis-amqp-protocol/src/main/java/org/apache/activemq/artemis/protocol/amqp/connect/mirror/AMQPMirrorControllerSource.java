@@ -44,12 +44,13 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.engine.Sender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget.getControllerInUse;
 
 public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> implements MirrorController, ActiveMQComponent {
 
-   private static final Logger logger = LoggerFactory.getLogger(AMQPMirrorControllerSource.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final Symbol EVENT_TYPE = Symbol.getSymbol("x-opt-amq-mr-ev-type");
    public static final Symbol ACK_REASON = Symbol.getSymbol("x-opt-amq-mr-ack-reason");

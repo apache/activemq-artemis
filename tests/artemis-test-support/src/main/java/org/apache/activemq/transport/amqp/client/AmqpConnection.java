@@ -54,13 +54,14 @@ import org.apache.qpid.proton.engine.impl.CollectorImpl;
 import org.apache.qpid.proton.engine.impl.TransportImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.util.ReferenceCountUtil;
 
 public class AmqpConnection extends AmqpAbstractResource<Connection> implements NettyTransportListener {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpConnection.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final NoOpAsyncResult NOOP_REQUEST = new NoOpAsyncResult();
 

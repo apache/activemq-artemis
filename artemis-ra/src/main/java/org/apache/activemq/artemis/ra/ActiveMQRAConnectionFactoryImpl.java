@@ -39,13 +39,14 @@ import org.apache.activemq.artemis.ra.referenceable.ActiveMQRAConnectionFactoryO
 import org.apache.activemq.artemis.ra.referenceable.SerializableObjectRefAddr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * The connection factory
  */
 public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFactory {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAConnectionFactoryImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Serial version UID

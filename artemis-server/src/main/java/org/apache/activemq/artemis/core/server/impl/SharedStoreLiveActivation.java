@@ -29,10 +29,11 @@ import org.apache.activemq.artemis.core.server.NodeManager.NodeManagerException;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public final class SharedStoreLiveActivation extends LiveActivation {
 
-   private static final Logger logger = LoggerFactory.getLogger(SharedStoreLiveActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // this is how we act when we initially start as live
    private final SharedStoreMasterPolicy sharedStoreMasterPolicy;

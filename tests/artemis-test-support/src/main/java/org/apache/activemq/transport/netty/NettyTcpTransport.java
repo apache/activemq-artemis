@@ -30,6 +30,7 @@ import io.netty.util.ReferenceCounted;
 import org.apache.activemq.transport.amqp.client.util.IOExceptionSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -56,7 +57,7 @@ import io.netty.util.concurrent.GenericFutureListener;
  */
 public class NettyTcpTransport implements NettyTransport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(NettyTcpTransport.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int SHUTDOWN_TIMEOUT = 100;
    public static final int DEFAULT_MAX_FRAME_SIZE = 65535;

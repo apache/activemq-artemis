@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.transport.amqp.client;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.transport.Attach;
 import org.apache.qpid.proton.amqp.transport.Begin;
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AmqpProtocolTracer implements ProtocolTracer, FrameBodyHandler<AmqpFrameValidator> {
 
-   private static final Logger TRACE_FRAMES = LoggerFactory.getLogger(AmqpProtocolTracer.class.getPackage().getName() + ".FRAMES");
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AmqpConnection connection;
 
@@ -48,7 +50,7 @@ public class AmqpProtocolTracer implements ProtocolTracer, FrameBodyHandler<Amqp
    @Override
    public void receivedFrame(TransportFrame transportFrame) {
       if (connection.isTraceFrames()) {
-         TRACE_FRAMES.trace("{} | RECV: {}", connection.getRemoteURI(), transportFrame.getBody());
+         logger.trace("{} | RECV: {}", connection.getRemoteURI(), transportFrame.getBody());
       }
 
       AmqpFrameValidator inspector = connection.getReceivedFrameInspector();
@@ -60,7 +62,7 @@ public class AmqpProtocolTracer implements ProtocolTracer, FrameBodyHandler<Amqp
    @Override
    public void sentFrame(TransportFrame transportFrame) {
       if (connection.isTraceFrames()) {
-         TRACE_FRAMES.trace("{} | SENT: {}", connection.getRemoteURI(), transportFrame.getBody());
+         logger.trace("{} | SENT: {}", connection.getRemoteURI(), transportFrame.getBody());
       }
 
       AmqpFrameValidator inspector = connection.getSentFrameInspector();

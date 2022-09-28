@@ -21,6 +21,7 @@ package org.apache.activemq.artemis.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,7 +33,7 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 
 public final class ThreadDumpUtil {
-   private static final Logger logger = LoggerFactory.getLogger(ThreadDumpUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static String threadDump(final String msg) {
 

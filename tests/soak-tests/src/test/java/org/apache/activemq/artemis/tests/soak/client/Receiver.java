@@ -26,10 +26,11 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class Receiver extends ClientAbstract {
 
-   private static final Logger logger = LoggerFactory.getLogger(Receiver.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // We should leave some messages on paging. We don't want to consume all for this test
    private final Semaphore minConsume = new Semaphore(0);

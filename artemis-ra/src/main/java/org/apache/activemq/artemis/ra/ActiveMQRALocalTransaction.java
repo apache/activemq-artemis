@@ -22,13 +22,14 @@ import javax.resource.spi.LocalTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * JMS Local transaction
  */
 public class ActiveMQRALocalTransaction implements LocalTransaction {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRALocalTransaction.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The managed connection

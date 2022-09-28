@@ -43,13 +43,14 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A Local Grouping handler. All the Remote handlers will talk with us
  */
 public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
-   private static final Logger logger = LoggerFactory.getLogger(LocalGroupingHandler.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final ConcurrentMap<SimpleString, GroupBinding> map = new ConcurrentHashMap<>();
 

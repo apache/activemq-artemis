@@ -24,13 +24,14 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Generator for Globally unique Strings.
  */
 public class IdGenerator {
 
-   private static final Logger LOG = LoggerFactory.getLogger(IdGenerator.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final String UNIQUE_STUB;
    private static int instanceCount;
    private static String hostName;

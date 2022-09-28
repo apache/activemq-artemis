@@ -48,13 +48,14 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /*
  * General tests for things not covered directly in the specification.
  */
 public class MQTT5Test extends MQTT5TestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(MQTT5Test.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public MQTT5Test(String protocol) {
       super(protocol);

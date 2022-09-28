@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class is used to search for members on the cluster through the opaque interface {@link BroadcastEndpoint}.
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class DiscoveryGroup implements ActiveMQComponent {
 
-   private static final Logger logger = LoggerFactory.getLogger(DiscoveryGroup.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final List<DiscoveryListener> listeners = new ArrayList<>();
 

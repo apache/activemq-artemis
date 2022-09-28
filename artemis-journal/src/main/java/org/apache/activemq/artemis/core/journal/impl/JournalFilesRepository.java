@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 /**
@@ -50,7 +51,7 @@ import org.slf4j.Logger;
  */
 public class JournalFilesRepository {
 
-   private static final Logger logger = LoggerFactory.getLogger(JournalFilesRepository.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Used to debug the consistency of the journal ordering.

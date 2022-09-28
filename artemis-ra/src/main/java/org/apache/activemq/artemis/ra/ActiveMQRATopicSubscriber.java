@@ -22,13 +22,14 @@ import javax.jms.TopicSubscriber;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A wrapper for a topic subscriber
  */
 public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer implements TopicSubscriber {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRATopicSubscriber.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Create a new wrapper

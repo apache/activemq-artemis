@@ -51,13 +51,14 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This is the equivalent for the ServerProducer
  */
 public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
-   private static final Logger log = LoggerFactory.getLogger(ProtonServerReceiverContext.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected SimpleString address;
    protected SimpleString lastAddress;

@@ -31,11 +31,12 @@ import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
 
-   private static final Logger logger = LoggerFactory.getLogger(JDBCSequentialFileFactoryDriver.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected String deleteFile;
    protected String createFile;

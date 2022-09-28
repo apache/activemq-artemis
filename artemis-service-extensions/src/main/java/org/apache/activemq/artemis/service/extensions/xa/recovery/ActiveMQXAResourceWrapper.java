@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * XAResourceWrapper.
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureListener {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQXAResourceWrapper.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The state lock

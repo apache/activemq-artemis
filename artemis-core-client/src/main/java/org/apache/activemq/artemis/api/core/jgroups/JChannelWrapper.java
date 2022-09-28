@@ -25,6 +25,7 @@ import org.jgroups.Message;
 import org.jgroups.Receiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class wraps a JChannel with a reference counter. The reference counter
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class JChannelWrapper {
 
-   private static final Logger logger = LoggerFactory.getLogger(JChannelWrapper.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean connected = false;
    int refCount = 1;

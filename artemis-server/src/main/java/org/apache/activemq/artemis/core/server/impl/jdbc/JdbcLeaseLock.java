@@ -31,13 +31,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * JDBC implementation of a {@link LeaseLock} with a {@code String} defined {@link #holderId()}.
  */
 class JdbcLeaseLock implements LeaseLock {
 
-   private static final Logger logger = LoggerFactory.getLogger(JdbcLeaseLock.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final int MAX_HOLDER_ID_LENGTH = 128;
    private final JDBCConnectionProvider connectionProvider;
    private final String holderId;

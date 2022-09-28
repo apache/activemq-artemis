@@ -55,6 +55,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * @deprecated this infrastructure should not be used for new code. New tests should go into
@@ -62,7 +63,7 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public abstract class ActiveMQServerTestCase {
-   private final Logger logger = LoggerFactory.getLogger(ActiveMQServerTestCase.class);
+   private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final int MAX_TIMEOUT = 1000 * 10 /* seconds */;
 

@@ -23,10 +23,11 @@ import java.util.Hashtable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBuilder {
 
-   private static final Logger logger = LoggerFactory.getLogger(InVMInitialContextFactoryBuilder.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
 

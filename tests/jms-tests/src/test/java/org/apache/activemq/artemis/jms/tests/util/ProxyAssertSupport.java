@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.jms.tests.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 
 /**
@@ -25,7 +26,7 @@ import org.junit.Assert;
  */
 public class ProxyAssertSupport {
 
-   private static final Logger logger = LoggerFactory.getLogger(ProxyAssertSupport.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static void assertTrue(final java.lang.String string, final boolean b) {
       try {

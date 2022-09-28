@@ -26,6 +26,7 @@ import java.util.Arrays;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Used to move files away.
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FileMoveManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(FileMoveManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final File folder;
    private final String[] prefixesToPreserve;
