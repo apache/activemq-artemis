@@ -54,10 +54,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MessageRedistributionTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MessageRedistributionTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before

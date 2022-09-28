@@ -20,10 +20,11 @@ package org.apache.activemq.artemis.core.client.impl;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AsynchronousProducerCreditsImpl extends AbstractProducerCreditsImpl {
 
-   private static final Logger logger = LoggerFactory.getLogger(AsynchronousProducerCreditsImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    int balance;
 

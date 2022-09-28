@@ -71,10 +71,11 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class JournalStorageManager extends AbstractJournalStorageManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(JournalStorageManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    public static final String ACTIVEMQ_DATA = "activemq-data";
 
    protected SequentialFileFactory journalFF;

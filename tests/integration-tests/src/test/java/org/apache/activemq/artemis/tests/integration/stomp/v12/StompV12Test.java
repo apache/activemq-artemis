@@ -54,6 +54,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Testing Stomp version 1.2 functionalities
@@ -61,7 +62,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(Parameterized.class)
 public class StompV12Test extends StompTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(StompV12Test.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String CLIENT_ID = "myclientid";
 

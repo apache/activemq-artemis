@@ -32,6 +32,7 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 import static org.apache.activemq.artemis.api.core.Message.BYTES_TYPE;
@@ -46,7 +47,7 @@ import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSup
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.PERSISTENT;
 
 public class CoreMessageWrapper {
-   private static final Logger logger = LoggerFactory.getLogger(CoreMessageWrapper.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final ICoreMessage message;
    private ActiveMQBuffer readBodyBuffer;

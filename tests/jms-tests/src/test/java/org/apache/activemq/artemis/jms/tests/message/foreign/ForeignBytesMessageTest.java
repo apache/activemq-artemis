@@ -24,13 +24,14 @@ import org.apache.activemq.artemis.jms.tests.message.SimpleJMSBytesMessage;
 import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests the delivery/receipt of a foreign byte message
  */
 public class ForeignBytesMessageTest extends ForeignMessageTest {
 
-   private static final Logger logger = LoggerFactory.getLogger(ForeignBytesMessageTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected Message createForeignMessage() throws Exception {

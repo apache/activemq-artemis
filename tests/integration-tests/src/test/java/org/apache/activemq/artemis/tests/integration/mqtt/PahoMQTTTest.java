@@ -38,11 +38,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
 public class PahoMQTTTest extends MQTTTestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(PahoMQTTTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameters(name = "protocol={0}")
    public static Collection<Object[]> getParams() {

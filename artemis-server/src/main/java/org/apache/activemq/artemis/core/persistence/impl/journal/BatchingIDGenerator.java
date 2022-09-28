@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * An ID generator that allocates a batch of IDs of size {@link #checkpointSize} and records the ID
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class BatchingIDGenerator implements IDGenerator {
 
-   private static final Logger logger = LoggerFactory.getLogger(BatchingIDGenerator.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AtomicLong counter;
 

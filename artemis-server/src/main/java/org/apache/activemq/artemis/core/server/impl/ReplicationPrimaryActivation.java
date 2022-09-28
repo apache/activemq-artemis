@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.server.ActiveMQServer.SERVER_STATE.STARTED;
 import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequenceStateMachine.awaitNextCommittedActivationSequence;
@@ -61,7 +62,8 @@ import static org.apache.activemq.artemis.core.server.impl.quorum.ActivationSequ
  */
 public class ReplicationPrimaryActivation extends LiveActivation implements DistributedLock.UnavailableLockListener {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(ReplicationPrimaryActivation.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    // This is the time we expect a replica to become a live from the quorum pov
    // ie time to execute tryActivate and ensureSequentialAccessToNodeData
    private static final long FAILBACK_TIMEOUT_MILLIS = 4_000;

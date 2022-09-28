@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.JGroupsBroadcastEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class maintain a global Map of JChannels wrapped in JChannelWrapper for
@@ -32,6 +33,8 @@ import org.slf4j.LoggerFactory;
  * method of this class. The real disconnect of channels are also done here only.
  */
 public class JChannelManager {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final JChannelManager theInstance = new JChannelManager();
 
@@ -54,8 +57,6 @@ public class JChannelManager {
    // if true, messages will be loopbacked
    // this is useful for testcases using a single channel.
    private boolean loopbackMessages = false;
-
-   private final Logger logger = LoggerFactory.getLogger(JChannelManager.class);
 
    private static final Map<String, JChannelWrapper> channels = new HashMap<>();
 

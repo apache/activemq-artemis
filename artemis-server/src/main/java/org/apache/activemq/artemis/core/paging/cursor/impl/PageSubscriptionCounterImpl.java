@@ -37,13 +37,14 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription
  */
 public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
-   private static final Logger logger = LoggerFactory.getLogger(PageSubscriptionCounterImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int FLUSH_COUNTER = 1000;
 

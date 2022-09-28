@@ -24,13 +24,14 @@ import java.util.List;
 import org.apache.qpid.proton.engine.Sasl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Manage the SASL authentication process
  */
 public class SaslAuthenticator {
 
-   private static final Logger LOG = LoggerFactory.getLogger(SaslAuthenticator.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Sasl sasl;
    private final String username;

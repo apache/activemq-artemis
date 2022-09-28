@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class ExecuteUtil {
 
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(ExecuteUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static int runCommand(boolean logOutput, String... command) throws Exception {
       return runCommand(logOutput, 10, TimeUnit.SECONDS, command);

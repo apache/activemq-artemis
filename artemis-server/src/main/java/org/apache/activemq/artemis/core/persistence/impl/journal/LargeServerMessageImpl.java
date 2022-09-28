@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public final class LargeServerMessageImpl extends CoreMessage implements CoreLargeServerMessage {
 
@@ -79,7 +80,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       return lsm.toMessage();
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(LargeServerMessageImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private final StorageManager storageManager;

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.jgroups.Receiver;
 
 /**
@@ -31,7 +32,7 @@ import org.jgroups.Receiver;
  */
 public class JGroupsReceiver implements Receiver {
 
-   private static final Logger logger = LoggerFactory.getLogger(JGroupsReceiver.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<>();
 

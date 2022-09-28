@@ -49,13 +49,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Test various aspects of Transaction support.
  */
 public class AmqpTransactionTest extends AmqpClientTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpTransactionTest.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 30000)
    public void testBeginAndCommitTransaction() throws Exception {

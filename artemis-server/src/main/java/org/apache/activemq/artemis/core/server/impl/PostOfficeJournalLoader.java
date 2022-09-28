@@ -65,10 +65,11 @@ import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class PostOfficeJournalLoader implements JournalLoader {
 
-   private static final Logger logger = LoggerFactory.getLogger(PostOfficeJournalLoader.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final PostOffice postOffice;
    protected final PagingManager pagingManager;

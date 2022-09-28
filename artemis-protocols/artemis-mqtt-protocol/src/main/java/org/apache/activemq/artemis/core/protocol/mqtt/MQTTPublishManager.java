@@ -47,6 +47,7 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CONTENT_TYPE;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.CORRELATION_DATA;
@@ -68,7 +69,7 @@ import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_USER_
  */
 public class MQTTPublishManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(MQTTPublishManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private SimpleString managementAddress;
 

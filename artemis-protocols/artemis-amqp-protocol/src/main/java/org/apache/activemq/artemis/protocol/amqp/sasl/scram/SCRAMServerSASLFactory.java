@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 public abstract class SCRAMServerSASLFactory implements ServerSASLFactory {
 
    private final Logger logger = LoggerFactory.getLogger(getClass());
+
    private final SCRAM scramType;
 
    public SCRAMServerSASLFactory(SCRAM scram) {

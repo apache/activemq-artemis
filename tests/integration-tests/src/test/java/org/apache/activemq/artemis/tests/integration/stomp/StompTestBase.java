@@ -62,11 +62,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
 public abstract class StompTestBase extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(StompTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameter
    public String scheme;

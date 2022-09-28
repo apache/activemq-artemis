@@ -32,12 +32,13 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 /** This class is implementing Runnable to reuse a callback to close it. */
 public class AIOSequentialFile extends AbstractSequentialFile  {
 
-   private static final Logger logger = LoggerFactory.getLogger(AIOSequentialFileFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean opened = false;
 

@@ -29,10 +29,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSinglePairTest {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPluggableQuorumSinglePairTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final int BASE_SERVER_PORT = 6666;
    // Beware: the server tick must be small enough that to let the session to be correctly expired
    private static final int SERVER_TICK_MS = 100;
@@ -53,7 +54,7 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
       testingServer = new TestingCluster(clusterSpecs);
       testingServer.start();
       Assert.assertEquals("127.0.0.1:6666,127.0.0.1:6667,127.0.0.1:6668", testingServer.getConnectString());
-      LOGGER.info("Cluster of {} nodes on: {}", 3, testingServer.getConnectString());
+      logger.info("Cluster of {} nodes on: {}", 3, testingServer.getConnectString());
    }
 
    @Override

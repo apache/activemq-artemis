@@ -46,6 +46,7 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Represents the AMQP Transaction coordinator link used by the transaction context
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpTransactionCoordinator.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final byte[] OUTBOUND_BUFFER = new byte[64];
 

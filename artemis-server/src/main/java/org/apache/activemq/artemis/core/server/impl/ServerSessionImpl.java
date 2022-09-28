@@ -103,6 +103,7 @@ import org.apache.activemq.artemis.utils.collections.MaxSizeMap;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Server side Session implementation
@@ -110,7 +111,7 @@ import org.slf4j.LoggerFactory;
 public class ServerSessionImpl implements ServerSession, FailureListener {
 
 
-   private static final Logger logger = LoggerFactory.getLogger(ServerSessionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
 

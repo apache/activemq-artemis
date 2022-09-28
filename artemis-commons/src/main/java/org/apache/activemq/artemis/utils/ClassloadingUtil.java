@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class will be used to perform generic class-loader operations,
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public final class ClassloadingUtil {
 
-   private static final Logger logger = LoggerFactory.getLogger(ClassloadingUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String INSTANTIATION_EXCEPTION_MESSAGE = "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
 

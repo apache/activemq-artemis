@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Federated Queue, connect to upstream queues routing them to the local queue when a local consumer exist.
@@ -55,7 +56,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FederatedQueue extends FederatedAbstract implements ActiveMQServerConsumerPlugin, Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(FederatedQueue.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Set<Matcher> includes;
    private final Set<Matcher> excludes;

@@ -37,10 +37,11 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class JMSMessageGroupsTest extends JMSClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(JMSMessageGroupsTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int ITERATIONS = 10;
    private static final int MESSAGE_COUNT = 10;

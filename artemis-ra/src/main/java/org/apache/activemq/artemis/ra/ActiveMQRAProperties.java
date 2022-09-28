@@ -24,13 +24,14 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * The RA default properties - these are set in the ra.xml file
  */
 public class ActiveMQRAProperties extends ConnectionFactoryProperties implements Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAProperties.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Serial version UID

@@ -25,10 +25,11 @@ import io.netty.util.Version;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class TransportConstants {
 
-   private static final Logger logger = LoggerFactory.getLogger(TransportConstants.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String SSL_CONTEXT_PROP_NAME = "sslContext";
 

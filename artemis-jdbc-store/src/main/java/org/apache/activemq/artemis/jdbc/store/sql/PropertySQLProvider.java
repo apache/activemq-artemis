@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static java.lang.String.format;
 
@@ -42,7 +43,7 @@ import static java.lang.String.format;
  */
 public class PropertySQLProvider implements SQLProvider {
 
-   private static final Logger logger = LoggerFactory.getLogger(PropertySQLProvider.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private enum LetterCase implements Function<String, String> {
       upper(String::toUpperCase),

@@ -60,11 +60,12 @@ import org.apache.activemq.command.MessagePull;
 import org.apache.activemq.command.RemoveInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.protocol.openwire.OpenWireConstants.AMQ_MSG_MESSAGE_ID;
 
 public class AMQConsumer {
-   private static final Logger logger = LoggerFactory.getLogger(AMQConsumer.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AMQSession session;
    private final org.apache.activemq.command.ActiveMQDestination openwireDestination;

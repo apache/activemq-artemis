@@ -77,10 +77,11 @@ import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public final class ClusterConnectionImpl implements ClusterConnection, AfterConnectInternalListener, TopologyManager {
 
-   private static final Logger logger = LoggerFactory.getLogger(ClusterConnectionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String SN_PREFIX = "sf.";
    /**

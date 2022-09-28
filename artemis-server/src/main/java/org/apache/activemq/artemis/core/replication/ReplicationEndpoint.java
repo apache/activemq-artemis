@@ -86,6 +86,7 @@ import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Handles all the synchronization necessary for replication on the backup side (that is the
@@ -102,7 +103,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       void onLiveNodeId(String nodeId);
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(ReplicationEndpoint.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final ActiveMQServerImpl server;
    private final boolean wantedFailBack;

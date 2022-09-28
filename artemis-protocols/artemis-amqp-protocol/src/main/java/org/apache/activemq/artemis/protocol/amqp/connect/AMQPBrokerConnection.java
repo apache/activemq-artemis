@@ -87,10 +87,11 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, ActiveMQServerQueuePlugin, BrokerConnection {
 
-   private static final Logger logger = LoggerFactory.getLogger(AMQPBrokerConnection.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AMQPBrokerConnectConfiguration brokerConnectConfiguration;
    private final ProtonProtocolManager protonProtocolManager;

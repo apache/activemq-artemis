@@ -25,6 +25,7 @@ import org.apache.activemq.transport.amqp.client.util.ClientFuture;
 import org.apache.activemq.transport.amqp.client.util.ClientFutureSynchronization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Defines a context under which resources in a given session
@@ -32,7 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AmqpTransactionContext {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpTransactionContext.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AmqpSession session;
    private final Set<AmqpReceiver> txReceivers = new LinkedHashSet<>();

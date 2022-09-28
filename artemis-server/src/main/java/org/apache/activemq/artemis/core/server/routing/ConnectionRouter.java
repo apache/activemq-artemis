@@ -27,12 +27,13 @@ import org.apache.activemq.artemis.core.server.routing.targets.TargetResult;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.util.List;
 import java.util.regex.Pattern;
 
 public class ConnectionRouter implements ActiveMQComponent {
-   private static final Logger logger = LoggerFactory.getLogger(ConnectionRouter.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    public static final String CLIENT_ID_PREFIX = ActiveMQDefaultConfiguration.DEFAULT_INTERNAL_NAMING_PREFIX + "router.client.";

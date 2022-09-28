@@ -128,6 +128,7 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.CriticalMeasure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -144,7 +145,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected static final int CRITICAL_STOP_2 = 2;
 
 
-   private static final Logger logger = LoggerFactory.getLogger(AbstractJournalStorageManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public enum JournalContent {
       BINDINGS((byte) 0), MESSAGES((byte) 1);

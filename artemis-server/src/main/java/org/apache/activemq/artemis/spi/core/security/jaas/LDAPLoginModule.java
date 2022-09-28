@@ -60,10 +60,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class LDAPLoginModule implements AuditLoginModule {
 
-   private static final Logger logger = LoggerFactory.getLogger(LDAPLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    enum ConfigKey {
 

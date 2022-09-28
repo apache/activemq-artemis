@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.api.core.ObjLongPair.NIL;
 import static org.apache.activemq.artemis.core.postoffice.impl.IntegerCache.boxedInts;
@@ -49,7 +50,7 @@ import static org.apache.activemq.artemis.core.postoffice.impl.IntegerCache.boxe
  */
 final class PersistentDuplicateIDCache implements DuplicateIDCache {
 
-   private static final Logger logger = LoggerFactory.getLogger(PersistentDuplicateIDCache.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Map<ByteArray, Integer> cache = new ConcurrentHashMap<>();
 

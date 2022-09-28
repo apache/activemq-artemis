@@ -27,12 +27,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This test will start many parallel VMs, to make sure each VM would generate a good distribution of random numbers
  */
 public class RandomUtilDistributionTest {
-   private static final Logger log = LoggerFactory.getLogger(RandomUtilDistributionTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public SpawnedVMCheck check = new SpawnedVMCheck();

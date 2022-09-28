@@ -21,6 +21,7 @@ import org.apache.activemq.artemis.core.server.routing.targets.Target;
 import org.apache.activemq.artemis.core.server.routing.targets.TargetProbe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LeastConnectionsPolicy extends RoundRobinPolicy {
-   private static final Logger logger = LoggerFactory.getLogger(LeastConnectionsPolicy.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String NAME = "LEAST_CONNECTIONS";
 

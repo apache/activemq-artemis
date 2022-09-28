@@ -22,6 +22,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManage
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 public class ManagementConnector implements ActiveMQComponent {
 
-   private static final Logger logger = LoggerFactory.getLogger(ManagementConnector.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final JMXConnectorConfiguration configuration;
    private ConnectorServerFactory connectorServerFactory;

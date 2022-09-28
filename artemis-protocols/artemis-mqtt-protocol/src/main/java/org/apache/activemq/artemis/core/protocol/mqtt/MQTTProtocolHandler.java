@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
 import org.apache.activemq.artemis.utils.actors.Actor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_DATA;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_METHOD;
@@ -64,7 +65,7 @@ import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SESSIO
  */
 public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
 
-   private static final Logger logger = LoggerFactory.getLogger(MQTTProtocolHandler.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ConnectionEntry connectionEntry;
 

@@ -20,12 +20,13 @@ package org.apache.activemq.artemis.tests.soak;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /** Encapsulates System properties that could be passed on to the test. */
 public class TestParameters {
 
 
-   private static final Logger logger = LoggerFactory.getLogger(TestParameters.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static String propertyName(String testName, String property) {
       if (testName == null) {

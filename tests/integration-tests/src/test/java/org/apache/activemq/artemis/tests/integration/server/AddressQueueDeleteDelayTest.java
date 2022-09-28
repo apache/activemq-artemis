@@ -36,10 +36,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(AddressQueueDeleteDelayTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final int DURATION_MILLIS = 30_000;
    public static final int NEGATIVE_DURATION_MILLIS = 1_000;

@@ -37,10 +37,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class FloodServerWithAsyncSendTest extends SmokeTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(FloodServerWithAsyncSendTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    public static final String SERVER_NAME_0 = "paging";
 
    volatile boolean running = true;

@@ -21,13 +21,14 @@ import javax.resource.spi.ConnectionRequestInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Connection request information
  */
 public class ActiveMQRAConnectionRequestInfo implements ConnectionRequestInfo {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAConnectionRequestInfo.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The user name

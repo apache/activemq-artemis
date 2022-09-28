@@ -37,12 +37,13 @@ import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.client.impl.LargeMessageControllerImpl.LargeData;
 
 public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, SessionFailureListener {
 
-   private static final Logger logger = LoggerFactory.getLogger(FederatedQueueConsumerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private final ActiveMQServer server;
    private final Federation federation;
    private final FederatedConsumerKey key;

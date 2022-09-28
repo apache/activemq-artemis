@@ -20,6 +20,7 @@ package org.apache.activemq.artemis.core.server.management;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -40,7 +41,7 @@ import java.util.List;
 
 public class ArtemisMBeanServerGuard implements InvocationHandler {
 
-   private static final Logger logger = LoggerFactory.getLogger(ArtemisMBeanServerGuard.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private JMXAccessControlList jmxAccessControlList = JMXAccessControlList.createDefaultList();
 

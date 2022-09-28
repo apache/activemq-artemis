@@ -34,13 +34,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A FloodServerTest
  */
 public class FloodServerTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(FloodServerTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 

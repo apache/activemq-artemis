@@ -39,13 +39,14 @@ import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * handles an amqp Coordinator to deal with transaction boundaries etc
  */
 public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
-   private static final Logger log = LoggerFactory.getLogger(ProtonTransactionHandler.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final int amqpCredit;
    private final int amqpLowMark;

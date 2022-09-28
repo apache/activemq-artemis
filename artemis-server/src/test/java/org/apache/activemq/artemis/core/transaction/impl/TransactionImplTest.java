@@ -69,11 +69,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TransactionImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(TransactionImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testTimeoutAndThenCommitWithARollback() throws Exception {

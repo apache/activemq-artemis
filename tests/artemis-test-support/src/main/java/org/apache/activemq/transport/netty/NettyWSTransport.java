@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -49,7 +50,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
  */
 public class NettyWSTransport extends NettyTcpTransport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(NettyWSTransport.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String AMQP_SUB_PROTOCOL = "amqp";
 

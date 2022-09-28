@@ -87,6 +87,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
@@ -102,7 +103,7 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       sendMessageExecutor.shutdownNow();
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(SharedNothingReplicationFlowControlTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public TemporaryFolder brokersFolder = new TemporaryFolder();

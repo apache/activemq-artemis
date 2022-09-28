@@ -29,11 +29,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.core.journal.impl.dataformat.JournalInternalRecord;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 public class JournalTransaction {
 
-   private static final Logger logger = LoggerFactory.getLogger(JournalTransaction.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private JournalRecordProvider journal;
 

@@ -131,10 +131,11 @@ import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class ActiveMQSessionContext extends SessionContext {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQSessionContext.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Channel sessionChannel;
    private final int serverVersion;

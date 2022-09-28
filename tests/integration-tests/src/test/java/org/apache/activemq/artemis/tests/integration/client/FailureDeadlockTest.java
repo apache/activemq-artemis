@@ -36,10 +36,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class FailureDeadlockTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(FailureDeadlockTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 

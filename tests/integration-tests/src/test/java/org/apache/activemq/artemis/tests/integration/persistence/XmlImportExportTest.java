@@ -64,6 +64,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A test of the XML export/import functionality
@@ -71,7 +72,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(value = Parameterized.class)
 public class XmlImportExportTest extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(XmlImportExportTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean forceLongs;
 

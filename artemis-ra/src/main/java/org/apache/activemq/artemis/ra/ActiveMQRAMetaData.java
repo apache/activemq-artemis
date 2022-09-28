@@ -21,13 +21,14 @@ import javax.resource.spi.ManagedConnectionMetaData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Managed connection meta data
  */
 public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAMetaData.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The managed connection

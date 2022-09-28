@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ListUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Read XML output from <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
@@ -74,7 +75,7 @@ import org.slf4j.LoggerFactory;
 @Command(name = "imp", description = "Import all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataImporter extends ActionAbstract {
 
-   private static final Logger logger = LoggerFactory.getLogger(XmlDataImporter.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private XMLStreamReader reader;
 

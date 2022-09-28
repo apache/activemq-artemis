@@ -69,6 +69,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static java.util.EnumSet.of;
 import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
@@ -79,7 +80,7 @@ import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
 public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
    protected static final int AMQP_PORT_2 = 5673;
-   private static final Logger logger = LoggerFactory.getLogger(ValidateAMQPErrorsTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected Vertx vertx;
 
    protected MockServer mockServer;

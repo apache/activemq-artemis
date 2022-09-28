@@ -30,10 +30,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
-   private static final Logger logger = LoggerFactory.getLogger(JMSClientTestSupport.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected LinkedList<Connection> jmsConnections = new LinkedList<>();
 

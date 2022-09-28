@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.spi.core.remoting.BufferHandler;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProtonClientConnectionManager implements BaseConnectionLifeCycleListener<ProtonProtocolManager>, BufferHandler {
    private final Map<Object, ActiveMQProtonRemotingConnection> connectionMap = new ConcurrentHashMap<>();
-   private static final Logger log = LoggerFactory.getLogger(ProtonClientConnectionManager.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private final AMQPClientConnectionFactory connectionFactory;
    private final Optional<EventHandler> eventHandler;
    private final ClientSASLFactory clientSASLFactory;

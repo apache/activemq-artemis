@@ -49,10 +49,11 @@ import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(MultipleServerFailoverTestBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private DistributedPrimitiveManagerConfiguration pluggableQuorumConfiguration = null;
 
    private DistributedPrimitiveManagerConfiguration getOrCreatePluggableQuorumConfiguration() {

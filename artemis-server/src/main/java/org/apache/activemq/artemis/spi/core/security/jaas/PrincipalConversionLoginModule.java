@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * populate an empty (no UserPrincipal) subject with UserPrincipal seeded from existing principal
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PrincipalConversionLoginModule implements AuditLoginModule {
 
-   private static final Logger logger = LoggerFactory.getLogger(PrincipalConversionLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String PRINCIPAL_CLASS_LIST = "principalClassList";
    private Subject subject;

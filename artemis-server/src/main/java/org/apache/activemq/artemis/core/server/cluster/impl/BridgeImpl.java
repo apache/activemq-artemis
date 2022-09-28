@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A Core BridgeImpl
@@ -80,7 +81,7 @@ import org.slf4j.LoggerFactory;
 
 public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowledgementHandler, ReadyListener, ClientProducerFlowCallback {
 
-   private static final Logger logger = LoggerFactory.getLogger(BridgeImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final ServerLocatorInternal serverLocator;
 

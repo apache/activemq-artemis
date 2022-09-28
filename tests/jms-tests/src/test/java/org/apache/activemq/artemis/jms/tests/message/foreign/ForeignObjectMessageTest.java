@@ -26,13 +26,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Tests the delivery/receipt of a foreign object message
  */
 public class ForeignObjectMessageTest extends ForeignMessageTest {
 
-   private static final Logger logger = LoggerFactory.getLogger(ForeignObjectMessageTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ForeignTestObject testObj;
 

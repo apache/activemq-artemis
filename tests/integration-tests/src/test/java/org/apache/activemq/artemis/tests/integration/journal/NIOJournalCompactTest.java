@@ -65,10 +65,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class NIOJournalCompactTest extends JournalImplTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(NIOJournalCompactTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int NUMBER_OF_RECORDS = 100;
 

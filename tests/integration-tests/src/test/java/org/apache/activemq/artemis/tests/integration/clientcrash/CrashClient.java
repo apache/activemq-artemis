@@ -27,13 +27,14 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactor
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Code to be run in an external VM, via main()
  */
 public class CrashClient {
 
-   private static final Logger log = LoggerFactory.getLogger(CrashClient.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static int OK = 9;
    public static int NOT_OK = 1;

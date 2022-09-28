@@ -53,11 +53,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 @RunWith(value = Parameterized.class)
 public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(InfiniteRedeliveryTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameters(name = "protocol={0}, useCLI={1}")
    public static Collection getParameters() {

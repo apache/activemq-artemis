@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * plugin to log various events within the broker, configured with the following booleans
@@ -67,7 +68,7 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
    public static final String LOG_SENDING_EVENTS = "LOG_SENDING_EVENTS";
    public static final String LOG_INTERNAL_EVENTS = "LOG_INTERNAL_EVENTS";
    public static final String UNAVAILABLE = "UNAVAILABLE";
-   private static final Logger logger = LoggerFactory.getLogger(LoggingActiveMQServerPlugin.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final long serialVersionUID = 1L;
    private boolean logAll = false;
    private boolean logConnectionEvents = false;

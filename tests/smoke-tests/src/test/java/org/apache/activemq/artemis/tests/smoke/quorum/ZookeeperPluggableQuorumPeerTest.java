@@ -28,6 +28,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
 import static org.apache.activemq.artemis.tests.util.Jmx.decodeNetworkTopologyJson;
@@ -40,7 +41,7 @@ import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 
 public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSinglePairTest {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPluggableQuorumPeerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public ZookeeperPluggableQuorumPeerTest() {
       super();
@@ -64,33 +65,33 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       // see FileLockTest::testCorrelationId to get more info why this is not peer-journal-001 as in broker.xml
       final String coordinationId = "peer.journal.001";
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
-      LOGGER.info("starting peer a");
+      logger.info("starting peer a");
       final Process live = primary.startServer(this, 0);
-      LOGGER.info("waiting peer a to increase coordinated activation sequence to 1");
+      logger.info("waiting peer a to increase coordinated activation sequence to 1");
       Wait.assertEquals(1L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
       Assert.assertEquals(coordinationId, primary.getNodeID().get());
       Wait.waitFor(() -> primary.listNetworkTopology().isPresent(), timeout);
       final String urlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPeerA);
-      LOGGER.info("peer a acceptor: {}", urlPeerA);
-      LOGGER.info("killing peer a");
+      logger.info("peer a acceptor: {}", urlPeerA);
+      logger.info("killing peer a");
       ServerUtil.killServer(live, forceKill);
-      LOGGER.info("starting peer b");
+      logger.info("starting peer b");
       Process emptyBackup = backup.startServer(this, 0);
-      LOGGER.info("waiting until peer b act as empty backup");
+      logger.info("waiting until peer b act as empty backup");
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
-      LOGGER.info("Stop majority of quorum nodes");
+      logger.info("Stop majority of quorum nodes");
       final int[] majority = stopMajority();
-      LOGGER.info("Wait peer b to deactivate");
+      logger.info("Wait peer b to deactivate");
       Thread.sleep(2000);
-      LOGGER.info("Restart majority of quorum nodes");
+      logger.info("Restart majority of quorum nodes");
       restart(majority);
-      LOGGER.info("Restart peer a as legit last live");
+      logger.info("Restart peer a as legit last live");
       final Process restartedLive = primary.startServer(this, 0);
-      LOGGER.info("waiting peer a to increase coordinated activation sequence to 2");
+      logger.info("waiting peer a to increase coordinated activation sequence to 2");
       Wait.assertEquals(2L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
       Assert.assertEquals(coordinationId, primary.getNodeID().get());
-      LOGGER.info("waiting peer b to be a replica");
+      logger.info("waiting peer b to be a replica");
       Wait.waitFor(() -> backup.isReplicaSync().orElse(false));
       Wait.assertEquals(2L, () -> backup.getActivationSequence().get().longValue());
       final String expectedUrlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
@@ -101,7 +102,7 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
    public void testMultiPrimary_Peer() throws Exception {
 
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
-      LOGGER.info("starting peer b primary");
+      logger.info("starting peer b primary");
 
       Process backupInstance = backup.startServer(this, timeout);
 
@@ -110,9 +111,9 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
 
       final String nodeID = backup.getNodeID().get();
       Assert.assertNotNull(nodeID);
-      LOGGER.info("NodeID: {}", nodeID);
+      logger.info("NodeID: {}", nodeID);
 
-      LOGGER.info("starting peer a primary");
+      logger.info("starting peer a primary");
       primary.startServer(this, 0);
       Wait.assertTrue(() -> primary.isBackup().orElse(false), timeout);
 
@@ -127,19 +128,19 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
                                                           .and(withNodes(2))), timeout);
       }
 
-      LOGGER.info("primary topology is: {}", primary.listNetworkTopology().get());
-      LOGGER.info("backup topology is: {}", backup.listNetworkTopology().get());
+      logger.info("primary topology is: {}", primary.listNetworkTopology().get());
+      logger.info("backup topology is: {}", backup.listNetworkTopology().get());
       Assert.assertTrue(backup.isReplicaSync().get());
       Assert.assertTrue(primary.isReplicaSync().get());
 
 
-      LOGGER.info("killing peer-b");
+      logger.info("killing peer-b");
       ServerUtil.killServer(backupInstance, forceKill);
 
       // peer-a now UNREPLICATED
       Wait.assertTrue(() -> 2L == primary.getActivationSequence().get().longValue());
 
-      LOGGER.info("restarting peer-b");
+      logger.info("restarting peer-b");
       backup.startServer(this, 0);
 
       assertTrue(Wait.waitFor(() -> nodeID.equals(backup.getNodeID().orElse("not set yet"))));

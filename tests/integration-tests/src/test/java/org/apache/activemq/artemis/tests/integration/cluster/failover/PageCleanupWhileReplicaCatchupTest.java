@@ -42,13 +42,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
 
    private static final int NUMBER_OF_WORKERS = 5;
    private static final int NUMBER_OF_RESTARTS = 5;
 
-   private static final Logger logger = LoggerFactory.getLogger(PageCleanupWhileReplicaCatchupTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    volatile boolean running = true;
 
    @Override

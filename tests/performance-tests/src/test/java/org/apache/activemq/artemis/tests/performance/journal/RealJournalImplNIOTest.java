@@ -22,10 +22,11 @@ import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class RealJournalImplNIOTest extends JournalImplTestUnit {
 
-   private static final Logger log = LoggerFactory.getLogger(RealJournalImplNIOTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {

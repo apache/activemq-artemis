@@ -45,9 +45,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MessageImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MessageImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void getSetAttributes() {

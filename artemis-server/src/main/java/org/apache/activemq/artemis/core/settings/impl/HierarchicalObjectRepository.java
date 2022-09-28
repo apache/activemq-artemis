@@ -38,13 +38,14 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 import org.apache.activemq.artemis.core.settings.Mergeable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
  */
 public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T> {
 
-   private static final Logger logger = LoggerFactory.getLogger(HierarchicalObjectRepository.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    private boolean listenersEnabled = true;

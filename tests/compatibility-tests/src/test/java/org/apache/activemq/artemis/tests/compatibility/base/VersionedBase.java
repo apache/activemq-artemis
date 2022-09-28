@@ -23,10 +23,11 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public abstract class VersionedBase extends ClasspathBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(VersionedBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final String server;
    protected final String sender;

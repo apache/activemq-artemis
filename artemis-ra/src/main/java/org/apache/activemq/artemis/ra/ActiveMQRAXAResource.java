@@ -25,13 +25,14 @@ import org.apache.activemq.artemis.core.client.impl.ActiveMQXAResource;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * ActiveMQXAResource.
  */
 public class ActiveMQRAXAResource implements ActiveMQXAResource {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAXAResource.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The managed connection

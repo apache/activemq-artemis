@@ -48,13 +48,14 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class ReplayManager {
 
    public static SimpleDateFormat newRetentionSimpleDateFormat() {
       return new SimpleDateFormat("yyyyMMddHHmmss");
    }
-   private static final Logger logger = LoggerFactory.getLogger(ReplayManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final ActiveMQServer server;
    private JournalImpl journal;

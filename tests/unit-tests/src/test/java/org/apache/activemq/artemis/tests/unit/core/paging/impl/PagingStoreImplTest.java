@@ -86,11 +86,12 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.logs.AssertionLoggerHandler.findText;
 
 public class PagingStoreImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(PagingStoreImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static {
       MessagePersister.registerPersister(CoreMessagePersister.getInstance());

@@ -25,13 +25,14 @@ import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * This class implements javax.jms.ConnectionMetaData
  */
 public class ActiveMQRAConnectionMetaData implements ConnectionMetaData {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAConnectionMetaData.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String DEFAULT_PROP_FILE_NAME = "jms-version.properties";
 

@@ -37,10 +37,11 @@ import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MQTTSessionState {
 
-   private static final Logger logger = LoggerFactory.getLogger(MQTTSessionState.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final MQTTSessionState DEFAULT = new MQTTSessionState(null);
 

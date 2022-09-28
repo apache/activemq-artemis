@@ -102,6 +102,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -111,7 +112,7 @@ import static org.apache.activemq.artemis.utils.collections.IterableStream.itera
  */
 public class PostOfficeImpl implements PostOffice, NotificationListener, BindingsFactory {
 
-   private static final Logger logger = LoggerFactory.getLogger(PostOfficeImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final SimpleString HDR_RESET_QUEUE_DATA = new SimpleString("_AMQ_RESET_QUEUE_DATA");
 

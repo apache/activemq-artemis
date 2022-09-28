@@ -43,6 +43,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
@@ -74,7 +75,7 @@ public class HorizontalPagingTest extends SoakTestBase {
    private final int PARALLEL_SENDS;
 
 
-   private static final Logger logger = LoggerFactory.getLogger(HorizontalPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String SERVER_NAME_0 = "horizontalPaging";
 

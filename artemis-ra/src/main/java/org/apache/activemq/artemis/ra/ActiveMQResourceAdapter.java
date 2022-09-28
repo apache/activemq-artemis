@@ -61,6 +61,7 @@ import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.service.extensions.xa.recovery.XARecoveryConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.jgroups.JChannel;
 
 /**
@@ -68,7 +69,7 @@ import org.jgroups.JChannel;
  */
 public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQResourceAdapter.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long serialVersionUID = 4756893709825838770L;
 

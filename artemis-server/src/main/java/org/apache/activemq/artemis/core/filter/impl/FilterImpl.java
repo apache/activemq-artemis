@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
@@ -56,7 +57,7 @@ import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAG
  */
 public class FilterImpl implements Filter {
 
-   private static final Logger logger = LoggerFactory.getLogger(FilterImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final SimpleString sfilterString;
 

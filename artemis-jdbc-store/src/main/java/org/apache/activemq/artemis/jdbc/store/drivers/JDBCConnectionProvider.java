@@ -27,10 +27,11 @@ import org.apache.activemq.artemis.jdbc.store.logging.LoggingConnection;
 import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class JDBCConnectionProvider {
 
-   private static final Logger logger = LoggerFactory.getLogger(JDBCConnectionProvider.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private DataSource dataSource;
    private Executor networkTimeoutExecutor;
    private int networkTimeoutMillis;

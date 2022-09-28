@@ -17,8 +17,6 @@ package org.apache.activemq.artemis.spi.core.remoting.ssl;
 
 import java.util.Map;
 import javax.net.ssl.SSLContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Service interface to create a SSLContext for a configuration.
@@ -28,7 +26,6 @@ import org.slf4j.LoggerFactory;
  * in your jar and fill it with the full qualified name of your implementation.
  */
 public interface SSLContextFactory extends Comparable<SSLContextFactory> {
-   Logger log = LoggerFactory.getLogger(SSLContextFactory.class);
 
    /**
     * @return an {@link SSLContext} for the given configuration.

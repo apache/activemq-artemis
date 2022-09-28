@@ -21,11 +21,12 @@ import java.nio.ByteBuffer;
 
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
 
 public class FileIOUtil {
 
-   private static final Logger logger = LoggerFactory.getLogger(FileIOUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static void copyData(SequentialFile from, SequentialFile to, ByteBuffer buffer) throws Exception {
 

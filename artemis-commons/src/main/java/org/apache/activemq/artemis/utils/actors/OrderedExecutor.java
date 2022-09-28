@@ -22,6 +22,7 @@ import java.util.concurrent.Executor;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * An executor that always runs all tasks in order, using a delegate executor to run the tasks.
@@ -35,7 +36,7 @@ public class OrderedExecutor extends ProcessorBase<Runnable> implements ArtemisE
       super(delegate);
    }
 
-   private static final Logger logger = LoggerFactory.getLogger(OrderedExecutor.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean fair;
 

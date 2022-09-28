@@ -103,6 +103,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -118,7 +119,7 @@ import static org.junit.Assert.fail;
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
  */
 public class ArtemisTest extends CliTestBase {
-   private static final Logger log = LoggerFactory.getLogger(ArtemisTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // some tests will set this, as some security methods will need to know the server the CLI started
    private ActiveMQServer server;

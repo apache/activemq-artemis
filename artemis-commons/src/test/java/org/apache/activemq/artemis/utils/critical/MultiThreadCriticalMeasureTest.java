@@ -29,12 +29,13 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MultiThreadCriticalMeasureTest {
 
-   private static final Logger logger = LoggerFactory.getLogger(MultiThreadCriticalMeasureTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testMultiThread() throws Throwable {

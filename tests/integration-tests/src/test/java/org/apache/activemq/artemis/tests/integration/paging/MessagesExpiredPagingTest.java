@@ -45,10 +45,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MessagesExpiredPagingTest extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(MessagesExpiredPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String ADDRESS = "MessagesExpiredPagingTest";
 

@@ -49,13 +49,14 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Sender class that manages a Proton sender endpoint.
  */
 public class AmqpSender extends AmqpAbstractResource<Sender> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(AmqpSender.class);
+   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final byte[] EMPTY_BYTE_ARRAY = new byte[] {};
 
    public static final long DEFAULT_SEND_TIMEOUT = 15000;

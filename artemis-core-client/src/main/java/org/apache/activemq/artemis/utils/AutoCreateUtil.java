@@ -27,13 +27,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Utility class to create queues 'automatically'.
  */
 public class AutoCreateUtil {
 
-   private static final Logger logger = LoggerFactory.getLogger(AutoCreateUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static  void autoCreateQueue(ClientSession session, SimpleString destAddress, SimpleString selectorString) throws ActiveMQException {
       AddressQuery response = session.addressQuery(destAddress);

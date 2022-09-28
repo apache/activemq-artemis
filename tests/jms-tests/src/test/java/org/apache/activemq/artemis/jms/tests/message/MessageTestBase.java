@@ -31,10 +31,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public abstract class MessageTestBase extends ActiveMQServerTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(MessageTestBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    protected Message message;

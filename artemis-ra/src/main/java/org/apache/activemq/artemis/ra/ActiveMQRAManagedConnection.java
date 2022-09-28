@@ -57,13 +57,14 @@ import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapp
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * The managed connection
  */
 public final class ActiveMQRAManagedConnection implements ManagedConnection, ExceptionListener {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAManagedConnection.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The managed connection factory

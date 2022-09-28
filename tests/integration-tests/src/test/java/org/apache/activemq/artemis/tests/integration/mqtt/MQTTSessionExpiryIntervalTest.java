@@ -24,10 +24,11 @@ import org.fusesource.mqtt.client.Topic;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class MQTTSessionExpiryIntervalTest extends MQTTTestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(MQTTSessionExpiryIntervalTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60 * 1000)
    public void testCustomSessionExpiryInterval() throws Exception {

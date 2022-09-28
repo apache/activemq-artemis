@@ -36,13 +36,14 @@ import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Handles scheduling deliveries to a queue at the correct time.
  */
 public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
-   private static final Logger logger = LoggerFactory.getLogger(ScheduledDeliveryHandlerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final ScheduledExecutorService scheduledExecutor;
 

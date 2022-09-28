@@ -212,6 +212,7 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -220,7 +221,7 @@ import static org.apache.activemq.artemis.utils.collections.IterableStream.itera
  */
 public class ActiveMQServerImpl implements ActiveMQServer {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQServerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String INTERNAL_NAMING_PREFIX = "$.artemis.internal";
 

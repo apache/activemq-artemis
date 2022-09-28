@@ -71,6 +71,7 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Concrete implementation of a ClientConsumer.
@@ -78,7 +79,7 @@ import org.slf4j.LoggerFactory;
 public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
 
-   private static final Logger logger = LoggerFactory.getLogger(ServerConsumerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private final long id;

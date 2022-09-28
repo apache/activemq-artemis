@@ -49,10 +49,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
 
-   private static final Logger LOGGER = LoggerFactory.getLogger(ReplicatedMultipleFailbackTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @FunctionalInterface
    interface ThrowableFunction<T, R> {
@@ -103,7 +104,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
             final String backup = nodePair.getString("backup", null);
             networkTopology.put(nodeID, new Pair<>(live, backup));
          } catch (Exception e) {
-            LOGGER.warn("Error on {}", nodePair, e);
+            logger.warn("Error on {}", nodePair, e);
          }
       }
       return networkTopology;
@@ -222,7 +223,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
 
    @Test
    public void testMultipleFailback() throws Exception {
-      LOGGER.info("TEST BOOTSTRAPPING START: STARTING brokers {}", Arrays.toString(Broker.values()));
+      logger.info("TEST BOOTSTRAPPING START: STARTING brokers {}", Arrays.toString(Broker.values()));
       final int failbackRetries = 10;
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       Process master1 = Broker.master1.startServer(this, timeout);
@@ -239,7 +240,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       final String nodeIDlive3 = Broker.master3.getNodeID().get();
 
       for (Broker broker : Broker.values()) {
-         LOGGER.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
+         logger.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
                                                           .and(withLive(nodeIDlive1, Objects::nonNull))
@@ -254,23 +255,23 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       Assert.assertNotNull(urlMaster1);
       Assert.assertNotEquals(urlMaster1, urlSlave1);
 
-      LOGGER.info("Node ID live 1 is {}", nodeIDlive1);
-      LOGGER.info("Node ID live 2 is {}", nodeIDlive2);
-      LOGGER.info("Node ID live 3 is {}", nodeIDlive3);
+      logger.info("Node ID live 1 is {}", nodeIDlive1);
+      logger.info("Node ID live 2 is {}", nodeIDlive2);
+      logger.info("Node ID live 3 is {}", nodeIDlive3);
 
-      LOGGER.info("{} has url: {}", Broker.master1, urlMaster1);
-      LOGGER.info("{} has url: {}", Broker.slave1, urlSlave1);
+      logger.info("{} has url: {}", Broker.master1, urlMaster1);
+      logger.info("{} has url: {}", Broker.slave1, urlSlave1);
 
-      LOGGER.info("BOOTSTRAPPING ENDED: READ nodeIds and master1/slave1 urls");
+      logger.info("BOOTSTRAPPING ENDED: READ nodeIds and master1/slave1 urls");
 
       for (int i = 0; i < failbackRetries; i++) {
-         LOGGER.info("START TEST {}", i + 1);
-         LOGGER.info("KILLING master1");
+         logger.info("START TEST {}", i + 1);
+         logger.info("KILLING master1");
          killServer(master1);
          // wait until slave1 became live
          Wait.assertTrue(() -> !Broker.slave1.isBackup().orElse(true), timeout);
-         LOGGER.info("slave1 is LIVE");
-         LOGGER.info("VALIDATE TOPOLOGY OF ALIVE BROKERS");
+         logger.info("slave1 is LIVE");
+         logger.info("VALIDATE TOPOLOGY OF ALIVE BROKERS");
          Stream.of(Broker.master2, Broker.master3, Broker.slave1).forEach(
             broker -> Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                                     containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
@@ -280,14 +281,14 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
                                                                        .and(withNodes(3))), timeout)
          );
          // restart master1
-         LOGGER.info("STARTING master1");
+         logger.info("STARTING master1");
          master1 = Broker.master1.startServer(this, 0);
          Wait.assertTrue(() -> Broker.slave1.isBackup().orElse(false), timeout);
-         LOGGER.info("slave1 is BACKUP");
+         logger.info("slave1 is BACKUP");
          Wait.assertTrue(() -> !Broker.master1.isBackup().orElse(true), timeout);
-         LOGGER.info("master1 is LIVE");
+         logger.info("master1 is LIVE");
          for (Broker broker : Broker.values()) {
-            LOGGER.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
+            logger.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
             Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                           containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
                                                              .and(withLive(nodeIDlive1, urlMaster1::equals))
@@ -296,7 +297,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
                                                              .and(withNodes(4))), timeout);
          }
       }
-      LOGGER.info("TEST COMPLETED");
+      logger.info("TEST COMPLETED");
    }
 }
 

@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuar
 import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
@@ -44,7 +45,7 @@ import java.util.Map;
 
 public class HawtioSecurityControlImpl extends AbstractControl implements HawtioSecurityControl {
 
-   private static final Logger logger = LoggerFactory.getLogger(HawtioSecurityControlImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * The Tabular Type returned by the {@link #canInvoke(Map)} operation. The rows consist of

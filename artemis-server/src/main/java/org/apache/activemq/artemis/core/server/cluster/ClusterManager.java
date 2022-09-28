@@ -67,6 +67,7 @@ import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A ClusterManager manages {@link ClusterConnection}s, {@link BroadcastGroup}s and {@link Bridge}s.
@@ -77,7 +78,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ClusterManager implements ActiveMQComponent {
 
-   private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ClusterController clusterController;
 

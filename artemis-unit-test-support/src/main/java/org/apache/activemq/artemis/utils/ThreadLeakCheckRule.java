@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -37,7 +38,7 @@ import org.junit.runner.Description;
  */
 public class ThreadLeakCheckRule extends TestWatcher {
 
-   private static Logger log = LoggerFactory.getLogger(ThreadLeakCheckRule.class);
+   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static Set<String> knownThreads = new HashSet<>();
 

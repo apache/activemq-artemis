@@ -58,6 +58,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -70,7 +71,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
-   private static final Logger logger = LoggerFactory.getLogger(SharedNothingReplicationTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public TemporaryFolder brokersFolder = new TemporaryFolder();
@@ -307,7 +308,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
       boolean used = false;
 
-      private static final Logger logger = LoggerFactory.getLogger(SlowMessagePersister.class);
+      private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
       static SlowMessagePersister theInstance;
 

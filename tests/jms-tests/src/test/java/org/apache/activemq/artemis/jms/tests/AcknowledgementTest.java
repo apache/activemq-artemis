@@ -39,12 +39,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class AcknowledgementTest extends JMSTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(AcknowledgementTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Topics shouldn't hold on to messages if there are no subscribers

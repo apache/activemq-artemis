@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A LoginModule that allows for authentication based on SSL certificates.
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class CertificateLoginModule extends PropertiesLoader implements AuditLoginModule {
 
-   private static final Logger logger = LoggerFactory.getLogger(CertificateLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private CallbackHandler callbackHandler;
    private Subject subject;

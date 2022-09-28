@@ -47,6 +47,7 @@ import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -102,7 +103,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConnectTests extends MQTT5TestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(ConnectTests.class);
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public ConnectTests(String protocol) {
       super(protocol);

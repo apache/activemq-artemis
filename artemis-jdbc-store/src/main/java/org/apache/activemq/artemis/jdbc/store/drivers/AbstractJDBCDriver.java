@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Class to hold common database functionality such as drivers and connections
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public abstract class AbstractJDBCDriver {
 
-   private static final Logger logger = LoggerFactory.getLogger(AbstractJDBCDriver.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected SQLProvider sqlProvider;
 

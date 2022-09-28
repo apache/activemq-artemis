@@ -36,13 +36,14 @@ import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Abstract class where we can replace the configuration in various places *
  */
 public abstract class Configurable extends ActionAbstract {
 
-   private static final Logger logger = LoggerFactory.getLogger(Configurable.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
    String configuration;

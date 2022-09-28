@@ -54,10 +54,11 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class WebServerComponent implements ExternalComponent, WebServerComponentMarker {
 
-   private static final Logger logger = LoggerFactory.getLogger(WebServerComponent.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    public static final String DIR_ALLOWED = "org.eclipse.jetty.servlet.Default.dirAllowed";
 
    // this should match the value of <display-name> in the console war's WEB-INF/web.xml

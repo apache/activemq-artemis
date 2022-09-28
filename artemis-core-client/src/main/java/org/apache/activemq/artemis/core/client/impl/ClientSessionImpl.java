@@ -60,10 +60,11 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener {
 
-   private static final Logger logger = LoggerFactory.getLogger(ClientSessionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Map<String, String> metadata = new HashMap<>();
 

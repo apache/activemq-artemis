@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A XAResourceRecovery instance that can be used to recover any JMS provider.
@@ -49,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 public class ActiveMQXAResourceRecovery {
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQXAResourceRecovery.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean hasMore;
 

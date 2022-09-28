@@ -34,10 +34,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class TransactedSessionTest extends JMSTestCase {
 
-   private static final Logger logger = LoggerFactory.getLogger(TransactedSessionTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testSimpleRollback() throws Exception {

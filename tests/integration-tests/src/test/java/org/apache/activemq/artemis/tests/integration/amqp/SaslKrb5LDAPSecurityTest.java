@@ -101,6 +101,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCEPTOR_FACTORY;
 
@@ -119,7 +120,7 @@ import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCE
 @CreateKdcServer(transports = {@CreateTransport(protocol = "TCP", port = 0)})
 @ApplyLdifFiles("SaslKrb5LDAPSecurityTest.ldif")
 public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
-   protected static final Logger LOG = LoggerFactory.getLogger(SaslKrb5LDAPSecurityTest.class);
+   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String QUEUE_NAME = "some_queue";
 

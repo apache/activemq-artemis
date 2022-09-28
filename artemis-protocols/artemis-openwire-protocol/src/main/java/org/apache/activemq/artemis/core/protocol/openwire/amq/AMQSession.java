@@ -66,9 +66,10 @@ import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class AMQSession implements SessionCallback {
-   private final Logger logger = LoggerFactory.getLogger(AMQSession.class);
+   private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);

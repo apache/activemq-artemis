@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * A JUnit Rule that embeds an ActiveMQ Artemis server into a test.
@@ -66,10 +67,9 @@ import org.slf4j.LoggerFactory;
  * </code></pre>
  */
 public class EmbeddedActiveMQResource extends ExternalResource {
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static final String SERVER_NAME = "embedded-server";
-
-   Logger log = LoggerFactory.getLogger(this.getClass());
 
    boolean useDurableMessage = true;
    boolean useDurableQueue = true;
@@ -185,7 +185,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
          try {
             server.stop();
          } catch (Exception ex) {
-            log.warn(String.format("Exception encountered stopping %s: %s", server.getClass().getSimpleName(), this.getServerName()), ex);
+            logger.warn(String.format("Exception encountered stopping %s: %s", server.getClass().getSimpleName(), this.getServerName()), ex);
          }
       }
    }
@@ -195,7 +195,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     */
    @Override
    protected void before() throws Throwable {
-      log.info("Starting {}: {}", this.getClass().getSimpleName(), getServerName());
+      logger.info("Starting {}: {}", this.getClass().getSimpleName(), getServerName());
 
       this.start();
 
@@ -207,7 +207,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
     */
    @Override
    protected void after() {
-      log.info("Stopping {}: {}", this.getClass().getSimpleName(), getServerName());
+      logger.info("Stopping {}: {}", this.getClass().getSimpleName(), getServerName());
 
       this.stop();
 
@@ -311,7 +311,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
    public long getMessageCount(SimpleString queueName) {
       Queue queue = locateQueue(queueName);
       if (queue == null) {
-         log.warn("getMessageCount(queueName) - queue {} not found; returning -1", queueName.toString());
+         logger.warn("getMessageCount(queueName) - queue {} not found; returning -1", queueName.toString());
          return -1;
       }
 
@@ -728,7 +728,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
 
    private InternalClient getInternalClient() {
       if (internalClient == null) {
-         log.info("Creating Internal Client");
+         logger.info("Creating Internal Client");
          internalClient = new InternalClient();
          internalClient.start();
       }
@@ -758,7 +758,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
       }
 
       void start() {
-         log.info("Starting {}", this.getClass().getSimpleName());
+         logger.info("Starting {}", this.getClass().getSimpleName());
          try {
             serverLocator = ActiveMQClient.createServerLocator(getVmURL());
             sessionFactory = serverLocator.createSessionFactory();
@@ -782,7 +782,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
             try {
                producer.close();
             } catch (ActiveMQException amqEx) {
-               log.warn("ActiveMQException encountered closing InternalClient ClientProducer - ignoring", amqEx);
+               logger.warn("ActiveMQException encountered closing InternalClient ClientProducer - ignoring", amqEx);
             } finally {
                producer = null;
             }
@@ -791,7 +791,7 @@ public class EmbeddedActiveMQResource extends ExternalResource {
             try {
                session.close();
             } catch (ActiveMQException amqEx) {
-               log.warn("ActiveMQException encountered closing InternalClient ClientSession - ignoring", amqEx);
+               logger.warn("ActiveMQException encountered closing InternalClient ClientSession - ignoring", amqEx);
             } finally {
                session = null;
             }

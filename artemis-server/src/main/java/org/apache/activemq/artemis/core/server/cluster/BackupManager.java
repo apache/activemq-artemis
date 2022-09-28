@@ -40,13 +40,14 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /*
 * takes care of updating the cluster with a backups transport configuration which is based on each cluster connection.
 * */
 public class BackupManager implements ActiveMQComponent {
 
-   private static final Logger logger = LoggerFactory.getLogger(BackupManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
    private Executor executor;

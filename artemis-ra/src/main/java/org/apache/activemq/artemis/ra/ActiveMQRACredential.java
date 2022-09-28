@@ -28,13 +28,14 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 /**
  * Credential information
  */
 public class ActiveMQRACredential implements Serializable {
 
-   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRACredential.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Serial version UID

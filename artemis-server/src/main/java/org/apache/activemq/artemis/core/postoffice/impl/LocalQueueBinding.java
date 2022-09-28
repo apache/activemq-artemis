@@ -27,10 +27,11 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class LocalQueueBinding implements QueueBinding {
 
-   private static final Logger logger = LoggerFactory.getLogger(LocalQueueBinding.class);
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final SimpleString address;
 

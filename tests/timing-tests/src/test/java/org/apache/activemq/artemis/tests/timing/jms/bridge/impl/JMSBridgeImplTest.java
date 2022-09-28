@@ -71,10 +71,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.lang.invoke.MethodHandles;
 
 public class JMSBridgeImplTest extends ActiveMQTestBase {
 
-   private static Logger log = LoggerFactory.getLogger(JMSBridgeImplTest.class);
+   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private static final String SOURCE = RandomUtil.randomString();
