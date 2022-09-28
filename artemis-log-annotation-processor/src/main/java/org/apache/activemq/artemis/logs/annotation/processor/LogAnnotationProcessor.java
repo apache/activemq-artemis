@@ -473,6 +473,10 @@ public class LogAnnotationProcessor extends AbstractProcessor {
             throw new IllegalArgumentException("Invalid placeholder argument {" + tupple + "} on message \'" + message + "\' as part of " + holder + "\nreplace it by {}");
          }
       });
+
+      if (message.contains("%s") || message.contains("%d")) {
+         throw new IllegalArgumentException("Cannot use %s or %d in loggers. Please use {} on message \'" + message + "\'");
+      }
    }
 
    private static void verifyIdNotProcessedPreviously(final Integer id, final String message, final HashMap<Integer, String> processedMessages) {
