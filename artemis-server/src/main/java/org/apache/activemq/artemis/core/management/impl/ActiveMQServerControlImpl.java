@@ -143,11 +143,12 @@ import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQServerControlImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQServerControlImpl.class);
 
 
    private final PostOffice postOffice;

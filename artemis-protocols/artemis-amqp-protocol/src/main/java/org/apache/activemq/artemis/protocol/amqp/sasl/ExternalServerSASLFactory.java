@@ -25,14 +25,15 @@ import org.apache.activemq.artemis.protocol.amqp.proton.AMQPRoutingHandler;
 import org.apache.activemq.artemis.spi.core.protocol.ProtocolManager;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class ExternalServerSASLFactory implements ServerSASLFactory {
 
-   private static final Logger logger = Logger.getLogger(ExternalServerSASLFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(ExternalServerSASLFactory.class);
 
    @Override
    public String getMechanism() {

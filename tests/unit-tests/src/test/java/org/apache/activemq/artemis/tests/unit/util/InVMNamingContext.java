@@ -36,11 +36,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InVMNamingContext implements Context, Serializable {
 
-   private static final Logger log = Logger.getLogger(InVMNamingContext.class);
+   private static final Logger log = LoggerFactory.getLogger(InVMNamingContext.class);
 
    private static final long serialVersionUID = 385743957345L;
 
@@ -286,7 +287,7 @@ public class InVMNamingContext implements Context, Serializable {
    }
 
    private void internalBind(String name, final Object obj, final boolean rebind) throws NamingException {
-      log.debug("Binding " + name + " obj " + obj + " rebind " + rebind);
+      log.debug("Binding {} obj {} rebind {}", name, obj, rebind);
       name = trimSlashes(name);
       int i = name.lastIndexOf("/");
       InVMNamingContext c = this;

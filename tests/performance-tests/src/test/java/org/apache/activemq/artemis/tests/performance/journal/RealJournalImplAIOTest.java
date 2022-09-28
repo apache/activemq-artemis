@@ -20,13 +20,14 @@ import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealJournalImplAIOTest extends JournalImplTestUnit {
 
-   private static final Logger log = Logger.getLogger(RealJournalImplAIOTest.class);
+   private static final Logger log = LoggerFactory.getLogger(RealJournalImplAIOTest.class);
 
    @BeforeClass
    public static void hasAIO() {
@@ -43,7 +44,7 @@ public class RealJournalImplAIOTest extends JournalImplTestUnit {
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
-      RealJournalImplAIOTest.log.debug("deleting directory " + file);
+      RealJournalImplAIOTest.log.debug("deleting directory {}", file);
 
       deleteDirectory(file);
 

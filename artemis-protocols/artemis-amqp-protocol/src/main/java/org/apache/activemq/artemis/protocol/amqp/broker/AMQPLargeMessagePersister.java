@@ -25,12 +25,10 @@ import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
 
 import static org.apache.activemq.artemis.core.persistence.PersisterIDs.AMQPLargeMessagePersister_ID;
 
 public class AMQPLargeMessagePersister extends MessagePersister {
-   private static final Logger log = Logger.getLogger(AMQPLargeMessagePersister.class);
 
    public static final byte ID = AMQPLargeMessagePersister_ID;
 

@@ -25,7 +25,8 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Class to hold common database functionality such as drivers and connections
@@ -33,7 +34,7 @@ import org.jboss.logging.Logger;
 @SuppressWarnings("SynchronizeOnNonFinalField")
 public abstract class AbstractJDBCDriver {
 
-   private static final Logger logger = Logger.getLogger(AbstractJDBCDriver.class);
+   private static final Logger logger = LoggerFactory.getLogger(AbstractJDBCDriver.class);
 
    protected SQLProvider sqlProvider;
 
@@ -74,11 +75,11 @@ public abstract class AbstractJDBCDriver {
             }
             connection.commit();
          } catch (SQLException e) {
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, dropTableSql));
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, dropTableSql).toString());
             try {
                connection.rollback();
             } catch (SQLException rollbackEx) {
-               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, dropTableSql));
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, dropTableSql).toString());
                throw rollbackEx;
             }
             throw e;
@@ -87,7 +88,7 @@ public abstract class AbstractJDBCDriver {
    }
 
    private void createTableIfNotExists(String tableName, String... sqls) throws SQLException {
-      logger.tracef("Validating if table %s didn't exist before creating", tableName);
+      logger.trace("Validating if table {} didn't exist before creating", tableName);
       try (Connection connection = connectionProvider.getConnection()) {
          try {
             connection.setAutoCommit(false);
@@ -96,12 +97,12 @@ public abstract class AbstractJDBCDriver {
                if (rs == null || !rs.next()) {
                   tableExists = false;
                   if (logger.isTraceEnabled()) {
-                     logger.tracef("Table %s did not exist, creating it with SQL=%s", tableName, Arrays.toString(sqls));
+                     logger.trace("Table {} did not exist, creating it with SQL={}", tableName, Arrays.toString(sqls));
                   }
                   if (rs != null) {
                      final SQLWarning sqlWarning = rs.getWarnings();
                      if (sqlWarning != null) {
-                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), sqlWarning));
+                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), sqlWarning).toString());
                      }
                   }
                } else {
@@ -109,17 +110,17 @@ public abstract class AbstractJDBCDriver {
                }
             }
             if (tableExists) {
-               logger.tracef("Validating if the existing table %s is initialized or not", tableName);
+               logger.trace("Validating if the existing table {} is initialized or not", tableName);
                try (Statement statement = connection.createStatement();
                     ResultSet cntRs = statement.executeQuery(sqlProvider.getCountJournalRecordsSQL())) {
-                  logger.tracef("Validation of the existing table %s initialization is started", tableName);
+                  logger.trace("Validation of the existing table {} initialization is started", tableName);
                   int rows;
                   if (cntRs.next() && (rows = cntRs.getInt(1)) > 0) {
-                     logger.tracef("Table %s did exist but is not empty. Skipping initialization. Found %d rows.", tableName, rows);
+                     logger.trace("Table {} did exist but is not empty. Skipping initialization. Found {} rows.", tableName, rows);
                      if (logger.isDebugEnabled()) {
                         final long expectedRows = Stream.of(sqls).map(String::toUpperCase).filter(sql -> sql.contains("INSERT INTO")).count();
                         if (rows < expectedRows) {
-                           logger.debug("Table " + tableName + " was expected to contain " + expectedRows + " rows while it has " + rows + " rows.");
+                           logger.debug("Table {} was expected to contain {} rows while it has {} rows.", tableName, expectedRows, rows);
                         }
                      }
                      connection.commit();
@@ -130,9 +131,9 @@ public abstract class AbstractJDBCDriver {
                         return !(upperCaseSql.contains("CREATE TABLE") || upperCaseSql.contains("CREATE INDEX"));
                      }).toArray(String[]::new);
                      if (sqls.length > 0) {
-                        logger.tracef("Table %s did exist but is empty. Starting initialization.", tableName);
+                        logger.trace("Table {} did exist but is empty. Starting initialization.", tableName);
                      } else {
-                        logger.tracef("Table %s did exist but is empty. Initialization completed: no initialization statements left.", tableName);
+                        logger.trace("Table {} did exist but is empty. Initialization completed: no initialization statements left.", tableName);
                         connection.commit();
                      }
                   }
@@ -141,7 +142,7 @@ public abstract class AbstractJDBCDriver {
                   //some DBMS just return stale information about table existence
                   //and can fail on later attempts to access them
                   if (logger.isTraceEnabled()) {
-                     logger.trace(JDBCUtils.appendSQLExceptionDetails(new StringBuilder("Can't verify the initialization of table ").append(tableName).append(" due to:"), e, sqlProvider.getCountJournalRecordsSQL()));
+                     logger.trace(JDBCUtils.appendSQLExceptionDetails(new StringBuilder("Can't verify the initialization of table ").append(tableName).append(" due to:"), e, sqlProvider.getCountJournalRecordsSQL()).toString());
                   }
                   try {
                      connection.rollback();
@@ -149,7 +150,7 @@ public abstract class AbstractJDBCDriver {
                      logger.debug("Rollback failed while validating initialization of a table", rollbackEx);
                   }
                   connection.setAutoCommit(false);
-                  logger.tracef("Table %s seems to exist, but we can't verify the initialization. Keep trying to create and initialize.", tableName);
+                  logger.trace("Table {} seems to exist, but we can't verify the initialization. Keep trying to create and initialize.", tableName);
                }
             }
             if (sqls.length > 0) {
@@ -158,7 +159,7 @@ public abstract class AbstractJDBCDriver {
                      statement.executeUpdate(sql);
                      final SQLWarning statementSqlWarning = statement.getWarnings();
                      if (statementSqlWarning != null) {
-                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), statementSqlWarning, sql));
+                        logger.warn(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), statementSqlWarning, sql).toString());
                      }
                   }
                }
@@ -167,11 +168,11 @@ public abstract class AbstractJDBCDriver {
             }
          } catch (SQLException e) {
             final String sqlStatements = String.join("\n", sqls);
-            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, sqlStatements));
+            logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), e, sqlStatements).toString());
             try {
                connection.rollback();
             } catch (SQLException rollbackEx) {
-               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, sqlStatements));
+               logger.error(JDBCUtils.appendSQLExceptionDetails(new StringBuilder(), rollbackEx, sqlStatements).toString());
                throw rollbackEx;
             }
             throw e;

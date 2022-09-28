@@ -22,9 +22,10 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A SymmetricClusterTest
@@ -33,7 +34,7 @@ import org.junit.Test;
  */
 public class SymmetricClusterTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(SymmetricClusterTest.class);
+   private static final Logger log = LoggerFactory.getLogger(SymmetricClusterTest.class);
 
    @Override
    @Before

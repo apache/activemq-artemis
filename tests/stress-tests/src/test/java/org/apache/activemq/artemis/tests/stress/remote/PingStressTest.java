@@ -30,13 +30,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PingStressTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(PingStressTest.class);
+   private static final Logger log = LoggerFactory.getLogger(PingStressTest.class);
 
    private static final long PING_INTERVAL = 500;
 
@@ -73,7 +74,7 @@ public class PingStressTest extends ActiveMQTestBase {
       Interceptor noPongInterceptor = new Interceptor() {
          @Override
          public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
-            PingStressTest.log.info("In interceptor, packet is " + packet.getType());
+            PingStressTest.log.info("In interceptor, packet is {}", packet.getType());
             if (packet.getType() == PacketImpl.PING) {
                PingStressTest.log.info("Ignoring Ping packet.. it will be dropped");
                return false;

@@ -86,7 +86,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages replication tasks on the live server (that is the live server side of a "remote backup"
@@ -98,7 +99,7 @@ import org.jboss.logging.Logger;
  */
 public final class ReplicationManager implements ActiveMQComponent {
 
-   private static final Logger logger = Logger.getLogger(ReplicationManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(ReplicationManager.class);
 
    public enum ADD_OPERATION_TYPE {
       UPDATE {
@@ -352,11 +353,11 @@ public final class ReplicationManager implements ActiveMQComponent {
          if (periodNanos > TimeUnit.SECONDS.toNanos(1)) {
             periodNanos = TimeUnit.SECONDS.toNanos(1);
          } else if (periodNanos < TimeUnit.MILLISECONDS.toNanos(100)) {
-            logger.warnf("The cluster call timeout is too low ie %d ms: consider raising it to save CPU",
+            logger.warn("The cluster call timeout is too low ie {} ms: consider raising it to save CPU",
                          TimeUnit.NANOSECONDS.toMillis(maxAllowedSlownessNanos));
             periodNanos = TimeUnit.MILLISECONDS.toNanos(100);
          }
-         logger.debugf("Slow replication checker is running with a period of %d ms", TimeUnit.NANOSECONDS.toMillis(periodNanos));
+         logger.debug("Slow replication checker is running with a period of {} ms", TimeUnit.NANOSECONDS.toMillis(periodNanos));
          // The slow detection has been implemented by using an always-on timer task
          // instead of triggering one each time we detect an un-writable channel because:
          // - getting temporarily an un-writable channel is rather common under load and scheduling/cancelling a
@@ -759,7 +760,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                   }
                }
                if (logger.isDebugEnabled()) {
-                  logger.debugf("sending %d bytes on file %s", buffer.writerIndex(), file.getFileName());
+                  logger.debug("sending {} bytes on file {}", buffer.writerIndex(), file.getFileName());
                }
                // sending -1 or 0 bytes will close the file at the backup
                final boolean lastPacket = bytesRead == -1 || bytesRead == 0 || maxBytesToSend == 0;
@@ -844,7 +845,7 @@ public final class ReplicationManager implements ActiveMQComponent {
                throw exception;
             }
          } catch (InterruptedException e) {
-            logger.debug(e);
+            logger.debug(e.getMessage(), e);
          }
          inSync = false;
 

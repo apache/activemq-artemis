@@ -20,16 +20,19 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
 import org.apache.activemq.artemis.jms.tests.tools.container.InVMInitialContextFactory;
 import org.apache.activemq.artemis.jms.tests.tools.container.LocalTestServer;
 import org.apache.activemq.artemis.jms.tests.tools.container.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Collection of static methods to use to start/stop and interact with the in-memory JMS server. It
  * is also use to start/stop a remote server.
  */
 public class ServerManagement {
+
+   private static final Logger logger = LoggerFactory.getLogger(ServerManagement.class);
 
 
    // logging levels used by the remote client to forward log output on a remote server
@@ -49,8 +52,6 @@ public class ServerManagement {
 
    public static final String DEFAULT_TOPIC_CONTEXT = "/topic";
 
-
-   private static JmsTestLogger log = JmsTestLogger.LOGGER;
 
    private static List<Server> servers = new ArrayList<>();
 
@@ -88,23 +89,23 @@ public class ServerManagement {
       }
 
       if (i > ServerManagement.servers.size()) {
-         ServerManagement.log.error("server " + i +
+         logger.error("server " + i +
                                        " has not been created or has already been killed, so it cannot be killed");
       } else {
          Server server = ServerManagement.servers.get(i);
-         ServerManagement.log.debug("invoking kill() on server " + i);
+         logger.debug("invoking kill() on server " + i);
          try {
             server.kill();
          } catch (Throwable t) {
             // This is likely to throw an exception since the server dies before the response is received
          }
 
-         ServerManagement.log.debug("Waiting for server to die");
+         logger.debug("Waiting for server to die");
 
          try {
             while (true) {
                server.ping();
-               ServerManagement.log.debug("server " + i + " still alive ...");
+               logger.debug("server " + i + " still alive ...");
                Thread.sleep(100);
             }
          } catch (Throwable e) {
@@ -113,7 +114,7 @@ public class ServerManagement {
 
          Thread.sleep(300);
 
-         ServerManagement.log.debug("server " + i + " killed and dead");
+         logger.debug("server " + i + " killed and dead");
       }
 
    }

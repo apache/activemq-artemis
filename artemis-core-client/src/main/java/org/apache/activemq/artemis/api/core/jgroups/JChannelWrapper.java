@@ -20,10 +20,11 @@ package org.apache.activemq.artemis.api.core.jgroups;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.logging.Logger;
 import org.jgroups.JChannel;
 import org.jgroups.Message;
 import org.jgroups.Receiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class wraps a JChannel with a reference counter. The reference counter
@@ -32,7 +33,7 @@ import org.jgroups.Receiver;
  */
 public class JChannelWrapper {
 
-   private static final Logger logger = Logger.getLogger(JChannelWrapper.class);
+   private static final Logger logger = LoggerFactory.getLogger(JChannelWrapper.class);
 
    private boolean connected = false;
    int refCount = 1;

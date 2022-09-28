@@ -43,17 +43,18 @@ import org.apache.activemq.artemis.core.version.impl.VersionImpl;
 import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.VersionLoader;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class IncompatibleVersionTest extends SpawnedTestBase {
 
-   private static final Logger log = Logger.getLogger(IncompatibleVersionTest.class);
+   private static final Logger log = LoggerFactory.getLogger(IncompatibleVersionTest.class);
 
    private static final String WORD_START = "&*STARTED&*";
 
@@ -228,7 +229,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
 
          System.out.println(WORD_START);
 
-         log.debug("### server: " + startedString);
+         log.debug("### server: {}", startedString);
       }
    }
 
@@ -241,7 +242,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
             locator = createNettyNonHALocator();
             sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
-            log.debug("### client: connected. server incrementingVersion = " + session.getVersion());
+            log.debug("### client: connected. server incrementingVersion = {}", session.getVersion());
             session.close();
          } finally {
             closeSessionFactory(sf);

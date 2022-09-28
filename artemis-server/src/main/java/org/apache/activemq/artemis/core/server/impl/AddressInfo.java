@@ -41,8 +41,12 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeLis
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddressInfo {
+
+   private static final Logger logger = LoggerFactory.getLogger(AddressInfo.class);
 
    private long id;
    private long pauseStatusRecord = -1;
@@ -209,7 +213,7 @@ public class AddressInfo {
             }
          }
       } catch (Throwable e) {
-         ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
       }
 
       this.paused = true;

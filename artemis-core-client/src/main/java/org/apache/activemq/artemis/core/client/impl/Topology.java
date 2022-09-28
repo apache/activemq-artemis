@@ -31,11 +31,12 @@ import org.apache.activemq.artemis.api.core.client.ClusterTopologyListener;
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connector;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Topology {
 
-   private static final Logger logger = Logger.getLogger(Topology.class);
+   private static final Logger logger = LoggerFactory.getLogger(Topology.class);
 
    private final Set<ClusterTopologyListener> topologyListeners;
 
@@ -204,7 +205,7 @@ public final class Topology {
       }
 
       if (manager != null && !manager.updateMember(uniqueEventID, nodeId, memberInput)) {
-         logger.debugf("TopologyManager rejected the update towards %s", memberInput);
+         logger.debug("TopologyManager rejected the update towards {}", memberInput);
          return false;
       }
 
@@ -312,7 +313,7 @@ public final class Topology {
 
 
       if (manager != null && !manager.removeMember(uniqueEventID, nodeId)) {
-         logger.debugf("TopologyManager rejected the update towards %s", nodeId);
+         logger.debug("TopologyManager rejected the update towards {}", nodeId);
          return false;
       }
 

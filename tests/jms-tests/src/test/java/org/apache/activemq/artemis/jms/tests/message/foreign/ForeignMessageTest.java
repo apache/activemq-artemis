@@ -28,11 +28,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests the delivery/receipt of a foreign message
  */
 public class ForeignMessageTest extends MessageTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(ForeignMessageTest.class);
 
    @Override
    @Before
@@ -50,7 +54,7 @@ public class ForeignMessageTest extends MessageTestBase {
 
    protected Message createForeignMessage() throws Exception {
       SimpleJMSMessage m = new SimpleJMSMessage();
-      log.debug("creating JMS Message type " + m.getClass().getName());
+      logger.debug("creating JMS Message type " + m.getClass().getName());
 
       return m;
    }

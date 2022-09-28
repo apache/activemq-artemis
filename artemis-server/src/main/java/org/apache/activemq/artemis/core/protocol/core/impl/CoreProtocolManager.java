@@ -71,11 +71,12 @@ import org.apache.activemq.artemis.spi.core.protocol.ProtocolManagerFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveMQRoutingHandler> {
 
-   private static final Logger logger = Logger.getLogger(CoreProtocolManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(CoreProtocolManager.class);
 
    private static final List<String> websocketRegistryNames = Collections.EMPTY_LIST;
 

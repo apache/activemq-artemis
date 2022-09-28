@@ -65,7 +65,8 @@ import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A ClusterManager manages {@link ClusterConnection}s, {@link BroadcastGroup}s and {@link Bridge}s.
@@ -76,7 +77,7 @@ import org.jboss.logging.Logger;
  */
 public class ClusterManager implements ActiveMQComponent {
 
-   private static final Logger logger = Logger.getLogger(ClusterManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(ClusterManager.class);
 
    private ClusterController clusterController;
 
@@ -263,7 +264,7 @@ public class ClusterManager implements ActiveMQComponent {
          try {
             group.start();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.unableToStartBroadcastGroup(e, group.getName());
+            ActiveMQServerLogger.LOGGER.unableToStartBroadcastGroup(group.getName(), e);
          }
       }
 
@@ -271,7 +272,7 @@ public class ClusterManager implements ActiveMQComponent {
          try {
             conn.start();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.unableToStartClusterConnection(e, conn.getName());
+            ActiveMQServerLogger.LOGGER.unableToStartClusterConnection(conn.getName(), e);
          }
       }
 
@@ -281,7 +282,7 @@ public class ClusterManager implements ActiveMQComponent {
          try {
             bridge.start();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.unableToStartBridge(e, bridge.getName());
+            ActiveMQServerLogger.LOGGER.unableToStartBridge(bridge.getName(), e);
          }
       }
 
@@ -332,7 +333,7 @@ public class ClusterManager implements ActiveMQComponent {
          try {
             clusterLocator.close();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.errorClosingServerLocator(e, clusterLocator);
+            ActiveMQServerLogger.LOGGER.errorClosingServerLocator(clusterLocator, e);
          }
       }
       clusterLocators.clear();
@@ -559,7 +560,7 @@ public class ClusterManager implements ActiveMQComponent {
          try {
             bridge.stop();
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
          }
       }
       bridges.clear();

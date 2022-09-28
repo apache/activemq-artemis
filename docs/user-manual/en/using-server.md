@@ -441,7 +441,7 @@ further for additional details as appropriate.
    diverts, clustering; [full reference](configuration-index.md).
  - `jolokia-access.xml` - [security for Jolokia](https://jolokia.org/reference/html/security.html),
    specifically Cross-Origin Resource Sharing (CORS)
- - `logging.properties` - [logging config](logging.md) like levels, log files 
+ - `log4j2.properties` - [logging config](logging.md) like levels, log files
    locations, etc.
  - `login.config` - standard Java configuration for JAAS [security](security.md)
  - `management.xml` - remote connectivity and [security for JMX MBeans](management.md#role-based-authorisation-for-jmx)

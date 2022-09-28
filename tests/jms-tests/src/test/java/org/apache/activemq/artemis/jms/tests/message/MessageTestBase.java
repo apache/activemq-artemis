@@ -29,8 +29,12 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class MessageTestBase extends ActiveMQServerTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MessageTestBase.class);
 
 
    protected Message message;
@@ -72,12 +76,12 @@ public abstract class MessageTestBase extends ActiveMQServerTestCase {
       queueProd.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
       queueProd.send(message);
 
-      log.debug("Message sent");
+      logger.debug("Message sent");
 
       Message r = queueCons.receive(2000);
       ProxyAssertSupport.assertNotNull(r);
 
-      log.debug("Message received");
+      logger.debug("Message received");
 
       ProxyAssertSupport.assertEquals(DeliveryMode.NON_PERSISTENT, r.getJMSDeliveryMode());
 

@@ -60,14 +60,15 @@ import org.apache.activemq.artemis.utils.IDGenerator;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NIOJournalCompactTest extends JournalImplTestBase {
 
-   private static final Logger logger = Logger.getLogger(NIOJournalCompactTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(NIOJournalCompactTest.class);
 
    private static final int NUMBER_OF_RECORDS = 100;
 
@@ -323,7 +324,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
             }
             numberCompact++;
             if (numberCompact % 10 == 0) {
-               logger.debugf("Compact %s", numberCompact);
+               logger.debug("Compact {}", numberCompact);
             }
             journal.testCompact();
          }
@@ -379,7 +380,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       long recordId = idGenerator.generateID();
       for (int i = 0; i < 100; i++) {
          if (i % 10 == 0) {
-            logger.debugf("i = %s",  i);
+            logger.debug("i = {}",  i);
          }
          recordId = idGenerator.generateID();
          journal.appendAddRecord(recordId, recordType, "test".getBytes(), false);
@@ -850,17 +851,17 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          int count = 0;
          for (long liveID : liveIDs) {
             if (count++ % 2 == 0) {
-               logger.debug("Deleting no trans " + liveID);
+               logger.debug("Deleting no trans {}", liveID);
                delete(liveID);
             } else {
-               logger.debug("Deleting TX " + liveID);
+               logger.debug("Deleting TX {}", liveID);
                // A Total new transaction (that was created after the compact started) to delete a record that is being
                // compacted
                deleteTx(transactionID, liveID);
                commit(transactionID++);
             }
 
-            logger.debug("Deletes are going into " + ((JournalImpl) journal).getCurrentFile());
+            logger.debug("Deletes are going into {}", ((JournalImpl) journal).getCurrentFile());
          }
       }
 
@@ -995,7 +996,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.testCompact();
 
-      logger.debug("Debug after compact\n" + journal.debug());
+      logger.debug("Debug after compact {}", journal.debug());
 
       stopJournal();
       createJournal();
@@ -1435,7 +1436,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.forceMoveNextFile();
 
-      logger.debug("Number of Files: " + journal.getDataFilesCount());
+      logger.debug("Number of Files: {}", journal.getDataFilesCount());
 
       logger.debug("Before compact ****************************");
       logger.debug(journal.debug());
@@ -1710,7 +1711,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.forceMoveNextFile();
 
       startCompact();
-      logger.debug("Committing TX " + tx);
+      logger.debug("Committing TX {}", tx);
       commit(tx);
       finishCompact();
 
@@ -1760,7 +1761,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.forceMoveNextFile();
 
       startCompact();
-      logger.debug("Committing TX " + tx1);
+      logger.debug("Committing TX {}", tx1);
       rollback(tx0);
       for (int i = 0; i < 10; i++) {
          addTx(tx1, ids[i]);
@@ -1816,7 +1817,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.forceMoveNextFile();
 
       startCompact();
-      logger.debug("Committing TX " + tx1);
+      logger.debug("Committing TX {}", tx1);
       rollback(tx0);
       for (int i = 0; i < 10; i++) {
          addTx(tx1, ids[i]);
@@ -2037,14 +2038,14 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
                      survivingMsgs.add(message.getMessageID());
 
-                     logger.debug("Going to store " + message);
+                     logger.debug("Going to store {}", message);
                      // This one will stay here forever
                      storage.storeMessage(message);
-                     logger.debug("message stored " + message);
+                     logger.debug("message stored {}", message);
 
-                     logger.debug("Going to commit " + tx);
+                     logger.debug("Going to commit {}", tx);
                      storage.commit(tx);
-                     logger.debug("Committed " + tx);
+                     logger.debug("Committed {}", tx);
 
                      ctx.executeOnCompletion(new IOCallback() {
                         @Override

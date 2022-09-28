@@ -62,12 +62,15 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.codec.CursorAck
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PageUpdateTXEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentAddressBindingEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PersistentQueueBindingEncoding;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends DBOption {
+
+   private static final Logger logger = LoggerFactory.getLogger(XmlDataExporter.class);
 
    private XMLStreamWriter xmlWriter;
 
@@ -149,8 +152,8 @@ public final class XmlDataExporter extends DBOption {
       getBindings();
       processMessageJournal();
       printDataAsXML();
-      ActiveMQServerLogger.LOGGER.debug("\n\nProcessing took: " + (System.currentTimeMillis() - start) + "ms");
-      ActiveMQServerLogger.LOGGER.debug("Output " + messagesPrinted + " messages and " + bindingsPrinted + " bindings.");
+      logger.debug("\n\nProcessing took: {}ms", (System.currentTimeMillis() - start));
+      logger.debug("Output {} messages and {} bindings.", messagesPrinted, bindingsPrinted);
    }
 
    /**
@@ -169,7 +172,7 @@ public final class XmlDataExporter extends DBOption {
 
       Journal messageJournal = storageManager.getMessageJournal();
 
-      ActiveMQServerLogger.LOGGER.debug("Reading journal from " + config.getJournalDirectory());
+      logger.debug("Reading journal from {}", config.getJournalDirectory());
 
       messageJournal.start();
 
@@ -201,7 +204,7 @@ public final class XmlDataExporter extends DBOption {
                }
             }
 
-            ActiveMQServerLogger.LOGGER.debug(message.toString());
+            logger.debug(message.toString());
          }
       };
 
@@ -299,7 +302,7 @@ public final class XmlDataExporter extends DBOption {
 
       bindingsJournal.start();
 
-      ActiveMQServerLogger.LOGGER.debug("Reading bindings journal from " + config.getBindingsDirectory());
+      logger.debug("Reading bindings journal from {}", config.getBindingsDirectory());
 
       bindingsJournal.load(records, null, null);
 
@@ -396,11 +399,11 @@ public final class XmlDataExporter extends DBOption {
 
             if (pageStore != null) {
                File folder = pageStore.getFolder();
-               ActiveMQServerLogger.LOGGER.debug("Reading page store " + store + " folder = " + folder);
+               logger.debug("Reading page store {} folder = {}", store, folder);
 
                long pageId = pageStore.getFirstPage();
                for (long i = 0; i < pageStore.getNumberOfPages(); i++) {
-                  ActiveMQServerLogger.LOGGER.debug("Reading page " + pageId);
+                  logger.debug("Reading page {}", pageId);
                   Page page = pageStore.newPageObject(pageId);
                   page.open(false);
                   org.apache.activemq.artemis.utils.collections.LinkedList<PagedMessage> messages = page.read(storageManager);
@@ -445,7 +448,7 @@ public final class XmlDataExporter extends DBOption {
                   }
                }
             } else {
-               ActiveMQServerLogger.LOGGER.debug("Page store was null");
+               logger.debug("Page store was null");
             }
          }
       } catch (Exception e) {

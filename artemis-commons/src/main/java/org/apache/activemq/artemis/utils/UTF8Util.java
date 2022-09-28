@@ -23,7 +23,8 @@ import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.ActiveMQUtilBundle;
-import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A UTF8Util
@@ -31,6 +32,8 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
  * This class will write UTFs directly to the ByteOutput (through the MessageBuffer interface)
  */
 public final class UTF8Util {
+
+   private static final Logger logger = LoggerFactory.getLogger(UTF8Util.class);
 
    private static final ThreadLocal<SoftReference<StringUtilBuffer>> currentBuffer = new ThreadLocal<>();
 
@@ -85,9 +88,9 @@ public final class UTF8Util {
 
       final int stringLength = str.length();
 
-      if (ActiveMQUtilLogger.LOGGER.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
          // This message is too verbose for debug, that's why we are using trace here
-         ActiveMQUtilLogger.LOGGER.trace("Saving string with utfSize=" + len + " stringSize=" + stringLength);
+         logger.trace("Saving string with utfSize=" + len + " stringSize=" + stringLength);
       }
 
       if (out.hasArray()) {
@@ -183,9 +186,9 @@ public final class UTF8Util {
 
       final int size = input.readUnsignedShort();
 
-      if (ActiveMQUtilLogger.LOGGER.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
          // This message is too verbose for debug, that's why we are using trace here
-         ActiveMQUtilLogger.LOGGER.trace("Reading string with utfSize=" + size);
+         logger.trace("Reading string with utfSize=" + size);
       }
       if (PlatformDependent.hasUnsafe() && input.byteBuf() != null && input.byteBuf().hasMemoryAddress()) {
          final ByteBuf byteBuf = input.byteBuf();

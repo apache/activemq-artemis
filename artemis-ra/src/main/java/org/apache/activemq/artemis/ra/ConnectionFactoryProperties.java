@@ -20,8 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
+
+   private static final Logger logger = LoggerFactory.getLogger(ConnectionFactoryProperties.class);
 
    private boolean hasBeenUpdated = false;
 
@@ -174,240 +178,240 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public String getConnectionLoadBalancingPolicyClassName() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getConnectionLoadBalancingPolicyClassName()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getConnectionLoadBalancingPolicyClassName()");
       }
       return connectionLoadBalancingPolicyClassName;
    }
 
    public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setSessionDefaultType(" + connectionLoadBalancingPolicyClassName + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setSessionDefaultType(" + connectionLoadBalancingPolicyClassName + ")");
       }
       hasBeenUpdated = true;
       this.connectionLoadBalancingPolicyClassName = connectionLoadBalancingPolicyClassName;
    }
 
    public String getDiscoveryAddress() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDiscoveryAddress()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDiscoveryAddress()");
       }
       return discoveryAddress;
    }
 
    public void setDiscoveryAddress(final String discoveryAddress) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDiscoveryAddress(" + discoveryAddress + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDiscoveryAddress(" + discoveryAddress + ")");
       }
       hasBeenUpdated = true;
       this.discoveryAddress = discoveryAddress;
    }
 
    public Integer getDiscoveryPort() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDiscoveryPort()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDiscoveryPort()");
       }
       return discoveryPort;
    }
 
    public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDiscoveryLocalBindAddress(" + discoveryLocalBindAddress + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDiscoveryLocalBindAddress(" + discoveryLocalBindAddress + ")");
       }
       hasBeenUpdated = true;
       this.discoveryLocalBindAddress = discoveryLocalBindAddress;
    }
 
    public String getDiscoveryLocalBindAddress() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDiscoveryLocalBindAddress()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDiscoveryLocalBindAddress()");
       }
       return discoveryLocalBindAddress;
    }
 
    public void setDiscoveryPort(final Integer discoveryPort) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDiscoveryPort(" + discoveryPort + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDiscoveryPort(" + discoveryPort + ")");
       }
       hasBeenUpdated = true;
       this.discoveryPort = discoveryPort;
    }
 
    public Long getDiscoveryRefreshTimeout() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDiscoveryRefreshTimeout()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDiscoveryRefreshTimeout()");
       }
       return discoveryRefreshTimeout;
    }
 
    public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDiscoveryRefreshTimeout(" + discoveryRefreshTimeout + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDiscoveryRefreshTimeout(" + discoveryRefreshTimeout + ")");
       }
       hasBeenUpdated = true;
       this.discoveryRefreshTimeout = discoveryRefreshTimeout;
    }
 
    public Long getDiscoveryInitialWaitTimeout() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDiscoveryInitialWaitTimeout()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDiscoveryInitialWaitTimeout()");
       }
       return discoveryInitialWaitTimeout;
    }
 
    public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDiscoveryInitialWaitTimeout(" + discoveryInitialWaitTimeout + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDiscoveryInitialWaitTimeout(" + discoveryInitialWaitTimeout + ")");
       }
       hasBeenUpdated = true;
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
    }
 
    public String getClientID() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getClientID()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getClientID()");
       }
       return clientID;
    }
 
    public void setClientID(final String clientID) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setClientID(" + clientID + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setClientID(" + clientID + ")");
       }
       hasBeenUpdated = true;
       this.clientID = clientID;
    }
 
    public Integer getDupsOKBatchSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getDupsOKBatchSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getDupsOKBatchSize()");
       }
       return dupsOKBatchSize;
    }
 
    public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setDupsOKBatchSize(" + dupsOKBatchSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setDupsOKBatchSize(" + dupsOKBatchSize + ")");
       }
       hasBeenUpdated = true;
       this.dupsOKBatchSize = dupsOKBatchSize;
    }
 
    public Integer getTransactionBatchSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getTransactionBatchSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getTransactionBatchSize()");
       }
       return transactionBatchSize;
    }
 
    public void setTransactionBatchSize(final Integer transactionBatchSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setTransactionBatchSize(" + transactionBatchSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setTransactionBatchSize(" + transactionBatchSize + ")");
       }
       hasBeenUpdated = true;
       this.transactionBatchSize = transactionBatchSize;
    }
 
    public Long getClientFailureCheckPeriod() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getClientFailureCheckPeriod()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getClientFailureCheckPeriod()");
       }
       return clientFailureCheckPeriod;
    }
 
    public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setClientFailureCheckPeriod(" + clientFailureCheckPeriod + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setClientFailureCheckPeriod(" + clientFailureCheckPeriod + ")");
       }
       hasBeenUpdated = true;
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
    }
 
    public Long getConnectionTTL() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getConnectionTTL()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getConnectionTTL()");
       }
       return connectionTTL;
    }
 
    public void setConnectionTTL(final Long connectionTTL) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setConnectionTTL(" + connectionTTL + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setConnectionTTL(" + connectionTTL + ")");
       }
       hasBeenUpdated = true;
       this.connectionTTL = connectionTTL;
    }
 
    public Long getCallTimeout() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getCallTimeout()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getCallTimeout()");
       }
       return callTimeout;
    }
 
    public void setCallTimeout(final Long callTimeout) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setCallTimeout(" + callTimeout + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setCallTimeout(" + callTimeout + ")");
       }
       hasBeenUpdated = true;
       this.callTimeout = callTimeout;
    }
 
    public Long getCallFailoverTimeout() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getCallFailoverTimeout()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getCallFailoverTimeout()");
       }
       return callFailoverTimeout;
    }
 
    public void setCallFailoverTimeout(final Long callFailoverTimeout) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setCallFailoverTimeout(" + callFailoverTimeout + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setCallFailoverTimeout(" + callFailoverTimeout + ")");
       }
       hasBeenUpdated = true;
       this.callFailoverTimeout = callFailoverTimeout;
    }
 
    public Integer getConsumerWindowSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getConsumerWindowSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getConsumerWindowSize()");
       }
       return consumerWindowSize;
    }
 
    public void setConsumerWindowSize(final Integer consumerWindowSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setConsumerWindowSize(" + consumerWindowSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setConsumerWindowSize(" + consumerWindowSize + ")");
       }
       hasBeenUpdated = true;
       this.consumerWindowSize = consumerWindowSize;
    }
 
    public Integer getConsumerMaxRate() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getConsumerMaxRate()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getConsumerMaxRate()");
       }
       return consumerMaxRate;
    }
 
    public void setConsumerMaxRate(final Integer consumerMaxRate) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setConsumerMaxRate(" + consumerMaxRate + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setConsumerMaxRate(" + consumerMaxRate + ")");
       }
       hasBeenUpdated = true;
       this.consumerMaxRate = consumerMaxRate;
    }
 
    public Integer getConfirmationWindowSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getConfirmationWindowSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getConfirmationWindowSize()");
       }
       return confirmationWindowSize;
    }
 
    public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setConfirmationWindowSize(" + confirmationWindowSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setConfirmationWindowSize(" + confirmationWindowSize + ")");
       }
       hasBeenUpdated = true;
       this.confirmationWindowSize = confirmationWindowSize;
@@ -423,150 +427,150 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public Integer getProducerMaxRate() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getProducerMaxRate()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getProducerMaxRate()");
       }
       return producerMaxRate;
    }
 
    public void setProducerMaxRate(final Integer producerMaxRate) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setProducerMaxRate(" + producerMaxRate + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setProducerMaxRate(" + producerMaxRate + ")");
       }
       hasBeenUpdated = true;
       this.producerMaxRate = producerMaxRate;
    }
 
    public Integer getProducerWindowSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getProducerWindowSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getProducerWindowSize()");
       }
       return producerWindowSize;
    }
 
    public void setProducerWindowSize(final Integer producerWindowSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setProducerWindowSize(" + producerWindowSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setProducerWindowSize(" + producerWindowSize + ")");
       }
       hasBeenUpdated = true;
       this.producerWindowSize = producerWindowSize;
    }
 
    public Integer getMinLargeMessageSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getMinLargeMessageSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getMinLargeMessageSize()");
       }
       return minLargeMessageSize;
    }
 
    public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setMinLargeMessageSize(" + minLargeMessageSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setMinLargeMessageSize(" + minLargeMessageSize + ")");
       }
       hasBeenUpdated = true;
       this.minLargeMessageSize = minLargeMessageSize;
    }
 
    public Boolean isBlockOnAcknowledge() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isBlockOnAcknowledge()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isBlockOnAcknowledge()");
       }
       return blockOnAcknowledge;
    }
 
    public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setBlockOnAcknowledge(" + blockOnAcknowledge + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setBlockOnAcknowledge(" + blockOnAcknowledge + ")");
       }
       hasBeenUpdated = true;
       this.blockOnAcknowledge = blockOnAcknowledge;
    }
 
    public Boolean isBlockOnNonDurableSend() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isBlockOnNonDurableSend()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isBlockOnNonDurableSend()");
       }
       return blockOnNonDurableSend;
    }
 
    public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setBlockOnNonDurableSend(" + blockOnNonDurableSend + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setBlockOnNonDurableSend(" + blockOnNonDurableSend + ")");
       }
       hasBeenUpdated = true;
       this.blockOnNonDurableSend = blockOnNonDurableSend;
    }
 
    public Boolean isBlockOnDurableSend() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isBlockOnDurableSend()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isBlockOnDurableSend()");
       }
       return blockOnDurableSend;
    }
 
    public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setBlockOnDurableSend(" + blockOnDurableSend + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setBlockOnDurableSend(" + blockOnDurableSend + ")");
       }
       hasBeenUpdated = true;
       this.blockOnDurableSend = blockOnDurableSend;
    }
 
    public Boolean isAutoGroup() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isAutoGroup()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isAutoGroup()");
       }
       return autoGroup;
    }
 
    public void setAutoGroup(final Boolean autoGroup) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setAutoGroup(" + autoGroup + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setAutoGroup(" + autoGroup + ")");
       }
       hasBeenUpdated = true;
       this.autoGroup = autoGroup;
    }
 
    public Boolean isPreAcknowledge() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isPreAcknowledge()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isPreAcknowledge()");
       }
       return preAcknowledge;
    }
 
    public void setPreAcknowledge(final Boolean preAcknowledge) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setPreAcknowledge(" + preAcknowledge + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setPreAcknowledge(" + preAcknowledge + ")");
       }
       hasBeenUpdated = true;
       this.preAcknowledge = preAcknowledge;
    }
 
    public Long getRetryInterval() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getRetryInterval()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getRetryInterval()");
       }
       return retryInterval;
    }
 
    public void setRetryInterval(final Long retryInterval) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setRetryInterval(" + retryInterval + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setRetryInterval(" + retryInterval + ")");
       }
       hasBeenUpdated = true;
       this.retryInterval = retryInterval;
    }
 
    public Double getRetryIntervalMultiplier() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getRetryIntervalMultiplier()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getRetryIntervalMultiplier()");
       }
       return retryIntervalMultiplier;
    }
 
    public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setRetryIntervalMultiplier(" + retryIntervalMultiplier + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setRetryIntervalMultiplier(" + retryIntervalMultiplier + ")");
       }
       hasBeenUpdated = true;
       this.retryIntervalMultiplier = retryIntervalMultiplier;
@@ -582,90 +586,90 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public Integer getReconnectAttempts() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getReconnectAttempts()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getReconnectAttempts()");
       }
       return reconnectAttempts;
    }
 
    public void setReconnectAttempts(final Integer reconnectAttempts) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setReconnectAttempts(" + reconnectAttempts + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setReconnectAttempts(" + reconnectAttempts + ")");
       }
       hasBeenUpdated = true;
       this.reconnectAttempts = reconnectAttempts;
    }
 
    public Boolean isUseGlobalPools() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isUseGlobalPools()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isUseGlobalPools()");
       }
       return useGlobalPools;
    }
 
    public void setUseGlobalPools(final Boolean useGlobalPools) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setUseGlobalPools(" + useGlobalPools + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setUseGlobalPools(" + useGlobalPools + ")");
       }
       hasBeenUpdated = true;
       this.useGlobalPools = useGlobalPools;
    }
 
    public Boolean isCacheDestinations() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isCacheDestinations()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isCacheDestinations()");
       }
       return cacheDestinations;
    }
 
    public void setCacheDestinations(final Boolean cacheDestinations) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setCacheDestinations(" + cacheDestinations + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setCacheDestinations(" + cacheDestinations + ")");
       }
       hasBeenUpdated = true;
       this.cacheDestinations = cacheDestinations;
    }
 
    public Boolean isEnable1xPrefixes() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("isEnable1xPrefixes()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("isEnable1xPrefixes()");
       }
       return enable1xPrefixes;
    }
 
    public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
       }
       hasBeenUpdated = true;
       this.enable1xPrefixes = enable1xPrefixes;
    }
 
    public Integer getScheduledThreadPoolMaxSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getScheduledThreadPoolMaxSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getScheduledThreadPoolMaxSize()");
       }
       return scheduledThreadPoolMaxSize;
    }
 
    public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setScheduledThreadPoolMaxSize(" + scheduledThreadPoolMaxSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setScheduledThreadPoolMaxSize(" + scheduledThreadPoolMaxSize + ")");
       }
       hasBeenUpdated = true;
       this.scheduledThreadPoolMaxSize = scheduledThreadPoolMaxSize;
    }
 
    public Integer getThreadPoolMaxSize() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getThreadPoolMaxSize()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getThreadPoolMaxSize()");
       }
       return threadPoolMaxSize;
    }
 
    public void setThreadPoolMaxSize(final Integer threadPoolMaxSize) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setThreadPoolMaxSize(" + threadPoolMaxSize + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setThreadPoolMaxSize(" + threadPoolMaxSize + ")");
       }
       hasBeenUpdated = true;
       this.threadPoolMaxSize = threadPoolMaxSize;

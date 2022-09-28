@@ -77,11 +77,12 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvid
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RemotingServiceImpl implements RemotingService, ServerConnectionLifeCycleListener {
 
-   private static final Logger logger = Logger.getLogger(RemotingServiceImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(RemotingServiceImpl.class);
 
    private static final int ACCEPTOR_STOP_TIMEOUT = 3000;
 
@@ -155,7 +156,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       this.flushExecutor = flushExecutor;
 
-      ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory.getModuleName());
+      ActiveMQServerLogger.LOGGER.addingProtocolSupport(coreProtocolManagerFactory.getModuleName(), coreProtocolManagerFactory.getProtocols()[0]);
       this.protocolMap.put(coreProtocolManagerFactory.getProtocols()[0], coreProtocolManagerFactory);
 
       if (config.isResolveProtocols()) {
@@ -189,7 +190,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          return;
       }
 
-      logger.tracef("Starting remoting service %s", this);
+      logger.trace("Starting remoting service {}", this);
 
       paused = false;
 
@@ -282,7 +283,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
             managementService.registerAcceptor(acceptor, info);
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(e, info.getFactoryClassName());
+         ActiveMQServerLogger.LOGGER.errorCreatingAcceptor(info.getFactoryClassName(), e);
       }
 
       return acceptor;
@@ -491,7 +492,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       ConnectionEntry entry = connections.remove(remotingConnectionID);
 
       if (entry != null) {
-         logger.debug("RemotingServiceImpl::removing connection ID " + remotingConnectionID);
+         if (logger.isDebugEnabled()) {
+            logger.debug("RemotingServiceImpl::removing succeeded connection ID {}, we now have {} connections", remotingConnectionID, connections.size());
+         }
          connectionCountLatch.countDown();
          return entry.connection;
       } else {
@@ -581,6 +584,9 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    @Override
    public void addConnectionEntry(Connection connection, ConnectionEntry entry) {
       connections.put(connection.getID(), entry);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Adding connection {}, we now have {}", connection.getID(), connections.size());
+      }
    }
 
    @Override
@@ -847,7 +853,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          MessagePersister.registerProtocol(next);
          String[] protocols = next.getProtocols();
          for (String protocol : protocols) {
-            ActiveMQServerLogger.LOGGER.addingProtocolSupport(protocol, next.getModuleName());
+            ActiveMQServerLogger.LOGGER.addingProtocolSupport(next.getModuleName(), protocol);
             protocolMap.put(protocol, next);
          }
       }

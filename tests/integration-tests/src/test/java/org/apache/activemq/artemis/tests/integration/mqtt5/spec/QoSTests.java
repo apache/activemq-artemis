@@ -40,7 +40,6 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -61,8 +60,6 @@ import org.junit.Test;
  */
 
 public class QoSTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(QoSTests.class);
 
    public QoSTests(String protocol) {
       super(protocol);

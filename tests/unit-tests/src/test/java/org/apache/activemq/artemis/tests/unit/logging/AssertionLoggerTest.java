@@ -22,16 +22,17 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This will validate the AssertionLoggerHandler is working as expected.
- * Even though this class belongs to artemis commons, this test has to be done here as we
- * are validating the logging.properties, and logging-ci.properties and the classloading of everything.
+ * Even though the class belongs to artemis-unit-test-support, this test has to be done here as we
+ * are validating the log4j2-tests-config.properties files and the classloading of everything.
  */
 public class AssertionLoggerTest {
 
@@ -61,9 +62,9 @@ public class AssertionLoggerTest {
       Assert.assertTrue(AssertionLoggerHandler.findText("AMQ111002"));
    }
 
-   private void validateLogging(Class clazz) {
+   private void validateLogging(Class<?> clazz) {
       String randomLogging = RandomUtil.randomString();
-      Logger logging = Logger.getLogger(clazz);
+      Logger logging = LoggerFactory.getLogger(clazz);
       logging.warn(randomLogging);
       Assert.assertTrue(AssertionLoggerHandler.findText(randomLogging));
 

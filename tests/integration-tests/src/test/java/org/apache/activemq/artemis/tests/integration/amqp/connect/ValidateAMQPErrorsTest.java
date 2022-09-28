@@ -64,10 +64,11 @@ import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.impl.ConnectionImpl;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.EnumSet.of;
 import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
@@ -78,7 +79,7 @@ import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
 public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
    protected static final int AMQP_PORT_2 = 5673;
-   private static final Logger logger = Logger.getLogger(ValidateAMQPErrorsTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(ValidateAMQPErrorsTest.class);
    protected Vertx vertx;
 
    protected MockServer mockServer;
@@ -89,20 +90,23 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
    @After
    public void stop() throws Exception {
-      if (mockServer != null) {
-         mockServer.close();
-         mockServer = null;
-      }
-      if (vertx != null) {
-         try {
-            CountDownLatch latch = new CountDownLatch(1);
-            vertx.close((x) -> latch.countDown());
-            Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-         } finally {
-            vertx = null;
+      try {
+         if (mockServer != null) {
+            mockServer.close();
+            mockServer = null;
          }
+         if (vertx != null) {
+            try {
+               CountDownLatch latch = new CountDownLatch(1);
+               vertx.close((x) -> latch.countDown());
+               Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+            } finally {
+               vertx = null;
+            }
+         }
+      } finally {
+         AssertionLoggerHandler.stopCapture(); // Just in case startCapture was called in any of the tests here
       }
-      AssertionLoggerHandler.stopCapture(); // Just in case startCapture was called in any of the tests here
    }
 
    @Override
@@ -516,13 +520,13 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
                return;
             }
             if (linkOpens.incrementAndGet() != 2) {
-               logger.debug("Link Opens::" + linkOpens);
-               logger.debug("ServerReceiver = " + serverReceiver.getTarget());
+               logger.debug("Link Opens::{}", linkOpens);
+               logger.debug("ServerReceiver = {}", serverReceiver.getTarget());
                serverReceiver.setTarget(null);
 
                serverReceiver.handler((del, msg) -> {
                   refusedLinkMessageCount.incrementAndGet();
-                  logger.debug("Should not have got message on refused link: " + msg);
+                  logger.debug("Should not have got message on refused link: {}", msg);
                });
 
                serverReceiver.open();
@@ -540,7 +544,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
                serverReceiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
 
                serverReceiver.handler((del, msg) -> {
-                  logger.debug("prefetch = " + serverReceiver.getPrefetch() + ", Got message: " + msg);
+                  logger.debug("prefetch = {}, Got message: {}", serverReceiver.getPrefetch(), msg);
                   if (msg.getApplicationProperties() != null) {
                      Map map = msg.getApplicationProperties().getValue();
                      Object value = map.get("sender");

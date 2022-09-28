@@ -26,13 +26,14 @@ import javax.jms.JMSException;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
 
-   private static final Logger logger = Logger.getLogger(JMSClientTestSupport.class);
+   private static final Logger logger = LoggerFactory.getLogger(JMSClientTestSupport.class);
 
    protected LinkedList<Connection> jmsConnections = new LinkedList<>();
 
@@ -58,7 +59,7 @@ public abstract class JMSClientTestSupport extends AmqpClientTestSupport {
             }
          }
       } catch (Exception e) {
-         logger.warn(e);
+         logger.warn("Exception during tearDown", e);
       }
       jmsConnections.clear();
 

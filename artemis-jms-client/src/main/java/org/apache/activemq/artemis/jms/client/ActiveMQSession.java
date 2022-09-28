@@ -961,7 +961,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
             SelectorParser.parse(filterString.trim());
          }
       } catch (FilterException e) {
-         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(e, new SimpleString(filterString)));
+         throw JMSExceptionHelper.convertFromActiveMQException(ActiveMQJMSClientBundle.BUNDLE.invalidFilter(new SimpleString(filterString), e));
       }
 
       ActiveMQDestination activeMQDestination = (ActiveMQDestination) queue;

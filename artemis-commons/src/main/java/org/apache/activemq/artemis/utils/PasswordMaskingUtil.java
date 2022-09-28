@@ -198,7 +198,7 @@ public final class PasswordMaskingUtil {
                // As a last resort, load the codec class using the current thread's context class loader
                return (SensitiveDataCodec<String>) Thread.currentThread().getContextClassLoader().loadClass(codecClassName).newInstance();
             } catch (Exception e2) {
-               throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(e2, codecClassName);
+               throw ActiveMQUtilBundle.BUNDLE.errorCreatingCodec(codecClassName, e2);
             }
          }
       });

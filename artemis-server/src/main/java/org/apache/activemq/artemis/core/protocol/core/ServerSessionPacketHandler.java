@@ -103,7 +103,8 @@ import org.apache.activemq.artemis.utils.SimpleFuture;
 import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.apache.activemq.artemis.utils.actors.Actor;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_ADDRESS;
 import static org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl.CREATE_QUEUE;
@@ -147,7 +148,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
    private static final int MAX_CACHED_NULL_RESPONSES = 32;
 
-   private static final Logger logger = Logger.getLogger(ServerSessionPacketHandler.class);
+   private static final Logger logger = LoggerFactory.getLogger(ServerSessionPacketHandler.class);
 
    private final ServerSession session;
 

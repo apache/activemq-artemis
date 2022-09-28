@@ -65,7 +65,7 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
          try {
             callback.start();
          } catch (Exception e) {
-            ActiveMQOsgiLogger.LOGGER.errorStartingBroker(e, name);
+            ActiveMQOsgiLogger.LOGGER.errorStartingBroker(name, e);
          }
       }
    }
@@ -106,7 +106,7 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
             try {
                callback.start();
             } catch (Exception e) {
-               ActiveMQOsgiLogger.LOGGER.errorStartingBroker(e, name);
+               ActiveMQOsgiLogger.LOGGER.errorStartingBroker(name, e);
             }
          }
       }
@@ -121,7 +121,7 @@ public class ProtocolTracker implements ServiceTrackerCustomizer<ProtocolManager
             try {
                callback.stop();
             } catch (Exception e) {
-               ActiveMQOsgiLogger.LOGGER.errorStoppingBroker(e, name);
+               ActiveMQOsgiLogger.LOGGER.errorStoppingBroker(name, e);
             }
          }
          this.protocols.put(protocol, false);

@@ -26,12 +26,9 @@ import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 public class PingReqTests  extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(PingReqTests.class);
 
    public PingReqTests(String protocol) {
       super(protocol);

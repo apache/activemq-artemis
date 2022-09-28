@@ -26,11 +26,12 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.commons.beanutils.FluentPropertyBeanIntrospector;
 import org.apache.commons.beanutils.IntrospectionContext;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBeanIntrospector {
 
-   static Logger logger = Logger.getLogger(FluentPropertyBeanIntrospectorWithIgnores.class);
+   static Logger logger = LoggerFactory.getLogger(FluentPropertyBeanIntrospectorWithIgnores.class);
 
    private static ConcurrentHashSet<Pair<String, String>> ignores = new ConcurrentHashSet<>();
 

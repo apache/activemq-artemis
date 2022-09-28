@@ -35,7 +35,8 @@ import java.util.List;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -46,7 +47,7 @@ import org.xml.sax.SAXException;
 
 public final class XMLUtil {
 
-   private static final Logger logger = Logger.getLogger(XMLUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(XMLUtil.class);
 
    private XMLUtil() {
       // Utility class

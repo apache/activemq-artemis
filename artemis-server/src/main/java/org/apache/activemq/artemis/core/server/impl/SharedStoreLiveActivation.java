@@ -27,11 +27,12 @@ import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.NodeManager.LockListener;
 import org.apache.activemq.artemis.core.server.NodeManager.NodeManagerException;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SharedStoreLiveActivation extends LiveActivation {
 
-   private static final Logger logger = Logger.getLogger(SharedStoreLiveActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(SharedStoreLiveActivation.class);
 
    // this is how we act when we initially start as live
    private final SharedStoreMasterPolicy sharedStoreMasterPolicy;

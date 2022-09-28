@@ -49,16 +49,17 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.DeflaterReader;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
 
-   private static final Logger log = Logger.getLogger(LargeMessageTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(LargeMessageTestBase.class);
 
    protected final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
@@ -283,9 +284,9 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                               public void write(final byte[] b) throws IOException {
                                  if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                     bytesRead.addAndGet(b.length);
-                                    LargeMessageTestBase.log.debug("Read position " + bytesRead.get() + " on consumer");
+                                    LargeMessageTestBase.log.debug("Read position {} on consumer", bytesRead.get());
                                  } else {
-                                    LargeMessageTestBase.log.warn("Received invalid packet at position " + bytesRead.get());
+                                    LargeMessageTestBase.log.warn("Received invalid packet at position {}", bytesRead.get());
                                  }
                               }
 
@@ -306,7 +307,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                            buffer.resetReaderIndex();
                            for (long b = 0; b < numberOfBytes; b++) {
                               if (b % (1024L * 1024L) == 0) {
-                                 LargeMessageTestBase.log.debug("Read " + b + " bytes");
+                                 LargeMessageTestBase.log.debug("Read {} bytes", b);
                               }
 
                               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
@@ -371,7 +372,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                               if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                  bytesRead.addAndGet(b.length);
                               } else {
-                                 LargeMessageTestBase.log.warn("Received invalid packet at position " + bytesRead.get());
+                                 LargeMessageTestBase.log.warn("Received invalid packet at position {}", bytesRead.get());
                               }
                            }
                         }
@@ -379,7 +380,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                         @Override
                         public void write(final int b) throws IOException {
                            if (bytesRead.get() % (1024L * 1024L) == 0) {
-                              LargeMessageTestBase.log.debug("Read " + bytesRead.get() + " bytes");
+                              LargeMessageTestBase.log.debug("Read {} bytes", bytesRead.get());
                            }
                            if (b == (byte) 'a') {
                               bytesRead.incrementAndGet();
@@ -396,7 +397,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
                      for (long b = 0; b < numberOfBytes; b++) {
                         if (b % (1024L * 1024L) == 0L) {
-                           LargeMessageTestBase.log.debug("Read " + b + " bytes");
+                           LargeMessageTestBase.log.debug("Read {} bytes", b);
                         }
                         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                      }
@@ -463,17 +464,17 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                              final long delayDelivery,
                              final ClientSession session,
                              final ClientProducer producer) throws Exception {
-      LargeMessageTestBase.log.debug("NumberOfBytes = " + numberOfBytes);
+      LargeMessageTestBase.log.debug("NumberOfBytes = {}", numberOfBytes);
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          // If the test is using more than 1M, we will only use the Streaming, as it require too much memory from the
          // test
          if (numberOfBytes > 1024 * 1024 || i % 2 == 0) {
-            LargeMessageTestBase.log.debug("Sending message (stream)" + i);
+            LargeMessageTestBase.log.debug("Sending message (stream){}", i);
             message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(numberOfBytes));
          } else {
-            LargeMessageTestBase.log.debug("Sending message (array)" + i);
+            LargeMessageTestBase.log.debug("Sending message (array){}", i);
             byte[] bytes = new byte[(int) numberOfBytes];
             for (int j = 0; j < bytes.length; j++) {
                bytes[j] = ActiveMQTestBase.getSamplebyte(j);
@@ -569,7 +570,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          @Override
          public void write(final int b) throws IOException {
             if (count++ % 1024 * 1024 == 0) {
-               LargeMessageTestBase.log.debug("OutputStream received " + count + " bytes");
+               LargeMessageTestBase.log.debug("OutputStream received {} bytes", count);
             }
             if (closed) {
                throw new IOException("Stream was closed");

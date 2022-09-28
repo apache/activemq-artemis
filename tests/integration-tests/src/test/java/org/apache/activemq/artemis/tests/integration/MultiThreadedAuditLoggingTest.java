@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -32,9 +31,10 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
+import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logmanager.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,6 +45,9 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
    private static final int MESSAGE_COUNT = 10;
+   private static final String MESSAGE_AUDIT_LOGGER_NAME = AuditLogger.MESSAGE_LOGGER.getLogger().getName();
+
+   private static LogLevel previousLevel = null;
 
    @Override
    @Before
@@ -63,19 +66,19 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
       server.getActiveMQServerControl().addUser("queue2", "queue2", "queue2", true);
    }
 
-   private static final Logger logManager = org.jboss.logmanager.Logger.getLogger("org.apache.activemq.audit.message");
-   private static java.util.logging.Level previousLevel = logManager.getLevel();
-
    @BeforeClass
    public static void prepareLogger() {
-      logManager.setLevel(Level.INFO);
+      previousLevel = AssertionLoggerHandler.setLevel(MESSAGE_AUDIT_LOGGER_NAME, LogLevel.INFO);
       AssertionLoggerHandler.startCapture();
    }
 
    @AfterClass
    public static void clearLogger() {
-      AssertionLoggerHandler.stopCapture();
-      logManager.setLevel(previousLevel);
+      try {
+         AssertionLoggerHandler.stopCapture();
+      } finally {
+         AssertionLoggerHandler.setLevel(MESSAGE_AUDIT_LOGGER_NAME, previousLevel);
+      }
    }
 
    class SomeConsumer extends Thread {

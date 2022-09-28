@@ -1394,7 +1394,7 @@ public class StompV11Test extends StompTestBase {
       sendJmsMessage(text);
 
       ClientStompFrame frame = conn.receiveFrame();
-      instanceLog.debug(frame);
+      instanceLog.debug("{}", frame);
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
       Assert.assertNotNull(frame.getHeader(Stomp.Headers.Message.DESTINATION));
       Assert.assertTrue(frame.getBody().equals(text));

@@ -27,13 +27,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.logging.Logger;
-
 public class SpawnedVMSupport {
 
    static ConcurrentHashMap<Process, String> startedProcesses = null;
-
-   private static final Logger log = Logger.getLogger(SpawnedVMSupport.class);
 
    public static Process spawnVM(final String className, final String... args) throws Exception {
       return SpawnedVMSupport.spawnVM(className, new String[0], true, args);
@@ -59,7 +55,7 @@ public class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final String... args) throws Exception {
-      return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
+      return SpawnedVMSupport.spawnVM(className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
 
    public static Process spawnVM(final String classpath,
@@ -67,7 +63,7 @@ public class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final String... args) throws Exception {
-      return SpawnedVMSupport.spawnVM(classpath, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
+      return SpawnedVMSupport.spawnVM(classpath, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
 
    public static Process spawnVMWithLogMacher(String wordMatch,
@@ -76,7 +72,7 @@ public class SpawnedVMSupport {
                                               final String[] vmargs,
                                               final boolean logOutput,
                                               final String... args) throws Exception {
-      return SpawnedVMSupport.spawnVM(wordMatch, runnable, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, true, args);
+      return SpawnedVMSupport.spawnVM(wordMatch, runnable, className, "-Xms512m", "-Xmx512m", vmargs, logOutput, true, args);
    }
 
    public static Process spawnVM(final String className,
@@ -85,9 +81,8 @@ public class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final boolean logErrorOutput,
-                                 final boolean useLogging,
                                  final String... args) throws Exception {
-      return spawnVM(null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
+      return spawnVM(null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, args);
    }
 
    public static Process spawnVM(final String classPath,
@@ -97,9 +92,8 @@ public class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final boolean logErrorOutput,
-                                 final boolean useLogging,
                                  final String... args) throws Exception {
-      return spawnVM(classPath, null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
+      return spawnVM(classPath, null, null, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, args);
    }
 
    public static Process spawnVM(final String wordMatch,
@@ -110,9 +104,8 @@ public class SpawnedVMSupport {
                                  final String[] vmargs,
                                  final boolean logOutput,
                                  final boolean logErrorOutput,
-                                 final boolean useLogging,
                                  final String... args) throws Exception {
-      return spawnVM(getClassPath(), wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, args);
+      return spawnVM(getClassPath(), wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, args);
 
    }
 
@@ -125,9 +118,8 @@ public class SpawnedVMSupport {
                                  String[] vmargs,
                                  boolean logOutput,
                                  boolean logErrorOutput,
-                                 boolean useLogging,
                                  String... args) throws IOException, ClassNotFoundException {
-      return spawnVM(classPath, wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, useLogging, -1, args);
+      return spawnVM(classPath, wordMatch, wordRunning, className, memoryArg1, memoryArg2, vmargs, logOutput, logErrorOutput, -1, args);
    }
 
    public static String getClassPath() {
@@ -170,7 +162,6 @@ public class SpawnedVMSupport {
     * @param vmargs
     * @param logOutput
     * @param logErrorOutput
-    * @param useLogging
     * @param debugPort      if &lt;=0 it means no debug
     * @param args
     * @return
@@ -186,7 +177,6 @@ public class SpawnedVMSupport {
                                  String[] vmargs,
                                  boolean logOutput,
                                  boolean logErrorOutput,
-                                 boolean useLogging,
                                  long debugPort,
                                  String... args) throws IOException, ClassNotFoundException {
       final String javaPath = Paths.get(System.getProperty("java.home"), "bin", "java").toAbsolutePath().toString();
@@ -211,29 +201,17 @@ public class SpawnedVMSupport {
          }
       }
 
-      // The logs will be huge if you don't set this
-      if (useLogging) {
-         commandList.add("-Djava.util.logging.manager=org.jboss.logmanager.LogManager");
-         commandList.add("-Dlogging.configuration=file:../config/logging.properties");
-      }
-
       commandList.add("-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir", "./tmp"));
       commandList.add("-Djava.library.path=" + System.getProperty("java.library.path", "./native/bin"));
 
-      String loggingConfigFile = System.getProperty("java.util.logging.config.file");
-
+      String loggingConfigFile = System.getProperty("log4j2.configurationFile");
       if (loggingConfigFile != null) {
-         commandList.add("-Djava.util.logging.config.file=" + loggingConfigFile + " ");
+         commandList.add("-Dlog4j2.configurationFile=" + loggingConfigFile);
       }
 
       String jacocoAgent = System.getProperty("jacoco.agent");
       if (jacocoAgent != null && !jacocoAgent.isEmpty()) {
          commandList.add(jacocoAgent);
-      }
-
-      String loggingPlugin = System.getProperty("org.jboss.logging.Logger.pluginClass");
-      if (loggingPlugin != null) {
-         commandList.add("-Dorg.jboss.logging.Logger.pluginClass=" + loggingPlugin + " ");
       }
 
       commandList.add(className);

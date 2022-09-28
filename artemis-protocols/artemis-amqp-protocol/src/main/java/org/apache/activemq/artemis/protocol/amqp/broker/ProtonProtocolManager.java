@@ -49,14 +49,15 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 
 import io.netty.channel.ChannelPipeline;
 import org.apache.activemq.artemis.utils.DestinationUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A proton protocol manager, basically reads the Proton Input and maps proton resources to ActiveMQ Artemis resources
  */
 public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, AmqpInterceptor, ActiveMQProtonRemotingConnection, AMQPRoutingHandler> implements NotificationListener {
 
-   private static final Logger logger = Logger.getLogger(ProtonProtocolManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(ProtonProtocolManager.class);
 
    private static final List<String> websocketRegistryNames = Arrays.asList("amqp");
 
@@ -183,7 +184,7 @@ public class ProtonProtocolManager extends AbstractProtocolManager<AMQPMessage, 
    }
 
    public ProtonProtocolManager setAmqpIdleTimeout(Long ttl) {
-      logger.debug("Setting up " + ttl + " as the connectionTtl");
+      logger.debug("Setting up {} as the connectionTtl", ttl);
       this.amqpIdleTimeout = ttl;
       return this;
    }

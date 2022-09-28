@@ -55,16 +55,17 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BrokerInSyncTest extends AmqpClientTestSupport {
 
    protected static final int AMQP_PORT_2 = 5673;
-   private static final Logger logger = Logger.getLogger(BrokerInSyncTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(BrokerInSyncTest.class);
    ActiveMQServer server_2;
 
    @After
@@ -621,7 +622,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       MessageConsumer consumerOn1 = session1.createConsumer(queue);
       for (int i = 0; i < NUMBER_OF_MESSAGES * 2; i++) {
          TextMessage message = (TextMessage) consumerOn1.receive(5000);
-         logger.debug("### Client acking message(" + i + ") on server 1, a message that was original sent on " + message.getStringProperty("server") + " text = " + message.getText());
+         logger.debug("### Client acking message({}) on server 1, a message that was original sent on {} text = {}", i, message.getStringProperty("server"), message.getText());
          Assert.assertNotNull(message);
          Assert.assertEquals(i, message.getIntProperty("i"));
          Assert.assertEquals("test " + i, message.getText());
@@ -631,8 +632,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       boolean bothConsumed = Wait.waitFor(() -> {
          long q1 = queueOnServer1.getMessageCount();
          long q2 = queueOnServer2.getMessageCount();
-         logger.debug("Queue on Server 1 = " + q1);
-         logger.debug("Queue on Server 2 = " + q2);
+         logger.debug("Queue on Server 1 = {}", q1);
+         logger.debug("Queue on Server 2 = {}", q2);
          return q1 == 0 && q2 == 0;
       }, 5_000, 1000);
 
@@ -727,7 +728,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       MessageConsumer consumerOn1 = session1.createConsumer(queue);
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          TextMessage message = (TextMessage) consumerOn1.receive(5000);
-         logger.debug("### Client acking message(" + i + ") on server 1, a message that was original sent on " + message.getStringProperty("server") + " text = " + message.getText());
+         logger.debug("### Client acking message({}) on server 1, a message that was original sent on {} text = {}", i, message.getStringProperty("server"), message.getText());
          Assert.assertNotNull(message);
          Assert.assertEquals(i, message.getIntProperty("i"));
          Assert.assertEquals("test " + i, message.getText());
@@ -767,7 +768,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       out.println("*******************************************************************************************************************************");
       out.println("PrintData Server 2");
       PrintData.printMessages(server_2.getConfiguration().getJournalLocation(), out, false, false, true, false);
-      logger.debug("Data Available on Servers:\n" + stringPrintStream.toString());
+      logger.debug("Data Available on Servers:\n{}", stringPrintStream.toString());
    }
 
    @Test

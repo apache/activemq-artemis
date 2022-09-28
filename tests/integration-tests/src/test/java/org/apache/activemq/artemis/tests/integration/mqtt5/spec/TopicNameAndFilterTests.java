@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -50,8 +49,6 @@ import org.junit.Test;
  */
 
 public class TopicNameAndFilterTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(TopicNameAndFilterTests.class);
 
    public TopicNameAndFilterTests(String protocol) {
       super(protocol);

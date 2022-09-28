@@ -69,11 +69,8 @@ import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.amqp.messaging.Section;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.ReadableBuffer.ByteBufferReader;
-import org.jboss.logging.Logger;
 
 public class CoreAmqpConverter {
-
-   private static Logger logger = Logger.getLogger(CoreAmqpConverter.class);
 
    public static AMQPMessage checkAMQP(Message message, StorageManager storageManager) throws Exception {
       if (message instanceof AMQPMessage) {

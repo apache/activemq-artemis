@@ -40,18 +40,19 @@ import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.jms.server.config.impl.JMSConfigurationImpl;
 import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.apache.activemq.broker.artemiswrapper.OpenwireArtemisBaseTest;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TestCase showing the message-destroying described in AMQ-1925
  */
 public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionListener {
 
-   private static final Logger log = Logger.getLogger(AMQ1925Test.class);
+   private static final Logger log = LoggerFactory.getLogger(AMQ1925Test.class);
 
    private static final String QUEUE_NAME = "test.amq1925";
    private static final String PROPERTY_MSG_NUMBER = "NUMBER";
@@ -207,7 +208,7 @@ public class AMQ1925Test extends OpenwireArtemisBaseTest implements ExceptionLis
             bs = null;
          }
       } catch (Exception e) {
-         log.error(e);
+         log.error(e.getMessage(), e);
       }
    }
 

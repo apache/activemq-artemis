@@ -25,14 +25,15 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
-   private static final Logger log = Logger.getLogger(JournalImplTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(JournalImplTestBase.class);
 
    @Override
    @After
@@ -116,7 +117,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       update(updates);
       delete(deletes);
 
-      JournalImplTestUnit.log.debug("Debug journal:" + debugJournal());
+      JournalImplTestUnit.log.debug("Debug journal:{}", debugJournal());
       stopJournal(false);
       createJournal();
       startJournal();
@@ -145,7 +146,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          }
 
          if (count % 100 == 0) {
-            JournalImplTestUnit.log.debug("Done: " + count);
+            JournalImplTestUnit.log.debug("Done: {}", count);
          }
       }
 
@@ -153,9 +154,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       double rate = 1000 * (double) NUMBER_OF_RECORDS / (end - start);
 
-      JournalImplTestUnit.log.info("Rate of " + rate + " adds/removes per sec");
+      JournalImplTestUnit.log.info("Rate of {} adds/removes per sec", rate);
 
-      JournalImplTestUnit.log.debug("Reclaim status = " + debugJournal());
+      JournalImplTestUnit.log.debug("Reclaim status = {}", debugJournal());
 
       stopJournal();
       createJournal();
@@ -211,13 +212,13 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          long end = System.currentTimeMillis();
 
          for (double rate : rates) {
-            JournalImplTestUnit.log.info("Transaction Rate = " + rate + " records/sec");
+            JournalImplTestUnit.log.info("Transaction Rate = {} records/sec", rate);
 
          }
 
          double rate = 1000 * (double) numMessages / (end - start);
 
-         JournalImplTestUnit.log.info("Rate " + rate + " records/sec");
+         JournalImplTestUnit.log.info("Rate {} records/sec", rate);
       } finally {
          journal.stop();
       }
@@ -233,7 +234,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          numFiles = 2;
       }
 
-      JournalImplTestUnit.log.debug("num Files=" + numFiles);
+      JournalImplTestUnit.log.debug("num Files={}", numFiles);
 
       Journal journal = new JournalImpl(10 * 1024 * 1024, numFiles, numFiles, 0, 0, getFileFactory(), "activemq-data", "amq", 5000);
 
@@ -254,7 +255,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       double rate = 1000 * (double) numMessages / (end - start);
 
-      JournalImplTestUnit.log.info("Rate " + rate + " records/sec");
+      JournalImplTestUnit.log.info("Rate {} records/sec", rate);
 
       journal.stop();
 

@@ -155,7 +155,7 @@ public final class UDPBroadcastEndpointFactory implements BroadcastEndpointFacto
                continue;
             } catch (IOException e) {
                if (open) {
-                  ActiveMQClientLogger.LOGGER.unableToReceiveBroadcast(e, this.toString());
+                  ActiveMQClientLogger.LOGGER.unableToReceiveBroadcast(this.toString(), e);
                }
             }
             break;

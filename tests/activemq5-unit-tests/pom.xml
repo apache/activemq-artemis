@@ -41,8 +41,12 @@
 
       <dependency>
          <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-reload4j</artifactId>
-         <version>${slf4j.version}</version>
+         <artifactId>slf4j-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-slf4j-impl</artifactId>
+         <scope>test</scope>
       </dependency>
 
       <dependency>
@@ -184,22 +188,6 @@
                <artifactId>testng</artifactId>
             </exclusion>
          </exclusions>
-      </dependency>
-
-       <!--
-           JBoss Logging
-       -->
-       <dependency>
-           <groupId>org.jboss.logging</groupId>
-           <artifactId>jboss-logging</artifactId>
-       </dependency>
-      <dependency>
-            <groupId>org.jboss.logmanager</groupId>
-            <artifactId>jboss-logmanager</artifactId>
-      </dependency>
-      <dependency>
-          <groupId>org.wildfly.common</groupId>
-          <artifactId>wildfly-common</artifactId>
       </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,

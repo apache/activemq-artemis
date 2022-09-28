@@ -22,14 +22,15 @@ import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
-   private static final Logger log = Logger.getLogger(JournalImplTestBase.class);
+   private static final Logger log = LoggerFactory.getLogger(JournalImplTestBase.class);
 
    @Override
    @After
@@ -141,7 +142,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          }
 
          if (count % 100 == 0) {
-            JournalImplTestUnit.log.debug("Done: " + count);
+            JournalImplTestUnit.log.debug("Done: {}", count);
          }
       }
 

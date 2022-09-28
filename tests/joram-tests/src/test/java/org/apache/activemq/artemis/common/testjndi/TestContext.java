@@ -37,8 +37,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
 import org.apache.activemq.artemis.jndi.NameParserImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A read-only Context
@@ -62,6 +63,8 @@ import org.apache.activemq.artemis.jndi.NameParserImpl;
  */
 @SuppressWarnings("unchecked")
 public class TestContext implements Context, Serializable {
+
+   private static final Logger logger = LoggerFactory.getLogger(TestContext.class);
 
    public static final String SEPARATOR = "/";
    protected static final NameParser NAME_PARSER = new NameParserImpl();
@@ -103,7 +106,7 @@ public class TestContext implements Context, Serializable {
             try {
                internalBind(binding.getKey(), binding.getValue());
             } catch (Throwable e) {
-               ActiveMQClientLogger.LOGGER.error("Failed to bind " + binding.getKey() + "=" + binding.getValue(), e);
+               logger.error("Failed to bind " + binding.getKey() + "=" + binding.getValue(), e);
             }
          }
       }

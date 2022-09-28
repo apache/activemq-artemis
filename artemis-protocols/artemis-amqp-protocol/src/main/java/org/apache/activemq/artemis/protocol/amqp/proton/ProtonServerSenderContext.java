@@ -92,14 +92,15 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Link;
 import org.apache.qpid.proton.engine.Sender;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the Equivalent for the ServerConsumer
  */
 public class ProtonServerSenderContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
-   private static final Logger log = Logger.getLogger(ProtonServerSenderContext.class);
+   private static final Logger log = LoggerFactory.getLogger(ProtonServerSenderContext.class);
 
    private static final Symbol COPY = Symbol.valueOf("copy");
    private static final Symbol TOPIC = Symbol.valueOf("topic");
@@ -388,7 +389,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       boolean handled = true;
 
       if (remoteState == null) {
-         log.debug("Received null disposition for delivery update: " + remoteState);
+         log.debug("Received null disposition for delivery update: {}", remoteState);
          return true;
       }
 
@@ -457,7 +458,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
             break;
          default:
-            log.debug("Received null or unknown disposition for delivery update: " + remoteState);
+            log.debug("Received null or unknown disposition for delivery update: {}", remoteState);
             handled = false;
       }
 
@@ -533,7 +534,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       try {
          if (sender.getLocalState() == EndpointState.CLOSED) {
-            log.debug("Not delivering message " + messageReference + " as the sender is closed and credits were available, if you see too many of these it means clients are issuing credits and closing the connection with pending credits a lot of times");
+            log.debug("Not delivering message {} as the sender is closed and credits were available, if you see too many of these it means clients are issuing credits and closing the connection with pending credits a lot of times", messageReference);
             return;
          }
          AMQPMessage message = CoreAmqpConverter.checkAMQP(messageReference.getMessage(), sessionSPI.getStorageManager());

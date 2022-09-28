@@ -26,13 +26,14 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A utility class for creating ActiveMQ Artemis client-side JMS managed resources.
  */
 public class ActiveMQJMSClient {
-   private static final Logger logger = Logger.getLogger(ActiveMQJMSClient.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQJMSClient.class);
 
    public static final boolean DEFAULT_ENABLE_1X_PREFIXES;
 
@@ -52,7 +53,7 @@ public class ActiveMQJMSClient {
          try {
             prefixes = Boolean.parseBoolean(value1X);
          } catch (Throwable e) {
-            logger.warn(e);
+            logger.warn("enable1xPrefixes config failure", e);
          }
       }
       DEFAULT_ENABLE_1X_PREFIXES = prefixes;

@@ -45,9 +45,10 @@ import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.MqttPublish;
 import org.eclipse.paho.mqttv5.common.packet.MqttWireMessage;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
-import org.jboss.logging.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fulfilled by client or Netty codec (i.e. not tested here):
@@ -76,7 +77,7 @@ import org.junit.Test;
 
 public class PublishTests extends MQTT5TestSupport {
 
-   private static final Logger log = Logger.getLogger(PublishTests.class);
+   private static final Logger log = LoggerFactory.getLogger(PublishTests.class);
 
    public PublishTests(String protocol) {
       super(protocol);
@@ -1280,7 +1281,7 @@ public class PublishTests extends MQTT5TestSupport {
       @Override
       public void messageArrived(String topic, MqttMessage message) throws Exception {
          int sentAs = Integer.valueOf(new String(message.getPayload(), StandardCharsets.UTF_8));
-         log.info("QoS of publish: " + sentAs + "; QoS of subscription: " + qosOfSubscription + "; QoS of receive: " + message.getQos());
+         log.info("QoS of publish: {}; QoS of subscription: {}; QoS of receive: {}", sentAs, qosOfSubscription, message.getQos());
          if (sentAs == 0) {
             assertTrue(message.getQos() == 0);
          } else if (sentAs == 1) {

@@ -35,13 +35,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.client.impl.LargeMessageControllerImpl.LargeData;
 
 public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, SessionFailureListener {
 
-   private static final Logger logger = Logger.getLogger(FederatedQueueConsumerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(FederatedQueueConsumerImpl.class);
    private final ActiveMQServer server;
    private final Federation federation;
    private final FederatedConsumerKey key;
@@ -201,7 +202,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
             try {
                server.callBrokerFederationPlugins(plugin -> plugin.beforeFederatedQueueConsumerMessageHandled(this, clientMessage));
             } catch (ActiveMQException t) {
-               ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "beforeFederatedQueueConsumerMessageHandled");
+               ActiveMQServerLogger.LOGGER.federationPluginExecutionError("beforeFederatedQueueConsumerMessageHandled", t);
                throw new IllegalStateException(t.getMessage(), t.getCause());
             }
          }
@@ -216,12 +217,12 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
             try {
                server.callBrokerFederationPlugins(plugin -> plugin.afterFederatedQueueConsumerMessageHandled(this, clientMessage));
             } catch (ActiveMQException t) {
-               ActiveMQServerLogger.LOGGER.federationPluginExecutionError(t, "afterFederatedQueueConsumerMessageHandled");
+               ActiveMQServerLogger.LOGGER.federationPluginExecutionError("afterFederatedQueueConsumerMessageHandled", t);
                throw new IllegalStateException(t.getMessage(), t.getCause());
             }
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.federationDispatchError(e, clientMessage.toString());
+         ActiveMQServerLogger.LOGGER.federationDispatchError(clientMessage.toString(), e);
          try {
             clientSession.rollback();
          } catch (ActiveMQException e1) {

@@ -37,11 +37,13 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.utils.JsonLoader;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class Jmx {
 
-   private static final Logger LOGGER = Logger.getLogger(Jmx.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(Jmx.class);
 
    @FunctionalInterface
    public interface ThrowableFunction<T, R> {
@@ -106,7 +108,7 @@ public class Jmx {
             final String backup = nodePair.getString("backup", null);
             networkTopology.put(nodeID, new Pair<>(live, backup));
          } catch (Exception e) {
-            LOGGER.warnf(e, "Error on %s", nodePair);
+            LOGGER.warn("Error on {}", nodePair, e);
          }
       }
       return networkTopology;

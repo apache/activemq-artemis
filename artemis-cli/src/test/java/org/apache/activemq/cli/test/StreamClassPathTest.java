@@ -39,7 +39,7 @@ public class StreamClassPathTest {
       testStream(Create.class, Create.BIN_ARTEMIS);
       testStream(Create.class, Create.BIN_ARTEMIS_SERVICE);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_PROFILE);
-      testStream(Create.class, "etc/" + Create.ETC_LOGGING_PROPERTIES);
+      testStream(Create.class, "etc/" + Create.ETC_LOG4J2_PROPERTIES);
       testStream(Create.class, "etc/" + Create.ETC_BOOTSTRAP_XML);
       testStream(Create.class, "etc/" + Create.ETC_MANAGEMENT_XML);
       testStream(Create.class, "etc/" + Create.ETC_BROKER_XML);

@@ -1515,7 +1515,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
             break;
          } else {
             duplicatedMessages = true;
-            instanceLog.warn("received in duplicate:" + txt.getText());
+            instanceLog.warn("received in duplicate:{}", txt.getText());
          }
       }
 

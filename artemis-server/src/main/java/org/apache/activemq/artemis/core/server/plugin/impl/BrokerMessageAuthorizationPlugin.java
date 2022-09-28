@@ -31,11 +31,12 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BrokerMessageAuthorizationPlugin implements ActiveMQServerPlugin {
 
-   private static final Logger logger = Logger.getLogger(BrokerMessageAuthorizationPlugin.class);
+   private static final Logger logger = LoggerFactory.getLogger(BrokerMessageAuthorizationPlugin.class);
 
    private static final String ROLE_PROPERTY = "ROLE_PROPERTY";
    private final AtomicReference<ActiveMQServer> server = new AtomicReference<>();

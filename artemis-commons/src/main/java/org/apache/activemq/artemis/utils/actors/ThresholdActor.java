@@ -21,11 +21,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.ToIntFunction;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThresholdActor<T> extends ProcessorBase<Object> {
 
-   private static final Logger logger = Logger.getLogger(ThresholdActor.class);
+   private static final Logger logger = LoggerFactory.getLogger(ThresholdActor.class);
 
    private static final AtomicIntegerFieldUpdater<ThresholdActor> SIZE_UPDATER = AtomicIntegerFieldUpdater.newUpdater(ThresholdActor.class, "size");
    private volatile int size = 0;

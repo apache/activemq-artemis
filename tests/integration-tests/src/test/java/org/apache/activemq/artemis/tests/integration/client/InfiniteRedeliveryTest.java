@@ -46,17 +46,18 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(InfiniteRedeliveryTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(InfiniteRedeliveryTest.class);
 
    @Parameterized.Parameters(name = "protocol={0}, useCLI={1}")
    public static Collection getParameters() {
@@ -192,12 +193,12 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       }
 
       HashMap<Integer, AtomicInteger> counts = countJournal(liveServer.getServer().getConfiguration());
-      counts.forEach((k, v) -> logger.debug(k + "=" + v));
+      counts.forEach((k, v) -> logger.debug("{}={}", k, v));
       counts.forEach((k, v) -> Assert.assertTrue("Record type " + k + " has a lot of records:" +  v, v.intValue() < 20));
 
       HashMap<Integer, AtomicInteger> backupCounts = countJournal(backupServer.getServer().getConfiguration());
       Assert.assertTrue(backupCounts.size() > 0);
-      backupCounts.forEach((k, v) -> logger.debug("On Backup:" + k + "=" + v));
+      backupCounts.forEach((k, v) -> logger.debug("On Backup:{}={}", k, v));
       backupCounts.forEach((k, v) -> Assert.assertTrue("Backup Record type " + k + " has a lot of records:" +  v, v.intValue() < 10));
 
 

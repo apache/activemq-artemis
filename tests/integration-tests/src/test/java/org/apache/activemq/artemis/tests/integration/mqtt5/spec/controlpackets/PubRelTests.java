@@ -27,7 +27,6 @@ import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 
 /**
@@ -43,8 +42,6 @@ import org.junit.Test;
  */
 
 public class PubRelTests extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(PubRelTests.class);
 
    public PubRelTests(String protocol) {
       super(protocol);

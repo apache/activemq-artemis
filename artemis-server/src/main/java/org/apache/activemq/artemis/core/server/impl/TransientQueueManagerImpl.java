@@ -23,11 +23,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.TransientQueueManager;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransientQueueManagerImpl extends ReferenceCounterUtil implements TransientQueueManager {
 
-   private static final Logger logger = Logger.getLogger(TransientQueueManagerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(TransientQueueManagerImpl.class);
 
    private final SimpleString queueName;
 
@@ -47,7 +48,7 @@ public class TransientQueueManagerImpl extends ReferenceCounterUtil implements T
             ActiveMQServerLogger.LOGGER.errorOnDeletingQueue(queueName.toString(), e);
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(e, queueName);
+         ActiveMQServerLogger.LOGGER.errorRemovingTempQueue(queueName, e);
       }
    }
 

@@ -37,11 +37,12 @@ import org.apache.activemq.artemis.utils.collections.EmptyList;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Page  {
 
-   private static final Logger logger = Logger.getLogger(Page.class);
+   private static final Logger logger = LoggerFactory.getLogger(Page.class);
 
    private static final AtomicInteger factory = new AtomicInteger(0);
 
@@ -149,8 +150,7 @@ public final class Page  {
 
    public synchronized LinkedList<PagedMessage> read(StorageManager storage, boolean onlyLargeMessages) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debugf("reading page %d on address = %s onlyLargeMessages = %b",
-            new Object[] {pageId, storeName, onlyLargeMessages});
+         logger.debug("reading page {} on address = {} onlyLargeMessages = {}", pageId, storeName, onlyLargeMessages);
       }
 
       if (!file.isOpen()) {
@@ -252,7 +252,7 @@ public final class Page  {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debugf("Deleting pageNr=%d on store %s", pageId, storeName);
+         logger.debug("Deleting pageNr={} on store {}", pageId, storeName);
       }
 
       if (messages != null) {

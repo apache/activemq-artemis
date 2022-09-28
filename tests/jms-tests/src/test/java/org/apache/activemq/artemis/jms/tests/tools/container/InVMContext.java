@@ -36,14 +36,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InVMContext implements Context, Serializable {
 
+   private static final Logger logger = LoggerFactory.getLogger(InVMContext.class);
+
    private static final long serialVersionUID = 385743957345L;
-
-   private static final JmsTestLogger log = JmsTestLogger.LOGGER;
-
 
 
    protected Map<String, Object> map;
@@ -285,7 +285,7 @@ public class InVMContext implements Context, Serializable {
    }
 
    private void internalBind(String name, final Object obj, final boolean rebind) throws NamingException {
-      InVMContext.log.debug("Binding " + name + " obj " + obj + " rebind " + rebind);
+      InVMContext.logger.debug("Binding " + name + " obj " + obj + " rebind " + rebind);
       name = trimSlashes(name);
       int i = name.lastIndexOf("/");
       InVMContext c = this;

@@ -24,11 +24,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Consumer;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ProcessorBase<T> extends HandlerBase {
 
-   private static final Logger logger = Logger.getLogger(ProcessorBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(ProcessorBase.class);
    public static final int STATE_NOT_RUNNING = 0;
    public static final int STATE_RUNNING = 1;
    public static final int STATE_FORCED_SHUTDOWN = 2;

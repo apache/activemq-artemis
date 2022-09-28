@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.mqtt;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +25,6 @@ import io.netty.handler.codec.mqtt.MqttFixedHeader;
 import io.netty.handler.codec.mqtt.MqttMessage;
 import io.netty.handler.codec.mqtt.MqttMessageType;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTInterceptor;
-import org.apache.felix.resolver.util.ArrayMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -59,7 +59,7 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       final String msgText = "Test intercepted message";
       final boolean retained = true;
 
-      Map<String, Object> expectedProperties = new ArrayMap<>();
+      final Map<String, Object> expectedProperties = new ConcurrentHashMap<>();
       expectedProperties.put(ADDRESS, addressQueue);
       expectedProperties.put(MESSAGE_TEXT, msgText);
       expectedProperties.put(RETAINED, retained);

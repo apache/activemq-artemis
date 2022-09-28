@@ -20,10 +20,15 @@ import javax.jms.JMSException;
 import javax.resource.ResourceException;
 import javax.resource.spi.LocalTransaction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * JMS Local transaction
  */
 public class ActiveMQRALocalTransaction implements LocalTransaction {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRALocalTransaction.class);
 
    /**
     * The managed connection
@@ -36,8 +41,8 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     * @param mc The managed connection
     */
    public ActiveMQRALocalTransaction(final ActiveMQRAManagedConnection mc) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + mc + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + mc + ")");
       }
 
       this.mc = mc;
@@ -50,8 +55,8 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void begin() throws ResourceException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("begin()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("begin()");
       }
 
       // mc.setInManagedTx(true);
@@ -64,8 +69,8 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void commit() throws ResourceException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("commit()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("commit()");
       }
 
       mc.lock();
@@ -88,8 +93,8 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void rollback() throws ResourceException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("rollback()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("rollback()");
       }
 
       mc.lock();

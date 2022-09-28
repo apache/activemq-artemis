@@ -20,10 +20,15 @@ import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A wrapper for a message
  */
 public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMessage {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRABytesMessage.class);
 
    /**
     * Create a new wrapper
@@ -34,8 +39,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
    public ActiveMQRABytesMessage(final BytesMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + message + ", " + session + ")");
       }
    }
 
@@ -47,8 +52,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public long getBodyLength() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getBodyLength()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getBodyLength()");
       }
 
       return ((BytesMessage) message).getBodyLength();
@@ -62,8 +67,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public boolean readBoolean() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readBoolean()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readBoolean()");
       }
 
       return ((BytesMessage) message).readBoolean();
@@ -77,8 +82,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public byte readByte() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readByte()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readByte()");
       }
 
       return ((BytesMessage) message).readByte();
@@ -94,8 +99,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public int readBytes(final byte[] value, final int length) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readBytes(" + Arrays.toString(value) + ", " + length + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readBytes(" + Arrays.toString(value) + ", " + length + ")");
       }
 
       return ((BytesMessage) message).readBytes(value, length);
@@ -110,8 +115,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public int readBytes(final byte[] value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readBytes(" + Arrays.toString(value) + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readBytes(" + Arrays.toString(value) + ")");
       }
 
       return ((BytesMessage) message).readBytes(value);
@@ -125,8 +130,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public char readChar() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readChar()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readChar()");
       }
 
       return ((BytesMessage) message).readChar();
@@ -140,8 +145,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public double readDouble() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readDouble()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readDouble()");
       }
 
       return ((BytesMessage) message).readDouble();
@@ -155,8 +160,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public float readFloat() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readFloat()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readFloat()");
       }
 
       return ((BytesMessage) message).readFloat();
@@ -170,8 +175,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public int readInt() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readInt()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readInt()");
       }
 
       return ((BytesMessage) message).readInt();
@@ -185,8 +190,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public long readLong() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readLong()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readLong()");
       }
 
       return ((BytesMessage) message).readLong();
@@ -200,8 +205,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public short readShort() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readShort()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readShort()");
       }
 
       return ((BytesMessage) message).readShort();
@@ -215,8 +220,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public int readUnsignedByte() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readUnsignedByte()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readUnsignedByte()");
       }
 
       return ((BytesMessage) message).readUnsignedByte();
@@ -230,8 +235,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public int readUnsignedShort() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readUnsignedShort()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readUnsignedShort()");
       }
 
       return ((BytesMessage) message).readUnsignedShort();
@@ -245,8 +250,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public String readUTF() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("readUTF()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("readUTF()");
       }
 
       return ((BytesMessage) message).readUTF();
@@ -259,8 +264,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void reset() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("reset()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("reset()");
       }
 
       ((BytesMessage) message).reset();
@@ -274,8 +279,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeBoolean(final boolean value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeBoolean(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeBoolean(" + value + ")");
       }
 
       ((BytesMessage) message).writeBoolean(value);
@@ -289,8 +294,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeByte(final byte value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeByte(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeByte(" + value + ")");
       }
 
       ((BytesMessage) message).writeByte(value);
@@ -306,8 +311,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ", " + offset + ", " + length + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeBytes(" + Arrays.toString(value) + ", " + offset + ", " + length + ")");
       }
 
       ((BytesMessage) message).writeBytes(value, offset, length);
@@ -321,8 +326,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeBytes(final byte[] value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeBytes(" + Arrays.toString(value) + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeBytes(" + Arrays.toString(value) + ")");
       }
 
       ((BytesMessage) message).writeBytes(value);
@@ -336,8 +341,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeChar(final char value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeChar(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeChar(" + value + ")");
       }
 
       ((BytesMessage) message).writeChar(value);
@@ -351,8 +356,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeDouble(final double value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeDouble(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeDouble(" + value + ")");
       }
 
       ((BytesMessage) message).writeDouble(value);
@@ -366,8 +371,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeFloat(final float value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeFloat(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeFloat(" + value + ")");
       }
 
       ((BytesMessage) message).writeFloat(value);
@@ -381,8 +386,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeInt(final int value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeInt(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeInt(" + value + ")");
       }
 
       ((BytesMessage) message).writeInt(value);
@@ -396,8 +401,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeLong(final long value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeLong(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeLong(" + value + ")");
       }
 
       ((BytesMessage) message).writeLong(value);
@@ -411,8 +416,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeObject(final Object value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeObject(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeObject(" + value + ")");
       }
 
       ((BytesMessage) message).writeObject(value);
@@ -426,8 +431,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeShort(final short value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeShort(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeShort(" + value + ")");
       }
 
       ((BytesMessage) message).writeShort(value);
@@ -441,8 +446,8 @@ public class ActiveMQRABytesMessage extends ActiveMQRAMessage implements BytesMe
     */
    @Override
    public void writeUTF(final String value) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("writeUTF(" + value + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("writeUTF(" + value + ")");
       }
 
       ((BytesMessage) message).writeUTF(value);

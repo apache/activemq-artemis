@@ -50,10 +50,14 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.PendingTask;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
 public class StompSession implements SessionCallback {
+
+   private static final Logger logger = LoggerFactory.getLogger(StompSession.class);
 
    private final StompProtocolManager manager;
 
@@ -187,9 +191,8 @@ public class StompSession implements SessionCallback {
 
          return length;
       } catch (Exception e) {
-         if (ActiveMQStompProtocolLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQStompProtocolLogger.LOGGER.debug(e);
-         }
+         logger.debug("exception in sendMessage", e);
+
          return 0;
       }
    }

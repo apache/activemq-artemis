@@ -42,10 +42,13 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.buffer.TimedBufferObserver;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.Env;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NIOSequentialFile extends AbstractSequentialFile {
+
+   private static final Logger logger = LoggerFactory.getLogger(NIOSequentialFile.class);
 
    private static final boolean DEBUG_OPENS = false;
 
@@ -447,8 +450,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void copyTo(SequentialFile dstFile) throws IOException {
-      if (ActiveMQJournalLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQJournalLogger.LOGGER.debug("Copying " + this + " as " + dstFile);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Copying " + this + " as " + dstFile);
       }
       if (isOpen()) {
          throw new IllegalStateException("File opened!");

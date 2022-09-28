@@ -22,7 +22,8 @@ import java.util.Set;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.utils.UUID;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class NodeManager implements ActiveMQComponent {
 
@@ -32,7 +33,7 @@ public abstract class NodeManager implements ActiveMQComponent {
       void lostLock();
    }
 
-   private static final Logger LOGGER = Logger.getLogger(NodeManager.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(NodeManager.class);
    protected final boolean replicatedBackup;
    protected final Object nodeIDGuard = new Object();
    private SimpleString nodeID;

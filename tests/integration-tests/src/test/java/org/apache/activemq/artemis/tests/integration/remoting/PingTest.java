@@ -38,21 +38,15 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PingTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(PingTest.class);
-
    private static final long CLIENT_FAILURE_CHECK_PERIOD = 500;
 
-
    private ActiveMQServer server;
-
-
 
    @Override
    @Before

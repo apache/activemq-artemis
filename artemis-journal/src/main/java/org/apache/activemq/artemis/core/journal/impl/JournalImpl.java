@@ -91,7 +91,8 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.apache.activemq.artemis.utils.collections.SparseArrayLinkedList;
-import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
 
@@ -100,7 +101,7 @@ import static org.apache.activemq.artemis.core.journal.impl.Reclaimer.scan;
  * <p>Look at {@link JournalImpl#load(LoaderCallback)} for the file layout
  */
 public class JournalImpl extends JournalBase implements TestableJournal, JournalRecordProvider {
-   private static final Logger logger = Logger.getLogger(JournalImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(JournalImpl.class);
 
 
    /**
@@ -481,7 +482,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       try {
          return "JournalImpl(state=" + state + ", directory=[" + this.fileFactory.getDirectory().toString() + "], hash=" + super.toString() + ")";
       } catch (Throwable e) {
-         logger.warn(e);
+         logger.warn(e.getMessage(), e);
          return super.toString();
       }
    }
@@ -1743,13 +1744,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             // HORNETQ-482 - Flush deletes only if memory is critical
             if (recordsToDelete.size() > DELETE_FLUSH && runtime.freeMemory() < runtime.maxMemory() * 0.2) {
                if (logger.isDebugEnabled()) {
-                  logger.debugf("Flushing deletes during loading, deleteCount = %d", recordsToDelete.size());
+                  logger.debug("Flushing deletes during loading, deleteCount = {}", recordsToDelete.size());
                }
                // Clean up when the list is too large, or it won't be possible to load large sets of files
                // Done as part of JBMESSAGING-1678
                final long removed = committedRecords.remove(toDeleteFilter);
                if (logger.isDebugEnabled()) {
-                  logger.debugf("Removed records during loading = %d", removed);
+                  logger.debug("Removed records during loading = {}", removed);
                }
                recordsToDelete.clear();
 
@@ -2994,7 +2995,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                latch.countDown();
             }
          } catch (Throwable e) {
-            ActiveMQJournalLogger.LOGGER.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
          }
 
          fileFactory.deactivateBuffer();
@@ -3078,7 +3079,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   try {
                      filesRepository.addFreeFile(file, false);
                   } catch (Throwable e) {
-                     ActiveMQJournalLogger.LOGGER.errorReinitializingFile(e, file);
+                     ActiveMQJournalLogger.LOGGER.errorReinitializingFile(file, e);
                   }
                }
             } finally {

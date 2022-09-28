@@ -27,7 +27,8 @@ import java.util.Map;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.util.internal.PlatformDependent;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
@@ -39,7 +40,7 @@ import static org.junit.Assert.fail;
 
 public class ByteUtilTest {
 
-   private static final Logger log = Logger.getLogger(ByteUtilTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ByteUtilTest.class);
 
    @Test
    public void testBytesToString() {

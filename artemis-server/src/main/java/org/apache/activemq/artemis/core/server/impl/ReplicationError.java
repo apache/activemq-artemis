@@ -25,7 +25,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupRepl
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stops the backup in case of an error at the start of Replication.
@@ -36,7 +37,7 @@ import org.jboss.logging.Logger;
  */
 final class ReplicationError implements Interceptor {
 
-   private static final Logger logger = Logger.getLogger(ReplicationError.class);
+   private static final Logger logger = LoggerFactory.getLogger(ReplicationError.class);
 
    private LiveNodeLocator nodeLocator;
 

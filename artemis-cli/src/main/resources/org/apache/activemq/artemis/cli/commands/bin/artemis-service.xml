@@ -33,7 +33,6 @@
    <logmode>roll</logmode>
 
    <executable>%JAVA_HOME%\bin\java.exe</executable>
-   <startargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager};%ARTEMIS_HOME%\lib\${wildfly-common}</startargument>
    <startargument>-XX:+UseParallelGC</startargument>
    <startargument>-Xms512M</startargument>
    <startargument>-Xmx1024M</startargument>
@@ -51,8 +50,6 @@
    <startargument>-Dartemis.instance=%ARTEMIS_INSTANCE%</startargument>
    <startargument>-Ddata.dir=%ARTEMIS_DATA_DIR%</startargument>
    <startargument>-Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%</startargument>
-   <startargument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</startargument>
-   <startargument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</startargument>
    <startargument>-Djava.security.auth.login.config=%ARTEMIS_INSTANCE_ETC%\login.config</startargument>
    <startargument>-Dhawtio.disableProxy=true</startargument>
    <startargument>-Dhawtio.realm=activemq</startargument>
@@ -70,7 +67,6 @@
    <startargument>run</startargument>
 
    <stopexecutable>%JAVA_HOME%\bin\java.exe</stopexecutable>
-   <stopargument>-Xbootclasspath/a:%ARTEMIS_HOME%\lib\${logmanager};%ARTEMIS_HOME%\lib\${wildfly-common}</stopargument>
    <stopargument>-XX:+UseParallelGC</stopargument>
    <stopargument>-Xms512M</stopargument>
    <stopargument>-Xmx1024M</stopargument>
@@ -81,8 +77,6 @@
    <stopargument>-Dartemis.instance=%ARTEMIS_INSTANCE%</stopargument>
    <stopargument>-Ddata.dir=%ARTEMIS_DATA_DIR%</stopargument>
    <stopargument>-Dartemis.instance.etc="%ARTEMIS_INSTANCE_ETC%"</stopargument>
-   <stopargument>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</stopargument>
-   <stopargument>-Dlogging.configuration=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties</stopargument>
 
    <stopargument>org.apache.activemq.artemis.boot.Artemis</stopargument>
 

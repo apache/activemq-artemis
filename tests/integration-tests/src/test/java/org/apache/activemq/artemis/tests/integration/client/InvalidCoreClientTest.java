@@ -45,14 +45,11 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class InvalidCoreClientTest extends ActiveMQTestBase {
-
-   private static final Logger log = Logger.getLogger(InvalidCoreClientTest.class);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
    private final SimpleString atestq = new SimpleString("BasicXaTestq");

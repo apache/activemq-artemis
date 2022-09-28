@@ -26,7 +26,8 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.Persister;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.persistence.PersisterIDs.MAX_PERSISTERS;
 
@@ -37,7 +38,7 @@ public class MessagePersister implements Persister<Message> {
       return 0;
    }
 
-   private static final Logger logger = Logger.getLogger(MessagePersister.class);
+   private static final Logger logger = LoggerFactory.getLogger(MessagePersister.class);
 
    private static final MessagePersister theInstance = new MessagePersister();
 

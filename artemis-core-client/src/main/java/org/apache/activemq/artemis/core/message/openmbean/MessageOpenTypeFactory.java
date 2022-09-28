@@ -34,11 +34,12 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageOpenTypeFactory<M extends Message> {
 
-   private static final Logger logger = Logger.getLogger(MessageOpenTypeFactory.class);
+   private static final Logger logger = LoggerFactory.getLogger(MessageOpenTypeFactory.class);
 
    public MessageOpenTypeFactory() {
       try {

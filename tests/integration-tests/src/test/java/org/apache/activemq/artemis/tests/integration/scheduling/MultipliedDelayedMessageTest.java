@@ -27,14 +27,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(MultipliedDelayedMessageTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MultipliedDelayedMessageTest.class);
 
    private ActiveMQServer server;
 
@@ -101,11 +102,11 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
          session.rollback();
 
          long expectedDelay = calculateExpectedDelay(DELAY, MAX_DELAY, MULTIPLIER, i);
-         log.debug("\nExpected delay: " + expectedDelay);
+         log.debug("\nExpected delay: {}", expectedDelay);
          tm = consumer.receive(expectedDelay + 500);
          long stop = System.currentTimeMillis();
          Assert.assertNotNull(tm);
-         log.debug("Actual delay: " + (stop - start));
+         log.debug("Actual delay: {}", (stop - start));
          Assert.assertTrue(stop - start >= expectedDelay);
       }
 

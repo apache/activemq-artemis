@@ -52,7 +52,6 @@ import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.network.NetUtil;
 import org.apache.activemq.artemis.utils.network.NetUtilResource;
-import org.jboss.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -60,6 +59,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validating connection retry scenarios where the DNS had changes
@@ -70,7 +71,7 @@ public class DNSSwitchTest extends SmokeTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 10099;
    private static final int JMX_SERVER_PORT_1 = 10199;
-   private static final Logger logger = Logger.getLogger(DNSSwitchTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(DNSSwitchTest.class);
    private static final String SERVER_NAME_0 = "dnsswitch";
    private static final String SERVER_NAME_1 = "dnsswitch2";
    private static final String SERVER_STANDARD = "standard";

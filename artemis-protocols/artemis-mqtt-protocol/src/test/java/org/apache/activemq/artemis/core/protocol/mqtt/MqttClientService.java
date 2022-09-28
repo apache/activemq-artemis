@@ -33,7 +33,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.util.concurrent.DefaultThreadFactory;
 
@@ -49,7 +50,7 @@ public class MqttClientService implements MqttCallback {
    private ScheduledExecutorService executorService;
    private int corePoolSize = 5;
 
-   private Logger log = Logger.getLogger(MqttClientService.class);
+   private Logger log = LoggerFactory.getLogger(MqttClientService.class);
 
    public MqttClientService() {
       this("producer", null);
@@ -76,24 +77,24 @@ public class MqttClientService implements MqttCallback {
       mqttClient.setTimeToWait(-1);
       mqttClient.connect(options);
       mqttClient.setCallback(this);
-      log.debugf("[MQTT][Connected][client: %s]", clientId);
+      log.debug("[MQTT][Connected][client: {}]", clientId);
    }
 
    @PreDestroy
    public void destroy() throws MqttException {
       mqttClient.disconnect();
       executorService.shutdownNow();
-      log.debugf("[MQTT][Disconnected][client: %s]", clientId);
+      log.debug("[MQTT][Disconnected][client: {}]", clientId);
    }
 
    @Override
    public void connectionLost(Throwable cause) {
-      log.errorf("[MQTT][connectionLost][%s]", cause.getMessage());
+      log.error("[MQTT][connectionLost][{}]", cause.getMessage());
    }
 
    @Override
    public void messageArrived(String topic, MqttMessage message) {
-      log.debugf("[MQTT][messageArrived][client: %s][topic: %s][message: %s]", clientId, topic, message);
+      log.debug("[MQTT][messageArrived][client: {}][topic: {}][message: {}]", clientId, topic, message);
       if (nonNull(messageConsumer)) {
          messageConsumer.accept(message);
       }
@@ -101,7 +102,7 @@ public class MqttClientService implements MqttCallback {
 
    @Override
    public void deliveryComplete(IMqttDeliveryToken token) {
-      log.tracef("[MQTT][deliveryComplete][token: %s]", token);
+      log.trace("[MQTT][deliveryComplete][token: {}]", token);
    }
 
    public void publish(final String topic, final MqttMessage message) {

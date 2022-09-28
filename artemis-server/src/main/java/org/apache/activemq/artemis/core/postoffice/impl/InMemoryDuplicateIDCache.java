@@ -31,7 +31,8 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.utils.ByteUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.postoffice.impl.IntegerCache.boxedInts;
 
@@ -44,7 +45,7 @@ import static org.apache.activemq.artemis.core.postoffice.impl.IntegerCache.boxe
  */
 final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
-   private static final Logger LOGGER = Logger.getLogger(InMemoryDuplicateIDCache.class);
+   private static final Logger logger = LoggerFactory.getLogger(InMemoryDuplicateIDCache.class);
 
    private final Map<ByteArray, Integer> cache = new ConcurrentHashMap<>();
 
@@ -70,7 +71,7 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public void load(List<Pair<byte[], Long>> ids) throws Exception {
-      LOGGER.debugf("address = %s ignore loading ids: in memory cache won't load previously stored ids", address);
+      logger.debug("address = {} ignore loading ids: in memory cache won't load previously stored ids", address);
    }
 
    @Override
@@ -79,8 +80,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
    }
 
    private void deleteFromCache(final ByteArray duplicateID) {
-      if (LOGGER.isTraceEnabled()) {
-         LOGGER.tracef("deleting id = %s", describeID(duplicateID.bytes));
+      if (logger.isTraceEnabled()) {
+         logger.trace("deleting id = {}", describeID(duplicateID.bytes));
       }
 
       Integer posUsed = cache.remove(duplicateID);
@@ -94,8 +95,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
             if (id.equals(duplicateID)) {
                ids.set(index, null);
-               if (LOGGER.isTraceEnabled()) {
-                  LOGGER.tracef("address = %s deleting id=", address, describeID(duplicateID.bytes));
+               if (logger.isTraceEnabled()) {
+                  logger.trace("address = {} deleting id={}", address, describeID(duplicateID.bytes));
                }
             }
          }
@@ -115,9 +116,9 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
    private boolean contains(final ByteArray id) {
       boolean contains = cache.containsKey(id);
 
-      if (LOGGER.isTraceEnabled()) {
+      if (logger.isTraceEnabled()) {
          if (contains) {
-            LOGGER.tracef("address = %s found a duplicate ", address, describeID(id.bytes));
+            logger.trace("address = {} found a duplicate {}", address, describeID(id.bytes));
          }
       }
       return contains;
@@ -155,8 +156,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
       if (tx == null) {
          addToCacheInMemory(holder);
       } else {
-         if (LOGGER.isTraceEnabled()) {
-            LOGGER.tracef("address = %s adding duplicateID TX operation for %s, tx = %s", address, describeID(holder.bytes), tx);
+         if (logger.isTraceEnabled()) {
+            logger.trace("address = {} adding duplicateID TX operation for {}, tx = {}", address, describeID(holder.bytes), tx);
          }
 
          if (instantAdd) {
@@ -176,8 +177,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
    }
 
    private synchronized void addToCacheInMemory(final ByteArray holder) {
-      if (LOGGER.isTraceEnabled()) {
-         LOGGER.tracef("address = %s adding %s", address, describeID(holder.bytes));
+      if (logger.isTraceEnabled()) {
+         logger.trace("address = {} adding {}", address, describeID(holder.bytes));
       }
 
       cache.put(holder, cachedBoxedInts.apply(pos));
@@ -188,20 +189,20 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
          // The id here might be null if it was explicit deleted
          if (id != null) {
-            if (LOGGER.isTraceEnabled()) {
-               LOGGER.tracef("address = %s removing excess duplicateDetection %s", address, describeID(id.bytes));
+            if (logger.isTraceEnabled()) {
+               logger.trace("address = {} removing excess duplicateDetection {}", address, describeID(id.bytes));
             }
 
             cache.remove(id);
          }
 
-         if (LOGGER.isTraceEnabled()) {
-            LOGGER.tracef("address = %s replacing old duplicateID by %s", describeID(holder.bytes));
+         if (logger.isTraceEnabled()) {
+            logger.trace("address = {} replacing old duplicateID by {}", address, describeID(holder.bytes));
          }
 
       } else {
-         if (LOGGER.isTraceEnabled()) {
-            LOGGER.tracef("address = %s adding new duplicateID %s", describeID(holder.bytes));
+         if (logger.isTraceEnabled()) {
+            logger.trace("address = {} adding new duplicateID {}", address, describeID(holder.bytes));
          }
 
          ids.add(holder);
@@ -214,8 +215,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public synchronized void clear() throws Exception {
-      if (LOGGER.isDebugEnabled()) {
-         LOGGER.debugf("address = %s removing duplicate ID data", address);
+      if (logger.isDebugEnabled()) {
+         logger.debug("address = {} removing duplicate ID data", address);
       }
       ids.clear();
       cache.clear();

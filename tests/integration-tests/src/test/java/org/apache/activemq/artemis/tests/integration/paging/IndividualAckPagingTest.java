@@ -35,7 +35,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +43,6 @@ import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class IndividualAckPagingTest extends ActiveMQTestBase {
-   private static final Logger logger = Logger.getLogger(IndividualAckPagingTest.class);
 
    // Even though the focus of the test is paging, I'm adding non paging here to verify the test semantics itself
    @Parameterized.Parameters(name = "paging={0}, restartServerBeforeConsume={1}")

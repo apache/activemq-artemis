@@ -22,11 +22,15 @@ import java.util.Hashtable;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The RA default properties - these are set in the ra.xml file
  */
 public class ActiveMQRAProperties extends ConnectionFactoryProperties implements Serializable {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAProperties.class);
 
    /**
     * Serial version UID
@@ -84,8 +88,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * Constructor
     */
    public ActiveMQRAProperties() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor()");
       }
    }
 
@@ -95,8 +99,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @return The value
     */
    public String getUserName() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getUserName()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getUserName()");
       }
 
       return userName;
@@ -108,8 +112,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @param userName The value
     */
    public void setUserName(final String userName) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setUserName(" + userName + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setUserName(" + userName + ")");
       }
 
       this.userName = userName;
@@ -121,8 +125,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @return The value
     */
    public String getPassword() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getPassword()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getPassword()");
       }
 
       return password;
@@ -139,8 +143,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @param password The value
     */
    public void setPassword(final String password) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setPassword(****)");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setPassword(****)");
       }
 
       this.password = password;
@@ -177,8 +181,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @return The value
     */
    public Boolean getUseLocalTx() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getUseLocalTx()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getUseLocalTx()");
       }
 
       return localTx;
@@ -190,8 +194,8 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @param localTx The value
     */
    public void setUseLocalTx(final Boolean localTx) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setUseLocalTx(" + localTx + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setUseLocalTx(" + localTx + ")");
       }
 
       this.localTx = localTx;

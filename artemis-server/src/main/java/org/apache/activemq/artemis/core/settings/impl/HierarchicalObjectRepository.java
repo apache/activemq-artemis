@@ -36,14 +36,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepositoryChangeListener;
 import org.apache.activemq.artemis.core.settings.Mergeable;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * allows objects to be mapped against a regex pattern and held in order in a list
  */
 public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T> {
 
-   private static final Logger logger = Logger.getLogger(HierarchicalObjectRepository.class);
+   private static final Logger logger = LoggerFactory.getLogger(HierarchicalObjectRepository.class);
 
    private static final WildcardConfiguration DEFAULT_WILDCARD_CONFIGURATION = new WildcardConfiguration();
    private boolean listenersEnabled = true;

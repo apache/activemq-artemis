@@ -28,7 +28,6 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
 
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.ASSIGNED_CLIENT_IDENTIFIER;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_METHOD;
@@ -44,8 +43,6 @@ import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.WILL_D
  * events.
  */
 public class MQTTConnectionManager {
-
-   private static final Logger logger = Logger.getLogger(MQTTConnectionManager.class);
 
    private MQTTSession session;
 

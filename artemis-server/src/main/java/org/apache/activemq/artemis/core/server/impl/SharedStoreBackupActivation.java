@@ -41,11 +41,12 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SharedStoreBackupActivation extends Activation {
 
-   private static final Logger logger = Logger.getLogger(SharedStoreBackupActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(SharedStoreBackupActivation.class);
 
    //this is how we act as a backup
    private final SharedStoreSlavePolicy sharedStoreSlavePolicy;

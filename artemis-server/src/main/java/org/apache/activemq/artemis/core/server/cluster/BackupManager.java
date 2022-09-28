@@ -38,14 +38,15 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
 * takes care of updating the cluster with a backups transport configuration which is based on each cluster connection.
 * */
 public class BackupManager implements ActiveMQComponent {
 
-   private static final Logger logger = Logger.getLogger(BackupManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(BackupManager.class);
 
    private ActiveMQServer server;
    private Executor executor;
@@ -95,7 +96,7 @@ public class BackupManager implements ActiveMQComponent {
       //as we wait for replication to start and be notified by the replication manager.
       for (BackupConnector conn : backupConnectors) {
          if (logger.isDebugEnabled()) {
-            logger.debugf("****** BackupManager connecting to %s", conn);
+            logger.debug("****** BackupManager connecting to {}", conn);
          }
          conn.start();
          if (server.getHAPolicy().isBackup() && server.getHAPolicy().isSharedStore()) {

@@ -107,18 +107,19 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.RetryMethod;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
-   private static final Logger log = Logger.getLogger(ActiveMQServerControlTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ActiveMQServerControlTest.class);
 
    @Rule
    public RetryRule retryRule = new RetryRule(0);

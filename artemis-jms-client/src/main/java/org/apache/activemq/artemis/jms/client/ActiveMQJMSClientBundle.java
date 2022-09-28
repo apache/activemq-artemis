@@ -28,30 +28,25 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidFilterExpressionException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.jboss.logging.Messages;
-import org.jboss.logging.annotations.Cause;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageBundle;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 13
- *
- * each message id must be 6 digits long starting with 13, the 3rd digit should be 9
- *
- * so 139000 to 139999
  */
-@MessageBundle(projectCode = "AMQ")
+@LogBundle(projectCode = "AMQ", regexID = "13[0-9]{4}")
 public interface ActiveMQJMSClientBundle {
 
-   ActiveMQJMSClientBundle BUNDLE = Messages.getBundle(ActiveMQJMSClientBundle.class);
+   ActiveMQJMSClientBundle BUNDLE = BundleFactory.newBundle(ActiveMQJMSClientBundle.class);
 
-   @Message(id = 139000, value = "Invalid filter: {0}", format = Message.Format.MESSAGE_FORMAT)
-   ActiveMQInvalidFilterExpressionException invalidFilter(@Cause Throwable e, SimpleString filter);
+   @Message(id = 139000, value = "Invalid filter: {}")
+   ActiveMQInvalidFilterExpressionException invalidFilter(SimpleString filter, Throwable e);
 
    @Message(id = 139001, value = "Invalid Subscription Name. It is required to set the subscription name")
    ActiveMQIllegalStateException invalidSubscriptionName();
 
-   @Message(id = 139002, value = "Destination {0} does not exist", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139002, value = "Destination {} does not exist")
    ActiveMQNonExistentQueueException destinationDoesNotExist(SimpleString destination);
 
    @Message(id = 139003, value = "name cannot be null")
@@ -72,7 +67,7 @@ public interface ActiveMQJMSClientBundle {
    @Message(id = 139008, value = "It is illegal to call this method from within a Completion Listener")
    IllegalStateException callingMethodFromCompletionListener();
 
-   @Message(id = 139009, value = "Null {0} is not allowed", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139009, value = "Null {} is not allowed")
    IllegalArgumentException nullArgumentNotAllowed(String type);
 
    @Message(id = 139010, value = "Topic (Destination) cannot be null")
@@ -81,8 +76,7 @@ public interface ActiveMQJMSClientBundle {
    @Message(id = 139011, value = "LargeMessage streaming is only possible on ByteMessage or StreamMessage")
    IllegalStateException onlyValidForByteOrStreamMessages();
 
-   @Message(id = 139012, value = "The property name ''{0}'' is not a valid java identifier.",
-      format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139012, value = "The property name '{}' is not a valid java identifier.")
    JMSRuntimeException invalidJavaIdentifier(String propertyName);
 
    @Message(id = 139013, value = "Message is read-only")
@@ -91,6 +85,6 @@ public interface ActiveMQJMSClientBundle {
    @Message(id = 139014, value = "Message is write-only")
    MessageNotReadableException messageNotReadable();
 
-   @Message(id = 139015, value = "Illegal deliveryMode value: {0}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 139015, value = "Illegal deliveryMode value: {}")
    JMSException illegalDeliveryMode(int deliveryMode);
 }

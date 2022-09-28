@@ -28,14 +28,15 @@ import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(SimpleSymmetricClusterTest.class);
+   private static final Logger log = LoggerFactory.getLogger(SimpleSymmetricClusterTest.class);
 
 
 
@@ -282,7 +283,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
    public void _testLoop() throws Throwable {
       for (int i = 0; i < 10; i++) {
          loopNumber = i;
-         log.debug("#test " + i);
+         log.debug("#test {}", i);
          testSimple();
          tearDown();
          setUp();

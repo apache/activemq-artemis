@@ -118,7 +118,8 @@ import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jctools.queues.MpscUnboundedArrayQueue;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
@@ -137,7 +138,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    protected static final int CRITICAL_CONSUMER = 3;
    protected static final int CRITICAL_CHECK_DEPAGE = 4;
 
-   private static final Logger logger = Logger.getLogger(QueueImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(QueueImpl.class);
    private static final AtomicIntegerFieldUpdater<QueueImpl> dispatchingUpdater = AtomicIntegerFieldUpdater.newUpdater(QueueImpl.class, "dispatching");
    private static final AtomicLongFieldUpdater<QueueImpl> dispatchStartTimeUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "dispatchStartTime");
    private static final AtomicLongFieldUpdater<QueueImpl> consumerRemovedTimestampUpdater = AtomicLongFieldUpdater.newUpdater(QueueImpl.class, "consumerRemovedTimestamp");
@@ -2470,7 +2471,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                      iter.remove();
                   }
                   if (++elementsIterated >= MAX_DELIVERIES_IN_LOOP) {
-                     logger.debugf("Expiry Scanner on %s ran for %s iteration, scheduling a new one", QueueImpl.this.getName(), elementsIterated);
+                     logger.debug("Expiry Scanner on {} ran for {} iteration, scheduling a new one", QueueImpl.this.getName(), elementsIterated);
                      rescheduled = true;
                      getExecutor().execute(this);
                      break;
@@ -2478,7 +2479,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                }
             } finally {
                if (!rescheduled) {
-                  logger.debugf("Scanning for expires on %s done", QueueImpl.this.getName());
+                  logger.debug("Scanning for expires on {} done", QueueImpl.this.getName());
 
                   if (server.hasBrokerQueuePlugins()) {
                      try {
@@ -2505,7 +2506,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   expire(tx, ref, true);
                   refRemoved(ref);
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(e, ref);
+                  ActiveMQServerLogger.LOGGER.errorExpiringReferencesOnQueue(ref, e);
                }
             }
 
@@ -3770,7 +3771,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       //- deliverDirect first acquire QueueImpl::this, then ServerConsumerImpl::this
       //- DeliverRunner::run first acquire ServerConsumerImpl::this then QueueImpl::this
       if (!deliverLock.tryLock()) {
-         logger.tracef("Cannot perform a directDelivery because there is a running async deliver");
+         logger.trace("Cannot perform a directDelivery because there is a running async deliver");
          return false;
       }
       try {
@@ -3826,7 +3827,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          }
 
          if (logger.isTraceEnabled()) {
-            logger.tracef("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
+            logger.trace("Queue " + getName() + " is out of direct delivery as no consumers handled a delivery");
          }
          return false;
       }
@@ -3889,7 +3890,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private void internalErrorProcessing(Consumer consumer, Throwable t, MessageReference reference) {
       synchronized (this) {
-         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
+         ActiveMQServerLogger.LOGGER.removingBadConsumer(consumer, reference, t);
          // If the consumer throws an exception we remove the consumer
          try {
             removeConsumer(consumer);
@@ -3931,7 +3932,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       try {
          status = consumer.handle(reference);
       } catch (Throwable t) {
-         ActiveMQServerLogger.LOGGER.removingBadConsumer(t, consumer, reference);
+         ActiveMQServerLogger.LOGGER.removingBadConsumer(consumer, reference, t);
 
          // If the consumer throws an exception we remove the consumer
          try {
@@ -4023,7 +4024,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                try {
                   storageManager.deleteMessage(message.getMessageID());
                } catch (Exception e) {
-                  ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(e, message.getMessageID());
+                  ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(message.getMessageID(), e);
                }
             }
          }
@@ -4531,7 +4532,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
          if (refToAck != null) {
             if (logger.isDebugEnabled()) {
-               logger.debugf("Preserving ringSize %d by acking message ref %s", ringSize, refToAck);
+               logger.debug("Preserving ringSize {} by acking message ref {}", ringSize, refToAck);
             }
             referenceHandled(refToAck);
 
@@ -4546,7 +4547,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             }
          } else {
             if (logger.isDebugEnabled()) {
-               logger.debugf("Cannot preserve ringSize %d; message ref is null", ringSize);
+               logger.debug("Cannot preserve ringSize {}; message ref is null", ringSize);
             }
          }
       }

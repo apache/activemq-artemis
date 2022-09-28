@@ -59,14 +59,15 @@ import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @see PagingStore
  */
 public class PagingStoreImpl implements PagingStore {
 
-   private static final Logger logger = Logger.getLogger(PagingStoreImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(PagingStoreImpl.class);
 
    private final SimpleString address;
 
@@ -388,7 +389,7 @@ public class PagingStoreImpl implements PagingStore {
          // TODO we could have a parameter to use this
          final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add, 30, TimeUnit.SECONDS);
          if (pendingTasksWhileShuttingDown > 0) {
-            logger.tracef("Try executing %d pending tasks on stop", pendingTasksWhileShuttingDown);
+            logger.trace("Try executing {} pending tasks on stop", pendingTasksWhileShuttingDown);
             for (Runnable pendingTask : pendingTasks) {
                try {
                   pendingTask.run();
@@ -538,7 +539,7 @@ public class PagingStoreImpl implements PagingStore {
 
    @Override
    public void stopPaging() {
-      logger.debugf("stopPaging being called, while isPaging=%s on %s", this.paging, this.storeName);
+      logger.debug("stopPaging being called, while isPaging={} on {}", this.paging, this.storeName);
       lock.writeLock().lock();
       try {
          final boolean isPaging = this.paging;
@@ -718,7 +719,7 @@ public class PagingStoreImpl implements PagingStore {
             }
 
             if (currentPageId == pageId) {
-               logger.debugf("Ignoring remove(%d) as this is the current writing page", pageId);
+               logger.debug("Ignoring remove({}) as this is the current writing page", pageId);
                // we don't deal with the current page, we let that one to be cleared from the regular depage
                return null;
             }
@@ -733,11 +734,11 @@ public class PagingStoreImpl implements PagingStore {
                numberOfPages--;
             }
 
-            logger.tracef("Removing page %s, now containing numberOfPages=%s", pageId, numberOfPages);
+            logger.trace("Removing page {}, now containing numberOfPages={}", pageId, numberOfPages);
 
             if (numberOfPages == 0) {
                if (logger.isTraceEnabled()) {
-                  logger.tracef("Page has no pages after removing last page %s", pageId, new Exception("Trace"));
+                  logger.trace("Page has no pages after removing last page {}", pageId, new Exception("Trace"));
                }
             }
 
@@ -789,7 +790,7 @@ public class PagingStoreImpl implements PagingStore {
             // On that case we need to replace it by a new empty page, and return the current page immediately
             if (currentPageId == firstPageId) {
                firstPageId = Integer.MAX_VALUE;
-               logger.tracef("Setting up firstPageID=MAX_VALUE");
+               logger.trace("Setting up firstPageID=MAX_VALUE");
 
                if (currentPage == null) {
                   // sanity check... it shouldn't happen!
@@ -814,7 +815,7 @@ public class PagingStoreImpl implements PagingStore {
                   openNewPage();
                }
             } else {
-               logger.tracef("firstPageId++ = beforeIncrement=%d", firstPageId);
+               logger.trace("firstPageId++ = beforeIncrement={}", firstPageId);
                returnPage = usePage(firstPageId++);
             }
 
@@ -916,7 +917,7 @@ public class PagingStoreImpl implements PagingStore {
       boolean globalFull = pagingManager.isGlobalFull();
 
       if (newSize < 0) {
-         ActiveMQServerLogger.LOGGER.negativeAddressSize(newSize, address.toString());
+         ActiveMQServerLogger.LOGGER.negativeAddressSize(address.toString(), newSize);
       }
 
       if (addressFullMessagePolicy == AddressFullMessagePolicy.BLOCK || addressFullMessagePolicy == AddressFullMessagePolicy.FAIL) {
@@ -1045,7 +1046,7 @@ public class PagingStoreImpl implements PagingStore {
          }
 
          if (logger.isTraceEnabled()) {
-            logger.tracef("Paging message %s on pageStore %s pageNr=%d", pagedMessage, getStoreName(), page.getPageId());
+            logger.trace("Paging message {} on pageStore {} pageNr={}", pagedMessage, getStoreName(), page.getPageId());
          }
 
          return true;
@@ -1282,7 +1283,7 @@ public class PagingStoreImpl implements PagingStore {
          currentPageId = newPageId;
 
          if (newPageId < firstPageId) {
-            logger.debugf("open new page, setting firstPageId = %s, it was %s before", newPageId, firstPageId);
+            logger.debug("open new page, setting firstPageId = {}, it was {} before", newPageId, firstPageId);
             firstPageId = newPageId;
          }
       } finally {

@@ -23,14 +23,15 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default values of ActiveMQ Artemis configuration parameters.
  */
 public final class ActiveMQDefaultConfiguration {
 
-   private static final Logger logger = Logger.getLogger(ActiveMQDefaultConfiguration.class);
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQDefaultConfiguration.class);
 
    /*
     * <p> In order to avoid compile time in-lining of constants, all access is done through methods
@@ -511,7 +512,7 @@ public final class ActiveMQDefaultConfiguration {
          maxDisk = Integer.parseInt(System.getProperty(ActiveMQDefaultConfiguration.getDefaultSystemPropertyPrefix() + "maxDiskUsage", "90"));
       } catch (Throwable e) {
          // This is not really supposed to happen, so just logging it, just in case
-         logger.warn(e);
+         logger.warn(e.getMessage(), e);
          maxDisk = 90;
       }
       DEFAULT_MAX_DISK_USAGE = maxDisk;

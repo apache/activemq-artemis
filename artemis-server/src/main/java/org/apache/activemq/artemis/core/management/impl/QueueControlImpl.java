@@ -60,11 +60,12 @@ import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueueControlImpl extends AbstractControl implements QueueControl {
 
-   private static final Logger logger = Logger.getLogger(QueueControlImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(QueueControlImpl.class);
 
    public static final int FLUSH_LIMIT = 500;
 

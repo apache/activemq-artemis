@@ -50,13 +50,14 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(MaxMessagesPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MaxMessagesPagingTest.class);
 
    protected static final int PAGE_MAX = 100 * 1024;
    protected static final int PAGE_SIZE = 10 * 1024;

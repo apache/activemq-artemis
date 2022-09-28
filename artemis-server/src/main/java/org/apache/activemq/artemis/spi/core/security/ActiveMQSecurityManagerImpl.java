@@ -23,7 +23,8 @@ import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.User;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A basic implementation of the ActiveMQSecurityManager. This can be used within an appserver and be deployed by
@@ -34,7 +35,7 @@ public class ActiveMQSecurityManagerImpl implements ActiveMQSecurityManager {
 
    private final SecurityConfiguration configuration;
 
-   private ActiveMQServerLogger logger = ActiveMQServerLogger.LOGGER;
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQSecurityManagerImpl.class);
 
    public ActiveMQSecurityManagerImpl() {
       configuration = new SecurityConfiguration();

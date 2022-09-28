@@ -55,11 +55,15 @@ import java.util.Set;
 
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A joint interface for JMS sessions
  */
 public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSession, XATopicSession {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRASession.class);
 
    /**
     * The managed connection
@@ -93,8 +97,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param cri The connection request info
     */
    public ActiveMQRASession(final ActiveMQRAManagedConnection mc, final ActiveMQRAConnectionRequestInfo cri) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + mc + ", " + cri + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + mc + ", " + cri + ")");
       }
 
       this.mc = mc;
@@ -110,8 +114,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param sf The session factory
     */
    public void setActiveMQSessionFactory(final ActiveMQRASessionFactory sf) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setActiveMQSessionFactory(" + sf + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setActiveMQSessionFactory(" + sf + ")");
       }
 
       this.sf = sf;
@@ -124,8 +128,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @throws IllegalStateException The session is closed
     */
    protected void lock() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("lock()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("lock()");
       }
 
       final ActiveMQRAManagedConnection mcLocal = this.mc;
@@ -140,8 +144,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * Unlock
     */
    protected void unlock() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("unlock()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("unlock()");
       }
 
       final ActiveMQRAManagedConnection mcLocal = this.mc;
@@ -163,8 +167,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public BytesMessage createBytesMessage() throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createBytesMessage" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createBytesMessage" + session);
       }
 
       return session.createBytesMessage();
@@ -180,8 +184,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public MapMessage createMapMessage() throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createMapMessage(), " + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createMapMessage(), " + session);
       }
 
       return session.createMapMessage();
@@ -197,8 +201,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public Message createMessage() throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createMessage" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createMessage" + session);
       }
 
       return session.createMessage();
@@ -214,8 +218,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public ObjectMessage createObjectMessage() throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createObjectMessage" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createObjectMessage" + session);
       }
 
       return session.createObjectMessage();
@@ -232,8 +236,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public ObjectMessage createObjectMessage(final Serializable object) throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createObjectMessage(" + object + ")" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createObjectMessage(" + object + ")" + session);
       }
 
       return session.createObjectMessage(object);
@@ -249,8 +253,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public StreamMessage createStreamMessage() throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createStreamMessage" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createStreamMessage" + session);
       }
 
       return session.createStreamMessage();
@@ -266,8 +270,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public TextMessage createTextMessage() throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createTextMessage" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createTextMessage" + session);
       }
 
       return session.createTextMessage();
@@ -284,8 +288,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public TextMessage createTextMessage(final String string) throws JMSException {
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createTextMessage(" + string + ")" + session);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createTextMessage(" + string + ")" + session);
       }
 
       return session.createTextMessage(string);
@@ -299,8 +303,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public boolean getTransacted() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getTransacted()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getTransacted()");
       }
 
       getSessionInternal();
@@ -315,8 +319,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public MessageListener getMessageListener() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getMessageListener()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getMessageListener()");
       }
 
       throw new IllegalStateException("Method not allowed");
@@ -330,8 +334,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public void setMessageListener(final MessageListener listener) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setMessageListener(" + listener + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setMessageListener(" + listener + ")");
       }
 
       throw new IllegalStateException("Method not allowed");
@@ -344,8 +348,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public void run() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("run()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("run()");
       }
 
       throw new Error("Method not allowed");
@@ -359,8 +363,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public void close() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("close()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("close()");
       }
 
       sf.closeSession(this);
@@ -387,8 +391,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
             throw new IllegalStateException("Session is not transacted");
          }
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("Commit session " + this);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Commit session " + this);
          }
 
          session.commit();
@@ -417,8 +421,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
             throw new IllegalStateException("Session is not transacted");
          }
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("Rollback session " + this);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Rollback session " + this);
          }
 
          session.rollback();
@@ -442,8 +446,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
             throw new IllegalStateException("Session is transacted");
          }
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("Recover session " + this);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Recover session " + this);
          }
 
          session.recover();
@@ -467,14 +471,14 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
 
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createTopic " + session + " topicName=" + topicName);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createTopic " + session + " topicName=" + topicName);
       }
 
       Topic result = session.createTopic(topicName);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createdTopic " + session + " topic=" + result);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createdTopic " + session + " topic=" + result);
       }
 
       return result;
@@ -493,15 +497,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          TopicSession session = getTopicSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSubscriber " + session + " topic=" + topic);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSubscriber " + session + " topic=" + topic);
          }
 
          TopicSubscriber result = session.createSubscriber(topic);
          result = new ActiveMQRATopicSubscriber(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
          }
 
          addConsumer(result);
@@ -529,8 +533,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          TopicSession session = getTopicSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSubscriber " + session +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSubscriber " + session +
                                              " topic=" +
                                              topic +
                                              " selector=" +
@@ -542,8 +546,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
          TopicSubscriber result = session.createSubscriber(topic, messageSelector, noLocal);
          result = new ActiveMQRATopicSubscriber(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
          }
 
          addConsumer(result);
@@ -572,15 +576,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createDurableSubscriber " + session + " topic=" + topic + " name=" + name);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createDurableSubscriber " + session + " topic=" + topic + " name=" + name);
          }
 
          TopicSubscriber result = session.createDurableSubscriber(topic, name);
          result = new ActiveMQRATopicSubscriber(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdDurableSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdDurableSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
          }
 
          addConsumer(result);
@@ -610,8 +614,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createDurableSubscriber " + session +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createDurableSubscriber " + session +
                                              " topic=" +
                                              topic +
                                              " name=" +
@@ -625,8 +629,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
          TopicSubscriber result = session.createDurableSubscriber(topic, name, messageSelector, noLocal);
          result = new ActiveMQRATopicSubscriber(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdDurableSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdDurableSubscriber " + session + " ActiveMQTopicSubscriber=" + result);
          }
 
          addConsumer(result);
@@ -650,15 +654,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          TopicSession session = getTopicSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createPublisher " + session + " topic=" + topic);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createPublisher " + session + " topic=" + topic);
          }
 
          TopicPublisher result = session.createPublisher(topic);
          result = new ActiveMQRATopicPublisher(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdPublisher " + session + " publisher=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdPublisher " + session + " publisher=" + result);
          }
 
          addProducer(result);
@@ -685,14 +689,14 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createTemporaryTopic " + session);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createTemporaryTopic " + session);
          }
 
          TemporaryTopic temp = session.createTemporaryTopic();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdTemporaryTopic " + session + " temp=" + temp);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdTemporaryTopic " + session + " temp=" + temp);
          }
 
          sf.addTemporaryTopic(temp);
@@ -719,8 +723,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("unsubscribe " + session + " name=" + name);
+         if (logger.isTraceEnabled()) {
+            logger.trace("unsubscribe " + session + " name=" + name);
          }
 
          session.unsubscribe(name);
@@ -744,14 +748,14 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
 
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createBrowser " + session + " queue=" + queue);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createBrowser " + session + " queue=" + queue);
       }
 
       QueueBrowser result = session.createBrowser(queue);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createdBrowser " + session + " browser=" + result);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createdBrowser " + session + " browser=" + result);
       }
 
       return result;
@@ -773,14 +777,14 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
 
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createBrowser " + session + " queue=" + queue + " selector=" + messageSelector);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createBrowser " + session + " queue=" + queue + " selector=" + messageSelector);
       }
 
       QueueBrowser result = session.createBrowser(queue, messageSelector);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createdBrowser " + session + " browser=" + result);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createdBrowser " + session + " browser=" + result);
       }
 
       return result;
@@ -801,14 +805,14 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
 
       Session session = getSessionInternal();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createQueue " + session + " queueName=" + queueName);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createQueue " + session + " queueName=" + queueName);
       }
 
       Queue result = session.createQueue(queueName);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("createdQueue " + session + " queue=" + result);
+      if (logger.isTraceEnabled()) {
+         logger.trace("createdQueue " + session + " queue=" + result);
       }
 
       return result;
@@ -827,15 +831,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          QueueSession session = getQueueSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createReceiver " + session + " queue=" + queue);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createReceiver " + session + " queue=" + queue);
          }
 
          QueueReceiver result = session.createReceiver(queue);
          result = new ActiveMQRAQueueReceiver(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdReceiver " + session + " receiver=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdReceiver " + session + " receiver=" + result);
          }
 
          addConsumer(result);
@@ -860,15 +864,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          QueueSession session = getQueueSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createReceiver " + session + " queue=" + queue + " selector=" + messageSelector);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createReceiver " + session + " queue=" + queue + " selector=" + messageSelector);
          }
 
          QueueReceiver result = session.createReceiver(queue, messageSelector);
          result = new ActiveMQRAQueueReceiver(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdReceiver " + session + " receiver=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdReceiver " + session + " receiver=" + result);
          }
 
          addConsumer(result);
@@ -892,15 +896,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          QueueSession session = getQueueSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSender " + session + " queue=" + queue);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSender " + session + " queue=" + queue);
          }
 
          QueueSender result = session.createSender(queue);
          result = new ActiveMQRAQueueSender(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdSender " + session + " sender=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdSender " + session + " sender=" + result);
          }
 
          addProducer(result);
@@ -927,14 +931,14 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createTemporaryQueue " + session);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createTemporaryQueue " + session);
          }
 
          TemporaryQueue temp = session.createTemporaryQueue();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdTemporaryQueue " + session + " temp=" + temp);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdTemporaryQueue " + session + " temp=" + temp);
          }
 
          sf.addTemporaryQueue(temp);
@@ -958,15 +962,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createConsumer " + session + " dest=" + destination);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createConsumer " + session + " dest=" + destination);
          }
 
          MessageConsumer result = session.createConsumer(destination);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -992,8 +996,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createConsumer " + session +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createConsumer " + session +
                                              " dest=" +
                                              destination +
                                              " messageSelector=" +
@@ -1003,8 +1007,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
          MessageConsumer result = session.createConsumer(destination, messageSelector);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1032,8 +1036,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createConsumer " + session +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createConsumer " + session +
                                              " dest=" +
                                              destination +
                                              " messageSelector=" +
@@ -1045,8 +1049,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
          MessageConsumer result = session.createConsumer(destination, messageSelector, noLocal);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1070,15 +1074,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createProducer " + session + " dest=" + destination);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createProducer " + session + " dest=" + destination);
          }
 
          MessageProducer result = session.createProducer(destination);
          result = new ActiveMQRAMessageProducer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdProducer " + session + " producer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdProducer " + session + " producer=" + result);
          }
 
          addProducer(result);
@@ -1097,8 +1101,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public int getAcknowledgeMode() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getAcknowledgeMode()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getAcknowledgeMode()");
       }
 
       getSessionInternal();
@@ -1110,8 +1114,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public XAResource getXAResource() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getXAResource()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getXAResource()");
       }
 
       if (cri.getType() == ActiveMQRAConnectionFactory.CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION ||
@@ -1149,8 +1153,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public Session getSession() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getNonXAsession()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getNonXAsession()");
       }
 
       if (cri.getType() == ActiveMQRAConnectionFactory.CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION ||
@@ -1174,8 +1178,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public QueueSession getQueueSession() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getQueueSession()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getQueueSession()");
       }
 
       if (cri.getType() == ActiveMQRAConnectionFactory.CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION ||
@@ -1199,8 +1203,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    @Override
    public TopicSession getTopicSession() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getTopicSession()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getTopicSession()");
       }
 
       if (cri.getType() == ActiveMQRAConnectionFactory.CONNECTION || cri.getType() == ActiveMQRAConnectionFactory.QUEUE_CONNECTION ||
@@ -1223,15 +1227,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSharedConsumer " + session + " topic=" + topic + ", sharedSubscriptionName=" + sharedSubscriptionName);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSharedConsumer " + session + " topic=" + topic + ", sharedSubscriptionName=" + sharedSubscriptionName);
          }
 
          MessageConsumer result = session.createSharedConsumer(topic, sharedSubscriptionName);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1250,16 +1254,16 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSharedConsumer " + session + " topic=" + topic +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSharedConsumer " + session + " topic=" + topic +
                                              ", sharedSubscriptionName=" + sharedSubscriptionName + ", messageSelector=" + messageSelector);
          }
 
          MessageConsumer result = session.createSharedConsumer(topic, sharedSubscriptionName, messageSelector);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1276,15 +1280,15 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSharedConsumer " + session + " topic=" + topic + ", name=" + name);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSharedConsumer " + session + " topic=" + topic + ", name=" + name);
          }
 
          MessageConsumer result = session.createDurableConsumer(topic, name);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1304,16 +1308,16 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createDurableConsumer " + session + " topic=" + topic + ", name=" + name +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createDurableConsumer " + session + " topic=" + topic + ", name=" + name +
                                              ", messageSelector=" + messageSelector + ", noLocal=" + noLocal);
          }
 
          MessageConsumer result = session.createDurableConsumer(topic, name, messageSelector, noLocal);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1330,16 +1334,16 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSharedDurableConsumer " + session + " topic=" + topic + ", name=" +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSharedDurableConsumer " + session + " topic=" + topic + ", name=" +
                                              name);
          }
 
          MessageConsumer result = session.createSharedDurableConsumer(topic, name);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1358,16 +1362,16 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          Session session = getSessionInternal();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createSharedDurableConsumer " + session + " topic=" + topic + ", name=" +
+         if (logger.isTraceEnabled()) {
+            logger.trace("createSharedDurableConsumer " + session + " topic=" + topic + ", name=" +
                                              name + ", messageSelector=" + messageSelector);
          }
 
          MessageConsumer result = session.createSharedDurableConsumer(topic, name, messageSelector);
          result = new ActiveMQRAMessageConsumer(result, this);
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("createdConsumer " + session + " consumer=" + result);
+         if (logger.isTraceEnabled()) {
+            logger.trace("createdConsumer " + session + " consumer=" + result);
          }
 
          addConsumer(result);
@@ -1384,8 +1388,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param managedConnection The managed connection
     */
    void setManagedConnection(final ActiveMQRAManagedConnection managedConnection) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setManagedConnection(" + managedConnection + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setManagedConnection(" + managedConnection + ")");
       }
 
       if (mc != null) {
@@ -1406,8 +1410,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * Destroy
     */
    void destroy() {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("destroy()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("destroy()");
       }
 
       mc = null;
@@ -1419,8 +1423,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @throws JMSException Thrown if an error occurs
     */
    void start() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("start()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("start()");
       }
 
       if (mc != null) {
@@ -1434,8 +1438,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @throws JMSException Thrown if an error occurs
     */
    void stop() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("stop()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("stop()");
       }
 
       if (mc != null) {
@@ -1449,8 +1453,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @throws JMSException Thrown if an error occurs
     */
    void checkStrict() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("checkStrict()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("checkStrict()");
       }
 
       if (mc != null) {
@@ -1465,12 +1469,12 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     */
    void closeSession() throws JMSException {
       if (mc != null) {
-         ActiveMQRALogger.LOGGER.trace("Closing session");
+         logger.trace("Closing session");
 
          try {
             mc.stop();
          } catch (Throwable t) {
-            ActiveMQRALogger.LOGGER.trace("Error stopping managed connection", t);
+            logger.trace("Error stopping managed connection", t);
          }
 
          synchronized (consumers) {
@@ -1479,7 +1483,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
                try {
                   consumer.closeConsumer();
                } catch (Throwable t) {
-                  ActiveMQRALogger.LOGGER.trace("Error closing consumer", t);
+                  logger.trace("Error closing consumer", t);
                }
                i.remove();
             }
@@ -1491,7 +1495,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
                try {
                   producer.closeProducer();
                } catch (Throwable t) {
-                  ActiveMQRALogger.LOGGER.trace("Error closing producer", t);
+                  logger.trace("Error closing producer", t);
                }
                i.remove();
             }
@@ -1511,8 +1515,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param consumer The consumer
     */
    void addConsumer(final MessageConsumer consumer) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("addConsumer(" + consumer + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("addConsumer(" + consumer + ")");
       }
 
       synchronized (consumers) {
@@ -1526,8 +1530,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param consumer The consumer
     */
    void removeConsumer(final MessageConsumer consumer) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("removeConsumer(" + consumer + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("removeConsumer(" + consumer + ")");
       }
 
       synchronized (consumers) {
@@ -1541,8 +1545,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param producer The producer
     */
    void addProducer(final MessageProducer producer) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("addProducer(" + producer + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("addProducer(" + producer + ")");
       }
 
       synchronized (producers) {
@@ -1556,8 +1560,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
     * @param producer The producer
     */
    void removeProducer(final MessageProducer producer) {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("removeProducer(" + producer + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("removeProducer(" + producer + ")");
       }
 
       synchronized (producers) {
@@ -1579,8 +1583,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
 
       Session session = mc.getSession();
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getSessionInternal " + session + " for " + this);
+      if (logger.isTraceEnabled()) {
+         logger.trace("getSessionInternal " + session + " for " + this);
       }
 
       return session;
@@ -1601,8 +1605,8 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
       try {
          XAResource xares = mc.getXAResource();
 
-         if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-            ActiveMQRALogger.LOGGER.trace("getXAResourceInternal " + xares + " for " + this);
+         if (logger.isTraceEnabled()) {
+            logger.trace("getXAResourceInternal " + xares + " for " + this);
          }
 
          return xares;

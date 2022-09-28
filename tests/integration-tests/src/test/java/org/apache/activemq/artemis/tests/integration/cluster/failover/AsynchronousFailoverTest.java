@@ -41,9 +41,10 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A MultiThreadFailoverTest
@@ -52,7 +53,7 @@ import org.junit.Test;
  */
 public class AsynchronousFailoverTest extends FailoverTestBase {
 
-   private static final Logger log = Logger.getLogger(AsynchronousFailoverTest.class);
+   private static final Logger log = LoggerFactory.getLogger(AsynchronousFailoverTest.class);
 
    private volatile CountDownSessionFailureListener listener;
 
@@ -139,7 +140,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
       try {
          for (int i = 0; i < numIts; i++) {
-            log.debug("Iteration " + i);
+            log.debug("Iteration {}", i);
             //set block timeout to 10 sec to reduce test time.
             ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(30).setRetryInterval(100).setConfirmationWindowSize(10 * 1024 * 1024).setCallTimeout(10000).setCallFailoverTimeout(10000);
 
@@ -160,7 +161,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                long randomDelay = (long) (2000 * Math.random());
 
-               log.debug("Sleeping " + randomDelay);
+               log.debug("Sleeping {}", randomDelay);
 
                Thread.sleep(randomDelay);
 
@@ -168,9 +169,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                // Simulate failure on connection
                synchronized (lockFail) {
-                  if (log.isDebugEnabled()) {
-                     log.debug("#test crashing test");
-                  }
+                  log.debug("#test crashing test");
                   crash(createSession);
                }
 
@@ -249,7 +248,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                   retry = false;
                } catch (ActiveMQUnBlockedException ube) {
-                  log.debug("exception when sending message with counter " + i);
+                  log.debug("exception when sending message with counter {}", i);
 
                   ube.printStackTrace();
 
@@ -302,7 +301,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   Assert.fail("got another counter gap at " + count + ": " + counts);
                } else {
                   if (lastCount != -1) {
-                     log.debug("got first counter gap at " + count);
+                     log.debug("got first counter gap at {}", count);
                      counterGap = true;
                   }
                }
@@ -328,7 +327,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
          executionId++;
 
-         log.debug("#test doTestTransactional starting now. Execution " + executionId);
+         log.debug("#test doTestTransactional starting now. Execution {}", executionId);
 
          try {
 
@@ -375,9 +374,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
 
                      addPayload(message);
 
-                     if (log.isDebugEnabled()) {
-                        log.debug("Sending message " + message);
-                     }
+                     log.debug("Sending message {}", message);
 
                      producer.send(message);
                   }
@@ -448,22 +445,19 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   session.start();
 
                   for (int i = 0; i < numMessages; i++) {
-                     if (log.isDebugEnabled()) {
-                        log.debug("Consumer receiving message " + i);
-                     }
+                     log.debug("Consumer receiving message {}", i);
+
                      ClientMessage message = consumer.receive(60000);
                      if (message == null) {
                         break;
                      }
 
-                     if (log.isDebugEnabled()) {
-                        log.debug("Received message " + message);
-                     }
+                     log.debug("Received message {}", message);
 
                      int count = message.getIntProperty("counter");
 
                      if (count != i) {
-                        log.warn("count was received out of order, " + count + "!=" + i);
+                        log.warn("count was received out of order, {}!={}", count, i);
                      }
 
                      msgs.add(count);
@@ -492,7 +486,9 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                         assertTrue("msgs.size is expected to be " + numMessages + " but it was " + msgs.size(), msgs.size() == numMessages);
                      }
                   } catch (Throwable e) {
-                     log.debug(threadDump("Thread dump, messagesReceived = " + msgs.size()));
+                     if (log.isDebugEnabled()) {
+                        log.debug(threadDump("Thread dump, messagesReceived = " + msgs.size()));
+                     }
                      logAndSystemOut(e.getMessage() + " messages received");
                      for (Integer msg : msgs) {
                         logAndSystemOut(msg.toString());

@@ -165,7 +165,7 @@ public class JournalCrashTest extends SpawnedTestBase {
     */
    private void runExternalProcess(final String tempDir, final int start, final int end) throws Exception {
       System.err.println("running external process...");
-      Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(), "-Xms128m", "-Xmx128m", new String[]{}, true, true, true, tempDir, Integer.toString(start), Integer.toString(end));
+      Process process = SpawnedVMSupport.spawnVM(this.getClass().getCanonicalName(), "-Xms128m", "-Xmx128m", new String[]{}, true, true, tempDir, Integer.toString(start), Integer.toString(end));
 
       Assert.assertEquals(100, process.waitFor());
    }

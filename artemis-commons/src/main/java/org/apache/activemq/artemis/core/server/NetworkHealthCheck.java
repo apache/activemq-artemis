@@ -35,7 +35,8 @@ import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This will use {@link InetAddress#isReachable(int)} to determine if the network is alive.
@@ -43,7 +44,7 @@ import org.jboss.logging.Logger;
  */
 public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
-   private static final Logger logger = Logger.getLogger(NetworkHealthCheck.class);
+   private static final Logger logger = LoggerFactory.getLogger(NetworkHealthCheck.class);
 
    private final Set<ActiveMQComponent> componentList = new ConcurrentHashSet<>();
    private final Set<String> addresses = new ConcurrentHashSet<>();
@@ -87,7 +88,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
             netToUse = null;
          }
       } catch (Exception e) {
-         ActiveMQUtilLogger.LOGGER.failedToSetNIC(e, nicName);
+         ActiveMQUtilLogger.LOGGER.failedToSetNIC(nicName, e);
          netToUse = null;
       }
 
@@ -130,7 +131,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
                   String strAddress = address.trim();
                   this.addAddress(strAddress);
                } catch (Exception e) {
-                  ActiveMQUtilLogger.LOGGER.failedToParseAddressList(e, addressList);
+                  ActiveMQUtilLogger.LOGGER.failedToParseAddressList(addressList, e);
                }
             }
          }
@@ -148,7 +149,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
                try {
                   this.addURL(new URL(address.trim()));
                } catch (Exception e) {
-                  ActiveMQUtilLogger.LOGGER.failedToParseUrlList(e, addressList);
+                  ActiveMQUtilLogger.LOGGER.failedToParseUrlList(addressList, e);
                }
             }
          }
@@ -288,7 +289,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
                   ActiveMQUtilLogger.LOGGER.startingService(component.toString());
                   component.start();
                } catch (Exception e) {
-                  ActiveMQUtilLogger.LOGGER.errorStartingComponent(e, component.toString());
+                  ActiveMQUtilLogger.LOGGER.errorStartingComponent(component.toString(), e);
                }
             }
             ownShutdown = false;
@@ -301,7 +302,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
                   ActiveMQUtilLogger.LOGGER.stoppingService(component.toString());
                   component.stop();
                } catch (Exception e) {
-                  ActiveMQUtilLogger.LOGGER.errorStoppingComponent(e, component.toString());
+                  ActiveMQUtilLogger.LOGGER.errorStoppingComponent(component.toString(), e);
                }
             }
          }
@@ -350,7 +351,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
             return null;
          }
       } catch (Exception e) {
-         ActiveMQUtilLogger.LOGGER.failedToCheckAddress(e, straddress);
+         ActiveMQUtilLogger.LOGGER.failedToCheckAddress(straddress, e);
          return null;
       }
    }
@@ -358,7 +359,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    public boolean check(InetAddress address) throws IOException, InterruptedException {
       if (!hasCustomPingCommand() && isReachable(address)) {
          if (logger.isTraceEnabled()) {
-            logger.tracef(address + " OK");
+            logger.trace(address + " OK");
          }
          return true;
       } else {
@@ -432,7 +433,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
          is.close();
          return true;
       } catch (Exception e) {
-         ActiveMQUtilLogger.LOGGER.failedToCheckURL(e, url.toString());
+         ActiveMQUtilLogger.LOGGER.failedToCheckURL(url.toString(), e);
          return false;
       }
    }

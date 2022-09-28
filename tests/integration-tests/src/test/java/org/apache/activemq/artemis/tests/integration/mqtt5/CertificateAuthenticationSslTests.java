@@ -24,7 +24,6 @@ import java.util.Collection;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.eclipse.paho.mqttv5.client.MqttClient;
-import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 
@@ -40,8 +39,6 @@ public class CertificateAuthenticationSslTests extends MQTT5TestSupport {
          }
       }
    }
-
-   private static final Logger log = Logger.getLogger(CertificateAuthenticationSslTests.class);
 
    public CertificateAuthenticationSslTests(String protocol) {
       super(protocol);

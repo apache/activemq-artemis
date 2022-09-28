@@ -31,7 +31,8 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -39,7 +40,7 @@ import org.w3c.dom.NodeList;
 
 public class LegacyJMSConfiguration implements Deployable {
 
-   private static final Logger logger = Logger.getLogger(LegacyJMSConfiguration.class);
+   private static final Logger logger = LoggerFactory.getLogger(LegacyJMSConfiguration.class);
 
    private static final String CONFIGURATION_SCHEMA_URL = "schema/artemis-jms.xsd";
 

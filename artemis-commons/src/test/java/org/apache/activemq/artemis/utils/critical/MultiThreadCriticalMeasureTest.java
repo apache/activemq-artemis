@@ -27,13 +27,14 @@ import java.util.concurrent.locks.LockSupport;
 
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class MultiThreadCriticalMeasureTest {
 
-   private static final Logger logger = Logger.getLogger(MultiThreadCriticalMeasureTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(MultiThreadCriticalMeasureTest.class);
 
    @Test
    public void testMultiThread() throws Throwable {

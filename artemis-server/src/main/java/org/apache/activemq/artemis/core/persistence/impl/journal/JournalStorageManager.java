@@ -69,11 +69,12 @@ import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JournalStorageManager extends AbstractJournalStorageManager {
 
-   private static final Logger logger = Logger.getLogger(JournalStorageManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(JournalStorageManager.class);
    public static final String ACTIVEMQ_DATA = "activemq-data";
 
    protected SequentialFileFactory journalFF;
@@ -333,7 +334,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             try {
                msg.delete();
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, messageId);
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(messageId, e);
             }
             if (replicator != null) {
                replicator.largeMessageDelete(messageId, JournalStorageManager.this);
@@ -502,7 +503,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                   confirmLargeMessage(largeServerMessage);
                }
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(e, largeServerMessage.toMessage().getMessageID());
+               ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(largeServerMessage.toMessage().getMessageID(), e);
             }
          }
 

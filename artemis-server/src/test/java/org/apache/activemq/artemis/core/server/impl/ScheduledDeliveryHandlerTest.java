@@ -60,13 +60,14 @@ import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ScheduledDeliveryHandlerTest extends Assert {
 
-   private static final Logger log = Logger.getLogger(ScheduledDeliveryHandlerTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ScheduledDeliveryHandlerTest.class);
 
    @Test
    public void testScheduleRandom() throws Exception {

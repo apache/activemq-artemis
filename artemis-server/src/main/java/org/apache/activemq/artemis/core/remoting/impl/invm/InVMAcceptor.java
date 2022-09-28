@@ -41,7 +41,8 @@ import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class InVMAcceptor extends AbstractAcceptor {
 
@@ -71,7 +72,7 @@ public final class InVMAcceptor extends AbstractAcceptor {
 
    private final String name;
 
-   private static final Logger logger = Logger.getLogger(InVMAcceptor.class);
+   private static final Logger logger = LoggerFactory.getLogger(InVMAcceptor.class);
 
    private final boolean enableBufferPooling;
 

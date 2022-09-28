@@ -28,7 +28,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Always login the user with a default 'guest' identity.
@@ -38,7 +39,7 @@ import org.jboss.logging.Logger;
  */
 public class GuestLoginModule implements AuditLoginModule {
 
-   private static final Logger logger = Logger.getLogger(GuestLoginModule.class);
+   private static final Logger logger = LoggerFactory.getLogger(GuestLoginModule.class);
 
    private static final String GUEST_USER = "org.apache.activemq.jaas.guest.user";
    private static final String GUEST_ROLE = "org.apache.activemq.jaas.guest.role";

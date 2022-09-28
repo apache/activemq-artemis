@@ -31,13 +31,11 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionMetaData;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ManifestTest extends SmokeTestBase {
 
-   private static final Logger log = Logger.getLogger(ManifestTest.class);
    private static List<String> jarFiles = new ArrayList<>(Arrays.asList(
            "artemis-jms-client-", "artemis-jms-server-"));
 

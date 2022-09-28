@@ -35,13 +35,14 @@ import java.nio.charset.StandardCharsets;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.commons.io.FileUtils;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class PropertiesLoginModuleTest extends Assert {
 
-   private static final Logger logger = Logger.getLogger(PropertiesLoginModuleTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(PropertiesLoginModuleTest.class);
 
    static {
       String path = System.getProperty("java.security.auth.login.config");

@@ -32,9 +32,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class UUIDGenerator {
+
+   private static final Logger logger = LoggerFactory.getLogger(UUIDGenerator.class);
 
    private static final UUIDGenerator sSingleton = new UUIDGenerator();
 
@@ -122,8 +125,8 @@ public final class UUIDGenerator {
        */
       dummy[0] |= (byte) 0x01;
 
-      if (ActiveMQUtilLogger.LOGGER.isDebugEnabled()) {
-         ActiveMQUtilLogger.LOGGER.debug("using dummy address " + UUIDGenerator.asString(dummy));
+      if (logger.isDebugEnabled()) {
+         logger.debug("using dummy address " + UUIDGenerator.asString(dummy));
       }
       return dummy;
    }
@@ -153,8 +156,8 @@ public final class UUIDGenerator {
 
          byte[] address = findFirstMatchingHardwareAddress(ifaces);
          if (address != null) {
-            if (ActiveMQUtilLogger.LOGGER.isDebugEnabled()) {
-               ActiveMQUtilLogger.LOGGER.debug("using hardware address " + UUIDGenerator.asString(address));
+            if (logger.isDebugEnabled()) {
+               logger.debug("using hardware address " + UUIDGenerator.asString(address));
             }
             return address;
          }

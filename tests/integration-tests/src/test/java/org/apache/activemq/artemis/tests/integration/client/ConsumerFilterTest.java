@@ -27,13 +27,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsumerFilterTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(ConsumerFilterTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ConsumerFilterTest.class);
 
    private ActiveMQServer server;
    private ClientSession session;

@@ -48,14 +48,15 @@ import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The ActiveMQ Artemis SecurityStore implementation
  */
 public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryChangeListener {
 
-   private static final Logger logger = Logger.getLogger(SecurityStoreImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(SecurityStoreImpl.class);
 
    private final HierarchicalRepository<Set<Role>> securityRepository;
 
@@ -290,7 +291,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             } else {
                ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(session.getUsername(), checkType, bareQueue, bareAddress);
             }
-            AuditLogger.securityFailure(ex);
+            AuditLogger.securityFailure(ex.getMessage(), ex);
             throw ex;
          }
 

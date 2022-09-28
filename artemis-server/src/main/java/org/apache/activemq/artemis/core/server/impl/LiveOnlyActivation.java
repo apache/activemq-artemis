@@ -38,11 +38,12 @@ import org.apache.activemq.artemis.core.server.cluster.ActiveMQServerSideProtoco
 import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LiveOnlyActivation extends Activation {
 
-   private static final Logger logger = Logger.getLogger(LiveOnlyActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(LiveOnlyActivation.class);
 
    //this is how we act when we initially start as live
    private LiveOnlyPolicy liveOnlyPolicy;

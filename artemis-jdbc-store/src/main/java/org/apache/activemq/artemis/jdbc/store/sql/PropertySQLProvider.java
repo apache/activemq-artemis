@@ -28,8 +28,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
-import org.apache.activemq.artemis.jdbc.store.journal.JDBCJournalImpl;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.lang.String.format;
 
@@ -41,6 +41,8 @@ import static java.lang.String.format;
  * Dialects specific to a database can be customized by suffixing the property keys with the name of the dialect.
  */
 public class PropertySQLProvider implements SQLProvider {
+
+   private static final Logger logger = LoggerFactory.getLogger(PropertySQLProvider.class);
 
    private enum LetterCase implements Function<String, String> {
       upper(String::toUpperCase),
@@ -308,7 +310,6 @@ public class PropertySQLProvider implements SQLProvider {
 
    public static final class Factory implements SQLProvider.Factory {
 
-      private static final Logger logger = Logger.getLogger(JDBCJournalImpl.class);
       private static final String SQL_PROPERTIES_FILE = "journal-sql.properties";
       // can be null if no known dialect has been identified
       private SQLDialect dialect;
@@ -396,9 +397,9 @@ public class PropertySQLProvider implements SQLProvider {
                dialect = identifyDialect(metaData.getDriverName());
             }
             if (dialect == null) {
-               logger.warnf("Unable to detect database dialect from connection metadata or JDBC driver name.");
+               logger.warn("Unable to detect database dialect from connection metadata or JDBC driver name.");
             } else {
-               logger.debugf("Detect database dialect as '%s'.", dialect);
+               logger.debug("Detect database dialect as '{}'.", dialect);
             }
          } catch (Exception e) {
             logger.debug("Unable to read JDBC metadata.", e);

@@ -58,11 +58,12 @@ import org.apache.activemq.artemis.utils.ConfirmationWindowWarning;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ClientSessionImpl implements ClientSessionInternal, FailureListener {
 
-   private static final Logger logger = Logger.getLogger(ClientSessionImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ClientSessionImpl.class);
 
    private final Map<String, String> metadata = new HashMap<>();
 
@@ -1526,7 +1527,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public void setAddress(final Message message, final SimpleString address) {
-      logger.tracef("setAddress() Setting default address as %s", address);
+      logger.trace("setAddress() Setting default address as {}", address);
 
       message.setAddress(address);
    }

@@ -32,14 +32,15 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
-   private static final Logger log = Logger.getLogger(JournalImplTestUnit.class);
+   private static final Logger log = LoggerFactory.getLogger(JournalImplTestUnit.class);
 
    @Override
    @After
@@ -733,7 +734,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       int addRecordsPerFile = calculateRecordsPerFile(10 * 1024, journal.getAlignment(), JournalImpl.SIZE_ADD_RECORD + 1 + recordLength);
 
-      log.debug(JournalImpl.SIZE_ADD_RECORD + 1 + recordLength);
+      log.debug(String.valueOf(JournalImpl.SIZE_ADD_RECORD + 1 + recordLength));
 
       // Fills exactly 10 files
       int initialNumberOfAddRecords = addRecordsPerFile * 10;

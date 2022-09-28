@@ -32,13 +32,13 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCConnectionProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
-import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveMQComponent {
 
-   private static final Logger logger = Logger.getLogger(JDBCSequentialFile.class);
+   private static final Logger logger = LoggerFactory.getLogger(JDBCSequentialFileFactory.class);
 
    private boolean started;
 
@@ -104,7 +104,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       try {
          dbDriver.stop();
       } catch (SQLException e) {
-         ActiveMQJournalLogger.LOGGER.error("Error stopping file factory, unable to close db connection");
+         logger.error("Error stopping file factory, unable to close db connection");
       }
       started = false;
    }

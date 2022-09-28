@@ -36,7 +36,8 @@ import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.server.management.NotificationService;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>This class will use the {@link BroadcastEndpoint} to send periodical updates on the list for connections
@@ -47,7 +48,7 @@ import org.jboss.logging.Logger;
  */
 public class BroadcastGroupImpl implements BroadcastGroup, Runnable {
 
-   private static final Logger logger = Logger.getLogger(BroadcastGroupImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(BroadcastGroupImpl.class);
 
    private final NodeManager nodeManager;
 

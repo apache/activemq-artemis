@@ -38,17 +38,18 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This test will only be executed if you have qdrouterd available on your system, otherwise is ignored by an assume exception. */
 public class QpidDispatchPeerTest extends AmqpClientTestSupport {
-   private static final Logger logger = Logger.getLogger(QpidDispatchPeerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(QpidDispatchPeerTest.class);
 
    ExecuteUtil.ProcessHolder qpidProcess;
 

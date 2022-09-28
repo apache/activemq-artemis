@@ -21,11 +21,12 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class VersionedBase extends ClasspathBase {
 
-   private static final Logger logger = Logger.getLogger(VersionedBase.class);
+   private static final Logger logger = LoggerFactory.getLogger(VersionedBase.class);
 
    protected final String server;
    protected final String sender;

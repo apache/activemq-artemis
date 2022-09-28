@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.tests.integration.mqtt5.spec.controlpackets;
 
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
-import org.jboss.logging.Logger;
 import org.junit.Ignore;
 
 /**
@@ -41,8 +40,6 @@ import org.junit.Ignore;
 
 @Ignore
 public class AuthTests  extends MQTT5TestSupport {
-
-   private static final Logger log = Logger.getLogger(AuthTests.class);
 
    public AuthTests(String protocol) {
       this.protocol = protocol;

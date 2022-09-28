@@ -78,7 +78,8 @@ import org.apache.qpid.proton.codec.TypeConstructor;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.message.Message;
 import org.apache.qpid.proton.message.impl.MessageImpl;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport.getCharsetForTextualContent;
 
@@ -118,7 +119,7 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
 
    private static final SimpleString ANNOTATION_AREA_PREFIX = SimpleString.toSimpleString("m.");
 
-   protected static final Logger logger = Logger.getLogger(AMQPMessage.class);
+   protected static final Logger logger = LoggerFactory.getLogger(AMQPMessage.class);
 
    public static final SimpleString ADDRESS_PROPERTY = SimpleString.toSimpleString("_AMQ_AD");
    // used to perform quick search

@@ -20,10 +20,15 @@ import javax.jms.JMSException;
 import javax.jms.ObjectMessage;
 import java.io.Serializable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A wrapper for a message
  */
 public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements ObjectMessage {
+
+   private static final Logger logger = LoggerFactory.getLogger(ActiveMQRAObjectMessage.class);
 
    /**
     * Create a new wrapper
@@ -34,8 +39,8 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
    public ActiveMQRAObjectMessage(final ObjectMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("constructor(" + message + ", " + session + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("constructor(" + message + ", " + session + ")");
       }
    }
 
@@ -47,8 +52,8 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     */
    @Override
    public Serializable getObject() throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("getObject()");
+      if (logger.isTraceEnabled()) {
+         logger.trace("getObject()");
       }
 
       return ((ObjectMessage) message).getObject();
@@ -62,8 +67,8 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     */
    @Override
    public void setObject(final Serializable object) throws JMSException {
-      if (ActiveMQRALogger.LOGGER.isTraceEnabled()) {
-         ActiveMQRALogger.LOGGER.trace("setObject(" + object + ")");
+      if (logger.isTraceEnabled()) {
+         logger.trace("setObject(" + object + ")");
       }
 
       ((ObjectMessage) message).setObject(object);

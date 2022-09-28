@@ -52,13 +52,14 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.AmqpError;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.netty.buffer.ByteBuf;
 
 public class AMQPConnectionCallback implements FailureListener, CloseListener {
 
-   private static final Logger logger = Logger.getLogger(AMQPConnectionCallback.class);
+   private static final Logger logger = LoggerFactory.getLogger(AMQPConnectionCallback.class);
 
    private final ConcurrentMap<Binary, Transaction> transactions = new ConcurrentHashMap<>();
 

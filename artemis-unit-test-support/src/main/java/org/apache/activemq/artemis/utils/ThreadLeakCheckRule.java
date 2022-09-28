@@ -26,7 +26,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -36,7 +37,7 @@ import org.junit.runner.Description;
  */
 public class ThreadLeakCheckRule extends TestWatcher {
 
-   private static Logger log = Logger.getLogger(ThreadLeakCheckRule.class);
+   private static Logger log = LoggerFactory.getLogger(ThreadLeakCheckRule.class);
 
    private static Set<String> knownThreads = new HashSet<>();
 

@@ -43,13 +43,14 @@ import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class NettyConnection implements Connection {
 
-   private static final Logger logger = Logger.getLogger(NettyConnection.class);
+   private static final Logger logger = LoggerFactory.getLogger(NettyConnection.class);
 
    private static final int DEFAULT_WAIT_MILLIS = 10_000;
 

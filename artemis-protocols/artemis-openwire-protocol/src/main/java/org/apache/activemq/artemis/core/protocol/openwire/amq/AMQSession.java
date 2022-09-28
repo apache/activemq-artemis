@@ -41,7 +41,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManage
 import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
@@ -65,10 +64,11 @@ import org.apache.activemq.command.ProducerInfo;
 import org.apache.activemq.command.Response;
 import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQSession implements SessionCallback {
-   private final Logger logger = Logger.getLogger(AMQSession.class);
+   private final Logger logger = LoggerFactory.getLogger(AMQSession.class);
 
    // ConsumerID is generated inside the session, 0, 1, 2, ... as many consumers as you have on the session
    protected final IDGenerator consumerIDGenerator = new SimpleIDGenerator(0);
@@ -133,7 +133,7 @@ public class AMQSession implements SessionCallback {
       try {
          coreSession = server.createSession(name, username, password, minLargeMessageSize, connection, true, false, false, false, null, this, true, connection.getOperationContext(), protocolManager.getPrefixes(), protocolManager.getSecurityDomain(), connection.getValidatedUser());
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.error("error init session", e);
+         logger.error("error init session", e);
       }
 
    }
@@ -481,7 +481,7 @@ public class AMQSession implements SessionCallback {
                            connection.dispatchAsync(ack);
                         } catch (Exception e) {
                            connection.getContext().setDontSendReponse(false);
-                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           logger.warn(e.getMessage(), e);
                            connection.sendException(e);
                         }
                      } else {
@@ -491,7 +491,7 @@ public class AMQSession implements SessionCallback {
                            response.setCorrelationId(messageSend.getCommandId());
                            connection.dispatchAsync(response);
                         } catch (Exception e) {
-                           ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+                           logger.warn(e.getMessage(), e);
                            connection.sendException(e);
                         }
                      }
@@ -501,10 +501,10 @@ public class AMQSession implements SessionCallback {
                   public void onError(int errorCode, String errorMessage) {
                      try {
                         final IOException e = new IOException(errorMessage);
-                        ActiveMQServerLogger.LOGGER.warn(errorMessage);
+                        logger.warn(errorMessage);
                         connection.serviceException(e);
                      } catch (Exception ex) {
-                        ActiveMQServerLogger.LOGGER.debug(ex);
+                        logger.debug(ex.getMessage(), ex);
                      }
                   }
                });

@@ -70,10 +70,11 @@ import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.InVMNodeManagerServer;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A JMSFailoverTest
@@ -83,7 +84,7 @@ import org.junit.Test;
  */
 public class JMSFailoverTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(JMSFailoverTest.class);
+   private static final Logger log = LoggerFactory.getLogger(JMSFailoverTest.class);
 
 
 
@@ -228,7 +229,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
       for (int i = 0; i < numMessages; i++) {
-         log.debug("got message " + i);
+         log.debug("got message {}", i);
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 

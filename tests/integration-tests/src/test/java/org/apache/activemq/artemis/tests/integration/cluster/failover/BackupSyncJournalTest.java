@@ -52,14 +52,11 @@ import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.UUID;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class BackupSyncJournalTest extends FailoverTestBase {
-
-   private static final Logger logger = Logger.getLogger(BackupSyncJournalTest.class);
 
    protected static final int BACKUP_WAIT_TIME = 60;
    private ServerLocatorInternal locator;

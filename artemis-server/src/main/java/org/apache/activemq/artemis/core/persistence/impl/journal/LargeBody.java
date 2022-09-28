@@ -33,13 +33,14 @@ import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LargeBody {
 
    static final int MEMORY_OFFSET = 56;
 
-   private static final Logger logger = Logger.getLogger(LargeBody.class);
+   private static final Logger logger = LoggerFactory.getLogger(LargeBody.class);
 
    private long bodySize = -1;
 
@@ -283,7 +284,7 @@ public class LargeBody {
          final long fileSize = file.size();
          int fileSizeAsInt = (int) fileSize;
          if (fileSizeAsInt < 0) {
-            logger.warnf("suspicious large message file size of %d bytes for %s, will use %d instead.", fileSize, file.getFileName(), Integer.MAX_VALUE);
+            logger.warn("suspicious large message file size of {} bytes for {}, will use {} instead.", fileSize, file.getFileName(), Integer.MAX_VALUE);
             fileSizeAsInt = Integer.MAX_VALUE;
          }
          return fileSizeAsInt;

@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.core.journal.impl;
 
-import org.jboss.logging.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * <p>The journal consists of an ordered list of journal files Fn where {@code 0 <= n <= N}</p>
@@ -34,7 +35,7 @@ import org.jboss.logging.Logger;
  */
 public final class Reclaimer {
 
-   private static final Logger logger = Logger.getLogger(Reclaimer.class);
+   private static final Logger logger = LoggerFactory.getLogger(Reclaimer.class);
 
    private Reclaimer() {
    }
@@ -54,7 +55,7 @@ public final class Reclaimer {
             for (int j = i - 1; j >= 0 && !outstandingNeg; j--) {
                JournalFile file = files[j];
                if (!file.isCanReclaim() && currentFile.getNegCount(file) != 0) {
-                  logger.tracef("%s can't be reclaimed because %s has negative values", currentFile, file);
+                  logger.trace("{} can't be reclaimed because {} has negative values", currentFile, file);
                   outstandingNeg = true;
                }
             }
@@ -69,21 +70,21 @@ public final class Reclaimer {
          // criterion 1) --- this files additions all have matching deletes
          if (!currentFile.isPosReclaimCriteria()) {
             int negCount = 0, posCount = currentFile.getPosCount();
-            logger.tracef("posCount on %s = %d", currentFile, posCount);
+            logger.trace("posCount on {} = {}", currentFile, posCount);
 
             for (int j = i; j < files.length && negCount < posCount; j++) {
                int toNeg = files[j].getNegCount(currentFile);
                negCount += toNeg;
 
                if (logger.isTraceEnabled() && toNeg != 0) {
-                  logger.tracef("Negative from %s into %s = %d", files[j], currentFile, toNeg);
+                  logger.trace("Negative from {} into {} = {}", files[j], currentFile, toNeg);
                }
             }
 
             if (negCount < posCount) {
-               logger.tracef("%s can't be reclaimed because there are not enough negatives %d", currentFile, negCount);
+               logger.trace("{} can't be reclaimed because there are not enough negatives {}", currentFile, negCount);
             } else {
-               logger.tracef("%s can be reclaimed", currentFile);
+               logger.trace("{} can be reclaimed", currentFile);
                currentFile.setPosReclaimCriteria();
             }
          }

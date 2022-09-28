@@ -34,13 +34,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
@@ -69,7 +70,7 @@ public class FlowControlPagingTest extends SoakTestBase {
    private final int MESSAGE_SIZE;
 
 
-   private static final Logger logger = Logger.getLogger(FlowControlPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(FlowControlPagingTest.class);
 
    public static final String SERVER_NAME_0 = "flowControlPaging";
 
@@ -79,7 +80,7 @@ public class FlowControlPagingTest extends SoakTestBase {
 
       ArrayList<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
-         logger.info("Adding " + str + " to the list for the test");
+         logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
       }
 
@@ -145,14 +146,14 @@ public class FlowControlPagingTest extends SoakTestBase {
 
          Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
          Queue queue = session.createQueue(QUEUE_NAME);
-         logger.info("*******************************************************************************************************************************\ndestination " + queue.getQueueName());
+         logger.info("*******************************************************************************************************************************\ndestination {}", queue.getQueueName());
          MessageProducer producer = session.createProducer(queue);
          for (int m = 0; m < MESSAGES; m++) {
             TextMessage message = session.createTextMessage(text);
             message.setIntProperty("m", m);
             producer.send(message);
             if (m > 0 && m % COMMIT_INTERVAL == 0) {
-               logger.info("Sent " + m + " " + protocol + " messages on queue " + queue.getQueueName());
+               logger.info("Sent {} {} messages on queue {}", m, protocol, queue.getQueueName());
                session.commit();
             }
          }
@@ -214,7 +215,7 @@ public class FlowControlPagingTest extends SoakTestBase {
 
                // The sending commit interval here will be used for printing
                if (PRINT_INTERVAL > 0 && m % PRINT_INTERVAL == 0) {
-                  logger.info("Destination " + QUEUE_NAME + " received " + m + " " + protocol + " messages");
+                  logger.info("Destination {} received {} {} messages", QUEUE_NAME, m, protocol);
                }
 
                if (RECEIVE_COMMIT_INTERVAL > 0 && (m + 1) % RECEIVE_COMMIT_INTERVAL == 0) {

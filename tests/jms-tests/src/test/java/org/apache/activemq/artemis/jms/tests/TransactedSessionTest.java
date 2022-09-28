@@ -32,8 +32,12 @@ import org.apache.activemq.artemis.jms.tests.util.ProxyAssertSupport;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TransactedSessionTest extends JMSTestCase {
+
+   private static final Logger logger = LoggerFactory.getLogger(TransactedSessionTest.class);
 
    @Test
    public void testSimpleRollback() throws Exception {
@@ -172,10 +176,10 @@ public class TransactedSessionTest extends JMSTestCase {
          MessageConsumer consumer = sess.createConsumer(ActiveMQServerTestCase.topic1);
          conn.start();
 
-         log.debug("sending message first time");
+         logger.debug("sending message first time");
          TextMessage mSent = sess.createTextMessage("igloo");
          producer.send(mSent);
-         log.debug("sent message first time");
+         logger.debug("sent message first time");
 
          sess.commit();
 
@@ -184,10 +188,10 @@ public class TransactedSessionTest extends JMSTestCase {
 
          sess.commit();
 
-         log.debug("sending message again");
+         logger.debug("sending message again");
          mSent.setText("rollback");
          producer.send(mSent);
-         log.debug("sent message again");
+         logger.debug("sent message again");
 
          sess.commit();
 
@@ -499,13 +503,13 @@ public class TransactedSessionTest extends JMSTestCase {
 
       TextMessage mSent = sess.createTextMessage("igloo");
       producer.send(mSent);
-      log.trace("sent1");
+      logger.trace("sent1");
 
       sess.commit();
 
       TextMessage mRec = (TextMessage) consumer.receive(1000);
       ProxyAssertSupport.assertNotNull(mRec);
-      log.trace("Got 1");
+      logger.trace("Got 1");
       ProxyAssertSupport.assertNotNull(mRec);
       ProxyAssertSupport.assertEquals("igloo", mRec.getText());
 
@@ -516,11 +520,11 @@ public class TransactedSessionTest extends JMSTestCase {
 
       sess.commit();
 
-      log.trace("Receiving 2");
+      logger.trace("Receiving 2");
       mRec = (TextMessage) consumer.receive(1000);
       ProxyAssertSupport.assertNotNull(mRec);
 
-      log.trace("Received 2");
+      logger.trace("Received 2");
       ProxyAssertSupport.assertNotNull(mRec);
       ProxyAssertSupport.assertEquals("rollback", mRec.getText());
 

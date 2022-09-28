@@ -63,11 +63,12 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScaleDownHandler {
 
-   private static final Logger logger = Logger.getLogger(ScaleDownHandler.class);
+   private static final Logger logger = LoggerFactory.getLogger(ScaleDownHandler.class);
 
    final PagingManager pagingManager;
    final PostOffice postOffice;
@@ -179,7 +180,7 @@ public class ScaleDownHandler {
                   MessageReference messageReference = messagesIterator.next();
                   Message message = messageReference.getMessage().copy();
 
-                  logger.debugf("Reading message %s from queue %s", message, loopQueue);
+                  logger.debug("Reading message {} from queue {}", message, loopQueue);
                   Set<QueuesXRefInnerManager> queuesFound = new HashSet<>();
 
                   for (Map.Entry<Queue, QueuesXRefInnerManager> controlEntry : controls.entrySet()) {

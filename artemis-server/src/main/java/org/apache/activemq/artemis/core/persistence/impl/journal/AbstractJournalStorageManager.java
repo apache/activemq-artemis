@@ -126,7 +126,8 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
 import org.apache.activemq.artemis.utils.critical.CriticalCloseable;
 import org.apache.activemq.artemis.utils.critical.CriticalComponentImpl;
 import org.apache.activemq.artemis.utils.critical.CriticalMeasure;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Controls access to the journals and other storage files such as the ones used to store pages and
@@ -143,7 +144,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected static final int CRITICAL_STOP_2 = 2;
 
 
-   private static final Logger logger = Logger.getLogger(AbstractJournalStorageManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(AbstractJournalStorageManager.class);
 
    public enum JournalContent {
       BINDINGS((byte) 0), MESSAGES((byte) 1);
@@ -455,7 +456,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    private void messageUpdateCallback(long id, boolean found) {
       if (!found) {
-         ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(new Exception(), id);
+         ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(id, new Exception());
       }
    }
 
@@ -1279,7 +1280,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       } catch (Throwable ignored) {
       }
 
-      ActiveMQServerLogger.LOGGER.failedToLoadPreparedTX(e, String.valueOf(encodingXid != null ? encodingXid.xid : null));
+      ActiveMQServerLogger.LOGGER.failedToLoadPreparedTX(String.valueOf(encodingXid != null ? encodingXid.xid : null), e);
 
       try {
          rollback(txInfo.getId());
@@ -1724,9 +1725,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             } catch (ActiveMQShutdownException e) {
                // this may happen, this is asynchronous as all that would happen is we missed the update
                // since the update was missed, next restart this operation will be retried
-               ActiveMQServerLogger.LOGGER.debug(e.getMessage(), e);
+               logger.debug(e.getMessage(), e);
             } catch (Throwable e) {
-               ActiveMQServerLogger.LOGGER.warn(e.getMessage(), e);
+               logger.warn(e.getMessage(), e);
             }
          }
       }

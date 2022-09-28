@@ -20,17 +20,18 @@ import java.io.File;
 
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealJournalImplNIOTest extends JournalImplTestUnit {
 
-   private static final Logger log = Logger.getLogger(RealJournalImplNIOTest.class);
+   private static final Logger log = LoggerFactory.getLogger(RealJournalImplNIOTest.class);
 
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
-      RealJournalImplNIOTest.log.debug("deleting directory " + getTestDir());
+      RealJournalImplNIOTest.log.debug("deleting directory {}", getTestDir());
 
       deleteDirectory(file);
 

@@ -40,14 +40,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConnectionTest extends JMSTestBase {
 
-   private static final Logger log = Logger.getLogger(ConnectionTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ConnectionTest.class);
 
    private Connection conn2;
 

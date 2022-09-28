@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.core.protocol.stomp.StompConnection;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.stomp.StompTestBase;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
@@ -47,13 +46,14 @@ import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConne
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV11;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionV12;
 import org.apache.activemq.artemis.utils.Wait;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Testing Stomp version 1.2 functionalities
@@ -61,7 +61,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class StompV12Test extends StompTestBase {
 
-   private static final Logger log = Logger.getLogger(StompV12Test.class);
+   private static final Logger log = LoggerFactory.getLogger(StompV12Test.class);
 
    public static final String CLIENT_ID = "myclientid";
 
@@ -1358,7 +1358,7 @@ public class StompV12Test extends StompTestBase {
       sendJmsMessage(text);
 
       ClientStompFrame frame = conn.receiveFrame();
-      instanceLog.debug(frame);
+      instanceLog.debug("{}", frame);
       Assert.assertTrue(frame.getCommand().equals(Stomp.Responses.MESSAGE));
       Assert.assertNotNull(frame.getHeader(Stomp.Headers.Subscribe.DESTINATION));
       Assert.assertTrue(frame.getBody().equals(text));
@@ -2492,7 +2492,6 @@ public class StompV12Test extends StompTestBase {
 
    @Test
    public void testSubscribeWithNonZeroConsumerWindowSizeAndClientAck() throws Exception {
-      org.jboss.logmanager.Logger.getLogger(StompConnection.class.getName()).setLevel(org.jboss.logmanager.Level.DEBUG);
       // the size of each message was determined from the DEBUG logging from org.apache.activemq.artemis.core.protocol.stomp.StompConnection
       final int MESSAGE_SIZE = 270;
       final int TIMEOUT = 1000;

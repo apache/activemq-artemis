@@ -31,6 +31,8 @@ import org.apache.activemq.artemis.selector.filter.FilterException;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.selector.impl.SelectorParser;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
@@ -54,6 +56,7 @@ import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAG
  */
 public class FilterImpl implements Filter {
 
+   private static final Logger logger = LoggerFactory.getLogger(FilterImpl.class);
 
    private final SimpleString sfilterString;
 
@@ -82,10 +85,10 @@ public class FilterImpl implements Filter {
          booleanExpression = SelectorParser.parse(filterStr.toString());
       } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(filterStr);
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Invalid filter", e);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Invalid filter", e);
          }
-         throw ActiveMQMessageBundle.BUNDLE.invalidFilter(e, filterStr);
+         throw ActiveMQMessageBundle.BUNDLE.invalidFilter(filterStr, e);
       }
       return new FilterImpl(filterStr, booleanExpression);
    }
@@ -119,8 +122,8 @@ public class FilterImpl implements Filter {
          return booleanExpression.matches(filterable);
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(sfilterString);
-         if (ActiveMQServerLogger.LOGGER.isDebugEnabled()) {
-            ActiveMQServerLogger.LOGGER.debug("Invalid filter", e);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Invalid filter", e);
          }
          return false;
       }

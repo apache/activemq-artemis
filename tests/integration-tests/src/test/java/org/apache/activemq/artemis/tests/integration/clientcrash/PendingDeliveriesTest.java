@@ -49,7 +49,6 @@ public class PendingDeliveriesTest extends ClientTestBase {
    @After
    public void clearLogger() throws Exception {
       AssertionLoggerHandler.stopCapture();
-      AssertionLoggerHandler.clear();
    }
 
    private static final String AMQP_URI = "amqp://localhost:61616?amqp.saslLayer=false";

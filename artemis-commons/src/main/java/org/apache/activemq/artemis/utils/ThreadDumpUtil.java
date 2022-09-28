@@ -19,7 +19,8 @@
 
 package org.apache.activemq.artemis.utils;
 
-import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,6 +32,7 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 
 public final class ThreadDumpUtil {
+   private static final Logger logger = LoggerFactory.getLogger(ThreadDumpUtil.class);
 
    public static String threadDump(final String msg) {
 
@@ -66,7 +68,7 @@ public final class ThreadDumpUtil {
          return str.toString();
 
       } catch (IOException e) {
-         ActiveMQUtilLogger.LOGGER.error("Exception thrown during generating of thread dump.", e);
+         logger.error("Exception thrown during generating of thread dump.", e);
       }
 
       return "Generating of thread dump failed " + msg;

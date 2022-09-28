@@ -49,14 +49,15 @@ import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the equivalent for the ServerProducer
  */
 public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
-   private static final Logger log = Logger.getLogger(ProtonServerReceiverContext.class);
+   private static final Logger log = LoggerFactory.getLogger(ProtonServerReceiverContext.class);
 
    protected SimpleString address;
    protected SimpleString lastAddress;
@@ -200,10 +201,10 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
          if (lastAddressPolicy != null && lastAddressPolicy != currentPolicy) {
             if (!addressAlreadyClashed) {
                addressAlreadyClashed = true; // print the warning only once
-               ActiveMQAMQPProtocolLogger.LOGGER.incompatibleAddressFullMessagePolicy(lastAddress.toString(), "" + lastAddressPolicy, newAddress.toString(), "" + currentPolicy);
+               ActiveMQAMQPProtocolLogger.LOGGER.incompatibleAddressFullMessagePolicy(lastAddress.toString(), String.valueOf(lastAddressPolicy), newAddress.toString(), String.valueOf(currentPolicy));
             }
 
-            log.debug("AddressFullPolicy clash between " + lastAddress + "/" + lastAddressPolicy + " and " + newAddress + "/" + lastAddressPolicy);
+            log.debug("AddressFullPolicy clash between {}/{} and {}/{}", lastAddress, lastAddressPolicy, newAddress, lastAddressPolicy);
          }
          this.lastAddress = message.getAddressSimpleString();
          this.lastAddressPolicy = currentPolicy;

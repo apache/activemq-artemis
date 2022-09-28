@@ -19,7 +19,8 @@ package org.apache.activemq.artemis.utils;
 import java.net.URL;
 import java.util.Properties;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class will be used to perform generic class-loader operations,
@@ -30,7 +31,7 @@ import org.jboss.logging.Logger;
 
 public final class ClassloadingUtil {
 
-   private static final Logger logger = Logger.getLogger(ClassloadingUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(ClassloadingUtil.class);
 
    private static final String INSTANTIATION_EXCEPTION_MESSAGE = "Your class must have a constructor without arguments. If it is an inner class, it must be static!";
 
@@ -135,7 +136,7 @@ public final class ClassloadingUtil {
             properties.load(url.openStream());
          }
       } catch (Throwable ignored) {
-         logger.warn(ignored);
+         logger.warn(ignored.getMessage(), ignored);
       }
       return properties;
    }

@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.jms.tests.util;
 
-import org.apache.activemq.artemis.jms.tests.JmsTestLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 
 /**
@@ -24,13 +25,13 @@ import org.junit.Assert;
  */
 public class ProxyAssertSupport {
 
-   private static JmsTestLogger log = JmsTestLogger.LOGGER;
+   private static final Logger logger = LoggerFactory.getLogger(ProxyAssertSupport.class);
 
    public static void assertTrue(final java.lang.String string, final boolean b) {
       try {
          Assert.assertTrue(string, b);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -39,7 +40,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertTrue(b);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -48,7 +49,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertFalse(string, b);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -57,7 +58,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertFalse(b);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -66,7 +67,7 @@ public class ProxyAssertSupport {
       try {
          Assert.fail(string);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -75,7 +76,7 @@ public class ProxyAssertSupport {
       try {
          Assert.fail();
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -86,7 +87,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, object, object1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -95,7 +96,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(object, object1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -106,7 +107,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, string1, string2);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -115,7 +116,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, string1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -124,7 +125,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, v, v1, v2);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -133,7 +134,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(v, v1, v2);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -142,7 +143,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, v, v1, v2);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -151,7 +152,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(v, v1, v2);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -160,7 +161,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, l, l1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -169,7 +170,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(l, l1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -178,7 +179,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, b, b1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -187,7 +188,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(b, b1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -196,7 +197,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, b, b1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -205,7 +206,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(b, b1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -214,7 +215,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, c, c1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -223,7 +224,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(c, c1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -232,7 +233,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, i, i1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -241,7 +242,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(i, i1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -250,7 +251,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(string, i, i1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -259,7 +260,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertEquals(i, i1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -268,7 +269,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertNotNull(object);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -277,7 +278,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertNotNull(string, object);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -286,7 +287,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertNull(object);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -295,7 +296,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertNull(string, object);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -306,7 +307,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertSame(string, object, object1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -315,7 +316,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertSame(object, object1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -326,7 +327,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertNotSame(string, object, object1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }
@@ -335,7 +336,7 @@ public class ProxyAssertSupport {
       try {
          Assert.assertNotSame(object, object1);
       } catch (AssertionError e) {
-         ProxyAssertSupport.log.warn("AssertionFailure::" + e.toString(), e);
+         logger.warn("AssertionFailure::" + e.toString(), e);
          throw e;
       }
    }

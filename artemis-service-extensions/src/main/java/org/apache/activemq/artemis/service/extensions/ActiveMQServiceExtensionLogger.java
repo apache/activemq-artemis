@@ -17,36 +17,18 @@
 
 package org.apache.activemq.artemis.service.extensions;
 
-import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Logger;
-import org.jboss.logging.annotations.LogMessage;
-import org.jboss.logging.annotations.Message;
-import org.jboss.logging.annotations.MessageLogger;
+import org.apache.activemq.artemis.logs.annotation.LogBundle;
+import org.apache.activemq.artemis.logs.annotation.LogMessage;
+import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 35
- *
- * each message id must be 6 digits long starting with 35, the 3rd digit donates the level so
- *
- * INF0  1
- * WARN  2
- * DEBUG 3
- * ERROR 4
- * TRACE 5
- * FATAL 6
- *
- * so an INFO message would be 351000 to 351999
  */
+@LogBundle(projectCode = "AMQ", regexID = "35[0-9]{4}")
+public interface ActiveMQServiceExtensionLogger {
 
-@MessageLogger(projectCode = "AMQ")
-public interface ActiveMQServiceExtensionLogger extends BasicLogger {
+   ActiveMQServiceExtensionLogger LOGGER = BundleFactory.newBundle(ActiveMQServiceExtensionLogger.class, ActiveMQServiceExtensionLogger.class.getPackage().getName());
 
-   /**
-    * The default logger.
-    */
-   ActiveMQServiceExtensionLogger LOGGER = Logger.getMessageLogger(ActiveMQServiceExtensionLogger.class, ActiveMQServiceExtensionLogger.class.getPackage().getName());
-
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 352000, value = "Attempted to locate a Transaction Manager but none found.", format = Message.Format.MESSAGE_FORMAT)
+   @LogMessage(id = 352000, value = "Attempted to locate a Transaction Manager but none found.", level = LogMessage.Level.WARN)
    void transactionManagerNotFound();
 }

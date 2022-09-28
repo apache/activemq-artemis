@@ -21,7 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.JGroupsBroadcastEndpoint;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class maintain a global Map of JChannels wrapped in JChannelWrapper for
@@ -54,7 +55,7 @@ public class JChannelManager {
    // this is useful for testcases using a single channel.
    private boolean loopbackMessages = false;
 
-   private final Logger logger = Logger.getLogger(JChannelManager.class);
+   private final Logger logger = LoggerFactory.getLogger(JChannelManager.class);
 
    private static final Map<String, JChannelWrapper> channels = new HashMap<>();
 

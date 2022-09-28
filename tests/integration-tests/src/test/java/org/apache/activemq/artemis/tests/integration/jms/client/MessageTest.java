@@ -214,35 +214,35 @@ public class MessageTest extends JMSTestBase {
       Assert.assertNull(message.getObjectProperty(MessageTest.propName3));
 
       try {
-         instanceLog.debug(message.getIntProperty(MessageTest.propName1));
+         instanceLog.debug("{}", message.getIntProperty(MessageTest.propName1));
          Assert.fail("Should throw exception");
       } catch (NumberFormatException e) {
          // Ok
       }
 
       try {
-         instanceLog.debug(message.getShortProperty(MessageTest.propName1));
+         instanceLog.debug("{}", message.getShortProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       try {
-         instanceLog.debug(message.getByteProperty(MessageTest.propName1));
+         instanceLog.debug("{}", message.getByteProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
       try {
-         instanceLog.debug(message.getLongProperty(MessageTest.propName1));
+         instanceLog.debug("{}", message.getLongProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       try {
-         instanceLog.debug(message.getFloatProperty(MessageTest.propName1));
+         instanceLog.debug("{}", message.getFloatProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
       }
       try {
-         instanceLog.debug(message.getDoubleProperty(MessageTest.propName1));
+         instanceLog.debug("{}", message.getDoubleProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
       }

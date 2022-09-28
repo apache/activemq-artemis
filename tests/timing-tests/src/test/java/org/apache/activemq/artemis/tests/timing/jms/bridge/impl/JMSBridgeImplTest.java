@@ -64,16 +64,17 @@ import org.apache.activemq.artemis.jms.bridge.impl.JMSBridgeImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSBridgeImplTest extends ActiveMQTestBase {
 
-   private static Logger log = Logger.getLogger(JMSBridgeImplTest.class);
+   private static Logger log = LoggerFactory.getLogger(JMSBridgeImplTest.class);
 
 
    private static final String SOURCE = RandomUtil.randomString();
@@ -430,7 +431,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages - 1; i++) {
          TextMessage msg = sourceSess.createTextMessage();
          producer.send(msg);
-         JMSBridgeImplTest.log.info("sent message " + i);
+         log.info("sent message {}", i);
       }
 
       Thread.sleep(1000);
@@ -498,7 +499,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          TextMessage msg = sourceSess.createTextMessage();
          producer.send(msg);
-         JMSBridgeImplTest.log.info("sent message " + i);
+         log.info("sent message {}", i);
       }
 
       sourceConn.close();

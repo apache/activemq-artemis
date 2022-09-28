@@ -47,10 +47,11 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_DAY;
 import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit.MESSAGES_PER_MINUTE;
@@ -58,7 +59,7 @@ import static org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresho
 
 public class SlowConsumerTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(SlowConsumerTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(SlowConsumerTest.class);
 
    private int threshold = 10;
    private long checkPeriod = 1;
@@ -698,8 +699,8 @@ public class SlowConsumerTest extends ActiveMQTestBase {
             consumer.stopRunning();
             Assert.assertFalse(consumer.failed);
          }
-         logger.debug("***report messages received: " + receivedMessages.size());
-         logger.debug("***consumers left: " + consumers.size());
+         logger.debug("***report messages received: {}", receivedMessages.size());
+         logger.debug("***consumers left: {}", consumers.size());
       }
    }
 
@@ -725,7 +726,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          if (count < messages) {
             ClientMessage m = createTextMessage(session, "msg" + count);
             producer.send(m);
-            logger.debug("producer sent a message " + count);
+            logger.debug("producer sent a message {}", count);
          } else {
             this.working = false;
          }
@@ -765,12 +766,12 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       @Override
       protected void doWork(int count) throws Exception {
          ClientMessage m = this.consumer.receive(1000);
-         logger.debug("consumer " + id + " got m: " + m);
+         logger.debug("consumer {} got m: {}", id, m);
          if (m != null) {
             receivedMessages.add(m);
             m.acknowledge();
             session.commit();
-            logger.debug(" consumer " + id + " acked " + m.getClass().getName() + "now total received: " + receivedMessages.size());
+            logger.debug(" consumer {} acked {} now total received: {}", id, m.getClass().getName(), receivedMessages.size());
          }
       }
 
@@ -801,7 +802,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          this.sf = sf;
          this.queue = queue;
          this.sleepTime = (int) (SlowConsumerThresholdMeasurementUnit.unitOf(unit.getValue()).toMillis(1) / rate);
-         logger.debug(this.getClass() + " has  sleepTime = " + sleepTime + " which is " + TimeUnit.MILLISECONDS.toSeconds(sleepTime) + " seconds");
+         logger.debug("{} has sleepTime = {} which is {} seconds", this.getClass(), sleepTime, TimeUnit.MILLISECONDS.toSeconds(sleepTime));
       }
 
       protected void prepareWork() throws ActiveMQException {
@@ -822,7 +823,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
          while (working) {
             try {
                doWork(count);
-               logger.debug(this.getClass().getName() + " sleeping " + sleepTime);
+               logger.debug("{} sleeping {}", this.getClass().getName(), sleepTime);
                Thread.sleep(sleepTime);
             } catch (InterruptedException e) {
                // expected, nothing to be done

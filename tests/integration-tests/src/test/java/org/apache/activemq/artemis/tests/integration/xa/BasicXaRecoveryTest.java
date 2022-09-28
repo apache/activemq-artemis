@@ -44,18 +44,19 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(BasicXaRecoveryTest.class);
+   private static final Logger log = LoggerFactory.getLogger(BasicXaRecoveryTest.class);
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 

@@ -63,7 +63,7 @@ On your classes, import the following:
 
 ```java
 public class MyTest {
-     private static final org.jboss.logging.Logger log = org.jboss.logging.Logger.getLogger($CLASS_NAME$.class);
+     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger($CLASS_NAME$.class);
     
      @Test
      public void test() {

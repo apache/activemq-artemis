@@ -21,7 +21,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jgroups.Receiver;
 
 /**
@@ -30,7 +31,7 @@ import org.jgroups.Receiver;
  */
 public class JGroupsReceiver implements Receiver {
 
-   private static final Logger logger = Logger.getLogger(JGroupsReceiver.class);
+   private static final Logger logger = LoggerFactory.getLogger(JGroupsReceiver.class);
 
    private final BlockingQueue<byte[]> dequeue = new LinkedBlockingDeque<>();
 

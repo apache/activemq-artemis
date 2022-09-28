@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.ClientStompFrame;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
-import org.apache.felix.resolver.util.ArrayMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -32,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RunWith(value = Parameterized.class)
 public class StompPropertiesInterceptorTest extends StompTestBase {
@@ -73,7 +73,7 @@ public class StompPropertiesInterceptorTest extends StompTestBase {
 
    private static final String MESSAGE_TEXT = "messageText";
    private static final String MY_HEADER = "my-header";
-   private static Map<String, Object> expectedProperties = new ArrayMap<>();
+   private static Map<String, Object> expectedProperties = new ConcurrentHashMap<>();
 
    @Test(timeout = 60000)
    public void testCheckInterceptedStompMessageProperties() throws Exception {

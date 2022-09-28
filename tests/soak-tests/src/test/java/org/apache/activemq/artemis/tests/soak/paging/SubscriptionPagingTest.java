@@ -37,13 +37,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
@@ -75,7 +76,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
    final String TOPIC_NAME = "SUB_TEST";
 
-   private static final Logger logger = Logger.getLogger(SubscriptionPagingTest.class);
+   private static final Logger logger = LoggerFactory.getLogger(SubscriptionPagingTest.class);
 
    public static final String SERVER_NAME_0 = "subscriptionPaging";
 
@@ -85,7 +86,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
 
       ArrayList<Object[]> parameters = new ArrayList<>();
       for (String str : protocols) {
-         logger.info("Adding " + str + " to the list for the test");
+         logger.info("Adding {} to the list for the test", str);
          parameters.add(new Object[]{str});
       }
 
@@ -152,13 +153,13 @@ public class SubscriptionPagingTest extends SoakTestBase {
             for (int i = 0; i < numberOfMessages; i++) {
                Message message = subscriber.receive(5_000);
                if (message == null) {
-                  logger.info("Receiver " + clientID + " subscription " + name + " did not receibe a message");
+                  logger.info("Receiver {} subscription {} did not receive a message", clientID, name);
                   i--;
                   continue;
                }
 
                if (i % PRINT_INTERVAL == 0) {
-                  logger.info("Received " + i + " on " + clientID + "_" + name);
+                  logger.info("Received {} on {}_{}", i, clientID, name);
                }
 
                Assert.assertEquals(i, message.getIntProperty("m"));
@@ -176,7 +177,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
                int timeout = sleepTime.get();
 
                if (timeout > 0) {
-                  logger.info("Sleeping for " + timeout + " on " + clientID + "_" + name);
+                  logger.info("Sleeping for {} on {}_{}", timeout, clientID, name);
                   Thread.sleep(timeout);
                }
             }
@@ -253,7 +254,7 @@ public class SubscriptionPagingTest extends SoakTestBase {
             message.setIntProperty("m", m);
             producer.send(message);
             if (m > 0 && m % COMMIT_INTERVAL == 0) {
-               logger.info("Sent " + m + " " + protocol + " messages on queue " + destination);
+               logger.info("Sent {} {} messages on queue {}", m, protocol, destination);
                session.commit();
             }
          }

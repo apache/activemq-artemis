@@ -112,7 +112,7 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
          //ignore
       }
 
-      checkAuditLogRecord(true, "gets security check failure:", "guest does not have permission='DELETE_NON_DURABLE_QUEUE'");
+      checkAuditLogRecord(true, "AMQ601264: User guest", "gets security check failure, reason = AMQ229213: User: guest does not have permission='DELETE_NON_DURABLE_QUEUE'");
       //hot patch not in log
       checkAuditLogRecord(true, "is sending a message");
    }

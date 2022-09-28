@@ -19,9 +19,10 @@ package org.apache.activemq.artemis.core.server.management.impl;
 import org.apache.activemq.artemis.core.management.impl.AbstractControl;
 import org.apache.activemq.artemis.core.management.impl.MBeanInfoHelper;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.management.ArtemisMBeanServerGuard;
 import org.apache.activemq.artemis.core.server.management.HawtioSecurityControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
@@ -42,6 +43,9 @@ import java.util.List;
 import java.util.Map;
 
 public class HawtioSecurityControlImpl extends AbstractControl implements HawtioSecurityControl {
+
+   private static final Logger logger = LoggerFactory.getLogger(HawtioSecurityControlImpl.class);
+
    /**
     * The Tabular Type returned by the {@link #canInvoke(Map)} operation. The rows consist of
     * {@link #CAN_INVOKE_RESULT_ROW_TYPE} entries.
@@ -127,7 +131,7 @@ public class HawtioSecurityControlImpl extends AbstractControl implements Hawtio
                try {
                   table.put(data);
                } catch (KeyAlreadyExistsException e) {
-                  ActiveMQServerLogger.LOGGER.debugv("Key already exists: {0} (objectName = \"{1}\", method = \"{2}\")", e.getMessage(), objectName, method);
+                  logger.debug("Key already exists: {} (objectName = \"{}\", method = \"{}\")", e.getMessage(), objectName, method);
                }
             }
          }

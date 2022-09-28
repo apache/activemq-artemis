@@ -46,6 +46,8 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProtocolMessageBundle.BUNDLE;
 
@@ -54,6 +56,7 @@ import static org.apache.activemq.artemis.core.protocol.stomp.ActiveMQStompProto
  */
 public class StompProtocolManager extends AbstractProtocolManager<StompFrame, StompFrameInterceptor, StompConnection, RoutingHandler> {
 
+   private static final Logger logger = LoggerFactory.getLogger(StompProtocolManager.class);
    private static final List<String> websocketRegistryNames = Arrays.asList("v10.stomp", "v11.stomp", "v12.stomp");
 
    private final ActiveMQServer server;
@@ -204,7 +207,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
          try {
             connection.physicalSend(frame);
          } catch (Exception e) {
-            ActiveMQStompProtocolLogger.LOGGER.errorSendingFrame(e, frame);
+            ActiveMQStompProtocolLogger.LOGGER.errorSendingFrame(frame, e);
             return false;
          }
          return true;
@@ -386,7 +389,7 @@ public class StompProtocolManager extends AbstractProtocolManager<StompFrame, St
    }
 
    public void beginTransaction(StompConnection connection, String txID) throws Exception {
-      ActiveMQServerLogger.LOGGER.debugf("-------------------------------Stomp begin tx: %s", txID);
+      logger.debug("-------------------------------Stomp begin tx: {}", txID);
       // create the transacted session
       StompSession session = getTransactedSession(connection, txID);
       if (session.isTxPending()) {

@@ -34,14 +34,15 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ScheduledDeliveryHandler;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles scheduling deliveries to a queue at the correct time.
  */
 public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
-   private static final Logger logger = Logger.getLogger(ScheduledDeliveryHandlerImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ScheduledDeliveryHandlerImpl.class);
 
    private final ScheduledExecutorService scheduledExecutor;
 

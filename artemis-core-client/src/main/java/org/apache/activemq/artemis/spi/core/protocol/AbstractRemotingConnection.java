@@ -33,13 +33,14 @@ import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 
 public abstract class AbstractRemotingConnection implements RemotingConnection {
 
-   private static final Logger logger = Logger.getLogger(AbstractRemotingConnection.class);
+   private static final Logger logger = LoggerFactory.getLogger(AbstractRemotingConnection.class);
 
    protected final List<FailureListener> failureListeners = new CopyOnWriteArrayList<>();
    protected final List<CloseListener> closeListeners = new CopyOnWriteArrayList<>();

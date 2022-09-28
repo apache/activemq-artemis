@@ -67,17 +67,17 @@ import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTe
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
-
    static final int RECEIVE_WAIT_TIME = 60000;
 
-   private static final Logger log = Logger.getLogger(InterruptedLargeMessageTest.class);
+   private static final Logger log = LoggerFactory.getLogger(InterruptedLargeMessageTest.class);
 
    private final int LARGE_MESSAGE_SIZE = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 3;
 

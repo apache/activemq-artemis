@@ -33,15 +33,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.jboss.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
 public class RollbackTest extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
-
-   private static Logger log = Logger.getLogger(RollbackTest.class);
 
    @Override
    @Before

@@ -26,13 +26,14 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Code to be run in an external VM, via main()
  */
 public class GracefulClient {
-   private static final Logger log = Logger.getLogger(GracefulClient.class);
+   private static final Logger log = LoggerFactory.getLogger(GracefulClient.class);
 
 
    public static void main(final String[] args) throws Exception {

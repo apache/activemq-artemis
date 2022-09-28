@@ -30,11 +30,12 @@ import io.netty.handler.ssl.SslHandler;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnection;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CertificateUtil {
 
-   private static final Logger logger = Logger.getLogger(CertificateUtil.class);
+   private static final Logger logger = LoggerFactory.getLogger(CertificateUtil.class);
 
    private static final String SSL_HANDLER_NAME = "ssl";
 

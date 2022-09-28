@@ -29,7 +29,8 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.server.LiveNodeLocator;
 import org.apache.activemq.artemis.utils.ConcurrentUtil;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This implementation looks for any available live node, once tried with no success it is marked as
@@ -37,7 +38,7 @@ import org.jboss.logging.Logger;
  */
 public class AnyLiveNodeLocatorForScaleDown extends LiveNodeLocator {
 
-   private static final Logger logger = Logger.getLogger(AnyLiveNodeLocatorForScaleDown.class);
+   private static final Logger logger = LoggerFactory.getLogger(AnyLiveNodeLocatorForScaleDown.class);
 
    private final Lock lock = new ReentrantLock();
    private final Condition condition = lock.newCondition();

@@ -49,7 +49,8 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBacku
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.utils.ReusableLatch;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAILURE_REPLICATING;
 import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothingBackupQuorum.BACKUP_ACTIVATION.FAIL_OVER;
@@ -57,7 +58,7 @@ import static org.apache.activemq.artemis.core.server.cluster.qourum.SharedNothi
 
 public final class SharedNothingBackupActivation extends Activation implements ReplicationEndpointEventListener {
 
-   private static final Logger logger = Logger.getLogger(SharedNothingBackupActivation.class);
+   private static final Logger logger = LoggerFactory.getLogger(SharedNothingBackupActivation.class);
 
    //this is how we act when we start as a backup
    private ReplicaPolicy replicaPolicy;
@@ -273,7 +274,7 @@ public final class SharedNothingBackupActivation extends Activation implements R
                            }
                         }
                      } catch (Exception e) {
-                        ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(e, activeMQServer);
+                        ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(activeMQServer, e);
                      }
                   }
                });

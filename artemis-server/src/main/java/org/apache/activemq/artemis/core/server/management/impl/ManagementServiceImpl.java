@@ -106,13 +106,14 @@ import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.api.core.FilterConstants.NATIVE_MESSAGE_ID;
 
 public class ManagementServiceImpl implements ManagementService {
 
-   private static final Logger logger = Logger.getLogger(ManagementServiceImpl.class);
+   private static final Logger logger = LoggerFactory.getLogger(ManagementServiceImpl.class);
 
    private final MBeanServer mbeanServer;
 
@@ -553,7 +554,7 @@ public class ManagementServiceImpl implements ManagementService {
 
             reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, true);
          } catch (Exception e) {
-            ActiveMQServerLogger.LOGGER.managementOperationError(e, operation, resourceName);
+            ActiveMQServerLogger.LOGGER.managementOperationError(operation, resourceName, e);
             reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
             String exceptionMessage;
             if (e instanceof InvocationTargetException) {
@@ -574,7 +575,7 @@ public class ManagementServiceImpl implements ManagementService {
 
                reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, true);
             } catch (Exception e) {
-               ActiveMQServerLogger.LOGGER.managementAttributeError(e, attribute, resourceName);
+               ActiveMQServerLogger.LOGGER.managementAttributeError(attribute, resourceName, e);
                reply.putBooleanProperty(ManagementHelper.HDR_OPERATION_SUCCEEDED, false);
                String exceptionMessage;
                if (e instanceof InvocationTargetException) {

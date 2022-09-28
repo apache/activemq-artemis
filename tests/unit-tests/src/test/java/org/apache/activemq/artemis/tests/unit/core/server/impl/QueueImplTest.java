@@ -56,14 +56,15 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.FutureLatch;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueueImplTest extends ActiveMQTestBase {
-   private static final Logger log = Logger.getLogger(QueueImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(QueueImplTest.class);
 
    // The tests ----------------------------------------------------------------
 
@@ -233,7 +234,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       float rate = (float) getRate.invoke(queue, null);
 
       Assert.assertTrue(rate <= 10.0f);
-      log.debug("Rate: " + rate);
+      log.debug("Rate: {}", rate);
    }
 
    @Test

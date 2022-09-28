@@ -50,13 +50,14 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.RetryRule;
-import org.jboss.logging.Logger;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClusteredGroupingTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(ClusteredGroupingTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ClusteredGroupingTest.class);
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -597,12 +598,12 @@ public class ClusteredGroupingTest extends ClusterTestBase {
             groups.add(group);
          }
          producer.send(message);
-         log.trace("Sent message to server 1 with dupID: " + dupID);
+         log.trace("Sent message to server 1 with dupID: {}", dupID);
       }
 
       session.commit();
       totalMessageProduced.addAndGet(500);
-      log.trace("Sent block of 500 messages to server 1. Total sent: " + totalMessageProduced.get());
+      log.trace("Sent block of 500 messages to server 1. Total sent: {}", totalMessageProduced.get());
       session.close();
 
       // need thread pool to service both consumers and producers plus a thread to cycle nodes
@@ -642,7 +643,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                   } else {
                      factory = sf0;
                   }
-                  log.debug("Creating producer session factory to node " + targetServer);
+                  log.debug("Creating producer session factory to node {}", targetServer);
                   session = addClientSession(factory.createSession(false, true, true));
                   producer = addClientProducer(session.createProducer(ADDRESS));
                } catch (Exception e) {
@@ -732,7 +733,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                      } else {
                         factory = sf0;
                      }
-                     log.debug("Creating consumer session factory to node " + targetServer);
+                     log.debug("Creating consumer session factory to node {}", targetServer);
                      session = addClientSession(factory.createSession(false, false, true));
                      consumer = addClientConsumer(session.createConsumer(QUEUE));
                      session.start();
@@ -752,7 +753,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                         return;
                      }
                      m.acknowledge();
-                     log.trace("Consumed message " + m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID) + " from server " + targetServer + ". Total consumed: " + totalMessagesConsumed.incrementAndGet());
+                     log.trace("Consumed message {} from server {}. Total consumed: {}", m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID), targetServer, totalMessagesConsumed.incrementAndGet());
                   } catch (ActiveMQException e) {
                      errors.incrementAndGet();
                      log.warn("Consumer thread threw exception while receiving messages from server " + targetServer + ".: " + e.getMessage());

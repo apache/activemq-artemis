@@ -41,14 +41,13 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.jboss.logging.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NIOvsOIOTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(NIOvsOIOTest.class);
-
-
+   private static final Logger log = LoggerFactory.getLogger(NIOvsOIOTest.class);
 
    @Test
    public void testNIOPerf() throws Exception {

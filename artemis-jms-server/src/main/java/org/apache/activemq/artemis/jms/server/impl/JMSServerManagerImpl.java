@@ -1398,7 +1398,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                try {
                   registry.unbind(key);
                } catch (Exception e) {
-                  ActiveMQJMSServerLogger.LOGGER.bindingsUnbindError(e, key);
+                  ActiveMQJMSServerLogger.LOGGER.bindingsUnbindError(key, e);
                }
             }
          }
@@ -1523,7 +1523,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
             ActiveMQJMSServerLogger.LOGGER.invalidHostForConnector(transportConfiguration.getName(), newHost);
             params.put(TransportConstants.HOST_PROP_NAME, newHost);
          } catch (UnknownHostException e) {
-            ActiveMQJMSServerLogger.LOGGER.failedToCorrectHost(e, transportConfiguration.getName());
+            ActiveMQJMSServerLogger.LOGGER.failedToCorrectHost(transportConfiguration.getName(), e);
          }
       }
    }

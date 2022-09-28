@@ -62,14 +62,15 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.commons.lang3.ClassUtils;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class ConfigurationImplTest extends ActiveMQTestBase {
 
-   private static final Logger log = Logger.getLogger(ConfigurationImplTest.class);
+   private static final Logger log = LoggerFactory.getLogger(ConfigurationImplTest.class);
 
    protected Configuration conf;
 

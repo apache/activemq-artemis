@@ -45,17 +45,17 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQTTInterceptor, MQTTConnection, MQTTRoutingHandler> implements NotificationListener {
 
-   private static final Logger logger = Logger.getLogger(MQTTProtocolManager.class);
+   private static final Logger logger = LoggerFactory.getLogger(MQTTProtocolManager.class);
 
    private static final List<String> websocketRegistryNames = Arrays.asList("mqtt", "mqttv3.1");
 
    private ActiveMQServer server;
 
-   private MQTTLogger log = MQTTLogger.LOGGER;
    private final List<MQTTInterceptor> incomingInterceptors = new ArrayList<>();
    private final List<MQTTInterceptor> outgoingInterceptors = new ArrayList<>();
 
@@ -190,7 +190,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       List<String> toRemove = new ArrayList();
       for (Map.Entry<String, MQTTSessionState> entry : sessionStates.entrySet()) {
          MQTTSessionState state = entry.getValue();
-         logger.debugf("Inspecting session: %s", state);
+         logger.debug("Inspecting session: {}", state);
          int sessionExpiryInterval = getSessionExpiryInterval(state);
          if (!state.isAttached() && sessionExpiryInterval > 0 && state.getDisconnectedTime() + (sessionExpiryInterval * 1000) < System.currentTimeMillis()) {
             toRemove.add(entry.getKey());
@@ -201,7 +201,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       }
 
       for (String key : toRemove) {
-         logger.debugf("Removing state for session: %s", key);
+         logger.debug("Removing state for session: {}", key);
          MQTTSessionState state = removeSessionState(key);
          if (state != null && state.isWill() && !state.isAttached() && state.isFailed()) {
             state.getSession().sendWillMessage();
@@ -235,7 +235,7 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
          protocolHandler.setConnection(mqttConnection, entry);
          return entry;
       } catch (Exception e) {
-         log.error(e);
+         logger.error("Error creating connection entry", e);
          return null;
       }
    }
@@ -300,8 +300,8 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    byte readByte(ByteBuf buf) {
       byte b = buf.readByte();
-      if (log.isTraceEnabled()) {
-         log.trace(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'));
+      if (logger.isTraceEnabled()) {
+         logger.trace(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'));
       }
       return b;
    }

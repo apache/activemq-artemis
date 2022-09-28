@@ -33,11 +33,12 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoutingContextImpl implements RoutingContext {
 
-   private static final Logger logger  = Logger.getLogger(RoutingContextImpl.class);
+   private static final Logger logger  = LoggerFactory.getLogger(RoutingContextImpl.class);
 
    // The pair here is Durable and NonDurable
    private final Map<SimpleString, RouteContextList> map = new HashMap<>();

@@ -49,14 +49,15 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageRedistributionTest extends ClusterTestBase {
 
-   private static final Logger log = Logger.getLogger(MessageRedistributionTest.class);
+   private static final Logger log = LoggerFactory.getLogger(MessageRedistributionTest.class);
 
    @Override
    @Before

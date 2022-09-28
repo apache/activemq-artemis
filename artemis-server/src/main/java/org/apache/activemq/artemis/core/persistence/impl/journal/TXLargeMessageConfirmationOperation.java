@@ -38,7 +38,7 @@ public final class TXLargeMessageConfirmationOperation extends TransactionOperat
          try {
             journalStorageManager.confirmPendingLargeMessage(msg);
          } catch (Throwable e) {
-            ActiveMQServerLogger.LOGGER.journalErrorConfirmingLargeMessage(e, msg);
+            ActiveMQServerLogger.LOGGER.journalErrorConfirmingLargeMessage(msg, e);
          }
       }
    }

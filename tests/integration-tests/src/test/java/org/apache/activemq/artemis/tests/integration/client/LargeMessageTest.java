@@ -66,15 +66,16 @@ import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LargeMessageTest extends LargeMessageTestBase {
 
-   private static final Logger log = Logger.getLogger(LargeMessageTest.class);
+   private static final Logger log = LoggerFactory.getLogger(LargeMessageTest.class);
 
    private static final int RECEIVE_WAIT_TIME = 10000;
 
@@ -97,7 +98,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    @Test
    public void testRollbackPartiallyConsumedBuffer() throws Exception {
       for (int i = 0; i < 1; i++) {
-         log.debug("#test " + i);
+         log.debug("#test {}", i);
          internalTestRollbackPartiallyConsumedBuffer(false);
          tearDown();
          setUp();
@@ -668,7 +669,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       msg.acknowledge();
       Assert.assertEquals(1, msg.getDeliveryCount());
 
-      log.debug("body buffer is " + msg.getBodyBuffer());
+      log.debug("body buffer is {}", msg.getBodyBuffer());
 
       for (int i = 0; i < messageSize; i++) {
          Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
@@ -2453,7 +2454,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          msg.putIntProperty(new SimpleString("key"), i);
          producer.send(msg);
 
-         log.debug("Sent msg " + i);
+         log.debug("Sent msg {}", i);
       }
 
       session.start();

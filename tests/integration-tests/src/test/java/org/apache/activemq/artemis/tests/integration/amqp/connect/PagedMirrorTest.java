@@ -49,14 +49,12 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.jboss.logging.Logger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class PagedMirrorTest extends ActiveMQTestBase {
 
-   private static final Logger logger = Logger.getLogger(PagedMirrorTest.class);
    ActiveMQServer server1;
 
    ActiveMQServer server2;

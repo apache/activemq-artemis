@@ -4,6 +4,10 @@ The system will perform a periodic check on the configuration files, configured
 by `configuration-file-refresh-period`, with the default at `5000`, in
 milliseconds. These checks can be disabled by specifying `-1`.
 
+Note that the Log4J2 configuration has its own reload mechanism, configured via its own
+log4j2.properties file. See [Logging configuration reload](logging.md#configuration-reload)
+for more detail.
+
 Once the configuration file is changed (broker.xml) the following modules will
 be reloaded automatically:
 

@@ -18,14 +18,15 @@
 package org.apache.activemq.artemis.core.server.routing.targets;
 
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
-import org.jboss.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TargetMonitor extends ActiveMQScheduledComponent implements TargetListener {
-   private static final Logger logger = Logger.getLogger(TargetMonitor.class);
+   private static final Logger logger = LoggerFactory.getLogger(TargetMonitor.class);
 
 
    private final Target target;

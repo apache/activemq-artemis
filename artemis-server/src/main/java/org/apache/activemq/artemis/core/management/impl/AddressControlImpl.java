@@ -41,7 +41,6 @@ import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.security.SecurityStore;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
@@ -53,9 +52,12 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.utils.JsonLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddressControlImpl extends AbstractControl implements AddressControl {
 
+   private static final Logger logger = LoggerFactory.getLogger(AddressControlImpl.class);
 
    private AddressInfo addressInfo;
 
@@ -284,7 +286,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          }
          return pagingStore.getAddressSize();
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to get address size", e);
+         logger.debug("Failed to get address size", e);
          return -1;
       } finally {
          blockOnIO();
@@ -304,7 +306,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          }
          pagingStore.getCursorProvider().scheduleCleanup();
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to schedule pageCleanup", e);
+         logger.debug("Failed to schedule pageCleanup", e);
          throw e;
       } finally {
          blockOnIO();
@@ -357,7 +359,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
          }
          return pagingStore.getAddressLimitPercent();
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to get address limit %", e);
+         logger.debug("Failed to get address limit %", e);
          return -1;
       } finally {
          blockOnIO();
@@ -378,7 +380,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             result = true;
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to block", e);
+         logger.debug("Failed to block", e);
 
       } finally {
          blockOnIO();
@@ -398,7 +400,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             pagingStore.unblock();
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to unblock", e);
+         logger.debug("Failed to unblock", e);
       } finally {
          blockOnIO();
       }
@@ -419,7 +421,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             return pageStore.getNumberOfPages();
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to get number of pages", e);
+         logger.debug("Failed to get number of pages", e);
          return -1;
       } finally {
          blockOnIO();
@@ -574,7 +576,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             return cache.getMap().size();
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to get duplicate ID cache size", e);
+         logger.debug("Failed to get duplicate ID cache size", e);
       }
 
       return 0;
@@ -592,7 +594,7 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
             return true;
          }
       } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.debug("Failed to clear duplicate ID cache", e);
+         logger.debug("Failed to clear duplicate ID cache", e);
       }
 
       return false;
