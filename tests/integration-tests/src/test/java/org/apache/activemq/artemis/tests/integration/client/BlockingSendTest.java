@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
@@ -28,10 +30,12 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BlockingSendTest extends ActiveMQTestBase {
 
-
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testSinglePersistentBlockingNonSync() throws Exception {
@@ -46,7 +50,7 @@ public class BlockingSendTest extends ActiveMQTestBase {
 
       server.start();
 
-      instanceLog.debug("sync = " + server.getConfiguration().isJournalSyncNonTransactional());
+      logger.debug("sync = " + server.getConfiguration().isJournalSyncNonTransactional());
       locator = createInVMNonHALocator().setBlockOnDurableSend(true);
       factory = createSessionFactory(locator);
 

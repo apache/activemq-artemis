@@ -33,6 +33,7 @@ import javax.management.openmbean.CompositeDataSupport;
 import javax.management.openmbean.TabularDataSupport;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.util.Arrays;
@@ -93,12 +94,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.BODY;
 import static org.apache.activemq.artemis.core.message.openmbean.CompositeDataConstants.STRING_PROPERTIES;
 
 @RunWith(value = Parameterized.class)
 public class QueueControlTest extends ManagementTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    private static final String NULL_DATE = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date(0));
 
    @Rule
@@ -3760,7 +3766,7 @@ public class QueueControlTest extends ManagementTestBase {
       consumer.setMessageHandler(new MessageHandler() {
          @Override
          public void onMessage(ClientMessage message) {
-            instanceLog.debug("{}", message);
+            logger.debug("{}", message);
          }
       });
       session.start();

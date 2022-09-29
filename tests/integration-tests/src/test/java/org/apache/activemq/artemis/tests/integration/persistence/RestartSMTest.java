@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.persistence;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -33,10 +34,12 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestartSMTest extends ActiveMQTestBase {
 
-
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    ExecutorService executor;
 
@@ -90,7 +93,7 @@ public class RestartSMTest extends ActiveMQTestBase {
          try {
             journal.stop();
          } catch (Exception ex) {
-            instanceLog.warn(ex.getMessage(), ex);
+            logger.warn(ex.getMessage(), ex);
          }
       }
    }

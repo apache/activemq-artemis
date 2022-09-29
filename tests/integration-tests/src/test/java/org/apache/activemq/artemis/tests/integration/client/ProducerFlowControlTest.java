@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -46,8 +47,12 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProducerFlowControlTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ServerLocator locator;
 
@@ -244,7 +249,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
                }
 
             } catch (Exception e) {
-               instanceLog.error("Failed to handle message", e);
+               logger.error("Failed to handle message", e);
 
                exception = e;
 
@@ -300,7 +305,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       double rate = 1000 * (double) numMessages / (end - start);
 
-      instanceLog.debug("rate is " + rate + " msgs / sec");
+      logger.debug("rate is " + rate + " msgs / sec");
    }
 
    @Test

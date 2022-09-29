@@ -25,14 +25,19 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageTest extends JMSTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long TIMEOUT = 1000;
 
@@ -214,35 +219,35 @@ public class MessageTest extends JMSTestBase {
       Assert.assertNull(message.getObjectProperty(MessageTest.propName3));
 
       try {
-         instanceLog.debug("{}", message.getIntProperty(MessageTest.propName1));
+         logger.debug("{}", message.getIntProperty(MessageTest.propName1));
          Assert.fail("Should throw exception");
       } catch (NumberFormatException e) {
          // Ok
       }
 
       try {
-         instanceLog.debug("{}", message.getShortProperty(MessageTest.propName1));
+         logger.debug("{}", message.getShortProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       try {
-         instanceLog.debug("{}", message.getByteProperty(MessageTest.propName1));
+         logger.debug("{}", message.getByteProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       Assert.assertEquals(false, message.getBooleanProperty(MessageTest.propName1));
       try {
-         instanceLog.debug("{}", message.getLongProperty(MessageTest.propName1));
+         logger.debug("{}", message.getLongProperty(MessageTest.propName1));
       } catch (NumberFormatException e) {
          // Ok
       }
       try {
-         instanceLog.debug("{}", message.getFloatProperty(MessageTest.propName1));
+         logger.debug("{}", message.getFloatProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
       }
       try {
-         instanceLog.debug("{}", message.getDoubleProperty(MessageTest.propName1));
+         logger.debug("{}", message.getDoubleProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
       }

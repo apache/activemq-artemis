@@ -26,6 +26,7 @@ import javax.jms.Session;
 import javax.resource.ResourceException;
 import javax.resource.spi.InvalidPropertyException;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -46,8 +47,12 @@ import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivation;
 import org.apache.activemq.artemis.ra.inflow.ActiveMQActivationSpec;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    public boolean useSecurity() {
@@ -1020,7 +1025,7 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
             latch.countDown();
             if (pause && messages.getAndIncrement() % 2 == 0) {
                try {
-                  instanceLog.debug("pausing for 2 secs");
+                  logger.debug("pausing for 2 secs");
                   Thread.sleep(2000);
                } catch (InterruptedException e) {
                   interrupted.incrementAndGet();

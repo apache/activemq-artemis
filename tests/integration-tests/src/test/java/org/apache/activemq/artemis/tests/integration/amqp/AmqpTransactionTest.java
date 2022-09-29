@@ -56,7 +56,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpTransactionTest extends AmqpClientTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 30000)
    public void testBeginAndCommitTransaction() throws Exception {
@@ -103,9 +103,9 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
             if (delivery.remotelySettled()) {
                DeliveryState state = delivery.getRemoteState();
                if (state instanceof TransactionalState) {
-                  LOG.debug("Remote settled with TX state: {}", state);
+                  logger.debug("Remote settled with TX state: {}", state);
                } else {
-                  LOG.warn("Remote settled with non-TX state: {}", state);
+                  logger.warn("Remote settled with non-TX state: {}", state);
                   markAsInvalid("Remote did not settled with TransactionState.");
                }
             }
@@ -716,7 +716,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          receiver.flow((NUM_MESSAGES + 2) * 2);
          for (int i = 0; i < NUM_MESSAGES; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            instanceLog.debug("Read message: " + message.getApplicationProperty("msgId"));
+            logger.debug("Read message: " + message.getApplicationProperty("msgId"));
             assertNotNull(message);
             messages.add(message);
          }
@@ -724,7 +724,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          // Commit half the consumed messages [0, 1, 2, 3, 4]
          txnSession.begin();
          for (int i = 0; i < NUM_MESSAGES / 2; ++i) {
-            instanceLog.debug("Commit: Accepting message: " + messages.get(i).getApplicationProperty("msgId"));
+            logger.debug("Commit: Accepting message: " + messages.get(i).getApplicationProperty("msgId"));
             messages.get(i).accept(txnSession, false);
          }
          txnSession.commit();
@@ -732,7 +732,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          // Rollback the other half the consumed messages [5, 6, 7, 8, 9]
          txnSession.begin();
          for (int i = NUM_MESSAGES / 2; i < NUM_MESSAGES; ++i) {
-            instanceLog.debug("Rollback: Accepting message: " + messages.get(i).getApplicationProperty("msgId"));
+            logger.debug("Rollback: Accepting message: " + messages.get(i).getApplicationProperty("msgId"));
             messages.get(i).accept(txnSession, false);
          }
          txnSession.rollback();
@@ -740,7 +740,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          // After rollback messages should still be acquired so we read last sent message [10]
          {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            instanceLog.debug("Read message: " + message.getApplicationProperty("msgId"));
+            logger.debug("Read message: " + message.getApplicationProperty("msgId"));
             assertNotNull(message);
             assertEquals(NUM_MESSAGES, message.getApplicationProperty("msgId"));
             message.release();
@@ -758,7 +758,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          {
             receiver.flow(1);
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
-            instanceLog.debug("Read message: " + message.getApplicationProperty("msgId"));
+            logger.debug("Read message: " + message.getApplicationProperty("msgId"));
             assertNotNull(message);
             assertEquals(NUM_MESSAGES, message.getApplicationProperty("msgId"));
             message.accept();
@@ -768,7 +768,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          receiver.flow(1);
          AmqpMessage message = receiver.receive(1, TimeUnit.SECONDS);
          if (message != null) {
-            instanceLog.debug("Read message: " + message.getApplicationProperty("msgId"));
+            logger.debug("Read message: " + message.getApplicationProperty("msgId"));
          }
          assertNull(message);
       } finally {
@@ -808,7 +808,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       {
          // This will result in message [0[ being consumed once we commit.
          message1.accept(txnSession, false);
-         instanceLog.debug("Commit: accepting message: " + message1.getApplicationProperty("msgId"));
+         logger.debug("Commit: accepting message: " + message1.getApplicationProperty("msgId"));
 
          AmqpMessage message = new AmqpMessage();
          message.setText("Test-Message");
@@ -822,7 +822,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       txnSession.begin();
       {
          message2.accept(txnSession, false);
-         instanceLog.debug("Rollback: accepting message: " + message2.getApplicationProperty("msgId"));
+         logger.debug("Rollback: accepting message: " + message2.getApplicationProperty("msgId"));
 
          AmqpMessage message = new AmqpMessage();
          message.setText("Test-Message");
@@ -840,7 +840,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
       for (int i = 1; i <= NUM_MESSAGES; ++i) {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
          assertNotNull("Expected a message for: " + i, message);
-         instanceLog.debug("Accepting message: " + message.getApplicationProperty("msgId"));
+         logger.debug("Accepting message: " + message.getApplicationProperty("msgId"));
          assertEquals(i, message.getApplicationProperty("msgId"));
          message.accept();
       }
@@ -879,7 +879,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
                      }
 
                      if (i % 100 == 0) {
-                        if (i % 1000 == 0) instanceLog.debug("Read message " + i);
+                        if (i % 1000 == 0) logger.debug("Read message " + i);
                         consumerSession.commit();
                      }
                   }
@@ -904,7 +904,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          for (int i = 0; i < MESSAGE_COUNT; i++) {
             producer.send(sendingSession.createTextMessage("message " + i), DeliveryMode.PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
             if (i % 100 == 0) {
-               if (i % 1000 == 0) instanceLog.debug("Sending " + i);
+               if (i % 1000 == 0) logger.debug("Sending " + i);
                sendingSession.commit();
             }
          }
@@ -942,7 +942,7 @@ public class AmqpTransactionTest extends AmqpClientTestSupport {
          @Override
          public void inspectDeliveryUpdate(Sender sender, Delivery delivery) {
             if (delivery.remotelySettled()) {
-               LOG.debug("Receiver got delivery update for: {}", delivery);
+               logger.debug("Receiver got delivery update for: {}", delivery);
                if (!(delivery.getRemoteState() instanceof TransactionalState)) {
                   markAsInvalid("Transactionally acquire work no tagged as being in a transaction.");
                } else {

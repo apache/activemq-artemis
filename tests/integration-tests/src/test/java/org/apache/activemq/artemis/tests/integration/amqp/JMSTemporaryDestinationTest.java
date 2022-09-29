@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import javax.jms.Connection;
@@ -29,8 +30,12 @@ import javax.jms.TextMessage;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testCreateTemporaryQueue() throws Throwable {
@@ -39,7 +44,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       try {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          TemporaryQueue queue = session.createTemporaryQueue();
-         instanceLog.debug("queue:" + queue.getQueueName());
+         logger.debug("queue:" + queue.getQueueName());
          MessageProducer producer = session.createProducer(queue);
 
          TextMessage message = session.createTextMessage();
@@ -92,7 +97,7 @@ public class JMSTemporaryDestinationTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       TemporaryTopic topic = session.createTemporaryTopic();
 
-      instanceLog.debug("topic:" + topic.getTopicName());
+      logger.debug("topic:" + topic.getTopicName());
       MessageConsumer consumer = session.createConsumer(topic);
       MessageProducer producer = session.createProducer(topic);
 

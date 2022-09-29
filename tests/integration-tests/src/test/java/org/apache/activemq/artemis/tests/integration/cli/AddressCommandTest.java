@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cli;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.invoke.MethodHandles;
 import java.text.MessageFormat;
 import java.util.EnumSet;
 
@@ -42,8 +43,12 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AddressCommandTest extends JMSTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    //the command
    private ByteArrayOutputStream output;
@@ -157,7 +162,7 @@ public class AddressCommandTest extends JMSTestBase {
       ShowAddress showAddress = new ShowAddress();
       showAddress.setName(address);
       showAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      instanceLog.debug(output.toString());
+      logger.debug(output.toString());
    }
 
    @Test
@@ -188,7 +193,7 @@ public class AddressCommandTest extends JMSTestBase {
       showAddress.setName(address.toString());
       showAddress.setBindings(true);
       showAddress.execute(new ActionContext(System.in, new PrintStream(output), new PrintStream(error)));
-      instanceLog.debug(output.toString());
+      logger.debug(output.toString());
    }
 
    @Test
@@ -238,13 +243,13 @@ public class AddressCommandTest extends JMSTestBase {
 
    private void checkExecutionPassed(AbstractAction command) throws Exception {
       String fullMessage = output.toString();
-      instanceLog.debug("output: " + fullMessage);
+      logger.debug("output: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
    private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
       String fullMessage = error.toString();
-      instanceLog.debug("error: " + fullMessage);
+      logger.debug("error: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));
    }
 }

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.management.MBeanServer;
+import java.lang.invoke.MethodHandles;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedList;
 import java.util.Map;
@@ -78,6 +79,8 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This test will simulate a consumer hanging on the delivery packet due to unbehaved clients
@@ -85,6 +88,8 @@ import org.junit.Test;
  * and verify the counters
  */
 public class HangConsumerTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -440,14 +445,14 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
             int bindings = 0;
             for (RecordInfo info : infos) {
-               instanceLog.debug("info: " + info);
+               logger.debug("info: " + info);
                if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
                   bindings++;
                }
             }
             assertEquals(1, bindings);
 
-            instanceLog.debug("Bindings: " + bindings);
+            logger.debug("Bindings: " + bindings);
             messagesJournal.stop();
             if (i < 4)
                server.start();
@@ -614,7 +619,7 @@ public class HangConsumerTest extends ActiveMQTestBase {
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
          if (packet instanceof SessionReceiveMessage) {
-            instanceLog.debug("Receiving message");
+            logger.debug("Receiving message");
             try {
                reusableLatch.countDown();
                semaphore.acquire();

@@ -47,6 +47,7 @@ import javax.jms.XASession;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,8 +85,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleOpenWireTest extends BasicOpenWireTest {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String testString = "simple test string";
    private final String testProp = "BASE_DATE";
@@ -1515,7 +1520,7 @@ public class SimpleOpenWireTest extends BasicOpenWireTest {
             break;
          } else {
             duplicatedMessages = true;
-            instanceLog.warn("received in duplicate:{}", txt.getText());
+            logger.warn("received in duplicate:{}", txt.getText());
          }
       }
 

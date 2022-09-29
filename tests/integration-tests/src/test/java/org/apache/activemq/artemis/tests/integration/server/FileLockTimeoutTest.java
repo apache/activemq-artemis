@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -32,8 +33,12 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileLockTimeoutTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @BeforeClass
    public static void prepareLogger() {
@@ -85,7 +90,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       try {
          f.get(15, TimeUnit.SECONDS);
       } catch (Exception e) {
-         instanceLog.warn("aborting test because server is taking too long to start");
+         logger.warn("aborting test because server is taking too long to start");
       }
 
       service.shutdown();

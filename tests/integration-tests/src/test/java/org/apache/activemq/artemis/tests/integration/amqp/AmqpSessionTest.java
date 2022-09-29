@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
@@ -28,8 +30,11 @@ import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Session;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AmqpSessionTest extends AmqpClientTestSupport {
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testCreateSession() throws Exception {
@@ -49,7 +54,7 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectClosedResource(Session session) {
-            instanceLog.debug("Session closed: " + session.getContext());
+            log.debug("Session closed: " + session.getContext());
          }
 
          @Override

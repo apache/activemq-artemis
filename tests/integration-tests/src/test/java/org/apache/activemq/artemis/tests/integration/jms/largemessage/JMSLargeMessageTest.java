@@ -26,6 +26,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,13 +37,14 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSLargeMessageTest extends JMSTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    Queue queue1;
-
-
 
 
    @Override
@@ -170,7 +172,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
          rm.setObjectProperty("JMS_AMQ_OutputStream", new OutputStream() {
             @Override
             public void write(final int b) throws IOException {
-               instanceLog.debug("b = " + b);
+               logger.debug("b = " + b);
             }
 
          });
@@ -225,7 +227,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
          public void write(final int b) throws IOException {
             numberOfBytes.incrementAndGet();
             if (ActiveMQTestBase.getSamplebyte(position++) != b) {
-               instanceLog.warn("Wrong byte at position " + position);
+               logger.warn("Wrong byte at position " + position);
                numberOfErrors.incrementAndGet();
             }
          }

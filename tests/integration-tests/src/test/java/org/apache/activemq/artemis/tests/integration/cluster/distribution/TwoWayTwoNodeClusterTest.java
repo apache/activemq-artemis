@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before
@@ -237,13 +237,13 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
          waitForTopology(servers[1], 2);
 
          for (int i = 0; i < 10; i++) {
-            log.debug("Sleep #test {}", i);
-            log.debug("#stop #test #{}", i);
+            logger.debug("Sleep #test {}", i);
+            logger.debug("#stop #test #{}", i);
             Thread.sleep(500);
             stopServers(1);
 
             waitForTopology(servers[0], 1, -1, 2000);
-            log.debug("#start #test #{}", i);
+            logger.debug("#start #test #{}", i);
             startServers(1);
             waitForTopology(servers[0], 2, -1, 2000);
             waitForTopology(servers[1], 2, -1, 2000);
@@ -286,12 +286,12 @@ public class TwoWayTwoNodeClusterTest extends ClusterTestBase {
       //allow the topology to be propagated before restarting
       waitForTopology(servers[0], 1, -1, 2000);
 
-      instanceLog.debug(clusterDescription(servers[0]));
+      logger.debug(clusterDescription(servers[0]));
 
       startServers(1);
 
-      instanceLog.debug(clusterDescription(servers[0]));
-      instanceLog.debug(clusterDescription(servers[1]));
+      logger.debug(clusterDescription(servers[0]));
+      logger.debug(clusterDescription(servers[1]));
 
       setupSessionFactory(1, isNetty());
 

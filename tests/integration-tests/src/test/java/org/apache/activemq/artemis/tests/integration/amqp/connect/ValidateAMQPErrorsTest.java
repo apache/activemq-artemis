@@ -79,8 +79,9 @@ import static org.apache.qpid.proton.engine.EndpointState.ACTIVE;
  */
 public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
 
-   protected static final int AMQP_PORT_2 = 5673;
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   protected static final int AMQP_PORT_2 = 5673;
    protected Vertx vertx;
 
    protected MockServer mockServer;
@@ -638,7 +639,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
             fail("Link should have been refused.");
          } catch (Exception ex) {
             Assert.assertTrue(ex.getMessage().contains("AMQ119024"));
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +38,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PredefinedQueueTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private Configuration configuration = null;
 
@@ -301,7 +306,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      instanceLog.debug("sending messages");
+      logger.debug("sending messages");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);
@@ -313,7 +318,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       session.close();
 
-      instanceLog.debug("stopping");
+      logger.debug("stopping");
 
       sf.close();
 
@@ -374,7 +379,7 @@ public class PredefinedQueueTest extends ActiveMQTestBase {
 
       final int numMessages = 1;
 
-      instanceLog.debug("sending messages");
+      logger.debug("sending messages");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage message = session.createMessage(true);

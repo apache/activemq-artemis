@@ -35,7 +35,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ConsumerFilterTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
    private ClientSession session;
@@ -92,7 +92,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
 
       message.putStringProperty("animal", "giraffe");
 
-      log.debug("sending second msg");
+      logger.debug("sending second msg");
 
       producer.send(message);
 
@@ -245,7 +245,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
 
       readConsumer("anyConsumer", anyConsumer);
 
-      log.debug("### closing consumer ###");
+      logger.debug("### closing consumer ###");
 
       anyConsumer.close();
 
@@ -253,7 +253,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
 
       readConsumer("redConsumer", redConsumer);
 
-      log.debug("### recreating consumer ###");
+      logger.debug("### recreating consumer ###");
 
       anyConsumer = session.createConsumer("foo");
 
@@ -275,7 +275,7 @@ public class ConsumerFilterTest extends ActiveMQTestBase {
    private void readConsumer(String consumerName, ClientConsumer consumer) throws Exception {
       ClientMessage message = consumer.receive(5000);
       assertNotNull(message);
-      instanceLog.debug("consumer = " + consumerName + " message, color=" + message.getStringProperty("color") + ", msg = " + message.getStringProperty("value"));
+      logger.debug("consumer = " + consumerName + " message, color=" + message.getStringProperty("color") + ", msg = " + message.getStringProperty("value"));
       message.acknowledge();
    }
 

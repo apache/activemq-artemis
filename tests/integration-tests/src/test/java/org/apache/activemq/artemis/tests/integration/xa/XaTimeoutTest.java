@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.tests.integration.xa;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,9 +59,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class XaTimeoutTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -421,7 +426,7 @@ public class XaTimeoutTest extends ActiveMQTestBase {
                boolean rollback = false;
                if (msgCount.getAndIncrement() == 0) {
                   rollback = true;
-                  instanceLog.debug("Forcing first message to time out");
+                  logger.debug("Forcing first message to time out");
                   Thread.sleep(5000);
                }
 

@@ -2198,7 +2198,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       if (!deletedQueueReferences.isEmpty()) {
          for (Long value : deletedQueueReferences) {
-            instanceLog.warn("Deleted Queue still has a reference:" + value);
+            log.warn("Deleted Queue still has a reference:" + value);
          }
 
          fail("Deleted queue still have references");

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
@@ -31,9 +33,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScaleDownRemoveSFTest extends ClusterTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public RetryRule retryRule = new RetryRule(3);
@@ -102,7 +107,7 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       ClusterConnectionImpl clusterconn1 = (ClusterConnectionImpl) servers[1].getClusterManager().getClusterConnection("cluster0");
       SimpleString sfQueueName = clusterconn1.getSfQueueName(servers[0].getNodeID().toString());
 
-      instanceLog.debug("[sf queue on server 1]: " + sfQueueName);
+      logger.debug("[sf queue on server 1]: " + sfQueueName);
 
       Assert.assertTrue(servers[1].queueQuery(sfQueueName).isExists());
 

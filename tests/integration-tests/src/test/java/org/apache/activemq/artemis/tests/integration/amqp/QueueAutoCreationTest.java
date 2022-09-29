@@ -33,6 +33,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -44,12 +46,15 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.lang.invoke.MethodHandles;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Random;
 
 //adapted from https://issues.apache.org/jira/browse/ARTEMIS-1416
 public class QueueAutoCreationTest extends JMSClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    Queue queue1;
    Random random = new Random();
@@ -90,7 +95,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       Map.Entry<String, AddressSettings> entry = map.entrySet().iterator().next();
       AddressSettings settings = entry.getValue();
       settings.setAutoCreateQueues(true);
-      instanceLog.debug("server cofg, isauto? " + entry.getValue().isAutoCreateQueues());
+      logger.debug("server cofg, isauto? " + entry.getValue().isAutoCreateQueues());
    }
 
 
@@ -118,7 +123,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      instanceLog.debug("Address is " + addressName);
+      logger.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
       Topic topic = new ActiveMQTopic(addressName.toString());
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -137,7 +142,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      instanceLog.debug("Address is " + addressName);
+      logger.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
 
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -158,7 +163,7 @@ public class QueueAutoCreationTest extends JMSClientTestSupport {
       ConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:5672");
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      instanceLog.debug("Address is " + addressName);
+      logger.debug("Address is " + addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
 
       Connection recConnection = factory.createConnection();

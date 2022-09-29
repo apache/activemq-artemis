@@ -27,6 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -36,12 +38,15 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 
 import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
 
 @RunWith(Parameterized.class)
 public class MessageIDMultiProtocolTest extends OpenWireTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    String protocolSender;
    String protocolConsumer;
@@ -115,8 +120,8 @@ public class MessageIDMultiProtocolTest extends OpenWireTestBase {
 
             Assert.assertTrue(messageId.startsWith("ID:"));
 
-            instanceLog.debug("[" + protocolSender + "][" + protocolConsumer + "] " + messageId);
-            instanceLog.debug("[" + protocolSender + "][" + protocolConsumer + "] " + sentMid);
+            logger.debug("[" + protocolSender + "][" + protocolConsumer + "] " + messageId);
+            logger.debug("[" + protocolSender + "][" + protocolConsumer + "] " + sentMid);
 
             if (protocolConsumer.equals(protocolSender)) {
                //only same protocol we guarantee the same JMSMessageID

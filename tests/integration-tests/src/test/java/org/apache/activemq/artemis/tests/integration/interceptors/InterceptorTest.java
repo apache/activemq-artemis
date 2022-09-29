@@ -25,6 +25,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
@@ -59,8 +60,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InterceptorTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -108,13 +113,13 @@ public class InterceptorTest extends ActiveMQTestBase {
             CreateQueueMessage createQueue = (CreateQueueMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            instanceLog.debug("userName on createQueue = " + userName);
+            logger.debug("userName on createQueue = " + userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
 
-            instanceLog.debug("userName on send = " + userName);
+            logger.debug("userName on send = " + userName);
          }
 
          return true;
@@ -138,13 +143,13 @@ public class InterceptorTest extends ActiveMQTestBase {
             SessionCreateConsumerMessage createQueue = (SessionCreateConsumerMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            instanceLog.debug("userName = " + userName);
+            logger.debug("userName = " + userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
 
-            instanceLog.debug("userName on send = " + userName);
+            logger.debug("userName on send = " + userName);
          }
 
          return true;
@@ -1058,7 +1063,7 @@ public class InterceptorTest extends ActiveMQTestBase {
 
       String uri = "tcp://localhost:61616?incomingInterceptorList=" + Incoming.class.getCanonicalName() + "&outgoingInterceptorList=" + Outgoing.class.getName();
 
-      instanceLog.debug(uri);
+      logger.debug(uri);
 
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(uri);
 

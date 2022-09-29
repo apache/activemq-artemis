@@ -22,6 +22,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -40,8 +41,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSServerStartStopTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -69,7 +74,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       final int numMessages = 5;
 
       for (int j = 0; j < numMessages; j++) {
-         instanceLog.debug("Iteration " + j);
+         logger.debug("Iteration " + j);
 
          server.start();
 

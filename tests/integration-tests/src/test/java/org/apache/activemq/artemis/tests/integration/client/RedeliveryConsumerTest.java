@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,9 +41,12 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RedeliveryConsumerTest extends ActiveMQTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    ActiveMQServer server;
 
@@ -164,7 +168,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       setUp(strictUpdate);
       ClientSession session = factory.createSession(false, false, false);
 
-      instanceLog.debug("created");
+      logger.debug("created");
 
       ClientProducer prod = session.createProducer(ADDRESS);
       prod.send(createTextMessage(session, "Hello"));
@@ -216,7 +220,7 @@ public class RedeliveryConsumerTest extends ActiveMQTestBase {
       setUp(strict);
       ClientSession session = factory.createSession(false, false, false);
 
-      instanceLog.debug("created");
+      logger.debug("created");
 
       ClientProducer prod = session.createProducer(ADDRESS);
       prod.send(createTextMessage(session, "Hello"));

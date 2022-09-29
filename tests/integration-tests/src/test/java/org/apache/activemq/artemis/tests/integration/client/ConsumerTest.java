@@ -31,6 +31,7 @@ import javax.jms.Session;
 import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
@@ -78,9 +79,23 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class ConsumerTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   @Override
+   protected boolean waitForBindings(ActiveMQServer server,
+                                     String address,
+                                     boolean local,
+                                     int expectedBindingCount,
+                                     int expectedConsumerCount,
+                                     long timeout) throws Exception {
+      return super.waitForBindings(server, address, local, expectedBindingCount, expectedConsumerCount, timeout);
+   }
 
    @Parameterized.Parameters(name = "isNetty={0}, persistent={1}")
    public static Collection getParameters() {
@@ -194,13 +209,13 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(message2);
 
-      instanceLog.debug("Id::" + message2.getMessageID());
+      logger.debug("Id::" + message2.getMessageID());
 
-      instanceLog.debug("Received " + message2);
+      logger.debug("Received " + message2);
 
-      instanceLog.debug("Clie:" + ByteUtil.bytesToHex(message2.getBuffer().array(), 4));
+      logger.debug("Clie:" + ByteUtil.bytesToHex(message2.getBuffer().array(), 4));
 
-      instanceLog.debug("String::" + message2.getReadOnlyBodyBuffer().readString());
+      logger.debug("String::" + message2.getReadOnlyBodyBuffer().readString());
 
       Assert.assertEquals("elo", message2.getStringProperty("hello"));
 
@@ -581,7 +596,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          }
          long end = System.currentTimeMillis();
 
-         instanceLog.debug("Time = " + (end - time));
+         logger.debug("Time = " + (end - time));
 
          {
             TextMessage dummyMessage = session.createTextMessage();
@@ -1014,7 +1029,7 @@ public class ConsumerTest extends ActiveMQTestBase {
                }
 
                if (cons.receiveImmediate() != null) {
-                  instanceLog.debug("ERROR: Received an extra message");
+                  logger.debug("ERROR: Received an extra message");
                   errors.incrementAndGet();
                }
                sessionSend.close();
@@ -1251,11 +1266,11 @@ public class ConsumerTest extends ActiveMQTestBase {
       final long messagesPerRun = (forks * messages);
       for (int r = 0; r < runs; r++) {
          onStartRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-         instanceLog.debug("started run " + r);
+         logger.debug("started run " + r);
          final long start = System.currentTimeMillis();
          onFinishRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
          final long elapsedMillis = System.currentTimeMillis() - start;
-         instanceLog.debug((messagesPerRun * 1000L) / elapsedMillis + " msg/sec");
+         logger.debug((messagesPerRun * 1000L) / elapsedMillis + " msg/sec");
       }
       Stream.of(producersRunners).forEach(runner -> {
          try {

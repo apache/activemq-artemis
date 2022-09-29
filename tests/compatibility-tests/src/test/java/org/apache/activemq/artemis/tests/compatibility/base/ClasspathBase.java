@@ -47,19 +47,17 @@ public class ClasspathBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private final Logger instanceLog = logger;
-
    @Rule
    public TestRule watcher = new TestWatcher() {
 
       @Override
       protected void starting(Description description) {
-         instanceLog.info("**** start #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
+         logger.info("**** start #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
       }
 
       @Override
       protected void finished(Description description) {
-         instanceLog.info("**** end #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
+         logger.info("**** end #test {}::{}() ***", ClasspathBase.this.getClass().getName(), description.getMethodName());
       }
    };
 

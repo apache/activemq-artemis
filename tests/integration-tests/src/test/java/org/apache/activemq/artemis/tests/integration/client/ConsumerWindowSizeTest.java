@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.client;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
@@ -52,8 +53,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConsumerWindowSizeTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final SimpleString addressA = new SimpleString("addressA");
 
@@ -411,7 +416,7 @@ public class ConsumerWindowSizeTest extends ActiveMQTestBase {
 
          ClientMessage msg = consumer.receiveImmediate();
          if (msg == null) {
-            instanceLog.debug("Returning null");
+            logger.debug("Returning null");
             break;
          }
          msg.acknowledge();

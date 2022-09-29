@@ -28,10 +28,15 @@ import javax.jms.TextMessage;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 
 public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected boolean isSecurityEnabled() {
@@ -51,7 +56,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          connection.start();
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
-         instanceLog.debug("Failed to authenticate connection with no user / password.", ex);
+         logger.debug("Failed to authenticate connection with no user / password.", ex);
 
       } finally {
          if (connection != null) {
@@ -69,7 +74,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          connection.start();
          fail("Expected Exception");
       } catch (JMSSecurityException ex) {
-         instanceLog.debug("Failed to authenticate connection with no user / password.");
+         logger.debug("Failed to authenticate connection with no user / password.");
       } catch (Exception ex) {
          fail("Expected JMSSecurityException");
       } finally {
@@ -87,7 +92,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          connection.start();
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
-         instanceLog.debug("Failed to authenticate connection with unknown user ID");
+         logger.debug("Failed to authenticate connection with unknown user ID");
       } finally {
          if (connection != null) {
             connection.close();
@@ -103,7 +108,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          connection.start();
          fail("Expected JMSException");
       } catch (JMSSecurityException ex) {
-         instanceLog.debug("Failed to authenticate connection with incorrect password.");
+         logger.debug("Failed to authenticate connection with incorrect password.");
       } finally {
          if (connection != null) {
             connection.close();
@@ -120,7 +125,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
             connection.start();
             fail("Expected JMSException");
          } catch (JMSSecurityException ex) {
-            instanceLog.debug("Failed to authenticate connection with incorrect password.");
+            logger.debug("Failed to authenticate connection with incorrect password.");
          } finally {
             if (connection != null) {
                connection.close();
@@ -167,7 +172,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
             session.createConsumer(queue);
             fail("Should not be able to consume here.");
          } catch (JMSSecurityException jmsSE) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
       } finally {
          connection.close();
@@ -187,7 +192,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
             browser.getEnumeration();
             fail("Should not be able to consume here.");
          } catch (JMSSecurityException jmsSE) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
       } finally {
          connection.close();
@@ -205,7 +210,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
             session.createConsumer(queue);
             fail("Should not be able to consume here.");
          } catch (JMSSecurityException jmsSE) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
       } finally {
          connection.close();
@@ -223,7 +228,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
             session.createProducer(queue);
             fail("Should not be able to produce here.");
          } catch (JMSSecurityException jmsSE) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
       } finally {
          connection.close();
@@ -243,7 +248,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
             producer.send(queue, session.createTextMessage());
             fail("Should not be able to produce here.");
          } catch (JMSSecurityException jmsSE) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
       } finally {
          connection.close();
@@ -260,7 +265,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          try {
             session.createTemporaryQueue();
          } catch (JMSSecurityException jmsse) {
-            instanceLog.debug("Client should have thrown a JMSSecurityException but only threw JMSException");
+            logger.debug("Client should have thrown a JMSSecurityException but only threw JMSException");
          }
 
          // Should not be fatal
@@ -280,7 +285,7 @@ public class JMSConnectionWithSecurityTest extends JMSClientTestSupport {
          try {
             session.createTemporaryTopic();
          } catch (JMSSecurityException jmsse) {
-            instanceLog.debug("Client should have thrown a JMSSecurityException but only threw JMSException");
+            logger.debug("Client should have thrown a JMSSecurityException but only threw JMSException");
          }
 
          // Should not be fatal

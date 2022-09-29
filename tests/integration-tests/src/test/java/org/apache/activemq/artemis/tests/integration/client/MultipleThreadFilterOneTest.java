@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +34,8 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Multiple Threads producing Messages, with Multiple Consumers with different queues, each queue with a different filter
@@ -40,6 +43,7 @@ import org.junit.Test;
  */
 public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    final String ADDRESS = "ADDRESS";
 
@@ -148,7 +152,7 @@ public class MultipleThreadFilterOneTest extends ActiveMQTestBase {
                msg.acknowledge();
 
                if (i % 500 == 0) {
-                  instanceLog.debug("Consumed " + i);
+                  logger.debug("Consumed " + i);
                   consumerSession.commit();
                }
             }

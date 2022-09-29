@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -32,8 +34,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExpireTestOnRestartTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    ActiveMQServer server;
 
@@ -118,7 +124,7 @@ public class ExpireTestOnRestartTest extends ActiveMQTestBase {
       int extras = 0;
       ClientMessage msg;
       while ((msg = cons.receiveImmediate()) != null) {
-         instanceLog.debug("{}", msg);
+         logger.debug("{}", msg);
          extras++;
       }
 

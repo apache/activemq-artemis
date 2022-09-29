@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -47,8 +48,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUID;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AcknowledgeTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -105,7 +110,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
       }
 
       Thread.sleep(500);
-      instanceLog.debug("woke up");
+      logger.debug("woke up");
 
       final CountDownLatch latch = new CountDownLatch(numMessages);
       session.start();
@@ -114,7 +119,7 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
          @Override
          public void onMessage(final ClientMessage message) {
-            instanceLog.debug("Got message " + c++);
+            logger.debug("Got message " + c++);
             latch.countDown();
          }
       });

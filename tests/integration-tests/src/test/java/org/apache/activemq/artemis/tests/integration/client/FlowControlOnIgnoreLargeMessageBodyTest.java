@@ -206,7 +206,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
          Session session = null;
          stopped = false;
          requestForStop = false;
-         instanceLog.debug("Starting consumer for {} - {}", topic, getName());
+         log.debug("Starting consumer for {} - {}", topic, getName());
          try {
             connection = cf.createConnection();
 
@@ -224,11 +224,11 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
 
             while (counter < numberOfMessages && !requestForStop && !error) {
                if (counter == 0) {
-                  instanceLog.debug("Starting to consume for {} - {}", topic, getName());
+                  log.debug("Starting to consume for {} - {}", topic, getName());
                }
                BytesMessage msg = (BytesMessage) subscriber.receive(receiveTimeout);
                if (msg == null) {
-                  instanceLog.debug("Cannot get message in specified timeout: {} - {}", topic, getName());
+                  log.debug("Cannot get message in specified timeout: {} - {}", topic, getName());
                   error = true;
                } else {
                   counter++;
@@ -246,7 +246,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
             }
             session.commit();
          } catch (Exception e) {
-            instanceLog.debug("Exception in consumer {} : {}", getName(), e.getMessage());
+            log.debug("Exception in consumer {} : {}", getName(), e.getMessage());
             e.printStackTrace();
          } finally {
             if (session != null) {
@@ -265,7 +265,7 @@ public class FlowControlOnIgnoreLargeMessageBodyTest extends JMSTestBase {
             }
          }
          stopped = true;
-         instanceLog.debug("Stopping consumer for {} - {}, received {}", topic, getName(), getReceivedMessages());
+         log.debug("Stopping consumer for {} - {}, received {}", topic, getName(), getReceivedMessages());
       }
 
       public int getReceivedMessages() {

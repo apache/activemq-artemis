@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.server;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -45,8 +46,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LVQTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -182,7 +187,7 @@ public class LVQTest extends ActiveMQTestBase {
       producer.send(m1);
       clientSessionTxReceives.start();
       for (int i = 0; i < 10; i++) {
-         instanceLog.debug("#Deliver " + i);
+         logger.debug("#Deliver " + i);
          ClientMessage m = consumer.receive(5000);
          Assert.assertNotNull(m);
          m.acknowledge();

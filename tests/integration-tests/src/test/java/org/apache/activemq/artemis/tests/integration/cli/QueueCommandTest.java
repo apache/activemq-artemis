@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.cli;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.lang.invoke.MethodHandles;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.UUID;
@@ -39,8 +40,12 @@ import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class QueueCommandTest extends JMSTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    //the command
    private ByteArrayOutputStream output;
@@ -379,13 +384,13 @@ public class QueueCommandTest extends JMSTestBase {
 
    private void checkExecutionPassed(AbstractAction command) throws Exception {
       String fullMessage = output.toString();
-      instanceLog.debug("output: " + fullMessage);
+      logger.debug("output: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
    private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
       String fullMessage = error.toString();
-      instanceLog.debug("error: " + fullMessage);
+      logger.debug("error: " + fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));
    }
 }

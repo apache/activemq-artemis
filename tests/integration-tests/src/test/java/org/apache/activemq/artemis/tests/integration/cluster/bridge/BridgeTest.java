@@ -1497,7 +1497,7 @@ public class BridgeTest extends ActiveMQTestBase {
             msgCount.incrementAndGet();
 
             if (i % 500 == 0)
-               instanceLog.debug("received {}", i);
+               log.debug("received {}", i);
          }
 
          boolean failed = false;
@@ -1815,7 +1815,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          File outputFile = new File(getTemporaryDir(), "huge_message_received.dat");
 
-         instanceLog.debug("-----message save to: {}", outputFile.getAbsolutePath());
+         log.debug("-----message save to: {}", outputFile.getAbsolutePath());
          FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
 
          BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
@@ -1860,7 +1860,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       createFile(fileInput, largeMessageSize);
 
-      instanceLog.debug("File created at: {}", fileInput.getAbsolutePath());
+      log.debug("File created at: {}", fileInput.getAbsolutePath());
 
       ClientMessage message = session.createMessage(Message.BYTES_TYPE, true);
 

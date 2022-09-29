@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.amqp;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 
 import javax.jms.BytesMessage;
@@ -42,11 +43,15 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test that various message types are handled as expected with an AMQP JMS client.
  */
 public class JMSMessageTypesTest extends JMSClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    final int NUM_MESSAGES = 10;
 
@@ -129,7 +134,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         instanceLog.debug("Sending " + i);
+         logger.debug("Sending " + i);
          BytesMessage message = session.createBytesMessage();
 
          message.writeBytes(bytes);
@@ -151,13 +156,13 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
          byte[] bytesReceived = new byte[(int) size];
          m.readBytes(bytesReceived);
 
-         instanceLog.debug("Received " + ByteUtil.bytesToHex(bytesReceived, 1) + " count - " + m.getIntProperty("count"));
+         logger.debug("Received " + ByteUtil.bytesToHex(bytesReceived, 1) + " count - " + m.getIntProperty("count"));
 
          Assert.assertArrayEquals(bytes, bytesReceived);
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      instanceLog.debug("taken = " + taken);
+      logger.debug("taken = " + taken);
    }
 
    @Test(timeout = 60000)
@@ -188,7 +193,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         instanceLog.debug("Sending " + i);
+         logger.debug("Sending " + i);
          Message message = session.createMessage();
 
          message.setIntProperty("count", i);
@@ -205,7 +210,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      instanceLog.debug("taken = " + taken);
+      logger.debug("taken = " + taken);
    }
 
    @Test(timeout = 60000)
@@ -231,7 +236,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         instanceLog.debug("Sending " + i);
+         logger.debug("Sending " + i);
          MapMessage message = session.createMapMessage();
 
          message.setInt("i", i);
@@ -252,7 +257,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      instanceLog.debug("taken = " + taken);
+      logger.debug("taken = " + taken);
    }
 
    @Test(timeout = 60000)
@@ -278,7 +283,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         instanceLog.debug("Sending " + i);
+         logger.debug("Sending " + i);
          TextMessage message = session.createTextMessage("text" + i);
          message.setStringProperty("text", "text" + i);
          producer.send(message);
@@ -295,7 +300,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      instanceLog.debug("taken = " + taken);
+      logger.debug("taken = " + taken);
    }
 
    @Test(timeout = 60000)
@@ -403,7 +408,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         instanceLog.debug("Sending " + i);
+         logger.debug("Sending " + i);
          ObjectMessage message = session.createObjectMessage(new AnythingSerializable(i));
          producer.send(message);
       }
@@ -421,7 +426,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      instanceLog.debug("taken = " + taken);
+      logger.debug("taken = " + taken);
    }
 
    @Test(timeout = 60000)

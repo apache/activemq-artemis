@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
@@ -26,11 +27,15 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for broker side support of the Durable Subscription mapping for JMS.
  */
 public class AmqpDLQReceiverTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testCreateDurableReceiver() throws Exception {
@@ -45,22 +50,22 @@ public class AmqpDLQReceiverTest extends AmqpClientTestSupport {
       assertNotNull(queue);
       receiver.flow(100);
       for (int i = 0; i < 10; i++) {
-         instanceLog.debug("i = " + i);
+         logger.debug("i = " + i);
          AmqpMessage receive = receiver.receive(5000, TimeUnit.MILLISECONDS);
          receive.modified(true, false);
          Queue queueView = getProxyToQueue(getQueueName());
-         instanceLog.debug("receive = " + receive.getWrappedMessage().getDeliveryCount());
-         instanceLog.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
-         instanceLog.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
-         instanceLog.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
+         logger.debug("receive = " + receive.getWrappedMessage().getDeliveryCount());
+         logger.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
+         logger.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
+         logger.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
       }
 
       receiver.close();
       connection.close();
       Queue queueView = getProxyToQueue(getQueueName());
-      instanceLog.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
-      instanceLog.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
-      instanceLog.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
+      logger.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
+      logger.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
+      logger.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
       Wait.assertEquals(0, queueView::getMessageCount);
    }
 

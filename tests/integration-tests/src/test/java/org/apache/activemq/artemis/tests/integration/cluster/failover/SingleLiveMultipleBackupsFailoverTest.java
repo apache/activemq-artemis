@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,10 +34,14 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailoverTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected Map<Integer, TestableServer> servers = new HashMap<>();
    protected ServerLocatorImpl locator;
@@ -75,31 +80,31 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       int backupNode;
       ClientSession session = sendAndConsume(sf, true);
 
-      instanceLog.debug("failing node 0");
+      logger.debug("failing node 0");
       servers.get(0).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      instanceLog.debug("failing node " + backupNode);
+      logger.debug("failing node " + backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      instanceLog.debug("failing node " + backupNode);
+      logger.debug("failing node " + backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      instanceLog.debug("failing node " + backupNode);
+      logger.debug("failing node " + backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      instanceLog.debug("failing node " + backupNode);
+      logger.debug("failing node " + backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();

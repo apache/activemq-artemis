@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -35,8 +36,12 @@ import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReplicatedDistributionTest extends ClusterTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final SimpleString ADDRESS = new SimpleString("test.SomeAddress");
    private ClientSession sessionOne;
@@ -122,7 +127,7 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
          if (i != received) {
             // Shouldn't this be a failure?
-            instanceLog.warn(i + "!=" + received);
+            logger.warn(i + "!=" + received);
          }
          msg.acknowledge();
       }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +37,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected abstract boolean isNetty();
 
@@ -137,7 +142,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       locator.removeClusterTopologyListener(topListener);
       if (!ok) {
          if (server != null) {
-            instanceLog.warn("failed topology, Topology on server = " + server.getClusterManager().describe());
+            logger.warn("failed topology, Topology on server = " + server.getClusterManager().describe());
          }
       }
       Assert.assertTrue("expected " + topologyMembers + " members", ok);

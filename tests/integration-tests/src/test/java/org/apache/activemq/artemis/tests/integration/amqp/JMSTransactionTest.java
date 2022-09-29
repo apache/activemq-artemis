@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -31,8 +32,12 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSTransactionTest extends JMSClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testProduceMessageAndCommit() throws Throwable {
@@ -40,7 +45,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       javax.jms.Queue queue = session.createQueue(getQueueName());
 
-      instanceLog.debug("queue:" + queue.getQueueName());
+      logger.debug("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          TextMessage message = session.createTextMessage();
@@ -62,7 +67,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
       javax.jms.Queue queue = session.createQueue(getQueueName());
 
-      instanceLog.debug("queue:" + queue.getQueueName());
+      logger.debug("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          TextMessage message = session.createTextMessage();
@@ -106,7 +111,7 @@ public class JMSTransactionTest extends JMSClientTestSupport {
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       javax.jms.Queue queue = session.createQueue(getQueueName());
 
-      instanceLog.debug("queue:" + queue.getQueueName());
+      logger.debug("queue:" + queue.getQueueName());
       MessageProducer p = session.createProducer(queue);
       for (int i = 0; i < 10; i++) {
          TextMessage message = session.createTextMessage();

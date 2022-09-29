@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
@@ -27,11 +28,15 @@ import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test various behaviors of AMQP receivers with the broker.
  */
 public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testPresettledReceiverAndNonPresettledReceiverOnSameQueue() throws Exception {
@@ -66,7 +71,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       receiver1.close();
       receiver2.close();
 
-      instanceLog.debug("Message Count after all consumed: " + queueView.getMessageCount());
+      logger.debug("Message Count after all consumed: " + queueView.getMessageCount());
 
       // Should be nothing left on the Queue
       AmqpReceiver receiver3 = session.createReceiver(getQueueName());
@@ -74,7 +79,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       AmqpMessage received = receiver3.receive(5, TimeUnit.SECONDS);
       if (received != null) {
-         instanceLog.debug("Message read: " + received.getMessageId());
+         logger.debug("Message read: " + received.getMessageId());
       }
       assertNull(received);
 
@@ -103,14 +108,14 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       }
       receiver.close();
 
-      instanceLog.debug("Message Count after all consumed: " + queueView.getMessageCount());
+      logger.debug("Message Count after all consumed: " + queueView.getMessageCount());
 
       // Open a new receiver and see if any message are left on the Queue
       receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       if (received != null) {
-         instanceLog.debug("Message read: " + received.getMessageId());
+         logger.debug("Message read: " + received.getMessageId());
       }
       assertNull(received);
 
@@ -155,14 +160,14 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       receiver.close();
 
-      instanceLog.debug("Message Count after all consumed: " + queueView.getMessageCount());
+      logger.debug("Message Count after all consumed: " + queueView.getMessageCount());
 
       // Open a new receiver and see if any message are left on the Queue
       receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       if (received != null) {
-         instanceLog.debug("Message read: " + received.getMessageId());
+         logger.debug("Message read: " + received.getMessageId());
       }
       assertNull(received);
 

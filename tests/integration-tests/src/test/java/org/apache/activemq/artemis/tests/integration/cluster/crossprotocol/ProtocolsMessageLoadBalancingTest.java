@@ -23,6 +23,7 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -55,9 +56,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(value = Parameterized.class)
 public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    private static final int NUMBER_OF_SERVERS = 2;
    private static final SimpleString queueName = SimpleString.toSimpleString("queues.0");
 
@@ -303,7 +309,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       startServers(MessageLoadBalancingType.STRICT);
 
-      instanceLog.debug("connections " + servers[1].getRemotingService().getConnections().size());
+      logger.debug("connections " + servers[1].getRemotingService().getConnections().size());
 
       Wait.assertEquals(3, () -> servers[1].getRemotingService().getConnections().size());
       Wait.assertEquals(3, () -> servers[0].getRemotingService().getConnections().size());
@@ -360,7 +366,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       waitForBindings(0, "queues.0", 1, 1, false);
       waitForBindings(1, "queues.0", 1, 1, false);
 
-      instanceLog.debug("connections " + servers[1].getRemotingService().getConnections().size());
+      logger.debug("connections " + servers[1].getRemotingService().getConnections().size());
 
       // sending Messages.. they should be load balanced
       {
