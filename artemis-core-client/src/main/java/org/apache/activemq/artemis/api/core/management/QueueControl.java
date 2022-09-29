@@ -782,4 +782,10 @@ public interface QueueControl {
     */
    @Operation(desc = "Immediately deliver the scheduled message with the specified message ID", impact = MBeanOperationInfo.ACTION)
    void deliverScheduledMessage(@Parameter(name = "messageID", desc = "ID of the message to deliver") long messageId) throws Exception;
+
+   /**
+    * Returns whether this queue is available for auto deletion.
+    */
+   @Attribute(desc = "whether this queue is available for auto deletion")
+   boolean isAutoDelete();
 }

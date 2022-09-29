@@ -2632,4 +2632,11 @@ public interface AuditLogger {
 
    @LogMessage(id = 601765, value = "User {} is getting status on target resource: {}", level = LogMessage.Level.INFO)
    void getStatus(String user, Object source);
+
+   static void isAutoDelete(Object source) {
+      BASE_LOGGER.isAutoDelete(getCaller(), source);
+   }
+
+   @LogMessage(id = 601766, value = "User {} is getting auto-delete property on target resource: {}", level = LogMessage.Level.INFO)
+   void isAutoDelete(String user, Object source);
 }

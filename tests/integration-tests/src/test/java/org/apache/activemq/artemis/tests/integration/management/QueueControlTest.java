@@ -269,6 +269,35 @@ public class QueueControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testAutoDeleteAttribute() throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString queue = RandomUtil.randomSimpleString();
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address));
+
+      QueueControl queueControl = createManagementControl(address, queue);
+      Assert.assertFalse(queueControl.isAutoDelete());
+
+      session.deleteQueue(queue);
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoDelete(true));
+
+      queueControl = createManagementControl(address, queue);
+      Assert.assertTrue(queueControl.isAutoDelete());
+
+      session.deleteQueue(queue);
+
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setAutoDeleteQueues(true));
+
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setAutoCreated(true));
+
+      queueControl = createManagementControl(address, queue);
+      Assert.assertTrue(queueControl.isAutoDelete());
+
+      session.deleteQueue(queue);
+   }
+
+   @Test
    public void testGroupAttributes() throws Exception {
       SimpleString address = RandomUtil.randomSimpleString();
       SimpleString queue = RandomUtil.randomSimpleString();
