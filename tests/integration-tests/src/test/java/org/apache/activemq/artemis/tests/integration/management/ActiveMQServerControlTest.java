@@ -3007,6 +3007,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       Assert.assertEquals("groupRebalance", "false", array.getJsonObject(0).getString("groupRebalance"));
       Assert.assertEquals("groupBuckets", "-1", array.getJsonObject(0).getString("groupBuckets"));
       Assert.assertEquals("groupFirstKey", "", array.getJsonObject(0).getString("groupFirstKey"));
+      Assert.assertEquals("autoDelete", "false", array.getJsonObject(0).getString("autoDelete"));
    }
 
    @Test

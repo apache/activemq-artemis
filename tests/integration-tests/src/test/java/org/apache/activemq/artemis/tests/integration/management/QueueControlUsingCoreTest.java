@@ -77,6 +77,11 @@ public class QueueControlUsingCoreTest extends QueueControlTest {
          }
 
          @Override
+         public boolean isAutoDelete() {
+            return (Boolean) proxy.retrieveAttributeValue("autoDelete");
+         }
+
+         @Override
          public void resetAllGroups() {
             try {
                proxy.invokeOperation("resetAllGroups");

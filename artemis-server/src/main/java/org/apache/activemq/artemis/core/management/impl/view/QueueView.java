@@ -76,7 +76,8 @@ public class QueueView extends ActiveMQAbstractView<QueueControl> {
          .add(QueueField.ENABLED.getName(), toString(queue.isEnabled()))
          .add(QueueField.RING_SIZE.getName(), toString(queue.getRingSize()))
          .add(QueueField.CONSUMERS_BEFORE_DISPATCH.getName(), toString(queue.getConsumersBeforeDispatch()))
-         .add(QueueField.DELAY_BEFORE_DISPATCH.getName(), toString(queue.getDelayBeforeDispatch()));
+         .add(QueueField.DELAY_BEFORE_DISPATCH.getName(), toString(queue.getDelayBeforeDispatch()))
+         .add(QueueField.AUTO_DELETE.getName(), toString(q.isAutoDelete()));
       return obj;
    }
 

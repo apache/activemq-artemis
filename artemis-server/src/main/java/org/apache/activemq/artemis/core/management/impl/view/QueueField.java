@@ -52,7 +52,8 @@ public enum QueueField {
    ENABLED("enabled"),
    RING_SIZE("ringSize"),
    CONSUMERS_BEFORE_DISPATCH("consumersBeforeDispatch"),
-   DELAY_BEFORE_DISPATCH("delayBeforeDispatch");
+   DELAY_BEFORE_DISPATCH("delayBeforeDispatch"),
+   AUTO_DELETE("autoDelete");
 
    private static final Map<String, QueueField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
