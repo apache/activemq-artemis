@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.amqp;
 
 import static org.apache.activemq.transport.amqp.AmqpSupport.findFilter;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,11 +42,15 @@ import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.engine.Receiver;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test various behaviors of AMQP receivers with the broker.
  */
 public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testUnsupportedFiltersAreNotListedAsSupported() throws Exception {
@@ -148,7 +153,7 @@ public class AmqpReceiverWithFiltersTest extends AmqpClientTestSupport {
          for (int i = 0; i < NUM_MESSAGES  / 2; ++i) {
             AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
             Assert.assertNotNull(message);
-            instanceLog.debug("Read message: " + message.getApplicationProperty("myNewID"));
+            logger.debug("Read message: " + message.getApplicationProperty("myNewID"));
             assertNotNull(message);
             messages.add(message);
          }

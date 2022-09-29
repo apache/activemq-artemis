@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -35,9 +36,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class FQQNStompTest extends StompTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private StompClientConnection conn;
 
@@ -83,7 +88,7 @@ public class FQQNStompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(2000);
       assertNotNull(frame);
       assertEquals("Hello World!", frame.getBody());
-      instanceLog.debug("frame: " + frame);
+      logger.debug("frame: " + frame);
       unsubscribe(conn, "sub-01");
    }
 
@@ -184,7 +189,7 @@ public class FQQNStompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(2000);
       assertNotNull(frame);
       assertEquals("Hello World!", frame.getBody());
-      instanceLog.debug("frame: " + frame);
+      logger.debug("frame: " + frame);
       unsubscribe(conn, "sub-01");
 
       //queue::

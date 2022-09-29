@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -33,10 +34,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 @Ignore
 public class StompWithLargeMessagesTest extends StompTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // Web Socket has max frame size of 64kb.  Large message tests only available over TCP.
    @Parameterized.Parameters(name = "{0}")
@@ -444,8 +449,8 @@ public class StompWithLargeMessagesTest extends StompTestBase {
          for (int i = 0; i < count; i++) {
             ClientStompFrame frame = conn.receiveFrame(60000);
             Assert.assertNotNull(frame);
-            instanceLog.debug(frame.toString());
-            instanceLog.debug("part of frame: " + frame.getBody().substring(0, 250));
+            logger.debug(frame.toString());
+            logger.debug("part of frame: " + frame.getBody().substring(0, 250));
             Assert.assertTrue(frame.getCommand().equals("MESSAGE"));
             Assert.assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
             int index = frame.getBody().toString().indexOf(leadingPart);

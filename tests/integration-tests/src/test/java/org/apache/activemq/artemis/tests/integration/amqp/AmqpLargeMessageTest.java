@@ -312,7 +312,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             if (wrapped.getBody() instanceof Data) {
                // converters can change this to AmqValue
                Data data = (Data) wrapped.getBody();
-               instanceLog.debug("received : message: " + data.getValue().getLength());
+               LOG.debug("received : message: " + data.getValue().getLength());
                assertEquals(payload, data.getValue().getLength());
             }
             message.accept();
@@ -366,7 +366,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
          if (wrapped.getBody() instanceof Data) {
             Data data = (Data) wrapped.getBody();
-            instanceLog.debug("received : message: " + data.getValue().getLength());
+            LOG.debug("received : message: " + data.getValue().getLength());
             assertEquals(payload, data.getValue().getLength());
          }
 

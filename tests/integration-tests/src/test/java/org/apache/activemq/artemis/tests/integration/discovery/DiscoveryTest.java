@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.discovery;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
@@ -44,6 +45,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This will test Discovery test on JGroups and UDP.
@@ -65,6 +68,8 @@ import org.junit.Test;
  * tests/integration-tests
  */
 public class DiscoveryTest extends DiscoveryBaseTest {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String TEST_JGROUPS_CONF_FILE = "test-jgroups-file_ping.xml";
 
@@ -354,7 +359,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
          byte[] btreceived = client.receiveBroadcast(5, TimeUnit.SECONDS);
 
-         instanceLog.debug("BTReceived = " + Arrays.toString(btreceived));
+         logger.debug("BTReceived = " + Arrays.toString(btreceived));
 
          assertNotNull(btreceived);
 
@@ -392,7 +397,7 @@ public class DiscoveryTest extends DiscoveryBaseTest {
 
       InetAddress localAddress = InetAddress.getLoopbackAddress();
 
-      instanceLog.debug("Local address is " + localAddress);
+      logger.debug("Local address is " + localAddress);
 
       bg = newBroadcast(nodeID, RandomUtil.randomString(), localAddress, -1, groupAddress, groupPort);
 

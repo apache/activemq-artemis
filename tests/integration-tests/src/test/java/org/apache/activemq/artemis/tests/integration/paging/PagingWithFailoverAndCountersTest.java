@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -32,8 +33,12 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.After;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    Process liveProcess;
    Process backupProcess;
@@ -206,10 +211,10 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                   }
 
                   if (msgcount % 100 == 0) {
-                     instanceLog.debug("received " + msgcount + " on " + queueName);
+                     logger.debug("received " + msgcount + " on " + queueName);
                   }
                } catch (Throwable e) {
-                  instanceLog.warn("=====> expected Error at " + currentMsg + " with lastCommit=" + lastCommit);
+                  logger.warn("=====> expected Error at " + currentMsg + " with lastCommit=" + lastCommit);
                }
             }
 

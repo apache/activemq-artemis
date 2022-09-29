@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientConsumer;
@@ -29,8 +31,12 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AckBatchSizeTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -82,7 +88,7 @@ public class AckBatchSizeTest extends ActiveMQTestBase {
       ClientConsumer consumer = session.createConsumer(queueA);
       session.start();
       for (int i = 0; i < numMessages - 1; i++) {
-         instanceLog.debug("Receive ");
+         logger.debug("Receive ");
          ClientMessage m = consumer.receive(5000);
          Assert.assertEquals(0, m.getPropertyNames().size());
          Assert.assertEquals("expected to be " + originalSize, originalSize, m.getEncodeSize());

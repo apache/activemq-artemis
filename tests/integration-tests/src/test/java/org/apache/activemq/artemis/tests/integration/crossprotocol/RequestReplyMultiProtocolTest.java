@@ -28,6 +28,7 @@ import javax.jms.TemporaryQueue;
 import javax.jms.TemporaryTopic;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,11 +44,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFactory;
 
 @RunWith(Parameterized.class)
 public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    String protocolSender;
    String protocolConsumer;
@@ -156,7 +161,7 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
             TextMessage received = (TextMessage)consumer.receive(5000);
 
             Assert.assertNotNull(received);
-            instanceLog.debug("Destination::" + received.getJMSDestination());
+            logger.debug("Destination::" + received.getJMSDestination());
 
             if (useTopic) {
                Assert.assertTrue("JMSDestination type is " + received.getJMSDestination().getClass(),  received.getJMSDestination() instanceof Topic);
@@ -167,7 +172,7 @@ public class RequestReplyMultiProtocolTest extends OpenWireTestBase {
             Assert.assertNotNull(received.getJMSReplyTo());
             Assert.assertEquals("hello " + (i++), received.getText());
 
-            instanceLog.debug("received " + received.getText() + " and " + received.getJMSReplyTo());
+            logger.debug("received " + received.getText() + " and " + received.getJMSReplyTo());
 
             if (destination instanceof Queue) {
                Assert.assertTrue("Type is " + received.getJMSReplyTo().getClass().toString(), received.getJMSReplyTo() instanceof Queue);

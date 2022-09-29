@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
@@ -51,8 +52,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReattachTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final SimpleString ADDRESS = new SimpleString("FailoverTestAddress");
    private ActiveMQServer server;
@@ -562,7 +567,7 @@ public class ReattachTest extends ActiveMQTestBase {
                try {
                   connFailure.fail(new ActiveMQNotConnectedException());
                } catch (Exception e) {
-                  instanceLog.warn("Error on the timer " + e);
+                  logger.warn("Error on the timer " + e);
                }
             }
 

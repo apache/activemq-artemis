@@ -25,6 +25,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
@@ -60,8 +61,12 @@ import org.apache.activemq.artemis.tests.util.RandomUtil;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DivertTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int TIMEOUT = 3000;
 
@@ -504,7 +509,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages * 2; i++) {
          ClientMessage message = consumerExpiry.receive(5000);
-         instanceLog.debug("Received message " + message);
+         logger.debug("Received message " + message);
          assertNotNull(message);
 
          if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue1")) {
@@ -512,7 +517,7 @@ public class DivertTest extends ActiveMQTestBase {
          } else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
          } else {
-            instanceLog.debug("message not part of any expired queue" + message);
+            logger.debug("message not part of any expired queue" + message);
          }
       }
 

@@ -76,9 +76,9 @@ import java.lang.invoke.MethodHandles;
 
 public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
-   static final int RECEIVE_WAIT_TIME = 60000;
-
    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   static final int RECEIVE_WAIT_TIME = 60000;
 
    private final int LARGE_MESSAGE_SIZE = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 3;
 
@@ -181,7 +181,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          @Override
          public void run() {
             try {
-               instanceLog.debug("Receiving message");
+               log.debug("Receiving message");
                ClientMessage msg = cons.receive(5000);
                if (msg == null) {
                   System.err.println("Message not received");
@@ -235,7 +235,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          @Override
          public void run() {
             try {
-               instanceLog.debug("Receiving message");
+               log.debug("Receiving message");
                javax.jms.Message msg = consumer.receive(5000);
                if (msg == null) {
                   System.err.println("Message not received");
@@ -243,10 +243,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                   return;
                }
             } catch (JMSException e) {
-               instanceLog.debug("This exception was ok as it was expected", e);
+               log.debug("This exception was ok as it was expected", e);
                expectedErrors.incrementAndGet();
             } catch (Throwable e) {
-               instanceLog.warn("Captured unexpected exception", e);
+               log.warn("Captured unexpected exception", e);
                unexpectedErrors.incrementAndGet();
             }
          }
@@ -452,7 +452,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       server.start();
 
       for (int start = 0; start < 2; start++) {
-         instanceLog.debug("Start " + start);
+         log.debug("Start " + start);
 
          sf = createSessionFactory(locator);
 
@@ -466,7 +466,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
          session.start();
          for (int i = 0; i < 10; i++) {
-            instanceLog.info("I = " + i);
+            log.info("I = " + i);
             ClientMessage msg = cons1.receive(5000);
             Assert.assertNotNull(msg);
             Assert.assertEquals(1, msg.getIntProperty("txid").intValue());
@@ -531,7 +531,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          @Override
          public void postAcknowledge(final MessageReference ref, AckReason reason) {
-            instanceLog.debug("Ignoring postACK on message " + ref);
+            log.debug("Ignoring postACK on message " + ref);
          }
 
          @Override

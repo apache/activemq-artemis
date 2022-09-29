@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp.largemessages;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
@@ -40,8 +41,12 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.apache.qpid.proton.amqp.messaging.Data;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int NUMBER_OF_THREADS = 10;
    private static final int MINIMAL_SEND = 2;
@@ -129,7 +134,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
       }
       browserIterator.close();
 
-      instanceLog.debug("There are " + serverQueue.getMessageCount() + " on the queue");
+      logger.debug("There are " + serverQueue.getMessageCount() + " on the queue");
       int messageCount = (int)serverQueue.getMessageCount();
 
       AmqpClient client = createLocalClient();
@@ -148,7 +153,7 @@ public class InterruptedAMQPLargeMessage extends AmqpClientTestSupport {
          message.accept(true);
          received++;
 
-         instanceLog.debug("Received " + received);
+         logger.debug("Received " + received);
          Data data = (Data)message.getWrappedMessage().getBody();
          byte[] byteArray = data.getValue().getArray();
 

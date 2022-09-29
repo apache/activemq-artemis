@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jms.consumer;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,8 +50,12 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JmsConsumerTest extends JMSTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String Q_NAME = "ConsumerTestQueue";
 
@@ -110,9 +115,9 @@ public class JmsConsumerTest extends JMSTestBase {
       TextMessage m3 = (TextMessage) cons.receive(2000);
       Assert.assertNull("m3 should be null", m3);
 
-      instanceLog.debug("received m1: " + m1.getText());
-      instanceLog.debug("received m2: " + m2.getText());
-      instanceLog.debug("received m3: " + m3);
+      logger.debug("received m1: " + m1.getText());
+      logger.debug("received m2: " + m2.getText());
+      logger.debug("received m3: " + m3);
       sess.commit();
    }
 

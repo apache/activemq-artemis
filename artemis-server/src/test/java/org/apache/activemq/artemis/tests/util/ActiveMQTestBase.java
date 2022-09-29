@@ -175,8 +175,6 @@ public abstract class ActiveMQTestBase extends Assert {
 
    private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   protected final Logger instanceLog = LoggerFactory.getLogger(this.getClass());
-
    static {
       Env.setTestEnv(true);
    }

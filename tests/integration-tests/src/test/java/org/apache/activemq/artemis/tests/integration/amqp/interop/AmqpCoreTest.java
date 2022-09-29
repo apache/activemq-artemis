@@ -22,6 +22,7 @@ import javax.jms.Destination;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,8 +41,12 @@ import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.apache.qpid.jms.JmsTopic;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AmqpCoreTest extends JMSClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected String getConfiguredProtocols() {
@@ -154,13 +159,13 @@ public class AmqpCoreTest extends JMSClientTestSupport {
 
       @Override
       public void onMessage(ClientMessage message) {
-         instanceLog.debug("received: " + message.getBodySize());
+         logger.debug("received: " + message.getBodySize());
          if (message.getBodySize() == 0) {
-            instanceLog.debug("xxx found zero len message!");
+            logger.debug("xxx found zero len message!");
             zeroLen.set(true);
          }
 
-         instanceLog.debug("[receiver " + id + "] recieved: " + numMsg.incrementAndGet());
+         logger.debug("[receiver " + id + "] recieved: " + numMsg.incrementAndGet());
       }
 
       public void assertMessagesReceived(int num) throws Exception {

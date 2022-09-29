@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.stomp.v11;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,12 +32,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * Some Stomp tests against server with persistence enabled are put here.
  */
 @RunWith(Parameterized.class)
 public class ExtraStompTest extends StompTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private StompClientConnection connV10;
    private StompClientConnection connV11;
@@ -198,10 +203,10 @@ public class ExtraStompTest extends StompTestBase {
 
       // receive but don't ack
       frame = conn.receiveFrame(10000);
-      instanceLog.debug("{}", frame);
+      logger.debug("{}", frame);
 
       frame = conn.receiveFrame(10000);
-      instanceLog.debug("{}", frame);
+      logger.debug("{}", frame);
 
       unsubscribe(conn, "a-sub");
 

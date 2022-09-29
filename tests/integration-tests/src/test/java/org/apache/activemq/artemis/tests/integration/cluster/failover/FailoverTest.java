@@ -95,7 +95,7 @@ import java.lang.invoke.MethodHandles;
 
 public class FailoverTest extends FailoverTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -241,7 +241,7 @@ public class FailoverTest extends FailoverTestBase {
             Integer counter = message.getIntProperty("counter");
             received.put(counter, message);
             try {
-               log.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
+               logger.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
                message.acknowledge();
                session.commit();
             } catch (ActiveMQException e) {
@@ -253,7 +253,7 @@ public class FailoverTest extends FailoverTestBase {
                e.printStackTrace();
                return;
             }
-            log.debug("Acked counter = {}", counter);
+            logger.debug("Acked counter = {}", counter);
             if (counter.equals(10)) {
                latch.countDown();
             }
@@ -264,7 +264,7 @@ public class FailoverTest extends FailoverTestBase {
 
       });
       latch.await(10, TimeUnit.SECONDS);
-      log.debug("crashing session");
+      logger.debug("crashing session");
       crash(session);
       Assert.assertTrue(endLatch.await(60, TimeUnit.SECONDS));
 
@@ -311,13 +311,13 @@ public class FailoverTest extends FailoverTestBase {
                   Integer counter = message.getIntProperty("counter");
                   received.put(counter, message);
                   try {
-                     log.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
+                     logger.debug("acking message = id = {}, counter = {}", message.getMessageID(), message.getIntProperty("counter"));
                      message.acknowledge();
                   } catch (ActiveMQException e) {
                      e.printStackTrace();
                      continue;
                   }
-                  log.debug("Acked counter = {}", counter);
+                  logger.debug("Acked counter = {}", counter);
                   if (counter.equals(10)) {
                      latch.countDown();
                   }
@@ -340,7 +340,7 @@ public class FailoverTest extends FailoverTestBase {
                try {
                   ClientMessage msg = consumer.receive(20000);
                   if (msg == null) {
-                     log.debug("Returning null message on consuming");
+                     logger.debug("Returning null message on consuming");
                   }
                   return msg;
                } catch (ActiveMQObjectClosedException oce) {
@@ -354,7 +354,7 @@ public class FailoverTest extends FailoverTestBase {
       };
       t.start();
       latch.await(10, TimeUnit.SECONDS);
-      log.debug("crashing session");
+      logger.debug("crashing session");
       crash(session);
       endLatch.await(60, TimeUnit.SECONDS);
       t.join();
@@ -549,7 +549,7 @@ public class FailoverTest extends FailoverTestBase {
             //there is still an edge condition that we must deal with
             session.rollback(xid);
          } catch (Exception ignored) {
-            log.trace(ignored.getMessage(), ignored);
+            logger.trace(ignored.getMessage(), ignored);
          }
       }
 
@@ -699,14 +699,14 @@ public class FailoverTest extends FailoverTestBase {
       TransportConfiguration initialLive = getFieldFromSF(sf, "currentConnectorConfig");
       TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
 
-      instanceLog.debug("initlive: {}", initialLive);
-      instanceLog.debug("initback: {}", initialBackup);
+      logger.debug("initlive: {}", initialLive);
+      logger.debug("initback: {}", initialBackup);
 
       TransportConfiguration last = getFieldFromSF(sf, "connectorConfig");
       TransportConfiguration current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      instanceLog.debug("now last: {}", last);
-      instanceLog.debug("now current: {}", current);
+      logger.debug("now last: {}", last);
+      logger.debug("now current: {}", current);
       assertTrue(current.equals(initialLive));
 
       ClientSession session = createSession(sf, true, true);
@@ -722,8 +722,8 @@ public class FailoverTest extends FailoverTestBase {
       last = getFieldFromSF(sf, "connectorConfig");
       current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      instanceLog.debug("now after live crashed last: {}", last);
-      instanceLog.debug("now current: {}", current);
+      logger.debug("now after live crashed last: {}", last);
+      logger.debug("now current: {}", current);
 
       assertTrue(current.equals(initialBackup));
 
@@ -743,8 +743,8 @@ public class FailoverTest extends FailoverTestBase {
       last = getFieldFromSF(sf, "connectorConfig");
       current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      instanceLog.debug("now after live back again last: {}", last);
-      instanceLog.debug("now current: {}", current);
+      logger.debug("now after live back again last: {}", last);
+      logger.debug("now current: {}", current);
 
       //cannot use equals here because the config's name (uuid) changes
       //after failover

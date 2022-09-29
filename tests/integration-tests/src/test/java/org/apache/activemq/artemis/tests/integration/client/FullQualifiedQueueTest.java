@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -32,8 +34,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FullQualifiedQueueTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private SimpleString anycastAddress = new SimpleString("address.anycast");
    private SimpleString multicastAddress = new SimpleString("address.multicast");
@@ -91,31 +97,31 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       //each anycast consumer receives one, each multicast receives three.
       ClientMessage m = consumer1.receive(2000);
       assertNotNull(m);
-      instanceLog.debug("consumer1 : " + m);
+      logger.debug("consumer1 : " + m);
       m.acknowledge();
 
       m = consumer2.receive(2000);
       assertNotNull(m);
-      instanceLog.debug("consumer2 : " + m);
+      logger.debug("consumer2 : " + m);
       m.acknowledge();
 
       m = consumer3.receive(2000);
       assertNotNull(m);
-      instanceLog.debug("consumer3 : " + m);
+      logger.debug("consumer3 : " + m);
       m.acknowledge();
 
       for (int i = 0; i < num; i++) {
          m = consumer4.receive(2000);
          assertNotNull(m);
-         instanceLog.debug("consumer4 : " + m);
+         logger.debug("consumer4 : " + m);
          m.acknowledge();
          m = consumer5.receive(2000);
          assertNotNull(m);
-         instanceLog.debug("consumer5 : " + m);
+         logger.debug("consumer5 : " + m);
          m.acknowledge();
          m = consumer6.receive(2000);
          assertNotNull(m);
-         instanceLog.debug("consumer6 : " + m);
+         logger.debug("consumer6 : " + m);
          m.acknowledge();
       }
 

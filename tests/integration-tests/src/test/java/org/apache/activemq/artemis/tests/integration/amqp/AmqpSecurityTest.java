@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -33,8 +34,12 @@ import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AmqpSecurityTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected boolean isSecurityEnabled() {
@@ -118,7 +123,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
             session.createSender(getQueueName());
             fail("Should not be able to consume here.");
          } catch (Exception ex) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();
@@ -216,7 +221,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
             session.createReceiver(getQueueName());
             fail("Should not be able to consume here.");
          } catch (Exception ex) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();
@@ -253,7 +258,7 @@ public class AmqpSecurityTest extends AmqpClientTestSupport {
             session.createReceiver(getQueueName(getPrecreatedQueueSize() + 1));
             fail("Should not be able to consume here.");
          } catch (Exception ex) {
-            instanceLog.debug("Caught expected exception");
+            logger.debug("Caught expected exception");
          }
 
          connection.getStateInspector().assertValid();

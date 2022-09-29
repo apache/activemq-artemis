@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.jms.cluster;
 
 import javax.jms.Connection;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -26,8 +27,12 @@ import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.tests.util.JMSClusteredTestBase;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * created for https://issues.apache.org/jira/browse/ARTEMIS-385
@@ -39,7 +44,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
       final int ITERATIONS = 50;
 
       for (int i = 0; i < ITERATIONS; i++) {
-         instanceLog.info("#test " + i);
+         logger.info("#test " + i);
          internalMultipleOpen(200, 1);
          tearDown();
          setUp();
@@ -75,7 +80,7 @@ public class MultipleThreadsOpeningTest extends JMSClusteredTestBase {
 
                for (int i = 0; i < numberOfOpens; i++) {
                   if (i > 0 && i % 100 == 0)
-                     instanceLog.debug("connections created on Thread " + Thread.currentThread() + " " + i);
+                     logger.debug("connections created on Thread " + Thread.currentThread() + " " + i);
                   Connection conn = cf1.createConnection();
                   Session sess = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
                   sess.close();

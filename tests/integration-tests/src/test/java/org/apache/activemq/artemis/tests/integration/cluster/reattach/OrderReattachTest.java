@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.reattach;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -39,8 +40,12 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OrderReattachTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    final SimpleString ADDRESS = new SimpleString("address");
 
@@ -195,7 +200,7 @@ public class OrderReattachTest extends ActiveMQTestBase {
 
             if (message.getIntProperty("count") != count) {
                failure = new Exception("counter " + count + " was not as expected (" + message.getIntProperty("count") + ")");
-               instanceLog.warn("Failure on receiving message ", failure);
+               logger.warn("Failure on receiving message ", failure);
                failure.printStackTrace();
                latch.countDown();
             }

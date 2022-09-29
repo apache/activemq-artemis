@@ -34,10 +34,14 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 public class MulticastTest extends ActiveMQTestBase {
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private SimpleString baseAddress = new SimpleString("multicast.address");
 
@@ -98,7 +102,7 @@ public class MulticastTest extends ActiveMQTestBase {
          for (int j = 0; j < num; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            instanceLog.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            logger.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));
@@ -157,7 +161,7 @@ public class MulticastTest extends ActiveMQTestBase {
          for (int j = 0; j < num; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            instanceLog.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            logger.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));
@@ -173,7 +177,7 @@ public class MulticastTest extends ActiveMQTestBase {
          for (int j = 0; j < num; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            instanceLog.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            logger.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));

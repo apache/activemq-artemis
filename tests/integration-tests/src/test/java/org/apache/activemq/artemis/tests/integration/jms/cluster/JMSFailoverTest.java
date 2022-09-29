@@ -85,7 +85,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class JMSFailoverTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
 
@@ -223,14 +223,14 @@ public class JMSFailoverTest extends ActiveMQTestBase {
 
       conn.start();
 
-      instanceLog.debug("sent messages and started connection");
+      logger.debug("sent messages and started connection");
 
       Thread.sleep(2000);
 
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
       for (int i = 0; i < numMessages; i++) {
-         log.debug("got message {}", i);
+         logger.debug("got message {}", i);
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
@@ -543,7 +543,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       backupJMSServer.setRegistry(new JndiBindingRegistry(ctx2));
 
       backupJMSServer.getActiveMQServer().setIdentity("JMSBackup");
-      log.debug("Starting backup");
+      logger.debug("Starting backup");
       backupJMSServer.start();
 
       liveConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).setSecurityEnabled(false).addAcceptorConfiguration(liveAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(livetc.getName(), livetc).setPersistenceEnabled(true).setHAPolicyConfiguration(sharedStore ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
@@ -555,7 +555,7 @@ public class JMSFailoverTest extends ActiveMQTestBase {
       liveJMSServer.setRegistry(new JndiBindingRegistry(ctx1));
 
       liveJMSServer.getActiveMQServer().setIdentity("JMSLive");
-      log.debug("Starting live");
+      logger.debug("Starting live");
 
       liveJMSServer.start();
 

@@ -23,12 +23,18 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JMSMessageCounterTest extends JMSTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected boolean usePersistence() {
@@ -57,7 +63,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
       QueueControl control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
-      instanceLog.debug(control.listMessageCounterAsHTML());
+      logger.debug(control.listMessageCounterAsHTML());
 
       jmsServer.stop();
 
@@ -66,7 +72,7 @@ public class JMSMessageCounterTest extends JMSTestBase {
       control = (QueueControl) server.getManagementService().getResource(ResourceNames.QUEUE + queue.getQueueName());
       assertNotNull(control);
 
-      instanceLog.debug(control.listMessageCounterAsHTML());
+      logger.debug(control.listMessageCounterAsHTML());
    }
 
 }

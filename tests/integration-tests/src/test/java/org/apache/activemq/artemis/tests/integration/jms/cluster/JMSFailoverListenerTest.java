@@ -24,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,8 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A JMSFailoverTest
@@ -64,6 +67,7 @@ import org.junit.Test;
  */
 public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected Configuration backupConf;
 
@@ -142,13 +146,13 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       conn.start();
 
-      instanceLog.debug("sent messages and started connection");
+      logger.debug("sent messages and started connection");
 
       JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
 
       Wait.assertTrue(() -> FailoverEventType.FAILURE_DETECTED == listener.get(0));
       for (int i = 0; i < numMessages; i++) {
-         instanceLog.debug("got message " + i);
+         logger.debug("got message " + i);
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 
@@ -267,7 +271,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       backupServer = addServer(new InVMNodeManagerServer(backupConf, nodeManager));
 
       backupServer.setIdentity("JMSBackup");
-      instanceLog.debug("Starting backup");
+      logger.debug("Starting backup");
       backupServer.start();
 
       liveConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).addAcceptorConfiguration(liveAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(livetc.getName(), livetc).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
@@ -276,7 +280,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       liveServer = addServer(new InVMNodeManagerServer(liveConf, nodeManager));
 
       liveServer.setIdentity("JMSLive");
-      instanceLog.debug("Starting life");
+      logger.debug("Starting life");
 
       liveServer.start();
 

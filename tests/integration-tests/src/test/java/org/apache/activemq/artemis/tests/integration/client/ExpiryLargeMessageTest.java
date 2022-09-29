@@ -23,6 +23,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -42,12 +43,15 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This test will send large messages in page-mode, DLQ then, expiry then, and they should be received fine
  */
 public class ExpiryLargeMessageTest extends ActiveMQTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    final SimpleString EXPIRY = new SimpleString("my-expiry");
 
@@ -156,7 +160,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
             assertNotNull(message);
 
             if (i % 10 == 0) {
-               instanceLog.debug("Received " + i);
+               logger.debug("Received " + i);
             }
 
             for (int location = 0; location < messageSize; location++) {
@@ -206,7 +210,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
             assertNotNull(message);
 
             if (i % 10 == 0) {
-               instanceLog.debug("Received " + i);
+               logger.debug("Received " + i);
             }
 
             for (int location = 0; location < messageSize; location++) {
@@ -443,7 +447,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
          assertNotNull(message);
 
          if (i % 10 == 0) {
-            instanceLog.debug("Received " + i);
+            logger.debug("Received " + i);
          }
 
          for (int location = 0; location < messageSize; location++) {

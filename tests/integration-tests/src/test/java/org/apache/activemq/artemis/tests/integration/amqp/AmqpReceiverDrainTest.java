@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.server.Queue;
@@ -26,11 +27,15 @@ import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests various behaviors of broker side drain support.
  */
 public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testReceiverCanDrainMessagesQueue() throws Exception {
@@ -69,7 +74,7 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       for (int i = 0; i < MSG_COUNT; ++i) {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
          assertNotNull("Failed to read message: " + (i + 1), message);
-         instanceLog.info("Read message: " + message.getMessageId());
+         logger.info("Read message: " + message.getMessageId());
          message.accept();
       }
       receiver.close();

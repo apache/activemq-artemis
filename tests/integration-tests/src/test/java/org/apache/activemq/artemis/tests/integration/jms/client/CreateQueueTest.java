@@ -22,12 +22,16 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CreateQueueTest extends JMSTestBase {
 
-
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testCreateQueueTempQueue() throws Exception {
@@ -63,7 +67,7 @@ public class CreateQueueTest extends JMSTestBase {
 
       String queueName = queue.getQueueName();
 
-      instanceLog.debug("queue name is " + queueName);
+      logger.debug("queue name is " + queueName);
 
 //      assertFalse(queueName.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX));
 

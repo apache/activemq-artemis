@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.failover;
 
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,10 +35,14 @@ import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.tests.integration.cluster.util.SameProcessActiveMQServer;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  */
 public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFailoverTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected Map<Integer, TestableServer> servers = new HashMap<>();
    private ServerLocator locator2;
@@ -78,7 +83,7 @@ public class MultipleLivesMultipleBackupsFailoverTest extends MultipleBackupsFai
       ClientSessionFactoryInternal sf = createSessionFactoryAndWaitForTopology(locator, 4, servers.get(0).getServer());
       ClientSession session = sendAndConsume(sf, true);
 
-      instanceLog.debug(((ServerLocatorInternal) locator).getTopology().describe());
+      logger.debug(((ServerLocatorInternal) locator).getTopology().describe());
       Thread.sleep(500);
       servers.get(0).crash(session);
 

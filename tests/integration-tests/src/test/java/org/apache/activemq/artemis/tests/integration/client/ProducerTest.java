@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.client;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,8 +40,12 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProducerTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -94,7 +99,7 @@ public class ProducerTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 100; i++) {
          final CountDownLatch latch = new CountDownLatch(1);
-         instanceLog.debug("Try " + i);
+         logger.debug("Try " + i);
          ClientSessionFactory cf = locator.createSessionFactory();
          final ClientSession session = cf.createSession(false, true, true);
 

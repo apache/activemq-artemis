@@ -27,6 +27,7 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
@@ -42,12 +43,14 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
-
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String BROKER_URL = "tcp://localhost:61616?minLargeMessageSize=10000&HA=true&retryInterval=100&reconnectAttempts=20&producerWindowSize=10000";
 
@@ -148,20 +151,20 @@ public class ManualReconnectionToSingleServerTest extends ActiveMQTestBase {
 
 
    protected void disconnect() {
-      instanceLog.debug("calling disconnect");
+      logger.debug("calling disconnect");
       if (connection == null) {
-         instanceLog.debug("connection is null");
+         logger.debug("connection is null");
          return;
       }
 
       try {
          connection.setExceptionListener(null);
-         instanceLog.debug("closing the connection");
+         logger.debug("closing the connection");
          connection.close();
          connection = null;
-         instanceLog.debug("connection closed");
+         logger.debug("connection closed");
       } catch (Exception e) {
-         instanceLog.debug("** got exception");
+         logger.debug("** got exception");
          e.printStackTrace();
       }
    }

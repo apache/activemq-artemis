@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -38,9 +39,13 @@ import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public int amqpMinLargeMessageSize = ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE;
 
@@ -107,7 +112,7 @@ public class AmqpIngressTimestampTest extends AmqpClientTestSupport {
       receiver.flow(1);
       AmqpMessage receive = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(receive);
-      instanceLog.info("{}", receive);
+      logger.info("{}", receive);
       Object ingressTimestampHeader = receive.getMessageAnnotation(AMQPMessageSupport.X_OPT_INGRESS_TIME);
       assertNotNull(ingressTimestampHeader);
       assertTrue(ingressTimestampHeader instanceof Long);

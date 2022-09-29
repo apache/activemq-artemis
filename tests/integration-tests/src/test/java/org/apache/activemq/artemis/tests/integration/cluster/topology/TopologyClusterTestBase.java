@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.topology;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,10 +46,14 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class TopologyClusterTestBase extends ClusterTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final class LatchListener implements ClusterTopologyListener {
 
@@ -192,7 +197,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
       }
       while (System.currentTimeMillis() - start < ActiveMQTestBase.WAIT_TIMEOUT);
 
-      instanceLog.error(clusterDescription(servers[node]));
+      logger.error(clusterDescription(servers[node]));
       Assert.assertEquals("Timed out waiting for cluster connections for server " + node, expected, nodesCount);
    }
 
@@ -395,7 +400,7 @@ public abstract class TopologyClusterTestBase extends ClusterTestBase {
 
       boolean ok = downLatch.await(10, SECONDS);
       if (!ok) {
-         instanceLog.warn("TopologyClusterTestBase.testMultipleClientSessionFactories will fail");
+         logger.warn("TopologyClusterTestBase.testMultipleClientSessionFactories will fail");
       }
       Assert.assertTrue("Was not notified that all servers are Down", ok);
       checkContains(new int[]{0}, nodeIDs, nodes);
