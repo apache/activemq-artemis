@@ -16,10 +16,19 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Handles the actual login after channel authentication has succeeded
  */
 public class SCRAMLoginModule extends AbstractPrincipalLoginModule {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   public SCRAMLoginModule() {
+      super(logger);
+   }
 }

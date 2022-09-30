@@ -30,19 +30,22 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstract login module that uses an external authenticated principal
  */
 public abstract class AbstractPrincipalLoginModule implements AuditLoginModule {
-   private final Logger logger = LoggerFactory.getLogger(getClass());
+   private final Logger logger;
 
    private Subject subject;
    private final List<Principal> authenticatedPrincipals = new LinkedList<>();
    private CallbackHandler callbackHandler;
    private boolean loginSucceeded;
    private Principal[] principals;
+
+   public AbstractPrincipalLoginModule(Logger logger) {
+      this.logger = logger;
+   }
 
    @Override
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,

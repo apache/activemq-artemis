@@ -16,15 +16,21 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl.scram;
 
+import java.lang.invoke.MethodHandles;
+
 import org.apache.activemq.artemis.spi.core.security.scram.SCRAM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * provides SASL SRAM-SHA256
+ * provides SASL SCRAM-SHA256
  */
 public class SHA256SCRAMServerSASLFactory extends SCRAMServerSASLFactory {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    public SHA256SCRAMServerSASLFactory() {
-      super(SCRAM.SHA256);
+      super(SCRAM.SHA256, logger);
    }
 
    @Override

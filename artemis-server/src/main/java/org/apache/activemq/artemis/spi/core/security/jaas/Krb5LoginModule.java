@@ -16,10 +16,19 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * populate a subject with kerberos credential from the handler
  */
 public class Krb5LoginModule extends AbstractPrincipalLoginModule {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   public Krb5LoginModule() {
+      super(logger);
+   }
 }
