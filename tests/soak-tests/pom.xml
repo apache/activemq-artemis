@@ -183,6 +183,27 @@
                      </args>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-openwire-leaktest</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/openwire-leaktest</instance>
+                     <configuration>${basedir}/target/classes/servers/openwire-leaktest</configuration>
+                     <args>
+                        <arg>--java-memory</arg>
+                        <arg>3G</arg>
+                     </args>
+                  </configuration>
+               </execution>
+
             </executions>
          </plugin>
 

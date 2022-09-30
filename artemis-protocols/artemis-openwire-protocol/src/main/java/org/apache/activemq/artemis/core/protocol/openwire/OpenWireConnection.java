@@ -546,9 +546,15 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       try {
          final ByteSequence bytes = outWireFormat.marshal(command);
          final int bufferSize = bytes.length;
-         final ActiveMQBuffer buffer = transportConnection.createTransportBuffer(bufferSize);
-         buffer.writeBytes(bytes.data, bytes.offset, bufferSize);
-         transportConnection.write(buffer, false, false);
+         final int maxChunkSize = protocolManager.getOpenwireMaxPacketChunkSize();
+
+         if (maxChunkSize > 0 && bufferSize > maxChunkSize) {
+            chunkSend(bytes, bufferSize, maxChunkSize);
+         } else {
+            final ActiveMQBuffer buffer = transportConnection.createTransportBuffer(bufferSize);
+            buffer.writeBytes(bytes.data, bytes.offset, bufferSize);
+            transportConnection.write(buffer, false, false);
+         }
          bufferSent();
       } catch (IOException e) {
          throw e;
@@ -556,6 +562,22 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          logger.error("error sending", t);
       }
 
+   }
+
+   private void chunkSend(final ByteSequence bytes, final int bufferSize, final int maxChunkSize) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Sending a big packet sized as {} with smaller packets of {}", bufferSize, maxChunkSize);
+      }
+      while (bytes.remaining() > 0) {
+         int chunkSize = Math.min(bytes.remaining(), maxChunkSize);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Sending a partial packet of {} bytes, starting at {}", chunkSize, bytes.remaining());
+         }
+         final ActiveMQBuffer chunk = transportConnection.createTransportBuffer(chunkSize);
+         chunk.writeBytes(bytes.data, bytes.offset, chunkSize);
+         transportConnection.write(chunk, true, false);
+         bytes.setOffset(bytes.getOffset() + chunkSize);
+      }
    }
 
    public void dispatchAsync(Command message) throws Exception {

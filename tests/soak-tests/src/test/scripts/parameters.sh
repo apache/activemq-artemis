@@ -16,13 +16,11 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# this script contains a suggest set of variables to run the HorizontalPagingTest in a medium environment and hit some issues we used to have with paging
+# this script contains a suggest set of variables to run the soak tests.
 
 ## Generic variable:
-# It is possible to save the producer's time. If you set this variable the test will reuse previously sent data by zip and unzipping the data folder
+# Some tests will support saving the producer's state before consumption. If you set this variable these tests will hold a zip file and recover it approprieatedly.
 #export TEST_ZIP_LOCATION=~/zipTest/
-
-echo "parameters-paging has been deprecated, please use parameters.sh"
 
 #HorizontalPagingTest
 

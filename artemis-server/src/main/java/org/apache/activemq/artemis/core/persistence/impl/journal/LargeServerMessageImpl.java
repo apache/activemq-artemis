@@ -16,11 +16,14 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -40,6 +43,8 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    // This value has been computed using https://github.com/openjdk/jol
    // with HotSpot 64-bit COOPS 8-byte align
    private static final int MEMORY_OFFSET = 112 + LargeBody.MEMORY_OFFSET;
+
+   private static final int CHUNK_LM_SIZE = 100 * 1024;
 
    @Override
    public Message toMessage() {
@@ -68,10 +73,32 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    private static Message asLargeMessage(Message message, StorageManager storageManager) throws Exception {
       ICoreMessage coreMessage = message.toCore();
       LargeServerMessage lsm = storageManager.createLargeMessage(storageManager.generateID(), coreMessage);
-      ActiveMQBuffer buffer = coreMessage.getReadOnlyBodyBuffer();
-      final int readableBytes = buffer.readableBytes();
-      lsm.addBytes(buffer);
-      lsm.releaseResources(true, true);
+      ActiveMQBuffer messageBodyBuffer = coreMessage.getReadOnlyBodyBuffer();
+      final int readableBytes = messageBodyBuffer.readableBytes();
+
+      // I'm creating a native buffer here
+      // because FileChannelImpl (which is used by NIOSequentialFile) would create a Ghost Native Buffer
+      // that we would have no control. that's usually stored in a ThreadLocal within the native layer.
+      // to avoid that buffer be kept in memory holding resources we will allocate our own buffer here from the NettyPool.
+      // ./soakTest/OWLeakTest was written to validate this scenario here.
+      ByteBuf ioBuffer  = PooledByteBufAllocator.DEFAULT.ioBuffer(CHUNK_LM_SIZE, CHUNK_LM_SIZE);
+      ActiveMQBuffer wrappedIOBuffer = new ChannelBufferWrapper(ioBuffer);
+
+      try {
+
+         // We write in chunks to avoid allocating a full NativeBody sized as the message size
+         // which might lead the broker out of resources
+         while (messageBodyBuffer.readableBytes() > 0) {
+            wrappedIOBuffer.clear(); // equivalent to setting writingIndex=readerIndex=0;
+            int bytesToRead = Math.min(CHUNK_LM_SIZE, messageBodyBuffer.readableBytes());
+            messageBodyBuffer.readBytes(wrappedIOBuffer, 0, bytesToRead);
+            wrappedIOBuffer.writerIndex(bytesToRead);
+            lsm.addBytes(wrappedIOBuffer);
+         }
+      } finally {
+         lsm.releaseResources(true, true);
+         ioBuffer.release();
+      }
 
       if (!coreMessage.containsProperty(Message.HDR_LARGE_BODY_SIZE)) {
          lsm.toMessage().putLongProperty(Message.HDR_LARGE_BODY_SIZE, readableBytes);

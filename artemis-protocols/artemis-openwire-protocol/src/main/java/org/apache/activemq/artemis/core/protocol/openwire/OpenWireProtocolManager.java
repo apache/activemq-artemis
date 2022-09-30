@@ -30,7 +30,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledExecutorService;
 
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.activemq.advisory.AdvisorySupport;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -56,7 +55,6 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
@@ -105,6 +103,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private int actorThresholdBytes = -1;
 
+
    private BrokerId brokerId;
    protected final ProducerId advisoryProducerId = new ProducerId();
 
@@ -130,6 +129,10 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    private boolean openwireUseDuplicateDetectionOnFailover = true;
 
+   // if positive, packets will sent in chunks avoiding a single allocation
+   // this is to prevent large messages allocating really huge packets
+   private int openwireMaxPacketChunkSize = 100 * 1024;
+
    //http://activemq.apache.org/activemq-inactivitymonitor.html
    private long maxInactivityDuration = 30 * 1000L;
    private long maxInactivityDurationInitalDelay = 10 * 1000L;
@@ -141,6 +144,18 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
    private boolean suppressInternalManagementObjects = true;
 
    private int openWireDestinationCacheSize = 16;
+
+   /** if defined, LargeMessages will be sent in chunks to the network.
+    * Notice that the system will still load the entire file in memory before sending on the stream.
+    * This should avoid just a big buffer allocated. */
+   public int getOpenwireMaxPacketChunkSize() {
+      return openwireMaxPacketChunkSize;
+   }
+
+   public OpenWireProtocolManager setOpenwireMaxPacketChunkSize(int openwireMaxPacketChunkSize) {
+      this.openwireMaxPacketChunkSize = openwireMaxPacketChunkSize;
+      return this;
+   }
 
    private final OpenWireFormat wireFormat;
 
@@ -345,8 +360,7 @@ public class OpenWireProtocolManager  extends AbstractProtocolManager<Command, O
 
    @Override
    public void addChannelHandlers(ChannelPipeline pipeline) {
-      // each read will have a full packet with this
-      pipeline.addLast("packet-decipher", new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, DataConstants.SIZE_INT));
+      pipeline.addLast("large-frame-dealer", new OpenWireFrameParser(openwireMaxPacketChunkSize));
    }
 
    @Override
