@@ -173,13 +173,11 @@ import org.junit.runner.Description;
  */
 public abstract class ActiveMQTestBase extends Assert {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static {
       Env.setTestEnv(true);
    }
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /** This will make sure threads are not leaking between tests */
    @ClassRule
@@ -279,12 +277,12 @@ public abstract class ActiveMQTestBase extends Assert {
       @Override
       protected void starting(Description description) {
          testClassName = description.getClassName();
-         log.info(String.format("**** start #test %s() ***", description.getMethodName()));
+         logger.info("**** start #test {}() ***", description.getMethodName());
       }
 
       @Override
       protected void finished(Description description) {
-         log.info(String.format("**** end #test %s() ***", description.getMethodName()));
+         logger.info("**** end #test {}() ***", description.getMethodName());
       }
    };
 
@@ -314,7 +312,7 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected <T> T serialClone(Object object) throws Exception {
-      log.debug("object::" + object);
+      logger.debug("object::{}", object);
       ByteArrayOutputStream bout = new ByteArrayOutputStream();
       ObjectOutputStream obOut = new ObjectOutputStream(bout);
       obOut.writeObject(object);
@@ -1149,16 +1147,16 @@ public abstract class ActiveMQTestBase extends Assert {
          } else if (prop.getPropertyType() == Double.class || prop.getPropertyType() == Double.TYPE) {
             value = RandomUtil.randomDouble();
          } else {
-            log.debug("Can't validate property of type " + prop.getPropertyType() + " on " + prop.getName());
+            logger.debug("Can't validate property of type {} on {}", prop.getPropertyType(), prop.getName());
             value = null;
          }
 
          if (value != null && prop.getWriteMethod() != null && prop.getReadMethod() == null) {
-            log.debug("WriteOnly property " + prop.getName() + " on " + pojo.getClass());
+            logger.debug("WriteOnly property {} on {}", prop.getName(), pojo.getClass());
          } else if (value != null && prop.getWriteMethod() != null &&
             prop.getReadMethod() != null &&
             !ignoreSet.contains(prop.getName())) {
-            log.debug("Validating " + prop.getName() + " type = " + prop.getPropertyType());
+            logger.debug("Validating {} type = {}", prop.getName(), prop.getPropertyType());
             prop.getWriteMethod().invoke(pojo, value);
 
             Assert.assertEquals("Property " + prop.getName(), value, prop.getReadMethod().invoke(pojo));
@@ -1196,7 +1194,7 @@ public abstract class ActiveMQTestBase extends Assert {
                                       final int liveNodes,
                                       final int backupNodes,
                                       final long timeout) throws Exception {
-      logger.debug("waiting for " + liveNodes + " on the topology for server = " + server);
+      logger.debug("waiting for {} on the topology for server = {}", liveNodes, server);
 
       Set<ClusterConnection> ccs = server.getClusterManager().getClusterConnections();
 
@@ -1216,7 +1214,6 @@ public abstract class ActiveMQTestBase extends Assert {
       final long start = System.currentTimeMillis();
 
       int liveNodesCount = 0;
-
       int backupNodesCount = 0;
 
       do {
@@ -1255,12 +1252,11 @@ public abstract class ActiveMQTestBase extends Assert {
                                   String clusterConnectionName,
                                   final int nodes,
                                   final long timeout) throws Exception {
-      logger.debug("waiting for " + nodes + " on the topology for server = " + server);
+      logger.debug("waiting for {} on the topology for server = {}", nodes, server);
 
       long start = System.currentTimeMillis();
 
       ClusterConnection clusterConnection = server.getClusterManager().getClusterConnection(clusterConnectionName);
-
       Topology topology = clusterConnection.getTopology();
 
       do {
@@ -1368,7 +1364,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (!server.isStarted()) {
-         log.info(threadDump("Server didn't start"));
+         logger.info(threadDump("Server didn't start"));
          fail("server didn't start: " + server);
       }
 
@@ -1390,7 +1386,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
 
       if (server.isStarted()) {
-         log.info(threadDump("Server didn't start"));
+         logger.info(threadDump("Server didn't start"));
          fail("Server didn't start: " + server);
       }
    }
@@ -2020,12 +2016,10 @@ public abstract class ActiveMQTestBase extends Assert {
       long start = System.currentTimeMillis();
 
       int bindingCount = 0;
-
       int totConsumers = 0;
 
       do {
          bindingCount = 0;
-
          totConsumers = 0;
 
          Bindings bindings = po.getBindingsForAddress(new SimpleString(address));
@@ -2048,18 +2042,9 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       while (System.currentTimeMillis() - start < timeout);
 
-      String msg = "Timed out waiting for bindings (bindingCount = " + bindingCount +
-         " (expecting " +
-         expectedBindingCount +
-         ") " +
-         ", totConsumers = " +
-         totConsumers +
-         " (expecting " +
-         expectedConsumerCount +
-         ")" +
-         ")";
+      logger.error("Timed out waiting for bindings (bindingCount = {} (expecting {}) , totConsumers = {} (expecting {}))",
+                     bindingCount, expectedBindingCount, totConsumers, expectedConsumerCount);
 
-      log.error(msg);
       return false;
    }
 
@@ -2154,7 +2139,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
       long totalMaxIO = LibaioContext.getTotalMaxIO();
       if (totalMaxIO != 0) {
-         log.error("LibaioContext TotalMaxIO > 0 before beginning test class. Issue presumably arose in a preceding class (not possible to be sure of which here). TotalMaxIO = " + totalMaxIO);
+         logger.error("LibaioContext TotalMaxIO > 0 before beginning test class. Issue presumably arose in a preceding class (not possible to be sure of which here). TotalMaxIO = {}", totalMaxIO);
       }
    }
 
@@ -2173,7 +2158,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
          // Now fail this run
          String message = String.format("LibaioContext TotalMaxIO > 0 leak detected after class %s(), TotalMaxIO=%s(). Check output to determine if occurred before/during.", testClassName, totalMaxIO);
-         log.error(message);
+         logger.error(message);
          Assert.fail(message);
       }
    }
@@ -2182,7 +2167,7 @@ public abstract class ActiveMQTestBase extends Assert {
       int invmSize = InVMRegistry.instance.size();
       if (invmSize > 0) {
          InVMRegistry.instance.clear();
-         log.info(threadDump("Thread dump"));
+         logger.info(threadDump("Thread dump"));
          fail("invm registry still had acceptors registered");
       }
    }
@@ -2194,14 +2179,14 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          ServerLocatorImpl.clearThreadPools();
       } catch (Throwable e) {
-         log.info(threadDump(e.getMessage()));
+         logger.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
 
       try {
          NettyConnector.clearThreadPools();
       } catch (Exception e) {
-         log.info(threadDump(e.getMessage()));
+         logger.info(threadDump(e.getMessage()));
          System.err.println(threadDump(e.getMessage()));
       }
    }
