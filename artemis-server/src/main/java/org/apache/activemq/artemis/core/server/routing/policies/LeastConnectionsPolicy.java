@@ -59,7 +59,7 @@ public class LeastConnectionsPolicy extends RoundRobinPolicy {
 
                connectionCount = 0;
             } else if (logger.isDebugEnabled()) {
-               logger.debug("Updating the connection count to 0/" + connectionCount + " for the target " + target);
+               logger.debug("Updating the connection count to " + connectionCount + " for the target " + target);
             }
 
             connectionCountCache.put(target, connectionCount);

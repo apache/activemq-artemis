@@ -76,7 +76,8 @@ public class LocalCache implements Cache, RemovalListener<String, String> {
          if (persistedCacheEntries != null) {
             for (Map.Entry<String, PersistedKeyValuePair> cacheEntry : persistedCacheEntries.entrySet()) {
                cache.put(cacheEntry.getKey(), cacheEntry.getValue().getValue());
-               logger.info(cacheEntry.toString());
+
+               logger.debug("Restored persisted cache entry during start: {}", cacheEntry);
             }
          }
       }
