@@ -644,6 +644,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
             }
          }
       }
+      properties.remove("status"); // this is not a simple symmetric property
       // now parse
       configuration.parsePrefixedProperties(properties, null);
 
@@ -1287,6 +1288,55 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+   }
+
+   @Test
+   public void testStatusOnErrorApplyingProperties() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("clusterConfigurations.cc.bonkers", "bla");
+
+      properties.put("notValid.#.expiryAddress", "sharedExpiry");
+      properties.put("addressSettings.#.bla", "bla");
+      properties.put("addressSettings.#.expiryAddress", "good");
+
+      String SHA = "34311";
+      // status field json blob gives possibility for two-way interaction
+      // this value is reflected back but can be augmented
+      properties.put("status", "{ \"properties\": { \"sha\": \"" + SHA + "\"}}");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      String jsonStatus = configuration.getStatus();
+
+      // errors reported
+      assertTrue(jsonStatus.contains("notValid"));
+      assertTrue(jsonStatus.contains("Unknown"));
+      assertTrue(jsonStatus.contains("bonkers"));
+      assertTrue(jsonStatus.contains("bla"));
+
+      // input status reflected
+      assertTrue(jsonStatus.contains(SHA));
+      // only errors reported, good property goes unmentioned
+      assertFalse(jsonStatus.contains("good"));
+
+      // apply again with only good values, new sha.... verify no errors
+      properties.clear();
+
+      String UPDATED_SHA = "66666";
+      // status field json blob gives possibility for two-way interaction
+      // this value is reflected back but can be augmented
+      properties.put("status", "{ \"properties\": { \"sha\": \"" + UPDATED_SHA + "\"}}");
+      properties.put("addressSettings.#.expiryAddress", "changed");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      jsonStatus = configuration.getStatus();
+
+      assertTrue(jsonStatus.contains(UPDATED_SHA));
+      assertFalse(jsonStatus.contains(SHA));
    }
 
    /**

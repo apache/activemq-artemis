@@ -127,4 +127,89 @@ public class JsonUtilTest {
 
       Assert.assertEquals(input, notTruncated);
    }
+
+   @Test
+   public void testMergeEqual() {
+
+      final byte[] bytesA = {0x0a, 0x0b};
+      final byte[] bytesB = {0x1a, 0x1b};
+      final byte[] bytesAB = {0x0a, 0x0b, 0x1a, 0x1b};
+
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("a", "a", jsonObjectBuilder);
+      JsonUtil.addToObject("byteArray", bytesA, jsonObjectBuilder);
+      JsonUtil.addToObject("null", null, jsonObjectBuilder);
+
+      JsonObject sourceOne = jsonObjectBuilder.build();
+
+      JsonObjectBuilder jsonTargetObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("a", "a", jsonTargetObjectBuilder);
+      JsonUtil.addToObject("byteArray", bytesB, jsonTargetObjectBuilder);
+      JsonUtil.addToObject("null", null, jsonTargetObjectBuilder);
+
+      JsonObject sourceTwo = jsonTargetObjectBuilder.build();
+
+      JsonObjectBuilder jsonMergedObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("a", "a", jsonMergedObjectBuilder);
+      // update wins
+      JsonUtil.addToObject("byteArray", bytesB, jsonMergedObjectBuilder);
+      JsonUtil.addToObject("null", null, jsonMergedObjectBuilder);
+
+      JsonObject mergedExpected = jsonMergedObjectBuilder.build();
+
+      Assert.assertEquals(mergedExpected, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+   }
+
+   @Test
+   public void testMergeArray() {
+
+      final byte[] bytesA = {0x0a, 0x0b};
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+
+      jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("byteArray", bytesA, jsonObjectBuilder);
+
+      JsonObject sourceOne = jsonObjectBuilder.build();
+
+      JsonObjectBuilder jsonTargetObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("byteArray", bytesA, jsonTargetObjectBuilder);
+
+      JsonObject sourceTwo = jsonTargetObjectBuilder.build();
+
+      JsonObjectBuilder jsonMergedObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("byteArray", bytesA, jsonMergedObjectBuilder);
+
+      JsonObject mergedExpected = jsonMergedObjectBuilder.build();
+
+      Assert.assertEquals(mergedExpected, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+
+   }
+
+   @Test
+   public void testMergeDuplicate() {
+
+      // merge duplicate attribute value, two wins
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("dup", "a", jsonObjectBuilder);
+      JsonObject sourceOne = jsonObjectBuilder.build();
+
+      JsonObjectBuilder jsonTargetObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("dup", "b", jsonTargetObjectBuilder);
+      JsonObject sourceTwo = jsonTargetObjectBuilder.build();
+
+      Assert.assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+   }
+
+   @Test
+   public void testMergeEmpty() {
+
+      // merge into empty
+      JsonObject sourceOne = JsonLoader.createObjectBuilder().build();
+
+      JsonObjectBuilder jsonTargetObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("dup", "b", jsonTargetObjectBuilder);
+      JsonObject sourceTwo = jsonTargetObjectBuilder.build();
+
+      Assert.assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
+   }
 }

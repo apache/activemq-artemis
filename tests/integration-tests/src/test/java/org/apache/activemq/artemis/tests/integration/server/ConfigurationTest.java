@@ -95,8 +95,6 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
       Assert.assertTrue(propsFile.exists());
 
-      System.out.println("props: " + propsFile.getAbsolutePath());
-
       ActiveMQServer server = getActiveMQServer("duplicate-queues.xml");
       server.setProperties(propsFile.getAbsolutePath());
       try {
@@ -126,6 +124,10 @@ public class ConfigurationTest extends ActiveMQTestBase {
 
          // verify round trip apply
          Assert.assertTrue(server.getActiveMQServerControl().getStatus().contains("2"));
+
+         // verify some server attributes
+         Assert.assertNotNull(server.getActiveMQServerControl().getStatus().contains("version"));
+         Assert.assertNotNull(server.getActiveMQServerControl().getStatus().contains("uptime"));
 
       } finally {
          try {

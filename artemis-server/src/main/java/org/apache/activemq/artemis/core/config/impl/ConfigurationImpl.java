@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.config.impl;
 
+import java.beans.IndexedPropertyDescriptor;
 import java.beans.PropertyDescriptor;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -99,8 +101,12 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlug
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObject;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.Env;
+import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
@@ -109,6 +115,7 @@ import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.Converter;
+import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.MappedPropertyDescriptor;
 import org.apache.commons.beanutils.MethodUtils;
 import org.apache.commons.beanutils.PropertyUtilsBean;
@@ -116,6 +123,7 @@ import org.apache.commons.beanutils.expression.DefaultResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import org.apache.commons.beanutils.expression.Resolver;
 
 public class ConfigurationImpl implements Configuration, Serializable {
 
@@ -403,7 +411,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
     * Parent folder for all data folders.
     */
    private File artemisInstance;
-   private String status;
+   private transient volatile JsonObject status = JsonLoader.createObjectBuilder().build();
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -538,7 +546,146 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public void populateWithProperties(Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
       CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil();
-      BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections);
+      BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections) {
+         // override to treat missing properties as errors, not skip as the default impl does
+         @Override
+         public void setProperty(final Object bean, String name, final Object value) throws InvocationTargetException, IllegalAccessException {
+            {
+               if (logger.isTraceEnabled()) {
+                  final StringBuilder sb = new StringBuilder("  setProperty(");
+                  sb.append(bean);
+                  sb.append(", ");
+                  sb.append(name);
+                  sb.append(", ");
+                  if (value == null) {
+                     sb.append("<NULL>");
+                  } else if (value instanceof String) {
+                     sb.append((String) value);
+                  } else if (value instanceof String[]) {
+                     final String[] values = (String[]) value;
+                     sb.append('[');
+                     for (int i = 0; i < values.length; i++) {
+                        if (i > 0) {
+                           sb.append(',');
+                        }
+                        sb.append(values[i]);
+                     }
+                     sb.append(']');
+                  } else {
+                     sb.append(value.toString());
+                  }
+                  sb.append(')');
+                  logger.trace(sb.toString());
+               }
+
+               // Resolve any nested expression to get the actual target bean
+               Object target = bean;
+               final Resolver resolver = getPropertyUtils().getResolver();
+               while (resolver.hasNested(name)) {
+                  try {
+                     target = getPropertyUtils().getProperty(target, resolver.next(name));
+                     if (target == null) {
+                        throw new InvocationTargetException(null, "Resolved nested property for:" + name + ", on: " + bean + " was null");
+                     }
+                     name = resolver.remove(name);
+                  } catch (final NoSuchMethodException e) {
+                     throw new InvocationTargetException(e, "No getter for property:" + name + ", on: " + bean);
+                  }
+               }
+               if (logger.isTraceEnabled()) {
+                  logger.trace("    Target bean = " + target);
+                  logger.trace("    Target name = " + name);
+               }
+
+               // Declare local variables we will require
+               final String propName = resolver.getProperty(name); // Simple name of target property
+               Class<?> type = null;                         // Java type of target property
+               final int index = resolver.getIndex(name);         // Indexed subscript value (if any)
+               final String key = resolver.getKey(name);           // Mapped key value (if any)
+
+               // Calculate the property type
+               if (target instanceof DynaBean) {
+                  throw new InvocationTargetException(null, "Cannot determine DynaBean type to access: " + name + " on: " + target);
+               } else if (target instanceof Map) {
+                  type = Object.class;
+               } else if (target != null && target.getClass().isArray() && index >= 0) {
+                  type = Array.get(target, index).getClass();
+               } else {
+                  PropertyDescriptor descriptor = null;
+                  try {
+                     descriptor = getPropertyUtils().getPropertyDescriptor(target, name);
+                     if (descriptor == null) {
+                        throw new InvocationTargetException(null, "No accessor method descriptor for: " + name + " on: " + target.getClass());
+                     }
+                  } catch (final NoSuchMethodException e) {
+                     throw new InvocationTargetException(e, "Failed to get descriptor for: " + name + " on: " + target.getClass());
+                  }
+                  if (descriptor instanceof MappedPropertyDescriptor) {
+                     if (((MappedPropertyDescriptor) descriptor).getMappedWriteMethod() == null) {
+                        throw new InvocationTargetException(null, "No mapped Write method for: " + name + " on: " + target.getClass());
+                     }
+                     type = ((MappedPropertyDescriptor) descriptor).getMappedPropertyType();
+                  } else if (index >= 0 && descriptor instanceof IndexedPropertyDescriptor) {
+                     if (((IndexedPropertyDescriptor) descriptor).getIndexedWriteMethod() == null) {
+                        throw new InvocationTargetException(null, "No indexed Write method for: " + name + " on: " + target.getClass());
+                     }
+                     type = ((IndexedPropertyDescriptor) descriptor).getIndexedPropertyType();
+                  } else if (index >= 0 && List.class.isAssignableFrom(descriptor.getPropertyType())) {
+                     type = Object.class;
+                  } else if (key != null) {
+                     if (descriptor.getReadMethod() == null) {
+                        throw new InvocationTargetException(null, "No Read method for: " + name + " on: " + target.getClass());
+                     }
+                     type = (value == null) ? Object.class : value.getClass();
+                  } else {
+                     if (descriptor.getWriteMethod() == null) {
+                        throw new InvocationTargetException(null, "No Write method for: " + name + " on: " + target.getClass());
+                     }
+                     type = descriptor.getPropertyType();
+                  }
+               }
+
+               // Convert the specified value to the required type
+               Object newValue = null;
+               if (type.isArray() && (index < 0)) { // Scalar value into array
+                  if (value == null) {
+                     final String[] values = new String[1];
+                     values[0] = null;
+                     newValue = getConvertUtils().convert(values, type);
+                  } else if (value instanceof String) {
+                     newValue = getConvertUtils().convert(value, type);
+                  } else if (value instanceof String[]) {
+                     newValue = getConvertUtils().convert((String[]) value, type);
+                  } else {
+                     newValue = convert(value, type);
+                  }
+               } else if (type.isArray()) {         // Indexed value into array
+                  if (value instanceof String || value == null) {
+                     newValue = getConvertUtils().convert((String) value, type.getComponentType());
+                  } else if (value instanceof String[]) {
+                     newValue = getConvertUtils().convert(((String[]) value)[0], type.getComponentType());
+                  } else {
+                     newValue = convert(value, type.getComponentType());
+                  }
+               } else {                             // Value into scalar
+                  if (value instanceof String) {
+                     newValue = getConvertUtils().convert((String) value, type);
+                  } else if (value instanceof String[]) {
+                     newValue = getConvertUtils().convert(((String[]) value)[0], type);
+                  } else {
+                     newValue = convert(value, type);
+                  }
+               }
+
+               // Invoke the setter method
+               try {
+                  getPropertyUtils().setProperty(target, name, newValue);
+               } catch (final NoSuchMethodException e) {
+                  throw new InvocationTargetException(e, "Cannot set: " + propName + " on: " + target.getClass());
+               }
+            }
+         }
+      };
       autoFillCollections.setBeanUtilsBean(beanUtils);
       // nested property keys delimited by . and enclosed by '"' if they key's themselves contain dots
       beanUtils.getPropertyUtils().setResolver(new SurroundResolver(getBrokerPropertiesKeySurround(beanProperties)));
@@ -599,7 +746,46 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       BeanSupport.customise(beanUtils);
 
-      beanUtils.populate(this, beanProperties);
+      logger.debug("populate:" + this + ", " + beanProperties);
+
+      HashMap<String, String> errors = new HashMap<>();
+      // Loop through the property name/value pairs to be set
+      for (final Map.Entry<String, ? extends Object> entry : beanProperties.entrySet()) {
+         // Identify the property name and value(s) to be assigned
+         final String name = entry.getKey();
+         try {
+            // Perform the assignment for this property
+            beanUtils.setProperty(this, name, entry.getValue());
+         } catch (InvocationTargetException invocationTargetException) {
+            logger.trace("failed to populate property key: " + name, invocationTargetException);
+            Throwable toLog = invocationTargetException;
+            if (invocationTargetException.getCause() != null) {
+               toLog = invocationTargetException.getCause();
+            }
+            trackError(errors, entry, toLog);
+
+         } catch (Exception oops) {
+            trackError(errors, entry, oops);
+         }
+      }
+      updateStatus(errors);
+   }
+
+   private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
+      logger.debug("failed to populate property entry(" + entry.toString() + "), reason: " + oops.getLocalizedMessage(), oops);
+      errors.put(entry.toString(), oops.getLocalizedMessage());
+   }
+
+   private void updateStatus(HashMap<String, String> errors) {
+
+      JsonArrayBuilder errorsObjectArray = JsonLoader.createArrayBuilder();
+      for (Map.Entry<String, String> entry : errors.entrySet()) {
+         errorsObjectArray.add(JsonLoader.createObjectBuilder().add("value", entry.getKey()).add("reason", entry.getValue()));
+      }
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      jsonObjectBuilder.add("properties",  JsonLoader.createObjectBuilder().add("errors", errorsObjectArray));
+
+      status = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
    }
 
    private String getBrokerPropertiesKeySurround(Map<String, Object> propertiesToApply) {
@@ -2852,13 +3038,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    @Override
-   public String getStatus() {
-      return status;
+   public synchronized String getStatus() {
+      return status.toString();
    }
 
    @Override
-   public void setStatus(String status) {
-      this.status = status;
+   public synchronized void setStatus(String status) {
+      JsonObject update = JsonUtil.readJsonObject(status);
+      this.status = JsonUtil.mergeAndUpdate(this.status, update);
    }
 
    // extend property utils with ability to auto-fill and locate from collections
@@ -2904,7 +3091,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
             }
          }
 
-         Object resolved = getNestedProperty(bean, name);
+         Object resolved = null;
+
+         try {
+            resolved = getNestedProperty(bean, name);
+         } catch (final NoSuchMethodException e) {
+            // to avoid it being swallowed by caller wrap
+            throw new InvocationTargetException(e, "Cannot access property with key: " + name);
+         }
 
          return trackCollectionOrMap(name, resolved, bean);
       }
@@ -3015,7 +3209,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
          // create one and initialise with name
          try {
             Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
-            beanUtilsBean.setProperty(instance, "name", name);
+
+            try {
+               beanUtilsBean.setProperty(instance, "name", name);
+            } catch (Throwable ignored) {
+               // for maps a name attribute is not mandatory
+            }
 
             // this is always going to be a little hacky b/c our config is not natively property friendly
             if (instance instanceof TransportConfiguration) {
