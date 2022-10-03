@@ -167,6 +167,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    CriticalAnalyzer getCriticalAnalyzer();
 
+   void updateStatus(String component, String statusJson);
+
    /**
     * it will release hold a lock for the activation.
     */

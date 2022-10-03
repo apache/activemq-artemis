@@ -4499,7 +4499,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       checkStarted();
 
-      return server.getConfiguration().getStatus();
+      return server.getStatus();
    }
 
    @Override

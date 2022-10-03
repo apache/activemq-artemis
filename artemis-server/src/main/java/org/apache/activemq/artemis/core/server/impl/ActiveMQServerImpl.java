@@ -403,6 +403,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    };
 
+   private final ServerStatus serverStatus;
+
    public ActiveMQServerImpl() {
       this(null, null, null);
    }
@@ -481,6 +483,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
 
+      this.serverStatus = new ServerStatus(this);
    }
 
    @Override
@@ -608,6 +611,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       propertiesFileUrl = fileUrltoBrokerProperties;
    }
 
+   @Override
+   public String getStatus() {
+      return serverStatus.asJson();
+   }
+
+   @Override
+   public void updateStatus(String component, String statusJson) {
+      serverStatus.update(component, statusJson);
+   }
+
    private void internalStart() throws Exception {
       if (state != SERVER_STATE.STOPPED) {
          logger.debug("Server already started!");
@@ -615,6 +628,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       configuration.parseProperties(propertiesFileUrl);
+      updateStatus("configuration", configuration.getStatus());
 
       initializeExecutorServices();
 
@@ -4388,6 +4402,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configurationReloadDeployed.set(false);
       if (isActive()) {
          configuration.parseProperties(propertiesFileUrl);
+         updateStatus("configuration", configuration.getStatus());
          deployReloadableConfigFromConfiguration();
       }
    }
