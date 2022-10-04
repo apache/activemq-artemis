@@ -63,7 +63,7 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
                   pd.setWriteMethod(m);
                }
             } catch (IntrospectionException e) {
-               logger.debug(e.getMessage(), e);
+               logger.trace("error for property named {}", propertyName, e);
             }
          }
       }

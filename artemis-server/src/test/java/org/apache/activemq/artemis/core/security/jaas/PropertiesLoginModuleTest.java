@@ -25,19 +25,25 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -104,6 +110,9 @@ public class PropertiesLoginModuleTest extends Assert {
       assertEquals("Should have one user principal", 1, subject.getPrincipals(UserPrincipal.class).size());
       assertEquals("Should have two group principals", 2, subject.getPrincipals(RolePrincipal.class).size());
 
+      String hashOriginal = genHash(usersFile);
+      assertTrue("Contains hash", ServerStatus.getInstance().asJson().contains(hashOriginal));
+
       context.logout();
 
       assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
@@ -127,7 +136,26 @@ public class PropertiesLoginModuleTest extends Assert {
 
       context.logout();
 
+      String hashUpdated = genHash(usersFile);
+      assertTrue("Contains hashUpdated", ServerStatus.getInstance().asJson().contains(hashUpdated));
+      assertNotEquals(hashOriginal, hashUpdated);
+
       assertEquals("Should have zero principals", 0, subject.getPrincipals().size());
+   }
+
+   private String genHash(File usersFile) {
+      Checksum hash = new Adler32();
+
+      try (FileReader fileReader = new FileReader(usersFile); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+         String line = null;
+         while ((line = bufferedReader.readLine()) != null) {
+            if (!line.startsWith("#") && !line.isBlank()) {
+               hash.update(line.getBytes(StandardCharsets.UTF_8));
+            }
+         }
+      } catch (Exception expectedEof) {
+      }
+      return String.valueOf(hash.getValue());
    }
 
    @Test

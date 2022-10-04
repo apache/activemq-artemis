@@ -1337,6 +1337,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       assertTrue(jsonStatus.contains(UPDATED_SHA));
       assertFalse(jsonStatus.contains(SHA));
+      assertTrue(jsonStatus.contains("alder32"));
    }
 
    /**

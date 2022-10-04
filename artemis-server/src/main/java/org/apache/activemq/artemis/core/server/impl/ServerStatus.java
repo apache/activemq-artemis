@@ -28,14 +28,27 @@ import org.apache.activemq.artemis.utils.JsonLoader;
 
 public class ServerStatus {
 
-   private final ActiveMQServerImpl server;
+   public static final String SERVER_COMPONENT = "server";
+   public static final String CONFIGURATION_COMPONENT = "configuration";
+   public static final String JAAS_COMPONENT = SERVER_COMPONENT + "/jaas";
+
+   private static final ServerStatus instance = new ServerStatus();
+
+   public static synchronized ServerStatus getInstanceFor(ActiveMQServerImpl activeMQServer) {
+      if (instance.server == null) {
+         instance.server = activeMQServer;
+         instance.immutableStateValues.put("version", instance.server.getVersion().getFullVersion());
+      }
+      return instance;
+   }
+
+   public static synchronized ServerStatus getInstance() {
+      return instance;
+   }
+
+   private ActiveMQServerImpl server;
    private final HashMap<String, String> immutableStateValues = new HashMap<>();
    private JsonObject globalStatus = JsonLoader.createObjectBuilder().build();
-
-   public ServerStatus(ActiveMQServerImpl activeMQServer) {
-      this.server = activeMQServer;
-      immutableStateValues.put("version", server.getVersion().getFullVersion());
-   }
 
    public synchronized String asJson() {
       updateServerStatus();
@@ -43,26 +56,29 @@ public class ServerStatus {
    }
 
    private synchronized void updateServerStatus() {
-      HashMap<String, String> snapshotOfServerStatusAttributes = new HashMap<>();
-      snapshotOfServerStatusAttributes.putAll(immutableStateValues);
-      snapshotOfServerStatusAttributes.put("identity", server.getIdentity());
-      SimpleString nodeId = server.getNodeID();
-      snapshotOfServerStatusAttributes.put("nodeId", nodeId == null ? null : nodeId.toString());
-      snapshotOfServerStatusAttributes.put("uptime", server.getUptime());
-      snapshotOfServerStatusAttributes.put("state", server.getState().toString());
+      if (instance.server != null) {
+         HashMap<String, String> snapshotOfServerStatusAttributes = new HashMap<>();
+         snapshotOfServerStatusAttributes.putAll(immutableStateValues);
+         snapshotOfServerStatusAttributes.put("identity", server.getIdentity());
+         SimpleString nodeId = server.getNodeID();
+         snapshotOfServerStatusAttributes.put("nodeId", nodeId == null ? null : nodeId.toString());
+         snapshotOfServerStatusAttributes.put("uptime", server.getUptime());
+         snapshotOfServerStatusAttributes.put("state", server.getState().toString());
 
-      update("server", JsonUtil.toJsonObject(snapshotOfServerStatusAttributes));
+         update(SERVER_COMPONENT, JsonUtil.toJsonObject(snapshotOfServerStatusAttributes));
+      }
    }
 
    public synchronized void update(String component, String statusJson) {
-      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
-      jsonObjectBuilder.add(component, JsonUtil.readJsonObject(statusJson));
-      globalStatus = JsonUtil.mergeAndUpdate(globalStatus, jsonObjectBuilder.build());
+      update(component, JsonUtil.readJsonObject(statusJson));
    }
 
-   public synchronized void update(String component, JsonObject componentStatus) {
-      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
-      jsonObjectBuilder.add(component, componentStatus);
+   public synchronized void update(String component, HashMap<String, String> statusAttributes) {
+      update(component, JsonUtil.toJsonObject(statusAttributes));
+   }
+
+   public synchronized void update(String componentPath, JsonObject componentStatus) {
+      JsonObjectBuilder jsonObjectBuilder = JsonUtil.objectBuilderWithValueAtPath(componentPath, componentStatus);
       globalStatus = JsonUtil.mergeAndUpdate(globalStatus, jsonObjectBuilder.build());
    }
 
