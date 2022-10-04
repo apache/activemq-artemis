@@ -34,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 import java.util.ArrayList;
@@ -123,6 +124,9 @@ import org.apache.commons.beanutils.expression.DefaultResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
+
 import org.apache.commons.beanutils.expression.Resolver;
 
 public class ConfigurationImpl implements Configuration, Serializable {
@@ -411,7 +415,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
     * Parent folder for all data folders.
     */
    private File artemisInstance;
-   private transient volatile JsonObject status = JsonLoader.createObjectBuilder().build();
+   private transient JsonObject status = JsonLoader.createObjectBuilder().build();
+   private final transient Checksum checksum = new Adler32();
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -501,15 +506,16 @@ public class ConfigurationImpl implements Configuration, Serializable {
                         try (FileInputStream fileInputStream = new FileInputStream(new File(dir, fileName)); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
                            brokerProperties.clear();
                            brokerProperties.load(reader);
-                           parsePrefixedProperties(brokerProperties, null);
+                           parsePrefixedProperties(fileName, brokerProperties, null);
                         }
                      }
                   }
                }
             } else {
-               try (FileInputStream fileInputStream = new FileInputStream(fileUrl); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+               File file = new File(fileUrl);
+               try (FileInputStream fileInputStream = new FileInputStream(file); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
                   brokerProperties.load(reader);
-                  parsePrefixedProperties(brokerProperties, null);
+                  parsePrefixedProperties(file.getName(), brokerProperties, null);
                }
             }
          }
@@ -519,9 +525,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    public void parsePrefixedProperties(Properties properties, String prefix) throws Exception {
-      Map<String, Object> beanProperties = new LinkedHashMap<>();
+      parsePrefixedProperties("system", properties, prefix);
+   }
 
+   public void parsePrefixedProperties(String name, Properties properties, String prefix) throws Exception {
+      Map<String, Object> beanProperties = new LinkedHashMap<>();
+      long alder32Hash = 0;
       synchronized (properties) {
+         checksum.reset();
          String key = null;
          for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             key = entry.getKey().toString();
@@ -531,53 +542,37 @@ public class ConfigurationImpl implements Configuration, Serializable {
                }
                key = entry.getKey().toString().substring(prefix.length());
             }
-            String value = XMLUtil.replaceSystemPropsInString(entry.getValue().toString());
+            String value = entry.getValue().toString();
+
+            checksum.update(key.getBytes(StandardCharsets.UTF_8));
+            checksum.update('=');
+            checksum.update(value.getBytes(StandardCharsets.UTF_8));
+
+            value = XMLUtil.replaceSystemPropsInString(value);
             value = PasswordMaskingUtil.resolveMask(isMaskPassword(), value, getPasswordCodec());
             key = XMLUtil.replaceSystemPropsInString(key);
             logger.debug("Property config, {}={}", key, value);
             beanProperties.put(key, value);
          }
+         alder32Hash = checksum.getValue();
       }
+      updateReadPropertiesStatus(name, alder32Hash);
 
       if (!beanProperties.isEmpty()) {
-         populateWithProperties(beanProperties);
+         populateWithProperties(name, beanProperties);
       }
    }
 
-   public void populateWithProperties(Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
+   public void populateWithProperties(final String propsId, Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
       CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil();
       BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections) {
          // override to treat missing properties as errors, not skip as the default impl does
          @Override
          public void setProperty(final Object bean, String name, final Object value) throws InvocationTargetException, IllegalAccessException {
             {
-               if (logger.isTraceEnabled()) {
-                  final StringBuilder sb = new StringBuilder("  setProperty(");
-                  sb.append(bean);
-                  sb.append(", ");
-                  sb.append(name);
-                  sb.append(", ");
-                  if (value == null) {
-                     sb.append("<NULL>");
-                  } else if (value instanceof String) {
-                     sb.append((String) value);
-                  } else if (value instanceof String[]) {
-                     final String[] values = (String[]) value;
-                     sb.append('[');
-                     for (int i = 0; i < values.length; i++) {
-                        if (i > 0) {
-                           sb.append(',');
-                        }
-                        sb.append(values[i]);
-                     }
-                     sb.append(']');
-                  } else {
-                     sb.append(value.toString());
-                  }
-                  sb.append(')');
-                  logger.trace(sb.toString());
+               if (logger.isDebugEnabled()) {
+                  logger.debug("setProperty on {}, name: {}, value: {}", bean.getClass(), name, value);
                }
-
                // Resolve any nested expression to get the actual target bean
                Object target = bean;
                final Resolver resolver = getPropertyUtils().getResolver();
@@ -592,10 +587,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                      throw new InvocationTargetException(e, "No getter for property:" + name + ", on: " + bean);
                   }
                }
-               if (logger.isTraceEnabled()) {
-                  logger.trace("    Target bean = " + target);
-                  logger.trace("    Target name = " + name);
-               }
+               logger.trace("resolved target, bean: {}, name: {}", target.getClass(), name);
 
                // Declare local variables we will require
                final String propName = resolver.getProperty(name); // Simple name of target property
@@ -746,7 +738,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       BeanSupport.customise(beanUtils);
 
-      logger.debug("populate:" + this + ", " + beanProperties);
+      logger.trace("populate: bean: {} with {}", this, beanProperties);
 
       HashMap<String, String> errors = new HashMap<>();
       // Loop through the property name/value pairs to be set
@@ -757,7 +749,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
             // Perform the assignment for this property
             beanUtils.setProperty(this, name, entry.getValue());
          } catch (InvocationTargetException invocationTargetException) {
-            logger.trace("failed to populate property key: " + name, invocationTargetException);
+            logger.trace("failed to populate property with key: {}", name, invocationTargetException);
             Throwable toLog = invocationTargetException;
             if (invocationTargetException.getCause() != null) {
                toLog = invocationTargetException.getCause();
@@ -768,23 +760,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
             trackError(errors, entry, oops);
          }
       }
-      updateStatus(errors);
+      updateApplyStatus(propsId, errors);
    }
 
    private void trackError(HashMap<String, String> errors, Map.Entry<String,?> entry, Throwable oops) {
-      logger.debug("failed to populate property entry(" + entry.toString() + "), reason: " + oops.getLocalizedMessage(), oops);
+      logger.debug("failed to populate property entry({}), reason: {}", entry, oops);
       errors.put(entry.toString(), oops.getLocalizedMessage());
    }
 
-   private void updateStatus(HashMap<String, String> errors) {
-
-      JsonArrayBuilder errorsObjectArray = JsonLoader.createArrayBuilder();
+   private synchronized void updateApplyStatus(String propsId, HashMap<String, String> errors) {
+      JsonArrayBuilder errorsObjectArrayBuilder = JsonLoader.createArrayBuilder();
       for (Map.Entry<String, String> entry : errors.entrySet()) {
-         errorsObjectArray.add(JsonLoader.createObjectBuilder().add("value", entry.getKey()).add("reason", entry.getValue()));
+         errorsObjectArrayBuilder.add(JsonLoader.createObjectBuilder().add("value", entry.getKey()).add("reason", entry.getValue()));
       }
-      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
-      jsonObjectBuilder.add("properties",  JsonLoader.createObjectBuilder().add("errors", errorsObjectArray));
+      JsonObjectBuilder jsonObjectBuilder =
+         JsonUtil.objectBuilderWithValueAtPath("properties/" + propsId + "/errors", errorsObjectArrayBuilder.build());
+      status = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
+   }
 
+   private synchronized void updateReadPropertiesStatus(String propsId, long alder32Hash) {
+      JsonObjectBuilder propertiesReadStatusBuilder = JsonLoader.createObjectBuilder();
+      propertiesReadStatusBuilder.add("alder32", String.valueOf(alder32Hash));
+      JsonObjectBuilder jsonObjectBuilder = JsonUtil.objectBuilderWithValueAtPath("properties/" + propsId, propertiesReadStatusBuilder.build());
       status = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
    }
 

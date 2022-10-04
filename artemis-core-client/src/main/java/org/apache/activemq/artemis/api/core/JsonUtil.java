@@ -409,6 +409,21 @@ public final class JsonUtil {
       return jsonObjectBuilder.build();
    }
 
+   // component path, may contain x/y/z as a pointer to a nested object
+   public static JsonObjectBuilder objectBuilderWithValueAtPath(String componentPath, JsonValue componentStatus) {
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      String[] nestedComponents = componentPath.split("/", 0);
+      // may need to nest this status in objects
+      for (int i = nestedComponents.length - 1; i > 0; i--) {
+         JsonObjectBuilder nestedBuilder = JsonLoader.createObjectBuilder();
+         nestedBuilder.add(nestedComponents[i], componentStatus);
+         componentStatus = nestedBuilder.build();
+      }
+      jsonObjectBuilder.add(nestedComponents[0], componentStatus);
+      return jsonObjectBuilder;
+   }
+
+
    private static class NullableJsonString implements JsonValue, JsonString {
 
       private final String value;

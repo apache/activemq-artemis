@@ -212,4 +212,23 @@ public class JsonUtilTest {
 
       Assert.assertEquals(sourceTwo, JsonUtil.mergeAndUpdate(sourceOne, sourceTwo));
    }
+
+   @Test
+   public void testBuilderWithValueAtPath() {
+
+      JsonObjectBuilder jsonObjectBuilder = JsonLoader.createObjectBuilder();
+      JsonUtil.addToObject("x", "y", jsonObjectBuilder);
+      JsonObject target = jsonObjectBuilder.build();
+
+      JsonObjectBuilder nested = JsonUtil.objectBuilderWithValueAtPath("a/b/c", target);
+      JsonObject inserted = nested.build();
+      Assert.assertTrue(inserted.containsKey("a"));
+
+      Assert.assertEquals(target, inserted.getJsonObject("a").getJsonObject("b").getJsonObject("c"));
+
+      nested = JsonUtil.objectBuilderWithValueAtPath("c", target);
+      inserted = nested.build();
+      Assert.assertTrue(inserted.containsKey("c"));
+      Assert.assertEquals(target, inserted.getJsonObject("c"));
+   }
 }

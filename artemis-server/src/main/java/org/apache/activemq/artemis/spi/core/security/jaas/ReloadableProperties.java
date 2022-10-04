@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,9 +31,14 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.zip.Adler32;
+import java.util.zip.Checksum;
+
+import static org.apache.activemq.artemis.core.server.impl.ServerStatus.JAAS_COMPONENT;
 
 public class ReloadableProperties {
 
@@ -47,6 +53,8 @@ public class ReloadableProperties {
    private Map<String, Pattern> regexpProps;
    private long reloadTime = -1;
    private final PropertiesLoader.FileNameKey key;
+   private final Checksum adler32 = new Adler32();
+   private long checksum = 0;
 
    public ReloadableProperties(PropertiesLoader.FileNameKey key) {
       this.key = key;
@@ -58,9 +66,25 @@ public class ReloadableProperties {
 
    public synchronized ReloadableProperties obtained() {
       if (reloadTime < 0 || (key.isReload() && hasModificationAfter(reloadTime))) {
-         props = new Properties();
+
+         adler32.reset();
+         props = new Properties() {
+            // want to checksum in read order
+            @Override
+            public synchronized Object put(Object key, Object value) {
+               String sKey = key instanceof String ? (String)key : null;
+               String sValue = value instanceof String ? (String)value : null;
+               if (sKey != null && sValue != null) {
+                  adler32.update(sKey.getBytes(StandardCharsets.UTF_8));
+                  adler32.update('=');
+                  adler32.update(sValue.getBytes(StandardCharsets.UTF_8));
+               }
+               return super.put(key, value);
+            }
+         };
          try {
             load(key.file(), props);
+            checksum = adler32.getValue();
             invertedProps = null;
             invertedValueProps = null;
             regexpProps = null;
@@ -74,8 +98,16 @@ public class ReloadableProperties {
             }
          }
          reloadTime = System.currentTimeMillis();
+         updateStatus();
       }
       return this;
+   }
+
+   private void updateStatus() {
+      HashMap<String, String> statusAttributes = new HashMap<>();
+      statusAttributes.put("Alder32", String.valueOf(checksum));
+      statusAttributes.put("reloadTime", String.valueOf(reloadTime));
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + key.file.getName(),  statusAttributes);
    }
 
    public synchronized Map<String, String> invertedPropertiesMap() {

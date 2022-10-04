@@ -483,7 +483,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       this.serviceRegistry = serviceRegistry == null ? new ServiceRegistryImpl() : serviceRegistry;
 
-      this.serverStatus = new ServerStatus(this);
+      this.serverStatus = ServerStatus.getInstanceFor(this);
    }
 
    @Override
@@ -628,7 +628,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       configuration.parseProperties(propertiesFileUrl);
-      updateStatus("configuration", configuration.getStatus());
+      updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
 
       initializeExecutorServices();
 
@@ -4402,7 +4402,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       configurationReloadDeployed.set(false);
       if (isActive()) {
          configuration.parseProperties(propertiesFileUrl);
-         updateStatus("configuration", configuration.getStatus());
+         updateStatus(ServerStatus.CONFIGURATION_COMPONENT, configuration.getStatus());
          deployReloadableConfigFromConfiguration();
       }
    }
