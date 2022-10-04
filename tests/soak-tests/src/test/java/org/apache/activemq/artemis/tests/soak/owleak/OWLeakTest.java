@@ -122,7 +122,7 @@ public class OWLeakTest extends SoakTestBase {
 
       String QUEUE_NAME = "some_queue";
 
-      Semaphore semaphore = new Semaphore(PRODUCERS + 1);
+      Semaphore semaphore = new Semaphore(PRODUCERS);
 
       CountDownLatch latch = new CountDownLatch(PRODUCERS + 1 + 1);
 
