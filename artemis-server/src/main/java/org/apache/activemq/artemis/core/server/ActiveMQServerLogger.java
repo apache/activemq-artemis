@@ -398,7 +398,7 @@ public interface ActiveMQServerLogger {
    void timedOutStoppingPagingCursor(Executor executor);
 
    @LogMessage(id = 222023, value = "problem cleaning page address {}", level = LogMessage.Level.WARN)
-   void problemCleaningPageAddress(SimpleString address, Exception e);
+   void problemCleaningPageAddress(SimpleString address, Throwable e);
 
    @LogMessage(id = 222024, value = "Could not complete operations on IO context {}", level = LogMessage.Level.WARN)
    void problemCompletingOperations(OperationContext e);
