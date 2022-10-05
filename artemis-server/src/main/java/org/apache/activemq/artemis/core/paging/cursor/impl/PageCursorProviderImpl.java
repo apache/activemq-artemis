@@ -279,7 +279,7 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                      logger.trace("Couldn't cleanup page on address " + this.pagingStore.getAddress() + " as numberOfPages == " + pagingStore.getNumberOfPages() + " and currentPage.numberOfMessages = " + pagingStore.getCurrentPage().getNumberOfMessages());
                   }
                }
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
                ActiveMQServerLogger.LOGGER.problemCleaningPageAddress(pagingStore.getAddress(), ex);
                logger.warn(ex.getMessage(), ex);
                return;

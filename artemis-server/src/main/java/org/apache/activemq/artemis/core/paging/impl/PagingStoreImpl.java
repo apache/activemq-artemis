@@ -817,7 +817,17 @@ public class PagingStoreImpl implements PagingStore {
                }
             } else {
                logger.trace("firstPageId++ = beforeIncrement={}", firstPageId);
-               returnPage = usePage(firstPageId++);
+               long pageNR = firstPageId++;
+
+               // first we look for the page on the used Pages cache
+               // if non existing, we just create a new one outside of the cache
+               // as we should not introduce any extras
+               Page usedPage = usePage(pageNR, false);
+               if (usedPage == null) {
+                  returnPage = newPageObject(pageNR);
+               } else {
+                  returnPage = usedPage;
+               }
             }
 
             if (!returnPage.getFile().exists()) {
