@@ -45,7 +45,7 @@ if [ -z "$ARTEMIS_HOME" ] ; then
 fi
 
 # Set Defaults JAVA_ARGS Properties if not already set: this allow specific artemis commands to override default JVM configuration
-if [ -z "${JAVA_ARGS}" ]; then JAVA_ARGS="-XX:+UseParallelGC -Xms512M -Xmx1024M"; fi
+if [ -z "${JAVA_ARGS}" ]; then JAVA_ARGS="-Xms512M -Xmx1024M"; fi
 CLASSPATH="$ARTEMIS_HOME/lib/artemis-boot.jar"
 
 # OS specific support.

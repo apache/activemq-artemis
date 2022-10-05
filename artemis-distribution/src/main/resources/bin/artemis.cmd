@@ -45,7 +45,7 @@ echo.
 :RUN_JAVA
 
 rem "Set Defaults."
-if "%JAVA_ARGS%" == "" set JAVA_ARGS=-XX:+UseParallelGC -Xms512M -Xmx1024M
+if "%JAVA_ARGS%" == "" set JAVA_ARGS=-Xms512M -Xmx1024M
 
 rem "Create full JVM Args"
 set JVM_ARGS=%JAVA_ARGS%
