@@ -1977,12 +1977,12 @@ public interface ActiveMQServerControl {
    @Operation(desc = "forces the broker to reload its configuration file", impact = MBeanOperationInfo.ACTION)
    void reloadConfigurationFile() throws Exception;
 
-   @Operation(desc = "Makes the broker to read messages from the retention folder matching the address and filter.", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Replays messages from all files in the retention folder that match an address and filter.", impact = MBeanOperationInfo.ACTION)
    void replay(@Parameter(name = "address", desc = "Name of the address to replay") String address,
                @Parameter(name = "target", desc = "Where the replay data should be sent") String target,
                @Parameter(name = "filter", desc = "Filter to apply on message selection. Null means everything matching the address") String filter) throws Exception;
 
-   @Operation(desc = "Makes the broker to read messages from the retention folder matching the address and filter.", impact = MBeanOperationInfo.ACTION)
+   @Operation(desc = "Replays messages from a configurable subset of the files in the retention folder that match an address and filter.", impact = MBeanOperationInfo.ACTION)
    void replay(@Parameter(name = "startScanDate", desc = "Start date where we will start scanning for journals to replay. Format YYYYMMDDHHMMSS") String startScan,
                @Parameter(name = "endScanDate", desc = "Finish date where we will stop scannning for journals to replay. Format YYYYMMDDHHMMSS") String endScan,
                @Parameter(name = "address", desc = "Name of the address to replay") String address,
