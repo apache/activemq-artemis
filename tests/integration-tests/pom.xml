@@ -204,6 +204,10 @@
          <artifactId>jakarta.management.j2ee-api</artifactId>
       </dependency>
       <dependency>
+         <groupId>jakarta.annotation</groupId>
+         <artifactId>jakarta.annotation-api</artifactId>
+      </dependency>
+      <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-buffer</artifactId>
       </dependency>
