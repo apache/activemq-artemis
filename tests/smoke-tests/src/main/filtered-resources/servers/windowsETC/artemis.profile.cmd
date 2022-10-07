@@ -16,24 +16,24 @@ rem KIND, either express or implied.  See the License for the
 rem specific language governing permissions and limitations
 rem under the License.
 
-set ARTEMIS_HOME="${artemis.home}"
-set ARTEMIS_INSTANCE="@artemis.instance@"
-set ARTEMIS_DATA_DIR="${artemis.instance.data}"
-set ARTEMIS_ETC_DIR="${artemis.instance.etc}"
-set ARTEMIS_OOME_DUMP="${artemis.instance.oome.dump}"
+set ARTEMIS_HOME="must-change"
+set ARTEMIS_INSTANCE="no-change"
+set ARTEMIS_DATA_DIR="no-change"
+set ARTEMIS_ETC_DIR="no-change"
+set ARTEMIS_OOME_DUMP="no-change"
 
 
 rem The logging config will need an URI
 rem this will be encoded in case you use spaces or special characters
 rem on your directory structure
-set ARTEMIS_INSTANCE_URI="${artemis.instance.uri.windows}"
-set ARTEMIS_INSTANCE_ETC_URI="${artemis.instance.etc.uri.windows}"
+set ARTEMIS_INSTANCE_URI="file:/no-change/"
+set ARTEMIS_INSTANCE_ETC_URI="file:/no-change/"
 
 rem Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 rem set ARTEMIS_CLUSTER_PROPS=-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446
 
 rem Java Opts
-IF "%JAVA_ARGS%"=="" (set JAVA_ARGS=${java-opts} -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx${java-memory} -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=${role} -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%)
+IF "%JAVA_ARGS%"=="" (set JAVA_ARGS= -XX:AutoBoxCacheMax=20000 -XX:+PrintClassHistogram  -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx2G -Djava.security.auth.login.config=%ARTEMIS_ETC_DIR%\login.config -Dhawtio.disableProxy=true -Dhawtio.offline=true -Dhawtio.realm=activemq -Dhawtio.role=amq -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%\jolokia-access.xml -Dartemis.instance=%ARTEMIS_INSTANCE%)
 
 rem Logs Safepoints JVM pauses: Uncomment to enable them
 rem In addition to the traditional GC logs you could enable some JVM flags to know any meaningful and "hidden" pause that could
