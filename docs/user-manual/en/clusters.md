@@ -178,56 +178,38 @@ following:
 The following is an example of a JGroups file
 
 ```xml
-<config xmlns="urn:org:jgroups"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/JGroups-3.0.xsd">
-   <TCP loopback="true"
-      recv_buf_size="20000000"
-      send_buf_size="640000"
-      discard_incompatible_packets="true"
-      max_bundle_size="64000"
-      max_bundle_timeout="30"
-      enable_bundling="true"
-      use_send_queues="false"
-      sock_conn_timeout="300"
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="urn:org:jgroups"
+        xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd">
+  <TCP bind_addr="${jgroups.bind_addr:site_local}"
+       bind_port="${jgroups.bind_port:7800}"
+       external_addr="${jgroups.external_addr}"
+       external_port="${jgroups.external_port}"
+       thread_pool.min_threads="0"
+       thread_pool.max_threads="200"
+       thread_pool.keep_alive_time="30000"/>
+  <RED/>
 
-      thread_pool.enabled="true"
-      thread_pool.min_threads="1"
-      thread_pool.max_threads="10"
-      thread_pool.keep_alive_time="5000"
-      thread_pool.queue_enabled="false"
-      thread_pool.queue_max_size="100"
-      thread_pool.rejection_policy="run"
-
-      oob_thread_pool.enabled="true"
-      oob_thread_pool.min_threads="1"
-      oob_thread_pool.max_threads="8"
-      oob_thread_pool.keep_alive_time="5000"
-      oob_thread_pool.queue_enabled="false"
-      oob_thread_pool.queue_max_size="100"
-      oob_thread_pool.rejection_policy="run"/>
-
-   <FILE_PING location="../file.ping.dir"/>
-   <MERGE2 max_interval="30000"
-      min_interval="10000"/>
-   <FD_SOCK/>
-   <FD timeout="10000" max_tries="5" />
-   <VERIFY_SUSPECT timeout="1500"  />
-   <BARRIER />
-   <pbcast.NAKACK
-      use_mcast_xmit="false"
-      retransmit_timeout="300,600,1200,2400,4800"
-      discard_delivered_msgs="true"/>
-   <UNICAST timeout="300,600,1200" />
-   <pbcast.STABLE stability_delay="1000" desired_avg_gossip="50000"
-      max_bytes="400000"/>
-   <pbcast.GMS print_local_addr="true" join_timeout="3000"
-      view_bundling="true"/>
-   <FC max_credits="2000000"
-      min_threshold="0.10"/>
-   <FRAG2 frag_size="60000"  />
-   <pbcast.STATE_TRANSFER/>
-   <pbcast.FLUSH timeout="0"/>
+  <!-- a location that can be found by both server's running -->
+  <FILE_PING location="../file.ping.dir"/>
+  <MERGE3  min_interval="10000"
+           max_interval="30000"/>
+  <FD_SOCK2/>
+  <FD_ALL3 timeout="40000" interval="5000" />
+  <VERIFY_SUSPECT2 timeout="1500"  />
+  <BARRIER />
+  <pbcast.NAKACK2 use_mcast_xmit="false" />
+  <UNICAST3 />
+  <pbcast.STABLE desired_avg_gossip="50000"
+                 max_bytes="4M"/>
+  <pbcast.GMS print_local_addr="true" join_timeout="2000"/>
+  <UFC max_credits="2M"
+       min_threshold="0.4"/>
+  <MFC max_credits="2M"
+       min_threshold="0.4"/>
+  <FRAG2 frag_size="60K"  />
+  <!--RSVP resend_interval="2000" timeout="10000"/-->
+  <pbcast.STATE_TRANSFER/>
 </config>
 ```
 

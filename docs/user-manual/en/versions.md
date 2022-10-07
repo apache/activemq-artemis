@@ -141,6 +141,15 @@ Highlights:
    drop it or execute the proper `ALTER TABLE` statement for your database. If you
    drop the table then it will be automatically recreated when broker restarts and
    repopulated with a new, auto-generated node ID.
+3. **If you're using JGroups** then due to the changes in 
+   [ARTEMIS-2413](https://issues.apache.org/jira/browse/ARTEMIS-2413) where JGroups
+   was updated from 3.x to 5.x you will need to update your JGroups configuration.
+   Many of the protocols have changed, and there's no automated tool to bring legacy
+   configurations up to date so please refer to the 
+   [JGroups documentation](http://jgroups.org/manual5/index.html#protlist) for more
+   details on the new configuration. You can find example configurations in the
+   [JGroups repository](https://github.com/belaban/JGroups/tree/master/conf) (e.g.
+   `tcp.xml` and `udp.xml`).
    
 
 ## 2.20.0
