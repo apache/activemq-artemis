@@ -18,18 +18,18 @@
 -->
 
 <service>
-   <id>artemis-${artemis.instance.name}-${host}</id>
-   <name>ActiveMQ Artemis: ${artemis.instance.name} @ ${host}</name>
+   <id>artemis-windows-0.0.0.0</id>
+   <name>ActiveMQ Artemis: windows @ 0.0.0.0</name>
    <description>Apache ActiveMQ Artemis is a reliable messaging broker</description>
 
-   <env name="ARTEMIS_HOME" value="${artemis.home}"/>
-   <env name="ARTEMIS_INSTANCE" value="@artemis.instance@"/>
-   <env name="ARTEMIS_INSTANCE_ETC" value="${artemis.instance.etc}"/>
-   <env name="ARTEMIS_INSTANCE_URI" value="${artemis.instance.uri}"/>
-   <env name="ARTEMIS_INSTANCE_ETC_URI" value="${artemis.instance.etc.uri.windows}"/>
-   <env name="ARTEMIS_DATA_DIR" value="${artemis.instance.data}"/>
+   <env name="ARTEMIS_HOME" value="must-change"/>
+   <env name="ARTEMIS_INSTANCE" value="no-change"/>
+   <env name="ARTEMIS_INSTANCE_ETC" value="${project.basedir}/target/classes/servers/windowsETC"/>
+   <env name="ARTEMIS_INSTANCE_URI" value="file:/no-change"/>
+   <env name="ARTEMIS_INSTANCE_ETC_URI" value="file:${project.basedir}/target/classes/servers/windowsETC"/>
+   <env name="ARTEMIS_DATA_DIR" value="no-change"/>
 
-   <logpath>@artemis.instance@\log</logpath>
+   <logpath>/must-be/servers/windows\log</logpath>
    <logmode>roll</logmode>
 
    <executable>%JAVA_HOME%\bin\java.exe</executable>
@@ -54,7 +54,7 @@
    <startargument>-Dhawtio.disableProxy=true</startargument>
    <startargument>-Dhawtio.realm=activemq</startargument>
    <startargument>-Dhawtio.offline="true"</startargument>
-   <startargument>-Dhawtio.role=${role}</startargument>
+   <startargument>-Dhawtio.role=amq</startargument>
    <startargument>-Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal</startargument>
    <startargument>-Djolokia.policyLocation=%ARTEMIS_INSTANCE_ETC_URI%/jolokia-access.xml</startargument>
 

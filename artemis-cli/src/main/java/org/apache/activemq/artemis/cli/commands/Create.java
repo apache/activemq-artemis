@@ -17,29 +17,18 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import io.airlift.airline.Arguments;
 import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -52,7 +41,7 @@ import org.apache.activemq.artemis.utils.FileUtil;
  * CLI action that creates a broker instance directory.
  */
 @Command(name = "create", description = "creates a new broker instance")
-public class Create extends InputAbstract {
+public class Create extends InstallAbstract {
 
    private static final Integer DEFAULT_PORT = 61616;
 
@@ -73,13 +62,17 @@ public class Create extends InputAbstract {
     *  This is to make sure maven or something else is not hiding these resources.
     *  ********************************************************************************** */
 
-   public static final String BIN_ARTEMIS_CMD = "bin/artemis.cmd";
+   public static final String ARTEMIS_CMD = "artemis.cmd";
+   public static final String BIN_ARTEMIS_CMD = "bin/" + ARTEMIS_CMD;
    public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
    public static final String BIN_ARTEMIS_SERVICE_EXE_CONFIG = "bin/artemis-service.exe.config";
-   public static final String BIN_ARTEMIS_SERVICE_XML = "bin/artemis-service.xml";
+   public static final String ARTEMIS_SERVICE_XML = "artemis-service.xml";
+   public static final String BIN_ARTEMIS_SERVICE_XML = "bin/" + ARTEMIS_SERVICE_XML;
    public static final String ETC_ARTEMIS_PROFILE_CMD = "artemis.profile.cmd";
-   public static final String BIN_ARTEMIS = "bin/artemis";
-   public static final String BIN_ARTEMIS_SERVICE = "bin/artemis-service";
+   public static final String ARTEMIS = "artemis";
+   public static final String BIN_ARTEMIS = "bin/" + ARTEMIS;
+   public static final String ARTEMIS_SERVICE = "artemis-service";
+   public static final String BIN_ARTEMIS_SERVICE = "bin/" + ARTEMIS_SERVICE;
    public static final String ETC_ARTEMIS_PROFILE = "artemis.profile";
    public static final String ETC_LOG4J2_PROPERTIES = "log4j2.properties";
    public static final String ETC_BOOTSTRAP_XML = "bootstrap.xml";
@@ -114,9 +107,6 @@ public class Create extends InputAbstract {
    public static final String ETC_GLOBAL_MAX_DEFAULT_TXT = "etc/global-max-default.txt";
    public static final String ETC_PAGE_SYNC_SETTINGS = "etc/page-sync-settings.txt";
    public static final String ETC_JOLOKIA_ACCESS_XML = "jolokia-access.xml";
-
-   @Arguments(description = "The instance directory to hold the broker's configuration and data.  Path must be writable.", required = true)
-   private File directory;
 
    @Option(name = "--host", description = "The host name of the broker (Default: 0.0.0.0 or input if clustered)")
    private String host;
@@ -160,14 +150,8 @@ public class Create extends InputAbstract {
    @Option(name = "--force", description = "Overwrite configuration at destination directory")
    private boolean force;
 
-   @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
-   private File home;
-
    @Option(name = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory ('data' by default)")
    private String data = "data";
-
-   @Option(name = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory ('etc' by default)")
-   private String etc = "etc";
 
    @Option(name = "--clustered", description = "Enable clustering")
    private boolean clustered = false;
@@ -195,15 +179,6 @@ public class Create extends InputAbstract {
 
    @Option(name = "--cluster-password", description = "The cluster password to use for clustering. (Default: input)")
    private String clusterPassword = null;
-
-   @Option(name = "--encoding", description = "The encoding that text files should use")
-   private String encoding = "UTF-8";
-
-   @Option(name = "--java-options", description = "Extra java options to be passed to the profile")
-   private String javaOptions = "";
-
-   @Option(name = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default = '2G'")
-   private String javaMemory = "2G";
 
    @Option(name = "--allow-anonymous", description = "Enables anonymous configuration on security, opposite of --require-login (Default: input)")
    private Boolean allowAnonymous = null;
@@ -345,9 +320,6 @@ public class Create extends InputAbstract {
    @Option(name = "--jdbc-lock-expiration", description = "Lock expiration")
    long jdbcLockExpiration = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
 
-   private boolean IS_WINDOWS;
-   private boolean IS_CYGWIN;
-
    private boolean isAutoCreate() {
       if (autoCreate == null) {
          if (noAutoCreate != null) {
@@ -360,14 +332,6 @@ public class Create extends InputAbstract {
       }
 
       return autoCreate;
-   }
-
-   public File getInstance() {
-      return directory;
-   }
-
-   public void setInstance(File directory) {
-      this.directory = directory;
    }
 
    public String getHost() {
@@ -397,13 +361,6 @@ public class Create extends InputAbstract {
       this.force = force;
    }
 
-   public File getHome() {
-      if (home == null) {
-         home = new File(getBrokerHome());
-      }
-      return home;
-   }
-
    public void setHome(File home) {
       this.home = home;
    }
@@ -418,14 +375,6 @@ public class Create extends InputAbstract {
 
    public boolean isSharedStore() {
       return sharedStore;
-   }
-
-   public String getEncoding() {
-      return encoding;
-   }
-
-   public void setEncoding(String encoding) {
-      this.encoding = encoding;
    }
 
    public String getData() {
@@ -554,13 +503,6 @@ public class Create extends InputAbstract {
    }
 
    /**
-    * This method is made public for the testsuite
-    */
-   public InputStream openStream(String source) {
-      return this.getClass().getResourceAsStream(source);
-   }
-
-   /**
     * Checks that the directory provided either exists and is writable or doesn't exist but can be created.
     */
    private void checkDirectory() {
@@ -583,10 +525,9 @@ public class Create extends InputAbstract {
       return directory;
    }
 
+   @Override
    public Object run(ActionContext context) throws Exception {
-
-      IS_WINDOWS = System.getProperty("os.name").toLowerCase().trim().startsWith("win");
-      IS_CYGWIN = IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
+      super.run(context);
 
       setupJournalType();
 
@@ -670,7 +611,6 @@ public class Create extends InputAbstract {
       filters.put("${message-load-balancing}", messageLoadBalancing.toString());
       filters.put("${user}", getUser());
       filters.put("${password}", getPassword());
-      filters.put("${role}", role);
       filters.put("${encoded.role}", role.replaceAll(" ", "\\\\ "));
 
 
@@ -749,29 +689,20 @@ public class Create extends InputAbstract {
       if (home != null) {
          filters.put("${home}", path(home));
       }
-      filters.put("${artemis.home}", path(getHome().toString()));
-      filters.put("${artemis.instance}", path(directory));
-      filters.put("${artemis.instance.uri}", directory.toURI().toString());
-      filters.put("${artemis.instance.uri.windows}", directory.toURI().toString().replaceAll("%", "%%"));
-      filters.put("${artemis.instance.name}", directory.getName());
-      filters.put("${java.home}", path(System.getProperty("java.home")));
 
       new File(directory, "bin").mkdirs();
       File etcFolder = createDirectory(etc, directory);
-      filters.put("${artemis.instance.etc.uri}", etcFolder.toURI().toString());
-      filters.put("${artemis.instance.etc.uri.windows}", etcFolder.toURI().toString().replaceAll("%", "%%"));
-      filters.put("${artemis.instance.etc}", path(etcFolder));
-      File logFolder = createDirectory("log", directory);
-      File oomeDumpFile = new File(logFolder, "oom_dump.hprof");
-      filters.put("${artemis.instance.oome.dump}", path(oomeDumpFile));
       new File(directory, "tmp").mkdirs();
       new File(directory, "lib").mkdirs();
       File dataFolder = createDirectory(data, directory);
-      filters.put("${artemis.instance.data}", path(dataFolder));
+      File logFolder = createDirectory("log", directory);
+      File oomeDumpFile = new File(logFolder, "oom_dump.hprof");
 
       if (javaOptions == null || javaOptions.length() == 0) {
          javaOptions = "";
       }
+
+      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, javaOptions, role);
 
       boolean allowAnonymous = isAllowAnonymous();
 
@@ -794,22 +725,21 @@ public class Create extends InputAbstract {
 
       filters.put("${journal-retention}", retentionTag);
 
-
       filters.put("${java-opts}", javaOptions);
       filters.put("${java-memory}", javaMemory);
 
       if (allowAnonymous) {
-         write(ETC_LOGIN_CONFIG_WITH_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);
+         write(ETC_LOGIN_CONFIG_WITH_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false, force);
       } else {
-         write(ETC_LOGIN_CONFIG_WITHOUT_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false);
+         write(ETC_LOGIN_CONFIG_WITHOUT_GUEST, new File(etcFolder, ETC_LOGIN_CONFIG), filters, false, force);
       }
 
       writeEtc(ETC_ARTEMIS_ROLES_PROPERTIES, etcFolder, filters, false);
 
       if (IS_WINDOWS) {
          write(BIN_ARTEMIS_CMD, filters, false);
-         write(BIN_ARTEMIS_SERVICE_EXE);
-         write(BIN_ARTEMIS_SERVICE_EXE_CONFIG);
+         write(BIN_ARTEMIS_SERVICE_EXE, force);
+         write(BIN_ARTEMIS_SERVICE_EXE_CONFIG, force);
          write(BIN_ARTEMIS_SERVICE_XML, filters, false);
          writeEtc(ETC_ARTEMIS_PROFILE_CMD, etcFolder, filters, false);
       }
@@ -881,7 +811,6 @@ public class Create extends InputAbstract {
       writeEtc(ETC_ARTEMIS_USERS_PROPERTIES, etcFolder, filters, false);
 
       // we want this variable to remain unchanged so that it will use the value set in the profile
-      filters.remove("${artemis.instance}");
       if (SecurityManagerType.getType(securityManager) == SecurityManagerType.BASIC) {
          filters.put("${security-manager-settings}", readTextFile(ETC_BASIC_SECURITY_MANAGER_TXT, filters));
       } else {
@@ -894,7 +823,7 @@ public class Create extends InputAbstract {
          filters.put("${jolokia.options}", "<!-- option relax-jolokia used, so strict-checking will be removed here -->");
       } else {
          filters.put("${jolokia.options}", "<!-- Check for the proper origin on the server side, too -->\n" +
-                     "        <strict-checking/>");
+            "        <strict-checking/>");
       }
       writeEtc(ETC_JOLOKIA_ACCESS_XML, etcFolder, filters, false);
 
@@ -928,6 +857,34 @@ public class Create extends InputAbstract {
       }
 
       return null;
+   }
+
+   protected static void addScriptFilters(HashMap<String, String> filters,
+                          File home,
+                          File directory,
+                          File etcFolder,
+                          File dataFolder,
+                          File oomeDumpFile,
+                          String javaMemory,
+                          String javaOptions,
+                          String role) throws IOException {
+      filters.put("${artemis.home}", path(home));
+      // I am using a different replacing pattern here, for cases where want an actual ${artemis.instance} in the output
+      // so that's just to make a distinction
+      filters.put("@artemis.instance@", path(directory));
+      filters.put("${artemis.instance.uri}", directory.toURI().toString());
+      filters.put("${artemis.instance.uri.windows}", directory.toURI().toString().replaceAll("%", "%%"));
+      filters.put("${artemis.instance.name}", directory.getName());
+      filters.put("${java.home}", path(System.getProperty("java.home")));
+
+      filters.put("${artemis.instance.etc.uri}", etcFolder.toURI().toString());
+      filters.put("${artemis.instance.etc.uri.windows}", etcFolder.toURI().toString().replaceAll("%", "%%"));
+      filters.put("${artemis.instance.etc}", path(etcFolder));
+      filters.put("${artemis.instance.oome.dump}", path(oomeDumpFile));
+      filters.put("${artemis.instance.data}", path(dataFolder));
+      filters.put("${java-memory}", javaMemory);
+      filters.put("${java-opts}", javaOptions);
+      filters.put("${role}", role);
    }
 
    private String getConnectors(HashMap<String, String> filters) throws IOException {
@@ -1069,7 +1026,7 @@ public class Create extends InputAbstract {
                syncFilter.put("${maxaio}", journalType == JournalType.ASYNCIO ? "" + ActiveMQDefaultConfiguration.getDefaultJournalMaxIoAio() : "1");
 
                getActionContext().out.println("done! Your system can make " + writesPerMillisecondStr +
-                                     " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
+                                                 " writes per millisecond, your journal-buffer-timeout will be " + nanoseconds);
 
                filters.put("${journal-buffer.settings}", readTextFile(ETC_JOURNAL_BUFFER_SETTINGS, syncFilter));
 
@@ -1140,89 +1097,20 @@ public class Create extends InputAbstract {
       }
    }
 
-   private String path(String value) throws IOException {
+   private static String path(String value) throws IOException {
       return path(new File(value));
    }
 
-   private String path(File value) throws IOException {
+   private static String path(File value) throws IOException {
       return value.getCanonicalPath();
    }
 
    private void write(String source, HashMap<String, String> filters, boolean unixTarget) throws Exception {
-      write(source, new File(directory, source), filters, unixTarget);
+      write(source, new File(directory, source), filters, unixTarget, force);
    }
 
    private void writeEtc(String source, File etcFolder, HashMap<String, String> filters, boolean unixTarget) throws Exception {
-      write("etc/" + source, new File(etcFolder, source), filters, unixTarget);
-   }
-
-   private void write(String source,
-                      File target,
-                      HashMap<String, String> filters,
-                      boolean unixTarget) throws Exception {
-      if (target.exists() && !force) {
-         throw new CLIException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
-      }
-
-      String content = readTextFile(source, filters);
-
-      // and then writing out in the new target encoding..  Let's also replace \n with the values
-      // that is correct for the current platform.
-      String separator = unixTarget && IS_CYGWIN ? "\n" : System.getProperty("line.separator");
-      content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
-      ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes(encoding));
-      try (FileOutputStream fout = new FileOutputStream(target)) {
-         copy(in, fout);
-      }
-   }
-
-   private String applyFilters(String content, Map<String, String> filters) throws IOException {
-
-      if (filters != null) {
-         for (Map.Entry<String, String> entry : filters.entrySet()) {
-            try {
-               content = replace(content, entry.getKey(), entry.getValue());
-            } catch (Throwable e) {
-               getActionContext().out.println("Error on " + entry.getKey());
-               e.printStackTrace();
-               System.exit(-1);
-            }
-         }
-      }
-      return content;
-   }
-
-   private String readTextFile(String source, Map<String, String> filters) throws IOException {
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      try (InputStream in = openStream(source)) {
-         copy(in, out);
-      }
-      return applyFilters(new String(out.toByteArray(), StandardCharsets.UTF_8), filters);
-   }
-
-   private void write(String source) throws IOException {
-      File target = new File(directory, source);
-      if (target.exists() && !force) {
-         throw new RuntimeException(String.format("The file '%s' already exists.  Use --force to overwrite.", target));
-      }
-      try (FileOutputStream fout = new FileOutputStream(target)) {
-         try (InputStream in = openStream(source)) {
-            copy(in, fout);
-         }
-      }
-   }
-
-   private String replace(String content, String key, String value) {
-      return content.replaceAll(Pattern.quote(key), Matcher.quoteReplacement(value));
-   }
-
-   private void copy(InputStream is, OutputStream os) throws IOException {
-      byte[] buffer = new byte[1024 * 4];
-      int c = is.read(buffer);
-      while (c >= 0) {
-         os.write(buffer, 0, c);
-         c = is.read(buffer);
-      }
+      write("etc/" + source, new File(etcFolder, source), filters, unixTarget, force);
    }
 
    private enum SecurityManagerType {

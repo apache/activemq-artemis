@@ -9,8 +9,10 @@ This chapter provides the following information for each release:
     chapter in addition to any version-specific upgrade instructions outlined here.
 
 ## 2.27.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352246&projectId=12315920)
 
 Highlights:
+- 2.27.0 Introduced a new upgrade tool to help migrating your instance to a newer version. Simply use `./artemis upgrade <path-to-your-instance>` from the new downloaded broker.
 - The client and broker now use [SLF4J](https://www.slf4j.org/) for their logging API.
 - The broker distribution now uses [Log4J 2](https://logging.apache.org/log4j/2.x/manual/) as its logging implementation.
 

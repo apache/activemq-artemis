@@ -191,6 +191,22 @@
    </dependencies>
 
    <build>
+      <resources>
+         <resource>
+            <directory>src/main/resources</directory>
+            <filtering>false</filtering>
+            <includes>
+               <include>**/*</include>
+            </includes>
+         </resource>
+         <resource>
+            <directory>src/main/filtered-resources</directory>
+            <filtering>true</filtering>
+            <includes>
+               <include>**/*</include>
+            </includes>
+         </resource>
+      </resources>
       <plugins>
          <plugin>
             <artifactId>maven-resources-plugin</artifactId>
@@ -1209,6 +1225,29 @@
                      <args>
                         <arg>--etc</arg>
                         <arg>${basedir}/target/customETC/theCustomETC</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>upgrade</id>
+                  <goals>
+                     <goal>upgrade</goal>
+                  </goals>
+                  <configuration>
+                     <instance>${basedir}/target/classes/servers/toUpgradeTest</instance>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>upgrade-windows</id>
+                  <goals>
+                     <goal>upgrade</goal>
+                  </goals>
+                  <configuration>
+                     <instance>${basedir}/target/classes/servers/windows</instance>
+                     <args>
+                        <arg>--windows</arg>
                      </args>
                   </configuration>
                </execution>

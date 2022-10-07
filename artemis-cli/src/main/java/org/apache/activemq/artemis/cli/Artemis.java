@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.PrintVersion;
+import org.apache.activemq.artemis.cli.commands.Upgrade;
 import org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceSet;
 import org.apache.activemq.artemis.cli.commands.check.HelpCheck;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
@@ -243,7 +244,7 @@ public class Artemis {
       } else {
          builder.withGroup("data").withDescription("data tools group (print|recover) (example ./artemis data print)").
             withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class);
-         builder = builder.withCommand(Create.class);
+         builder = builder.withCommands(Create.class, Upgrade.class);
       }
 
       return builder;
