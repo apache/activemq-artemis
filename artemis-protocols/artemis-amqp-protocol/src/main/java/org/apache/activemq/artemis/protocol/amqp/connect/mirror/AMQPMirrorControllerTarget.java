@@ -120,9 +120,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       @Override
       public void run() {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Delivery settling for " + delivery + ", context=" + delivery.getContext());
-         }
+         logger.trace("Delivery settling for {}, context={}", delivery, delivery.getContext());
          delivery.disposition(Accepted.getInstance());
          settle(delivery);
          connection.flush();
@@ -188,9 +186,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       recoverContext();
       incrementSettle();
 
-      if (logger.isTraceEnabled()) {
-         logger.trace(server + "::actualdelivery call for " + message);
-      }
+      logger.trace("{}::actualdelivery call for {}", server, message);
       setControllerInUse(this);
 
       delivery.setContext(message);
@@ -280,17 +276,15 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug(server + " adding address " + addressInfo);
-      }
+      logger.debug("{} adding address {}", server, addressInfo);
+
       server.addAddressInfo(addressInfo);
    }
 
    @Override
    public void deleteAddress(AddressInfo addressInfo) throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug(server + " delete address " + addressInfo);
-      }
+      logger.debug("{} delete address {}", server, addressInfo);
+
       try {
          server.removeAddressInfo(addressInfo.getName(), null, true);
       } catch (ActiveMQAddressDoesNotExistException expected) {
@@ -303,25 +297,26 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug(server + " adding queue " + queueConfiguration);
-      }
+      logger.debug("{} adding queue {}", server, queueConfiguration);
+
       try {
          server.createQueue(queueConfiguration, true);
       } catch (Exception e) {
-         logger.debug("Queue could not be created, already existed " + queueConfiguration, e);
+         logger.debug("Queue could not be created, already existed {}", queueConfiguration, e);
       }
    }
 
    @Override
    public void deleteQueue(SimpleString addressName, SimpleString queueName) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debug(server + " destroy queue " + queueName + " on address = " + addressName + " server " + server.getIdentity());
+         logger.debug("{} destroy queue {} on address = {} server {}", server, queueName, addressName, server.getIdentity());
       }
       try {
          server.destroyQueue(queueName, null, false, true, false, false);
       } catch (ActiveMQNonExistentQueueException expected) {
-         logger.debug(server + " queue " + queueName + " was previously removed", expected);
+         if (logger.isDebugEnabled()) {
+            logger.debug("{} queue {} was previously removed", server, queueName, expected);
+         }
       }
    }
 
@@ -333,19 +328,20 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       final Queue targetQueue = server.locateQueue(queue);
 
       if (targetQueue == null) {
-         logger.warn("Queue " + queue + " not found on mirror target, ignoring ack for queue=" + queue + ", messageID=" + messageID + ", nodeID=" + nodeID);
+         logger.warn("Queue {} not found on mirror target, ignoring ack for queue={}, messageID={}, nodeID={}", queue, queue, messageID, nodeID);
          return false;
       }
 
       if (logger.isDebugEnabled()) {
          // we only do the following check if debug
          if (targetQueue.getConsumerCount() > 0) {
-            logger.debug("server " + server.getIdentity() + ", queue " + targetQueue.getName() + " has consumers while delivering ack for " + messageID);
+            logger.debug("server {}, queue {} has consumers while delivering ack for {}", server.getIdentity(), targetQueue.getName(), messageID);
          }
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Server " + server.getIdentity() + " with queue = " + queue + " being acked for " + messageID + " coming from " + messageID + " targetQueue = " + targetQueue);
+         logger.trace("Server {} with queue = {} being acked for {} coming from {} targetQueue = {}",
+                      server.getIdentity(), queue, messageID, messageID, targetQueue);
       }
 
       performAck(nodeID, messageID, targetQueue, ackMessage, reason, (short)0);
@@ -359,13 +355,13 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, final short retry) {
       if (logger.isTraceEnabled()) {
-         logger.trace("performAck (nodeID=" + nodeID + ", messageID=" + messageID + ")" + ", targetQueue=" + targetQueue.getName());
+         logger.trace("performAck (nodeID={}, messageID={}), targetQueue={}", nodeID, messageID, targetQueue.getName());
       }
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
 
       if (reference == null) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Retrying Reference not found on messageID=" + messageID + " nodeID=" + nodeID + ", currentRetry=" + retry);
+            logger.debug("Retrying Reference not found on messageID={}, nodeID={}, currentRetry={}", messageID, nodeID, retry);
          }
          switch (retry) {
             case 0:
@@ -394,7 +390,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       if (reference != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Post ack Server " + server + " worked well for messageID=" + messageID + " nodeID=" + nodeID);
+            logger.trace("Post ack Server {} worked well for messageID={} nodeID={}", server, messageID, nodeID);
          }
          try {
             switch (reason) {
@@ -437,7 +433,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("sendMessage on server " + server + " for message " + message + " with internalID = " + internalIDLong + " mirror id " + internalMirrorID);
+         logger.trace("sendMessage on server {} for message {} with internalID = {} mirror id {}", server, message, internalIDLong, internalMirrorID);
       }
 
       routingContext.setDuplicateDetection(false); // we do our own duplicate detection here

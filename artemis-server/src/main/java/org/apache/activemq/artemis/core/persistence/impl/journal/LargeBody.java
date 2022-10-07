@@ -239,7 +239,7 @@ public class LargeBody {
       if (message.toMessage().getRefCount() <= 0 && message.toMessage().getUsage() <= 0 && message.toMessage().getDurableCount() <= 0) {
          if (logger.isTraceEnabled()) {
             try {
-               logger.trace("Deleting file " + getAppendFile() + " as the usage was complete");
+               logger.trace("Deleting file {} as the usage was complete", getAppendFile());
             } catch (Exception e) {
                // this is only after a trace, no need to do any special logging handling here
                logger.warn(e.getMessage(), e);

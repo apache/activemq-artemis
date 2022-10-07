@@ -406,7 +406,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
                      Object value = map.get("sender");
                      if (value != null) {
                         if (messagesReceived.get() != ((Integer) value).intValue()) {
-                           logger.warn("Message out of order. Expected " + messagesReceived.get() + " but received " + value);
+                           logger.warn("Message out of order. Expected {} but received {}", messagesReceived.get(), value);
                            errors.incrementAndGet();
                         }
                         messagesReceived.incrementAndGet();
@@ -518,7 +518,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
             String remoteAddress = remoteTarget == null ? null : remoteTarget.getAddress();
             if (remoteAddress == null || !remoteAddress.startsWith(ProtonProtocolManager.MIRROR_ADDRESS)) {
                errors.incrementAndGet();
-               logger.warn("Receiving address as " + remoteAddress);
+               logger.warn("Receiving address as {}", remoteAddress);
                return;
             }
             if (linkOpens.incrementAndGet() != 2) {
@@ -552,7 +552,7 @@ public class ValidateAMQPErrorsTest extends AmqpClientTestSupport {
                      Object value = map.get("sender");
                      if (value != null) {
                         if (messagesReceived.get() != ((Integer) value).intValue()) {
-                           logger.warn("Message out of order. Expected " + messagesReceived.get() + " but received " + value);
+                           logger.warn("Message out of order. Expected {} but received {}", messagesReceived.get(), value);
                            errors.incrementAndGet();
                         }
                         messagesReceived.incrementAndGet();

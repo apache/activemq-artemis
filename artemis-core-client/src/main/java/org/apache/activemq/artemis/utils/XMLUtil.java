@@ -287,7 +287,7 @@ public final class XMLUtil {
             sysProp = val;
          }
          // interesting choice to replace with val == "" with no match!
-         logger.debug("replacing " + subString + " with " + sysProp);
+         logger.debug("replacing {} with {}", subString, sysProp);
          xml = xml.replace(subString, sysProp);
       }
 

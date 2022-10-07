@@ -293,7 +293,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * Log packaged into a separate method for performance reasons.
     */
    private static void traceBufferReceived(Object connectionID, Command command) {
-      logger.trace("connectionID: " + connectionID + " RECEIVED: " + (command == null ? "NULL" : command));
+      logger.trace("connectionID: {} RECEIVED: {}", connectionID, (command == null ? "NULL" : command));
    }
 
    @Override
@@ -531,7 +531,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * Log packaged into a separate method for performance reasons.
     */
    private static void tracePhysicalSend(Connection transportConnection, Command command) {
-      logger.trace("connectionID: " + (transportConnection == null ? "" : transportConnection.getID()) + " SENDING: " + (command == null ? "NULL" : command));
+      logger.trace("connectionID: {} SENDING: {}", (transportConnection == null ? "" : transportConnection.getID()), (command == null ? "NULL" : command));
    }
 
    public void physicalSend(Command command) throws IOException {
@@ -770,8 +770,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          try {
             protocolManager.getScheduledPool().schedule(() -> {
                fail(new ActiveMQException(reason, cause, ActiveMQExceptionType.GENERIC_EXCEPTION), reason);
-               logger.warn("Stopping " + transportConnection.getRemoteAddress() + "because " +
-                        reason);
+               logger.warn("Stopping {} because {}", transportConnection.getRemoteAddress(), reason);
             }, waitTimeMillis, TimeUnit.MILLISECONDS);
          } catch (Throwable t) {
             logger.warn("Cannot stop connection. This exception will be ignored.", t);
@@ -868,9 +867,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
     * This will answer with commands to the client
     */
    public boolean sendCommand(final Command command) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("sending " + command);
-      }
+      logger.trace("sending {}", command);
 
       if (isDestroyed()) {
          return false;
@@ -922,7 +919,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          if (!tempDestinationExists(info.getDestination().getPhysicalName())) {
             this.state.addTempDestination(info);
             if (logger.isDebugEnabled()) {
-               logger.debug(this + " added temp destination to state: " + info.getDestination().getPhysicalName() + "; " + state.getTempDestinations().size());
+               logger.debug("{} added temp destination to state: {} ; {}",
+                  this, info.getDestination().getPhysicalName(), state.getTempDestinations().size());
             }
          }
       }
@@ -1035,7 +1033,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       ActiveMQDestination dest = new ActiveMQTempQueue(bindingName.toString());
       state.removeTempDestination(dest);
       if (logger.isDebugEnabled()) {
-         logger.debug(this + " removed temp destination from state: " + bindingName + "; " + state.getTempDestinations().size());
+         logger.debug("{} removed temp destination from state: {} ; {}", this, bindingName, state.getTempDestinations().size());
       }
 
       if (!AdvisorySupport.isAdvisoryTopic(dest)) {
@@ -1046,7 +1044,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          try {
             protocolManager.fireAdvisory(context, topic, advInfo);
          } catch (Exception e) {
-            logger.warn("Failed to fire advisory on " + topic, e);
+            logger.warn("Failed to fire advisory on {}", topic, e);
          }
       }
    }
@@ -1138,7 +1136,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          if (!dest.isTemporary()) {
             // this should not really happen,
             // so I'm not creating a Logger for this
-            logger.warn("OpenWire client sending a queue remove towards " + dest.getPhysicalName());
+            logger.warn("OpenWire client sending a queue remove towards {}", dest.getPhysicalName());
          }
          try {
             server.destroyQueue(new SimpleString(dest.getPhysicalName()), getRemotingConnection());
@@ -1369,9 +1367,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   ex.errorCode = XAException.XA_HEURRB;
                   throw ex;
                } else {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("xarollback into " + tx + ", xid=" + xid + " forcing a rollback regular");
-                  }
+                  logger.trace("xarollback into {}, xid={} forcing a rollback regular", tx, xid);
 
                   try {
                      if (amqSession != null) {
@@ -1387,9 +1383,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                }
             } else {
                if (tx.getState() == Transaction.State.SUSPENDED) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("xarollback into " + tx + " sending tx back as it was suspended");
-                  }
+                  logger.trace("xarollback into {} sending tx back as it was suspended", tx);
+
                   // Put it back
                   resourceManager.putTransaction(xid, tx, OpenWireConnection.this);
                   XAException ex = new XAException("Cannot commit transaction, it is suspended " + xid);
@@ -1520,9 +1515,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          if (txID.isXATransaction()) {
             ResourceManager resourceManager = server.getResourceManager();
             Xid xid = OpenWireUtil.toXID(txID);
-            if (logger.isTraceEnabled()) {
-               logger.trace("XAcommit into " + tx + ", xid=" + xid);
-            }
+
+            logger.trace("XAcommit into {}, xid={}", tx, xid);
 
             if (tx == null) {
                if (resourceManager.getHeuristicCommittedTransactions().contains(xid)) {
@@ -1535,9 +1529,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
                   ex.errorCode = XAException.XA_HEURRB;
                   throw ex;
                } else {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("XAcommit into " + tx + ", xid=" + xid + " cannot find it");
-                  }
+                  logger.trace("XAcommit into {}, xid={} cannot find it", tx, xid);
                   XAException ex = new XAException("Cannot find xid in resource manager: " + xid);
                   ex.errorCode = XAException.XAER_NOTA;
                   throw ex;

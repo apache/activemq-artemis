@@ -417,7 +417,9 @@ public class PostOfficeJournalLoader implements JournalLoader {
 
                for (Map.Entry<Long, List<PageCountPending>> entry : perQueue.entrySet()) {
                   for (PageCountPending record : entry.getValue()) {
-                     logger.debug("Deleting pg tempCount {}", record.getID());
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Deleting pg tempCount {}", record.getID());
+                     }
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                   }
 
@@ -429,7 +431,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
                   if (value == null) {
                      logger.debug("Page {} wasn't open, so we will just ignore", entry.getKey());
                   } else {
-                     logger.debug("Replacing counter {}", value.get());
+                     logger.debug("Replacing counter {}", value);
                      counter.increment(txRecoverCounter, value.get(), sizeValue.get());
                   }
                }
@@ -438,7 +440,9 @@ public class PostOfficeJournalLoader implements JournalLoader {
                logger.debug("Page {} didn't exist on address {}, so we are just removing records",  pageId, addressPageMapEntry.getKey());
                for (List<PageCountPending> records : perQueue.values()) {
                   for (PageCountPending record : records) {
-                     logger.debug("Removing pending page counter {}", record.getID());
+                     if (logger.isDebugEnabled()) {
+                        logger.debug("Removing pending page counter {}", record.getID());
+                     }
                      storageManager.deletePendingPageCounter(txRecoverCounter.getID(), record.getID());
                      txRecoverCounter.setContainsPersistent();
                   }
@@ -476,7 +480,10 @@ public class PostOfficeJournalLoader implements JournalLoader {
          Queue queue = queues.get(queueID);
 
          if (queue == null) {
-            logger.debug("removing pending page counter id = " + pgCount.getID() + " as queueID=" + pgCount.getID() + " no longer exists");
+            if (logger.isDebugEnabled()) {
+               logger.debug("removing pending page counter id = {} as queueID={} no longer exists", pgCount.getID(), queueID);
+            }
+
             // this means the queue doesn't exist any longer, we will remove it from the storage
             storageManager.deletePendingPageCounter(txRecoverCounter.getID(), pgCount.getID());
             txRecoverCounter.setContainsPersistent();

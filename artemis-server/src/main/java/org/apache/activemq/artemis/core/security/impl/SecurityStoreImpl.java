@@ -137,9 +137,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (securityEnabled) {
 
          if (managementClusterUser.equals(user)) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Authenticating cluster admin user");
-            }
+            logger.trace("Authenticating cluster admin user");
 
             /*
              * The special user cluster user is used for creating sessions that replicate management
@@ -220,9 +218,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          SimpleString bareAddress = CompositeAddress.extractAddressName(address);
          SimpleString bareQueue = CompositeAddress.extractQueueName(queue);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("checking access permissions to " + bareAddress);
-         }
+         logger.trace("checking access permissions to {}", bareAddress);
 
          // bypass permission checks for management cluster user
          String user = session.getUsername();

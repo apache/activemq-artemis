@@ -37,7 +37,7 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
    private static ConcurrentHashSet<Pair<String, String>> ignores = new ConcurrentHashSet<>();
 
    public static void addIgnore(String className, String propertyName) {
-      logger.trace("Adding ignore on " + className + "/" + propertyName);
+      logger.trace("Adding ignore on {}/{}", className, propertyName);
       ignores.add(new Pair<>(className, propertyName));
    }
 
@@ -53,7 +53,7 @@ public class FluentPropertyBeanIntrospectorWithIgnores extends FluentPropertyBea
             PropertyDescriptor pd = icontext.getPropertyDescriptor(propertyName);
 
             if (isIgnored(icontext.getTargetClass().getName(), m.getName())) {
-               logger.trace(m.getName() + " Ignored for " + icontext.getTargetClass().getName());
+               logger.trace("{} Ignored for {}", m.getName(), icontext.getTargetClass().getName());
                continue;
             }
             try {

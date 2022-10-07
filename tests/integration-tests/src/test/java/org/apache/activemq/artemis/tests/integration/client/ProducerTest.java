@@ -99,7 +99,7 @@ public class ProducerTest extends ActiveMQTestBase {
 
       for (int i = 0; i < 100; i++) {
          final CountDownLatch latch = new CountDownLatch(1);
-         logger.debug("Try " + i);
+         logger.debug("Try {}", i);
          ClientSessionFactory cf = locator.createSessionFactory();
          final ClientSession session = cf.createSession(false, true, true);
 

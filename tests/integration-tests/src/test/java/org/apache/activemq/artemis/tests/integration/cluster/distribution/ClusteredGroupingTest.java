@@ -665,11 +665,11 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                      totalMessageProduced.incrementAndGet();
                      messageCount++;
                   } catch (ActiveMQException e) {
-                     log.warn("Producer thread threw exception while sending messages to " + targetServer + ": " + e.getMessage());
+                     log.warn("Producer thread threw exception while sending messages to {}: {}", targetServer, e.getMessage());
                      // in case of a failure we change the group to make possible errors more likely
                      group = group + "afterFail";
                   } catch (Exception e) {
-                     log.warn("Producer thread threw unexpected exception while sending messages to " + targetServer + ": " + e.getMessage());
+                     log.warn("Producer thread threw unexpected exception while sending messages to {}: {}", targetServer, e.getMessage());
                      group = group + "afterFail";
                      break;
                   }
@@ -757,10 +757,10 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                      log.trace("Consumed message {} from server {}. Total consumed: {}", m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID), targetServer, totalMessagesConsumed.incrementAndGet());
                   } catch (ActiveMQException e) {
                      errors.incrementAndGet();
-                     log.warn("Consumer thread threw exception while receiving messages from server " + targetServer + ".: " + e.getMessage());
+                     log.warn("Consumer thread threw exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
                   } catch (Exception e) {
                      errors.incrementAndGet();
-                     log.warn("Consumer thread threw unexpected exception while receiving messages from server " + targetServer + ".: " + e.getMessage());
+                     log.warn("Consumer thread threw unexpected exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
                      return;
                   }
                }

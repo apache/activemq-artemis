@@ -117,7 +117,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          aioFile.close();
       } catch (Throwable e) {
          // an exception here would means a double
-         logger.debug("Exeption while closing file - " + e.getMessage(), e);
+         logger.debug("Exeption while closing file", e);
       } finally {
          aioFile = null;
          aioFactory.afterClose();
@@ -126,9 +126,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public synchronized void fill(final int size) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Filling file: " + getFileName());
-      }
+      logger.trace("Filling file: {}", getFileName());
 
       checkOpened();
       aioFile.fill(aioFactory.getAlignment(), size);
@@ -149,14 +147,12 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
       }
       opened = true;
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Opening file: " + getFileName());
-      }
+      logger.trace("Opening file: {}", getFileName());
 
       try {
          aioFile = aioFactory.libaioContext.openFile(getFile(), factory.isDatasync());
       } catch (IOException e) {
-         logger.error("Error opening file: " + getFileName());
+         logger.error("Error opening file: {}", getFileName());
          factory.onIOError(e, e.getMessage(), this);
          throw new ActiveMQNativeIOError(e.getMessage(), e);
       }
@@ -181,7 +177,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
          // Sending it through the callback would make it released
          aioFile.read(positionToRead, bytesToRead, bytes, getCallback(callback, null));
       } catch (IOException e) {
-         logger.error("IOError reading file: " + getFileName(), e);
+         logger.error("IOError reading file: {}", getFileName(), e);
          factory.onIOError(e, e.getMessage(), this);
          throw new ActiveMQNativeIOError(e.getMessage(), e);
       }
@@ -203,7 +199,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
    @Override
    public void writeDirect(final ByteBuffer bytes, final boolean sync) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("Write Direct, Sync: " + sync + " File: " + getFileName());
+         logger.trace("Write Direct, Sync: {} File: {}", sync, getFileName());
       }
 
       if (sync) {
@@ -219,9 +215,7 @@ public class AIOSequentialFile extends AbstractSequentialFile  {
 
    @Override
    public void blockingWriteDirect(ByteBuffer bytes,boolean sync, boolean releaseBuffer) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Write Direct, Sync: true File: " + getFileName());
-      }
+      logger.trace("Write Direct, Sync: true File: {}", getFileName());
 
       final SimpleWaitIOCallback completion = new SimpleWaitIOCallback();
 

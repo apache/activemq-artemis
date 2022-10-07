@@ -121,7 +121,7 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
                managementService.sendNotification(new Notification(null, CoreNotificationType.MESSAGE_DELIVERED, props));
             }
          } catch (Exception e) {
-            logger.warn("Error sending notification: " + CoreNotificationType.MESSAGE_DELIVERED, e.getMessage(), e);
+            logger.warn("Error sending notification: {}", CoreNotificationType.MESSAGE_DELIVERED, e);
          }
       }
    }
@@ -147,7 +147,7 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
                managementService.sendNotification(new Notification(null, CoreNotificationType.MESSAGE_EXPIRED, props));
             }
          } catch (Exception e) {
-            logger.warn("Error sending notification: " + CoreNotificationType.MESSAGE_EXPIRED, e.getMessage(), e);
+            logger.warn("Error sending notification: {}", CoreNotificationType.MESSAGE_EXPIRED, e);
          }
       }
    }
@@ -163,7 +163,7 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
             managementService.sendNotification(new Notification(null, type, props));
          } catch (Exception e) {
-            logger.warn("Error sending notification: " + type, e.getMessage(), e);
+            logger.warn("Error sending notification: {}", type, e);
          }
       }
    }
@@ -181,7 +181,7 @@ public class NotificationActiveMQServerPlugin implements ActiveMQServerPlugin {
 
             managementService.sendNotification(new Notification(null, type, props));
          } catch (Exception e) {
-            logger.warn("Error sending notification: " + type, e.getMessage(), e);
+            logger.warn("Error sending notification: {}", type, e);
          }
       }
    }

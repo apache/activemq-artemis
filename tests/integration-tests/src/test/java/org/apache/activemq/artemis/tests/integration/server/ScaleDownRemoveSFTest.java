@@ -107,7 +107,7 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       ClusterConnectionImpl clusterconn1 = (ClusterConnectionImpl) servers[1].getClusterManager().getClusterConnection("cluster0");
       SimpleString sfQueueName = clusterconn1.getSfQueueName(servers[0].getNodeID().toString());
 
-      logger.debug("[sf queue on server 1]: " + sfQueueName);
+      logger.debug("[sf queue on server 1]: {}", sfQueueName);
 
       Assert.assertTrue(servers[1].queueQuery(sfQueueName).isExists());
 

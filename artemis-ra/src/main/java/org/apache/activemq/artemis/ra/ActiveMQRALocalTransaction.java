@@ -42,9 +42,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     * @param mc The managed connection
     */
    public ActiveMQRALocalTransaction(final ActiveMQRAManagedConnection mc) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + mc + ")");
-      }
+      logger.trace("constructor({})", mc);
 
       this.mc = mc;
    }
@@ -56,9 +54,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void begin() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("begin()");
-      }
+      logger.trace("begin()");
 
       // mc.setInManagedTx(true);
    }
@@ -70,9 +66,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void commit() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("commit()");
-      }
+      logger.trace("commit()");
 
       mc.lock();
       try {
@@ -94,9 +88,7 @@ public class ActiveMQRALocalTransaction implements LocalTransaction {
     */
    @Override
    public void rollback() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("rollback()");
-      }
+      logger.trace("rollback()");
 
       mc.lock();
       try {

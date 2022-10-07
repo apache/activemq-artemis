@@ -200,9 +200,6 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
             } catch (Exception e) {
                log.error("Caught exception", e);
             }
-
-            //log.debug(id + " sent message " + i);
-
          }
       }
 
@@ -274,9 +271,6 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
          if (count == numMessages) {
             latch.countDown();
          }
-
-         //log.debug(id + " got msg " + count);
-
       }
 
       public void terminate() throws Exception {

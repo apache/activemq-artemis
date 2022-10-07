@@ -158,7 +158,7 @@ public class LiveOnlyActivation extends Activation {
             try {
                clientSessionFactory = (ClientSessionFactoryInternal) scaleDownServerLocator.createSessionFactory(possibleLive.getA(), 0, false);
             } catch (Exception e) {
-               logger.trace("Failed to connect to " + possibleLive.getA());
+               logger.trace("Failed to connect to {}", possibleLive.getA());
                nodeLocator.notifyRegistrationFailed(false);
                if (clientSessionFactory != null) {
                   clientSessionFactory.close();

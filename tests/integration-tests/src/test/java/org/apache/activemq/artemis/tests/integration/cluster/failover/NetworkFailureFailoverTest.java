@@ -168,7 +168,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       liveServer.addInterceptor(new Interceptor() {
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received " + packet);
+            //logger.debug("Received {}", packet);
             if (packet instanceof SessionSendMessage) {
 
                if (countSent.incrementAndGet() == 500) {
@@ -253,7 +253,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
                      latchReceived.countDown();
                      msgReceived.acknowledge();
                      if (received++ % 100 == 0) {
-                        logger.debug("Received " + received);
+                        logger.debug("Received {}", received);
                         sessionConsumer.commit();
                      }
                   } else {
@@ -276,7 +276,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          do {
             try {
                if (sentMessages.get() % 100 == 0) {
-                  logger.debug("Sent " + sentMessages.get());
+                  logger.debug("Sent {}", sentMessages.get());
                }
                producer.send(createMessage(sessionProducer, sentMessages.get(), true));
                break;
@@ -391,7 +391,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
                            NetUtil.netDown(LIVE_IP);
                            liveServer.crash(true, false);
                         }
-                        logger.debug("Received " + received);
+                        logger.debug("Received {}", received);
                         sessionConsumer.commit();
                      }
                   } else {
@@ -413,7 +413,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          do {
             try {
                if (sentMessages.get() % 100 == 0) {
-                  logger.debug("Sent " + sentMessages.get());
+                  logger.debug("Sent {}", sentMessages.get());
                }
                producer.send(createMessage(sessionProducer, sentMessages.get(), true));
                break;
@@ -459,7 +459,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       liveServer.addInterceptor(new Interceptor() {
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received " + packet);
+            //logger.debug("Received {}", packet);
             if (packet instanceof CreateSessionMessage) {
 
                if (countSent.incrementAndGet() == 50) {
@@ -522,7 +522,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
             while (running.get() && received < numSessions) {
                try {
                   ClientSession session = sessionFactory.createSession();
-                  logger.debug("Creating session, currentLatch = " + latchCreated.getCount());
+                  logger.debug("Creating session, currentLatch = {}", latchCreated.getCount());
                   session.close();
                   latchCreated.countDown();
                } catch (Throwable e) {
@@ -570,7 +570,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
       liveServer.addInterceptor(new Interceptor() {
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            //logger.debug("Received " + packet);
+            //logger.debug("Received {}", packet);
             if (packet instanceof SessionSendMessage) {
 
                if (countSent.incrementAndGet() == 50) {
@@ -655,7 +655,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
             while (sentMessages.get() < numMessages && running.get()) {
                try {
                   if (sentMessages.get() % 10 == 0) {
-                     logger.debug("Sent " + sentMessages.get());
+                     logger.debug("Sent {}", sentMessages.get());
                   }
                   producer.send(createMessage(sessionProducer, sentMessages.get(), true));
                   sentMessages.incrementAndGet();

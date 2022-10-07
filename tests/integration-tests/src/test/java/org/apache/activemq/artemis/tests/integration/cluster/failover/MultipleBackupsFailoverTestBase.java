@@ -142,7 +142,7 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
       locator.removeClusterTopologyListener(topListener);
       if (!ok) {
          if (server != null) {
-            logger.warn("failed topology, Topology on server = " + server.getClusterManager().describe());
+            logger.warn("failed topology, Topology on server = {}", server.getClusterManager().describe());
          }
       }
       Assert.assertTrue("expected " + topologyMembers + " members", ok);

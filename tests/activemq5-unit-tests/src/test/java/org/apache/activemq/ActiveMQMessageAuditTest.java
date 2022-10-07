@@ -133,7 +133,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
       ActiveMQMessageAuditNoSync audit = new ActiveMQMessageAuditNoSync();
 
       byte[] bytes = serialize(audit);
-      LOG.debug("Length: " + bytes.length);
+      LOG.debug("Length: {}", bytes.length);
       audit = recover(bytes);
 
       List<MessageReference> list = new ArrayList<>();
@@ -143,7 +143,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
          pid.setConnectionId("test");
          pid.setSessionId(0);
          pid.setValue(j);
-         LOG.debug("producer " + j);
+         LOG.debug("producer {}", j);
 
          for (int i = 0; i < 1000; i++) {
             MessageId id = new MessageId();
@@ -156,7 +156,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
 
             if (i % 100 == 0) {
                bytes = serialize(audit);
-               LOG.debug("Length: " + bytes.length);
+               LOG.debug("Length: {}", bytes.length);
                audit = recover(bytes);
             }
 
@@ -166,7 +166,7 @@ public class ActiveMQMessageAuditTest extends TestCase {
                }
                list.clear();
                bytes = serialize(audit);
-               LOG.debug("Length: " + bytes.length);
+               LOG.debug("Length: {}", bytes.length);
                audit = recover(bytes);
             }
          }

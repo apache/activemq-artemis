@@ -110,9 +110,8 @@ public class RefsOperation extends TransactionOperationAbstract {
 
          ref.emptyConsumerID();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("rolling back " + ref);
-         }
+         logger.trace("rolling back {}", ref);
+
          try {
             if (ref.isAlreadyAcked()) {
                ackedRefs.add(ref);

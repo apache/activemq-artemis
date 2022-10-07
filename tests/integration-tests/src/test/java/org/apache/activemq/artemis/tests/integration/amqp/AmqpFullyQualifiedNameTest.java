@@ -232,7 +232,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
 
          Bindings bindings = server.getPostOffice().getBindingsForAddress(multicastAddress);
          for (Binding b : bindings.getBindings()) {
-            logger.debug("checking binidng " + b.getUniqueName() + " " + ((LocalQueueBinding)b).getQueue().getDeliveringMessages());
+            logger.debug("checking binidng {} {}", b.getUniqueName(), ((LocalQueueBinding)b).getQueue().getDeliveringMessages());
             SimpleString qName = b.getUniqueName();
             //do FQQN query
             QueueQueryResult result = server.queueQuery(CompositeAddress.toFullyQualified(multicastAddress, qName));
@@ -319,7 +319,7 @@ public class AmqpFullyQualifiedNameTest extends JMSClientTestSupport {
          producer3.send(session.createMessage());
          assertTrue(Wait.waitFor(() -> server.locateQueue(anycastQ3).getMessageCount() == 5, 2000, 200));
 
-         logger.debug("Queue is: " + q1);
+         logger.debug("Queue is: {}", q1);
          MessageConsumer consumer1 = session.createConsumer(q1);
          MessageConsumer consumer2 = session.createConsumer(q2);
          MessageConsumer consumer3 = session.createConsumer(q3);

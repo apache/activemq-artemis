@@ -78,7 +78,7 @@ public class JAASSecurityManagerTest {
    @Test
    public void testLoginClassloading() throws Exception {
       ClassLoader existingLoader = Thread.currentThread().getContextClassLoader();
-      log.debug("loader: " + existingLoader);
+      log.debug("loader: {}", existingLoader);
       try {
          if (usingNewLoader) {
             URLClassLoader simulatedLoader = new URLClassLoader(new URL[]{tmpDir.getRoot().toURI().toURL()}, null);

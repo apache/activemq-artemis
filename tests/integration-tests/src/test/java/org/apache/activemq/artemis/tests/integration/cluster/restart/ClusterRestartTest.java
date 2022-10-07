@@ -42,8 +42,8 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       startServers(0, 1);
 
-      log.debug("server 0 = " + getServer(0).getNodeID());
-      log.debug("server 1 = " + getServer(1).getNodeID());
+      log.debug("server 0 = {}", getServer(0).getNodeID());
+      log.debug("server 1 = {}", getServer(1).getNodeID());
 
       setupSessionFactory(0, isNetty(), 15);
       setupSessionFactory(1, isNetty());
@@ -105,8 +105,8 @@ public class ClusterRestartTest extends ClusterTestBase {
 
       startServers(0, 1);
 
-      log.debug("server 0 = " + getServer(0).getNodeID());
-      log.debug("server 1 = " + getServer(1).getNodeID());
+      log.debug("server 0 = {}", getServer(0).getNodeID());
+      log.debug("server 1 = {}", getServer(1).getNodeID());
       setupSessionFactory(0, isNetty(), 15);
       setupSessionFactory(1, isNetty());
 
@@ -158,7 +158,7 @@ public class ClusterRestartTest extends ClusterTestBase {
       for (int i = 0; i < num; i++) {
          Collection<Binding> bindings0 = getServer(i).getPostOffice().getBindingsForAddress(new SimpleString("queues.testaddress")).getBindings();
          for (Binding binding : bindings0) {
-            log.debug(binding + " on node " + i + " at " + binding.getID());
+            log.debug("{} on node {} at {}", binding, i, binding.getID());
          }
       }
    }

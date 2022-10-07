@@ -124,23 +124,17 @@ public class LocalQueueBinding implements QueueBinding {
    @Override
    public void route(final Message message, final RoutingContext context) throws Exception {
       if (isMatchRoutingType(context)) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("adding routing " + queue.getID() + " on message " + message);
-         }
+         logger.trace("adding routing {} on message {}", queue.getID(), message);
          queue.route(message, context);
       } else {
-         if (logger.isTraceEnabled()) {
-            logger.trace("routing " + queue.getID() + " is ignored as routing type did not match");
-         }
+         logger.trace("routing {} is ignored as routing type did not match", queue.getID());
       }
    }
 
    @Override
    public void routeWithAck(Message message, RoutingContext context) throws Exception {
       if (isMatchRoutingType(context)) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Message " + message + " routed with ack on queue " + queue.getID());
-         }
+         logger.trace("Message {} routed with ack on queue {}", message, queue.getID());
          queue.routeWithAck(message, context);
       }
    }

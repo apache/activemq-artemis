@@ -86,7 +86,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
       }
 
       if (debug) {
-         logger.debug("Certificate for user: " + username);
+         logger.debug("Certificate for user: {}", username);
       }
       return true;
    }

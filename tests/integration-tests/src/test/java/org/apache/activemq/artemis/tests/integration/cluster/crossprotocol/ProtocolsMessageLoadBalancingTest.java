@@ -309,7 +309,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
 
       startServers(MessageLoadBalancingType.STRICT);
 
-      logger.debug("connections " + servers[1].getRemotingService().getConnections().size());
+      logger.debug("connections {}", servers[1].getRemotingService().getConnections().size());
 
       Wait.assertEquals(3, () -> servers[1].getRemotingService().getConnections().size());
       Wait.assertEquals(3, () -> servers[0].getRemotingService().getConnections().size());
@@ -366,7 +366,7 @@ public class ProtocolsMessageLoadBalancingTest extends ClusterTestBase {
       waitForBindings(0, "queues.0", 1, 1, false);
       waitForBindings(1, "queues.0", 1, 1, false);
 
-      logger.debug("connections " + servers[1].getRemotingService().getConnections().size());
+      logger.debug("connections {}", servers[1].getRemotingService().getConnections().size());
 
       // sending Messages.. they should be load balanced
       {

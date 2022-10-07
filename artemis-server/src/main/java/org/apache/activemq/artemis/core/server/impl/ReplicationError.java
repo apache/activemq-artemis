@@ -48,12 +48,12 @@ final class ReplicationError implements Interceptor {
 
    @Override
    public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-      if (packet.getType() != PacketImpl.BACKUP_REGISTRATION_FAILED)
+      if (packet.getType() != PacketImpl.BACKUP_REGISTRATION_FAILED) {
          return true;
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("Received ReplicationError::" + packet);
       }
+
+      logger.trace("Received ReplicationError::{}", packet);
+
       BackupReplicationStartFailedMessage message = (BackupReplicationStartFailedMessage) packet;
       switch (message.getRegistrationProblem()) {
          case ALREADY_REPLICATING:

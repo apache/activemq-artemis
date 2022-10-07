@@ -121,7 +121,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements AuditLogi
       loginSucceeded = true;
 
       if (debug) {
-         logger.debug("login " + user);
+         logger.debug("login {}", user);
       }
       return loginSucceeded;
    }
@@ -152,7 +152,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements AuditLogi
       clear();
 
       if (debug) {
-         logger.debug("commit, result: " + result);
+         logger.debug("commit, result: {}", result);
       }
       return result;
    }

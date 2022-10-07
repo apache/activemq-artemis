@@ -400,7 +400,7 @@ public abstract class SequentialFileFactoryTestBase extends ActiveMQTestBase {
       Assert.assertEquals(calculateRecordSize(size, factory.getAlignment()), bytesRead);
 
       for (int i = 0; i < size; i++) {
-         // log.debug(" i is " + i);
+         // log.debug(" i is {}", i);
          Assert.assertEquals(0, bb.get(i));
       }
 

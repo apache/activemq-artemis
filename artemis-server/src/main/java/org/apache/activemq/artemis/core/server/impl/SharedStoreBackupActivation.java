@@ -288,7 +288,7 @@ public final class SharedStoreBackupActivation extends Activation {
                   @Override
                   public void run() {
                      try {
-                        logger.debug(activeMQServer + "::Stopping live node in favor of failback");
+                        logger.debug("{}::Stopping live node in favor of failback", activeMQServer);
 
                         NodeManager nodeManager = activeMQServer.getNodeManager();
                         activeMQServer.stop(true, false, true);
@@ -306,7 +306,7 @@ public final class SharedStoreBackupActivation extends Activation {
                               return;
 
                            activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
-                           logger.debug(activeMQServer + "::Starting backup node now after failback");
+                           logger.debug("{}::Starting backup node now after failback", activeMQServer);
                            activeMQServer.start();
 
                            LockListener lockListener = activeLockListener;

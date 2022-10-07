@@ -95,7 +95,7 @@ public class InVMLoginModule implements AuditLoginModule {
       }
       loginSucceeded = true;
 
-      logger.debug("login " + user);
+      logger.debug("login {}", user);
 
       return loginSucceeded;
    }
@@ -120,7 +120,7 @@ public class InVMLoginModule implements AuditLoginModule {
       // will whack loginSucceeded
       clear();
 
-      logger.debug("commit, result: " + result);
+      logger.debug("commit, result: {}", result);
 
       return result;
    }

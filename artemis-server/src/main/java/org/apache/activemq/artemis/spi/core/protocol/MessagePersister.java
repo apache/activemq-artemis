@@ -59,7 +59,7 @@ public class MessagePersister implements Persister<Message> {
    public static void registerProtocol(ProtocolManagerFactory manager) {
       Persister<Message>[] messagePersisters = manager.getPersister();
       if (messagePersisters == null || messagePersisters.length == 0) {
-         logger.debug("Cannot find persister for " + manager);
+         logger.debug("Cannot find persister for {}", manager);
       } else {
          for (Persister p : messagePersisters) {
             registerPersister(p);

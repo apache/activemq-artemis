@@ -389,7 +389,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       logger.info("restarting primary");
 
       Process restartedPrimary = primary.startServer(this, 0);
-      logger.info("restarted primary, " + restartedPrimary);
+      logger.info("restarted primary, {}", restartedPrimary);
 
       Wait.assertFalse("Primary shouldn't activate", () -> primary.isActive().orElse(false), 5000);
 

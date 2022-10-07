@@ -211,10 +211,10 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
                   }
 
                   if (msgcount % 100 == 0) {
-                     logger.debug("received " + msgcount + " on " + queueName);
+                     logger.debug("received {} on {}", msgcount, queueName);
                   }
                } catch (Throwable e) {
-                  logger.warn("=====> expected Error at " + currentMsg + " with lastCommit=" + lastCommit);
+                  logger.warn("=====> expected Error at {} with lastCommit={}", currentMsg, lastCommit);
                }
             }
 

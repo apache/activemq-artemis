@@ -216,9 +216,8 @@ final class InMemoryDuplicateIDCache implements DuplicateIDCache {
 
    @Override
    public synchronized void clear() throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("address = {} removing duplicate ID data", address);
-      }
+      logger.debug("address = {} removing duplicate ID data", address);
+
       ids.clear();
       cache.clear();
       pos = 0;

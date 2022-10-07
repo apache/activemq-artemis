@@ -81,19 +81,19 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
          @Override
          public void tick(long usableSpace, long totalSpace) {
             tick.incrementAndGet();
-            log.debug("tick:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
+            log.debug("tick:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
          }
 
          @Override
          public void over(long usableSpace, long totalSpace) {
             over.incrementAndGet();
-            log.debug("over:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
+            log.debug("over:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
          }
 
          @Override
          public void under(long usableSpace, long totalSpace) {
             under.incrementAndGet();
-            log.debug("under:: usableSpace: " + usableSpace + ", totalSpace:" + totalSpace);
+            log.debug("under:: usableSpace: {}, totalSpace: {}", usableSpace, totalSpace);
          }
       };
       FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null);

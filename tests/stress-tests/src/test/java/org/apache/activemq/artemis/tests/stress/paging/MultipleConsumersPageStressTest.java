@@ -317,11 +317,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
                for (int i = 0; i < numberOfMessages; i++) {
                   ClientMessage msg = consumer.receive(10000);
                   if (msg == null) {
-                     log.warn("msg " + count +
-                                 " was null, currentBatchSize=" +
-                                 numberOfMessages +
-                                 ", current msg being read=" +
-                                 i);
+                     log.warn("msg {} was null, currentBatchSize={}, current msg being read={}", count, numberOfMessages, i);
                   }
                   Assert.assertNotNull("msg " + count +
                                           " was null, currentBatchSize=" +

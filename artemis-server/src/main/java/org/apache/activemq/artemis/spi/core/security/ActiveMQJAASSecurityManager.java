@@ -92,9 +92,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
       try {
          return getAuthenticatedSubject(user, password, remotingConnection, securityDomain);
       } catch (LoginException e) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Couldn't validate user", e);
-         }
+         logger.debug("Couldn't validate user", e);
          return null;
       }
    }
@@ -111,8 +109,10 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
                             final String address) {
       boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, rolePrincipalClass);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
+      if (authorized) {
+         logger.trace("user is authorized");
+      } else {
+         logger.trace("user is NOT authorized");
       }
 
       return authorized;

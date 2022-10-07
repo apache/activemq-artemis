@@ -359,9 +359,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
 
    public boolean check(InetAddress address) throws IOException, InterruptedException {
       if (!hasCustomPingCommand() && isReachable(address)) {
-         if (logger.isTraceEnabled()) {
-            logger.trace(address + " OK");
-         }
+         logger.trace("{} OK", address);
          return true;
       } else {
          return purePing(address);
@@ -376,9 +374,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
       long timeout = Math.max(1, TimeUnit.MILLISECONDS.toSeconds(networkTimeout));
       // it did not work with a simple isReachable, it could be because there's no root access, so we will try ping executable
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("purePing on canonical address " + address.getCanonicalHostName());
-      }
+      logger.trace("purePing on canonical address {}", address.getCanonicalHostName());
       ProcessBuilder processBuilder;
       if (address instanceof Inet6Address) {
          processBuilder = buildProcess(ipv6Command, timeout, address.getCanonicalHostName());
@@ -398,10 +394,7 @@ public class NetworkHealthCheck extends ActiveMQScheduledComponent {
    private ProcessBuilder buildProcess(String expressionCommand, long timeout, String host) {
       String command = String.format(expressionCommand, timeout, host);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("executing ping:: " + command);
-      }
-
+      logger.debug("executing ping:: {}", command);
       ProcessBuilder builder = new ProcessBuilder(command.split(" "));
 
       return builder;

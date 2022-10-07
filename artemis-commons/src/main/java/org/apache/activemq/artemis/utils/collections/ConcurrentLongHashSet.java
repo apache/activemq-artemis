@@ -437,7 +437,7 @@ public class ConcurrentLongHashSet {
 
    static boolean moreThanZero(long n) {
       if (n < 0L) {
-         logger.warn("Keys and values must be >= 0, while it was " + n + ", entry will be ignored", new Exception("invalid record " + n));
+         logger.warn("Keys and values must be >= 0, while it was {}, entry will be ignored", n, new Exception("invalid record " + n));
          return false;
       } else {
          return true;

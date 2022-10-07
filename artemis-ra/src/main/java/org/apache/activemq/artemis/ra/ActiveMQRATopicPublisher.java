@@ -41,9 +41,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    public ActiveMQRATopicPublisher(final TopicPublisher producer, final ActiveMQRASession session) {
       super(producer, session);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + producer + ", " + session + ")");
-      }
+      logger.trace("constructor({}, {})", producer, session);
    }
 
    /**
@@ -54,9 +52,7 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
     */
    @Override
    public Topic getTopic() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getTopic()");
-      }
+      logger.trace("getTopic()");
 
       return ((TopicPublisher) producer).getTopic();
    }
@@ -78,24 +74,15 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
       session.lock();
       try {
          if (logger.isTraceEnabled()) {
-            logger.trace("send " + this +
-                                             " message=" +
-                                             message +
-                                             " deliveryMode=" +
-                                             deliveryMode +
-                                             " priority=" +
-                                             priority +
-                                             " ttl=" +
-                                             timeToLive);
+            logger.trace("send {} message={} deliveryMode={} priority={} ttl={}",
+               this, message, deliveryMode, priority, timeToLive);
          }
 
          checkState();
 
          ((TopicPublisher) producer).publish(message, deliveryMode, priority, timeToLive);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("sent " + this + " result=" + message);
-         }
+         logger.trace("sent {} result={}", this, message);
       } finally {
          session.unlock();
       }
@@ -111,17 +98,13 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
    public void publish(final Message message) throws JMSException {
       session.lock();
       try {
-         if (logger.isTraceEnabled()) {
-            logger.trace("send " + this + " message=" + message);
-         }
+         logger.trace("send {} result={}", this, message);
 
          checkState();
 
          ((TopicPublisher) producer).publish(message);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("sent " + this + " result=" + message);
-         }
+         logger.trace("sent {} result={}", this, message);
       } finally {
          session.unlock();
       }
@@ -146,26 +129,15 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
       session.lock();
       try {
          if (logger.isTraceEnabled()) {
-            logger.trace("send " + this +
-                                             " destination=" +
-                                             destination +
-                                             " message=" +
-                                             message +
-                                             " deliveryMode=" +
-                                             deliveryMode +
-                                             " priority=" +
-                                             priority +
-                                             " ttl=" +
-                                             timeToLive);
+            logger.trace("send {} destination={} message={} deliveryMode={} priority={} ttl={}",
+               this, destination, message, deliveryMode, priority, timeToLive);
          }
 
          checkState();
 
          ((TopicPublisher) producer).publish(destination, message, deliveryMode, priority, timeToLive);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("sent " + this + " result=" + message);
-         }
+         logger.trace("sent {} result={}", this, message);
       } finally {
          session.unlock();
       }
@@ -183,16 +155,14 @@ public class ActiveMQRATopicPublisher extends ActiveMQRAMessageProducer implemen
       session.lock();
       try {
          if (logger.isTraceEnabled()) {
-            logger.trace("send " + this + " destination=" + destination + " message=" + message);
+            logger.trace("send {} destination={} message={}", this, destination, message);
          }
 
          checkState();
 
          ((TopicPublisher) producer).publish(destination, message);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("sent " + this + " result=" + message);
-         }
+         logger.trace("sent {} result={}", this, message);
       } finally {
          session.unlock();
       }

@@ -1047,7 +1047,7 @@ public class DNSSwitchTest extends SmokeTestBase {
          String configLocation = "-Dartemis.config.location=" + location;
          String temporaryLocation = "-Djava.io.tmpdir=" + System.getProperty("java.io.tmpdir");
 
-         logger.info("if you would like to run without Spawn for debugging purposes, add these properties to your VM arguments on this test: " + securityProperties + " " + hostProperties);
+         logger.info("if you would like to run without Spawn for debugging purposes, add these properties to your VM arguments on this test: {} {}", securityProperties, hostProperties);
          Process p = SpawnedVMSupport.spawnVM(DNSSwitchTest.class.getName(), new String[]{securityProperties, hostProperties, configLocation, temporaryLocation}, args);
          addProcess(p);
          Assert.assertEquals(1, p.waitFor());

@@ -129,7 +129,7 @@ public class ArtemisMBeanServerGuard implements InvocationHandler {
       try {
          objectName = ObjectName.getInstance(object);
       } catch (MalformedObjectNameException e) {
-         logger.debug("can't check invoke rights as object name invalid: " + object, e);
+         logger.debug("can't check invoke rights as object name invalid: {}", object, e);
          return false;
       }
       if (canBypassRBAC(objectName)) {

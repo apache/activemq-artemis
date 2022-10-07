@@ -28,14 +28,9 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.federation.address.FederatedAddress;
 import org.apache.activemq.artemis.core.server.federation.queue.FederatedQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public abstract class AbstractFederationStream implements FederationStream {
 
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected final ActiveMQServer server;
    protected final Federation federation;
    protected final SimpleString name;

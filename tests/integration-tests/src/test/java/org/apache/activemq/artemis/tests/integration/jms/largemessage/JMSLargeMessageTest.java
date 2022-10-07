@@ -172,7 +172,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
          rm.setObjectProperty("JMS_AMQ_OutputStream", new OutputStream() {
             @Override
             public void write(final int b) throws IOException {
-               logger.debug("b = " + b);
+               logger.debug("b = {}", b);
             }
 
          });
@@ -227,7 +227,7 @@ public class JMSLargeMessageTest extends JMSTestBase {
          public void write(final int b) throws IOException {
             numberOfBytes.incrementAndGet();
             if (ActiveMQTestBase.getSamplebyte(position++) != b) {
-               logger.warn("Wrong byte at position " + position);
+               logger.warn("Wrong byte at position {}", position);
                numberOfErrors.incrementAndGet();
             }
          }

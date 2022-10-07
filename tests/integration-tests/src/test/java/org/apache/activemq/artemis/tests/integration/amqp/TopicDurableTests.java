@@ -85,14 +85,14 @@ public class TopicDurableTests extends JMSClientTestSupport {
 
       assertThat(recvd1.size(), is(count));
       assertMessageContent(recvd1, batchPrefix);
-      logger.debug(sub1ID + " :First batch messages received");
+      logger.debug("{} :First batch messages received", sub1ID);
 
       assertThat(recvd2.size(), is(count));
       assertMessageContent(recvd2, batchPrefix);
-      logger.debug(sub2ID + " :First batch messages received");
+      logger.debug("{} :First batch messages received", sub2ID);
 
       subscriber1.close();
-      logger.debug(sub1ID + " : closed");
+      logger.debug("{} : closed", sub1ID);
 
       batchPrefix = "Second";
       listMsgs = generateMessages(session, batchPrefix, count);
@@ -102,15 +102,15 @@ public class TopicDurableTests extends JMSClientTestSupport {
       recvd2 = receiveMessages(subscriber2, count);
       assertThat(recvd2.size(), is(count));
       assertMessageContent(recvd2, batchPrefix);
-      logger.debug(sub2ID + " :Second batch messages received");
+      logger.debug("{} :Second batch messages received", sub2ID);
 
       subscriber1 = session.createDurableSubscriber(testTopic, sub1ID);
-      logger.debug(sub1ID + " :connected");
+      logger.debug("{} :connected", sub1ID);
 
       recvd1 = receiveMessages(subscriber1, count);
       assertThat(recvd1.size(), is(count));
       assertMessageContent(recvd1, batchPrefix);
-      logger.debug(sub1ID + " :Second batch messages received");
+      logger.debug("{} :Second batch messages received", sub1ID);
 
       subscriber1.close();
       subscriber2.close();
@@ -124,7 +124,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
    public void testSharedNonDurableSubscription() throws Exception {
       int iterations = 10;
       for (int i = 0; i < iterations; i++) {
-         logger.debug("testSharedNonDurableSubscription; iteration: " + i);
+         logger.debug("testSharedNonDurableSubscription; iteration: {}", i);
          //SETUP-START
          JmsConnectionFactory connectionFactory1 = new JmsConnectionFactory(getBrokerQpidJMSConnectionURI());
          Connection connection1 = connectionFactory1.createConnection();
@@ -249,7 +249,7 @@ public class TopicDurableTests extends JMSClientTestSupport {
          resultsList.add(new CompletableFuture<>());
          receivedResList.add(new ArrayList<>());
          MessageListener myListener = message -> {
-            logger.debug("Mesages received" + message + " count: " + totalCount.get());
+            logger.debug("Mesages received{} count: {}", message, totalCount.get());
             receivedResList.get(index).add(message);
             if (totalCount.decrementAndGet() == 0) {
                for (int j = 0; j < consumer.length; j++) {

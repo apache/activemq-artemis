@@ -2077,9 +2077,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       ClusterConnectionConfiguration config = mainConfig.addClusterConfiguration(name, uri);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Adding cluster connection :: " + config);
-      }
+      logger.debug("Adding cluster connection :: {}", config);
    }
 
    private void parseAMQPBrokerConnections(final Element e,
@@ -2139,9 +2137,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Adding AMQP connection :: " + config);
-      }
+      logger.debug("Adding AMQP connection :: {}", config);
    }
 
    private void parseClusterConnectionConfiguration(final Element e, final Configuration mainConfig) throws Exception {

@@ -42,7 +42,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
       super(producer, session);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + producer + ", " + session + ")");
+         logger.trace("constructor({}, {})", producer, session);
       }
    }
 
@@ -54,9 +54,7 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
     */
    @Override
    public Queue getQueue() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getQueue()");
-      }
+      logger.trace("getQueue()");
 
       return ((QueueSender) producer).getQueue();
    }
@@ -80,25 +78,14 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
       session.lock();
       try {
          if (logger.isTraceEnabled()) {
-            logger.trace("send " + this +
-                                             " destination=" +
-                                             destination +
-                                             " message=" +
-                                             message +
-                                             " deliveryMode=" +
-                                             deliveryMode +
-                                             " priority=" +
-                                             priority +
-                                             " ttl=" +
-                                             timeToLive);
+            logger.trace("send {} destination={} message={} deliveryMode={} priority={} ttl={}",
+               this, destination, message, deliveryMode, priority, timeToLive);
          }
 
          checkState();
          producer.send(destination, message, deliveryMode, priority, timeToLive);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("sent " + this + " result=" + message);
-         }
+         logger.trace("sent {} result={}", this, message);
       } finally {
          session.unlock();
       }
@@ -116,15 +103,13 @@ public class ActiveMQRAQueueSender extends ActiveMQRAMessageProducer implements 
       session.lock();
       try {
          if (logger.isTraceEnabled()) {
-            logger.trace("send " + this + " destination=" + destination + " message=" + message);
+            logger.trace("send {} destination={} message={}", this, destination, message);
          }
 
          checkState();
          producer.send(destination, message);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("sent " + this + " result=" + message);
-         }
+         logger.trace("sent {} result={}", this, message);
       } finally {
          session.unlock();
       }

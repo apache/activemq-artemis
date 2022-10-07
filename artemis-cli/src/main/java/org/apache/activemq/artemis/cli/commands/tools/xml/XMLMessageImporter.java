@@ -250,14 +250,11 @@ public class XMLMessageImporter {
          }
       }
       reader.next();
-      if (logger.isDebugEnabled()) {
-         logger.debug("XMLStreamReader impl: " + reader);
-      }
+      logger.debug("XMLStreamReader impl: {}", reader);
+
       if (isLarge) {
          tempFileName = File.createTempFile("largeMessage", ".tmp");
-         if (logger.isDebugEnabled()) {
-            logger.debug("Creating temp file " + tempFileName + " for large message.");
-         }
+         logger.debug("Creating temp file {} for large message.", tempFileName);
          try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFileName))) {
             getMessageBodyBytes(bytes -> out.write(bytes), (message.toCore().getType() == Message.TEXT_TYPE) && decodeTextMessage);
          }

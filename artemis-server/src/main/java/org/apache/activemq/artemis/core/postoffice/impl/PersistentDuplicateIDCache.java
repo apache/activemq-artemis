@@ -187,13 +187,13 @@ final class PersistentDuplicateIDCache implements DuplicateIDCache {
    }
 
    private boolean contains(final ByteArray duplID) {
-      boolean contains = cache.containsKey(duplID);
-
-      if (logger.isTraceEnabled()) {
-         if (contains) {
+      final boolean contains = cache.containsKey(duplID);
+      if (contains) {
+         if (logger.isTraceEnabled()) {
             logger.trace("address = {} found a duplicate {}", address, describeID(duplID.bytes));
          }
       }
+
       return contains;
    }
 

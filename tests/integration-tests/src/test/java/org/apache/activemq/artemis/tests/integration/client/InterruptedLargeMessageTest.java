@@ -452,7 +452,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       server.start();
 
       for (int start = 0; start < 2; start++) {
-         log.debug("Start " + start);
+         log.debug("Start {}", start);
 
          sf = createSessionFactory(locator);
 
@@ -466,7 +466,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
          session.start();
          for (int i = 0; i < 10; i++) {
-            log.info("I = " + i);
+            log.info("I = {}", i);
             ClientMessage msg = cons1.receive(5000);
             Assert.assertNotNull(msg);
             Assert.assertEquals(1, msg.getIntProperty("txid").intValue());
@@ -531,7 +531,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          @Override
          public void postAcknowledge(final MessageReference ref, AckReason reason) {
-            log.debug("Ignoring postACK on message " + ref);
+            log.debug("Ignoring postACK on message {}", ref);
          }
 
          @Override

@@ -36,13 +36,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Federation
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.FederationStreamConnectMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class FederationDownstream extends AbstractFederationStream implements SessionFailureListener {
-
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private FederationDownstreamConfiguration config;
    private ClientSessionFactoryInternal clientSessionFactory;

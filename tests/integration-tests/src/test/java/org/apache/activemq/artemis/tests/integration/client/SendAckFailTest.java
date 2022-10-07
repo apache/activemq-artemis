@@ -196,14 +196,14 @@ public class SendAckFailTest extends SpawnedTestBase {
                ClientMessage message = consumer.receive(1000);
                if (message == null) {
                   for (Integer msgi : listSent) {
-                     logger.debug("Message " + msgi + " was lost");
+                     logger.debug("Message {} was lost", msgi);
                   }
                   fail("missed messages!");
                }
                message.acknowledge();
 
                if (!listSent.remove(message.getIntProperty("myid"))) {
-                  logger.debug("Message " + message + " with id " + message.getIntProperty("myid") + " received in duplicate");
+                  logger.debug("Message {} with id {} received in duplicate", message, message.getIntProperty("myid"));
                   fail("Message " + message + " with id " + message.getIntProperty("myid") + " received in duplicate");
                }
             }
@@ -276,7 +276,7 @@ public class SendAckFailTest extends SpawnedTestBase {
 
 
 
-         logger.debug("Location::" + server.getConfiguration().getJournalLocation().getAbsolutePath());
+         logger.debug("Location::{}", server.getConfiguration().getJournalLocation().getAbsolutePath());
          addServer(server);
          server.start();
          return server;

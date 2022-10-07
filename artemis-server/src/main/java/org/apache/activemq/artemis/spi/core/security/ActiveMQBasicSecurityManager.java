@@ -92,9 +92,7 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
             }
          }
       } catch (Exception e) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Couldn't validate user", e);
-         }
+         logger.debug("Couldn't validate user", e);
       }
 
       return null;
@@ -111,9 +109,10 @@ public class ActiveMQBasicSecurityManager implements ActiveMQSecurityManager5, U
                             final CheckType checkType,
                             final String address) {
       boolean authorized = SecurityManagerUtil.authorize(subject, roles, checkType, rolePrincipalClass);
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("user " + (authorized ? " is " : " is NOT ") + "authorized");
+      if (authorized) {
+         logger.trace("user is authorized");
+      } else {
+         logger.trace("user is NOT authorized");
       }
 
       return authorized;

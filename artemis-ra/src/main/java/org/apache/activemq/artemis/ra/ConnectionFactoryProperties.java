@@ -179,241 +179,209 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public String getConnectionLoadBalancingPolicyClassName() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConnectionLoadBalancingPolicyClassName()");
-      }
+      logger.trace("getConnectionLoadBalancingPolicyClassName()");
+
       return connectionLoadBalancingPolicyClassName;
    }
 
    public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setSessionDefaultType(" + connectionLoadBalancingPolicyClassName + ")");
-      }
+      logger.trace("setSessionDefaultType({})", connectionLoadBalancingPolicyClassName);
+
       hasBeenUpdated = true;
       this.connectionLoadBalancingPolicyClassName = connectionLoadBalancingPolicyClassName;
    }
 
    public String getDiscoveryAddress() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryAddress()");
-      }
+      logger.trace("getDiscoveryAddress()");
+
       return discoveryAddress;
    }
 
    public void setDiscoveryAddress(final String discoveryAddress) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryAddress(" + discoveryAddress + ")");
-      }
+      logger.trace("setDiscoveryAddress({})", discoveryAddress);
+
       hasBeenUpdated = true;
       this.discoveryAddress = discoveryAddress;
    }
 
    public Integer getDiscoveryPort() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryPort()");
-      }
+      logger.trace("getDiscoveryPort()");
+
       return discoveryPort;
    }
 
    public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryLocalBindAddress(" + discoveryLocalBindAddress + ")");
-      }
+      logger.trace("setDiscoveryLocalBindAddress({})", discoveryLocalBindAddress);
+
       hasBeenUpdated = true;
       this.discoveryLocalBindAddress = discoveryLocalBindAddress;
    }
 
    public String getDiscoveryLocalBindAddress() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryLocalBindAddress()");
-      }
+      logger.trace("getDiscoveryLocalBindAddress()");
+
       return discoveryLocalBindAddress;
    }
 
    public void setDiscoveryPort(final Integer discoveryPort) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryPort(" + discoveryPort + ")");
-      }
+      logger.trace("setDiscoveryPort({})", discoveryPort);
+
       hasBeenUpdated = true;
       this.discoveryPort = discoveryPort;
    }
 
    public Long getDiscoveryRefreshTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryRefreshTimeout()");
-      }
+      logger.trace("getDiscoveryRefreshTimeout()");
+
       return discoveryRefreshTimeout;
    }
 
    public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryRefreshTimeout(" + discoveryRefreshTimeout + ")");
-      }
+      logger.trace("setDiscoveryRefreshTimeout({})", discoveryRefreshTimeout);
+
       hasBeenUpdated = true;
       this.discoveryRefreshTimeout = discoveryRefreshTimeout;
    }
 
    public Long getDiscoveryInitialWaitTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryInitialWaitTimeout()");
-      }
+      logger.trace("getDiscoveryInitialWaitTimeout()");
+
       return discoveryInitialWaitTimeout;
    }
 
    public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryInitialWaitTimeout(" + discoveryInitialWaitTimeout + ")");
-      }
+      logger.trace("setDiscoveryInitialWaitTimeout({})", discoveryInitialWaitTimeout);
+
       hasBeenUpdated = true;
       this.discoveryInitialWaitTimeout = discoveryInitialWaitTimeout;
    }
 
    public String getClientID() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getClientID()");
-      }
+      logger.trace("getClientID()");
+
       return clientID;
    }
 
    public void setClientID(final String clientID) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setClientID(" + clientID + ")");
-      }
+      logger.trace("setClientID({})", clientID);
+
       hasBeenUpdated = true;
       this.clientID = clientID;
    }
 
    public Integer getDupsOKBatchSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDupsOKBatchSize()");
-      }
+      logger.trace("getDupsOKBatchSize()");
+
       return dupsOKBatchSize;
    }
 
    public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDupsOKBatchSize(" + dupsOKBatchSize + ")");
-      }
+      logger.trace("setDupsOKBatchSize({})", dupsOKBatchSize);
+
       hasBeenUpdated = true;
       this.dupsOKBatchSize = dupsOKBatchSize;
    }
 
    public Integer getTransactionBatchSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getTransactionBatchSize()");
-      }
+      logger.trace("getTransactionBatchSize()");
+
       return transactionBatchSize;
    }
 
    public void setTransactionBatchSize(final Integer transactionBatchSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setTransactionBatchSize(" + transactionBatchSize + ")");
-      }
+      logger.trace("setTransactionBatchSize({})", transactionBatchSize);
+
       hasBeenUpdated = true;
       this.transactionBatchSize = transactionBatchSize;
    }
 
    public Long getClientFailureCheckPeriod() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getClientFailureCheckPeriod()");
-      }
+      logger.trace("getClientFailureCheckPeriod()");
+
       return clientFailureCheckPeriod;
    }
 
    public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setClientFailureCheckPeriod(" + clientFailureCheckPeriod + ")");
-      }
+      logger.trace("setClientFailureCheckPeriod({})", clientFailureCheckPeriod);
+
       hasBeenUpdated = true;
       this.clientFailureCheckPeriod = clientFailureCheckPeriod;
    }
 
    public Long getConnectionTTL() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConnectionTTL()");
-      }
+      logger.trace("getConnectionTTL()");
+
       return connectionTTL;
    }
 
    public void setConnectionTTL(final Long connectionTTL) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConnectionTTL(" + connectionTTL + ")");
-      }
+      logger.trace("setConnectionTTL({})", connectionTTL);
+
       hasBeenUpdated = true;
       this.connectionTTL = connectionTTL;
    }
 
    public Long getCallTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getCallTimeout()");
-      }
+      logger.trace("getCallTimeout()");
+
       return callTimeout;
    }
 
    public void setCallTimeout(final Long callTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCallTimeout(" + callTimeout + ")");
-      }
+      logger.trace("setCallTimeout({})", callTimeout);
+
       hasBeenUpdated = true;
       this.callTimeout = callTimeout;
    }
 
    public Long getCallFailoverTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getCallFailoverTimeout()");
-      }
+      logger.trace("getCallFailoverTimeout()");
+
       return callFailoverTimeout;
    }
 
    public void setCallFailoverTimeout(final Long callFailoverTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCallFailoverTimeout(" + callFailoverTimeout + ")");
-      }
+      logger.trace("setCallFailoverTimeout({})", callFailoverTimeout);
+
       hasBeenUpdated = true;
       this.callFailoverTimeout = callFailoverTimeout;
    }
 
    public Integer getConsumerWindowSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConsumerWindowSize()");
-      }
+      logger.trace("getConsumerWindowSize()");
+
       return consumerWindowSize;
    }
 
    public void setConsumerWindowSize(final Integer consumerWindowSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConsumerWindowSize(" + consumerWindowSize + ")");
-      }
+      logger.trace("setConsumerWindowSize({})", consumerWindowSize);
+
       hasBeenUpdated = true;
       this.consumerWindowSize = consumerWindowSize;
    }
 
    public Integer getConsumerMaxRate() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConsumerMaxRate()");
-      }
+      logger.trace("getConsumerMaxRate()");
+
       return consumerMaxRate;
    }
 
    public void setConsumerMaxRate(final Integer consumerMaxRate) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConsumerMaxRate(" + consumerMaxRate + ")");
-      }
+      logger.trace("setConsumerMaxRate({})", consumerMaxRate);
+
       hasBeenUpdated = true;
       this.consumerMaxRate = consumerMaxRate;
    }
 
    public Integer getConfirmationWindowSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConfirmationWindowSize()");
-      }
+      logger.trace("getConfirmationWindowSize()");
+
       return confirmationWindowSize;
    }
 
    public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConfirmationWindowSize(" + confirmationWindowSize + ")");
-      }
+      logger.trace("setConfirmationWindowSize({})", confirmationWindowSize);
+
       hasBeenUpdated = true;
       this.confirmationWindowSize = confirmationWindowSize;
    }
@@ -428,151 +396,131 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public Integer getProducerMaxRate() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getProducerMaxRate()");
-      }
+      logger.trace("getProducerMaxRate()");
+
       return producerMaxRate;
    }
 
    public void setProducerMaxRate(final Integer producerMaxRate) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setProducerMaxRate(" + producerMaxRate + ")");
-      }
+      logger.trace("setProducerMaxRate({})", producerMaxRate);
+
       hasBeenUpdated = true;
       this.producerMaxRate = producerMaxRate;
    }
 
    public Integer getProducerWindowSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getProducerWindowSize()");
-      }
+      logger.trace("getProducerWindowSize()");
+
       return producerWindowSize;
    }
 
    public void setProducerWindowSize(final Integer producerWindowSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setProducerWindowSize(" + producerWindowSize + ")");
-      }
+      logger.trace("setProducerWindowSize({})", producerWindowSize);
+
       hasBeenUpdated = true;
       this.producerWindowSize = producerWindowSize;
    }
 
    public Integer getMinLargeMessageSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getMinLargeMessageSize()");
-      }
+      logger.trace("getMinLargeMessageSize()");
+
       return minLargeMessageSize;
    }
 
    public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setMinLargeMessageSize(" + minLargeMessageSize + ")");
-      }
+      logger.trace("setMinLargeMessageSize({})", minLargeMessageSize);
+
       hasBeenUpdated = true;
       this.minLargeMessageSize = minLargeMessageSize;
    }
 
    public Boolean isBlockOnAcknowledge() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isBlockOnAcknowledge()");
-      }
+      logger.trace("isBlockOnAcknowledge()");
+
       return blockOnAcknowledge;
    }
 
    public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setBlockOnAcknowledge(" + blockOnAcknowledge + ")");
-      }
+      logger.trace("setBlockOnAcknowledge({})", blockOnAcknowledge);
+
       hasBeenUpdated = true;
       this.blockOnAcknowledge = blockOnAcknowledge;
    }
 
    public Boolean isBlockOnNonDurableSend() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isBlockOnNonDurableSend()");
-      }
+      logger.trace("isBlockOnNonDurableSend()");
+
       return blockOnNonDurableSend;
    }
 
    public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setBlockOnNonDurableSend(" + blockOnNonDurableSend + ")");
-      }
+      logger.trace("setBlockOnNonDurableSend({})", blockOnNonDurableSend);
+
       hasBeenUpdated = true;
       this.blockOnNonDurableSend = blockOnNonDurableSend;
    }
 
    public Boolean isBlockOnDurableSend() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isBlockOnDurableSend()");
-      }
+      logger.trace("isBlockOnDurableSend()");
+
       return blockOnDurableSend;
    }
 
    public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setBlockOnDurableSend(" + blockOnDurableSend + ")");
-      }
+      logger.trace("setBlockOnDurableSend({})", blockOnDurableSend);
+
       hasBeenUpdated = true;
       this.blockOnDurableSend = blockOnDurableSend;
    }
 
    public Boolean isAutoGroup() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isAutoGroup()");
-      }
+      logger.trace("isAutoGroup()");
+
       return autoGroup;
    }
 
    public void setAutoGroup(final Boolean autoGroup) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setAutoGroup(" + autoGroup + ")");
-      }
+      logger.trace("setAutoGroup({})", autoGroup);
+
       hasBeenUpdated = true;
       this.autoGroup = autoGroup;
    }
 
    public Boolean isPreAcknowledge() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isPreAcknowledge()");
-      }
+      logger.trace("isPreAcknowledge()");
+
       return preAcknowledge;
    }
 
    public void setPreAcknowledge(final Boolean preAcknowledge) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setPreAcknowledge(" + preAcknowledge + ")");
-      }
+      logger.trace("setPreAcknowledge({})", preAcknowledge);
+
       hasBeenUpdated = true;
       this.preAcknowledge = preAcknowledge;
    }
 
    public Long getRetryInterval() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getRetryInterval()");
-      }
+      logger.trace("getRetryInterval()");
+
       return retryInterval;
    }
 
    public void setRetryInterval(final Long retryInterval) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setRetryInterval(" + retryInterval + ")");
-      }
+      logger.trace("setRetryInterval({})", retryInterval);
+
       hasBeenUpdated = true;
       this.retryInterval = retryInterval;
    }
 
    public Double getRetryIntervalMultiplier() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getRetryIntervalMultiplier()");
-      }
+      logger.trace("getRetryIntervalMultiplier()");
+
       return retryIntervalMultiplier;
    }
 
    public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setRetryIntervalMultiplier(" + retryIntervalMultiplier + ")");
-      }
+      logger.trace("setRetryIntervalMultiplier({})", retryIntervalMultiplier);
+
       hasBeenUpdated = true;
       this.retryIntervalMultiplier = retryIntervalMultiplier;
    }
@@ -587,91 +535,79 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    public Integer getReconnectAttempts() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getReconnectAttempts()");
-      }
+      logger.trace("getReconnectAttempts()");
+
       return reconnectAttempts;
    }
 
    public void setReconnectAttempts(final Integer reconnectAttempts) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setReconnectAttempts(" + reconnectAttempts + ")");
-      }
+      logger.trace("setReconnectAttempts({})", reconnectAttempts);
+
       hasBeenUpdated = true;
       this.reconnectAttempts = reconnectAttempts;
    }
 
    public Boolean isUseGlobalPools() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isUseGlobalPools()");
-      }
+      logger.trace("isUseGlobalPools()");
+
       return useGlobalPools;
    }
 
    public void setUseGlobalPools(final Boolean useGlobalPools) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setUseGlobalPools(" + useGlobalPools + ")");
-      }
+      logger.trace("setUseGlobalPools({})", useGlobalPools);
+
       hasBeenUpdated = true;
       this.useGlobalPools = useGlobalPools;
    }
 
    public Boolean isCacheDestinations() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isCacheDestinations()");
-      }
+      logger.trace("isCacheDestinations()");
+
       return cacheDestinations;
    }
 
    public void setCacheDestinations(final Boolean cacheDestinations) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCacheDestinations(" + cacheDestinations + ")");
-      }
+      logger.trace("setCacheDestinations({})", cacheDestinations);
+
       hasBeenUpdated = true;
       this.cacheDestinations = cacheDestinations;
    }
 
    public Boolean isEnable1xPrefixes() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isEnable1xPrefixes()");
-      }
+      logger.trace("isEnable1xPrefixes()");
+
       return enable1xPrefixes;
    }
 
    public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
-      }
+      logger.trace("setEnable1xPrefixes({})", enable1xPrefixes);
+
       hasBeenUpdated = true;
       this.enable1xPrefixes = enable1xPrefixes;
    }
 
    public Integer getScheduledThreadPoolMaxSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getScheduledThreadPoolMaxSize()");
-      }
+      logger.trace("getScheduledThreadPoolMaxSize()");
+
       return scheduledThreadPoolMaxSize;
    }
 
    public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setScheduledThreadPoolMaxSize(" + scheduledThreadPoolMaxSize + ")");
-      }
+      logger.trace("setScheduledThreadPoolMaxSize({})", scheduledThreadPoolMaxSize);
+
       hasBeenUpdated = true;
       this.scheduledThreadPoolMaxSize = scheduledThreadPoolMaxSize;
    }
 
    public Integer getThreadPoolMaxSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getThreadPoolMaxSize()");
-      }
+      logger.trace("getThreadPoolMaxSize()");
+
       return threadPoolMaxSize;
    }
 
    public void setThreadPoolMaxSize(final Integer threadPoolMaxSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setThreadPoolMaxSize(" + threadPoolMaxSize + ")");
-      }
+      logger.trace("setThreadPoolMaxSize({})", threadPoolMaxSize);
+
       hasBeenUpdated = true;
       this.threadPoolMaxSize = threadPoolMaxSize;
    }

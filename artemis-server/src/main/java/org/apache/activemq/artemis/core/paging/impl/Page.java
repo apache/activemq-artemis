@@ -313,7 +313,7 @@ public final class Page  {
                                                                       null,
                                                                       null);
          if (logger.isDebugEnabled()) {
-            logger.debug(">>> Reading numberOfMessages page " + this.pageId + ", returning " + numberOfMessages);
+            logger.debug(">>> Reading numberOfMessages page {}, returning {}", this.pageId, numberOfMessages);
          }
          return numberOfMessages;
       } finally {

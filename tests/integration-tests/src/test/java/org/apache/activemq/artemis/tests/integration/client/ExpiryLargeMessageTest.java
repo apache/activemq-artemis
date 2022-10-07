@@ -160,7 +160,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
             assertNotNull(message);
 
             if (i % 10 == 0) {
-               logger.debug("Received " + i);
+               logger.debug("Received {}", i);
             }
 
             for (int location = 0; location < messageSize; location++) {
@@ -210,7 +210,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
             assertNotNull(message);
 
             if (i % 10 == 0) {
-               logger.debug("Received " + i);
+               logger.debug("Received {}", i);
             }
 
             for (int location = 0; location < messageSize; location++) {
@@ -447,7 +447,7 @@ public class ExpiryLargeMessageTest extends ActiveMQTestBase {
          assertNotNull(message);
 
          if (i % 10 == 0) {
-            logger.debug("Received " + i);
+            logger.debug("Received {}", i);
          }
 
          for (int location = 0; location < messageSize; location++) {

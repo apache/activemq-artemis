@@ -95,7 +95,7 @@ public class SimpleAddressManager implements AddressManager {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Adding binding " + binding + " with address = " + binding.getUniqueName(), new Exception("trace"));
+         logger.trace("Adding binding {} with address = {}", binding, binding.getUniqueName(), new Exception("trace"));
       }
 
       return addMappingInternal(binding.getAddress(), binding);

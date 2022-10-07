@@ -221,10 +221,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
 
          for (JDBCJournalRecord record : recordRef) {
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("sync::preparing JDBC statement for " + record);
-            }
-
+            logger.trace("sync::preparing JDBC statement for {}", record);
 
             switch (record.getRecordType()) {
                case JDBCJournalRecord.DELETE_RECORD:
@@ -261,9 +258,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          deleteJournalTxRecords.executeBatch();
 
          connection.commit();
-         if (logger.isTraceEnabled()) {
-            logger.trace("JDBC commit worked");
-         }
+         logger.trace("JDBC commit worked");
 
          if (cleanupTxRecords(deletedRecords, committedTransactions, deleteJournalTxRecords)) {
             deleteJournalTxRecords.executeBatch();
@@ -285,9 +280,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       failed.set(true);
       criticalIOErrorListener.onIOException(e, "Critical IO Error.  Failed to process JDBC Record statements", null);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Rolling back Transaction, just in case");
-      }
+      logger.trace("Rolling back Transaction, just in case");
 
       if (recordRef != null) {
          executeCallbacks(recordRef, false);
@@ -334,7 +327,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
          public void run() {
             for (JDBCJournalRecord record : records) {
                if (logger.isTraceEnabled()) {
-                  logger.trace("Calling callback " + record + " with success = " + success);
+                  logger.trace("Calling callback {} with success = {}", record, success);
                }
                record.complete(success);
             }
@@ -367,9 +360,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       // better to be safe ;)
       checkStatus();
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendRecord " + record);
-      }
+      logger.trace("appendRecord {}", record);
 
       record.storeLineUp();
       if (!started) {
@@ -401,7 +392,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
    private synchronized void addTxRecord(JDBCJournalRecord record) throws Exception {
 
       if (logger.isTraceEnabled()) {
-         logger.trace("addTxRecord " + record + ", started=" + started + ", failed=" + failed);
+         logger.trace("addTxRecord {}, started={}, failed={}", record, started, failed);
       }
 
       checkStatus();
@@ -434,12 +425,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setRecord(record);
       r.setSync(sync);
 
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendAddRecord bytes[] " + r);
-      }
-
-
+      logger.trace("appendAddRecord bytes[] {}", r);
 
       appendRecord(r);
    }
@@ -451,10 +437,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setRecord(persister, record);
       r.setSync(sync);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendAddRecord (encoding) " + r + " with record = " + record);
-      }
-
+      logger.trace("appendAddRecord (encoding) {} with record = {}", r, record);
 
       appendRecord(r);
    }
@@ -474,10 +457,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
       r.setIoCompletion(completionCallback);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendAddRecord (completionCallback & encoding) " + r + " with record = " + record);
-      }
-
+      logger.trace("appendAddRecord (completionCallback & encoding) {} with record = {}", r, record);
 
       appendRecord(r);
    }
@@ -491,10 +471,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setRecord(record);
       r.setSync(sync);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendUpdateRecord (bytes)) " + r);
-      }
-
+      logger.trace("appendUpdateRecord (bytes)) {}", r);
 
       appendRecord(r);
    }
@@ -511,10 +488,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setRecord(persister, record);
       r.setSync(sync);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendUpdateRecord (encoding)) " + r + " with record " + record);
-      }
-
+      logger.trace("appendUpdateRecord (encoding)) {} with record {}", r, record);
 
       appendRecord(r);
    }
@@ -539,10 +513,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
       r.setIoCompletion(completionCallback);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("appendUpdateRecord (encoding & completioncallback)) " + r + " with record " + record);
-      }
-
+      logger.trace("appendUpdateRecord (encoding & completioncallback)) {} with record {}", r, record);
 
       appendRecord(r);
    }
@@ -569,7 +540,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendDeleteRecord id=" + id + " sync=" + sync);
+         logger.trace("appendDeleteRecord id={} sync={}", id, sync);
       }
 
       appendRecord(r);
@@ -589,9 +560,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setIoCompletion(completionCallback);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendDeleteRecord id=" + id + " sync=" + sync + " with completionCallback");
+         logger.trace("appendDeleteRecord id={} sync={} with completionCallback", id, sync);
       }
-
 
       appendRecord(r);
    }
@@ -612,10 +582,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       appendRecord(r);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendAddRecordTransactional txID=" + txID + " id=" + id + " using bytes[] r=" + r);
+         logger.trace("appendAddRecordTransactional txID={} id={} using bytes[] r={}", txID, id, r);
       }
-
-
    }
 
    @Override
@@ -630,9 +598,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setTxId(txID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendAddRecordTransactional txID=" + txID + " id=" + id + " using encoding=" + record + " and r=" + r);
+         logger.trace("appendAddRecordTransactional txID={} id={} using encoding={} and r={}", txID, id, record, r);
       }
-
 
       appendRecord(r);
    }
@@ -647,9 +614,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setTxId(txID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendUpdateRecordTransactional txID=" + txID + " id=" + id + " using bytes and r=" + r);
+         logger.trace("appendUpdateRecordTransactional txID={} id={} using bytes and r={}", txID, id, r);
       }
-
 
       appendRecord(r);
    }
@@ -666,7 +632,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setTxId(txID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendUpdateRecordTransactional txID=" + txID + " id=" + id + " using encoding=" + record + " and r=" + r);
+         logger.trace("appendUpdateRecordTransactional txID={} id={} using encoding={} and r={}", txID, id, record, r);
       }
 
       appendRecord(r);
@@ -681,7 +647,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setTxId(txID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendDeleteRecordTransactional txID=" + txID + " id=" + id + " using bytes and r=" + r);
+         logger.trace("appendDeleteRecordTransactional txID={} id={} using bytes and r={}", txID, id, r);
       }
 
       appendRecord(r);
@@ -696,9 +662,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setTxId(txID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendDeleteRecordTransactional txID=" + txID + " id=" + id + " using encoding=" + record + " and r=" + r);
+         logger.trace("appendDeleteRecordTransactional txID={} id={} using encoding={} and r={}", txID, id, record, r);
       }
-
 
       appendRecord(r);
    }
@@ -711,7 +676,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setTxId(txID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendDeleteRecordTransactional txID=" + txID + " id=" + id);
+         logger.trace("appendDeleteRecordTransactional txID={} id={}", txID, id);
       }
 
       appendRecord(r);
@@ -726,9 +691,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendCommitRecord txID=" + txID + " sync=" + sync);
+         logger.trace("appendCommitRecord txID={} sync={}", txID, sync);
       }
-
 
       appendRecord(r);
    }
@@ -743,7 +707,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setIoCompletion(callback);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendCommitRecord txID=" + txID + " callback=" + callback);
+         logger.trace("appendCommitRecord txID={} callback={}", txID, callback);
       }
 
       appendRecord(r);
@@ -763,7 +727,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendCommitRecord txID=" + txID + " using callback, lineup=" + lineUpContext);
+         logger.trace("appendCommitRecord txID={} using callback, lineup={}", txID, lineUpContext);
       }
 
       appendRecord(r);
@@ -779,9 +743,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendPrepareRecord txID=" + txID + " using sync=" + sync);
+         logger.trace("appendPrepareRecord txID={} using sync={}", txID, sync);
       }
-
 
       appendRecord(r);
    }
@@ -801,9 +764,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setIoCompletion(callback);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendPrepareRecord txID=" + txID + " using callback, sync=" + sync);
+         logger.trace("appendPrepareRecord txID={} using callback, sync={}", txID, sync);
       }
-
 
       appendRecord(r);
    }
@@ -818,9 +780,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendPrepareRecord txID=" + txID + " transactionData, sync=" + sync);
+         logger.trace("appendPrepareRecord txID={} transactionData, sync={}", txID, sync);
       }
-
 
       appendRecord(r);
    }
@@ -834,7 +795,7 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setSync(sync);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendRollbackRecord txID=" + txID + " sync=" + sync);
+         logger.trace("appendRollbackRecord txID={} sync={}", txID, sync);
       }
 
       appendRecord(r);
@@ -850,9 +811,8 @@ public class JDBCJournalImpl extends AbstractJDBCDriver implements Journal {
       r.setIoCompletion(callback);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("appendRollbackRecord txID=" + txID + " sync=" + sync + " using callback");
+         logger.trace("appendRollbackRecord txID={} sync={} using callback", txID, sync);
       }
-
 
       appendRecord(r);
    }

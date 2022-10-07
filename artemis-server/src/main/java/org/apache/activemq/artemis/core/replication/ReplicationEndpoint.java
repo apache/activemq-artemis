@@ -192,17 +192,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    @Override
    public void handlePacket(final Packet packet) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("handlePacket::handling " + packet);
-      }
+      logger.trace("handlePacket::handling {}", packet);
+
       PacketImpl response = new ReplicationResponseMessage();
       final byte type = packet.getType();
 
       try {
          if (!started) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("handlePacket::ignoring " + packet);
-            }
+            logger.trace("handlePacket::ignoring {}", packet);
 
             return;
          }
@@ -251,9 +248,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
 
       if (response != null) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Returning " + response);
-         }
+         logger.trace("Returning {}", response);
+
          if (supportResponseBatching) {
             pendingPackets.add(response);
          } else {
@@ -422,66 +418,57 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private synchronized void finishSynchronization(String liveID, long activationSequence) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("BACKUP-SYNC-START: finishSynchronization::" + liveID + " activationSequence = " + activationSequence);
+         logger.trace("BACKUP-SYNC-START: finishSynchronization::{} activationSequence = {}", liveID, activationSequence);
       }
       for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
          Journal journal = journalsHolder.remove(jc);
-         if (logger.isTraceEnabled()) {
-            logger.trace("getting lock on " + jc + ", journal = " + journal);
-         }
+         logger.trace("getting lock on {}, journal = {}", jc, journal);
+
          registerJournal(jc.typeByte, journal);
          journal.synchronizationLock();
          try {
-            if (logger.isTraceEnabled()) {
-               logger.trace("lock acquired on " + jc);
-            }
+            logger.trace("lock acquired on {}", jc);
+
             // files should be already in place.
             filesReservedForSync.remove(jc);
-            if (logger.isTraceEnabled()) {
-               logger.trace("stopping journal for " + jc);
-            }
+
+            logger.trace("stopping journal for {}", jc);
+
             journal.stop();
-            if (logger.isTraceEnabled()) {
-               logger.trace("starting journal for " + jc);
-            }
+
+            logger.trace("starting journal for {}", jc);
+
             journal.start();
-            if (logger.isTraceEnabled()) {
-               logger.trace("loadAndSync " + jc);
-            }
+
+            logger.trace("loadAndSync {}", jc);
+
             journal.loadSyncOnly(JournalState.SYNCING_UP_TO_DATE);
          } finally {
-            if (logger.isTraceEnabled()) {
-               logger.trace("unlocking " + jc);
-            }
+            logger.trace("unlocking {}", jc);
+
             journal.synchronizationUnlock();
          }
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Sync on large messages...");
-      }
+      logger.trace("Sync on large messages...");
+
       ByteBuffer buffer = ByteBuffer.allocate(4 * 1024);
       for (Entry<Long, ReplicatedLargeMessage> entry : largeMessages.entrySet()) {
          ReplicatedLargeMessage lm = entry.getValue();
          if (lm instanceof LargeServerMessageInSync) {
             LargeServerMessageInSync lmSync = (LargeServerMessageInSync) lm;
-            if (logger.isTraceEnabled()) {
-               logger.trace("lmSync on " + lmSync.toString());
-            }
+            logger.trace("lmSync on {}", lmSync);
+
             lmSync.joinSyncedData(buffer);
          }
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("setRemoteBackupUpToDate and liveIDSet for " + liveID);
-      }
+      logger.trace("setRemoteBackupUpToDate and liveIDSet for {}", liveID);
 
       journalsHolder = null;
       eventListener.onRemoteBackupUpToDate(liveID, activationSequence);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
-      }
+      logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
 
       ActiveMQServerLogger.LOGGER.backupServerSynchronized(server, liveID);
       return;
@@ -551,10 +538,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @throws Exception
     */
    private ReplicationResponseMessageV2 handleStartReplicationSynchronization(final ReplicationStartSyncMessage packet) throws Exception {
+      logger.trace("handleStartReplicationSynchronization:: nodeID = {}", packet);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("handleStartReplicationSynchronization:: nodeID = " + packet);
-      }
       ReplicationResponseMessageV2 replicationResponseMessage = new ReplicationResponseMessageV2();
       if (!started)
          return replicationResponseMessage;
@@ -618,14 +603,14 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
    private void handleLargeMessageEnd(final ReplicationLargeMessageEndMessage packet) {
       if (logger.isTraceEnabled()) {
-         logger.trace("handleLargeMessageEnd on " + packet.getMessageId());
+         logger.trace("handleLargeMessageEnd on {}", packet.getMessageId());
       }
       final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), packet.isDelete(), false);
       if (message != null) {
          message.setPendingRecordID(packet.getPendingRecordId());
          if (!packet.isDelete()) {
             if (logger.isTraceEnabled()) {
-               logger.trace("Closing LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
+               logger.trace("Closing LargeMessage {} on the executor @ handleLargeMessageEnd", packet.getMessageId());
             }
             message.releaseResources(true, false);
          } else {
@@ -634,7 +619,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
                public void run() {
                   try {
                      if (logger.isTraceEnabled()) {
-                        logger.trace("Deleting LargeMessage " + packet.getMessageId() + " on the executor @ handleLargeMessageEnd");
+                        logger.trace("Deleting LargeMessage {} on the executor @ handleLargeMessageEnd", packet.getMessageId());
                      }
                      message.deleteFile();
                   } catch (Exception e) {
@@ -687,7 +672,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       final long id = packet.getMessageId();
       createLargeMessage(id, false);
       if (logger.isTraceEnabled()) {
-         logger.trace("Receiving Large Message Begin " + id + " on backup");
+         logger.trace("Receiving Large Message Begin {} on backup", id);
       }
    }
 
@@ -763,19 +748,19 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       switch (packet.getRecord()) {
          case UPDATE:
             if (logger.isTraceEnabled()) {
-               logger.trace("Endpoint appendUpdate id = " + packet.getId());
+               logger.trace("Endpoint appendUpdate id = {}", packet.getId());
             }
             journalToUse.appendUpdateRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
             break;
          case ADD:
             if (logger.isTraceEnabled()) {
-               logger.trace("Endpoint append id = " + packet.getId());
+               logger.trace("Endpoint append id = {}", packet.getId());
             }
             journalToUse.appendAddRecord(packet.getId(), packet.getJournalRecordType(), packet.getRecordData(), noSync);
             break;
          case EVENT:
             if (logger.isTraceEnabled()) {
-               logger.trace("Endpoint append id = " + packet.getId());
+               logger.trace("Endpoint append id = {}", packet.getId());
             }
             journalToUse.appendAddEvent(packet.getId(), packet.getJournalRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(packet.getRecordData()), noSync, null);
             break;

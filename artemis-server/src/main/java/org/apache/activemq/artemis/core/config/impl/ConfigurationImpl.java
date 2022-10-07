@@ -526,7 +526,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
             String value = XMLUtil.replaceSystemPropsInString(entry.getValue().toString());
             value = PasswordMaskingUtil.resolveMask(isMaskPassword(), value, getPasswordCodec());
             key = XMLUtil.replaceSystemPropsInString(key);
-            logger.debug("Property config, " + key + "=" + value);
+            logger.debug("Property config, {}={}", key, value);
             beanProperties.put(key, value);
          }
       }
@@ -3024,7 +3024,9 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return instance;
 
          } catch (Exception e) {
-            logger.debug("Failed to add entry for " + name + " with method: " + candidate, e);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Failed to add entry for {} with method: {}", name, candidate, e);
+            }
             throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
          }
       }

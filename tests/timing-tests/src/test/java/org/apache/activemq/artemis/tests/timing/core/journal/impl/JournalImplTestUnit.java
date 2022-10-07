@@ -151,9 +151,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       double rate = 1000 * (double) NUMBER_OF_RECORDS / (end - start);
 
-      log.debug("Rate of " + rate + " adds/removes per sec");
+      log.debug("Rate of {} adds/removes per sec", rate);
 
-      log.debug("Reclaim status = " + debugJournal());
+      log.debug("Reclaim status = {}", debugJournal());
 
       stopJournal();
       createJournal();

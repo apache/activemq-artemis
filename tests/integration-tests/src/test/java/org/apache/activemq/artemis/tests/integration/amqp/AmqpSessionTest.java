@@ -54,7 +54,7 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectClosedResource(Session session) {
-            log.debug("Session closed: " + session.getContext());
+            log.debug("Session closed: {}", session.getContext());
          }
 
          @Override

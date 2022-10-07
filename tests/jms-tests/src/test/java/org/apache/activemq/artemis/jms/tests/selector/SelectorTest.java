@@ -196,7 +196,7 @@ public class SelectorTest extends ActiveMQServerTestCase {
 
             ProxyAssertSupport.assertEquals("john", m.getStringProperty("beatle"));
 
-            logger.debug("Got message " + j);
+            logger.debug("Got message {}", j);
          }
 
          Message m = cons1.receiveNoWait();
@@ -907,38 +907,38 @@ public class SelectorTest extends ActiveMQServerTestCase {
          tm.setText("1");
          tm.setStringProperty("PROP1", "VALUE1");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [{}]", tm.getJMSMessageID());
 
          tm = session.createTextMessage();
          tm.setText("2");
          tm.setStringProperty("PROP1", "VALUE1");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [{}]", tm.getJMSMessageID());
 
          tm = session.createTextMessage();
          tm.setText("3");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [{}]",  tm.getJMSMessageID());
 
          tm = session.createTextMessage();
          tm.setText("4");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [{}]", tm.getJMSMessageID());
 
          tm = session.createTextMessage();
          tm.setText("5");
          tm.setStringProperty("PROP1", "VALUE1");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [{}]", tm.getJMSMessageID());
 
          tm = session.createTextMessage();
          tm.setText("6");
          tm.setStringProperty("PROP1", "VALUE1");
          tm.setStringProperty("PROP2", "VALUE2");
          msgProducer.send(tm);
-         logger.debug("Sent message with id [" + tm.getJMSMessageID() + "]");
+         logger.debug("Sent message with id [{}]", tm.getJMSMessageID());
          msgProducer.close();
          msgProducer = null;
 

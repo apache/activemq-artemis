@@ -2022,9 +2022,7 @@ public class MessageConsumerTest extends JMSTestCase {
          // This is a really weird test - the received object is always going to be null since no message is sent!!
 
          ActiveMQServerTestCase.forceGC(); // / If A GC need to be executed, it' s better to be executed now
-         if (logger.isTraceEnabled()) {
-            logger.trace("testTimeoutReceiveOnClose");
-         }
+         logger.trace("testTimeoutReceiveOnClose");
 
          Object monitor = new Object();
          ThreadCloser closer = null;
@@ -2299,9 +2297,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
    @Test
    public void testStopConnectionDuringOnMessage() throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("testStopConnectionWhileOnMessageIsExecuting");
-      }
+      logger.trace("testStopConnectionWhileOnMessageIsExecuting");
 
       final AtomicInteger messagesReceived = new AtomicInteger(0);
 
@@ -2544,9 +2540,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
    @Test
    public void testNoLocal() throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("testNoLocal");
-      }
+      logger.trace("testNoLocal");
 
       Connection conn1 = null;
       Connection conn2 = null;
@@ -2835,7 +2829,7 @@ public class MessageConsumerTest extends JMSTestCase {
 
          Message m2 = theConsumer.receive(1500);
 
-         logger.trace("m2 is " + m2);
+         logger.trace("m2 is {}", m2);
 
          ProxyAssertSupport.assertNotNull(m2);
 
@@ -2963,7 +2957,7 @@ public class MessageConsumerTest extends JMSTestCase {
          }
          Assert.assertNull(durable3.receiveNoWait());
 
-         logger.debug("received " + NUM_MESSAGES + " messages");
+         logger.debug("received {} messages", NUM_MESSAGES);
 
          MessageConsumer durable4 = sess3.createDurableSubscriber(ActiveMQServerTestCase.topic1, "mySubscription1");
 
@@ -3064,7 +3058,7 @@ public class MessageConsumerTest extends JMSTestCase {
          MessageProducer prod5 = sess5.createProducer(null);
          prod5.setDeliveryMode(DeliveryMode.PERSISTENT);
 
-         logger.debug("sending.1 " + NUM_MESSAGES + " messages");
+         logger.debug("sending.1 {} messages", NUM_MESSAGES);
          for (int i = 0; i < NUM_MESSAGES; i++) {
             TextMessage tm2 = sess5.createTextMessage("hello");
             prod5.send(ActiveMQServerTestCase.topic1, tm2);
@@ -3975,7 +3969,7 @@ public class MessageConsumerTest extends JMSTestCase {
       @Override
       public void onMessage(final Message m) {
          messages.add(m);
-         logger.trace("Added message " + m + " to my list");
+         logger.trace("Added message {} to my list", m);
 
          latch.countDown();
       }

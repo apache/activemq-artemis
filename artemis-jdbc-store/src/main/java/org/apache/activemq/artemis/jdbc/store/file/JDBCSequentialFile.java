@@ -169,7 +169,7 @@ public class JDBCSequentialFile implements SequentialFile {
             int noBytes = dbDriver.writeToFile(this, data, append);
             seek(append ? writePosition + noBytes : noBytes);
             if (logger.isTraceEnabled()) {
-               logger.trace("Write: ID: " + this.getId() + " FileName: " + this.getFileName() + size());
+               logger.trace("Write: ID: {} FileName: {}{}", getId(), getFileName(), size());
             }
             if (callback != null)
                callback.done();
@@ -371,10 +371,7 @@ public class JDBCSequentialFile implements SequentialFile {
       JDBCSequentialFile clone = (JDBCSequentialFile) cloneFile;
       try {
          synchronized (writeLock) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("JDBC Copying File.  From: " + this + " To: " + cloneFile);
-            }
-
+            logger.trace("JDBC Copying File.  From: {} To: {}", this, cloneFile);
             clone.open();
             dbDriver.copyFileData(this, clone);
             clone.setWritePosition(writePosition);

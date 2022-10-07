@@ -71,7 +71,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       receiver1.close();
       receiver2.close();
 
-      logger.debug("Message Count after all consumed: " + queueView.getMessageCount());
+      logger.debug("Message Count after all consumed: {}", queueView.getMessageCount());
 
       // Should be nothing left on the Queue
       AmqpReceiver receiver3 = session.createReceiver(getQueueName());
@@ -79,7 +79,7 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       AmqpMessage received = receiver3.receive(5, TimeUnit.SECONDS);
       if (received != null) {
-         logger.debug("Message read: " + received.getMessageId());
+         logger.debug("Message read: {}", received.getMessageId());
       }
       assertNull(received);
 
@@ -108,14 +108,14 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
       }
       receiver.close();
 
-      logger.debug("Message Count after all consumed: " + queueView.getMessageCount());
+      logger.debug("Message Count after all consumed: {}", queueView.getMessageCount());
 
       // Open a new receiver and see if any message are left on the Queue
       receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       if (received != null) {
-         logger.debug("Message read: " + received.getMessageId());
+         logger.debug("Message read: {}", received.getMessageId());
       }
       assertNull(received);
 
@@ -160,14 +160,14 @@ public class AmqpPresettledReceiverTest extends AmqpClientTestSupport {
 
       receiver.close();
 
-      logger.debug("Message Count after all consumed: " + queueView.getMessageCount());
+      logger.debug("Message Count after all consumed: {}", queueView.getMessageCount());
 
       // Open a new receiver and see if any message are left on the Queue
       receiver = session.createReceiver(getQueueName());
       receiver.flow(1);
       AmqpMessage received = receiver.receive(5, TimeUnit.SECONDS);
       if (received != null) {
-         logger.debug("Message read: " + received.getMessageId());
+         logger.debug("Message read: {}", received.getMessageId());
       }
       assertNull(received);
 

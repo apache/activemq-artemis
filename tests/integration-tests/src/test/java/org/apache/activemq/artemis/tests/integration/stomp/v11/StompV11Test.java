@@ -236,7 +236,7 @@ public class StompV11Test extends StompTestBase {
 
       assertEquals(Stomp.Responses.ERROR, reply.getCommand());
 
-      logger.debug("Got error frame " + reply);
+      logger.debug("Got error frame {}", reply);
 
    }
 
@@ -287,7 +287,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame frame = newConn.receiveFrame();
 
-      logger.debug("received " + frame);
+      logger.debug("received {}", frame);
 
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
@@ -301,7 +301,7 @@ public class StompV11Test extends StompTestBase {
 
       frame = newConn.receiveFrame();
 
-      logger.debug("received " + frame);
+      logger.debug("received {}", frame);
 
       unsubscribe(newConn, "a-sub");
 
@@ -321,7 +321,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame frame = newConn.receiveFrame();
 
-      logger.debug("received " + frame);
+      logger.debug("received {}", frame);
 
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
@@ -356,7 +356,7 @@ public class StompV11Test extends StompTestBase {
 
       frame = newConn.receiveFrame();
 
-      logger.debug("received " + frame);
+      logger.debug("received {}", frame);
 
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
@@ -383,7 +383,7 @@ public class StompV11Test extends StompTestBase {
                                    .addHeader(Stomp.Headers.CONTENT_LENGTH, cLen)
                                    .addHeader(hKey, hVal);
 
-      logger.debug("key: |" + hKey + "| val: |" + hVal + "|");
+      logger.debug("key: |{}| val: |{}|", hKey, hVal);
 
       frame.setBody(body);
 
@@ -397,7 +397,7 @@ public class StompV11Test extends StompTestBase {
 
       frame = newConn.receiveFrame();
 
-      logger.debug("received " + frame);
+      logger.debug("received {}", frame);
 
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
@@ -430,7 +430,7 @@ public class StompV11Test extends StompTestBase {
       String hVal = "is\\ttab";
       frame.addHeader(hKey, hVal);
 
-      logger.debug("key: |" + hKey + "| val: |" + hVal + "|");
+      logger.debug("key: |{}| val: |{}|", hKey, hVal);
 
       frame.setBody(body);
 
@@ -438,7 +438,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.receiveFrame();
 
-      logger.debug("received " + error);
+      logger.debug("received {}", error);
 
       String desc = "Should have received an ERROR for undefined escape sequence";
       Assert.assertNotNull(desc, error);
@@ -583,7 +583,7 @@ public class StompV11Test extends StompTestBase {
       //now check the frame size
       int size = conn.getServerPingNumber();
 
-      logger.debug("ping received: " + size);
+      logger.debug("ping received: {}", size);
 
       assertTrue(size > 5);
 
@@ -790,7 +790,7 @@ public class StompV11Test extends StompTestBase {
 
       reply = connection.sendFrame(frame);
 
-      logger.debug("Reply: " + reply);
+      logger.debug("Reply: {}", reply);
 
       assertEquals(Stomp.Responses.CONNECTED, reply.getCommand());
 
@@ -987,7 +987,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.receiveFrame();
 
-      logger.debug("Receiver error: " + error);
+      logger.debug("Receiver error: {}", error);
 
       unsubscribe(conn, "sub1");
 
@@ -1015,7 +1015,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.receiveFrame();
 
-      logger.debug("Receiver error: " + error);
+      logger.debug("Receiver error: {}", error);
 
       unsubscribe(conn, "sub1");
 
@@ -1067,7 +1067,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.receiveFrame();
 
-      logger.debug("Receiver error: " + error);
+      logger.debug("Receiver error: {}", error);
 
       unsubscribe(conn, "sub1");
 
@@ -1095,7 +1095,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.receiveFrame();
 
-      logger.debug("Receiver error: " + error);
+      logger.debug("Receiver error: {}", error);
 
       unsubscribe(conn, "sub1");
 
@@ -1127,7 +1127,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.sendFrame(ackFrame);
 
-      logger.debug("Receiver error: " + error);
+      logger.debug("Receiver error: {}", error);
 
       assertEquals(Stomp.Responses.ERROR, error.getCommand());
 
@@ -1163,7 +1163,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame error = conn.sendFrame(ackFrame);
 
-      logger.debug("Receiver error: " + error);
+      logger.debug("Receiver error: {}", error);
 
       assertEquals(Stomp.Responses.ERROR, error.getCommand());
 
@@ -1295,7 +1295,7 @@ public class StompV11Test extends StompTestBase {
          frame = conn.receiveFrame();
          assertNotNull(frame);
 
-         logger.debug(i + " == received: " + frame);
+         logger.debug("{} == received: {}", i, frame);
          //ack on even numbers
          if (i % 2 == 0) {
             ack(conn, "sub1", frame);
@@ -1313,7 +1313,7 @@ public class StompV11Test extends StompTestBase {
       for (int i = 0; i < num / 2; i++) {
          message = (TextMessage) consumer.receive(1000);
          Assert.assertNotNull(message);
-         logger.debug("Legal: " + message.getText());
+         logger.debug("Legal: {}", message.getText());
       }
 
       message = (TextMessage) consumer.receive(100);
@@ -1337,13 +1337,13 @@ public class StompV11Test extends StompTestBase {
       // receive message from socket
       ClientStompFrame frame = conn.receiveFrame(5000);
 
-      logger.debug("received frame : " + frame);
+      logger.debug("received frame : {}", frame);
       assertEquals("Hello World", frame.getBody());
       assertEquals("sub1", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
 
       frame = newConn.receiveFrame(5000);
 
-      logger.debug("received 2 frame : " + frame);
+      logger.debug("received 2 frame : {}", frame);
       assertEquals("Hello World", frame.getBody());
       assertEquals("sub2", frame.getHeader(Stomp.Headers.Message.SUBSCRIPTION));
 
@@ -1965,7 +1965,7 @@ public class StompV11Test extends StompTestBase {
 
       assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
 
-      logger.debug("Message: " + frame);
+      logger.debug("Message: {}", frame);
 
       assertEquals("5", frame.getHeader(Stomp.Headers.CONTENT_LENGTH));
 
@@ -2242,7 +2242,7 @@ public class StompV11Test extends StompTestBase {
 
       ClientStompFrame reply = conn.sendFrame(frame);
 
-      logger.debug("Reply: " + reply.toString());
+      logger.debug("Reply: {}", reply.toString());
 
       assertEquals("CONNECTED", reply.getCommand());
 
@@ -2274,7 +2274,7 @@ public class StompV11Test extends StompTestBase {
       f = conn.sendFrame(subFrame);
 
       f = conn.receiveFrame(1000);
-      logger.debug("Received " + f.toString());
+      logger.debug("Received {}", f.toString());
       Assert.assertTrue(f.getCommand().equals("ERROR"));
 
       conn.stopPinger();

@@ -87,10 +87,10 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
    public void connectionReadyForWrites(Object connectionID, boolean ready) {
       RemotingConnection connection = connectionMap.get(connectionID);
       if (connection != null) {
-         log.info("Connection " + connection.getRemoteAddress() + " ready");
+         log.info("Connection {} ready", connection.getRemoteAddress());
          connection.getTransportConnection().fireReady(true);
       } else {
-         log.error("Connection with id " + connectionID + " not found in connectionReadyForWrites()!");
+         log.error("Connection with id {} not found in connectionReadyForWrites()!", connectionID);
       }
    }
 

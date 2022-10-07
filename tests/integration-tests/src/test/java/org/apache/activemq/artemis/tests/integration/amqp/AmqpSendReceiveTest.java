@@ -440,7 +440,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
          message.setMessageAnnotation("serialNo", i);
          message.setText("Test-Message");
 
-         logger.debug("Sending message: " + message.getMessageId());
+         logger.debug("Sending message: {}", message.getMessageId());
 
          sender.send(message);
       }
@@ -462,7 +462,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
       for (int i = 0; i < MSG_COUNT; ++i) {
          received = receiver2.receive(5, TimeUnit.SECONDS);
          assertNotNull("Should have got a message", received);
-         logger.debug("Read message: " + received.getMessageId());
+         logger.debug("Read message: {}", received.getMessageId());
          assertEquals("msg" + i, received.getMessageId());
       }
 

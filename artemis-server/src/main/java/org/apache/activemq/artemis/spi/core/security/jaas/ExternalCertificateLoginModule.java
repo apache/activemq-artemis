@@ -73,7 +73,10 @@ public class ExternalCertificateLoginModule implements AuditLoginModule {
          userName = certificates[0].getSubjectDN().getName();
       }
 
-      logger.debug("Certificates: " + Arrays.toString(certificates) + ", userName: " + userName);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Certificates: {}, userName: {}", Arrays.toString(certificates), userName);
+      }
+
       return userName != null;
    }
 

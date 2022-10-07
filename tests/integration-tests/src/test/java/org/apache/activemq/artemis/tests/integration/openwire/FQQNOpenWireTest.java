@@ -112,7 +112,7 @@ public class FQQNOpenWireTest extends OpenWireTestBase {
 
          Bindings bindings = server.getPostOffice().getBindingsForAddress(multicastAddress);
          for (Binding b : bindings.getBindings()) {
-            logger.debug("checking binidng " + b.getUniqueName() + " " + ((LocalQueueBinding)b).getQueue().getDeliveringMessages());
+            logger.debug("checking binidng {} {}", b.getUniqueName(), ((LocalQueueBinding)b).getQueue().getDeliveringMessages());
             SimpleString qName = b.getUniqueName();
             //do FQQN query
             QueueQueryResult result = server.queueQuery(CompositeAddress.toFullyQualified(multicastAddress, qName));

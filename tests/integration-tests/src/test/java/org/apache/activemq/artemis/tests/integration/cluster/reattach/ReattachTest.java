@@ -567,7 +567,7 @@ public class ReattachTest extends ActiveMQTestBase {
                try {
                   connFailure.fail(new ActiveMQNotConnectedException());
                } catch (Exception e) {
-                  logger.warn("Error on the timer " + e);
+                  logger.warn("Error on the timer {}", e);
                }
             }
 

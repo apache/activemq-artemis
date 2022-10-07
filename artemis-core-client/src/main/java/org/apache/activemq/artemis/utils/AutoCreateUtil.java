@@ -51,7 +51,7 @@ public class AutoCreateUtil {
                      .setAddress(destAddress);
                setRequiredQueueConfigurationIfNotSet(queueConfiguration,response, RoutingType.ANYCAST, selectorString, true);
                session.createQueue(queueConfiguration);
-               logger.debug("The queue " + destAddress + " was created automatically");
+               logger.debug("The queue {} was created automatically", destAddress);
             } catch (ActiveMQQueueExistsException e) {
                // The queue was created by another client/admin between the query check and send create queue packet
             }

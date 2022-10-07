@@ -52,8 +52,10 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public void broadcast(final byte[] data) throws Exception {
-      if (logger.isTraceEnabled())
-         logger.trace("Broadcasting: BroadCastOpened=" + broadcastOpened + ", channelOPen=" + channel.getChannel().isOpen());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Broadcasting: BroadCastOpened={}, channelOPen={}", broadcastOpened, channel.getChannel().isOpen());
+      }
+
       if (broadcastOpened) {
          org.jgroups.Message msg = new org.jgroups.BytesMessage();
 
@@ -65,8 +67,10 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public byte[] receiveBroadcast() throws Exception {
-      if (logger.isTraceEnabled())
-         logger.trace("Receiving Broadcast: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Receiving Broadcast: clientOpened={}, channelOPen={}", clientOpened, channel.getChannel().isOpen());
+      }
+
       if (clientOpened) {
          return receiver.receiveBroadcast();
       } else {
@@ -76,8 +80,10 @@ public abstract class JGroupsBroadcastEndpoint implements BroadcastEndpoint {
 
    @Override
    public byte[] receiveBroadcast(long time, TimeUnit unit) throws Exception {
-      if (logger.isTraceEnabled())
-         logger.trace("Receiving Broadcast2: clientOpened=" + clientOpened + ", channelOPen=" + channel.getChannel().isOpen());
+      if (logger.isTraceEnabled()) {
+         logger.trace("Receiving Broadcast2: clientOpened={}, channelOPen={}", clientOpened, channel.getChannel().isOpen());
+      }
+
       if (clientOpened) {
          return receiver.receiveBroadcast(time, unit);
       } else {

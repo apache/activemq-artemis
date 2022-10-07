@@ -119,9 +119,8 @@ public final class BindingsImpl implements Bindings {
    @Override
    public void addBinding(final Binding binding) {
       try {
-         if (logger.isTraceEnabled()) {
-            logger.trace("addBinding(" + binding + ") being called");
-         }
+         logger.trace("addBinding({}) being called", binding);
+
          if (binding.isExclusive()) {
             exclusiveBindings.add(binding);
          } else {
@@ -135,7 +134,7 @@ public final class BindingsImpl implements Bindings {
             setMessageLoadBalancingType(((RemoteQueueBinding) binding).getMessageLoadBalancingType());
          }
          if (logger.isTraceEnabled()) {
-            logger.trace("Adding binding " + binding + " into " + this + " bindingTable: " + debugBindings());
+            logger.trace("Adding binding {} into {} bindingTable: {}", binding, this, debugBindings());
          }
       } finally {
          updated();
@@ -168,7 +167,7 @@ public final class BindingsImpl implements Bindings {
          assert !bindingsNameMap.containsKey(binding.getUniqueName());
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Removing binding " + binding + " from " + this + " bindingTable: " + debugBindings());
+            logger.trace("Removing binding {} from {} bindingTable: {}", binding, this, debugBindings());
          }
          return binding;
       } finally {
@@ -190,9 +189,7 @@ public final class BindingsImpl implements Bindings {
          return false;
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Redistributing message {}", message);
-      }
+      logger.trace("Redistributing message {}", message);
 
       final SimpleString routingName = CompositeAddress.isFullyQualified(message.getAddress()) && originatingQueue.getRoutingType() == RoutingType.ANYCAST ? CompositeAddress.extractAddressName(message.getAddressSimpleString()) : originatingQueue.getName();
 
@@ -338,7 +335,9 @@ public final class BindingsImpl implements Bindings {
    private void simpleRouting(final Message message,
                               final RoutingContext context,
                               final int currentVersion) throws Exception {
-      logger.trace("Routing message {} on binding={} current context::{}", message, this, context);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Routing message {} on binding={} current context::{}", message, this, context);
+      }
 
       routingNameBindingMap.forEachBindings((bindings, nextPosition) -> {
          final Binding nextBinding = getNextBinding(message, bindings, nextPosition, getMessageLoadBalancingType(context));

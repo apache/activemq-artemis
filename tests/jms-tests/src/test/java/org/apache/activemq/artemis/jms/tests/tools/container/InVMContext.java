@@ -286,7 +286,7 @@ public class InVMContext implements Context, Serializable {
    }
 
    private void internalBind(String name, final Object obj, final boolean rebind) throws NamingException {
-      InVMContext.logger.debug("Binding " + name + " obj " + obj + " rebind " + rebind);
+      InVMContext.logger.debug("Binding {} obj {} rebind {}", name, obj, rebind);
       name = trimSlashes(name);
       int i = name.lastIndexOf("/");
       InVMContext c = this;

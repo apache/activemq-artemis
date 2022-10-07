@@ -257,9 +257,7 @@ public class ManagementServiceImpl implements ManagementService {
 
       registerAddressMeters(addressInfo, addressControl);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("registered address " + objectName);
-      }
+      logger.debug("registered address {}", objectName);
    }
 
    @Override
@@ -291,9 +289,7 @@ public class ManagementServiceImpl implements ManagementService {
                                           final StorageManager storageManager) throws Exception {
 
       if (addressInfo.isInternal()) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("won't register internal queue: " + queue);
-         }
+         logger.debug("won't register internal queue: {}", queue);
          return;
       }
 
@@ -308,9 +304,7 @@ public class ManagementServiceImpl implements ManagementService {
       registerInRegistry(ResourceNames.QUEUE + queue.getName(), queueControl);
       registerQueueMeters(queue);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("registered queue " + objectName);
-      }
+      logger.debug("registered queue {}", objectName);
    }
 
    @Override
@@ -377,9 +371,7 @@ public class ManagementServiceImpl implements ManagementService {
       registerInJMX(objectName, divertControl);
       registerInRegistry(ResourceNames.DIVERT + divert.getUniqueName(), divertControl);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("registered divert " + objectName);
-      }
+      logger.debug("registered divert {}", objectName);
    }
 
    @Override
@@ -494,9 +486,7 @@ public class ManagementServiceImpl implements ManagementService {
       registerInJMX(objectName, connectionRouterControl);
       registerInRegistry(ResourceNames.CONNECTION_ROUTER + router.getName(), connectionRouterControl);
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("registered connection router " + objectName);
-      }
+      logger.debug("registered connection router {}", objectName);
    }
 
    @Override
@@ -535,9 +525,8 @@ public class ManagementServiceImpl implements ManagementService {
       }
 
       String resourceName = message.getStringProperty(ManagementHelper.HDR_RESOURCE_NAME);
-      if (logger.isDebugEnabled()) {
-         logger.debug("handling management message for " + resourceName);
-      }
+
+      logger.debug("handling management message for {}", resourceName);
 
       String operation = message.getStringProperty(ManagementHelper.HDR_OPERATION_NAME);
 
@@ -781,9 +770,8 @@ public class ManagementServiceImpl implements ManagementService {
    @Override
    public void sendNotification(final Notification notification) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("Sending Notification = " + notification +
-                         ", notificationEnabled=" + notificationsEnabled +
-                         " messagingServerControl=" + messagingServerControl);
+         logger.trace("Sending Notification = {}, notificationEnabled={} messagingServerControl={}",
+                      notification, notificationsEnabled, messagingServerControl);
       }
       // This needs to be synchronized since we need to ensure notifications are processed in strict sequence
       synchronized (this) {
@@ -807,9 +795,8 @@ public class ManagementServiceImpl implements ManagementService {
                // Note at backup initialisation we don't want to send notifications either
                // https://jira.jboss.org/jira/browse/HORNETQ-317
                if (messagingServer == null || !messagingServer.isActive()) {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("ignoring message " + notification + " as the server is not initialized");
-                  }
+                  logger.debug("ignoring message {} as the server is not initialized", notification);
+
                   return;
                }
 

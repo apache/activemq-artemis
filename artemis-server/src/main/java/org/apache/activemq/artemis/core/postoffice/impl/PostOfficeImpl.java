@@ -269,9 +269,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       if (!(notification.getType() instanceof CoreNotificationType))
          return;
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Receiving notification : " + notification + " on server " + this.server);
-      }
+      logger.trace("Receiving notification : {} on server {}", notification, server);
+
       synchronized (notificationLock) {
          CoreNotificationType type = (CoreNotificationType) notification.getType();
 
@@ -363,7 +362,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                QueueInfo info = queueInfos.remove(clusterName);
 
                if (info == null) {
-                  logger.debug("PostOffice notification / BINDING_REMOVED: Cannot find queue info for queue \" + clusterName");
+                  logger.debug("PostOffice notification / BINDING_REMOVED: Cannot find queue info for clusterName {}", clusterName);
                   return;
                }
 
@@ -384,7 +383,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                QueueInfo info = queueInfos.get(clusterName);
 
                if (info == null) {
-                  logger.debug("PostOffice notification / CONSUMER_CREATED: Could not find queue created on clusterName = " + clusterName);
+                  logger.debug("PostOffice notification / CONSUMER_CREATED: Could not find queue created on clusterName = {}", clusterName);
                   return;
                }
 
@@ -482,7 +481,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
                      Binding binding = getBinding(queueName);
 
                      if (binding == null) {
-                        logger.debug("PostOffice notification / CONSUMER_CLOSED: Could not find queue " + queueName);
+                        logger.debug("PostOffice notification / CONSUMER_CLOSED: Could not find queue {}", queueName);
                         return;
                      }
 
@@ -933,9 +932,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       String uid = UUIDGenerator.getInstance().generateStringUUID();
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("ClusterCommunication::Sending notification for addBinding " + binding + " from server " + server);
-      }
+      logger.debug("ClusterCommunication::Sending notification for addBinding {} from server {}", binding, server);
 
       managementService.sendNotification(new Notification(uid, CoreNotificationType.BINDING_ADDED, props));
 
@@ -1403,7 +1400,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("PostOffice.sendQueueInfoToQueue on server=" + this.server + ", queueName=" + queueName + " and address=" + address);
+         logger.debug("PostOffice.sendQueueInfoToQueue on server={}, queueName={} and address={}", server, queueName, address);
       }
 
       Queue queue = (Queue) binding.getBindable();
@@ -1419,9 +1416,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          routeQueueInfo(message, queue, false);
 
          for (QueueInfo info : queueInfos.values()) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("QueueInfo on sendQueueInfoToQueue = " + info);
-            }
+            logger.trace("QueueInfo on sendQueueInfoToQueue = {}", info);
+
             if (info.matchesAddress(address)) {
                message = createQueueInfoMessage(CoreNotificationType.BINDING_ADDED, queueName);
 
@@ -1914,9 +1910,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             if (initialCheck || queue.isSwept()) {
                if (logger.isDebugEnabled()) {
                   if (initialCheck) {
-                     logger.debug("Removing queue " + queue.getName() + " during the reload check");
+                     logger.debug("Removing queue {} during the reload check", queue.getName());
                   } else {
-                     logger.debug("Removing queue " + queue.getName() + " after it being swept twice on reaping process");
+                     logger.debug("Removing queue {} after it being swept twice on reaping process", queue.getName());
                   }
                }
                QueueManagerImpl.performAutoDeleteQueue(server, queue);
@@ -1940,9 +1936,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
                   server.autoRemoveAddressInfo(address, null);
                } else {
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("Sweeping address " + address);
-                  }
+                  logger.debug("Sweeping address {}", address);
                   addressInfo.setSwept(true);
                }
             } else {

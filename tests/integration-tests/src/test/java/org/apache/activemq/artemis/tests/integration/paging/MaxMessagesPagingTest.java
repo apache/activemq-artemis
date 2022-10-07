@@ -466,8 +466,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       final int MESSAGES = 1000;
 
-      logger.info("\n********************************************************************************\nSending " + protocolSend + ", Receiving " + protocolReceive +
-                     "\n********************************************************************************");
+      logger.info("\n{}\nSending {}, Receiving {}\n{}", "*".repeat(80), protocolSend, protocolReceive, "*".repeat(80));
 
       final String ADDRESS = "FAIL_MAX_MESSAGES_" + protocolSend + "_" + protocolReceive;
 
@@ -575,8 +574,7 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       final int MESSAGES = 20;
 
-      logger.info("\n********************************************************************************\nSending " + protocolSend + ", Receiving " + protocolReceive +
-                     "\n********************************************************************************");
+      logger.info("\n{}\nSending {}, Receiving {}\n", "*".repeat(80), protocolSend, protocolReceive, "*".repeat(80));
 
       final String ADDRESS = "FAIL_MAX_MESSAGES_" + protocolSend + "_" + protocolReceive;
 

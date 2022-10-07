@@ -116,7 +116,7 @@ public class ReloadManagerImpl extends ActiveMQScheduledComponent implements Rel
          long fileModified = file.lastModified();
 
          if (logger.isDebugEnabled()) {
-            logger.debug("Validating lastModified " + lastModified + " modified = " + fileModified + " on " + uri);
+            logger.debug("Validating lastModified {} modified = {} on {}", lastModified, fileModified, uri);
          }
 
          if ((lastModified > 0 && fileModified > lastModified) ||

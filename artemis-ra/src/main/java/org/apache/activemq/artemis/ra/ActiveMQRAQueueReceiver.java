@@ -40,9 +40,7 @@ public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implement
    public ActiveMQRAQueueReceiver(final QueueReceiver consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + consumer + ", " + session + ")");
-      }
+      logger.trace("constructor({}, {})", consumer, session);
    }
 
    /**
@@ -53,9 +51,7 @@ public class ActiveMQRAQueueReceiver extends ActiveMQRAMessageConsumer implement
     */
    @Override
    public Queue getQueue() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getQueue()");
-      }
+      logger.trace("getQueue()");
 
       checkState();
       return ((QueueReceiver) consumer).getQueue();

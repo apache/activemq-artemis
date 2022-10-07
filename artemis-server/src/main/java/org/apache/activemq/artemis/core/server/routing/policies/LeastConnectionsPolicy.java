@@ -53,20 +53,18 @@ public class LeastConnectionsPolicy extends RoundRobinPolicy {
             Integer connectionCount = target.getAttribute("broker", "ConnectionCount", Integer.class, 3000);
 
             if (connectionCount < connectionCountThreshold) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("Updating the connection count to 0/" + connectionCount + " for the target " + target);
-               }
+               logger.debug("Updating the connection count to 0/{} for the target {}", connectionCount, target);
 
                connectionCount = 0;
-            } else if (logger.isDebugEnabled()) {
-               logger.debug("Updating the connection count to " + connectionCount + " for the target " + target);
+            } else {
+               logger.debug("Updating the connection count to {} for the target {}", connectionCount, target);
             }
 
             connectionCountCache.put(target, connectionCount);
 
             return true;
          } catch (Exception e) {
-            logger.warn("Error on updating the connectionCount for the target " + target, e);
+            logger.warn("Error on updating the connectionCount for the target {}", target, e);
 
             return false;
          }
@@ -115,9 +113,7 @@ public class LeastConnectionsPolicy extends RoundRobinPolicy {
             leastTargets.add(target);
          }
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("LeastConnectionsPolicy.sortedTargets: " + sortedTargets);
-         }
+         logger.debug("LeastConnectionsPolicy.sortedTargets: {}", sortedTargets);
 
          List<Target> selectedTargets = sortedTargets.firstEntry().getValue();
 

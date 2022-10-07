@@ -243,9 +243,7 @@ public class MQTTPublishManager {
                   if (closeMqttConnectionOnPublishAuthorizationFailure) {
                      throw e;
                   } else {
-                     if (logger.isDebugEnabled()) {
-                        logger.debug("MQTT 3.1.1 client not authorized to publish message.");
-                     }
+                     logger.debug("MQTT 3.1.1 client not authorized to publish message.");
                   }
                } else {
                   /*
@@ -258,9 +256,7 @@ public class MQTTPublishManager {
                    *
                    * Log the failure since we have to just swallow it.
                    */
-                  if (logger.isDebugEnabled()) {
-                     logger.debug("MQTT 3.1 client not authorized to publish message.");
-                  }
+                  logger.debug("MQTT 3.1 client not authorized to publish message.");
                }
             } catch (Throwable t) {
                MQTTLogger.LOGGER.failedToPublishMqttMessage(t.getMessage(), t);
@@ -364,7 +360,7 @@ public class MQTTPublishManager {
             releaseFlowControl(ref.getB());
          }
       } catch (ActiveMQIllegalStateException e) {
-         logger.warn("MQTT Client(" + session.getState().getClientId() + ") attempted to Ack already Ack'd message");
+         logger.warn("MQTT Client({}) attempted to Ack already Ack'd message", session.getState().getClientId());
       }
    }
 

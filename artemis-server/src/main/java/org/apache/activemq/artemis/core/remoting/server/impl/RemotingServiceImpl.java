@@ -364,12 +364,11 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       for (Entry<Object, ConnectionEntry> entry : connectionEntries.entrySet()) {
          RemotingConnection conn = entry.getValue().connection;
 
-         if (conn.equals(connectionToKeepOpen))
+         if (conn.equals(connectionToKeepOpen)) {
             continue;
-
-         if (logger.isTraceEnabled()) {
-            logger.trace("Sending connection.disconnection packet to " + conn);
          }
+
+         logger.trace("Sending connection.disconnection packet to {}", conn);
 
          if (!conn.isClient()) {
             conn.disconnect(scaleDownNodeID, false);
@@ -393,9 +392,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       // We need to stop them accepting first so no new connections are accepted after we send the disconnect message
       for (Acceptor acceptor : acceptors.values()) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Pausing acceptor " + acceptor);
-         }
+         logger.debug("Pausing acceptor {}", acceptor);
 
          try {
             acceptor.pause();
@@ -405,9 +402,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       }
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Sending disconnect on live connections");
-      }
+      logger.debug("Sending disconnect on live connections");
 
       HashSet<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
 
@@ -416,9 +411,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       for (ConnectionEntry entry : connectionEntries) {
          RemotingConnection conn = entry.connection;
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Sending connection.disconnection packet to " + conn);
-         }
+         logger.trace("Sending connection.disconnection packet to {}", conn);
 
          conn.disconnect(criticalError);
       }
@@ -499,7 +492,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          connectionCountLatch.countDown();
          return entry.connection;
       } else {
-         logger.debug("The connectionID::" + remotingConnectionID + " was already removed by some other module");
+         logger.debug("The connectionID::{} was already removed by some other module", remotingConnectionID);
 
          return null;
       }
@@ -573,9 +566,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
          throw new IllegalStateException(t.getMessage(), t.getCause());
 
       }
-      if (logger.isTraceEnabled()) {
-         logger.trace("Connection created " + connection);
-      }
+
+      logger.trace("Connection created {}", connection);
 
       addConnectionEntry(connection, entry);
       connectionCountLatch.countUp();
@@ -592,9 +584,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
    @Override
    public void connectionDestroyed(final Object connectionID) {
-
       if (logger.isTraceEnabled()) {
-         logger.trace("Connection removed " + connectionID + " from server " + this.server, new Exception("trace"));
+         logger.trace("Connection removed {} from server {}", connectionID, this.server, new Exception("trace"));
       }
 
       issueFailure(connectionID, new ActiveMQRemoteDisconnectException());
@@ -703,9 +694,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
                conn.connection.fail(new ActiveMQException(e.getMessage()));
             }
          } else {
-            if (logger.isTraceEnabled()) {
-               logger.trace("ConnectionID = " + connectionID + " was already closed, so ignoring packet");
-            }
+            logger.trace("ConnectionID = {} was already closed, so ignoring packet", connectionID);
          }
       }
    }

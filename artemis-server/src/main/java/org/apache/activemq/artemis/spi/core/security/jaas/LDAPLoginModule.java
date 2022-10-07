@@ -291,9 +291,7 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    private void resolveRolesForDN(DirContext context, String dn, String username, List<String> roles) throws NamingException {
       addRoles(context, dn, username, roles);
-      if (logger.isDebugEnabled()) {
-         logger.debug("Roles " + roles + " for user " + username);
-      }
+      logger.debug("Roles {} for user {}", roles, username);
       for (String role : roles) {
          groups.add(new RolePrincipal(role));
       }
@@ -302,9 +300,7 @@ public class LDAPLoginModule implements AuditLoginModule {
    private String resolveDN(String username, List<String> roles) throws FailedLoginException {
       String dn = null;
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Create the LDAP initial context.");
-      }
+      logger.debug("Create the LDAP initial context.");
       try {
          openContext();
       } catch (Exception ne) {
@@ -343,8 +339,8 @@ public class LDAPLoginModule implements AuditLoginModule {
          if (logger.isDebugEnabled()) {
             logger.debug("Get the user DN.");
             logger.debug("Looking for the user in LDAP with ");
-            logger.debug("  base DN: " + getLDAPPropertyValue(ConfigKey.USER_BASE));
-            logger.debug("  filter: " + filter);
+            logger.debug("  base DN: {}", getLDAPPropertyValue(ConfigKey.USER_BASE));
+            logger.debug("  filter: {}", filter);
          }
 
          NamingEnumeration<SearchResult> results = null;
@@ -377,7 +373,7 @@ public class LDAPLoginModule implements AuditLoginModule {
          }
 
          if (result.isRelative()) {
-            logger.debug("LDAP returned a relative name: " + result.getName());
+            logger.debug("LDAP returned a relative name: {}", result.getName());
 
             NameParser parser = context.getNameParser("");
             Name contextName = parser.parse(context.getNameInNamespace());
@@ -387,7 +383,7 @@ public class LDAPLoginModule implements AuditLoginModule {
             name = name.addAll(entryName);
             dn = name.toString();
          } else {
-            logger.debug("LDAP returned an absolute name: " + result.getName());
+            logger.debug("LDAP returned an absolute name: {}", result.getName());
 
             try {
                URI uri = new URI(result.getName());
@@ -406,9 +402,7 @@ public class LDAPLoginModule implements AuditLoginModule {
             }
          }
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("Using DN [" + dn + "] for binding.");
-         }
+         logger.debug("Using DN [{}] for binding.", dn);
 
          Attributes attrs = result.getAttributes();
          if (attrs == null) {
@@ -470,8 +464,8 @@ public class LDAPLoginModule implements AuditLoginModule {
       if (logger.isDebugEnabled()) {
          logger.debug("Get user roles.");
          logger.debug("Looking for the user roles in LDAP with ");
-         logger.debug("  base DN: " + getLDAPPropertyValue(ConfigKey.ROLE_BASE));
-         logger.debug("  filter: " + filter);
+         logger.debug("  base DN: {}", getLDAPPropertyValue(ConfigKey.ROLE_BASE));
+         logger.debug("  filter: {}", filter);
       }
       HashSet<String> haveSeenNames = new HashSet<>();
       Queue<String> pendingNameExpansion = new LinkedList<>();
@@ -510,8 +504,8 @@ public class LDAPLoginModule implements AuditLoginModule {
             if (logger.isDebugEnabled()) {
                logger.debug("Get 'expanded' user roles.");
                logger.debug("Looking for the 'expanded' user roles in LDAP with ");
-               logger.debug("  base DN: " + getLDAPPropertyValue(ConfigKey.ROLE_BASE));
-               logger.debug("  filter: " + expandFilter);
+               logger.debug("  base DN: {}", getLDAPPropertyValue(ConfigKey.ROLE_BASE));
+               logger.debug("  filter: {}", expandFilter);
             }
             try {
                results = Subject.doAs(brokerGssapiIdentity, (PrivilegedExceptionAction< NamingEnumeration<SearchResult>>) () -> context.search(getLDAPPropertyValue(ConfigKey.ROLE_BASE), expandFilter, constraints));
@@ -574,28 +568,20 @@ public class LDAPLoginModule implements AuditLoginModule {
    protected boolean bindUser(DirContext context, String dn, String password) throws NamingException {
       boolean isValid = false;
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Binding the user.");
-      }
+      logger.debug("Binding the user.");
       context.addToEnvironment(Context.SECURITY_AUTHENTICATION, "simple");
       context.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
       context.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
       try {
          String baseDn = getLDAPPropertyValue(ConfigKey.CONNECTION_URL).replaceFirst(".*/", ",");
          String userDn = dn.replace(baseDn, "");
-         if (logger.isDebugEnabled()) {
-            logger.debug("Get user Attributes with dn " + userDn);
-         }
+         logger.debug("Get user Attributes with dn {}", userDn);
          context.getAttributes(userDn, null);
          isValid = true;
-         if (logger.isDebugEnabled()) {
-            logger.debug("User " + dn + " successfully bound.");
-         }
+         logger.debug("User {} successfully bound.", dn);
       } catch (AuthenticationException e) {
          isValid = false;
-         if (logger.isDebugEnabled()) {
-            logger.debug("Authentication failed for dn=" + dn);
-         }
+         logger.debug("Authentication failed for dn={}", dn);
       }
 
       if (isLoginPropertySet(ConfigKey.CONNECTION_USERNAME)) {
@@ -651,9 +637,7 @@ public class LDAPLoginModule implements AuditLoginModule {
             }
 
             env.put(Context.REFERRAL, referral);
-            if (logger.isDebugEnabled()) {
-               logger.debug("Referral handling: " + referral);
-            }
+            logger.debug("Referral handling: {}", referral);
 
             if ("GSSAPI".equalsIgnoreCase(getLDAPPropertyValue(ConfigKey.AUTHENTICATION))) {
 

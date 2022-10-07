@@ -110,9 +110,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ServerSessionImpl implements ServerSession, FailureListener {
 
-
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 
 
    private boolean securityEnabled = true;
@@ -618,10 +616,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          Notification notification = new Notification(null, CoreNotificationType.CONSUMER_CREATED, props);
 
          if (logger.isDebugEnabled()) {
-            logger.debug("Session with user=" + username +
-                            ", connection=" + this.remotingConnection +
-                            " created a consumer on queue " + unPrefixedQueueName +
-                            ", filter = " + filterString);
+            logger.debug("Session with user={}, connection={} created a consumer on queue {}, filter = {}",
+                  username, remotingConnection, unPrefixedQueueName, filterString);
          }
 
          managementService.sendNotification(notification);
@@ -762,9 +758,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Queue " + queueConfiguration.getName() + " created on address " + queueConfiguration.getAddress() +
-                         " with filter=" + queueConfiguration.getFilterString() + " temporary = " +
-                         queueConfiguration.isTemporary() + " durable=" + queueConfiguration.isDurable() + " on session user=" + this.username + ", connection=" + this.remotingConnection);
+         logger.debug("Queue {} created on address {} with filter={} temporary = {} durable={} on session user={}, connection={}",
+               queueConfiguration.getName(), queueConfiguration.getAddress(), queueConfiguration.getFilterString(),
+               queueConfiguration.isTemporary(), queueConfiguration.isDurable(), username, remotingConnection);
       }
 
       return queue;
@@ -1127,9 +1123,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       private void run() {
          try {
-            if (logger.isDebugEnabled()) {
-               logger.debug("deleting temporary queue " + bindingName);
-            }
+            logger.debug("deleting temporary queue {}", bindingName);
+
             try {
                server.destroyQueue(bindingName, null, false, false, true);
                if (observer != null) {
@@ -1243,8 +1238,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          } catch (Exception e) {
             // just ignored
             // will log it just in case
-            logger.debug("Ignored exception while acking messageID " + messageID +
-                            " on a rolledback TX", e);
+            logger.debug("Ignored exception while acking messageID {} on a rolledback TX", messageID, e);
          }
          newTX.rollback();
       } else {
@@ -1314,9 +1308,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public synchronized void commit() throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Calling commit");
-      }
+      logger.trace("Calling commit");
+
       try {
          if (tx != null) {
             tx.commit();
@@ -1384,9 +1377,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       } else {
          Transaction theTx = resourceManager.removeTransaction(xid, remotingConnection);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("XAcommit into " + theTx + ", xid=" + xid);
-         }
+         logger.trace("XAcommit into {}, xid={}", theTx, xid);
 
          if (theTx == null) {
             // checked heuristic committed transactions
@@ -1396,9 +1387,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                // checked heuristic rolled back transactions
                throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has been heuristically rolled back: " + xid);
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("XAcommit into " + theTx + ", xid=" + xid + " cannot find it");
-               }
+               logger.trace("XAcommit into {}, xid={} cannot find it", theTx, xid);
 
                throw new ActiveMQXAException(XAException.XAER_NOTA, "Cannot find xid in resource manager: " + xid);
             }
@@ -1533,9 +1522,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          throw new ActiveMQXAException(XAException.XAER_PROTO, msg);
       } else {
          Transaction theTx = resourceManager.removeTransaction(xid, remotingConnection);
-         if (logger.isTraceEnabled()) {
-            logger.trace("xarollback into " + theTx);
-         }
+         logger.trace("xarollback into {}", theTx);
 
          if (theTx == null) {
             // checked heuristic committed transactions
@@ -1545,9 +1532,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                // checked heuristic rolled back transactions
                throw new ActiveMQXAException(XAException.XA_HEURRB, "transaction has ben heuristically rolled back: " + xid);
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("xarollback into " + theTx + ", xid=" + xid + " forcing a rollback regular");
-               }
+               logger.trace("xarollback into {}, xid={} forcing a rollback regular", theTx, xid);
 
                try {
                   // jbpapp-8845
@@ -1562,9 +1547,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             }
          } else {
             if (theTx.getState() == Transaction.State.SUSPENDED) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("xarollback into " + theTx + " sending tx back as it was suspended");
-               }
+               logger.trace("xarollback into {} sending tx back as it was suspended", theTx);
 
                // Put it back
                resourceManager.putTransaction(xid, tx, remotingConnection);
@@ -1597,9 +1580,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
       tx = newTransaction(xid);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("xastart into tx= " + tx);
-      }
+      logger.trace("xastart into tx= {}", tx);
 
       boolean added = resourceManager.putTransaction(xid, tx, remotingConnection);
 
@@ -1620,24 +1601,19 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       if (theTX.isEffective()) {
-         logger.debug("Client failed with Xid " + xid + " but the server already had it " + theTX.getState());
+         logger.debug("Client failed with Xid {} but the server already had it {}", xid, theTX.getState());
          tx = null;
       } else {
          theTX.markAsRollbackOnly(new ActiveMQException("Can't commit as a Failover happened during the operation"));
          tx = theTX;
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("xastart into tx= " + tx);
-      }
+      logger.trace("xastart into tx= {}", tx);
    }
 
    @Override
    public synchronized void xaSuspend() throws Exception {
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("xasuspend on " + this.tx);
-      }
+      logger.trace("xasuspend on {}", tx);
 
       if (tx == null) {
          final String msg = "Cannot suspend, session is not doing work in a transaction ";
@@ -1665,9 +1641,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       } else {
          Transaction theTx = resourceManager.getTransaction(xid);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("xaprepare into " + ", xid=" + xid + ", tx= " + tx);
-         }
+         logger.trace("xaprepare into xid={}, tx={}", xid, tx);
 
          if (theTx == null) {
             final String msg = "Cannot find xid in resource manager: " + xid;
@@ -1750,7 +1724,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       ServerConsumer consumer = locateConsumer(consumerID);
 
       if (consumer == null) {
-         logger.debug("There is no consumer with id " + consumerID);
+         logger.debug("There is no consumer with id {}", consumerID);
 
          return;
       }
@@ -1826,7 +1800,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("send(message=" + message + ", direct=" + direct + ") being called");
+            logger.trace("send(message={}, direct={}) being called", message, direct);
          }
 
          if (message.getAddress() == null) {

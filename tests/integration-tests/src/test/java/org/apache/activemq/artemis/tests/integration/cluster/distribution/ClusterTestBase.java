@@ -282,7 +282,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       ActiveMQServer server = servers[bNode];
 
       if (log.isDebugEnabled()) {
-         log.debug("waiting for " + Arrays.toString(nodes) + " on the topology for server = " + server);
+         log.debug("waiting for {} on the topology for server = {}",  Arrays.toString(nodes), server);
       }
 
       long start = System.currentTimeMillis();
@@ -389,7 +389,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          topologyDiagram.append("\n");
          log.debug(topologyDiagram.toString());
       } catch (Throwable e) {
-         log.warn("error printing the topology::" + e.getMessage(), e);
+         log.warn(String.format("error printing the topology::%s", e.getMessage()), e);
       }
    }
 
@@ -444,15 +444,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                                   final int expectedConsumerCount,
                                   final boolean local) throws Exception {
       if (log.isDebugEnabled()) {
-         log.debug("waiting for bindings on node " + node +
-                   " address " +
-                   address +
-                   " expectedBindingCount " +
-                   expectedBindingCount +
-                   " consumerCount " +
-                   expectedConsumerCount +
-                   " local " +
-                   local);
+         log.debug("waiting for bindings on node {} address {} expectedBindingCount {} consumerCount {} local {}",
+                   node, address, expectedBindingCount, expectedConsumerCount, local);
       }
 
       ActiveMQServer server = servers[node];
@@ -1269,7 +1262,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
                checkMessageBody(message);
 
-               // log.debug("consumer " + consumerIDs[i] + " received message " + count);
+               // log.debug("consumer {} received message {}", consumerIDs[i], count);
 
                Assert.assertFalse(counts.contains(count));
 
@@ -2036,7 +2029,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
    protected void stopServers(final int... nodes) throws Exception {
       if (log.isDebugEnabled()) {
-         log.debug("Stopping nodes " + Arrays.toString(nodes));
+         log.debug("Stopping nodes {}", Arrays.toString(nodes));
       }
 
       Exception exception = null;

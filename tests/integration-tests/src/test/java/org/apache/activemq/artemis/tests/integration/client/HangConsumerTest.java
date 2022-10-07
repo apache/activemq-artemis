@@ -445,14 +445,14 @@ public class HangConsumerTest extends ActiveMQTestBase {
 
             int bindings = 0;
             for (RecordInfo info : infos) {
-               logger.debug("info: " + info);
+               logger.debug("info: {}", info);
                if (info.getUserRecordType() == JournalRecordIds.QUEUE_BINDING_RECORD) {
                   bindings++;
                }
             }
             assertEquals(1, bindings);
 
-            logger.debug("Bindings: " + bindings);
+            logger.debug("Bindings: {}", bindings);
             messagesJournal.stop();
             if (i < 4)
                server.start();

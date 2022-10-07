@@ -714,7 +714,7 @@ public class AMQPSessionCallback implements SessionCallback {
             ((ProtonServerSenderContext) consumer.getProtocolContext()).close(ec);
             connection.flush();
          } catch (ActiveMQAMQPException e) {
-            logger.error("Error closing link for " + consumer.getQueue().getAddress());
+            logger.error("Error closing link for {}", consumer.getQueue().getAddress());
          }
       });
    }

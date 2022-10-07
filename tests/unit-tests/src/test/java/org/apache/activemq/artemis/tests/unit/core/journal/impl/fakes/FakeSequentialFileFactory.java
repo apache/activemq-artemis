@@ -344,13 +344,13 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
 
          checkAndResize(size);
 
-         // log.debug("size is " + size + " pos is " + pos);
+         // log.debug("size is {} pos is {}", size, pos);
 
          for (int i = 0; i < size; i++) {
             byte[] array = data.array();
             array[i] = 0;
 
-            // log.debug("Filling " + pos + " with char " + fillCharacter);
+            // log.debug("Filling {} with char {}", pos, fillCharacter);
          }
       }
 

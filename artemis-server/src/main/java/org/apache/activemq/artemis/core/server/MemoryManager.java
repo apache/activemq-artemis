@@ -62,9 +62,9 @@ public class MemoryManager implements ActiveMQComponent {
 
    @Override
    public synchronized void start() {
-      logger.debug("Starting MemoryManager with MEASURE_INTERVAL: " + measureInterval +
-                      " FREE_MEMORY_PERCENT: " +
-                      memoryWarningThreshold);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Starting MemoryManager with MEASURE_INTERVAL: {} FREE_MEMORY_PERCENT: {}", measureInterval, memoryWarningThreshold);
+      }
 
       if (started) {
          // Already started
@@ -124,17 +124,22 @@ public class MemoryManager implements ActiveMQComponent {
 
             double availableMemoryPercent = 100.0 * availableMemory / maxMemory;
 
-            StringBuilder info = new StringBuilder();
-            info.append(String.format("free memory:      %s%n", SizeFormatterUtil.sizeof(freeMemory)));
-            info.append(String.format("max memory:       %s%n", SizeFormatterUtil.sizeof(maxMemory)));
-            info.append(String.format("total memory:     %s%n", SizeFormatterUtil.sizeof(totalMemory)));
-            info.append(String.format("available memory: %.2f%%%n", availableMemoryPercent));
+            final boolean availableBelowThreshold = availableMemoryPercent <= memoryWarningThreshold;
+            final boolean prepareInfo = availableBelowThreshold || logger.isDebugEnabled();
 
-            if (logger.isDebugEnabled()) {
+            final StringBuilder info = prepareInfo ? new StringBuilder() : null;
+            if (prepareInfo) {
+               info.append(String.format("free memory:      %s%n", SizeFormatterUtil.sizeof(freeMemory)));
+               info.append(String.format("max memory:       %s%n", SizeFormatterUtil.sizeof(maxMemory)));
+               info.append(String.format("total memory:     %s%n", SizeFormatterUtil.sizeof(totalMemory)));
+               info.append(String.format("available memory: %.2f%%%n", availableMemoryPercent));
+            }
+
+            if (prepareInfo && logger.isDebugEnabled()) {
                logger.debug(info.toString());
             }
 
-            if (availableMemoryPercent <= memoryWarningThreshold) {
+            if (availableBelowThreshold) {
                ActiveMQServerLogger.LOGGER.memoryError(memoryWarningThreshold, info.toString());
 
                low = true;

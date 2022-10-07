@@ -96,15 +96,16 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
     */
    public void addPendingTransaction(final long transactionID, final long[] ids) {
       if (logger.isTraceEnabled()) {
-         logger.trace("addPendingTransaction::tx=" + transactionID + ", ids=" + Arrays.toString(ids));
+         logger.trace("addPendingTransaction::tx={}, ids={}", transactionID, Arrays.toString(ids));
       }
       pendingTransactions.put(transactionID, new PendingTransaction(ids));
    }
 
    public void addCommandCommit(final JournalTransaction liveTransaction, final JournalFile currentFile) {
       if (logger.isTraceEnabled()) {
-         logger.trace("addCommandCommit " + liveTransaction.getId());
+         logger.trace("addCommandCommit {}", liveTransaction.getId());
       }
+
       pendingCommands.add(new CommitCompactCommand(liveTransaction, currentFile));
 
       long[] ids = liveTransaction.getPositiveArray();
@@ -132,9 +133,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    }
 
    public void addCommandRollback(final JournalTransaction liveTransaction, final JournalFile currentFile) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("addCommandRollback " + liveTransaction + " currentFile " + currentFile);
-      }
+      logger.trace("addCommandRollback {} currentFile {}", liveTransaction, currentFile);
       pendingCommands.add(new RollbackCompactCommand(liveTransaction, currentFile));
    }
 
@@ -144,7 +143,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
     */
    public void addCommandDelete(final long id, final JournalFile usedFile) {
       if (logger.isTraceEnabled()) {
-         logger.trace("addCommandDelete id " + id + " usedFile " + usedFile);
+         logger.trace("addCommandDelete id {} usedFile {}", id, usedFile);
       }
       pendingCommands.add(new DeleteCompactCommand(id, usedFile));
    }
@@ -155,7 +154,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
     */
    public void addCommandUpdate(final long id, final JournalFile usedFile, final int size, final boolean replaceableUpdate) {
       if (logger.isTraceEnabled()) {
-         logger.trace("addCommandUpdate id " + id + " usedFile " + usedFile + " size " + size);
+         logger.trace("addCommandUpdate id {} usedFile {} size {}", id, usedFile, size);
       }
       pendingCommands.add(new UpdateCompactCommand(id, usedFile, size, replaceableUpdate));
    }
@@ -190,9 +189,8 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
     */
    public void replayPendingCommands() {
       for (CompactCommand command : pendingCommands) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Replay " + command);
-         }
+         logger.trace("Replay {}", command);
+
          try {
             command.execute();
          } catch (Exception e) {
@@ -220,9 +218,8 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
    @Override
    public void onReadAddRecord(final RecordInfo info) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Read Record " + info);
-      }
+      logger.trace("Read Record {}", info);
+
       if (containsRecord(info.id)) {
          JournalInternalRecord addRecord = new JournalAddRecord(true, info.id, info.getUserRecordType(), EncoderPersister.getInstance(), new ByteArrayEncoding(info.data));
          addRecord.setCompactCount((short) (info.compactCount + 1));
@@ -238,8 +235,9 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    @Override
    public void onReadAddRecordTX(final long transactionID, final RecordInfo info) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("Read Add Record TX " + transactionID + " info " + info);
+         logger.trace("Read Add Record TX {} info {}", transactionID, info);
       }
+
       if (pendingTransactions.get(transactionID) != null) {
          produceAddRecordTX(transactionID, info);
       } else if (containsRecord(info.id)) {
@@ -263,9 +261,8 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
    @Override
    public void onReadCommitRecord(final long transactionID, final int numberOfRecords) throws Exception {
-
       if (logger.isTraceEnabled()) {
-         logger.trace("onReadCommitRecord " + transactionID);
+         logger.trace("onReadCommitRecord {}", transactionID);
       }
 
       if (pendingTransactions.get(transactionID) != null) {
@@ -289,7 +286,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    @Override
    public void onReadDeleteRecord(final long recordID) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("onReadDeleteRecord " + recordID);
+         logger.trace("onReadDeleteRecord {}", recordID);
       }
 
       if (newRecords.get(recordID) != null) {
@@ -302,7 +299,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    @Override
    public void onReadDeleteRecordTX(final long transactionID, final RecordInfo info) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("onReadDeleteRecordTX " + transactionID + " info " + info);
+         logger.trace("onReadDeleteRecordTX {} info {}", transactionID, info);
       }
 
       if (pendingTransactions.get(transactionID) != null) {
@@ -362,7 +359,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
                                    final byte[] extraData,
                                    final int numberOfRecords) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("onReadPrepareRecord " + transactionID);
+         logger.trace("onReadPrepareRecord {}", transactionID);
       }
 
       if (pendingTransactions.get(transactionID) != null) {
@@ -386,13 +383,12 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
    @Override
    public void onReadRollbackRecord(final long transactionID) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("onReadRollbackRecord " + transactionID);
+         logger.trace("onReadRollbackRecord {}", transactionID);
       }
 
       if (pendingTransactions.get(transactionID) != null) {
          // Sanity check, this should never happen
-         logger.debug("Inconsistency during compacting: RollbackRecord ID = " + transactionID +
-                                            " for an already rolled back transaction during compacting");
+         logger.debug("Inconsistency during compacting: RollbackRecord ID = {} for an already rolled back transaction during compacting", transactionID);
       } else {
          JournalTransaction newTransaction = newTransactions.remove(transactionID);
          if (newTransaction != null) {
@@ -423,9 +419,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
    @Override
    public void onReadUpdateRecord(final RecordInfo info) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("onReadUpdateRecord " + info);
-      }
+      logger.trace("onReadUpdateRecord {}", info);
 
       if (containsRecord(info.id)) {
          LongObjectHashMap<RunnableEx> longmap = pendingUpdates.get(info.userRecordType);
@@ -458,9 +452,7 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
 
    @Override
    public void onReadUpdateRecordTX(final long transactionID, final RecordInfo info) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("onReadUpdateRecordTX " + info);
-      }
+      logger.trace("onReadUpdateRecordTX {}", info);
 
       if (pendingTransactions.get(transactionID) != null) {
          produceUpdateRecordTX(transactionID, info);
@@ -491,14 +483,13 @@ public class JournalCompactor extends AbstractJournalUpdateTask implements Journ
       JournalTransaction newTransaction = newTransactions.get(transactionID);
       if (newTransaction == null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("creating new journal Transaction " + transactionID);
+            logger.trace("creating new journal Transaction {}", transactionID);
          }
          newTransaction = new JournalTransaction(transactionID, this);
          newTransactions.put(transactionID, newTransaction);
       } else if (logger.isTraceEnabled()) {
          // just logging
-         logger.trace("reusing TX " + transactionID);
-
+         logger.trace("reusing TX {}", transactionID);
       }
       return newTransaction;
    }

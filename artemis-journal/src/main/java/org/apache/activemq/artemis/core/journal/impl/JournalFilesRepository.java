@@ -367,7 +367,7 @@ public class JournalFilesRepository {
                                         final boolean renameTmp,
                                         final boolean checkDelete) throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debug("Adding free file " + file + ", renameTMP=" + renameTmp + ", checkDelete=" + checkDelete);
+         logger.debug("Adding free file {}, renameTMP={}, checkDelete={}", file, renameTmp, checkDelete);
       }
       long calculatedSize = 0;
       try {
@@ -381,9 +381,8 @@ public class JournalFilesRepository {
          // Re-initialise it
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Re-initializing file " + file + " as checkDelete=" + checkDelete +
-                            ", freeFilesCount=" + freeFilesCount + ", dataFiles.size=" + dataFiles.size() +
-                            ", openedFiles=" + openedFiles + ", poolSize=" + poolSize);
+            logger.trace("Re-initializing file {} as checkDelete={}, freeFilesCount={}, dataFiles.size={} openedFiles={}, poolSize={}",
+                         file, checkDelete, freeFilesCount, dataFiles.size(), openedFiles, poolSize);
          }
 
          JournalFile jf = reinitializeFile(file);
@@ -395,17 +394,15 @@ public class JournalFilesRepository {
          freeFiles.add(jf);
          freeFilesCount.getAndIncrement();
       } else {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Deleting file " + file.getFile());
-         }
+         logger.debug("Deleting file {}", file.getFile());
+
          if (logger.isTraceEnabled()) {
-            logger.trace("DataFiles.size() = " + dataFiles.size());
-            logger.trace("openedFiles.size() = " + openedFiles.size());
-            logger.trace("minfiles = " + minFiles + ", poolSize = " + poolSize);
-            logger.trace("Free Files = " + freeFilesCount.get());
-            logger.trace("File " + file + " being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() (" +
-                            (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()) +
-                            ") < minFiles (" + minFiles + ")");
+            logger.trace("DataFiles.size() = {}", dataFiles.size());
+            logger.trace("openedFiles.size() = {}", openedFiles.size());
+            logger.trace("minfiles = {}, poolSize = {}", minFiles, poolSize);
+            logger.trace("Free Files = {}", freeFilesCount.get());
+            logger.trace("File {} being deleted as freeFiles.size() + dataFiles.size() + 1 + openedFiles.size() () < minFiles ({})",
+                         file, (freeFilesCount.get() + dataFiles.size() + 1 + openedFiles.size()), minFiles);
          }
          file.getFile().delete();
       }
@@ -474,7 +471,7 @@ public class JournalFilesRepository {
     */
    public JournalFile openFile() throws InterruptedException, ActiveMQIOErrorException {
       if (logger.isTraceEnabled()) {
-         logger.trace("enqueueOpenFile with openedFiles.size=" + openedFiles.size());
+         logger.trace("enqueueOpenFile with openedFiles.size={}", openedFiles.size());
       }
 
       // First try to get an open file, that's prepared and already open
@@ -505,9 +502,8 @@ public class JournalFilesRepository {
             throw ActiveMQJournalBundle.BUNDLE.fileNotOpened();
          }
       }
-      if (logger.isTraceEnabled()) {
-         logger.trace("Returning file " + nextFile);
-      }
+
+      logger.trace("Returning file {}", nextFile);
 
       return nextFile;
    }
@@ -526,9 +522,7 @@ public class JournalFilesRepository {
    public synchronized void pushOpenedFile() throws Exception {
       JournalFile nextOpenedFile = takeFile(true, true, true, false);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("pushing openFile " + nextOpenedFile);
-      }
+      logger.trace("pushing openFile {}", nextOpenedFile);
 
       if (!openedFiles.offer(nextOpenedFile)) {
          ActiveMQJournalLogger.LOGGER.failedToAddFile(nextOpenedFile);
@@ -647,9 +641,7 @@ public class JournalFilesRepository {
 
       final String fileName = createFileName(tmpCompact, fileID);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Creating file " + fileName);
-      }
+      logger.trace("Creating file {}", fileName);
 
       String tmpFileName = fileName + ".tmp";
 
@@ -667,9 +659,7 @@ public class JournalFilesRepository {
 
       sequentialFile.close(false, false);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Renaming file " + tmpFileName + " as " + fileName);
-      }
+      logger.trace("Renaming file {} as {}", tmpFileName, fileName);
 
       sequentialFile.renameTo(fileName);
 

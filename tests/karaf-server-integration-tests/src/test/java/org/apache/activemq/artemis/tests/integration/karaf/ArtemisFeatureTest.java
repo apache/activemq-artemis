@@ -130,7 +130,7 @@ public class ArtemisFeatureTest extends Assert {
       String type = "xml/features";
       UrlReference urlReference = mavenBundle().groupId("org.apache.activemq").
          artifactId("artemis-features").versionAsInProject().type(type);
-      log.debug("FeatureURL: " + urlReference.getURL());
+      log.debug("FeatureURL: {}", urlReference.getURL());
       return urlReference;
    }
 
@@ -148,7 +148,7 @@ public class ArtemisFeatureTest extends Assert {
 
       Object service = waitForService("(objectClass=org.apache.activemq.artemis.core.server.ActiveMQServer)", 30000);
       assertNotNull(service);
-      log.debug("have service " + service);
+      log.debug("have service {}", service);
 
       executeCommand("service:list -n");
 
@@ -237,7 +237,7 @@ public class ArtemisFeatureTest extends Assert {
          e.printStackTrace(System.err);
          response = "SHELL COMMAND TIMED OUT: ";
       }
-      log.debug("Execute: " + command + " - Response:" + response);
+      log.debug("Execute: {} - Response:{}", command, response);
       return response;
    }
 
@@ -264,7 +264,7 @@ public class ArtemisFeatureTest extends Assert {
    public boolean verifyBundleInstalled(final String bundleName) throws Exception {
       boolean found = false;
       for (Bundle bundle : bundleContext.getBundles()) {
-         log.debug("Checking: " + bundle.getSymbolicName());
+         log.debug("Checking: {}", bundle.getSymbolicName());
          if (bundle.getSymbolicName().contains(bundleName)) {
             found = true;
             break;

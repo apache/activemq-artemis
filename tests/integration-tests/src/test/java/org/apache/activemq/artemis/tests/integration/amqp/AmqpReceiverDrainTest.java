@@ -74,7 +74,7 @@ public class AmqpReceiverDrainTest extends AmqpClientTestSupport {
       for (int i = 0; i < MSG_COUNT; ++i) {
          AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
          assertNotNull("Failed to read message: " + (i + 1), message);
-         logger.info("Read message: " + message.getMessageId());
+         logger.info("Read message: {}", message.getMessageId());
          message.accept();
       }
       receiver.close();

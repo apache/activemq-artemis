@@ -29,19 +29,21 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.qpid.jms.JmsConnectionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class PerfBase {
 
-   private static final Logger log = Logger.getLogger(PerfSender.class.getName());
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String DEFAULT_PERF_PROPERTIES_FILE_NAME = "target/classes/perf.properties";
 
@@ -93,20 +95,20 @@ public abstract class PerfBase {
       String clientLibrary = props.getProperty("client-library", "core");
       String uri = props.getProperty("server-uri", "tcp://localhost:61616");
 
-      PerfBase.log.info("num-messages: " + noOfMessages);
-      PerfBase.log.info("num-warmup-messages: " + noOfWarmupMessages);
-      PerfBase.log.info("message-size: " + messageSize);
-      PerfBase.log.info("durable: " + durable);
-      PerfBase.log.info("transacted: " + transacted);
-      PerfBase.log.info("batch-size: " + batchSize);
-      PerfBase.log.info("drain-queue: " + drainQueue);
-      PerfBase.log.info("throttle-rate: " + throttleRate);
-      PerfBase.log.info("destination-name: " + destinationName);
-      PerfBase.log.info("disable-message-id: " + disableMessageID);
-      PerfBase.log.info("disable-message-timestamp: " + disableTimestamp);
-      PerfBase.log.info("dups-ok-acknowledge: " + dupsOK);
-      PerfBase.log.info("server-uri: " + uri);
-      PerfBase.log.info("client-library:" + clientLibrary);
+      PerfBase.log.info("num-messages: {}", noOfMessages);
+      PerfBase.log.info("num-warmup-messages: {}", noOfWarmupMessages);
+      PerfBase.log.info("message-size: {}", messageSize);
+      PerfBase.log.info("durable: {}", durable);
+      PerfBase.log.info("transacted: {}", transacted);
+      PerfBase.log.info("batch-size: {}", batchSize);
+      PerfBase.log.info("drain-queue: {}", drainQueue);
+      PerfBase.log.info("throttle-rate: {}", throttleRate);
+      PerfBase.log.info("destination-name: {}", destinationName);
+      PerfBase.log.info("disable-message-id: {}", disableMessageID);
+      PerfBase.log.info("disable-message-timestamp: {}", disableTimestamp);
+      PerfBase.log.info("dups-ok-acknowledge: {}", dupsOK);
+      PerfBase.log.info("server-uri: {}", uri);
+      PerfBase.log.info("client-library:{}", clientLibrary);
 
       PerfParams perfParams = new PerfParams();
       perfParams.setNoOfMessagesToSend(noOfMessages);
@@ -189,7 +191,7 @@ public abstract class PerfBase {
          }
 
          start = System.currentTimeMillis();
-         PerfBase.log.info("warming up by sending " + perfParams.getNoOfWarmupMessages() + " messages");
+         PerfBase.log.info("warming up by sending {} messages", perfParams.getNoOfWarmupMessages());
          sendMessages(perfParams.getNoOfWarmupMessages(), perfParams.getBatchSize(), perfParams.isDurable(), perfParams.isSessionTransacted(), false, perfParams.getThrottleRate(), perfParams.getMessageSize());
          PerfBase.log.info("warmed up");
          start = System.currentTimeMillis();
@@ -281,7 +283,7 @@ public abstract class PerfBase {
 
       drainSession.close();
 
-      PerfBase.log.info("Drained " + count + " messages");
+      PerfBase.log.info("Drained {} messages", count);
    }
 
    private void sendMessages(final int numberOfMessages,
@@ -363,7 +365,7 @@ public abstract class PerfBase {
             if (warmingUp) {
                boolean committed = checkCommit();
                if (count.incrementAndGet() == perfParams.getNoOfWarmupMessages()) {
-                  PerfBase.log.info("warmed up after receiving " + count.longValue() + " msgs");
+                  PerfBase.log.info("warmed up after receiving {} msgs", count.longValue());
                   if (!committed) {
                      checkCommit();
                   }

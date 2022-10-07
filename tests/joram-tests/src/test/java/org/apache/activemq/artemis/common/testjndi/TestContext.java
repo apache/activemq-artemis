@@ -107,7 +107,7 @@ public class TestContext implements Context, Serializable {
             try {
                internalBind(binding.getKey(), binding.getValue());
             } catch (Throwable e) {
-               logger.error("Failed to bind " + binding.getKey() + "=" + binding.getValue(), e);
+               logger.error("Failed to bind {}={}", binding.getKey(), binding.getValue(), e);
             }
          }
       }

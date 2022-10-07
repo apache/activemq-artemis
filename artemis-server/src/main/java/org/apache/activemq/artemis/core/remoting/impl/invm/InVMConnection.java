@@ -205,9 +205,9 @@ public class InVMConnection implements Connection {
                try {
                   if (!closed) {
                      buffer.readInt(); // read and discard
-                     if (logger.isTraceEnabled()) {
-                        logger.trace(InVMConnection.this + "::Sending inVM packet");
-                     }
+
+                     logger.trace("{}::Sending inVM packet", InVMConnection.this);
+
                      handler.bufferReceived(id, buffer);
                      if (futureListener != null) {
                         futureListener.operationComplete(null);
@@ -219,9 +219,8 @@ public class InVMConnection implements Connection {
                   throw new IllegalStateException(msg, e);
                } finally {
                   buffer.release();
-                  if (logger.isTraceEnabled()) {
-                     logger.trace(InVMConnection.this + "::packet sent done");
-                  }
+
+                  logger.trace("{}::packet sent done", InVMConnection.this);
                }
             }
          });

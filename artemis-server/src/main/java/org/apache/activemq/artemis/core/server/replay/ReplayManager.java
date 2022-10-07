@@ -87,9 +87,8 @@ public class ReplayManager {
    }
 
    private void actualReplay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Replay::" + sourceAddress);
-      }
+      logger.debug("Replay::{}", sourceAddress);
+
       if (sourceAddress == null) {
          throw new NullPointerException("sourceAddress");
       }
@@ -128,26 +127,22 @@ public class ReplayManager {
 
       for (JournalFile file : files) {
          if (start != null || end != null) {
-            long fileEpochTime = journal.getDatePortionMillis(file.getFile().getFileName());
+            final String fileName = file.getFile().getFileName();
+            final long fileEpochTime = journal.getDatePortionMillis(fileName);
 
             if (logger.isDebugEnabled()) {
-               String datePortion = journal.getDatePortion(file.getFile().getFileName());
-               logger.debug("Evaluating replay for file " + file.getFile().getFileName() + ", datePortion=" + datePortion + "\n" +
-                             "\tInterval evaluated: start(" + start + ") --- file(" + new Date(fileEpochTime) + ") --- end(" + end + ")\n" +
-                             "\tepoch times: start(" + start.getTime() + ") --- file(" + fileEpochTime + ") + end(" + end.getTime() + ")");
+               String datePortion = journal.getDatePortion(fileName);
+               logger.debug("Evaluating replay for file {}, datePortion={}\n\tInterval evaluated: start({}) --- file({}) --- end({})\n\tepoch times: start({}) --- file({}) + end({})",
+                             fileName, datePortion, start, new Date(fileEpochTime), end, start.getTime(), fileEpochTime, end.getTime());
             }
 
             if (start != null && fileEpochTime < start.getTime()) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("File " + file.getFile().getFileName() + " being skipped on start comparison");
-               }
+               logger.debug("File {} being skipped on start comparison", fileName);
                continue;
             }
 
             if (end != null && fileEpochTime > end.getTime()) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("File " + file.getFile().getFileName() + " being skipped on end comparison");
-               }
+               logger.debug("File {} being skipped on end comparison", fileName);
                continue;
             }
          }

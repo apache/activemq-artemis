@@ -75,7 +75,7 @@ public class FileStoreMonitor extends ActiveMQScheduledComponent {
             try {
                addStore(Files.getFileStore(file.toPath()));
             } catch (IOException e) {
-               logger.error("Error getting file store for " + file.getAbsolutePath(), e);
+               logger.error("Error getting file store for {}", file.getAbsolutePath(), e);
                throw e;
             }
          }

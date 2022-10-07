@@ -158,7 +158,7 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
             if (connector != null) {
                staticConnectors.add(connector);
             } else {
-               logger.warn("Static connector not found: " + config.isLocalTargetEnabled());
+               logger.warn("Static connector not found: {}", config.isLocalTargetEnabled());
             }
          }
 

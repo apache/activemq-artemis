@@ -52,7 +52,7 @@ public class FileIOUtil {
             int bytesRead = from.read(buffer);
 
             if (logger.isTraceEnabled()) {
-               logger.trace("appending " + bytesRead + " bytes on " + to.getFileName());
+               logger.trace("appending {} bytes on {}", bytesRead, to.getFileName());
             }
 
             if (bytesRead > 0) {
@@ -60,7 +60,7 @@ public class FileIOUtil {
             }
 
             if (bytesRead < buffer.capacity()) {
-               logger.trace("Interrupting reading as the whole thing was sent on " + to.getFileName());
+               logger.trace("Interrupting reading as the whole thing was sent on {}", to.getFileName());
                break;
             }
          }

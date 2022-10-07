@@ -39,9 +39,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
    public ActiveMQRATextMessage(final TextMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + message + ", " + session + ")");
-      }
+      logger.trace("constructor({}, {})", message, session);
    }
 
    /**
@@ -52,9 +50,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
     */
    @Override
    public String getText() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getText()");
-      }
+      logger.trace("getText()");
 
       return ((TextMessage) message).getText();
    }
@@ -67,9 +63,7 @@ public class ActiveMQRATextMessage extends ActiveMQRAMessage implements TextMess
     */
    @Override
    public void setText(final String string) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setText(" + string + ")");
-      }
+      logger.trace("setText({})", string);
 
       ((TextMessage) message).setText(string);
    }

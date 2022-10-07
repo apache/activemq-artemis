@@ -153,7 +153,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
       this.flowRecord = flowRecord;
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Setting up bridge between " + clusterConnection.getConnector() + " and " + targetLocator, new Exception("trace"));
+         logger.trace("Setting up bridge between {} and {}", clusterConnection.getConnector(), targetLocator, new Exception("trace"));
       }
 
       this.storeAndForwardPrefix = storeAndForwardPrefix;
@@ -191,9 +191,7 @@ public class ClusterConnectionBridge extends BridgeImpl {
       // Note we must copy since same message may get routed to other nodes which require different headers
       Message messageCopy = message.copy();
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Clustered bridge  copied message " + message + " as " + messageCopy + " before delivery");
-      }
+      logger.trace("Clustered bridge  copied message {} as {} before delivery", message, messageCopy);
 
       // TODO - we can optimise this
 
@@ -223,21 +221,15 @@ public class ClusterConnectionBridge extends BridgeImpl {
    private void setupNotificationConsumer() throws Exception {
       if (flowRecord != null) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Setting up notificationConsumer between " + this.clusterConnection.getConnector() +
-                            " and " +
-                            flowRecord.getBridge().getForwardingConnection() +
-                            " clusterConnection = " +
-                            this.clusterConnection.getName() +
-                            " on server " +
-                            clusterConnection.getServer());
+            logger.debug("Setting up notificationConsumer between {} and {} clusterConnection = {} on server {}",
+                          this.clusterConnection.getConnector(), flowRecord.getBridge().getForwardingConnection(),
+                          this.clusterConnection.getName(), clusterConnection.getServer());
          }
          flowRecord.reset();
 
          if (notifConsumer != null) {
             try {
-               logger.debug("Closing notification Consumer for reopening " + notifConsumer +
-                               " on bridge " +
-                               this.getName());
+               logger.debug("Closing notification Consumer for reopening {} on bridge {}", notifConsumer, this.getName());
                notifConsumer.close();
 
                notifConsumer = null;
@@ -295,14 +287,12 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
          ClientMessage message = sessionConsumer.createMessage(false);
          if (logger.isTraceEnabled()) {
-            logger.trace("Requesting sendQueueInfoToQueue through " + this, new Exception("trace"));
+            logger.trace("Requesting sendQueueInfoToQueue through {}", this, new Exception("trace"));
          }
          ManagementHelper.putOperationInvocation(message, ResourceNames.BROKER, "sendQueueInfoToQueue", notifQueueName.toString(), flowRecord.getAddress());
 
          try (ClientProducer prod = sessionConsumer.createProducer(managementAddress)) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Cluster connection bridge on " + clusterConnection + " requesting information on queues");
-            }
+            logger.debug("Cluster connection bridge on {} requesting information on queues", clusterConnection);
 
             prod.send(message);
          }
@@ -429,11 +419,11 @@ public class ClusterConnectionBridge extends BridgeImpl {
 
    @Override
    protected void fail(final boolean permanently, final boolean scaleDown) {
-      logger.debug("Cluster Bridge " + this.getName() + " failed, permanently=" + permanently);
+      logger.debug("Cluster Bridge {} failed, permanently={}", this.getName(), permanently);
       super.fail(permanently, scaleDown);
 
       if (permanently) {
-         logger.debug("cluster node for bridge " + this.getName() + " is permanently down");
+         logger.debug("cluster node for bridge {} is permanently down", this.getName());
          clusterConnection.removeRecord(targetNodeID);
 
          if (scaleDown) {

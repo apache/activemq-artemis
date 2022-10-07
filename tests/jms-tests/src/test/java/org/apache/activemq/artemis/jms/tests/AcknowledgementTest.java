@@ -258,7 +258,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       assertRemainingMessages(NUM_MESSAGES);
 
-      logger.trace("Received " + count + " messages");
+      logger.trace("Received {} messages", count);
 
       ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
 
@@ -273,7 +273,7 @@ public class AcknowledgementTest extends JMSTestCase {
       int i = 0;
       for (; i < NUM_MESSAGES; i++) {
          m = consumer.receive();
-         logger.trace("Received message " + i);
+         logger.trace("Received message {}", i);
 
       }
 
@@ -281,7 +281,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       // if I don't receive enough messages, the test will timeout
 
-      logger.trace("Received " + i + " messages after recover");
+      logger.trace("Received {} messages after recover", i);
 
       m.acknowledge();
 
@@ -381,7 +381,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       assertRemainingMessages(0);
 
-      logger.trace("Received " + count + " messages");
+      logger.trace("Received {} messages", count);
 
       ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
 
@@ -391,7 +391,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       m = consumer.receiveNoWait();
 
-      logger.trace("Message is:" + m);
+      logger.trace("Message is: {}", m);
 
       ProxyAssertSupport.assertNull(m);
    }
@@ -443,7 +443,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
          ProxyAssertSupport.assertNotNull(m);
 
-         logger.trace("Received " + count + " messages");
+         logger.trace("Received {} messages", count);
 
          ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
 
@@ -516,7 +516,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       ProxyAssertSupport.assertNotNull(m);
 
-      logger.trace("Received " + count + " messages");
+      logger.trace("Received {} messages", count);
 
       ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
 
@@ -526,7 +526,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       m = consumer.receiveNoWait();
 
-      logger.trace("Message is:" + m);
+      logger.trace("Message is: {}", m);
 
       ProxyAssertSupport.assertNull(m);
    }
@@ -570,7 +570,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       ProxyAssertSupport.assertNotNull(m);
 
-      logger.trace("Received " + count + " messages");
+      logger.trace("Received {} messages", count);
 
       ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
 
@@ -580,7 +580,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       m = consumer.receiveNoWait();
 
-      logger.trace("Message is:" + m);
+      logger.trace("Message is: {}", m);
 
       ProxyAssertSupport.assertNull(m);
 
@@ -676,7 +676,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       assertRemainingMessages(NUM_MESSAGES);
 
-      logger.trace("Received " + count + " messages");
+      logger.trace("Received {} messages", count);
 
       ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
 
@@ -686,7 +686,7 @@ public class AcknowledgementTest extends JMSTestCase {
 
       m = consumer.receiveNoWait();
 
-      logger.trace("Message is:" + m);
+      logger.trace("Message is: {}", m);
 
       ProxyAssertSupport.assertNull(m);
 
@@ -787,7 +787,7 @@ public class AcknowledgementTest extends JMSTestCase {
       messageReceived = (TextMessage) consumer.receiveNoWait();
 
       if (messageReceived != null) {
-         logger.debug("Message received " + messageReceived.getText());
+         logger.debug("Message received {}", messageReceived.getText());
       }
       Assert.assertNull(messageReceived);
 
@@ -1069,7 +1069,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 1) {
                assertRemainingMessages(3);
                if (!"a".equals(tm.getText())) {
-                  logger.trace("Expected a but got " + tm.getText());
+                  logger.trace("Expected a but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1077,7 +1077,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 2) {
                assertRemainingMessages(3);
                if (!"b".equals(tm.getText())) {
-                  logger.trace("Expected b but got " + tm.getText());
+                  logger.trace("Expected b but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1085,7 +1085,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 3) {
                assertRemainingMessages(3);
                if (!"c".equals(tm.getText())) {
-                  logger.trace("Expected c but got " + tm.getText());
+                  logger.trace("Expected c but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1095,7 +1095,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 4) {
                assertRemainingMessages(3);
                if (!"a".equals(tm.getText())) {
-                  logger.trace("Expected a but got " + tm.getText());
+                  logger.trace("Expected a but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1108,7 +1108,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 5) {
                assertRemainingMessages(2);
                if (!"b".equals(tm.getText())) {
-                  logger.trace("Expected b but got " + tm.getText());
+                  logger.trace("Expected b but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1118,7 +1118,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 6) {
                assertRemainingMessages(2);
                if (!"b".equals(tm.getText())) {
-                  logger.trace("Expected b but got " + tm.getText());
+                  logger.trace("Expected b but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1126,7 +1126,7 @@ public class AcknowledgementTest extends JMSTestCase {
             if (count == 7) {
                assertRemainingMessages(2);
                if (!"c".equals(tm.getText())) {
-                  logger.trace("Expected c but got " + tm.getText());
+                  logger.trace("Expected c but got {}", tm.getText());
                   failed = true;
                   latch.countDown();
                }
@@ -1313,8 +1313,8 @@ public class AcknowledgementTest extends JMSTestCase {
       long time1 = consume(cf1, queue1, messageCount);
       long time2 = consume(cf2, queue2, messageCount);
 
-      logger.debug("BlockOnAcknowledge=false MessageCount=" + messageCount + " TimeToConsume=" + time1);
-      logger.debug("BlockOnAcknowledge=true MessageCount=" + messageCount + " TimeToConsume=" + time2);
+      logger.debug("BlockOnAcknowledge=false MessageCount={} TimeToConsume={}", messageCount, time1);
+      logger.debug("BlockOnAcknowledge=true MessageCount={} TimeToConsume={}", messageCount, time2);
 
       Assert.assertTrue(time1 < (time2 / 2));
 

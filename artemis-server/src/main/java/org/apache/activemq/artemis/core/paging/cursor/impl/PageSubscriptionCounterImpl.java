@@ -351,7 +351,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          newRecordID = storage.storePageCounter(txCleanup, subscriptionID, valueReplace, sizeReplace);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Replacing page-counter record = " + recordID + " by record = " + newRecordID + " on subscriptionID = " + this.subscriptionID + " for queue = " + this.subscription.getQueue().getName());
+            logger.trace("Replacing page-counter record = {} by record = {} on subscriptionID = {} for queue = {}",
+               recordID, newRecordID, subscriptionID, subscription.getQueue().getName());
          }
 
          storage.commit(txCleanup);

@@ -29,9 +29,6 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
-
-
    public InVMInitialContextFactoryBuilder() {
    }
 
@@ -49,17 +46,17 @@ public class InVMInitialContextFactoryBuilder implements InitialContextFactoryBu
             try {
                c = Class.forName(icfName);
             } catch (ClassNotFoundException e) {
-               logger.error("\"" + icfName + "\" cannot be loaded", e);
+               logger.error("\"{}\" cannot be loaded", icfName, e);
                throw new NamingException("\"" + icfName + "\" cannot be loaded");
             }
 
             try {
                icf = (InitialContextFactory) c.newInstance();
             } catch (InstantiationException e) {
-               logger.error(c.getName() + " cannot be instantiated", e);
+               logger.error("{} cannot be instantiated", c.getName(), e);
                throw new NamingException(c.getName() + " cannot be instantiated");
             } catch (IllegalAccessException e) {
-               logger.error(c.getName() + " instantiation generated an IllegalAccessException", e);
+               logger.error("{} instantiation generated an IllegalAccessException", c.getName(), e);
                throw new NamingException(c.getName() + " instantiation generated an IllegalAccessException");
             }
          }

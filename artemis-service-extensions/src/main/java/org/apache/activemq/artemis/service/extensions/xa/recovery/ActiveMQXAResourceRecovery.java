@@ -57,15 +57,11 @@ public class ActiveMQXAResourceRecovery {
    private ActiveMQXAResourceWrapper res;
 
    public ActiveMQXAResourceRecovery() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Constructing ActiveMQXAResourceRecovery");
-      }
+      logger.trace("Constructing ActiveMQXAResourceRecovery");
    }
 
    public boolean initialise(final String config) {
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + " initialise: " + config);
-      }
+      logger.trace("{} initialise: {}", this, config);
 
       String[] configs = config.split(";");
       XARecoveryConfig[] xaRecoveryConfigs = new XARecoveryConfig[configs.length];
@@ -82,17 +78,13 @@ public class ActiveMQXAResourceRecovery {
 
       res = new ActiveMQXAResourceWrapper(xaRecoveryConfigs);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + " initialised");
-      }
+      logger.trace("{} initialised", this);
 
       return true;
    }
 
    public boolean hasMoreResources() {
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + " hasMoreResources");
-      }
+      logger.trace("{} hasMoreResources", this);
 
       /*
        * The way hasMoreResources is supposed to work is as follows:
@@ -114,9 +106,7 @@ public class ActiveMQXAResourceRecovery {
    }
 
    public XAResource getXAResource() {
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + " getXAResource");
-      }
+      logger.trace("{} getXAResource", this);
 
       return res;
    }

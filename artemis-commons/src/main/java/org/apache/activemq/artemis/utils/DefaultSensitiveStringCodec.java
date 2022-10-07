@@ -143,7 +143,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          } else {
             key = System.getProperty(KEY_SYSTEM_PROPERTY);
             if (key != null && key.trim().length() > 0) {
-               logger.trace("Set key from system property " + KEY_SYSTEM_PROPERTY);
+               logger.trace("Set key from system property {}", KEY_SYSTEM_PROPERTY);
                updateKey(key);
             }
          }
@@ -199,7 +199,7 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
          try {
             return Objects.equals(storedValue, encode(String.valueOf(inputValue)));
          } catch (Exception e) {
-            logger.debug("Exception on verifying: " + e);
+            logger.debug("Exception on verifying:", e);
             return false;
          }
       }

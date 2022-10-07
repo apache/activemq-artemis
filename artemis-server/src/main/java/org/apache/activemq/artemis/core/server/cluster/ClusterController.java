@@ -102,10 +102,12 @@ public class ClusterController implements ActiveMQComponent {
    @Override
    public void start() throws Exception {
       if (logger.isDebugEnabled()) {
-         logger.debug("Starting Cluster Controller " + System.identityHashCode(this) + " for server " + server);
+         logger.debug("Starting Cluster Controller {} for server {}", System.identityHashCode(this), server);
       }
-      if (started)
+      if (started) {
          return;
+      }
+
       //set the default locator that will be used to connecting to the default cluster.
       defaultLocator = locators.get(defaultClusterConnectionName);
       //create a locator for replication, either the default or the specified if not set
@@ -162,8 +164,7 @@ public class ClusterController implements ActiveMQComponent {
    @Override
    public void stop() throws Exception {
       if (logger.isDebugEnabled()) {
-
-         logger.debug("Stopping Cluster Controller " + System.identityHashCode(this) + " for server " + this.server);
+         logger.debug("Stopping Cluster Controller {} for server {}", System.identityHashCode(this), server);
       }
       started = false;
       //close all the locators
@@ -446,8 +447,9 @@ public class ClusterController implements ActiveMQComponent {
                } else {
                   pair = new Pair<>(msg.getConnector(), msg.getBackupConnector());
                }
+
                if (logger.isTraceEnabled()) {
-                  logger.trace("Server " + server + " receiving nodeUp from NodeID=" + msg.getNodeID() + ", pair=" + pair);
+                  logger.trace("Server {} receiving nodeUp from NodeID={}, pair={}", server, msg.getNodeID(), pair);
                }
 
                if (acceptorUsed != null) {
@@ -456,10 +458,10 @@ public class ClusterController implements ActiveMQComponent {
                      String scaleDownGroupName = msg.getScaleDownGroupName();
                      clusterConn.nodeAnnounced(msg.getCurrentEventID(), msg.getNodeID(), msg.getBackupGroupName(), scaleDownGroupName, pair, msg.isBackup());
                   } else {
-                     logger.debug("Cluster connection is null on acceptor = " + acceptorUsed);
+                     logger.debug("Cluster connection is null on acceptor = {}", acceptorUsed);
                   }
                } else {
-                  logger.debug("there is no acceptor used configured at the CoreProtocolManager " + this);
+                  logger.debug("there is no acceptor used configured at the CoreProtocolManager {}", this);
                }
             } else if (packet.getType() == PacketImpl.QUORUM_VOTE) {
                if (quorumManager != null) {
@@ -506,8 +508,7 @@ public class ClusterController implements ActiveMQComponent {
                return;
             }
             if (logger.isDebugEnabled()) {
-
-               logger.debug("retry on Cluster Controller " + System.identityHashCode(ClusterController.this) + " server = " + server);
+               logger.debug("retry on Cluster Controller {} server = {}", System.identityHashCode(ClusterController.this), server);
             }
             server.getScheduledPool().schedule(this, serverLocator.getRetryInterval(), TimeUnit.MILLISECONDS);
          }

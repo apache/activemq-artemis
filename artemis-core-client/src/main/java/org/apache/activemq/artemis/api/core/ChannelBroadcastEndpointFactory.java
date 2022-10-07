@@ -45,7 +45,7 @@ public class ChannelBroadcastEndpointFactory implements BroadcastEndpointFactory
 
    private ChannelBroadcastEndpointFactory(JChannelManager manager, JChannel channel, String channelName) {
       if (logger.isTraceEnabled()) {
-         logger.trace("new ChannelBroadcastEndpointFactory(" + manager + ", " + channel + ", " + channelName, new Exception("trace"));
+         logger.trace("new ChannelBroadcastEndpointFactory({}, {}, {})", manager, channel, channelName, new Exception("trace"));
       }
       this.manager = manager;
       this.channel = channel;

@@ -60,22 +60,20 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
       try {
          if (appendFile != null) {
             if (logger.isTraceEnabled()) {
-               logger.trace("joinSyncedData on " + mainLM + ", currentSize on mainMessage=" + mainSeqFile.size() + ", appendFile size = " + appendFile.size());
+               logger.trace("joinSyncedData on {}, currentSize on mainMessage={}, appendFile size = {}", mainLM, mainSeqFile.size(), appendFile.size());
             }
 
             FileIOUtil.copyData(appendFile, mainSeqFile, buffer);
             deleteAppendFile();
          } else {
-            if (logger.isTraceEnabled()) {
-               logger.trace("joinSyncedData, appendFile is null, ignoring joinSyncedData on " + mainLM);
-            }
+            logger.trace("joinSyncedData, appendFile is null, ignoring joinSyncedData on {}", mainLM);
          }
       } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.errorWhileSyncingData(mainLM.toString(), e);
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("joinedSyncData on " + mainLM + " finished with " + mainSeqFile.size());
+         logger.trace("joinedSyncData on {} finished with {}", mainLM, mainSeqFile.size());
       }
 
       syncDone = true;
@@ -100,7 +98,7 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
    @Override
    public synchronized void releaseResources(boolean sync, boolean sendEvent) {
       if (logger.isTraceEnabled()) {
-         logger.trace("release resources called on " + mainLM, new Exception("trace"));
+         logger.trace("release resources called on {}", mainLM, new Exception("trace"));
       }
       mainLM.releaseResources(sync, sendEvent);
       if (appendFile != null && appendFile.isOpen()) {
@@ -140,14 +138,14 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
 
       if (syncDone) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Adding " + bytes.length + " towards sync message::" + mainLM);
+            logger.trace("Adding {} towards sync message::{}", bytes.length, mainLM);
          }
          mainLM.addBytes(bytes);
          return;
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("addBytes(bytes.length=" + bytes.length + ") on message=" + mainLM);
+         logger.trace("addBytes(bytes.length={}) on message={}", bytes.length, mainLM);
       }
 
       if (appendFile == null) {

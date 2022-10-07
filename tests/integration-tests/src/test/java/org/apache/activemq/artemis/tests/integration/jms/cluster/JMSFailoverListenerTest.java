@@ -152,7 +152,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
       Wait.assertTrue(() -> FailoverEventType.FAILURE_DETECTED == listener.get(0));
       for (int i = 0; i < numMessages; i++) {
-         logger.debug("got message " + i);
+         logger.debug("got message {}", i);
 
          BytesMessage bm = (BytesMessage) consumer.receive(1000);
 

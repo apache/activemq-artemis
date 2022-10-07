@@ -511,7 +511,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
             try {
                server.getFederationManager().deploy(config);
             } catch (Exception e) {
-               logger.error("Error deploying federation: " + e.getMessage(), e);
+               logger.error("Error deploying federation", e);
             }
          }
       }

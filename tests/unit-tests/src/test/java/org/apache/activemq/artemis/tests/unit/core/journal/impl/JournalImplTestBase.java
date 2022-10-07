@@ -255,7 +255,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
     * @throws Exception
     */
    protected void exportImportJournal() throws Exception {
-      log.debug("Exporting to " + getTestDir() + "/output.log");
+      log.debug("Exporting to {}/output.log", getTestDir());
 
       EncodeJournal.exportJournal(getTestDir(), this.filePrefix, this.fileExtension, this.minFiles, this.fileSize, getTestDir() + "/output.log");
 
@@ -268,12 +268,12 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          }
       };
 
-      log.debug("file = " + dir);
+      log.debug("file = {}", dir);
 
       File[] files = dir.listFiles(fnf);
 
       for (File file : files) {
-         log.debug("Deleting " + file);
+         log.debug("Deleting {}", file);
          file.delete();
       }
 
@@ -679,7 +679,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          expectedSet.removeAll(actualSet);
 
          for (RecordInfo info : expectedSet) {
-            log.warn("The following record is missing:: " + info);
+            log.warn("The following record is missing:: {}", info);
          }
 
          Assert.assertEquals("There are duplicates on the actual list", actualSet.size(), actualSet.size());
@@ -698,23 +698,23 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          log.debug("#Summary **********************************************************************************************************************");
          for (RecordInfo r : hashActual) {
             if (!hashExpected.contains(r)) {
-               log.debug("Record " + r + " was supposed to be removed and it exists");
+               log.debug("Record {} was supposed to be removed and it exists", r);
             }
          }
 
          for (RecordInfo r : hashExpected) {
             if (!hashActual.contains(r)) {
-               log.debug("Record " + r + " was not found on actual list");
+               log.debug("Record {} was not found on actual list", r);
             }
          }
 
          log.debug("#expected **********************************************************************************************************************");
          for (RecordInfo recordInfo : expected) {
-            log.debug("Record::" + recordInfo);
+            log.debug("Record::{}", recordInfo);
          }
          log.debug("#actual ************************************************************************************************************************");
          for (RecordInfo recordInfo : actual) {
-            log.debug("Record::" + recordInfo);
+            log.debug("Record::{}", recordInfo);
          }
 
          log.debug("#records ***********************************************************************************************************************");

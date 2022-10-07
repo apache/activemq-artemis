@@ -700,13 +700,13 @@ public class LoggingActiveMQServerPlugin implements ActiveMQServerPlugin, Serial
     */
    private void dumpConfiguration() {
       if (logger.isDebugEnabled()) {
-         logger.debug("LoggingPlugin logAll=" + logAll);
-         logger.debug("LoggingPlugin logConnectionEvents=" + logConnectionEvents);
-         logger.debug("LoggingPlugin logSessionEvents=" + logSessionEvents);
-         logger.debug("LoggingPlugin logConsumerEvents=" + logConsumerEvents);
-         logger.debug("LoggingPlugin logSendingEvents=" + logSendingEvents);
-         logger.debug("LoggingPlugin logDeliveringEvents=" + logDeliveringEvents);
-         logger.debug("LoggingPlugin logInternalEvents=" + logInternalEvents);
+         logger.debug("LoggingPlugin logAll={}", logAll);
+         logger.debug("LoggingPlugin logConnectionEvents={}", logConnectionEvents);
+         logger.debug("LoggingPlugin logSessionEvents={}", logSessionEvents);
+         logger.debug("LoggingPlugin logConsumerEvents={}", logConsumerEvents);
+         logger.debug("LoggingPlugin logSendingEvents={}", logSendingEvents);
+         logger.debug("LoggingPlugin logDeliveringEvents={}", logDeliveringEvents);
+         logger.debug("LoggingPlugin logInternalEvents={}", logInternalEvents);
       }
 
    }

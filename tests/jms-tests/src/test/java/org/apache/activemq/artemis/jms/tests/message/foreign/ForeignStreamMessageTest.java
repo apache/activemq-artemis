@@ -37,7 +37,7 @@ public class ForeignStreamMessageTest extends ForeignMessageTest {
    protected Message createForeignMessage() throws Exception {
       SimpleJMSStreamMessage m = new SimpleJMSStreamMessage();
 
-      logger.debug("creating JMS Message type " + m.getClass().getName());
+      logger.debug("creating JMS Message type {}", m.getClass().getName());
 
       m.writeBoolean(true);
       m.writeBytes("jboss".getBytes());

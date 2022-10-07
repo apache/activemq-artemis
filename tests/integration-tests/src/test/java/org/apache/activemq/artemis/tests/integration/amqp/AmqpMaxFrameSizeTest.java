@@ -182,7 +182,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
             verifyMessage(receivedMessage, payloadSize);
 
-            LOG.trace("received : message " + i);
+            LOG.trace("received : message {}", i);
             receivedMessage.accept();
          }
 

@@ -58,9 +58,7 @@ public class AllClassesTest {
                      parameters.add(loadedClass);
                   }
                } catch (Throwable loadThrowable) {
-                  if (log.isDebugEnabled()) {
-                     log.debug("cannot load " + classInfo.getName() + ": " + loadThrowable);
-                  }
+                  log.debug("cannot load {} : {}", classInfo.getName(), loadThrowable);
                }
             }
          }
@@ -69,7 +67,7 @@ public class AllClassesTest {
 
          return parameters;
       } catch (Exception e) {
-         log.warn("Exception on loading all classes: " + e);
+         log.warn("Exception on loading all classes: {}", e.toString());
       }
 
       return parameters;
@@ -89,7 +87,7 @@ public class AllClassesTest {
       try {
          targetInstance = newInstance(targetClass);
       } catch (Throwable t) {
-         log.debug("Error creating a new instance of " + targetClass.getName() + ": " + t);
+         log.debug("Error creating a new instance of {}: {}", targetClass.getName(), t);
       }
 
       Assume.assumeTrue("Cannot create " + targetClass.getName(), targetInstance != null);
@@ -102,7 +100,7 @@ public class AllClassesTest {
             try {
                ((AutoCloseable)targetInstance).close();
             } catch (Throwable t) {
-               log.debug("Error closing the instance of " + targetClass.getName() + ": " + t);
+               log.debug("Error closing the instance of {}: {}", targetClass.getName(), t);
             }
          }
       }
@@ -145,7 +143,7 @@ public class AllClassesTest {
             return targetConstructor.newInstance(initArgs.toArray());
          } catch (Throwable t) {
             if (log.isDebugEnabled()) {
-               log.debug("Cannot construct " + targetClass.getName() + ": " + t);
+               log.debug("Cannot construct {}: {}", targetClass.getName(), t);
             }
          }
       }

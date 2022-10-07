@@ -180,7 +180,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       this.flowControlExecutor = flowControlExecutor;
 
       if (logger.isTraceEnabled()) {
-         logger.trace(this + ":: being created at", new Exception("trace"));
+         logger.trace("{}:: being created at", this, new Exception("trace"));
       }
    }
 
@@ -194,14 +194,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    private ClientMessage receive(final long timeout, final boolean forcingDelivery) throws ActiveMQException {
       if (logger.isTraceEnabled()) {
-         logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ")");
+         logger.trace("{}::receive({}, {})", this, timeout, forcingDelivery);
       }
 
       checkClosed();
 
       if (largeMessageReceived != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ") -> discard LargeMessage body for " + largeMessageReceived);
+            logger.trace("{}::receive({}, {}) -> discard LargeMessage body for {}", this, timeout, forcingDelivery, largeMessageReceived);
          }
          // Check if there are pending packets to be received
          largeMessageReceived.discardBody();
@@ -214,14 +214,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       if (handler != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ") -> throwing messageHandlerSet");
+            logger.trace("{}::receive({}, {}) -> throwing messageHandlerSet", this, timeout, forcingDelivery);
          }
          throw ActiveMQClientMessageBundle.BUNDLE.messageHandlerSet();
       }
 
       if (clientWindowSize == 0) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ") -> start slowConsumer");
+            logger.trace("{}::receive({}, {}) -> start slowConsumer", this, timeout, forcingDelivery);
          }
          startSlowConsumer();
       }
@@ -280,7 +280,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             if (failedOver) {
                if (m == null) {
                   if (logger.isTraceEnabled()) {
-                     logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ") -> m == null and failover");
+                     logger.trace("{}::receive({}, {}) -> m == null and failover", this, timeout, forcingDelivery);
                   }
 
                   // if failed over and the buffer is null, we reset the state and try it again
@@ -290,16 +290,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   continue;
                } else {
                   if (logger.isTraceEnabled()) {
-                     logger.trace(this + "::receive(" + timeout + ", " + forcingDelivery + ") -> failedOver, but m != null, being " + m);
+                     logger.trace("{}::receive({}, {}) -> failedOver, but m != null, being {}", this, timeout, forcingDelivery, m);
                   }
                   failedOver = false;
                }
             }
 
             if (callForceDelivery) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::Forcing delivery");
-               }
+               logger.trace("{}::Forcing delivery", this);
                // JBPAPP-6030 - Calling forceDelivery outside of the lock to avoid distributed dead locks
                sessionContext.forceDelivery(this, forceDeliveryCount.getAndIncrement());
                callForceDelivery = false;
@@ -318,16 +316,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   if (forcingDelivery && deliveryForced && seq == forceDeliveryCount.get() - 1) {
                      // forced delivery messages are discarded, nothing has been delivered by the queue
                      resetIfSlowConsumer();
-
-                     if (logger.isTraceEnabled()) {
-                        logger.trace(this + "::There was nothing on the queue, leaving it now:: returning null");
-                     }
+                     logger.trace("{}::There was nothing on the queue, leaving it now:: returning null", this);
 
                      return null;
                   } else {
-                     if (logger.isTraceEnabled()) {
-                        logger.trace(this + "::Ignored force delivery answer as it belonged to another call");
-                     }
+                     logger.trace("{}::Ignored force delivery answer as it belonged to another call", this);
                      // Ignore the message
                      continue;
                   }
@@ -357,15 +350,11 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   largeMessageReceived = m;
                }
 
-               if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::Returning " + m);
-               }
+               logger.trace("{}::Returning {}", this, m);
 
                return m;
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::Returning null");
-               }
+               logger.trace("{}::Returning null", this);
                resetIfSlowConsumer();
                return null;
             }
@@ -377,22 +366,17 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    @Override
    public ClientMessage receive(final long timeout) throws ActiveMQException {
-
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + ":: receive(" + timeout + ")");
-      }
+      logger.trace("{}:: receive({})", this, timeout);
       ClientMessage msg = receive(timeout, false);
 
       if (msg == null && !closed) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + ":: receive(" + timeout + ") -> null, trying again with receive(0)");
+            logger.trace("{}:: receive({}) -> null, trying again with receive(0)", this, timeout);
          }
          msg = receive(0, true);
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + ":: returning " + msg);
-      }
+      logger.trace("{}:: returning {}", this, msg);
 
       return msg;
    }
@@ -513,9 +497,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
    @Override
    public void clearAtFailover() {
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + "::ClearAtFailover");
-      }
+      logger.trace("{}::ClearAtFailover", this);
       clearBuffer();
 
       // failover will issue a start later
@@ -699,7 +681,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
       if (currentLargeMessageController == null) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + "::Sending back credits for largeController = null " + flowControlSize);
+            logger.trace("{}::Sending back credits for largeController = null {}", this, flowControlSize);
          }
          flowControl(flowControlSize, false);
       } else {
@@ -777,18 +759,14 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          ackBytes += message.getEncodeSize();
 
          if (logger.isTraceEnabled()) {
-            logger.trace(this + "::acknowledge ackBytes=" + ackBytes + " and ackBatchSize=" + ackBatchSize + ", encodeSize=" + message.getEncodeSize());
+            logger.trace("{}::acknowledge ackBytes={} and ackBatchSize={}, encodeSize={}", this, ackBytes, ackBatchSize, message.getEncodeSize());
          }
 
          if (ackBytes >= ackBatchSize) {
-            if (logger.isTraceEnabled()) {
-               logger.trace(this + ":: acknowledge acking " + cmi);
-            }
+            logger.trace("{}:: acknowledge acking {}", this, cmi);
             doAck(cmi);
          } else {
-            if (logger.isTraceEnabled()) {
-               logger.trace(this + ":: acknowledge setting lastAckedMessage = " + cmi);
-            }
+            logger.trace("{}:: acknowledge setting lastAckedMessage = {}", this, cmi);
             lastAckedMessage = cmi;
          }
       }
@@ -806,9 +784,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    @Override
    public void flushAcks() throws ActiveMQException {
       if (lastAckedMessage != null) {
-         if (logger.isTraceEnabled()) {
-            logger.trace(this + "::FlushACK acking lastMessage::" + lastAckedMessage);
-         }
+         logger.trace("{}::FlushACK acking lastMessage::{}", this, lastAckedMessage);
          doAck(lastAckedMessage);
       }
    }
@@ -827,7 +803,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
          if (creditsToSend >= clientWindowSize) {
             if (clientWindowSize == 0 && discountSlowConsumer) {
                if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::FlowControl::Sending " + creditsToSend + " -1, for slow consumer");
+                  logger.trace("{}::FlowControl::Sending {}-1, for slow consumer", this, creditsToSend);
                }
 
                // sending the credits - 1 initially send to fire the slow consumer, or the slow consumer would be
@@ -841,7 +817,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                }
             } else {
                if (logger.isDebugEnabled()) {
-                  logger.debug("Sending " + messageBytes + " from flow-control");
+                  logger.debug("Sending {} from flow-control", messageBytes);
                }
 
                final int credits = creditsToSend;
@@ -860,9 +836,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     * Sending an initial credit for slow consumers
     */
    private void startSlowConsumer() {
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + "::Sending 1 credit to start delivering of one message to slow consumer");
-      }
+      logger.trace("{}::Sending 1 credit to start delivering of one message to slow consumer", this);
       sendCredits(1);
       try {
          // We use an executor here to guarantee the messages will arrive in order.
@@ -903,10 +877,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    }
 
    private void queueExecutor() {
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + "::Adding Runner on Executor for delivery");
-      }
-
+      logger.trace("{}::Adding Runner on Executor for delivery", this);
       sessionExecutor.execute(runner);
    }
 
@@ -993,9 +964,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
             flowControlBeforeConsumption(message);
 
             if (!expired) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::Calling handler.onMessage");
-               }
+               logger.trace("{}::Calling handler.onMessage", this);
                final ClassLoader originalLoader = safeInstallContextClassLoader();
 
                onMessageThread = Thread.currentThread();
@@ -1011,9 +980,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
                   onMessageThread = null;
                }
 
-               if (logger.isTraceEnabled()) {
-                  logger.trace(this + "::Handler.onMessage done");
-               }
+               logger.trace("{}::Handler.onMessage done", this);
 
                if (message.isLargeMessage()) {
                   message.discardBody();
@@ -1133,9 +1100,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
       lastAckedMessage = null;
 
-      if (logger.isTraceEnabled()) {
-         logger.trace(this + "::Acking message " + message);
-      }
+      logger.trace("{}::Acking message {}", this, message);
 
       session.acknowledge(this, message);
    }

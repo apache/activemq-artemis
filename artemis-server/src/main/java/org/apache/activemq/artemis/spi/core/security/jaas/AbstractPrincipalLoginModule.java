@@ -73,7 +73,7 @@ public abstract class AbstractPrincipalLoginModule implements AuditLoginModule {
       if (!authenticatedPrincipals.isEmpty()) {
          loginSucceeded = true;
       }
-      logger.debug("login " + authenticatedPrincipals);
+      logger.debug("login {}", authenticatedPrincipals);
       return loginSucceeded;
    }
 
@@ -87,7 +87,7 @@ public abstract class AbstractPrincipalLoginModule implements AuditLoginModule {
 
       clear();
 
-      logger.debug("commit, result: " + result);
+      logger.debug("commit, result: {}", result);
 
       return result;
    }

@@ -142,9 +142,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       doSend(address1, message, handler);
 
       if (handler != null && !session.isConfirmationWindowEnabled()) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Handler was used on producing messages towards address " + address1 + " however there is no confirmationWindowEnabled");
-         }
+         logger.debug("Handler was used on producing messages towards address {} however there is no confirmationWindowEnabled", address1);
 
          // if there is no confirmation enabled, we will at least call the handler after the sent is done
          session.scheduleConfirmation(handler, message);

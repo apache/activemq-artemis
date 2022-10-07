@@ -125,7 +125,7 @@ public class LegacyJMSConfiguration implements Deployable {
             Node node = children.item(i);
             Node keyNode = node.getAttributes().getNamedItem(NAME_ATTR);
             if (keyNode == null) {
-               logger.warn("Configuration missing jms key " + node);
+               logger.warn("Configuration missing jms key {}", node);
                continue;
             }
 

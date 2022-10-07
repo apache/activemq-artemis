@@ -159,13 +159,13 @@ public class AmqpCoreTest extends JMSClientTestSupport {
 
       @Override
       public void onMessage(ClientMessage message) {
-         logger.debug("received: " + message.getBodySize());
+         logger.debug("received: {}", message.getBodySize());
          if (message.getBodySize() == 0) {
             logger.debug("xxx found zero len message!");
             zeroLen.set(true);
          }
 
-         logger.debug("[receiver " + id + "] recieved: " + numMsg.incrementAndGet());
+         logger.debug("[receiver {}] recieved: {}", id, numMsg.incrementAndGet());
       }
 
       public void assertMessagesReceived(int num) throws Exception {

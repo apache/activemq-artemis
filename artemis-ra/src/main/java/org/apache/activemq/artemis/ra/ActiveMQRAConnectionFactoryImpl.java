@@ -75,25 +75,19 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     * @param cm  The connection manager
     */
    public ActiveMQRAConnectionFactoryImpl(final ActiveMQRAManagedConnectionFactory mcf, final ConnectionManager cm) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + mcf + ", " + cm + ")");
-      }
+      logger.trace("constructor({}, {})", mcf, cm);
 
       this.mcf = mcf;
 
       if (cm == null) {
          // This is standalone usage, no appserver
          this.cm = new ActiveMQRAConnectionManager();
-         if (logger.isTraceEnabled()) {
-            logger.trace("Created new ConnectionManager=" + this.cm);
-         }
+         logger.trace("Created new ConnectionManager={}", this.cm);
       } else {
          this.cm = cm;
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Using ManagedConnectionFactory=" + mcf + ", ConnectionManager=" + cm);
-      }
+      logger.trace("Using ManagedConnectionFactory={}, ConnectionManager={}", mcf, cm);
    }
 
    /**
@@ -103,9 +97,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public void setReference(final Reference reference) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setReference(" + reference + ")");
-      }
+      logger.trace("setReference({})", reference);
 
       this.reference = reference;
    }
@@ -117,9 +109,8 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public Reference getReference() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getReference()");
-      }
+      logger.trace("getReference()");
+
       if (reference == null) {
          try {
             reference = new Reference(this.getClass().getCanonicalName(), new SerializableObjectRefAddr("ActiveMQ-CF", this), ActiveMQRAConnectionFactoryObjectFactory.class.getCanonicalName(), null);
@@ -140,15 +131,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public QueueConnection createQueueConnection() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createQueueConnection()");
-      }
+      logger.trace("createQueueConnection()");
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.QUEUE_CONNECTION);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created queue connection: " + s);
-      }
+      logger.trace("Created queue connection: {}", s);
 
       return s;
    }
@@ -163,9 +150,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public QueueConnection createQueueConnection(final String userName, final String password) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createQueueConnection(" + userName + ", ****)");
-      }
+      logger.trace("createQueueConnection({}, ****)", userName);
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.QUEUE_CONNECTION);
       s.setUserName(userName);
@@ -173,9 +158,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
 
       validateUser(s);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created queue connection: " + s);
-      }
+      logger.trace("Created queue connection: {}", s);
 
       return s;
    }
@@ -188,15 +171,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public TopicConnection createTopicConnection() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createTopicConnection()");
-      }
+      logger.trace("createTopicConnection()");
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.TOPIC_CONNECTION);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created topic connection: " + s);
-      }
+      logger.trace("Created topic connection: {}", s);
 
       return s;
    }
@@ -211,18 +190,14 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public TopicConnection createTopicConnection(final String userName, final String password) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createTopicConnection(" + userName + ", ****)");
-      }
+      logger.trace("createTopicConnection({}, ****)", userName);
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.TOPIC_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created topic connection: " + s);
-      }
+      logger.trace("Created topic connection: {}", s);
 
       return s;
    }
@@ -235,15 +210,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public Connection createConnection() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createConnection()");
-      }
+      logger.trace("createConnection()");
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.CONNECTION);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created connection: " + s);
-      }
+      logger.trace("Created connection: {}", s);
 
       return s;
    }
@@ -258,9 +229,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public Connection createConnection(final String userName, final String password) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createConnection(" + userName + ", ****)");
-      }
+      logger.trace("createConnection({}, ****)", userName);
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.CONNECTION);
       s.setUserName(userName);
@@ -268,9 +237,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
 
       validateUser(s);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created connection: " + s);
-      }
+      logger.trace("Created connection: {}", s);
 
       return s;
    }
@@ -283,15 +250,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public XAQueueConnection createXAQueueConnection() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createXAQueueConnection()");
-      }
+      logger.trace("createXAQueueConnection()");
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created queue connection: " + s);
-      }
+      logger.trace("Created queue connection: {}", s);
 
       return s;
    }
@@ -306,18 +269,14 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public XAQueueConnection createXAQueueConnection(final String userName, final String password) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createXAQueueConnection(" + userName + ", ****)");
-      }
+      logger.trace("createXAQueueConnection({}, ****)", userName);
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created queue connection: " + s);
-      }
+      logger.trace("Created queue connection: {}", s);
 
       return s;
    }
@@ -330,15 +289,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public XATopicConnection createXATopicConnection() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createXATopicConnection()");
-      }
+      logger.trace("createXATopicConnection()");
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created topic connection: " + s);
-      }
+      logger.trace("Created topic connection: {}", s);
 
       return s;
    }
@@ -353,18 +308,14 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public XATopicConnection createXATopicConnection(final String userName, final String password) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createXATopicConnection(" + userName + ", ****)");
-      }
+      logger.trace("createXATopicConnection({}, ****)", userName);
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created topic connection: " + s);
-      }
+      logger.trace("Created topic connection: {}", s);
 
       return s;
    }
@@ -377,15 +328,11 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public XAConnection createXAConnection() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createXAConnection()");
-      }
+      logger.trace("createXAConnection()");
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_CONNECTION);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created connection: " + s);
-      }
+      logger.trace("Created connection: {}", s);
 
       return s;
    }
@@ -400,18 +347,14 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
     */
    @Override
    public XAConnection createXAConnection(final String userName, final String password) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("createXAConnection(" + userName + ", ****)");
-      }
+      logger.trace("createXAConnection({}, ****)", userName);
 
       ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created connection: " + s);
-      }
+      logger.trace("Created connection: {}", s);
 
       return s;
    }

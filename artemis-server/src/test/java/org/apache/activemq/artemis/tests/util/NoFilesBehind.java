@@ -20,9 +20,6 @@ package org.apache.activemq.artemis.tests.util;
 import java.io.File;
 
 import org.apache.activemq.artemis.utils.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -31,8 +28,6 @@ import org.junit.runner.Description;
  * This is useful to make sure you won't have leaking threads between tests
  */
 public class NoFilesBehind extends TestWatcher {
-
-   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String[] filesToCheck;
 

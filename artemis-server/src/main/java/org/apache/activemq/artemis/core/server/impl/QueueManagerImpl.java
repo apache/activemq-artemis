@@ -39,9 +39,7 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       Queue queue = server.locateQueue(queueName);
       //the queue may already have been deleted and this is a result of that
       if (queue == null) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("no queue to delete \"" + queueName + "\".");
-         }
+         logger.debug("no queue to delete \"{}\".", queueName);
          return;
       }
 
@@ -55,8 +53,9 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
       long messageCount = queue.getMessageCount();
 
       if (logger.isDebugEnabled()) {
-         logger.debug("purging queue \"" + queue.getName() + "\": consumerCount = " + consumerCount + "; messageCount = " + messageCount);
+         logger.debug("purging queue \"{}\": consumerCount = {}; messageCount = {}", queue.getName(), consumerCount, messageCount);
       }
+
       try {
          queue.deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
       } catch (Exception e) {
@@ -67,11 +66,12 @@ public class QueueManagerImpl extends ReferenceCounterUtil implements QueueManag
    public static void performAutoDeleteQueue(ActiveMQServer server, Queue queue) {
       SimpleString queueName = queue.getName();
       AddressSettings settings = server.getAddressSettingsRepository().getMatch(queue.getAddress().toString());
+
       if (logger.isDebugEnabled()) {
-         logger.debug("deleting auto-created queue \"" + queueName + "\": consumerCount = " + queue.getConsumerCount() + "; messageCount = " + queue.getMessageCount() + "; isAutoDelete = " + queue.isAutoDelete());
+         logger.debug("deleting auto-created queue \"{}\": consumerCount = {}; messageCount = {}; isAutoDelete = {}", queueName, queue.getConsumerCount(), queue.getMessageCount(), queue.isAutoDelete());
       }
 
-      ActiveMQServerLogger.LOGGER.autoRemoveQueue("" + queue.getName(), queue.getID(), "" + queue.getAddress());
+      ActiveMQServerLogger.LOGGER.autoRemoveQueue(String.valueOf(queue.getName()), queue.getID(), String.valueOf(queue.getAddress()));
 
       try {
          server.destroyQueue(queueName, null, true, false, false, true);

@@ -735,7 +735,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       int addRecordsPerFile = calculateRecordsPerFile(10 * 1024, journal.getAlignment(), JournalImpl.SIZE_ADD_RECORD + 1 + recordLength);
 
-      log.debug(String.valueOf(JournalImpl.SIZE_ADD_RECORD + 1 + recordLength));
+      log.debug("{}", (JournalImpl.SIZE_ADD_RECORD + 1 + recordLength));
 
       // Fills exactly 10 files
       int initialNumberOfAddRecords = addRecordsPerFile * 10;
@@ -1084,7 +1084,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       journal.debugWait();
 
-      log.debug("journal tmp :" + journal.debug());
+      if (log.isDebugEnabled()) {
+         log.debug("journal tmp : {}", journal.debug());
+      }
 
       journal.processBackup();
       List<String> files2 = fileFactory.listFiles(fileExtension);
@@ -1102,7 +1104,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       journal.debugWait();
 
-      log.debug("journal tmp2 :" + journal.debug());
+      if (log.isDebugEnabled()) {
+         log.debug("journal tmp2 : {}", journal.debug());
+      }
 
       journal.processBackup();
       List<String> files3 = fileFactory.listFiles(fileExtension);
@@ -1110,8 +1114,8 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       Assert.assertEquals(4, files3.size());
       Assert.assertEquals(1, journal.getOpenedFilesCount());
 
-      log.debug("data files count " + journal.getDataFilesCount());
-      log.debug("free files count " + journal.getFreeFilesCount());
+      log.debug("data files count {}", journal.getDataFilesCount());
+      log.debug("free files count {}", journal.getFreeFilesCount());
 
       Assert.assertEquals(2, journal.getDataFilesCount());
       Assert.assertEquals(0, journal.getFreeFilesCount());
@@ -1161,8 +1165,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       journal.checkReclaimStatus();
 
-      log.debug("journal:" + journal.debug());
-
+      if (log.isDebugEnabled()) {
+         log.debug("journal: {}", journal.debug());
+      }
       stopJournal(false);
       createJournal();
       startJournal();
@@ -2020,7 +2025,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       addWithSize(1024 - JournalImpl.SIZE_ADD_RECORD, 6);
 
-      log.debug("Debug journal on testPrepareReclaim ->\n" + debugJournal());
+      if (log.isDebugEnabled()) {
+         log.debug("Debug journal on testPrepareReclaim ->\n{}", debugJournal());
+      }
 
       Assert.assertEquals(1, journal.getOpenedFilesCount());
       Assert.assertEquals(0, journal.getFreeFilesCount());
@@ -3060,7 +3067,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
       addTx(4, 31);
       commit(3);
 
-      log.debug("Debug on Journal before stopJournal - \n" + debugJournal());
+      if (log.isDebugEnabled()) {
+         log.debug("Debug on Journal before stopJournal - \n{}", debugJournal());
+      }
 
       stopJournal();
       createJournal();

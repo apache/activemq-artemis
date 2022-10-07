@@ -54,7 +54,7 @@ public class DefaultSensitiveStringCodecTest {
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
-      log.debug("encoded value: " + maskedText);
+      log.debug("encoded value: {}", maskedText);
 
       if (algorithm.equals(DefaultSensitiveStringCodec.ONE_WAY)) {
          //one way can't decode
@@ -65,7 +65,7 @@ public class DefaultSensitiveStringCodecTest {
          }
       } else {
          String decoded = codec.decode(maskedText);
-         log.debug("encoded value: " + maskedText);
+         log.debug("encoded value: {}", maskedText);
 
          assertEquals("decoded result not match: " + decoded, decoded, plainText);
       }
@@ -91,7 +91,7 @@ public class DefaultSensitiveStringCodecTest {
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
-      log.debug("encoded value: " + maskedText);
+      log.debug("encoded value: {}", maskedText);
 
       assertTrue(codec.verify(plainText.toCharArray(), maskedText));
 

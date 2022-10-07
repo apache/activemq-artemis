@@ -109,7 +109,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
             for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
                producer.send(bytesMessage);
             }
-            logger.debug("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
+            logger.debug("Sent {} messages.", JMSPagingFileDeleteTest.MESSAGE_NUM);
 
             pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
             printPageStoreInfo(pagingStore);
@@ -157,7 +157,7 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
          for (int i = 0; i < JMSPagingFileDeleteTest.MESSAGE_NUM; i++) {
             producer.send(bytesMessage);
          }
-         logger.debug("Sent " + JMSPagingFileDeleteTest.MESSAGE_NUM + " messages.");
+         logger.debug("Sent {} messages.", JMSPagingFileDeleteTest.MESSAGE_NUM);
 
          pagingStore = server.getPagingManager().getPageStore(new SimpleString("topic1"));
          printPageStoreInfo(pagingStore);
@@ -235,10 +235,10 @@ public class JMSPagingFileDeleteTest extends JMSTestBase {
 
    private void printPageStoreInfo(PagingStore pagingStore) throws Exception {
       logger.debug("---------- Paging Store Info ----------");
-      logger.debug(" CurrentPage = " + pagingStore.getCurrentPage());
-      logger.debug(" FirstPage = " + pagingStore.getFirstPage());
-      logger.debug(" Number of Pages = " + pagingStore.getNumberOfPages());
-      logger.debug(" Address Size = " + pagingStore.getAddressSize());
-      logger.debug(" Is Paging = " + pagingStore.isPaging());
+      logger.debug(" CurrentPage = {}", pagingStore.getCurrentPage());
+      logger.debug(" FirstPage = {}", pagingStore.getFirstPage());
+      logger.debug(" Number of Pages = {}", pagingStore.getNumberOfPages());
+      logger.debug(" Address Size = {}", pagingStore.getAddressSize());
+      logger.debug(" Is Paging = {}", pagingStore.isPaging());
    }
 }

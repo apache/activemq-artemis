@@ -50,7 +50,7 @@ public class JChannelWrapper {
       this.manager = manager;
 
       if (logger.isTraceEnabled() && channel.getReceiver() != null) {
-         logger.trace(this + "The channel already had a receiver previously!!!! == " + channel.getReceiver(), new Exception("trace"));
+         logger.trace("{} The channel already had a receiver previously!!!! == {}", this, channel.getReceiver(), new Exception("trace"));
       }
 
       //we always add this for the first ref count
@@ -64,7 +64,7 @@ public class JChannelWrapper {
          @Override
          public void receive(org.jgroups.Message msg) {
             if (logger.isTraceEnabled()) {
-               logger.trace(this + ":: Wrapper received " + msg + " on channel " + channelName);
+               logger.trace("{}:: Wrapper received {} on channel {}", this, msg, channelName);
             }
             synchronized (receivers) {
                for (JGroupsReceiver r : receivers) {
@@ -86,7 +86,7 @@ public class JChannelWrapper {
    public synchronized void close(boolean closeWrappedChannel) {
       refCount--;
       if (logger.isTraceEnabled())
-         logger.trace(this + "::RefCount-- " + refCount + " on channel " + channelName, new Exception("Trace"));
+         logger.trace("{}::RefCount-- {} on channel {}", this, refCount, channelName, new Exception("Trace"));
       if (refCount == 0) {
          if (closeWrappedChannel) {
             closeChannel();
@@ -99,14 +99,14 @@ public class JChannelWrapper {
       connected = false;
       channel.setReceiver(null);
       if (logger.isTraceEnabled()) {
-         logger.trace(this + "::Closing Channel: " + channelName, new Exception("Trace"));
+         logger.trace("{}::Closing Channel: {}", this, channelName, new Exception("Trace"));
       }
       channel.close();
    }
 
    public void removeReceiver(JGroupsReceiver receiver) {
       if (logger.isTraceEnabled())
-         logger.trace(this + "::removeReceiver: " + receiver + " on " + channelName, new Exception("Trace"));
+         logger.trace("{}::removeReceiver: {} on {}", this, receiver, channelName, new Exception("Trace"));
       synchronized (receivers) {
          receivers.remove(receiver);
       }
@@ -114,7 +114,7 @@ public class JChannelWrapper {
 
    public synchronized void connect() throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace(this + ":: Connecting " + channelName, new Exception("Trace"));
+         logger.trace("{}:: Connecting {}", this, channelName, new Exception("Trace"));
       }
 
       // It is important to check this otherwise we could reconnect an already connected channel
@@ -131,15 +131,17 @@ public class JChannelWrapper {
 
    public void addReceiver(JGroupsReceiver jGroupsReceiver) {
       synchronized (receivers) {
-         if (logger.isTraceEnabled())
-            logger.trace(this + "::Add Receiver: " + jGroupsReceiver + " on " + channelName);
+         if (logger.isTraceEnabled()) {
+            logger.trace("{}::Add Receiver: {} on {}", this, jGroupsReceiver, channelName);
+         }
          receivers.add(jGroupsReceiver);
       }
    }
 
    public void send(org.jgroups.Message msg) throws Exception {
-      if (logger.isTraceEnabled())
-         logger.trace(this + "::Sending JGroups Message: Open=" + channel.isOpen() + " on channel " + channelName + " msg=" + msg);
+      if (logger.isTraceEnabled()) {
+         logger.trace("{}::Sending JGroups Message: Open={} on channel {} msg={}", this, channel.isOpen(), channelName, msg);
+      }
       if (!manager.isLoopbackMessages()) {
          msg.setFlag(Message.TransientFlag.DONT_LOOPBACK);
       }
@@ -148,8 +150,9 @@ public class JChannelWrapper {
 
    public JChannelWrapper addRef() {
       this.refCount++;
-      if (logger.isTraceEnabled())
-         logger.trace(this + "::RefCount++ = " + refCount + " on channel " + channelName);
+      if (logger.isTraceEnabled()) {
+         logger.trace("{}::RefCount++ = {} on channel {}", this, refCount, channelName);
+      }
       return this;
    }
 

@@ -209,13 +209,13 @@ public class ConsumerTest extends ActiveMQTestBase {
 
       Assert.assertNotNull(message2);
 
-      logger.debug("Id::" + message2.getMessageID());
+      logger.debug("Id::{}", message2.getMessageID());
 
-      logger.debug("Received " + message2);
+      logger.debug("Received {}", message2);
 
-      logger.debug("Clie:" + ByteUtil.bytesToHex(message2.getBuffer().array(), 4));
+      logger.debug("Clie:{}", ByteUtil.bytesToHex(message2.getBuffer().array(), 4));
 
-      logger.debug("String::" + message2.getReadOnlyBodyBuffer().readString());
+      logger.debug("String::{}", message2.getReadOnlyBodyBuffer().readString());
 
       Assert.assertEquals("elo", message2.getStringProperty("hello"));
 
@@ -596,7 +596,7 @@ public class ConsumerTest extends ActiveMQTestBase {
          }
          long end = System.currentTimeMillis();
 
-         logger.debug("Time = " + (end - time));
+         logger.debug("Time = {}", (end - time));
 
          {
             TextMessage dummyMessage = session.createTextMessage();
@@ -1266,11 +1266,11 @@ public class ConsumerTest extends ActiveMQTestBase {
       final long messagesPerRun = (forks * messages);
       for (int r = 0; r < runs; r++) {
          onStartRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
-         logger.debug("started run " + r);
+         logger.debug("started run {}", r);
          final long start = System.currentTimeMillis();
          onFinishRun.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
          final long elapsedMillis = System.currentTimeMillis() - start;
-         logger.debug((messagesPerRun * 1000L) / elapsedMillis + " msg/sec");
+         logger.debug("{} msg/sec", (messagesPerRun * 1000L) / elapsedMillis);
       }
       Stream.of(producersRunners).forEach(runner -> {
          try {

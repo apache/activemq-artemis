@@ -246,7 +246,8 @@ public class NettyConnection implements Connection {
       } catch (OutOfMemoryError oom) {
          final long totalPendingWriteBytes = batchBufferSize(this.channel);
          // I'm not using the ActiveMQLogger framework here, as I wanted the class name to be very specific here
-         logger.warn("Trying to allocate " + size + " bytes, System is throwing OutOfMemoryError on NettyConnection " + this + ", there are currently " + "pendingWrites: [NETTY] -> " + totalPendingWriteBytes + " causes: " + oom.getMessage(), oom);
+         logger.warn("Trying to allocate {} bytes, System is throwing OutOfMemoryError on NettyConnection {}, there are currently pendingWrites: [NETTY] -> {} causes: {}",
+                     size, this, totalPendingWriteBytes, oom.getMessage(), oom);
          throw oom;
       }
    }
@@ -309,12 +310,10 @@ public class NettyConnection implements Connection {
             if (Env.isTestEnv()) {
                // this will only show when inside the testsuite.
                // we may great the log for FAILURE
-               logger.warn("FAILURE! The code is using blockUntilWritable inside a Netty worker, which would block. " + "The code will probably need fixing!", new Exception("trace"));
+               logger.warn("FAILURE! The code is using blockUntilWritable inside a Netty worker, which would block. The code will probably need fixing!", new Exception("trace"));
             }
 
-            if (logger.isDebugEnabled()) {
-               logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
-            }
+            logger.debug("Calling blockUntilWritable using a thread where it's not allowed");
          }
          return channel.isWritable();
       } else {
@@ -382,9 +381,7 @@ public class NettyConnection implements Connection {
       if (!channel.eventLoop().inEventLoop()) {
          waitFor(promise, DEFAULT_WAIT_MILLIS);
       } else {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Calling write with flush from a thread where it's not allowed");
-         }
+         logger.debug("Calling write with flush from a thread where it's not allowed");
       }
    }
 

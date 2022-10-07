@@ -52,9 +52,9 @@ public class MultiThreadCriticalMeasureTest {
 
          Runnable runnable = () -> {
             try {
-               logger.debug("Thread " + Thread.currentThread().getName() + " waiting to Start");
+               logger.debug("Thread {} waiting to Start", Thread.currentThread().getName());
                barrier.await();
-               logger.debug("Thread " + Thread.currentThread().getName() + " Started");
+               logger.debug("Thread {} Started", Thread.currentThread().getName());
                while (running.get()) {
                   if (!load.get()) {
                      // 1st barrier will let the unit test do its job

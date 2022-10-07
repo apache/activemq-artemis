@@ -190,7 +190,10 @@ public class FileLockNodeManager extends FileBasedNodeManager {
          do {
             byte state = getState();
             while (state == FileLockNodeManager.NOT_STARTED || state == FIRST_TIME_START) {
-               logger.debug("awaiting live node startup state='" + state + "'");
+               if (logger.isDebugEnabled()) {
+                  logger.debug("awaiting live node startup state='{}'", state);
+               }
+
                Thread.sleep(2000);
                state = getState();
             }
@@ -210,7 +213,9 @@ public class FileLockNodeManager extends FileBasedNodeManager {
                logger.debug("awaiting live node failing back");
                Thread.sleep(2000);
             } else if (state == FileLockNodeManager.LIVE) {
-               logger.debug("acquired live node lock state = " + (char) state);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("acquired live node lock state = {}", (char) state);
+               }
                break;
             }
          }
@@ -316,9 +321,13 @@ public class FileLockNodeManager extends FileBasedNodeManager {
     * @throws ActiveMQLockAcquisitionTimeoutException,IOException
     */
    private void writeFileLockStatus(byte status) throws NodeManagerException {
-      if (replicatedBackup && channel == null)
+      if (replicatedBackup && channel == null) {
          return;
-      logger.debug("writing status: " + status);
+      }
+
+      if (logger.isDebugEnabled()) {
+         logger.debug("writing status: {}", status);
+      }
       ByteBuffer bb = ByteBuffer.allocateDirect(1);
       bb.put(status);
       bb.position(0);
@@ -361,7 +370,10 @@ public class FileLockNodeManager extends FileBasedNodeManager {
                lock.release();
             }
          }
-         logger.debug("state: " + result);
+
+         if (logger.isDebugEnabled()) {
+            logger.debug("state: {}", result);
+         }
          return result;
       } catch (IOException | ActiveMQLockAcquisitionTimeoutException e) {
          throw new NodeManagerException(e);
@@ -388,13 +400,19 @@ public class FileLockNodeManager extends FileBasedNodeManager {
 
    protected FileLock tryLock(final int lockPos) throws IOException {
       try {
-         logger.debug("trying to lock position: " + lockPos);
-         FileLock lock = lockChannels[lockPos].tryLock();
-         if (lock != null) {
-            logger.debug("locked position: " + lockPos);
-         } else {
-            logger.debug("failed to lock position: " + lockPos);
+         if (logger.isDebugEnabled()) {
+            logger.debug("trying to lock position: {}", lockPos);
          }
+
+         FileLock lock = lockChannels[lockPos].tryLock();
+         if (logger.isDebugEnabled()) {
+            if (lock != null) {
+               logger.debug("locked position: {}", lockPos);
+            } else {
+               logger.debug("failed to lock position: {}", lockPos);
+            }
+         }
+
          return lock;
       } catch (java.nio.channels.OverlappingFileLockException ex) {
          // This just means that another object on the same JVM is holding the lock

@@ -261,7 +261,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      log.debug("Initial:--> " + journalImpl.debug());
+      log.debug("Initial:--> {}", journalImpl.debug());
 
       log.debug("_______________________________");
 
@@ -305,7 +305,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      log.debug("Initial:--> " + journalImpl.debug());
+      log.debug("Initial:--> {}", journalImpl.debug());
 
       log.debug("_______________________________");
 
@@ -343,11 +343,11 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      log.debug("Final:--> " + journalImpl.debug());
+      log.debug("Final:--> {}", journalImpl.debug());
 
       log.debug("_______________________________");
 
-      log.debug("Files bufferSize:" + factory.listFiles("tt").size());
+      log.debug("Files bufferSize: {}", factory.listFiles("tt").size());
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
@@ -423,7 +423,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       } catch (Exception e) {
-         log.debug("Expected exception " + e, e);
+         log.debug("Got an expected exception:", e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -530,7 +530,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      log.debug("Files = " + factory.listFiles("tt"));
+      log.debug("Files = {}", factory.listFiles("tt"));
 
       SequentialFile file = factory.createSequentialFile("tt-1.tt");
 

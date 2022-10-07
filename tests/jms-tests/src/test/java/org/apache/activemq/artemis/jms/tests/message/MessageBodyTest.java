@@ -65,7 +65,7 @@ public class MessageBodyTest extends MessageBodyTestCase {
       float myFloat = Float.MAX_VALUE - 23465;
       double myDouble = Double.MAX_VALUE - 72387633;
       String myString = "abcdef&^*&!^ghijkl\uD5E2\uCAC7\uD2BB\uB7DD\uB7C7\uB3A3\uBCE4\uB5A5";
-      logger.trace("String is length:" + myString.length());
+      logger.trace("String is length:{}", myString.length());
       char myChar = 'q';
       byte[] myBytes = new byte[]{-23, 114, -126, -12, 74, 87};
 

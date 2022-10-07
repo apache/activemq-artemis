@@ -125,7 +125,7 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
          Keytab kt = Keytab.loadKeytab(userKeyTab);
          for (PrincipalName name : kt.getPrincipals()) {
             for (KeytabEntry entry : kt.getKeytabEntries(name)) {
-               LOG.info("KeyTab Entry: PrincipalName:" + entry.getPrincipal() + " ; KeyInfo:" + entry.getKey().getKeyType());
+               LOG.info("KeyTab Entry: PrincipalName:{} ; KeyInfo:{}", entry.getPrincipal(), entry.getKey().getKeyType());
             }
          }
 

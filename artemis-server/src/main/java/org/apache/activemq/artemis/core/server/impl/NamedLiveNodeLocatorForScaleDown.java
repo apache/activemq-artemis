@@ -93,8 +93,7 @@ public class NamedLiveNodeLocatorForScaleDown extends LiveNodeLocator {
 
          if (topologyMember.getNodeId().equals(myNodeID)) {
             if (logger.isTraceEnabled()) {
-               logger.trace(this + "::informing node about itself, nodeUUID=" +
-                               server.getNodeID() + ", connectorPair=" + topologyMember + ", this = " + this);
+               logger.trace("{}::informing node about itself, nodeUUID={}, connectorPair={}, this = {}", this, server.getNodeID(), topologyMember, this);
             }
             return;
          }

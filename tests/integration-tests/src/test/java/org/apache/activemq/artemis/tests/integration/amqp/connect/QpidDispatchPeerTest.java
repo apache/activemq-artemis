@@ -90,9 +90,7 @@ public class QpidDispatchPeerTest extends AmqpClientTestSupport {
       long pid = qpidProcess.pid();
       int result = ExecuteUtil.runCommand(true, "kill", "-STOP", Long.toString(pid));
       Assert.assertEquals(0, result);
-      logger.info("\n*******************************************************************************************************************************\n" +
-                   "Paused" +
-                   "\n*******************************************************************************************************************************");
+      logger.info("\n{}\nPaused\n{}", "*".repeat(127), "*".repeat(127));
       Thread.sleep(timeToWait);
       result = ExecuteUtil.runCommand(true, "kill", "-9", Long.toString(pid));
       Assert.assertEquals(0, result);

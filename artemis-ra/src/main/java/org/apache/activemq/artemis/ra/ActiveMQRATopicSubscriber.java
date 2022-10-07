@@ -40,9 +40,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
    public ActiveMQRATopicSubscriber(final TopicSubscriber consumer, final ActiveMQRASession session) {
       super(consumer, session);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + consumer + ", " + session + ")");
-      }
+      logger.trace("constructor({}, {})", consumer, session);
    }
 
    /**
@@ -53,9 +51,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     */
    @Override
    public boolean getNoLocal() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getNoLocal()");
-      }
+      logger.trace("getNoLocal()");
 
       checkState();
       return ((TopicSubscriber) consumer).getNoLocal();
@@ -69,9 +65,7 @@ public class ActiveMQRATopicSubscriber extends ActiveMQRAMessageConsumer impleme
     */
    @Override
    public Topic getTopic() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getTopic()");
-      }
+      logger.trace("getTopic()");
 
       checkState();
       return ((TopicSubscriber) consumer).getTopic();

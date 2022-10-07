@@ -571,7 +571,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          tempFolder = new File(tempFolder.getAbsolutePath());
          tempFolder.mkdirs();
 
-         log.debug("TempFolder = " + tempFolder.getAbsolutePath());
+         log.debug("TempFolder = {}", tempFolder.getAbsolutePath());
 
          ConfigurationImpl configuration = new ConfigurationImpl();
          configuration.setJournalDirectory(tempFolder.getAbsolutePath());
@@ -589,7 +589,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          tempFolder = new File(tempFolder.getAbsolutePath());
          tempFolder.mkdirs();
 
-         log.debug("TempFolder = " + tempFolder.getAbsolutePath());
+         log.debug("TempFolder = {}", tempFolder.getAbsolutePath());
          configuration.setNodeManagerLockDirectory(tempFolder.getAbsolutePath());
          File lockLocation = configuration.getNodeManagerLockLocation();
          Assert.assertTrue(lockLocation.exists());

@@ -61,9 +61,7 @@ public final class SharedStoreLiveActivation extends LiveActivation {
 
          activeMQServer.checkJournalDirectory();
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("First part initialization on " + this);
-         }
+         logger.debug("First part initialization on {}", this);
 
          if (!activeMQServer.initialisePart1(false))
             return;
@@ -73,9 +71,8 @@ public final class SharedStoreLiveActivation extends LiveActivation {
              * looks like we've failed over at some point need to inform that we are the
              * backup so when the current live goes down they failover to us
              */
-            if (logger.isDebugEnabled()) {
-               logger.debug("announcing backup to the former live" + this);
-            }
+            logger.debug("announcing backup to the former live {}", this);
+
             activeMQServer.getBackupManager().start();
 
             if (!sharedStoreMasterPolicy.isWaitForActivation())

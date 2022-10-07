@@ -64,7 +64,7 @@ final class MappedFile implements AutoCloseable {
       length = (int) channel.size();
       if (length != capacity && length != 0) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Adjusting capacity to " + length + " while it was " + capacity + " on file " + file);
+            logger.debug("Adjusting capacity to {} while it was {} on file {}", length, capacity, file);
          }
          capacity = length;
       }

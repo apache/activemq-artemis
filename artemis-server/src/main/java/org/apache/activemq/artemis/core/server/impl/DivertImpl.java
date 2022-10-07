@@ -97,7 +97,7 @@ public class DivertImpl implements Divert {
 
       for (SimpleString forwardAddress : forwardAddresses) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Diverting message " + message + " into " + this);
+            logger.trace("Diverting message {} into {}", message, this);
          }
 
          context.setReusable(false);

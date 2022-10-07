@@ -720,7 +720,9 @@ public class PagingStoreImpl implements PagingStore {
             }
 
             if (currentPageId == pageId) {
-               logger.debug("Ignoring remove({}) as this is the current writing page", pageId);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Ignoring remove({}) as this is the current writing page", pageId);
+               }
                // we don't deal with the current page, we let that one to be cleared from the regular depage
                return null;
             }
@@ -735,7 +737,9 @@ public class PagingStoreImpl implements PagingStore {
                numberOfPages--;
             }
 
-            logger.trace("Removing page {}, now containing numberOfPages={}", pageId, numberOfPages);
+            if (logger.isTraceEnabled()) {
+               logger.trace("Removing page {}, now containing numberOfPages={}", pageId, numberOfPages);
+            }
 
             if (numberOfPages == 0) {
                if (logger.isTraceEnabled()) {
@@ -816,7 +820,9 @@ public class PagingStoreImpl implements PagingStore {
                   openNewPage();
                }
             } else {
-               logger.trace("firstPageId++ = beforeIncrement={}", firstPageId);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("firstPageId++ = beforeIncrement={}", firstPageId);
+               }
                long pageNR = firstPageId++;
 
                // first we look for the page on the used Pages cache
@@ -1273,7 +1279,7 @@ public class PagingStoreImpl implements PagingStore {
          final long newPageId = currentPageId + 1;
 
          if (logger.isTraceEnabled()) {
-            logger.trace("new pageNr=" + newPageId);
+            logger.trace("new pageNr={}", newPageId);
          }
 
          final Page oldPage = currentPage;

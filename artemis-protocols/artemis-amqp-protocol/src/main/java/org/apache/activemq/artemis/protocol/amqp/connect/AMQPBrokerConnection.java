@@ -337,7 +337,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             retryCounter++;
             ActiveMQAMQPProtocolLogger.LOGGER.retryConnection(brokerConnectConfiguration.getName(), host + ":" + port, retryCounter, brokerConnectConfiguration.getReconnectAttempts());
             if (logger.isDebugEnabled()) {
-               logger.debug("Reconnecting in " + brokerConnectConfiguration.getRetryInterval() + ", this is the " + retryCounter + " of " + brokerConnectConfiguration.getReconnectAttempts());
+               logger.debug("Reconnecting in {}, this is the {} of {}", brokerConnectConfiguration.getRetryInterval(), retryCounter, brokerConnectConfiguration.getReconnectAttempts());
             }
             reconnectFuture = scheduledExecutorService.schedule(() -> connectExecutor.execute(() -> doConnect()), brokerConnectConfiguration.getRetryInterval(), TimeUnit.MILLISECONDS);
          } else {
@@ -346,7 +346,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             connecting = false;
             ActiveMQAMQPProtocolLogger.LOGGER.retryConnectionFailed(brokerConnectConfiguration.getName(), host + ":" +  port, lastRetryCounter);
             if (logger.isDebugEnabled()) {
-               logger.debug("no more reconnections as the retry counter reached " + retryCounter + " out of " + brokerConnectConfiguration.getReconnectAttempts());
+               logger.debug("no more reconnections as the retry counter reached {} out of {}", retryCounter, brokerConnectConfiguration.getReconnectAttempts());
             }
          }
       }
@@ -395,15 +395,13 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          mirrorControlQueue = server.createQueue(new QueueConfiguration(getMirrorSNF(replicaConfig)).setAddress(getMirrorSNF(replicaConfig)).setRoutingType(RoutingType.ANYCAST).setDurable(replicaConfig.isDurable()).setInternal(true), true);
       }
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Mirror queue " + mirrorControlQueue.getName());
-      }
+      logger.debug("Mirror queue {}", mirrorControlQueue.getName());
 
       mirrorControlQueue.setMirrorController(true);
 
       QueueBinding snfReplicaQueueBinding = (QueueBinding)server.getPostOffice().getBinding(getMirrorSNF(replicaConfig));
       if (snfReplicaQueueBinding == null) {
-         logger.warn("Queue does not exist even after creation! " + replicaConfig);
+         logger.warn("Queue does not exist even after creation! {}", replicaConfig);
          throw new IllegalAccessException("Cannot start replica");
       }
 
@@ -453,9 +451,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                                 AMQPSessionContext sessionContext,
                                 Queue queue,
                                 Symbol... capabilities) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Connecting inbound for " + queue);
-      }
+      logger.debug("Connecting inbound for {}", queue);
 
       if (session == null) {
          logger.debug("session is null");
@@ -501,10 +497,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
                               String brokerID,
                               Symbol[] desiredCapabilities,
                               Symbol[] targetCapabilities) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Connecting outbound for " + queue);
-      }
-
+      logger.debug("Connecting outbound for {}", queue);
 
       if (session == null) {
          logger.debug("Session is null");
@@ -697,9 +690,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       // keeping a single executor thread to this purpose would simplify things
       connectExecutor.execute(() -> {
          if (connecting) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Broker connection " + this.getName() + " was already in retry mode, exception or retry not captured");
-            }
+            logger.debug("Broker connection {} was already in retry mode, exception or retry not captured", getName());
             return;
          }
          connecting = true;

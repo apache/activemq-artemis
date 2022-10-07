@@ -121,13 +121,13 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
 
          Assert.assertNotNull(msg);
 
-         // System.out.println(i + " msg = " + msg);
+         logger.trace("i msg = {}", i, msg);
 
          int received = msg.getIntProperty("key");
 
          if (i != received) {
             // Shouldn't this be a failure?
-            logger.warn(i + "!=" + received);
+            logger.warn("{}!={}", i, received);
          }
          msg.acknowledge();
       }

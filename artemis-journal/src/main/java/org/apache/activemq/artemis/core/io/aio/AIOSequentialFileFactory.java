@@ -58,7 +58,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       if (DISABLED) {
 
          // This is only used in tests, hence I'm not creating a Logger for this
-         logger.info(AIOSequentialFileFactory.class.getName() + ".DISABLED = true");
+         logger.info("{}.DISABLED = true", AIOSequentialFileFactory.class.getName());
       }
    }
 
@@ -111,9 +111,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
       }
       final int adjustedMaxIO = Math.max(2, maxIO);
       callbackPool = PlatformDependent.hasUnsafe() ? new MpmcArrayQueue<>(adjustedMaxIO) : new MpmcAtomicArrayQueue<>(adjustedMaxIO);
-      if (logger.isTraceEnabled()) {
-         logger.trace("New AIO File Created");
-      }
+      logger.trace("New AIO File Created");
    }
 
    public AIOSequentialCallback getCallback() {
@@ -394,9 +392,10 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
 
       @Override
       public void onError(int errno, String message) {
-         if (logger.isDebugEnabled()) {
-            logger.trace("AIO on error issued. Error(code: " + errno + " msg: " + message + ")");
+         if (logger.isTraceEnabled()) {
+            logger.trace("AIO on error issued. Error(code: {} msg: {})", errno, message);
          }
+
          this.error = true;
          this.errorCode = errno;
          this.errorMessage = message;
@@ -481,8 +480,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
          // just to cleanup this
          if (bufferSize > 0 && System.currentTimeMillis() - bufferReuseLastTime > 10000) {
             if (logger.isTraceEnabled()) {
-               logger.trace("Clearing reuse buffers queue with " + reuseBuffersQueue.size() +
-                               " elements");
+               logger.trace("Clearing reuse buffers queue with {} elements", reuseBuffersQueue.size());
             }
 
             bufferReuseLastTime = System.currentTimeMillis();

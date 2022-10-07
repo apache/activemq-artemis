@@ -37,9 +37,7 @@ public class TransientQueueManagerImpl extends ReferenceCounterUtil implements T
 
    private void doIt() {
       try {
-         if (logger.isDebugEnabled()) {
-            logger.debug("deleting temporary queue " + queueName);
-         }
+         logger.debug("deleting temporary queue {}", queueName);
 
          try {
             server.destroyQueue(queueName, null, false);

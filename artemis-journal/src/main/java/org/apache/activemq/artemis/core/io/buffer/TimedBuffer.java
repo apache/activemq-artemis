@@ -504,7 +504,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
          } catch (Exception e) {
             useSleep = false;
             // I don't think we need to individualize a logger code here, this is unlikely to happen anyways
-            logger.warn(e.getMessage() + ", disabling sleep on TimedBuffer, using spin now", e);
+            logger.warn("{}, disabling sleep on TimedBuffer, using spin now", e.getMessage(), e);
          }
          return useSleep;
       }

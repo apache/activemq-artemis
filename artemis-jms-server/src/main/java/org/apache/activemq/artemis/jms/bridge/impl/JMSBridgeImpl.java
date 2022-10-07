@@ -318,7 +318,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                this.objectName = ObjectName.getInstance(objectName);
                StandardMBean mbean = new StandardMBean(controlBean, JMSBridgeControl.class);
                mbeanServer.registerMBean(mbean, this.objectName);
-               logger.debug("Registered JMSBridge instance as: " + this.objectName.getCanonicalName());
+               logger.debug("Registered JMSBridge instance as: {}", this.objectName.getCanonicalName());
             } catch (Exception e) {
                throw new IllegalStateException("Failed to register JMSBridge MBean", e);
             }
@@ -327,9 +327,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          }
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Created " + this);
-      }
+      logger.trace("Created {}", this);
    }
 
    @Override
@@ -363,9 +361,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          return;
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Starting " + this);
-      }
+      logger.trace("Starting {}", this);
 
       // bridge has been stopped and is restarted
       if (executor.isShutdown()) {
@@ -426,9 +422,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       started = true;
 
       if (maxBatchTime != -1) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Starting time checker thread");
-         }
+         logger.trace("Starting time checker thread");
 
          batchExpiryTime = System.currentTimeMillis() + maxBatchTime;
 
@@ -436,9 +430,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          batchTimeCheckerTask = executor.submit(new BatchTimeChecker());
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Started time checker thread");
-         }
+         logger.trace("Started time checker thread");
       } else {
 
          batchTimeCheckerFinished = null;
@@ -450,9 +442,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       sourceReceiverTask = executor.submit(new SourceReceiver());
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Started " + this);
-      }
+      logger.trace("Started {}", this);
    }
 
    private void initPasswords() throws ActiveMQException {
@@ -515,9 +505,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       }
 
       synchronized (this) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Stopping " + this);
-         }
+         logger.trace("Stopping {}", this);
          Connection sourceConn = this.sourceConn;
          if (!connectedSource && sourceConn != null) {
             try {
@@ -577,9 +565,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
             if (tx != null) {
                // Terminate any transaction
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Rolling back remaining tx");
-               }
+               logger.trace("Rolling back remaining tx");
 
                try {
                   stopSessionFailover();
@@ -588,14 +574,10 @@ public final class JMSBridgeImpl implements JMSBridge {
                      tx.rollback();
                      abortedMessageCount += messages.size();
                   } catch (Exception ignore) {
-                     if (logger.isTraceEnabled()) {
-                        logger.trace("Failed to rollback", ignore);
-                     }
+                     logger.trace("Failed to rollback", ignore);
                   }
 
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("Rolled back remaining tx");
-                  }
+                  logger.trace("Rolled back remaining tx");
                } catch (Throwable t) {
                   logger.trace("Failed stopSessionFailover", t);
                }
@@ -624,9 +606,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                messages.clear();
             }
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Stopped " + this);
-            }
+            logger.trace("Stopped {}", this);
          } finally {
             if (isFailureHandler) {
                executor.shutdownNow();
@@ -684,9 +664,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    @Override
    public synchronized void pause() throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Pausing " + this);
-      }
+      logger.trace("Pausing {}", this);
 
       synchronized (lock) {
          paused = true;
@@ -694,16 +672,12 @@ public final class JMSBridgeImpl implements JMSBridge {
          sourceConn.stop();
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Paused " + this);
-      }
+      logger.trace("Paused {}", this);
    }
 
    @Override
    public synchronized void resume() throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Resuming " + this);
-      }
+      logger.trace("Resuming {}", this);
 
       synchronized (lock) {
          paused = false;
@@ -711,9 +685,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          sourceConn.start();
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Resumed " + this);
-      }
+      logger.trace("Resumed {}", this);
    }
 
    @Override
@@ -998,9 +970,7 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    private void enlistResources(final Transaction tx) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Enlisting resources in tx");
-      }
+      logger.trace("Enlisting resources in tx");
 
       XAResource resSource = ((XASession) sourceSession).getXAResource();
 
@@ -1010,24 +980,18 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       tx.enlistResource(resDest);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Enlisted resources in tx");
-      }
+      logger.trace("Enlisted resources in tx");
    }
 
    private void delistResources(final Transaction tx) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Delisting resources from tx");
-      }
+      logger.trace("Delisting resources from tx");
 
       XAResource resSource = ((XASession) sourceSession).getXAResource();
 
       try {
          tx.delistResource(resSource, XAResource.TMSUCCESS);
       } catch (Exception e) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Failed to delist source resource", e);
-         }
+         logger.trace("Failed to delist source resource", e);
       }
 
       XAResource resDest = ((XASession) targetSession).getXAResource();
@@ -1035,20 +999,14 @@ public final class JMSBridgeImpl implements JMSBridge {
       try {
          tx.delistResource(resDest, XAResource.TMSUCCESS);
       } catch (Exception e) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Failed to delist target resource", e);
-         }
+         logger.trace("Failed to delist target resource", e);
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Delisted resources from tx");
-      }
+      logger.trace("Delisted resources from tx");
    }
 
    private Transaction startTx() throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Starting JTA transaction");
-      }
+      logger.trace("Starting JTA transaction");
 
       if (tm == null) {
          tm = ServiceUtils.getTransactionManager();
@@ -1067,9 +1025,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       tm.suspend();
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Started JTA transaction");
-      }
+      logger.trace("Started JTA transaction");
 
       return tx;
    }
@@ -1096,26 +1052,18 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          if (username == null) {
             if (isXA) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating an XA connection");
-               }
+               logger.trace("Creating an XA connection");
                conn = ((XAConnectionFactory) cf).createXAConnection();
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating a non XA connection");
-               }
+               logger.trace("Creating a non XA connection");
                conn = ((ConnectionFactory) cf).createConnection();
             }
          } else {
             if (isXA) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating an XA connection");
-               }
+               logger.trace("Creating an XA connection");
                conn = ((XAConnectionFactory) cf).createXAConnection(username, password);
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating a non XA connection");
-               }
+               logger.trace("Creating a non XA connection");
                conn = ((ConnectionFactory) cf).createConnection(username, password);
             }
          }
@@ -1218,16 +1166,12 @@ public final class JMSBridgeImpl implements JMSBridge {
             // QoS = ONCE_AND_ONLY_ONCE
             if (forwardMode == JMSBridgeImpl.FORWARD_MODE_XA) {
                // Create an XASession for consuming from the source
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating XA source session");
-               }
+               logger.trace("Creating XA source session");
 
                sourceConn = createConnection(sourceUsername, sourcePassword, sourceCff, clientID, true, true);
                sourceSession = ((XAConnection) sourceConn).createXASession();
             } else { // QoS = DUPLICATES_OK || AT_MOST_ONCE
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating non XA source session");
-               }
+               logger.trace("Creating non XA source session");
 
                sourceConn = createConnection(sourceUsername, sourcePassword, sourceCff, clientID, false, true);
                if (qualityOfServiceMode == QualityOfServiceMode.AT_MOST_ONCE && maxBatchSize == 1) {
@@ -1262,9 +1206,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          } else { // bridging across different servers
             // QoS = ONCE_AND_ONLY_ONCE
             if (forwardMode == JMSBridgeImpl.FORWARD_MODE_XA) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating XA dest session");
-               }
+               logger.trace("Creating XA dest session");
 
                // Create an XA session for sending to the destination
 
@@ -1272,9 +1214,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
                targetSession = ((XAConnection) targetConn).createXASession();
             } else { // QoS = DUPLICATES_OK || AT_MOST_ONCE
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Creating non XA dest session");
-               }
+               logger.trace("Creating non XA dest session");
 
                // Create a standard session for sending to the target
 
@@ -1289,9 +1229,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          }
 
          if (forwardMode == JMSBridgeImpl.FORWARD_MODE_XA) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Starting JTA transaction");
-            }
+            logger.trace("Starting JTA transaction");
 
             tx = startTx();
 
@@ -1321,9 +1259,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          try {
             sourceConn.stop();
          } catch (Throwable ignore) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Failed to stop source connection", ignore);
-            }
+            logger.trace("Failed to stop source connection", ignore);
          }
       }
 
@@ -1331,18 +1267,14 @@ public final class JMSBridgeImpl implements JMSBridge {
          try {
             delistResources(tx);
          } catch (Throwable ignore) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Failed to delist resources", ignore);
-            }
+            logger.trace("Failed to delist resources", ignore);
          }
          try {
             // Terminate the tx
             tx.rollback();
             abortedMessageCount += messages.size();
          } catch (Throwable ignore) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Failed to rollback", ignore);
-            }
+            logger.trace("Failed to rollback", ignore);
          }
       }
 
@@ -1351,9 +1283,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          try {
             sourceConn.close();
          } catch (Throwable ignore) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Failed to close source connection", ignore);
-            }
+            logger.trace("Failed to close source connection", ignore);
          }
       }
       try {
@@ -1361,9 +1291,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             targetConn.close();
          }
       } catch (Throwable ignore) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Failed to close target connection", ignore);
-         }
+         logger.trace("Failed to close target connection", ignore);
       }
    }
 
@@ -1381,9 +1309,7 @@ public final class JMSBridgeImpl implements JMSBridge {
    }
 
    private boolean setupJMSObjectsWithRetry() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("Setting up connections");
-      }
+      logger.trace("Setting up connections");
 
       int count = 0;
 
@@ -1414,14 +1340,12 @@ public final class JMSBridgeImpl implements JMSBridge {
 
    private void sendBatch() {
       if (logger.isTraceEnabled()) {
-         logger.trace("Sending batch of " + messages.size() + " messages");
+         logger.trace("Sending batch of {} messages", messages.size());
       }
 
       if (paused) {
          // Don't send now
-         if (logger.isTraceEnabled()) {
-            logger.trace("Paused, so not sending now");
-         }
+         logger.trace("Paused, so not sending now");
 
          return;
       }
@@ -1440,15 +1364,11 @@ public final class JMSBridgeImpl implements JMSBridge {
          if (qualityOfServiceMode == QualityOfServiceMode.ONCE_AND_ONLY_ONCE || (qualityOfServiceMode == QualityOfServiceMode.AT_MOST_ONCE && maxBatchSize > 1)) {
             // We client ack before sending
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Client acking source session");
-            }
+            logger.trace("Client acking source session");
 
             messages.getLast().acknowledge();
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Client acked source session");
-            }
+            logger.trace("Client acked source session");
          }
 
          boolean exHappened;
@@ -1467,15 +1387,11 @@ public final class JMSBridgeImpl implements JMSBridge {
          if (maxBatchSize > 1) {
             // The sending session is transacted - we need to commit it
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Committing target session");
-            }
+            logger.trace("Committing target session");
 
             targetSession.commit();
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Committed target session");
-            }
+            logger.trace("Committed target session");
          }
 
          if (qualityOfServiceMode == QualityOfServiceMode.DUPLICATES_OK) {
@@ -1484,15 +1400,11 @@ public final class JMSBridgeImpl implements JMSBridge {
             // Note we could actually use Session.DUPS_OK_ACKNOWLEDGE here
             // For a slightly less strong delivery guarantee
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Client acking source session");
-            }
+            logger.trace("Client acking source session");
 
             messages.getLast().acknowledge();
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("Client acked source session");
-            }
+            logger.trace("Client acked source session");
          }
       } catch (Exception e) {
          if (!stopping) {
@@ -1523,15 +1435,11 @@ public final class JMSBridgeImpl implements JMSBridge {
          // Commit the JTA transaction and start another
          delistResources(tx);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Committing JTA transaction");
-         }
+         logger.trace("Committing JTA transaction");
 
          tx.commit();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Committed JTA transaction");
-         }
+         logger.trace("Committed JTA transaction");
       } catch (Exception e) {
          try {
             // we call this just in case there is a failure other than failover
@@ -1573,9 +1481,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          sourceSession.commit();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Committed source session");
-         }
+         logger.trace("Committed source session");
 
       } catch (Exception e) {
          ActiveMQJMSBridgeLogger.LOGGER.bridgeAckError(bridgeName, e);
@@ -1607,9 +1513,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             addMessageIDInHeader(msg);
          }
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Sending message " + msg);
-         }
+         logger.trace("Sending message {}", msg);
 
          // Make sure the correct time to live gets propagated
 
@@ -1626,9 +1530,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          targetProducer.send(targetDestination, msg, msg.getJMSDeliveryMode(), msg.getJMSPriority(), timeToLive);
 
          messageCount++;
-         if (logger.isTraceEnabled()) {
-            logger.trace("Sent message " + msg);
-         }
+         logger.trace("Sent message {}", msg);
       }
    }
 
@@ -1657,9 +1559,7 @@ public final class JMSBridgeImpl implements JMSBridge {
       // Each bridge (if there are more than one) in the chain can concatenate the message id
       // So in the case of multiple bridges having routed the message this can be used in a multi-hop
       // distributed request/response
-      if (logger.isTraceEnabled()) {
-         logger.trace("Adding old message id in Message header");
-      }
+      logger.trace("Adding old message id in Message header");
 
       JMSBridgeImpl.copyProperties(msg);
 
@@ -1787,7 +1687,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                      }
                   } catch (JMSException jmse) {
                      if (logger.isTraceEnabled()) {
-                        logger.trace(this + " exception while receiving a message", jmse);
+                        logger.trace("{} exception while receiving a message", this, jmse);
                      }
                   }
 
@@ -1795,9 +1695,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                      try {
                         lock.wait(500);
                      } catch (InterruptedException e) {
-                        if (logger.isTraceEnabled()) {
-                           logger.trace(this + " thread was interrupted");
-                        }
+                        logger.trace("{} thread was interrupted", this);
                         if (stopping) {
                            return;
                         }
@@ -1806,28 +1704,22 @@ public final class JMSBridgeImpl implements JMSBridge {
                      continue;
                   }
 
-                  if (logger.isTraceEnabled()) {
-                     logger.trace(this + " received message " + msg);
-                  }
+                  logger.trace("{} received message {}", this, msg);
 
                   messages.add(msg);
 
                   batchExpiryTime = System.currentTimeMillis() + maxBatchTime;
 
                   if (logger.isTraceEnabled()) {
-                     logger.trace(this + " rescheduled batchExpiryTime to " + batchExpiryTime);
+                     logger.trace("{} rescheduled batchExpiryTime to {}", this, batchExpiryTime);
                   }
 
                   if (maxBatchSize != -1 && messages.size() >= maxBatchSize) {
-                     if (logger.isTraceEnabled()) {
-                        logger.trace(this + " maxBatchSize has been reached so sending batch");
-                     }
+                     logger.trace("{} maxBatchSize has been reached so sending batch", this);
 
                      sendBatch();
 
-                     if (logger.isTraceEnabled()) {
-                        logger.trace(this + " sent batch");
-                     }
+                     logger.trace("{} sent batch", this);
                   }
                }
             }
@@ -1875,9 +1767,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       @Override
       public void run() {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Failure handler running");
-         }
+         logger.trace("Failure handler running");
 
          // Clear the messages
          messages.clear();
@@ -1943,9 +1833,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
       @Override
       public void run() {
-         if (logger.isTraceEnabled()) {
-            logger.trace(this + " running");
-         }
+         logger.trace("{} running", this);
 
          final CountDownLatch completed = batchTimeCheckerFinished;
          try {
@@ -1954,21 +1842,15 @@ public final class JMSBridgeImpl implements JMSBridge {
                   long toWait = batchExpiryTime - System.currentTimeMillis();
 
                   if (toWait <= 0) {
-                     if (logger.isTraceEnabled()) {
-                        logger.trace(this + " waited enough");
-                     }
+                     logger.trace("{} waited enough", this);
 
                      synchronized (lock) {
                         if (!failed && !messages.isEmpty()) {
-                           if (logger.isTraceEnabled()) {
-                              logger.trace(this + " got some messages so sending batch");
-                           }
+                           logger.trace("{} got some messages so sending batch", this);
 
                            sendBatch();
 
-                           if (logger.isTraceEnabled()) {
-                              logger.trace(this + " sent batch");
-                           }
+                           logger.trace("{} sent batch", this);
                         }
                      }
 
@@ -1976,18 +1858,15 @@ public final class JMSBridgeImpl implements JMSBridge {
                   } else {
                      try {
                         if (logger.isTraceEnabled()) {
-                           logger.trace(this + " waiting for " + toWait);
+                           logger.trace("{} waiting for {}", this, toWait);
                         }
 
                         lock.wait(toWait);
 
-                        if (logger.isTraceEnabled()) {
-                           logger.trace(this + " woke up");
-                        }
+                        logger.trace("{} woke up", this);
                      } catch (InterruptedException e) {
-                        if (logger.isTraceEnabled()) {
-                           logger.trace(this + " thread was interrupted");
-                        }
+                        logger.trace("{} thread was interrupted", this);
+
                         if (stopping) {
                            return;
                         }
@@ -2033,9 +1912,7 @@ public final class JMSBridgeImpl implements JMSBridge {
             }
             if (failed) {
                // The failure has already been detected and is being handled
-               if (logger.isTraceEnabled()) {
-                  logger.trace("Failure recovery already in progress");
-               }
+               logger.trace("Failure recovery already in progress");
             } else {
                boolean shouldHandleFailure = true;
                if (ha) {
@@ -2060,7 +1937,7 @@ public final class JMSBridgeImpl implements JMSBridge {
                   registry = sl.iterator().next();
                }
             } catch (Throwable e) {
-               logger.debug("unable to load  recovery registry " + locatorClasse, e);
+               logger.debug("unable to load  recovery registry {}", locatorClasse, e);
             }
             if (registry != null) {
                break;
@@ -2068,7 +1945,7 @@ public final class JMSBridgeImpl implements JMSBridge {
          }
 
          if (registry != null) {
-            logger.debug("Recovery Registry located = " + registry);
+            logger.debug("Recovery Registry located = {}", registry);
          }
       }
    }
@@ -2145,7 +2022,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          if (timedOut) {
             //timeout, presumably failover failed.
-            logger.debug("Timed out waiting for failover completion " + this);
+            logger.debug("Timed out waiting for failover completion {}", this);
             return false;
          }
 

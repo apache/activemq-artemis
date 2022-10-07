@@ -90,11 +90,10 @@ public class ServerManagement {
       }
 
       if (i > ServerManagement.servers.size()) {
-         logger.error("server " + i +
-                                       " has not been created or has already been killed, so it cannot be killed");
+         logger.error("server {} has not been created or has already been killed, so it cannot be killed", i);
       } else {
          Server server = ServerManagement.servers.get(i);
-         logger.debug("invoking kill() on server " + i);
+         logger.debug("invoking kill() on server {}", i);
          try {
             server.kill();
          } catch (Throwable t) {
@@ -106,7 +105,7 @@ public class ServerManagement {
          try {
             while (true) {
                server.ping();
-               logger.debug("server " + i + " still alive ...");
+               logger.debug("server {} still alive ...", i);
                Thread.sleep(100);
             }
          } catch (Throwable e) {
@@ -115,7 +114,7 @@ public class ServerManagement {
 
          Thread.sleep(300);
 
-         logger.debug("server " + i + " killed and dead");
+         logger.debug("server {} killed and dead", i);
       }
 
    }

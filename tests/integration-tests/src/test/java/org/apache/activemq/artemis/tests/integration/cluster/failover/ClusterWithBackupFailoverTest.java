@@ -60,8 +60,8 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       send(2, QUEUES_TESTADDRESS, 10, false, null);
       verifyReceiveRoundRobinInSomeOrder(true, 10, 0, 1, 2);
       Thread.sleep(1000);
-      log.debug("######### Topology on client = " + locators[0].getTopology().describe() + " locator = " + locators[0]);
-      log.debug("######### Crashing it........., sfs[0] = " + sfs[0]);
+      log.debug("######### Topology on client = {} locator = {}", locators[0].getTopology().describe(), locators[0]);
+      log.debug("######### Crashing it........., sfs[0] = {}", sfs[0]);
       failNode(0);
 
       waitForFailoverTopology(4, 3, 1, 2);

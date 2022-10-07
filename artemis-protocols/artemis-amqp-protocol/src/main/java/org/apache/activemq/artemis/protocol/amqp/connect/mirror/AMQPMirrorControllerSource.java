@@ -128,9 +128,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
    @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace(server + " addAddress " + addressInfo);
-      }
+      logger.trace("{} addAddress {}", server, addressInfo);
 
       if (getControllerInUse() != null && !addressInfo.isInternal()) {
          return;
@@ -148,9 +146,8 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
    @Override
    public void deleteAddress(AddressInfo addressInfo) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace(server + " deleteAddress " + addressInfo);
-      }
+      logger.trace("{} deleteAddress {}", server, addressInfo);
+
       if (invalidTarget(getControllerInUse()) || addressInfo.isInternal()) {
          return;
       }
@@ -165,18 +162,18 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
    @Override
    public void createQueue(QueueConfiguration queueConfiguration) throws Exception {
-      if (logger.isTraceEnabled()) {
-         logger.trace(server + " createQueue " + queueConfiguration);
-      }
+      logger.trace("{} createQueue {}", server, queueConfiguration);
+
       if (invalidTarget(getControllerInUse()) || queueConfiguration.isInternal()) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Rejecting ping pong on create " + queueConfiguration + " as isInternal=" + queueConfiguration.isInternal() + " and mirror target = " + getControllerInUse());
+            logger.trace("Rejecting ping pong on create {} as isInternal={} and mirror target = {}", queueConfiguration, queueConfiguration.isInternal(), getControllerInUse());
          }
+
          return;
       }
       if (ignoreAddress(queueConfiguration.getAddress())) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Skipping create " + queueConfiguration + ", queue address " + queueConfiguration.getAddress() + " doesn't match filter");
+            logger.trace("Skipping create {}, queue address {} doesn't match filter", queueConfiguration, queueConfiguration.getAddress());
          }
          return;
       }
@@ -189,7 +186,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    @Override
    public void deleteQueue(SimpleString address, SimpleString queue) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace(server + " deleteQueue " + address + "/" + queue);
+         logger.trace("{} deleteQueue {}/{}", server, address, queue);
       }
 
       if (invalidTarget(getControllerInUse())) {
@@ -223,29 +220,21 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       SimpleString address = context.getAddress(message);
 
       if (invalidTarget(context.getMirrorSource())) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("server " + server + " is discarding send to avoid infinite loop (reflection with the mirror)");
-         }
+         logger.trace("server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
          return;
       }
 
       if (context.isInternal()) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("server " + server + " is discarding send to avoid sending to internal queue");
-         }
+         logger.trace("server {} is discarding send to avoid sending to internal queue", server);
          return;
       }
 
       if (ignoreAddress(address)) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("server " + server + " is discarding send to address " + address + ", address doesn't match filter");
-         }
+         logger.trace("server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace(server + " send message " + message);
-      }
+      logger.trace("{} send message {}", server, message);
 
       try {
          context.setReusable(false);
@@ -253,9 +242,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
          String nodeID = setProtocolData(idSupplier, ref);
          if (nodeID != null && nodeID.equals(getRemoteMirrorId())) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Message " + message + "already belonged to the node, " + getRemoteMirrorId() + ", it won't circle send");
-            }
+            logger.trace("Message {} already belonged to the node, {}, it won't circle send", message, getRemoteMirrorId());
             return;
          }
          snfQueue.refUp(ref);
@@ -331,26 +318,24 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
       if ((ref.getQueue() != null && (ref.getQueue().isInternalQueue() || ref.getQueue().isMirrorController()))) {
          if (logger.isDebugEnabled()) {
-            logger.debug(server + " rejecting postAcknowledge queue=" + ref.getQueue().getName() + ", ref=" + ref + " to avoid infinite loop with the mirror (reflection)");
+            logger.debug("{} rejecting postAcknowledge queue={}, ref={} to avoid infinite loop with the mirror (reflection)", server, ref.getQueue().getName(), ref);
          }
          return;
       }
 
       if (ignoreAddress(ref.getQueue().getAddress())) {
          if (logger.isTraceEnabled()) {
-            logger.trace(server + " rejecting postAcknowledge queue=" + ref.getQueue().getName() + ", ref=" + ref + ", queue address is excluded");
+            logger.trace("{} rejecting postAcknowledge queue={}, ref={}, queue address is excluded", server, ref.getQueue().getName(), ref);
          }
          return;
       }
 
-      if (logger.isTraceEnabled()) {
-         logger.trace(server + " postAcknowledge " + ref);
-      }
+      logger.trace("{} postAcknowledge {}", server, ref);
 
       String nodeID = idSupplier.getServerID(ref); // notice the brokerID will be null for any message generated on this broker.
       long internalID = idSupplier.getID(ref);
       if (logger.isTraceEnabled()) {
-         logger.trace(server + " sending ack message from server " + nodeID + " with messageID=" + internalID);
+         logger.trace("{} sending ack message from server {} with messageID={}", server, nodeID, internalID);
       }
       Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID, reason);
       route(server, message);

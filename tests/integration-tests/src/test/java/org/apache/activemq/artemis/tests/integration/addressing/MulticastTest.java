@@ -102,7 +102,7 @@ public class MulticastTest extends ActiveMQTestBase {
          for (int j = 0; j < num; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            logger.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            logger.debug("consumer{} received: {}", i, m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));
@@ -161,7 +161,7 @@ public class MulticastTest extends ActiveMQTestBase {
          for (int j = 0; j < num; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            logger.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            logger.debug("consumer{} received: {}", i, m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));
@@ -177,7 +177,7 @@ public class MulticastTest extends ActiveMQTestBase {
          for (int j = 0; j < num; j++) {
             ClientMessage m = consumers[i].receive(2000);
             assertNotNull(m);
-            logger.debug("consumer" + i + " received: " + m.getBodyBuffer().readString());
+            logger.debug("consumer{} received: {}", i, m.getBodyBuffer().readString());
          }
 
          assertNull(consumers[i].receive(200));

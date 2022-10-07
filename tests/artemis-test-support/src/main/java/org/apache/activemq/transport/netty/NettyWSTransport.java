@@ -148,7 +148,7 @@ public class NettyWSTransport extends NettyTcpTransport {
          WebSocketFrame frame = (WebSocketFrame) message;
          if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            LOG.warn("WebSocket Client received message: " + textFrame.text());
+            LOG.warn("WebSocket Client received message: {}", textFrame.text());
             ctx.fireExceptionCaught(new IOException("Received invalid frame over WebSocket."));
          } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;

@@ -270,9 +270,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private void onMessagePacket(final Packet packet) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("ServerSessionPacketHandler::handlePacket," + packet);
-      }
+      logger.trace("ServerSessionPacketHandler::handlePacket, {}", packet);
+
       if (AuditLogger.isAnyLoggingEnabled()) {
          AuditLogger.setRemoteAddress(remotingConnection.getRemoteAddress());
          AuditLogger.setCurrentCaller(remotingConnection.getSubject());
@@ -915,9 +914,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
                              final Packet response,
                              final boolean flush,
                              final boolean closeChannel) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("ServerSessionPacketHandler::scheduling response::" + response);
-      }
+      logger.trace("ServerSessionPacketHandler::scheduling response::{}", response);
 
       storageManager.afterCompleteOperations(new IOCallback() {
          @Override
@@ -927,17 +924,12 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             Packet exceptionPacket = convertToExceptionPacket(confirmPacket, ActiveMQExceptionType.createException(errorCode, errorMessage));
             doConfirmAndResponse(confirmPacket, exceptionPacket, flush, closeChannel);
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("ServerSessionPacketHandler::exception response sent::" + exceptionPacket);
-            }
-
+            logger.trace("ServerSessionPacketHandler::exception response sent::{}", exceptionPacket);
          }
 
          @Override
          public void done() {
-            if (logger.isTraceEnabled()) {
-               logger.trace("ServerSessionPacketHandler::regular response sent::" + response);
-            }
+            logger.trace("ServerSessionPacketHandler::regular response sent::{}", response);
 
             doConfirmAndResponse(confirmPacket, response, flush, closeChannel);
          }
@@ -1045,9 +1037,7 @@ public class ServerSessionPacketHandler implements ChannelHandler {
 
       LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("sendLarge::" + largeMsg);
-      }
+      logger.trace("sendLarge::{}", largeMsg);
 
       if (currentLargeMessage != null) {
          ActiveMQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());

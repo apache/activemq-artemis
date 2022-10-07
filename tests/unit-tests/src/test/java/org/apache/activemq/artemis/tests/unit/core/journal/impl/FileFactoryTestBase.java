@@ -62,7 +62,7 @@ public abstract class FileFactoryTestBase extends ActiveMQTestBase {
       bb.get(bytes);
 
       for (int i = 0; i < size; i++) {
-         // log.debug(" i is " + i);
+         // log.debug(" i is {}", i);
          Assert.assertEquals(0, bytes[i]);
       }
 

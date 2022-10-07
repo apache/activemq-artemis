@@ -262,7 +262,7 @@ public abstract class ActiveMQServerTestCase {
          MessageConsumer cons = sess.createConsumer(dest);
          Message m = null;
          conn.start();
-         logger.trace("Draining messages from " + dest);
+         logger.trace("Draining messages from {}", dest);
          while (true) {
             m = cons.receive(DRAIN_WAIT_TIME);
             if (m == null) {

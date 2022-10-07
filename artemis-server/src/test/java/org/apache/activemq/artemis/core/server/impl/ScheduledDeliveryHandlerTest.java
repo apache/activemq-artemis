@@ -285,7 +285,7 @@ public class ScheduledDeliveryHandlerTest extends Assert {
             assertTrue(ref.getScheduledDeliveryTime() >= lastTime);
          } else {
             if (ref.getScheduledDeliveryTime() < lastTime) {
-               log.debug("^^^fail at " + ref.getScheduledDeliveryTime());
+               log.debug("^^^fail at {}", ref.getScheduledDeliveryTime());
             }
          }
          lastTime = ref.getScheduledDeliveryTime();

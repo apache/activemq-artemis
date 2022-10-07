@@ -946,9 +946,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public void commit(boolean block) throws ActiveMQException {
       checkClosed();
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Sending commit");
-      }
+      logger.trace("Sending commit");
 
       /*
       * we have failed over since any work was done so we should rollback
@@ -1004,8 +1002,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    public void rollback(final boolean isLastMessageAsDelivered, final boolean waitConsumers) throws ActiveMQException {
       if (logger.isTraceEnabled()) {
-         logger.trace("calling rollback(isLastMessageAsDelivered=" + isLastMessageAsDelivered + ")");
+         logger.trace("calling rollback(isLastMessageAsDelivered={})", isLastMessageAsDelivered);
       }
+
       checkClosed();
 
       // We do a "JMS style" rollback where the session is stopped, and the buffer is cancelled back
@@ -1204,8 +1203,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       }
 
       checkClosed();
+
       if (logger.isDebugEnabled()) {
-         logger.debug("client ack messageID = " + message.getMessageID());
+         logger.debug("client ack messageID = {}", message.getMessageID());
       }
 
       startCall();
@@ -1326,13 +1326,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void close() throws ActiveMQException {
       if (closed) {
-         logger.debug("Session was already closed, giving up now, this=" + this);
+         logger.debug("Session was already closed, giving up now, this={}", this);
          return;
       }
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Calling close on session " + this);
-      }
+      logger.debug("Calling close on session {}", this);
 
       try {
          closeChildren();
@@ -1605,7 +1603,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("call commit(xid=" + convert(xid));
+         logger.trace("call commit(xid={}", convert(xid));
       }
       checkXA();
 
@@ -1632,11 +1630,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
          XAException xaException;
          if (onePhase) {
-            logger.debug("Throwing oneFase RMFAIL on xid=" + xid, t);
+            logger.debug("Throwing oneFase RMFAIL on xid={}", xid, t);
             //we must return XA_RMFAIL
             xaException = new XAException(XAException.XAER_RMFAIL);
          } else {
-            logger.debug("Throwing twoFase Retry on xid=" + xid, t);
+            logger.debug("Throwing twoFase Retry on xid={}", xid, t);
             // Any error on commit -> RETRY
             // We can't rollback a Prepared TX for definition
             xaException = new XAException(XAException.XA_RETRY);
@@ -1652,7 +1650,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void end(final Xid xid, final int flags) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("Calling end:: " + convert(xid) + ", flags=" + convertTXFlag(flags));
+         logger.trace("Calling end:: {}, flags={}", convert(xid), convertTXFlag(flags));
       }
 
       checkXA();
@@ -1778,7 +1776,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public int prepare(final Xid xid) throws XAException {
       checkXA();
       if (logger.isTraceEnabled()) {
-         logger.trace("Calling prepare:: " + convert(xid));
+         logger.trace("Calling prepare:: {}", convert(xid));
       }
 
       if (rollbackOnly) {
@@ -1858,7 +1856,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       checkXA();
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Calling rollback:: " + convert(xid));
+         logger.trace("Calling rollback:: {}", convert(xid));
       }
 
       try {
@@ -1907,7 +1905,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public void start(final Xid xid, final int flags) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("Calling start:: " + convert(xid) + " clientXID=" + xid + " flags = " + convertTXFlag(flags));
+         logger.trace("Calling start:: {} clientXID={} flags = {}", convert(xid), xid, convertTXFlag(flags));
       }
 
       checkXA();
@@ -2079,9 +2077,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    private void doCleanup(boolean failingOver) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("calling cleanup on " + this);
-      }
+      logger.debug("calling cleanup on {}", this);
 
       synchronized (this) {
          closed = true;

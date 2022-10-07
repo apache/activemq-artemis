@@ -52,7 +52,7 @@ public class PageCache {
 
    public synchronized void injectPage(Page page) {
       if (logger.isDebugEnabled()) {
-         logger.debug("+++ Injecting page " + page.getPageId() + " on UsedPages for destination " + owner.getAddress());
+         logger.debug("+++ Injecting page {} on UsedPages for destination {}", page.getPageId(), owner.getAddress());
       }
       page.releaseTask(this::removePage);
       usedPages.put(page.getPageId(), page);
@@ -62,7 +62,7 @@ public class PageCache {
    public synchronized void removePage(Page page) {
       if (usedPages.remove(page.getPageId()) != null) {
          if (logger.isDebugEnabled()) {
-            logger.debug("--- Releasing page " + page.getPageId() + " on UsedPages for destination " + owner.getAddress());
+            logger.debug("--- Releasing page {} on UsedPages for destination {}", page.getPageId(), owner.getAddress());
          }
       }
    }

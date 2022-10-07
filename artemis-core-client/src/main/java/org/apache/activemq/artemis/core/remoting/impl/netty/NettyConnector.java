@@ -523,7 +523,7 @@ public class NettyConnector extends AbstractConnector {
          }
          connectorType = EPOLL_CONNECTOR_TYPE;
          channelClazz = EpollSocketChannel.class;
-         logger.debug("Connector " + this + " using native epoll");
+         logger.debug("Connector {} using native epoll", this);
       } else if (useKQueue && CheckDependencies.isKQueueAvailable()) {
          if (useGlobalWorkerPool) {
             group = SharedEventLoopGroup.getInstance((threadFactory -> new KQueueEventLoopGroup(remotingThreads, threadFactory)));
@@ -532,7 +532,7 @@ public class NettyConnector extends AbstractConnector {
          }
          connectorType = KQUEUE_CONNECTOR_TYPE;
          channelClazz = KQueueSocketChannel.class;
-         logger.debug("Connector " + this + " using native kqueue");
+         logger.debug("Connector {} using native kqueue", this);
       } else {
          if (useGlobalWorkerPool) {
             channelClazz = NioSocketChannel.class;
@@ -543,7 +543,7 @@ public class NettyConnector extends AbstractConnector {
          }
          connectorType = NIO_CONNECTOR_TYPE;
          channelClazz = NioSocketChannel.class;
-         logger.debug("Connector + " + this + " using nio");
+         logger.debug("Connector {} using nio", this);
       }
       // if we are a servlet wrap the socketChannelFactory
 
@@ -642,7 +642,7 @@ public class NettyConnector extends AbstractConnector {
 
                channel.pipeline().addLast(proxyHandler);
 
-               logger.debug("Using a SOCKS proxy at " + proxyHost + ":" + proxyPort);
+               logger.debug("Using a SOCKS proxy at {}:{}", proxyHost, proxyPort);
 
                if (proxyRemoteDNS) {
                   bootstrap.resolver(NoopAddressResolverGroup.INSTANCE);
@@ -848,7 +848,7 @@ public class NettyConnector extends AbstractConnector {
          remoteDestination = new InetSocketAddress(IPV6Util.stripBracketsAndZoneID(host), port);
       }
 
-      logger.debug("Remote destination: " + remoteDestination);
+      logger.debug("Remote destination: {}", remoteDestination);
 
       ChannelFuture future;
       //port 0 does not work so only use local address if set
@@ -1014,9 +1014,8 @@ public class NettyConnector extends AbstractConnector {
        */
       @Override
       public void channelRead0(ChannelHandlerContext ctx, HttpObject msg) throws Exception {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Received msg=" + msg);
-         }
+         logger.debug("Received msg={}", msg);
+
          if (msg instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) msg;
             if (response.status().code() == HttpResponseStatus.SWITCHING_PROTOCOLS.code() && response.headers().get(HttpHeaderNames.UPGRADE).equals(ACTIVEMQ_REMOTING)) {
@@ -1279,11 +1278,13 @@ public class NettyConnector extends AbstractConnector {
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, TransportConstants.DEFAULT_HOST, configuration);
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
 
-      if (port != this.port)
+      if (port != this.port) {
          return false;
+      }
 
-      if (host.equals(this.host))
+      if (host.equals(this.host)) {
          return true;
+      }
 
       //The host may be an alias. We need to compare raw IP address.
       boolean result = false;
@@ -1292,7 +1293,10 @@ public class NettyConnector extends AbstractConnector {
          InetAddress inetAddr2 = InetAddress.getByName(this.host);
          String ip1 = inetAddr1.getHostAddress();
          String ip2 = inetAddr2.getHostAddress();
-         logger.debug(this + " host 1: " + host + " ip address: " + ip1 + " host 2: " + this.host + " ip address: " + ip2);
+
+         if (logger.isDebugEnabled()) {
+            logger.debug("{} host 1: {} ip address: {} host 2: {} ip address: {}", this, host, ip1, this.host, ip2);
+         }
 
          result = ip1.equals(ip2);
       } catch (UnknownHostException e) {

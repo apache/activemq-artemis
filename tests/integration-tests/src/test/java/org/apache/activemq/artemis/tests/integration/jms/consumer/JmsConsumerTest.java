@@ -115,9 +115,9 @@ public class JmsConsumerTest extends JMSTestBase {
       TextMessage m3 = (TextMessage) cons.receive(2000);
       Assert.assertNull("m3 should be null", m3);
 
-      logger.debug("received m1: " + m1.getText());
-      logger.debug("received m2: " + m2.getText());
-      logger.debug("received m3: " + m3);
+      logger.debug("received m1: {}", m1.getText());
+      logger.debug("received m2: {}", m2.getText());
+      logger.debug("received m3: {}", m3);
       sess.commit();
    }
 

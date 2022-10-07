@@ -67,7 +67,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
       if (deliveryTime > 0 && scheduledExecutor != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Scheduling delivery for " + ref + " to occur at " + deliveryTime);
+            logger.trace("Scheduling delivery for {} to occur at {}", ref, deliveryTime);
          }
 
          addInPlace(deliveryTime, ref, tail);
@@ -167,7 +167,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
 
       if (delay < 0) {
          if (logger.isTraceEnabled()) {
-            logger.trace("calling another scheduler now as deliverTime " + deliveryTime + " < now=" + now);
+            logger.trace("calling another scheduler now as deliverTime {} < now={}", deliveryTime, now);
          }
          // if delay == 0 we will avoid races between adding the scheduler and finishing it
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
@@ -176,14 +176,14 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
          ScheduledDeliveryRunnable runnable = new ScheduledDeliveryRunnable(deliveryTime);
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Setting up scheduler for " + deliveryTime + " with a delay of " + delay + " as now=" + now);
+            logger.trace("Setting up scheduler for {} with a delay of {} as now={}", deliveryTime, delay, now);
          }
 
          runnables.put(deliveryTime, runnable);
          scheduledExecutor.schedule(runnable, delay, TimeUnit.MILLISECONDS);
       } else {
          if (logger.isTraceEnabled()) {
-            logger.trace("Couldn't make another scheduler as " + deliveryTime + " is already set, now is " + now);
+            logger.trace("Couldn't make another scheduler as {} is already set, now is {}", deliveryTime, now);
          }
       }
    }
@@ -212,15 +212,13 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             // we can't just assume deliveryTime here as we could deliver earlier than what we are supposed to
             // this is basically a hack to work around an OS or JDK bug!
             if (logger.isTraceEnabled()) {
-               logger.trace("Scheduler is working around OS imprecisions on " +
-                               "timing and re-scheduling an executor. now=" + now +
-                               " and deliveryTime=" + deliveryTime);
+               logger.trace("Scheduler is working around OS imprecisions on timing and re-scheduling an executor. now={} and deliveryTime={}", now, deliveryTime);
             }
             ScheduledDeliveryHandlerImpl.this.scheduleDelivery(deliveryTime);
          }
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Is it " + System.currentTimeMillis() + " now and we are running deliveryTime = " + deliveryTime);
+            logger.trace("It is {} now and we are running deliveryTime = {}", System.currentTimeMillis(), deliveryTime);
          }
 
          synchronized (scheduledReferences) {
@@ -246,13 +244,13 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
                }
 
                if (logger.isTraceEnabled()) {
-                  logger.trace("sending message " + reference + " to delivery, deliveryTime =  " + deliveryTime);
+                  logger.trace("sending message {} to delivery, deliveryTime = {}", reference, deliveryTime);
                }
 
                references.addFirst(reference);
             }
             if (logger.isTraceEnabled()) {
-               logger.trace("Finished loop on deliveryTime = " + deliveryTime);
+               logger.trace("Finished loop on deliveryTime = {}", deliveryTime);
             }
          }
 
@@ -261,7 +259,7 @@ public class ScheduledDeliveryHandlerImpl implements ScheduledDeliveryHandler {
             Queue queue = entry.getKey();
             LinkedList<MessageReference> list = entry.getValue();
             if (logger.isTraceEnabled()) {
-               logger.trace("Delivering " + list.size() + " elements on list to queue " + queue);
+               logger.trace("Delivering {} elements on list to queue {}", list.size(), queue);
             }
             queue.addHead(list, true);
          }

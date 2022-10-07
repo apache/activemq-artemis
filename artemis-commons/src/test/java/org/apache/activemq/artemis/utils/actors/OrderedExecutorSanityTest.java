@@ -179,7 +179,7 @@ public class OrderedExecutorSanityTest {
 
             long elapsed = (end - start);
 
-            log.info("execution " + i + " in " + TimeUnit.NANOSECONDS.toMillis(elapsed) + " milliseconds");
+            log.info("execution {} in {} milliseconds", i, TimeUnit.NANOSECONDS.toMillis(elapsed));
          }
       } finally {
          executorService.shutdown();

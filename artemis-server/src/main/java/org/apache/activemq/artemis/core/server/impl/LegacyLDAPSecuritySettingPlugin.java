@@ -330,12 +330,10 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       securityRoles = new HashMap<>();
       try {
          if (logger.isDebugEnabled()) {
-            logger.debug(new StringBuilder().append("Performing LDAP search: ").append(destinationBase)
-                                            .append("\n\tfilter: ").append(filter)
-                                            .append("\n\tcontrols:")
-                                            .append("\n\t\treturningAttributes: ").append(roleAttribute)
-                                            .append("\n\t\tsearchScope: SUBTREE_SCOPE").toString());
+            logger.debug("Performing LDAP search: {}\n\tfilter: {}\n\tcontrols:\n\t\treturningAttributes: {}\n\t\tsearchScope: SUBTREE_SCOPE",
+                      destinationBase, filter, roleAttribute);
          }
+
          NamingEnumeration<SearchResult> searchResults = context.search(destinationBase, filter, searchControls);
          while (searchResults.hasMore()) {
             processSearchResult(securityRoles, searchResults.next());
@@ -358,21 +356,24 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       Attributes attrs = searchResult.getAttributes();
       if (attrs == null || attrs.size() == 0) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Skipping LDAP search result \"" + searchResultLdapName + "\" with " + (attrs == null ? "null" : attrs.size()) + " attributes");
+            logger.debug("Skipping LDAP search result \"{}\" with {} attributes", searchResultLdapName, (attrs == null ? "null" : attrs.size()));
          }
          return;
       }
       List<Rdn> rdns = searchResultLdapName.getRdns();
       if (rdns.size() < 3) {
          if (logger.isDebugEnabled()) {
-            logger.debug("\tSkipping LDAP search result \"" + searchResultLdapName + "\" with " + rdns.size() + " RDNs.");
+            logger.debug("\tSkipping LDAP search result \"{}\" with {} RDNs.", searchResultLdapName, rdns.size());
          }
          return;
       }
-      StringBuilder logMessage = new StringBuilder();
-      if (logger.isDebugEnabled()) {
+
+      final boolean prepareDebugLog = logger.isDebugEnabled();
+      final StringBuilder logMessage = prepareDebugLog ? new StringBuilder() : null;
+      if (prepareDebugLog) {
          logMessage.append("LDAP search result: ").append(searchResultLdapName);
       }
+
       // we can count on the RDNs being in order from right to left
       Rdn rdn = rdns.get(rdns.size() - 3);
       String rawDestinationType = rdn.getValue().toString();
@@ -382,23 +383,23 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
       } else if (rawDestinationType.toLowerCase().contains("topic")) {
          destinationType = "topic";
       }
-      if (logger.isDebugEnabled()) {
+      if (prepareDebugLog) {
          logMessage.append("\n\tDestination type: ").append(destinationType);
       }
 
       rdn = rdns.get(rdns.size() - 2);
-      if (logger.isDebugEnabled()) {
+      if (prepareDebugLog) {
          logMessage.append("\n\tDestination name: ").append(rdn.getValue());
       }
       String destination = rdn.getValue().toString();
 
       rdn = rdns.get(rdns.size() - 1);
-      if (logger.isDebugEnabled()) {
+      if (prepareDebugLog) {
          logMessage.append("\n\tPermission type: ").append(rdn.getValue());
       }
       String permissionType = rdn.getValue().toString();
 
-      if (logger.isDebugEnabled()) {
+      if (prepareDebugLog) {
          logMessage.append("\n\tAttributes: ").append(attrs);
       }
       Attribute attr = attrs.get(roleAttribute);
@@ -416,7 +417,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          LdapName ldapname = new LdapName(value);
          rdn = ldapname.getRdn(ldapname.size() - 1);
          String roleName = rdn.getValue().toString();
-         if (logger.isDebugEnabled()) {
+         if (prepareDebugLog) {
             logMessage.append("\n\tRole name: ").append(roleName);
          }
          boolean write = permissionType.equalsIgnoreCase(writePermissionValue);
@@ -446,8 +447,8 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          }
       }
 
-      if (logger.isDebugEnabled()) {
-         logger.debug(logMessage.toString());
+      if (prepareDebugLog) {
+         logger.debug(String.valueOf(logMessage));
       }
 
       if (!exists) {
@@ -480,41 +481,41 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     * @param namingEvent the new entry event that occurred
     */
    public void objectAdded(NamingEvent namingEvent) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("objectAdded:\n\told binding: " + namingEvent.getOldBinding() + "\n\tnew binding: " + namingEvent.getNewBinding());
-      }
+      logger.debug("objectAdded:\n\told binding: {}\n\tnew binding: {}", namingEvent.getOldBinding(), namingEvent.getNewBinding());
       Map<String, Set<Role>> newRoles = new HashMap<>();
 
       try {
          processSearchResult(newRoles, (SearchResult) namingEvent.getNewBinding());
          for (Map.Entry<String, Set<Role>> newRole : newRoles.entrySet()) {
-            Set<Role> existingRoles = securityRepository.getMatch(newRole.getKey());
-            if (securityRepository.containsExactWildcardMatch(newRole.getKey()) || securityRepository.containsExactMatch(newRole.getKey()) && existingRoles != securityRepository.getDefault()) {
+            final String newRoleKey = newRole.getKey();
+            final Set<Role> newRoleValueSet = newRole.getValue();
+
+            Set<Role> existingRoles = securityRepository.getMatch(newRoleKey);
+            if (securityRepository.containsExactWildcardMatch(newRoleKey) || securityRepository.containsExactMatch(newRoleKey) && existingRoles != securityRepository.getDefault()) {
                Set<Role> merged = new HashSet<>();
                for (Role existingRole : existingRoles) {
-                  for (Role role : newRole.getValue()) {
+                  for (Role role : newRoleValueSet) {
                      if (existingRole.getName().equals(role.getName())) {
                         if (logger.isDebugEnabled()) {
-                           logger.debug("merging role " + role + " with existing role " + existingRole + " at " + newRole.getKey());
+                           logger.debug("merging role {} with existing role {} at {}", role, existingRole, newRoleKey);
                         }
+
                         existingRole.merge(role);
                         merged.add(role);
                      }
                   }
                }
-               for (Role role : newRole.getValue()) {
+               for (Role role : newRoleValueSet) {
                   if (!merged.contains(role)) {
-                     if (logger.isDebugEnabled()) {
-                        logger.debug("add new role " + role + " to existing roles " + existingRoles);
-                     }
+                     logger.debug("add new role {} to existing roles {}", role, existingRoles);
+
                      existingRoles.add(role);
                   }
                }
             } else {
-               if (logger.isDebugEnabled()) {
-                  logger.debug("adding new match " + newRole.getKey() + ": " + newRole.getValue());
-               }
-               securityRepository.addMatch(newRole.getKey(), newRole.getValue());
+               logger.debug("adding new match {}: {}", newRoleKey, newRoleValueSet);
+
+               securityRepository.addMatch(newRoleKey, newRoleValueSet);
             }
          }
       } catch (NamingException e) {
@@ -528,24 +529,20 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     * @param namingEvent the removed entry event that occurred
     */
    public void objectRemoved(NamingEvent namingEvent) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("objectRemoved:\n\told binding: " + namingEvent.getOldBinding() + "\n\tnew binding: " + namingEvent.getNewBinding());
-      }
+      logger.debug("objectRemoved:\n\told binding: {}\n\tnew binding: {}", namingEvent.getOldBinding(), namingEvent.getNewBinding());
 
       try {
          LdapName ldapName = new LdapName(namingEvent.getOldBinding().getName());
          List<Rdn> rdns = ldapName.getRdns();
          if (rdns.size() < 3) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Skipping old binding name \"" + namingEvent.getOldBinding().getName() + "\" with " + rdns.size() + " RDNs.");
+               logger.debug("Skipping old binding name \"{}\" with {} RDNs.", namingEvent.getOldBinding().getName(), rdns.size());
             }
             return;
          }
 
          String match = rdns.get(rdns.size() - 2).getValue().toString();
-         if (logger.isDebugEnabled()) {
-            logger.debug("Destination name: " + match);
-         }
+         logger.debug("Destination name: {}", match);
 
          if (match != null) {
             Set<Role> roles = securityRepository.getMatch(match);
@@ -554,21 +551,21 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
             for (Rdn rdn : ldapName.getRdns()) {
                if (rdn.getValue().equals(writePermissionValue)) {
-                  logger.debug("Removing write permission from " + match);
+                  logger.debug("Removing write permission from {}", match);
                   for (Role role : roles) {
                      if (role.isSend()) {
                         rolesToRemove.add(role);
                      }
                   }
                } else if (rdn.getValue().equals(readPermissionValue)) {
-                  logger.debug("Removing read permission from " + match);
+                  logger.debug("Removing read permission from {}", match);
                   for (Role role : roles) {
                      if (role.isConsume()) {
                         rolesToRemove.add(role);
                      }
                   }
                } else if (rdn.getValue().equals(adminPermissionValue)) {
-                  logger.debug("Removing admin permission from " + match);
+                  logger.debug("Removing admin permission from {}", match);
                   for (Role role : roles) {
                      if (role.isCreateDurableQueue() || role.isCreateNonDurableQueue() || role.isDeleteDurableQueue() || role.isDeleteNonDurableQueue()) {
                         rolesToRemove.add(role);
@@ -578,7 +575,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
             }
 
             if (roles.removeAll(rolesToRemove)) {
-               logger.debug("Removed roles: " + rolesToRemove + ". Remaining roles: " + roles);
+               logger.debug("Removed roles: {}. Remaining roles: {}", rolesToRemove, roles);
             }
          }
       } catch (NamingException e) {
@@ -599,9 +596,8 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
     * @param namingEvent the changed entry event that occurred
     */
    public void objectChanged(NamingEvent namingEvent) {
-      if (logger.isDebugEnabled()) {
-         logger.debug("objectChanged:\n\told binding: " + namingEvent.getOldBinding() + "\n\tnew binding: " + namingEvent.getNewBinding());
-      }
+      logger.debug("objectChanged:\n\told binding: {}\n\tnew binding: {}", namingEvent.getOldBinding(), namingEvent.getNewBinding());
+
       objectRemoved(namingEvent);
       objectAdded(namingEvent);
    }

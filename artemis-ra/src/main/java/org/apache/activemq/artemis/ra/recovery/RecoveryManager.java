@@ -51,7 +51,7 @@ public final class RecoveryManager {
                                     String userName,
                                     String password,
                                     Map<String, String> properties) {
-      logger.debug("registering recovery for factory : " + factory);
+      logger.debug("registering recovery for factory : {}", factory);
 
       XARecoveryConfig config = XARecoveryConfig.newConfig(factory, userName, password, properties);
       resources.add(config);
@@ -90,7 +90,7 @@ public final class RecoveryManager {
                registry = ActiveMQRegistryImpl.getInstance();
             }
          } catch (Throwable e) {
-            logger.debug("unable to load  recovery registry " + locatorClasse, e);
+            logger.debug("unable to load  recovery registry {}", locatorClasse, e);
          }
          if (registry != null) {
             break;
@@ -98,7 +98,7 @@ public final class RecoveryManager {
       }
 
       if (registry != null) {
-         logger.debug("Recovery Registry located = " + registry);
+         logger.debug("Recovery Registry located = {}", registry);
       }
    }
 

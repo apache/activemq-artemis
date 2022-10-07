@@ -65,9 +65,9 @@ public class ByteUtil {
 
       try {
          if (info) {
-            logger.info(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+            logger.info("{}\n{}", message, ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
          } else {
-            logger.trace(message + "\n" + ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
+            logger.trace("{}\n{}", message, ByteUtil.formatGroup(ByteUtil.bytesToHex(frame), 8, 16));
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);

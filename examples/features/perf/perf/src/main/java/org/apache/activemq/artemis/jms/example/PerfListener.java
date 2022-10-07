@@ -16,11 +16,7 @@
  */
 package org.apache.activemq.artemis.jms.example;
 
-import java.util.logging.Logger;
-
 public class PerfListener extends PerfBase {
-
-   private static final Logger log = Logger.getLogger(PerfListener.class.getName());
 
    public static void main(final String[] args) {
       try {

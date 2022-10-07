@@ -191,7 +191,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
 
    @Override
    public Response receive(final Proposal proposal, final int distance) throws Exception {
-      logger.trace("received proposal " + proposal);
+      logger.trace("received proposal {}", proposal);
       return propose(proposal);
    }
 
@@ -261,7 +261,7 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             expectedBindings.removeAll(bindingsAlreadyAdded);
 
             if (expectedBindings.size() > 0) {
-               logger.debug("Waiting remote group bindings to arrive before starting the server. timeout=" + timeout + " milliseconds");
+               logger.debug("Waiting remote group bindings to arrive before starting the server. timeout={} milliseconds", timeout);
                //now we wait here for the rest to be received in onNotification, it will signal once all have been received.
                //if we aren't signaled then bindingsAdded still has some groupids we need to remove.
                if (!ConcurrentUtil.await(awaitCondition, timeout)) {
@@ -292,18 +292,18 @@ public final class LocalGroupingHandler extends GroupHandlingAbstract {
             if (expectedBindings != null) {
                if (waitingForBindings) {
                   if (expectedBindings.remove(clusterName)) {
-                     logger.debug("OnNotification for waitForbindings::Removed clusterName=" + clusterName + " from lis succesffully");
+                     logger.debug("OnNotification for waitForbindings::Removed clusterName={} from list succesffully", clusterName);
                   } else {
-                     logger.debug("OnNotification for waitForbindings::Couldn't remove clusterName=" + clusterName + " as it wasn't on the original list");
+                     logger.debug("OnNotification for waitForbindings::Couldn't remove clusterName={} as it wasn't on the original list", clusterName);
                   }
                } else {
                   expectedBindings.add(clusterName);
-                  logger.debug("Notification for waitForbindings::Adding previously known item clusterName=" + clusterName);
+                  logger.debug("Notification for waitForbindings::Adding previously known item clusterName={}", clusterName);
                }
 
                if (logger.isDebugEnabled()) {
                   for (SimpleString stillWaiting : expectedBindings) {
-                     logger.debug("Notification for waitForbindings::Still waiting for clusterName=" + stillWaiting);
+                     logger.debug("Notification for waitForbindings::Still waiting for clusterName={}", stillWaiting);
                   }
                }
 

@@ -107,7 +107,7 @@ public class StompTest extends StompTestBase {
    public void tearDown() throws Exception {
       try {
          boolean connected = conn != null && conn.isConnected();
-         log.debug("Connection 1.0 connected: " + connected);
+         log.debug("Connection 1.0 connected: {}", connected);
          if (connected) {
             try {
                conn.disconnect();

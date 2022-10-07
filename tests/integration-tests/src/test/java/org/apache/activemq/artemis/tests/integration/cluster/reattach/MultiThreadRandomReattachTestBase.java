@@ -358,7 +358,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       long end = System.currentTimeMillis();
 
-      log.debug("duration " + (end - start));
+      log.debug("duration {}", (end - start));
    }
 
    protected void doTestB(final ClientSessionFactory sf, final int threadNum) throws Exception {
@@ -438,7 +438,7 @@ public abstract class MultiThreadRandomReattachTestBase extends MultiThreadReatt
 
       long end = System.currentTimeMillis();
 
-      log.debug("duration " + (end - start));
+      log.debug("duration {}", (end - start));
 
    }
 

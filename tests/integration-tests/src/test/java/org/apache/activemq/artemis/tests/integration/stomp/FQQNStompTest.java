@@ -88,7 +88,7 @@ public class FQQNStompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(2000);
       assertNotNull(frame);
       assertEquals("Hello World!", frame.getBody());
-      logger.debug("frame: " + frame);
+      logger.debug("frame: {}", frame);
       unsubscribe(conn, "sub-01");
    }
 
@@ -189,7 +189,7 @@ public class FQQNStompTest extends StompTestBase {
       ClientStompFrame frame = conn.receiveFrame(2000);
       assertNotNull(frame);
       assertEquals("Hello World!", frame.getBody());
-      logger.debug("frame: " + frame);
+      logger.debug("frame: {}", frame);
       unsubscribe(conn, "sub-01");
 
       //queue::

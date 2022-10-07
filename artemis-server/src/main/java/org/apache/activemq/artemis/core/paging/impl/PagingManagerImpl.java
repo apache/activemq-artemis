@@ -229,7 +229,9 @@ public final class PagingManagerImpl implements PagingManager {
       public void tick(long usableSpace, long totalSpace) {
          diskUsableSpace = usableSpace;
          diskTotalSpace = totalSpace;
-         logger.trace("Tick:: usable space at {}, total space at {}", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
+         if (logger.isTraceEnabled()) {
+            logger.trace("Tick:: usable space at {}, total space at {}", ByteUtil.getHumanReadableByteCount(usableSpace), ByteUtil.getHumanReadableByteCount(totalSpace));
+         }
       }
 
       @Override
@@ -421,7 +423,7 @@ public final class PagingManagerImpl implements PagingManager {
    @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
       if (logger.isTraceEnabled()) {
-         logger.trace("Adding pageTransaction " + pageTransaction.getTransactionID());
+         logger.trace("Adding pageTransaction {}", pageTransaction.getTransactionID());
       }
       transactions.put(pageTransaction.getTransactionID(), pageTransaction);
    }
@@ -429,7 +431,7 @@ public final class PagingManagerImpl implements PagingManager {
    @Override
    public void removeTransaction(final long id) {
       if (logger.isTraceEnabled()) {
-         logger.trace("Removing pageTransaction " + id);
+         logger.trace("Removing pageTransaction {}", id);
       }
       transactions.remove(id);
    }
@@ -437,7 +439,7 @@ public final class PagingManagerImpl implements PagingManager {
    @Override
    public PageTransactionInfo getTransaction(final long id) {
       if (logger.isTraceEnabled()) {
-         logger.trace("looking up pageTX = " + id);
+         logger.trace("looking up pageTX = {}", id);
       }
       return transactions.get(id);
    }
@@ -483,7 +485,7 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    public void debug() {
-      logger.info("size = " + globalSizeMetric.getSize() + " bytes, messages = " + globalSizeMetric.getElements());
+      logger.info("size = {} bytes, messages = {}", globalSizeMetric.getSize(), globalSizeMetric.getElements());
    }
 
    @Override

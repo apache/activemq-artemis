@@ -305,7 +305,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       double rate = 1000 * (double) numMessages / (end - start);
 
-      logger.debug("rate is " + rate + " msgs / sec");
+      logger.debug("rate is {} msgs / sec", rate);
    }
 
    @Test

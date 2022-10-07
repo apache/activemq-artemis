@@ -86,25 +86,25 @@ public class SingleLiveMultipleBackupsFailoverTest extends MultipleBackupsFailov
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      logger.debug("failing node " + backupNode);
+      logger.debug("failing node {}", backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      logger.debug("failing node " + backupNode);
+      logger.debug("failing node {}", backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      logger.debug("failing node " + backupNode);
+      logger.debug("failing node {}", backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();
       backupNode = waitForNewLive(5, true, servers, 1, 2, 3, 4, 5);
       session = sendAndConsume(sf, false);
-      logger.debug("failing node " + backupNode);
+      logger.debug("failing node {}", backupNode);
       servers.get(backupNode).crash(session);
 
       session.close();

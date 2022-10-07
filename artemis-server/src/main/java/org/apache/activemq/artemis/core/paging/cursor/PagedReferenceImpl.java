@@ -225,7 +225,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    public void incrementDeliveryCount() {
       DELIVERY_COUNT_UPDATER.incrementAndGet(this);
       if (logger.isTraceEnabled()) {
-         logger.trace("++deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
+         logger.trace("++deliveryCount = {} for {}", deliveryCount, this, new Exception("trace"));
       }
    }
 
@@ -233,7 +233,7 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    public void decrementDeliveryCount() {
       DELIVERY_COUNT_UPDATER.decrementAndGet(this);
       if (logger.isTraceEnabled()) {
-         logger.trace("--deliveryCount = " + deliveryCount + " for " + this, new Exception("trace"));
+         logger.trace("--deliveryCount = {} for {}", deliveryCount, this, new Exception("trace"));
       }
    }
 

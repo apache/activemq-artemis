@@ -77,7 +77,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
-      logger.debug("backup (nowLive) topology = " + backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      logger.debug("backup (nowLive) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
       logger.debug("Server Crash!!!");
 
@@ -104,7 +104,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       //the life server should be online by now
       assertEquals(FailoverEventType.FAILOVER_COMPLETED, listener.getFailoverEventType().get(3));
 
-      logger.debug("After failback: " + locator.getTopology().describe());
+      logger.debug("After failback: {}", locator.getTopology().describe());
 
       message = session.createMessage(true);
 
@@ -271,7 +271,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       @Override
       public void failoverEvent(FailoverEventType eventType) {
          this.failoverTypeEvent.add(eventType);
-         logger.debug("Failover event just happen : " + eventType.toString());
+         logger.debug("Failover event just happen : {}", eventType.toString());
          if (eventType == FailoverEventType.FAILURE_DETECTED) {
             failureLatch.countDown();
          } else if (eventType == FailoverEventType.FAILOVER_COMPLETED || eventType == FailoverEventType.FAILOVER_FAILED) {

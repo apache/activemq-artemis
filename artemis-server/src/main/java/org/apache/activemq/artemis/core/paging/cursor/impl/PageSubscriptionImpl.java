@@ -832,9 +832,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
    @Override
    public void processReload() throws Exception {
       if (recoveredACK != null) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("********** processing reload!!!!!!!");
-         }
+         logger.trace("********** processing reload!!!!!!!");
+
          Collections.sort(recoveredACK);
 
          long txDeleteCursorOnReload = -1;
@@ -937,13 +936,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
    // The only exception is on non storage events such as not matching messages
    private PageCursorInfo processACK(final PagePosition pos) {
       if (lastAckedPosition == null || pos.compareTo(lastAckedPosition) > 0) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("a new position is being processed as ACK");
-         }
+         logger.trace("a new position is being processed as ACK");
+
          if (lastAckedPosition != null && lastAckedPosition.getPageNr() != pos.getPageNr()) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Scheduling cleanup on pageSubscription for address = " + pageStore.getAddress() + " queue = " + this.getQueue().getName());
-            }
+            logger.trace("Scheduling cleanup on pageSubscription for address = {} queue = {}", pageStore.getAddress(), getQueue().getName());
 
             // there's a different page being acked, we will do the check right away
             if (autoCleanup) {
@@ -1090,7 +1086,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
          }
          this.pageId = pageId;
          this.numberOfMessages = numberOfMessages;
-         logger.trace("Created PageCursorInfo for pageNr={}, numberOfMessages={}, not live", pageId, numberOfMessages);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Created PageCursorInfo for pageNr={}, numberOfMessages={}, not live", pageId, numberOfMessages);
+         }
       }
 
       private PageCursorInfo(long pageId) {
@@ -1103,7 +1101,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
        * @param completePage
        */
       public void setCompleteInfo(final PagePosition completePage) {
-         logger.trace("Setting up complete page {} on cursor {} on subscription {}", completePage, this, PageSubscriptionImpl.this);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Setting up complete page {} on cursor {} on subscription {}", completePage, this, PageSubscriptionImpl.this);
+         }
+
          this.completePage = completePage;
       }
 
@@ -1114,9 +1115,10 @@ public final class PageSubscriptionImpl implements PageSubscription {
       @Override
       public boolean isDone() {
          if (logger.isTraceEnabled()) {
-            logger.trace(PageSubscriptionImpl.this + "::PageCursorInfo(" + pageId + ")::isDone checking with completePage!=null->" + (completePage != null) + " getNumberOfMessages=" + getNumberOfMessages() + ", confirmed=" + confirmed.get() + " and pendingTX=" + pendingTX.get());
-
+            logger.trace("{}::PageCursorInfo({})::isDone checking with completePage!=null->{} getNumberOfMessages={}, confirmed={} and pendingTX={}",
+               PageSubscriptionImpl.this, pageId, completePage != null, getNumberOfMessages(), confirmed.get(), pendingTX.get());
          }
+
          // in cases where the file was damaged it is possible to get more confirmed records than we actually had messages
          // for that case we set confirmed.get() >= getNumberOfMessages instead of ==
          return completePage != null || (confirmed.get() >= getNumberOfMessages() && pendingTX.get() == 0);
@@ -1162,12 +1164,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
          if (logger.isTraceEnabled()) {
             try {
-               logger.trace("numberOfMessages =  " + getNumberOfMessages() +
-                               " confirmed =  " +
-                               (confirmed.get() + 1) +
-                               " pendingTX = " + pendingTX +
-                               ", pageNr = " +
-                               pageId + " posACK = " + posACK);
+               logger.trace("numberOfMessages = {} confirmed = {} pendingTX = {}, pageNr = {} posACK = {}",
+                            getNumberOfMessages(), (confirmed.get() + 1), pendingTX, pageId, posACK);
             } catch (Throwable ignored) {
                logger.debug(ignored.getMessage(), ignored);
             }
@@ -1289,7 +1287,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
             }
             currentPage = pageStore.usePage(page);
             if (logger.isTraceEnabled()) {
-               logger.trace("CursorIterator: getting page " + page + " which will contain " + currentPage.getNumberOfMessages());
+               logger.trace("CursorIterator: getting page {} which will contain {}", page, currentPage.getNumberOfMessages());
             }
             currentPageIterator = currentPage.iterator();
          } catch (Exception e) {
@@ -1401,7 +1399,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
                if (!browsing && info != null && (info.isRemoved(message.getPagedMessage().getMessageNumber()) || info.getCompleteInfo() != null)) {
                   if (logger.isTraceEnabled()) {
                      boolean removed = info.isRemoved(message.getPagedMessage().getMessageNumber());
-                     logger.trace("CursorIterator::Message from page {} # {} isRemoved={}", message.getPagedMessage().getPageNumber(), message.getPagedMessage().getMessageNumber(), (Boolean)removed);
+                     logger.trace("CursorIterator::Message from page {} # {} isRemoved={}", message.getPagedMessage().getPageNumber(), message.getPagedMessage().getMessageNumber(), removed);
                   }
                   continue;
                }
@@ -1559,7 +1557,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       try {
          return msg != null && msg.getPersistentSize() > 0 ? msg.getPersistentSize() : 0;
       } catch (ActiveMQException e) {
-         logger.warn("Error computing persistent size of message: " + msg, e);
+         logger.warn("Error computing persistent size of message: {}", msg, e);
          return 0;
       }
    }
@@ -1568,7 +1566,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       try {
          return ref != null && ref.getPersistentSize() > 0 ? ref.getPersistentSize() : 0;
       } catch (ActiveMQException e) {
-         logger.warn("Error computing persistent size of message: " + ref, e);
+         logger.warn("Error computing persistent size of message: {}", ref, e);
          return 0;
       }
    }

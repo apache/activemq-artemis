@@ -91,7 +91,7 @@ public class AmqpMaxReadPagingTest extends AmqpClientTestSupport {
       receiver.flow(MSG_COUNT);
       Assert.assertNotNull(receiver.receive(10, TimeUnit.SECONDS)); // wait some time so we have some data
       if (receiver.getPrefetchSize() > 10) {
-         logger.warn("Receiver has an unexpected size of " + receiver.getPrefetchSize() + " elements on the client buffer");
+         logger.warn("Receiver has an unexpected size of {} elements on the client buffer", receiver.getPrefetchSize());
       }
       PagingStore pagingStore = server.getPagingManager().getPageStore(SimpleString.toSimpleString(getQueueName()));
       Assert.assertTrue(pagingStore.isPaging());

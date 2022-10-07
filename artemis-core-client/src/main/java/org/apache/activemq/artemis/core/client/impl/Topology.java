@@ -90,7 +90,7 @@ public final class Topology {
          manager = null;
       }
       if (logger.isTraceEnabled()) {
-         logger.trace("Topology@" + Integer.toHexString(System.identityHashCode(this)) + " CREATE", new Exception("trace"));
+         logger.trace("Topology@{} CREATE", Integer.toHexString(System.identityHashCode(this)), new Exception("trace"));
       }
    }
 
@@ -108,7 +108,7 @@ public final class Topology {
 
    public void addClusterTopologyListener(final ClusterTopologyListener listener) {
       if (logger.isTraceEnabled()) {
-         logger.trace(this + "::Adding topology listener " + listener, new Exception("Trace"));
+         logger.trace("{}::Adding topology listener {}", this, listener, new Exception("Trace"));
       }
       synchronized (topologyListeners) {
          topologyListeners.add(listener);
@@ -118,7 +118,7 @@ public final class Topology {
 
    public void removeClusterTopologyListener(final ClusterTopologyListener listener) {
       if (logger.isTraceEnabled()) {
-         logger.trace(this + "::Removing topology listener " + listener, new Exception("Trace"));
+         logger.trace("{}::Removing topology listener {}", this, listener, new Exception("Trace"));
       }
       synchronized (topologyListeners) {
          topologyListeners.remove(listener);
@@ -131,7 +131,7 @@ public final class Topology {
    public void updateAsLive(final String nodeId, final TopologyMemberImpl memberInput) {
       synchronized (this) {
          if (logger.isDebugEnabled()) {
-            logger.debug(this + "::node " + nodeId + "=" + memberInput);
+            logger.debug("{}::node {}={}", this, nodeId, memberInput);
          }
          memberInput.setUniqueEventID(System.currentTimeMillis());
          topology.remove(nodeId);
@@ -161,14 +161,14 @@ public final class Topology {
    public TopologyMemberImpl updateBackup(final TopologyMemberImpl memberInput) {
       final String nodeId = memberInput.getNodeId();
       if (logger.isTraceEnabled()) {
-         logger.trace(this + "::updateBackup::" + nodeId + ", memberInput=" + memberInput);
+         logger.trace("{}::updateBackup::{}, memberInput={}", this, nodeId, memberInput);
       }
 
       synchronized (this) {
          TopologyMemberImpl currentMember = getMember(nodeId);
          if (currentMember == null) {
             if (logger.isTraceEnabled()) {
-               logger.trace("There's no live to be updated on backup update, node=" + nodeId + " memberInput=" + memberInput, new Exception("trace"));
+               logger.trace("There's no live to be updated on backup update, node={} memberInput={}", nodeId, memberInput, new Exception("trace"));
             }
 
             currentMember = memberInput;
@@ -196,12 +196,10 @@ public final class Topology {
 
       Long deleteTme = getMapDelete().get(nodeId);
       if (deleteTme != null && uniqueEventID != 0 && uniqueEventID < deleteTme) {
-         logger.debug("Update uniqueEvent=" + uniqueEventID +
-                         ", nodeId=" +
-                         nodeId +
-                         ", memberInput=" +
-                         memberInput +
-                         " being rejected as there was a delete done after that");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Update uniqueEvent={}, nodeId={}, memberInput={} being rejected as there was a delete done after that",
+                         uniqueEventID, nodeId, memberInput);
+         }
          return false;
       }
 
@@ -215,7 +213,7 @@ public final class Topology {
 
          if (currentMember == null) {
             if (logger.isTraceEnabled()) {
-               logger.trace(this + "::NewMemberAdd nodeId=" + nodeId + " member = " + memberInput, new Exception("trace"));
+               logger.trace("{}::NewMemberAdd nodeId={} member = {}", this, nodeId, memberInput, new Exception("trace"));
             }
             memberInput.setUniqueEventID(uniqueEventID);
             topology.put(nodeId, memberInput);
@@ -234,9 +232,8 @@ public final class Topology {
             }
 
             if (logger.isTraceEnabled()) {
-               logger.trace(this + "::updated currentMember=nodeID=" + nodeId + ", currentMember=" +
-                               currentMember + ", memberInput=" + memberInput + "newMember=" +
-                               newMember, new Exception("trace"));
+               logger.trace("{}::updated currentMember=nodeID={}, currentMember={}, memberInput={} newMember={}",
+                            this, nodeId, currentMember, memberInput, newMember, new Exception("trace"));
             }
 
             if (uniqueEventID > currentMember.getUniqueEventID()) {
@@ -270,7 +267,7 @@ public final class Topology {
       final ArrayList<ClusterTopologyListener> copy = copyListeners();
 
       if (logger.isTraceEnabled()) {
-         logger.trace(this + "::prepare to send " + nodeId + " to " + copy.size() + " elements");
+         logger.trace("{}::prepare to send {} to {} elements", this, nodeId, copy.size());
       }
 
       if (copy.size() > 0) {
@@ -279,12 +276,8 @@ public final class Topology {
             public void run() {
                for (ClusterTopologyListener listener : copy) {
                   if (logger.isTraceEnabled()) {
-                     logger.trace(Topology.this + " informing " +
-                                     listener +
-                                     " about node up = " +
-                                     nodeId +
-                                     " connector = " +
-                                     memberToSend.getConnector());
+                     logger.trace("{} informing {} about node up = {} connector = {}",
+                                  Topology.this, listener, nodeId, memberToSend.getConnector());
                   }
 
                   try {
@@ -322,7 +315,7 @@ public final class Topology {
          member = topology.get(nodeId);
          if (member != null) {
             if (member.getUniqueEventID() > uniqueEventID) {
-               logger.debug("The removeMember was issued before the node " + nodeId + " was started, ignoring call");
+               logger.debug("The removeMember was issued before the node {} was started, ignoring call", nodeId);
                member = null;
             } else {
                getMapDelete().put(nodeId, uniqueEventID);
@@ -332,13 +325,8 @@ public final class Topology {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("removeMember " + this +
-                         " removing nodeID=" +
-                         nodeId +
-                         ", result=" +
-                         member +
-                         ", size = " +
-                         topology.size(), new Exception("trace"));
+         logger.trace("removeMember {} removing nodeID={}, result={}, size = {}",
+                      this, nodeId, member, topology.size(), new Exception("trace"));
       }
 
       if (member != null) {
@@ -349,7 +337,7 @@ public final class Topology {
             public void run() {
                for (ClusterTopologyListener listener : copy) {
                   if (logger.isTraceEnabled()) {
-                     logger.trace(this + " informing " + listener + " about node down = " + nodeId);
+                     logger.trace("{} informing {} about node down = {}", this, listener, nodeId);
                   }
                   try {
                      listener.nodeDown(uniqueEventID, nodeId);
@@ -364,9 +352,7 @@ public final class Topology {
    }
 
    public synchronized void sendTopology(final ClusterTopologyListener listener) {
-      if (logger.isDebugEnabled()) {
-         logger.debug(this + " is sending topology to " + listener);
-      }
+      logger.debug("{} is sending topology to {}", this, listener);
 
       executor.execute(new Runnable() {
          @Override
@@ -381,12 +367,7 @@ public final class Topology {
 
             for (Map.Entry<String, TopologyMemberImpl> entry : copy.entrySet()) {
                if (logger.isDebugEnabled()) {
-                  logger.debug(Topology.this + " sending " +
-                                  entry.getKey() +
-                                  " / " +
-                                  entry.getValue().getConnector() +
-                                  " to " +
-                                  listener);
+                  logger.debug("{} sending {} / {} to {}", Topology.this, entry.getKey(), entry.getValue().getConnector(), listener);
                }
                listener.nodeUP(entry.getValue(), ++count == copy.size());
             }

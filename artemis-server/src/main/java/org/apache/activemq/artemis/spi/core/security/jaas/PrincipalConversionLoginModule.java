@@ -66,9 +66,9 @@ public class PrincipalConversionLoginModule implements AuditLoginModule {
          for (String principalClass : principalClasses) {
             String trimmedCandidateClassName = principalClass.trim();
             for (Principal candidatePrincipal : subject.getPrincipals()) {
-               logger.debug("Checking principal class name:" + candidatePrincipal.getClass().getName() + ", " + candidatePrincipal);
+               logger.debug("Checking principal class name:{}, {}", candidatePrincipal.getClass().getName(), candidatePrincipal);
                if (candidatePrincipal.getClass().getName().equals(trimmedCandidateClassName)) {
-                  logger.debug("converting: " + candidatePrincipal);
+                  logger.debug("converting: {}", candidatePrincipal);
                   principal = new UserPrincipal(candidatePrincipal.getName());
                   subject.getPrincipals().add(principal);
                   break;
@@ -76,7 +76,10 @@ public class PrincipalConversionLoginModule implements AuditLoginModule {
             }
          }
       }
-      logger.debug("commit, result: " + (principal != null));
+
+      if (logger.isDebugEnabled()) {
+         logger.debug("commit, result: {}", (principal != null));
+      }
       return principal != null;
    }
 

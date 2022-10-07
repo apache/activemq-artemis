@@ -144,9 +144,7 @@ public class MetricsManager {
          for (Gauge.Builder gaugeBuilder : newMeters) {
             Gauge gauge = gaugeBuilder.register(meterRegistry);
             meters.add(gauge);
-            if (log.isDebugEnabled()) {
-               log.debug("Registered meter: " + gauge.getId());
-            }
+            log.debug("Registered meter: {}", gauge.getId());
          }
          return meters;
       });
@@ -159,9 +157,7 @@ public class MetricsManager {
          }
          for (Meter meter : meters) {
             Meter removed = meterRegistry.remove(meter);
-            if (log.isDebugEnabled()) {
-               log.debug("Unregistered meter: " + removed.getId());
-            }
+            log.debug("Unregistered meter: {}", removed.getId());
          }
          return null;
       });

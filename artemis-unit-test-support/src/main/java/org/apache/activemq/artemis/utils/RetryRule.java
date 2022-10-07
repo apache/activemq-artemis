@@ -85,7 +85,7 @@ public class RetryRule implements MethodRule {
          public void evaluate() throws Throwable {
             int retries = getNumberOfRetries(method) + 1;
             for (int i = 0; i < retries; i++) {
-               logger.warn("LOOP " + i);
+               logger.warn("LOOP {}", i);
                base.evaluate();
             }
          }
@@ -111,14 +111,14 @@ public class RetryRule implements MethodRule {
                int retries = getNumberOfRetries(method);
 
                for (int retryNr = 0; retryNr < retries; retryNr++) {
-                  logger.warn("RETRY " + (retryNr + 1) + " of " + retries + " on " + target.getClass() + "::" + method.getName(), currentException);
+                  logger.warn("RETRY {} of {} on {}::{}", (retryNr + 1), retries, target.getClass(), method.getName(), currentException);
                   currentException = null;
                   try {
                      base.evaluate();
-                     logger.warn("RETRY " + (retryNr + 1)  + " of " + retries + " on " + target.getClass() + "::" + method.getName() + " succeeded");
+                     logger.warn("RETRY {} of {} on {}::{} succeeded", (retryNr + 1), retries, target.getClass(), method.getName());
                      break;
                   } catch (Throwable t2) {
-                     logger.warn("RETRY " + (retryNr + 1)  + " of " + retries + " on " + target.getClass() + "::" + method.getName() + " failed ", t2);
+                     logger.warn("RETRY {} of {} on {}::{} failed", (retryNr + 1), retries, target.getClass(), method.getName(), t2);
                      currentException = t2;
                   }
                }

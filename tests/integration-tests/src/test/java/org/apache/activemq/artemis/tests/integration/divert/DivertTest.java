@@ -509,7 +509,7 @@ public class DivertTest extends ActiveMQTestBase {
 
       for (int i = 0; i < numMessages * 2; i++) {
          ClientMessage message = consumerExpiry.receive(5000);
-         logger.debug("Received message " + message);
+         logger.debug("Received message {}", message);
          assertNotNull(message);
 
          if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue1")) {
@@ -517,7 +517,7 @@ public class DivertTest extends ActiveMQTestBase {
          } else if (message.getStringProperty(Message.HDR_ORIGINAL_QUEUE).equals("queue2")) {
             countOriginal2++;
          } else {
-            logger.debug("message not part of any expired queue" + message);
+            logger.debug("message not part of any expired queue {}", message);
          }
       }
 

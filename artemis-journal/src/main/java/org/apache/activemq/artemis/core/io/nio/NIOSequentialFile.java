@@ -451,9 +451,8 @@ public class NIOSequentialFile extends AbstractSequentialFile {
 
    @Override
    public void copyTo(SequentialFile dstFile) throws IOException {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Copying " + this + " as " + dstFile);
-      }
+      logger.debug("Copying {} as {}", this, dstFile);
+
       if (isOpen()) {
          throw new IllegalStateException("File opened!");
       }

@@ -612,7 +612,7 @@ public class MessageHeaderTest extends MessageHeaderTestBase {
       logger.trace("Sent message");
 
       Message m2 = queueConsumer.receive(3000);
-      logger.trace("The message is " + m2);
+      logger.trace("The message is {}", m2);
 
       ProxyAssertSupport.assertNotNull(m2);
 

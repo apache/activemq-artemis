@@ -383,7 +383,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       ConnectionFactory factory = new ActiveMQConnectionFactory();
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-      logger.debug("Address is " + addressName);
+      logger.debug("Address is {}", addressName);
       clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
       Topic topic = new ActiveMQTopic(addressName.toString());
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -407,7 +407,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       ConnectionFactory factory = new ActiveMQConnectionFactory();
       try (Connection connection = factory.createConnection()) {
          SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
-         logger.debug("Address is " + addressName);
+         logger.debug("Address is {}", addressName);
          javax.jms.Queue queue = new ActiveMQQueue(addressName.toString());
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(null);

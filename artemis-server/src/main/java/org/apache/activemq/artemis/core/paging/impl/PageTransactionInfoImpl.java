@@ -258,34 +258,27 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    public synchronized boolean deliverAfterCommit(PageIterator iterator,
                                                   PageSubscription cursor,
                                                   PagedReference pagedReference) {
-
-      if (logger.isTraceEnabled()) {
-         logger.trace("deliver after commit on " + cursor + ", pagedReference=" + pagedReference);
-      }
+      logger.trace("deliver after commit on {}, pagedReference={}", cursor, pagedReference);
 
       if (committed && useRedelivery) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("commit & useRedelivery on " + cursor + ", pagedReference=" + pagedReference);
-         }
+         logger.trace("commit & useRedelivery on {}, pagedReference={}", cursor, pagedReference);
+
          cursor.addPendingDelivery(pagedReference.getPagedMessage());
          cursor.redeliver(iterator, pagedReference);
          return true;
       } else if (committed) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("committed on " + cursor + ", position=" + pagedReference + ", ignoring position");
-         }
+         logger.trace("committed on {}, position={}, ignoring position", cursor, pagedReference);
+
          return false;
       } else if (rolledback) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("rolled back, position ignored on " + cursor + ", position=" + pagedReference);
-         }
+         logger.trace("rolled back, position ignored on {}, position={}", cursor, pagedReference);
+
          cursor.positionIgnored(pagedReference.getPagedMessage().newPositionObject());
          onUpdate(1, null, cursor.getPagingStore().getPagingManager());
          return true;
       } else {
-         if (logger.isTraceEnabled()) {
-            logger.trace("deliverAftercommit/else, marking useRedelivery on " + cursor + ", position " + pagedReference);
-         }
+         logger.trace("deliverAftercommit/else, marking useRedelivery on {}, position {}", cursor, pagedReference);
+
          useRedelivery = true;
          if (lateDeliveries == null) {
             lateDeliveries = new LinkedList<>();

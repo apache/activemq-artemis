@@ -91,7 +91,6 @@ public class JndiBindingRegistry implements BindingRegistry {
          try {
             context.lookup(jndiName);
 
-            //JMSServerManagerImpl.log.warn("Binding for " + jndiName + " already exists");
             return false;
          } catch (Throwable e) {
             // OK

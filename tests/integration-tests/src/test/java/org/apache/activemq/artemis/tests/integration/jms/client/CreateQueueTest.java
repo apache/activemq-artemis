@@ -67,7 +67,7 @@ public class CreateQueueTest extends JMSTestBase {
 
       String queueName = queue.getQueueName();
 
-      logger.debug("queue name is " + queueName);
+      logger.debug("queue name is {}", queueName);
 
 //      assertFalse(queueName.startsWith(ActiveMQDestination.JMS_QUEUE_ADDRESS_PREFIX));
 

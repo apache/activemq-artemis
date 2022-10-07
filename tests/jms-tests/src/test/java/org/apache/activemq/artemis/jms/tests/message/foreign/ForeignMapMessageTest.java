@@ -39,7 +39,7 @@ public class ForeignMapMessageTest extends ForeignMessageTest {
    protected Message createForeignMessage() throws Exception {
       SimpleJMSMapMessage m = new SimpleJMSMapMessage();
 
-      logger.debug("creating JMS Message type " + m.getClass().getName());
+      logger.debug("creating JMS Message type {}", m.getClass().getName());
 
       m.setBoolean("boolean1", true);
       m.setChar("char1", 'c');

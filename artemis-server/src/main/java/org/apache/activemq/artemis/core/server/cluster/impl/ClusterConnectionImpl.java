@@ -434,19 +434,15 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
       stopping = true;
-      if (logger.isDebugEnabled()) {
-         logger.debug(this + "::stopping ClusterConnection");
-      }
+      logger.debug("{}::stopping ClusterConnection", this);
 
       if (serverLocator != null) {
          serverLocator.removeClusterTopologyListener(this);
       }
 
-      logger.debug("Cluster connection being stopped for node" + nodeManager.getNodeId() +
-                      ", server = " +
-                      this.server +
-                      " serverLocator = " +
-                      serverLocator);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Cluster connection being stopped for node{}, server = {} serverLocator = {}", nodeManager.getNodeId(), server, serverLocator);
+      }
 
       synchronized (this) {
          for (MessageFlowRecord record : records.values()) {
@@ -515,7 +511,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                              final Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                              final boolean backup) {
       if (logger.isDebugEnabled()) {
-         logger.debug(this + "::NodeAnnounced, backup=" + backup + nodeID + connectorPair);
+         logger.debug("{}::NodeAnnounced, backup={}{}{}", this, backup, nodeID, connectorPair);
       }
 
       TransportConfiguration live = connectorPair.getA();
@@ -654,7 +650,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Activating cluster connection nodeID=" + nodeManager.getNodeId() + " for server=" + this.server);
+         logger.debug("Activating cluster connection nodeID={} for server={}", nodeManager.getNodeId(), server);
       }
 
       liveNotifier = new LiveNotifier();
@@ -707,7 +703,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(new SimpleString("name"), name);
          Notification notification = new Notification(nodeManager.getNodeId().toString(), CoreNotificationType.CLUSTER_CONNECTION_STARTED, props);
-         logger.debug("sending notification: " + notification);
+         logger.debug("sending notification: {}", notification);
          managementService.sendNotification(notification);
       }
       //we add as a listener after we have sent the cluster start notif as the listener may start sending notifs before
@@ -735,16 +731,15 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
       final String nodeID = topologyMember.getNodeId();
-      if (logger.isDebugEnabled()) {
-         String ClusterTestBase = "receiving nodeUP for nodeID=";
-         logger.debug(this + ClusterTestBase + nodeID + " connectionPair=" + topologyMember);
-      }
-      // discard notifications about ourselves unless its from our backup
 
+      if (logger.isDebugEnabled()) {
+         logger.debug("{}receiving nodeUP for nodeID={} connectionPair={}", this, nodeID, topologyMember);
+      }
+
+      // discard notifications about ourselves unless its from our backup
       if (nodeID.equals(nodeManager.getNodeId().toString())) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + "::informing about backup to itself, nodeUUID=" +
-                            nodeManager.getNodeId() + ", connectorPair=" + topologyMember + ", this = " + this);
+            logger.trace("{}::informing about backup to itself, nodeUUID={}, connectorPair={}, this = {}", this, nodeManager.getNodeId(), topologyMember, this);
          }
          return;
       }
@@ -762,8 +757,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       /*we don't create bridges to backups*/
       if (topologyMember.getLive() == null) {
          if (logger.isTraceEnabled()) {
-            logger.trace(this + " ignoring call with nodeID=" + nodeID + ", topologyMember=" +
-                            topologyMember + ", last=" + last);
+            logger.trace("{} ignoring call with nodeID={}, topologyMember={}, last={}", this, nodeID, topologyMember, last);
          }
          return;
       }
@@ -774,8 +768,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
             if (record == null) {
                if (logger.isDebugEnabled()) {
-                  logger.debug(this + "::Creating record for nodeID=" + nodeID + ", topologyMember=" +
-                                  topologyMember);
+                  logger.debug("{}::Creating record for nodeID={}, topologyMember={}", this, nodeID, topologyMember);
                }
 
                // New node - create a new flow record
@@ -801,8 +794,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                createNewRecord(topologyMember.getUniqueEventID(), nodeID, topologyMember.getLive(), queueName, queue, true);
             } else {
                if (logger.isTraceEnabled()) {
-                  logger.trace(this + " ignored nodeUp record for " + topologyMember + " on nodeID=" +
-                                  nodeID + " as the record already existed");
+                  logger.trace("{} ignored nodeUp record for {} on nodeID={} as the record already existed", this, topologyMember, nodeID);
                }
             }
          } catch (Exception e) {
@@ -906,7 +898,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       targetLocator.setIdentity("(Cluster-connection-bridge::" + bridge.toString() + "::" + this.toString() + ")");
 
       if (logger.isDebugEnabled()) {
-         logger.debug("creating record between " + this.connector + " and " + connector + bridge);
+         logger.debug("creating record between {} and {}{}", this.connector, connector, bridge);
       }
 
       record.setBridge(bridge);
@@ -1035,9 +1027,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       * */
       @Override
       public void close() throws Exception {
-         if (logger.isTraceEnabled()) {
-            logger.trace("Stopping bridge " + bridge);
-         }
+         logger.trace("Stopping bridge {}", bridge);
 
          isClosed = true;
 
@@ -1086,9 +1076,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       @Override
       public synchronized void onMessage(final ClientMessage message) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("ClusterCommunication::Flow record on " + clusterConnector + " Receiving message " + message);
-         }
+         logger.debug("ClusterCommunication::Flow record on {} Receiving message {}", clusterConnector, message);
+
          try {
             // Reset the bindings
             if (message.containsProperty(PostOfficeImpl.HDR_RESET_QUEUE_DATA)) {
@@ -1101,7 +1090,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             }
 
             if (!reset) {
-               logger.debug("Notification being ignored since first reset wasn't received yet: " + message);
+               logger.debug("Notification being ignored since first reset wasn't received yet: {}", message);
                return;
             }
 
@@ -1233,21 +1222,21 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       private synchronized void clearBindings() throws Exception {
-         logger.debug(ClusterConnectionImpl.this + " clearing bindings");
+         logger.debug("{} clearing bindings", ClusterConnectionImpl.this);
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             removeBinding(binding.getClusterName());
          }
       }
 
       private synchronized void resetBindings() throws Exception {
-         logger.debug(ClusterConnectionImpl.this + " reset bindings");
+         logger.debug("{} reset bindings", ClusterConnectionImpl.this);
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             resetBinding(binding.getClusterName());
          }
       }
 
       private synchronized void clearDisconnectedBindings() throws Exception {
-         logger.debug(ClusterConnectionImpl.this + " reset bindings");
+         logger.debug("{} reset bindings", ClusterConnectionImpl.this);
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             if (!binding.isConnected()) {
                removeBinding(binding.getClusterName());
@@ -1257,7 +1246,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       @Override
       public synchronized void disconnectBindings() throws Exception {
-         logger.debug(ClusterConnectionImpl.this + " disconnect bindings");
+         logger.debug("{} disconnect bindings", ClusterConnectionImpl.this);
          reset = false;
          for (RemoteQueueBinding binding : new HashSet<>(bindings.values())) {
             disconnectBinding(binding.getClusterName());
@@ -1265,9 +1254,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       private synchronized void doBindingAdded(final ClientMessage message) throws Exception {
-         if (logger.isTraceEnabled()) {
-            logger.trace(ClusterConnectionImpl.this + " Adding binding " + message);
-         }
+         logger.trace("{} Adding binding {}", ClusterConnectionImpl.this, message);
          if (!message.containsProperty(ManagementHelper.HDR_DISTANCE)) {
             throw new IllegalStateException("distance is null");
          }
@@ -1319,16 +1306,14 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
             //will be re-generated in backup. In that case a new remote binding will be created
             //and put it to the map and old binding removed.
             if (logger.isTraceEnabled()) {
-               logger.trace("Removing binding because qid changed " + queueID + " old: " + existingBinding.getRemoteQueueID());
+               logger.trace("Removing binding because qid changed {} old: {}", queueID, existingBinding.getRemoteQueueID());
             }
             removeBinding(clusterName);
          }
 
          RemoteQueueBinding binding = new RemoteQueueBindingImpl(server.getStorageManager().generateID(), queueAddress, clusterName, routingName, queueID, filterString, queue, bridge.getName(), distance + 1, messageLoadBalancingType);
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Adding binding " + clusterName + " into " + ClusterConnectionImpl.this);
-         }
+         logger.trace("Adding binding {} into {}", clusterName, ClusterConnectionImpl.this);
 
          bindings.put(clusterName, binding);
 
@@ -1340,9 +1325,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       private void doBindingRemoved(final ClientMessage message) throws Exception {
-         if (logger.isTraceEnabled()) {
-            logger.trace(ClusterConnectionImpl.this + " Removing binding " + message);
-         }
+         logger.trace("{} Removing binding {}", ClusterConnectionImpl.this, message);
          if (!message.containsProperty(ManagementHelper.HDR_CLUSTER_NAME)) {
             throw new IllegalStateException("clusterName is null");
          }
@@ -1356,7 +1339,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          RemoteQueueBinding binding = bindings.remove(clusterName);
 
          if (binding == null) {
-            logger.warn("Cannot remove binding, because cannot find binding for queue " + clusterName);
+            logger.warn("Cannot remove binding, because cannot find binding for queue {}", clusterName);
             return;
          }
 
@@ -1382,9 +1365,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       private synchronized void doSessionCreated(final ClientMessage message) throws Exception {
-         if (logger.isTraceEnabled()) {
-            logger.trace(ClusterConnectionImpl.this + " session created " + message);
-         }
+         logger.trace("{} session created {}", ClusterConnectionImpl.this, message);
+
          TypedProperties props = new TypedProperties();
          props.putSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME, message.getSimpleStringProperty(ManagementHelper.HDR_CONNECTION_NAME));
          props.putSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS, message.getSimpleStringProperty(ManagementHelper.HDR_REMOTE_ADDRESS));
@@ -1395,9 +1377,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       private synchronized void doConsumerCreated(final ClientMessage message) throws Exception {
-         if (logger.isTraceEnabled()) {
-            logger.trace(ClusterConnectionImpl.this + " Consumer created " + message);
-         }
+         logger.trace("{} Consumer created {}", ClusterConnectionImpl.this, message);
+
          if (!message.containsProperty(ManagementHelper.HDR_DISTANCE)) {
             throw new IllegalStateException("distance is null");
          }
@@ -1451,9 +1432,8 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       private synchronized void doConsumerClosed(final ClientMessage message) throws Exception {
-         if (logger.isTraceEnabled()) {
-            logger.trace(ClusterConnectionImpl.this + " Consumer closed " + message);
-         }
+         logger.trace("{} Consumer closed {}", ClusterConnectionImpl.this, message);
+
          if (!message.containsProperty(ManagementHelper.HDR_DISTANCE)) {
             throw new IllegalStateException("distance is null");
          }
@@ -1556,7 +1536,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       public ServerLocatorInternal createServerLocator() {
          if (tcConfigs != null && tcConfigs.length > 0) {
             if (logger.isDebugEnabled()) {
-               logger.debug(ClusterConnectionImpl.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
+               logger.debug("{} Creating a serverLocator for {}", ClusterConnectionImpl.this, Arrays.toString(tcConfigs));
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);
@@ -1594,7 +1574,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    @Override
    public void removeRecord(String targetNodeID) {
-      logger.debug("Removing record for: " + targetNodeID);
+      logger.debug("Removing record for: {}", targetNodeID);
       MessageFlowRecord record = records.remove(targetNodeID);
       try {
          if (record != null) {
@@ -1607,7 +1587,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    @Override
    public void disconnectRecord(String targetNodeID) {
-      logger.debug("Disconnecting record for: " + targetNodeID);
+      logger.debug("Disconnecting record for: {}", targetNodeID);
       MessageFlowRecord record = records.get(targetNodeID);
       try {
          if (record != null) {

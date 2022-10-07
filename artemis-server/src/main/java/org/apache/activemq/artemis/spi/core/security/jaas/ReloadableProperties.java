@@ -65,12 +65,12 @@ public class ReloadableProperties {
             invertedValueProps = null;
             regexpProps = null;
             if (key.isDebug()) {
-               logger.debug("Load of: " + key);
+               logger.debug("Load of: {}", key);
             }
          } catch (IOException e) {
             ActiveMQServerLogger.LOGGER.failedToLoadProperty(key.toString(), e.getLocalizedMessage(), e);
             if (key.isDebug()) {
-               logger.debug("Load of: " + key + ", failure exception" + e);
+               logger.debug("Load of: {}, failure exception {}", key, e);
             }
          }
          reloadTime = System.currentTimeMillis();
@@ -119,7 +119,7 @@ public class ReloadableProperties {
                   Pattern p = Pattern.compile(str.substring(1, str.length() - 1));
                   regexpProps.put((String) val.getKey(), p);
                } catch (PatternSyntaxException e) {
-                  logger.warn("Ignoring invalid regexp: " + str, e);
+                  logger.warn("Ignoring invalid regexp: {}", str, e);
                }
             }
          }

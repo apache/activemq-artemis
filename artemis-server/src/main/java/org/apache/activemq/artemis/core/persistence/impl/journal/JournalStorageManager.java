@@ -562,9 +562,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             if (messageEncodeSize > maxRecordSize) {
                ActiveMQServerLogger.LOGGER.messageWithHeaderTooLarge(largeMessage.getMessageID(), logger.getName());
 
-               if (logger.isDebugEnabled()) {
-                  logger.debug("Message header too large for " + largeMessage);
-               }
+               logger.debug("Message header too large for {}", largeMessage);
 
                throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(messageEncodeSize, maxRecordSize);
             }
@@ -882,7 +880,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       try {
          messageJournal.appendAddEvent(messageId, JournalRecordIds.ADD_MESSAGE_BODY, EncoderPersister.getInstance(), partialBuffer, true, null);
       } catch (Exception e) {
-         logger.warn("Error processing history large message body for " + messageId + " - " + e.getMessage(), e);
+         logger.warn("Error processing history large message body for {}", messageId, e);
       }
 
    }

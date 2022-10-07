@@ -48,9 +48,7 @@ public class ActiveMQRAMessageListener implements MessageListener {
     * @param consumer the consumer
     */
    public ActiveMQRAMessageListener(final MessageListener listener, final ActiveMQRAMessageConsumer consumer) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + listener + ", " + consumer + ")");
-      }
+      logger.trace("constructor({}, {})", listener, consumer);
 
       this.listener = listener;
       this.consumer = consumer;
@@ -63,9 +61,7 @@ public class ActiveMQRAMessageListener implements MessageListener {
     */
    @Override
    public void onMessage(Message message) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("onMessage(" + message + ")");
-      }
+      logger.trace("onMessage({})", message);
 
       message = consumer.wrapMessage(message);
       listener.onMessage(message);

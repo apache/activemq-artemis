@@ -40,9 +40,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    public ActiveMQRAStreamMessage(final StreamMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + message + ", " + session + ")");
-      }
+      logger.trace("constructor({}, {})", message, session);
    }
 
    /**
@@ -53,9 +51,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public boolean readBoolean() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readBoolean()");
-      }
+      logger.trace("readBoolean()");
 
       return ((StreamMessage) message).readBoolean();
    }
@@ -68,9 +64,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public byte readByte() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readByte()");
-      }
+      logger.trace("readByte()");
 
       return ((StreamMessage) message).readByte();
    }
@@ -85,7 +79,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public int readBytes(final byte[] value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("readBytes(" + Arrays.toString(value) + ")");
+         logger.trace("readBytes({})", Arrays.toString(value));
       }
 
       return ((StreamMessage) message).readBytes(value);
@@ -99,9 +93,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public char readChar() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readChar()");
-      }
+      logger.trace("readChar()");
 
       return ((StreamMessage) message).readChar();
    }
@@ -114,9 +106,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public double readDouble() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readDouble()");
-      }
+      logger.trace("readDouble()");
 
       return ((StreamMessage) message).readDouble();
    }
@@ -129,9 +119,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public float readFloat() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readFloat()");
-      }
+      logger.trace("readFloat()");
 
       return ((StreamMessage) message).readFloat();
    }
@@ -144,9 +132,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public int readInt() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readInt()");
-      }
+      logger.trace("readInt()");
 
       return ((StreamMessage) message).readInt();
    }
@@ -159,9 +145,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public long readLong() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readLong()");
-      }
+      logger.trace("readLong()");
 
       return ((StreamMessage) message).readLong();
    }
@@ -174,9 +158,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public Object readObject() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readObject()");
-      }
+      logger.trace("readObject()");
 
       return ((StreamMessage) message).readObject();
    }
@@ -189,9 +171,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public short readShort() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readShort()");
-      }
+      logger.trace("readShort()");
 
       return ((StreamMessage) message).readShort();
    }
@@ -204,9 +184,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public String readString() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("readString()");
-      }
+      logger.trace("readString()");
 
       return ((StreamMessage) message).readString();
    }
@@ -218,9 +196,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public void reset() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("reset()");
-      }
+      logger.trace("reset()");
 
       ((StreamMessage) message).reset();
    }
@@ -234,7 +210,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeBoolean(final boolean value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeBoolean(" + value + ")");
+         logger.trace("writeBoolean({})", value);
       }
 
       ((StreamMessage) message).writeBoolean(value);
@@ -249,7 +225,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeByte(final byte value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeByte(" + value + ")");
+         logger.trace("writeByte({})", value);
       }
 
       ((StreamMessage) message).writeByte(value);
@@ -266,7 +242,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeBytes(final byte[] value, final int offset, final int length) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeBytes(" + Arrays.toString(value) + ", " + offset + ", " + length + ")");
+         logger.trace("writeBytes({}, {}, {})", Arrays.toString(value), offset, length);
       }
 
       ((StreamMessage) message).writeBytes(value, offset, length);
@@ -281,7 +257,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeBytes(final byte[] value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeBytes(" + Arrays.toString(value) + ")");
+         logger.trace("writeBytes({})", Arrays.toString(value));
       }
 
       ((StreamMessage) message).writeBytes(value);
@@ -296,7 +272,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeChar(final char value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeChar(" + value + ")");
+         logger.trace("writeChar({})", value);
       }
 
       ((StreamMessage) message).writeChar(value);
@@ -311,7 +287,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeDouble(final double value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeDouble(" + value + ")");
+         logger.trace("writeDouble({})", value);
       }
 
       ((StreamMessage) message).writeDouble(value);
@@ -326,7 +302,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeFloat(final float value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeFloat(" + value + ")");
+         logger.trace("writeFloat({})", value);
       }
 
       ((StreamMessage) message).writeFloat(value);
@@ -341,7 +317,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeInt(final int value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeInt(" + value + ")");
+         logger.trace("writeInt({})", value);
       }
 
       ((StreamMessage) message).writeInt(value);
@@ -356,7 +332,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeLong(final long value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeLong(" + value + ")");
+         logger.trace("writeLong({})", value);
       }
 
       ((StreamMessage) message).writeLong(value);
@@ -370,9 +346,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public void writeObject(final Object value) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("writeObject(" + value + ")");
-      }
+      logger.trace("writeObject({})", value);
 
       ((StreamMessage) message).writeObject(value);
    }
@@ -386,7 +360,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
    @Override
    public void writeShort(final short value) throws JMSException {
       if (logger.isTraceEnabled()) {
-         logger.trace("writeShort(" + value + ")");
+         logger.trace("writeShort({})", value);
       }
 
       ((StreamMessage) message).writeShort(value);
@@ -400,9 +374,7 @@ public class ActiveMQRAStreamMessage extends ActiveMQRAMessage implements Stream
     */
    @Override
    public void writeString(final String value) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("writeString(" + value + ")");
-      }
+      logger.trace("writeString({})", value);
 
       ((StreamMessage) message).writeString(value);
    }

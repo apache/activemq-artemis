@@ -387,7 +387,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
 //         this.sendJmsMessage(msg);
 //      }
 //
-//      IntegrationTestLogger.LOGGER.info("Message count for " + getQueueName() + ": " + server.getActiveMQServer().locateQueue(SimpleString.toSimpleString(getQueueName())).getMessageCount());
+//      IntegrationTestLogger.LOGGER.info("Message count for {}: {}", getQueueName(), server.getActiveMQServer().locateQueue(SimpleString.toSimpleString(getQueueName())).getMessageCount());
 //
 //      StompClientConnection connV12 = StompClientConnectionFactory.createClientConnection("1.2", hostname, port);
 //      connV12.connect(defUser, defPass);
@@ -450,7 +450,7 @@ public class StompWithLargeMessagesTest extends StompTestBase {
             ClientStompFrame frame = conn.receiveFrame(60000);
             Assert.assertNotNull(frame);
             logger.debug(frame.toString());
-            logger.debug("part of frame: " + frame.getBody().substring(0, 250));
+            logger.debug("part of frame: {}", frame.getBody().substring(0, 250));
             Assert.assertTrue(frame.getCommand().equals("MESSAGE"));
             Assert.assertTrue(frame.getHeader("destination").equals(getQueuePrefix() + getQueueName()));
             int index = frame.getBody().toString().indexOf(leadingPart);

@@ -410,7 +410,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   Thread.sleep(2000);
                   retry = true;
                } catch (ActiveMQException e) {
-                  log.debug("#test Exception " + e, e);
+                  log.debug("#test Exception {}", e.getMessage(), e);
                   throw e;
                }
             }
@@ -476,7 +476,7 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                   } catch (ActiveMQException e) {
                      // This could eventually happen
                      // We will get rid of this when we implement 2 phase commit on failover
-                     log.warn("exception during commit, continue " + e.getMessage(), e);
+                     log.warn("exception during commit, continue {}", e.getMessage(), e);
                      continue;
                   }
 
@@ -488,7 +488,8 @@ public class AsynchronousFailoverTest extends FailoverTestBase {
                      }
                   } catch (Throwable e) {
                      if (log.isDebugEnabled()) {
-                        log.debug(threadDump("Thread dump, messagesReceived = " + msgs.size()));
+                        String dumpMessage = "Thread dump, messagesReceived = " + msgs.size();
+                        log.debug(threadDump(dumpMessage));
                      }
                      logAndSystemOut(e.getMessage() + " messages received");
                      for (Integer msg : msgs) {

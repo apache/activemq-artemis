@@ -529,9 +529,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
          }
 
          if (topMessage.isExit()) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Notifying " + topMessage.getNodeID() + " going down");
-            }
+            logger.debug("Notifying {} going down", topMessage.getNodeID());
 
             if (topologyResponseHandler != null) {
                topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID());

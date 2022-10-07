@@ -63,9 +63,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       this.xaRecoveryConfigs = xaRecoveryConfigs;
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Recovery configured with " + Arrays.toString(xaRecoveryConfigs) +
-                                                  ", instance=" +
-                                                  System.identityHashCode(this));
+         logger.debug("Recovery configured with {}, instance={}", Arrays.toString(xaRecoveryConfigs), System.identityHashCode(this));
       }
    }
 
@@ -74,14 +72,14 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       XAResource xaResource = getDelegate(false);
 
       if (logger.isDebugEnabled()) {
-         logger.debug("looking for recover at " + xaResource + " configuration " + Arrays.toString(this.xaRecoveryConfigs));
+         logger.debug("looking for recover at {} configuration {}", xaResource, Arrays.toString(this.xaRecoveryConfigs));
       }
 
       try {
          Xid[] xids = xaResource.recover(flag);
 
          if (logger.isDebugEnabled() && xids != null && xids.length > 0) {
-            logger.debug("Recovering these following IDs " + Arrays.toString(xids) + " at " + this);
+            logger.debug("Recovering these following IDs {} at {}", Arrays.toString(xids), this);
          }
 
          return xids;
@@ -94,9 +92,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
       XAResource xaResource = getDelegate(true);
-      if (logger.isDebugEnabled()) {
-         logger.debug("Commit " + xaResource + " xid " + " onePhase=" + onePhase);
-      }
+      logger.debug("Commit {} xid onePhase={}", xaResource, onePhase);
       try {
          xaResource.commit(xid, onePhase);
       } catch (XAException e) {
@@ -107,9 +103,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public void rollback(final Xid xid) throws XAException {
       XAResource xaResource = getDelegate(true);
-      if (logger.isDebugEnabled()) {
-         logger.debug("Rollback " + xaResource + " xid ");
-      }
+      logger.debug("Rollback {} xid", xaResource);
       try {
          xaResource.rollback(xid);
       } catch (XAException e) {
@@ -120,10 +114,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public void forget(final Xid xid) throws XAException {
       XAResource xaResource = getDelegate(false);
-      if (logger.isDebugEnabled()) {
-         logger.debug("Forget " + xaResource + " xid ");
-      }
-
+      logger.debug("Forget {} xid ", xaResource);
       try {
          xaResource.forget(xid);
       } catch (XAException e) {
@@ -148,9 +139,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public int prepare(final Xid xid) throws XAException {
       XAResource xaResource = getDelegate(true);
-      if (logger.isDebugEnabled()) {
-         logger.debug("prepare " + xaResource + " xid ");
-      }
+      logger.debug("prepare {} xid ", xaResource);
       try {
          return xaResource.prepare(xid);
       } catch (XAException e) {
@@ -161,9 +150,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public void start(final Xid xid, final int flags) throws XAException {
       XAResource xaResource = getDelegate(false);
-      if (logger.isDebugEnabled()) {
-         logger.debug("start " + xaResource + " xid ");
-      }
+      logger.debug("start {} xid ", xaResource);
       try {
          xaResource.start(xid, flags);
       } catch (XAException e) {
@@ -174,9 +161,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public void end(final Xid xid, final int flags) throws XAException {
       XAResource xaResource = getDelegate(false);
-      if (logger.isDebugEnabled()) {
-         logger.debug("end " + xaResource + " xid ");
-      }
+      logger.debug("end {} xid ", xaResource);
       try {
          xaResource.end(xid, flags);
       } catch (XAException e) {
@@ -187,9 +172,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public int getTransactionTimeout() throws XAException {
       XAResource xaResource = getDelegate(false);
-      if (logger.isDebugEnabled()) {
-         logger.debug("getTransactionTimeout " + xaResource + " xid ");
-      }
+      logger.debug("getTransactionTimeout {} xid ", xaResource);
       try {
          return xaResource.getTransactionTimeout();
       } catch (XAException e) {
@@ -200,9 +183,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public boolean setTransactionTimeout(final int seconds) throws XAException {
       XAResource xaResource = getDelegate(false);
-      if (logger.isDebugEnabled()) {
-         logger.debug("setTransactionTimeout " + xaResource + " xid ");
-      }
+      logger.debug("setTransactionTimeout {} xid ", xaResource);
       try {
          return xaResource.setTransactionTimeout(seconds);
       } catch (XAException e) {
@@ -213,9 +194,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
    @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver) {
       if (me.getType() == ActiveMQExceptionType.DISCONNECTED) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("being disconnected for server shutdown", me);
-         }
+         logger.debug("being disconnected for server shutdown", me);
       } else {
          ActiveMQXARecoveryLogger.LOGGER.xaRecoverConnectionError(csf, me);
       }
@@ -255,9 +234,8 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             if (error != null) {
                xae.initCause(error);
             }
-            if (logger.isDebugEnabled()) {
-               logger.debug("Cannot get connectionFactory XAResource", xae);
-            }
+            logger.debug("Cannot get connectionFactory XAResource", xae);
+
             throw xae;
          } else {
             XAException xae = new XAException("Error trying to connect to any providers for xa recovery");
@@ -265,9 +243,8 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             if (error != null) {
                xae.initCause(error);
             }
-            if (logger.isDebugEnabled()) {
-               logger.debug("Cannot get connectionFactory XAResource", xae);
-            }
+            logger.debug("Cannot get connectionFactory XAResource", xae);
+
             throw xae;
          }
 
@@ -291,16 +268,15 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
 
       for (XARecoveryConfig xaRecoveryConfig : xaRecoveryConfigs) {
-
          if (xaRecoveryConfig == null) {
             continue;
          }
+
          if (logger.isDebugEnabled()) {
-            logger.debug("Trying to connect recovery on " + xaRecoveryConfig + " of " + Arrays.toString(xaRecoveryConfigs));
+            logger.debug("Trying to connect recovery on {} of {}", xaRecoveryConfig, Arrays.toString(xaRecoveryConfigs));
          }
 
          ClientSession cs = null;
-
          try {
             // setting ha=false because otherwise the connector would go towards any server, causing Heuristic exceptions
             // we really need to control what server it's connected to
@@ -323,9 +299,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
             }
          } catch (Throwable e) {
             ActiveMQXARecoveryLogger.LOGGER.xaRecoverAutoConnectionError(xaRecoveryConfig, e);
-            if (logger.isDebugEnabled()) {
-               logger.debug(e.getMessage(), e);
-            }
+            logger.debug(e.getMessage(), e);
 
             try {
                if (cs != null)
@@ -333,9 +307,7 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
                if (serverLocator != null)
                   serverLocator.close();
             } catch (Throwable ignored) {
-               if (logger.isTraceEnabled()) {
-                  logger.trace(e.getMessage(), ignored);
-               }
+               logger.trace(e.getMessage(), ignored);
             }
             continue;
          }

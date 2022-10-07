@@ -91,7 +91,7 @@ public final class UTF8Util {
 
       if (logger.isTraceEnabled()) {
          // This message is too verbose for debug, that's why we are using trace here
-         logger.trace("Saving string with utfSize=" + len + " stringSize=" + stringLength);
+         logger.trace("Saving string with utfSize={} stringSize={}", len, stringLength);
       }
 
       if (out.hasArray()) {
@@ -189,7 +189,7 @@ public final class UTF8Util {
 
       if (logger.isTraceEnabled()) {
          // This message is too verbose for debug, that's why we are using trace here
-         logger.trace("Reading string with utfSize=" + size);
+         logger.trace("Reading string with utfSize={}", size);
       }
       if (PlatformDependent.hasUnsafe() && input.byteBuf() != null && input.byteBuf().hasMemoryAddress()) {
          final ByteBuf byteBuf = input.byteBuf();

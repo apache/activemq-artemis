@@ -232,7 +232,7 @@ public class ActiveMQPacketHandler implements ChannelHandler {
             response = new ReattachSessionResponseMessage(-1, false);
          }
 
-         logger.debug("Reattaching request from " + connection.getRemoteAddress());
+         logger.debug("Reattaching request from {}", connection.getRemoteAddress());
 
          ServerSessionPacketHandler sessionHandler = protocolManager.getSessionHandler(request.getName());
 

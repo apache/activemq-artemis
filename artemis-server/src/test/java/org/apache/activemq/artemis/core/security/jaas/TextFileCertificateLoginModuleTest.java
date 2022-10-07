@@ -122,11 +122,10 @@ public class TextFileCertificateLoginModuleTest {
       long timeTaken = endTime - startTime;
 
       for (int i = 0; i < NUMBER_SUBJECTS; i++) {
-         logger.info("subject is: " + subjects[i].getPrincipals().toString());
+         logger.info("subject is: {}", subjects[i].getPrincipals().toString());
       }
 
-      logger.info(usersFiles + ": Time taken is " + timeTaken);
-
+      logger.info("{}: Time taken is {}", usersFiles, timeTaken);
    }
 
    private JaasCallbackHandler getJaasCertificateCallbackHandler(String user) {

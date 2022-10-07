@@ -134,7 +134,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         logger.debug("Sending " + i);
+         logger.debug("Sending {}", i);
          BytesMessage message = session.createBytesMessage();
 
          message.writeBytes(bytes);
@@ -156,13 +156,15 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
          byte[] bytesReceived = new byte[(int) size];
          m.readBytes(bytesReceived);
 
-         logger.debug("Received " + ByteUtil.bytesToHex(bytesReceived, 1) + " count - " + m.getIntProperty("count"));
+         if (logger.isDebugEnabled()) {
+            logger.debug("Received {} count - {}", ByteUtil.bytesToHex(bytesReceived, 1), m.getIntProperty("count"));
+         }
 
          Assert.assertArrayEquals(bytes, bytesReceived);
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      logger.debug("taken = " + taken);
+      logger.debug("taken = {}", taken);
    }
 
    @Test(timeout = 60000)
@@ -193,7 +195,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         logger.debug("Sending " + i);
+         logger.debug("Sending {}", i);
          Message message = session.createMessage();
 
          message.setIntProperty("count", i);
@@ -210,7 +212,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      logger.debug("taken = " + taken);
+      logger.debug("taken = {}", taken);
    }
 
    @Test(timeout = 60000)
@@ -236,7 +238,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         logger.debug("Sending " + i);
+         logger.debug("Sending {}", i);
          MapMessage message = session.createMapMessage();
 
          message.setInt("i", i);
@@ -257,7 +259,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      logger.debug("taken = " + taken);
+      logger.debug("taken = {}", taken);
    }
 
    @Test(timeout = 60000)
@@ -283,7 +285,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         logger.debug("Sending " + i);
+         logger.debug("Sending {}", i);
          TextMessage message = session.createTextMessage("text" + i);
          message.setStringProperty("text", "text" + i);
          producer.send(message);
@@ -300,7 +302,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      logger.debug("taken = " + taken);
+      logger.debug("taken = {}", taken);
    }
 
    @Test(timeout = 60000)
@@ -408,7 +410,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
 
       MessageProducer producer = session.createProducer(queue);
       for (int i = 0; i < NUM_MESSAGES; i++) {
-         logger.debug("Sending " + i);
+         logger.debug("Sending {}", i);
          ObjectMessage message = session.createObjectMessage(new AnythingSerializable(i));
          producer.send(message);
       }
@@ -426,7 +428,7 @@ public class JMSMessageTypesTest extends JMSClientTestSupport {
       }
 
       long taken = (System.currentTimeMillis() - time) / 1000;
-      logger.debug("taken = " + taken);
+      logger.debug("taken = {}", taken);
    }
 
    @Test(timeout = 60000)

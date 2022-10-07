@@ -139,9 +139,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * Constructor
     */
    public ActiveMQResourceAdapter() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor()");
-      }
+      logger.trace("constructor()");
 
       raProperties = new ActiveMQRAProperties();
       configured = new AtomicBoolean(false);
@@ -173,9 +171,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
             throw new ResourceException("Unable to create activation", e);
          }
       }
-      if (logger.isTraceEnabled()) {
-         logger.trace("endpointActivation(" + endpointFactory + ", " + spec + ")");
-      }
+
+      logger.trace("endpointActivation({}, {})", endpointFactory, spec);
 
       ActiveMQActivation activation = new ActiveMQActivation(this, endpointFactory, (ActiveMQActivationSpec) spec);
       activations.put(spec, activation);
@@ -190,9 +187,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    @Override
    public void endpointDeactivation(final MessageEndpointFactory endpointFactory, final ActivationSpec spec) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("endpointDeactivation(" + endpointFactory + ", " + spec + ")");
-      }
+      logger.trace("endpointDeactivation({}, {})", endpointFactory, spec);
 
       ActiveMQActivation activation = activations.remove(spec);
       if (activation != null) {
@@ -210,7 +205,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    @Override
    public XAResource[] getXAResources(final ActivationSpec[] specs) throws ResourceException {
       if (logger.isTraceEnabled()) {
-         logger.trace("getXAResources(" + Arrays.toString(specs) + ")");
+         logger.trace("getXAResources({})", Arrays.toString(specs));
       }
 
       if (useAutoRecovery) {
@@ -236,9 +231,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    @Override
    public void start(final BootstrapContext ctx) throws ResourceAdapterInternalException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("start(" + ctx + ")");
-      }
+      logger.trace("start({})", ctx);
 
       tm = ServiceUtils.getTransactionManager();
 
@@ -262,9 +255,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    @Override
    public void stop() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("stop()");
-      }
+      logger.trace("stop()");
 
       for (Map.Entry<ActivationSpec, ActiveMQActivation> entry : activations.entrySet()) {
          try {
@@ -325,9 +316,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public void setConnectorClassName(final String connectorClassName) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setTransportType(" + connectorClassName + ")");
-      }
+      logger.trace("setTransportType({})", connectorClassName);
+
       unparsedConnectors = connectorClassName;
 
       raProperties.setParsedConnectorClassNames(ActiveMQRaUtils.parseConnectorConnectorConfig(connectorClassName));
@@ -380,9 +370,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public String getDiscoveryAddress() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryGroupAddress()");
-      }
+      logger.trace("getDiscoveryGroupAddress()");
 
       return raProperties.getDiscoveryAddress();
    }
@@ -409,9 +397,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param dgn The value
     */
    public void setDiscoveryAddress(final String dgn) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryGroupAddress(" + dgn + ")");
-      }
+      logger.trace("setDiscoveryGroupAddress({})", dgn);
 
       raProperties.setDiscoveryAddress(dgn);
    }
@@ -422,9 +408,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getDiscoveryPort() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryGroupPort()");
-      }
+      logger.trace("getDiscoveryGroupPort()");
 
       return raProperties.getDiscoveryPort();
    }
@@ -435,9 +419,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param discoveryLocalBindAddress the address value
     */
    public void setDiscoveryLocalBindAddress(final String discoveryLocalBindAddress) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryLocalBindAddress(" + discoveryLocalBindAddress + ")");
-      }
+      logger.trace("setDiscoveryLocalBindAddress({})", discoveryLocalBindAddress);
 
       raProperties.setDiscoveryLocalBindAddress(discoveryLocalBindAddress);
    }
@@ -448,9 +430,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return the address value
     */
    public String getDiscoveryLocalBindAddress() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryLocalBindAddress()");
-      }
+      logger.trace("getDiscoveryLocalBindAddress()");
 
       return raProperties.getDiscoveryLocalBindAddress();
    }
@@ -461,9 +441,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param dgp The value
     */
    public void setDiscoveryPort(final Integer dgp) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryGroupPort(" + dgp + ")");
-      }
+      logger.trace("setDiscoveryGroupPort({})", dgp);
 
       raProperties.setDiscoveryPort(dgp);
    }
@@ -474,9 +452,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getDiscoveryRefreshTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryRefreshTimeout()");
-      }
+      logger.trace("getDiscoveryRefreshTimeout()");
 
       return raProperties.getDiscoveryRefreshTimeout();
    }
@@ -487,9 +463,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param discoveryRefreshTimeout The value
     */
    public void setDiscoveryRefreshTimeout(final Long discoveryRefreshTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryRefreshTimeout(" + discoveryRefreshTimeout + ")");
-      }
+      logger.trace("setDiscoveryRefreshTimeout({})", discoveryRefreshTimeout);
 
       raProperties.setDiscoveryRefreshTimeout(discoveryRefreshTimeout);
    }
@@ -500,9 +474,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getDiscoveryInitialWaitTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDiscoveryInitialWaitTimeout()");
-      }
+      logger.trace("getDiscoveryInitialWaitTimeout()");
 
       return raProperties.getDiscoveryInitialWaitTimeout();
    }
@@ -513,9 +485,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param discoveryInitialWaitTimeout The value
     */
    public void setDiscoveryInitialWaitTimeout(final Long discoveryInitialWaitTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDiscoveryInitialWaitTimeout(" + discoveryInitialWaitTimeout + ")");
-      }
+      logger.trace("setDiscoveryInitialWaitTimeout({})", discoveryInitialWaitTimeout);
 
       raProperties.setDiscoveryInitialWaitTimeout(discoveryInitialWaitTimeout);
    }
@@ -526,9 +496,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getClientFailureCheckPeriod() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getClientFailureCheckPeriod()");
-      }
+      logger.trace("getClientFailureCheckPeriod()");
 
       return raProperties.getClientFailureCheckPeriod();
    }
@@ -539,9 +507,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param clientFailureCheckPeriod The value
     */
    public void setClientFailureCheckPeriod(final Long clientFailureCheckPeriod) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setClientFailureCheckPeriod(" + clientFailureCheckPeriod + ")");
-      }
+      logger.trace("setClientFailureCheckPeriod({})", clientFailureCheckPeriod);
 
       raProperties.setClientFailureCheckPeriod(clientFailureCheckPeriod);
    }
@@ -552,9 +518,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getConnectionTTL() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConnectionTTL()");
-      }
+      logger.trace("getConnectionTTL()");
 
       return raProperties.getConnectionTTL();
    }
@@ -565,9 +529,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param connectionTTL The value
     */
    public void setConnectionTTL(final Long connectionTTL) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConnectionTTL(" + connectionTTL + ")");
-      }
+      logger.trace("setConnectionTTL({})", connectionTTL);
 
       raProperties.setConnectionTTL(connectionTTL);
    }
@@ -578,9 +540,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean isCacheLargeMessagesClient() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isCacheLargeMessagesClient()");
-      }
+      logger.trace("isCacheLargeMessagesClient()");
 
       return raProperties.isCacheLargeMessagesClient();
    }
@@ -591,9 +551,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param cacheLargeMessagesClient The value
     */
    public void setCacheLargeMessagesClient(final Boolean cacheLargeMessagesClient) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCacheLargeMessagesClient(" + cacheLargeMessagesClient + ")");
-      }
+      logger.trace("setCacheLargeMessagesClient({})", cacheLargeMessagesClient);
 
       raProperties.setCacheLargeMessagesClient(cacheLargeMessagesClient);
    }
@@ -604,9 +562,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean isCompressLargeMessage() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isCompressLargeMessage()");
-      }
+      logger.trace("isCompressLargeMessage()");
 
       return raProperties.isCompressLargeMessage();
    }
@@ -636,9 +592,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param cacheDestinations The value
     */
    public void setCacheDestinations(final Boolean cacheDestinations) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCacheDestinations(" + cacheDestinations + ")");
-      }
+      logger.trace("setCacheDestinations({})", cacheDestinations);
 
       raProperties.setCacheDestinations(cacheDestinations);
    }
@@ -649,9 +603,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean isCacheDestinations() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isCacheDestinations()");
-      }
+      logger.trace("isCacheDestinations()");
 
       return raProperties.isCacheDestinations();
    }
@@ -662,9 +614,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param enable1xPrefixes The value
     */
    public void setEnable1xPrefixes(final Boolean enable1xPrefixes) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setEnable1xPrefixes(" + enable1xPrefixes + ")");
-      }
+      logger.trace("setEnable1xPrefixes({})", enable1xPrefixes);
 
       raProperties.setEnable1xPrefixes(enable1xPrefixes);
    }
@@ -675,9 +625,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean isEnable1xPrefixes() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isEnable1xPrefixes()");
-      }
+      logger.trace("isEnable1xPrefixes()");
 
       return raProperties.isEnable1xPrefixes();
    }
@@ -688,9 +636,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param compressLargeMessage The value
     */
    public void setCompressLargeMessage(final Boolean compressLargeMessage) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCompressLargeMessage(" + compressLargeMessage + ")");
-      }
+      logger.trace("setCompressLargeMessage({})", compressLargeMessage);
 
       raProperties.setCompressLargeMessage(compressLargeMessage);
    }
@@ -701,9 +647,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getCallTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getCallTimeout()");
-      }
+      logger.trace("getCallTimeout()");
 
       return raProperties.getCallTimeout();
    }
@@ -714,9 +658,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param callTimeout The value
     */
    public void setCallTimeout(final Long callTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCallTimeout(" + callTimeout + ")");
-      }
+      logger.trace("setCallTimeout({})", callTimeout);
 
       raProperties.setCallTimeout(callTimeout);
    }
@@ -727,9 +669,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getCallFailoverTimeout() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getCallFailoverTimeout()");
-      }
+      logger.trace("getCallFailoverTimeout()");
 
       return raProperties.getCallFailoverTimeout();
    }
@@ -740,9 +680,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param callFailoverTimeout The value
     */
    public void setCallFailoverTimeout(final Long callFailoverTimeout) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setCallFailoverTimeout(" + callFailoverTimeout + ")");
-      }
+      logger.trace("setCallFailoverTimeout({})", callFailoverTimeout);
 
       raProperties.setCallFailoverTimeout(callFailoverTimeout);
    }
@@ -753,9 +691,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getDupsOKBatchSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDupsOKBatchSize()");
-      }
+      logger.trace("getDupsOKBatchSize()");
 
       return raProperties.getDupsOKBatchSize();
    }
@@ -766,9 +702,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param dupsOKBatchSize The value
     */
    public void setDupsOKBatchSize(final Integer dupsOKBatchSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDupsOKBatchSize(" + dupsOKBatchSize + ")");
-      }
+      logger.trace("setDupsOKBatchSize({})", dupsOKBatchSize);
 
       raProperties.setDupsOKBatchSize(dupsOKBatchSize);
    }
@@ -779,9 +713,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getTransactionBatchSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getTransactionBatchSize()");
-      }
+      logger.trace("getTransactionBatchSize()");
 
       return raProperties.getTransactionBatchSize();
    }
@@ -792,9 +724,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param transactionBatchSize The value
     */
    public void setTransactionBatchSize(final Integer transactionBatchSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setTransactionBatchSize(" + transactionBatchSize + ")");
-      }
+      logger.trace("setTransactionBatchSize({})", transactionBatchSize);
 
       raProperties.setTransactionBatchSize(transactionBatchSize);
    }
@@ -805,9 +735,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getConsumerWindowSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConsumerWindowSize()");
-      }
+      logger.trace("getConsumerWindowSize()");
 
       return raProperties.getConsumerWindowSize();
    }
@@ -818,9 +746,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param consumerWindowSize The value
     */
    public void setConsumerWindowSize(final Integer consumerWindowSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConsumerWindowSize(" + consumerWindowSize + ")");
-      }
+      logger.trace("setConsumerWindowSize({})", consumerWindowSize);
 
       raProperties.setConsumerWindowSize(consumerWindowSize);
    }
@@ -831,9 +757,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getConsumerMaxRate() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConsumerMaxRate()");
-      }
+      logger.trace("getConsumerMaxRate()");
 
       return raProperties.getConsumerMaxRate();
    }
@@ -844,9 +768,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param consumerMaxRate The value
     */
    public void setConsumerMaxRate(final Integer consumerMaxRate) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConsumerMaxRate(" + consumerMaxRate + ")");
-      }
+      logger.trace("setConsumerMaxRate({})", consumerMaxRate);
 
       raProperties.setConsumerMaxRate(consumerMaxRate);
    }
@@ -857,9 +779,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getConfirmationWindowSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getConfirmationWindowSize()");
-      }
+      logger.trace("getConfirmationWindowSize()");
 
       return raProperties.getConfirmationWindowSize();
    }
@@ -870,9 +790,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param confirmationWindowSize The value
     */
    public void setConfirmationWindowSize(final Integer confirmationWindowSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConfirmationWindowSize(" + confirmationWindowSize + ")");
-      }
+      logger.trace("setConfirmationWindowSize({})", confirmationWindowSize);
 
       raProperties.setConfirmationWindowSize(confirmationWindowSize);
    }
@@ -883,9 +801,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getProducerMaxRate() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getProducerMaxRate()");
-      }
+      logger.trace("getProducerMaxRate()");
 
       return raProperties.getProducerMaxRate();
    }
@@ -896,9 +812,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param producerMaxRate The value
     */
    public void setProducerMaxRate(final Integer producerMaxRate) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setProducerMaxRate(" + producerMaxRate + ")");
-      }
+      logger.trace("setProducerMaxRate({})", producerMaxRate);
 
       raProperties.setProducerMaxRate(producerMaxRate);
    }
@@ -917,9 +831,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getProducerWindowSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getProducerWindowSize()");
-      }
+      logger.trace("getProducerWindowSize()");
 
       return raProperties.getProducerWindowSize();
    }
@@ -930,55 +842,43 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param producerWindowSize The value
     */
    public void setProducerWindowSize(final Integer producerWindowSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setProducerWindowSize(" + producerWindowSize + ")");
-      }
+      logger.trace("setProducerWindowSize({})", producerWindowSize);
 
       raProperties.setProducerWindowSize(producerWindowSize);
    }
 
    public String getProtocolManagerFactoryStr() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getProtocolManagerFactoryStr()");
-      }
+      logger.trace("getProtocolManagerFactoryStr()");
 
       return raProperties.getProtocolManagerFactoryStr();
    }
 
    public void setProtocolManagerFactoryStr(final String protocolManagerFactoryStr) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setProtocolManagerFactoryStr(" + protocolManagerFactoryStr + ")");
-      }
+      logger.trace("setProtocolManagerFactoryStr({})", protocolManagerFactoryStr);
 
       raProperties.setProtocolManagerFactoryStr(protocolManagerFactoryStr);
    }
 
    public String getDeserializationBlackList() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDeserializationBlackList()");
-      }
+      logger.trace("getDeserializationBlackList()");
+
       return raProperties.getDeserializationBlackList();
    }
 
    public void setDeserializationBlackList(String deserializationBlackList) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDeserializationBlackList(" + deserializationBlackList + ")");
-      }
+      logger.trace("setDeserializationBlackList({})", deserializationBlackList);
 
       raProperties.setDeserializationBlackList(deserializationBlackList);
    }
 
    public String getDeserializationWhiteList() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getDeserializationWhiteList()");
-      }
+      logger.trace("getDeserializationWhiteList()");
+
       return raProperties.getDeserializationWhiteList();
    }
 
    public void setDeserializationWhiteList(String deserializationWhiteList) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setDeserializationWhiteList(" + deserializationWhiteList + ")");
-      }
+      logger.trace("setDeserializationWhiteList({})", deserializationWhiteList);
 
       raProperties.setDeserializationWhiteList(deserializationWhiteList);
    }
@@ -989,9 +889,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getMinLargeMessageSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getMinLargeMessageSize()");
-      }
+      logger.trace("getMinLargeMessageSize()");
 
       return raProperties.getMinLargeMessageSize();
    }
@@ -1002,9 +900,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param minLargeMessageSize The value
     */
    public void setMinLargeMessageSize(final Integer minLargeMessageSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setMinLargeMessageSize(" + minLargeMessageSize + ")");
-      }
+      logger.trace("setMinLargeMessageSize({})", minLargeMessageSize);
 
       raProperties.setMinLargeMessageSize(minLargeMessageSize);
    }
@@ -1015,9 +911,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean getBlockOnAcknowledge() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getBlockOnAcknowledge()");
-      }
+      logger.trace("getBlockOnAcknowledge()");
 
       return raProperties.isBlockOnAcknowledge();
    }
@@ -1028,9 +922,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param blockOnAcknowledge The value
     */
    public void setBlockOnAcknowledge(final Boolean blockOnAcknowledge) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setBlockOnAcknowledge(" + blockOnAcknowledge + ")");
-      }
+      logger.trace("setBlockOnAcknowledge({})", blockOnAcknowledge);
 
       raProperties.setBlockOnAcknowledge(blockOnAcknowledge);
    }
@@ -1041,9 +933,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean getBlockOnNonDurableSend() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getBlockOnNonDurableSend()");
-      }
+      logger.trace("getBlockOnNonDurableSend()");
 
       return raProperties.isBlockOnNonDurableSend();
    }
@@ -1054,9 +944,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param blockOnNonDurableSend The value
     */
    public void setBlockOnNonDurableSend(final Boolean blockOnNonDurableSend) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setBlockOnNonDurableSend(" + blockOnNonDurableSend + ")");
-      }
+      logger.trace("setBlockOnNonDurableSend({})", blockOnNonDurableSend);
 
       raProperties.setBlockOnNonDurableSend(blockOnNonDurableSend);
    }
@@ -1067,9 +955,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean getBlockOnDurableSend() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getBlockOnDurableSend()");
-      }
+      logger.trace("getBlockOnDurableSend()");
 
       return raProperties.isBlockOnDurableSend();
    }
@@ -1080,9 +966,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param blockOnDurableSend The value
     */
    public void setBlockOnDurableSend(final Boolean blockOnDurableSend) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setBlockOnDurableSend(" + blockOnDurableSend + ")");
-      }
+      logger.trace("setBlockOnDurableSend({})", blockOnDurableSend);
 
       raProperties.setBlockOnDurableSend(blockOnDurableSend);
    }
@@ -1093,9 +977,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean getAutoGroup() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getAutoGroup()");
-      }
+      logger.trace("getAutoGroup()");
 
       return raProperties.isAutoGroup();
    }
@@ -1106,9 +988,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param autoGroup The value
     */
    public void setAutoGroup(final Boolean autoGroup) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setAutoGroup(" + autoGroup + ")");
-      }
+      logger.trace("setAutoGroup({})", autoGroup);
 
       raProperties.setAutoGroup(autoGroup);
    }
@@ -1119,9 +999,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean getPreAcknowledge() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getPreAcknowledge()");
-      }
+      logger.trace("getPreAcknowledge()");
 
       return raProperties.isPreAcknowledge();
    }
@@ -1132,9 +1010,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param preAcknowledge The value
     */
    public void setPreAcknowledge(final Boolean preAcknowledge) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setPreAcknowledge(" + preAcknowledge + ")");
-      }
+      logger.trace("setPreAcknowledge({})", preAcknowledge);
 
       raProperties.setPreAcknowledge(preAcknowledge);
    }
@@ -1145,9 +1021,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getInitialConnectAttempts() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getInitialConnectAttempts()");
-      }
+      logger.trace("getInitialConnectAttempts()");
 
       return raProperties.getInitialConnectAttempts();
    }
@@ -1158,9 +1032,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param initialConnectAttempts The value
     */
    public void setInitialConnectAttempts(final Integer initialConnectAttempts) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setInitialConnectionAttempts(" + initialConnectAttempts + ")");
-      }
+      logger.trace("setInitialConnectionAttempts({})", initialConnectAttempts);
 
       raProperties.setInitialConnectAttempts(initialConnectAttempts);
    }
@@ -1171,9 +1043,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getInitialMessagePacketSize() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getInitialMessagePacketSize()");
-      }
+      logger.trace("getInitialMessagePacketSize()");
 
       return raProperties.getInitialMessagePacketSize();
    }
@@ -1184,9 +1054,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param initialMessagePacketSize The value
     */
    public void setInitialMessagePacketSize(final Integer initialMessagePacketSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setInitialMessagePacketSize(" + initialMessagePacketSize + ")");
-      }
+      logger.trace("setInitialMessagePacketSize({})", initialMessagePacketSize);
 
       raProperties.setInitialMessagePacketSize(initialMessagePacketSize);
    }
@@ -1197,9 +1065,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getRetryInterval() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getRetryInterval()");
-      }
+      logger.trace("getRetryInterval()");
 
       return raProperties.getRetryInterval();
    }
@@ -1210,9 +1076,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param retryInterval The value
     */
    public void setRetryInterval(final Long retryInterval) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setRetryInterval(" + retryInterval + ")");
-      }
+      logger.trace("setRetryInterval({})", retryInterval);
 
       raProperties.setRetryInterval(retryInterval);
    }
@@ -1223,9 +1087,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Double getRetryIntervalMultiplier() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getRetryIntervalMultiplier()");
-      }
+      logger.trace("getRetryIntervalMultiplier()");
 
       return raProperties.getRetryIntervalMultiplier();
    }
@@ -1236,9 +1098,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param retryIntervalMultiplier The value
     */
    public void setRetryIntervalMultiplier(final Double retryIntervalMultiplier) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setRetryIntervalMultiplier(" + retryIntervalMultiplier + ")");
-      }
+      logger.trace("setRetryIntervalMultiplier({})", retryIntervalMultiplier);
 
       raProperties.setRetryIntervalMultiplier(retryIntervalMultiplier);
    }
@@ -1249,9 +1109,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Long getMaxRetryInterval() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getMaxRetryInterval()");
-      }
+      logger.trace("getMaxRetryInterval()");
 
       return raProperties.getMaxRetryInterval();
    }
@@ -1262,9 +1120,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param maxRetryInterval The value
     */
    public void setMaxRetryInterval(final Long maxRetryInterval) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setMaxRetryInterval(" + maxRetryInterval + ")");
-      }
+      logger.trace("setMaxRetryInterval({})", maxRetryInterval);
 
       raProperties.setMaxRetryInterval(maxRetryInterval);
    }
@@ -1275,9 +1131,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Integer getReconnectAttempts() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getReconnectAttempts()");
-      }
+      logger.trace("getReconnectAttempts()");
 
       return raProperties.getReconnectAttempts();
    }
@@ -1288,9 +1142,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param reconnectAttempts The value
     */
    public void setReconnectAttempts(final Integer reconnectAttempts) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setReconnectAttempts(" + reconnectAttempts + ")");
-      }
+      logger.trace("setReconnectAttempts({})", reconnectAttempts);
 
       raProperties.setReconnectAttempts(reconnectAttempts);
    }
@@ -1300,9 +1152,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public void setConnectionLoadBalancingPolicyClassName(final String connectionLoadBalancingPolicyClassName) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setFailoverOnServerShutdown(" + connectionLoadBalancingPolicyClassName + ")");
-      }
+      logger.trace("setFailoverOnServerShutdown({})", connectionLoadBalancingPolicyClassName);
+
       raProperties.setConnectionLoadBalancingPolicyClassName(connectionLoadBalancingPolicyClassName);
    }
 
@@ -1311,9 +1162,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public void setScheduledThreadPoolMaxSize(final Integer scheduledThreadPoolMaxSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setFailoverOnServerShutdown(" + scheduledThreadPoolMaxSize + ")");
-      }
+      logger.trace("setFailoverOnServerShutdown({})", scheduledThreadPoolMaxSize);
+
       raProperties.setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize);
    }
 
@@ -1322,9 +1172,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public void setThreadPoolMaxSize(final Integer threadPoolMaxSize) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setFailoverOnServerShutdown(" + threadPoolMaxSize + ")");
-      }
+      logger.trace("setFailoverOnServerShutdown({})", threadPoolMaxSize);
+
       raProperties.setThreadPoolMaxSize(threadPoolMaxSize);
    }
 
@@ -1333,9 +1182,8 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    public void setUseGlobalPools(final Boolean useGlobalPools) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setFailoverOnServerShutdown(" + useGlobalPools + ")");
-      }
+      logger.trace("setFailoverOnServerShutdown({})", useGlobalPools);
+
       raProperties.setUseGlobalPools(useGlobalPools);
    }
 
@@ -1345,9 +1193,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public String getUserName() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getUserName()");
-      }
+      logger.trace("getUserName()");
 
       return raProperties.getUserName();
    }
@@ -1358,9 +1204,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param userName The value
     */
    public void setUserName(final String userName) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setUserName(" + userName + ")");
-      }
+      logger.trace("setUserName({})", userName);
 
       raProperties.setUserName(userName);
    }
@@ -1371,9 +1215,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public String getPassword() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getPassword()");
-      }
+      logger.trace("getPassword()");
 
       return raProperties.getPassword();
    }
@@ -1427,9 +1269,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public String getClientID() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getClientID()");
-      }
+      logger.trace("getClientID()");
 
       return raProperties.getClientID();
    }
@@ -1440,9 +1280,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param clientID The client id
     */
    public void setClientID(final String clientID) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setClientID(" + clientID + ")");
-      }
+      logger.trace("setClientID({})", clientID);
 
       raProperties.setClientID(clientID);
    }
@@ -1453,9 +1291,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public String getGroupID() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getGroupID()");
-      }
+      logger.trace("getGroupID()");
 
       return raProperties.getGroupID();
    }
@@ -1466,9 +1302,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param groupID The group id
     */
    public void setGroupID(final String groupID) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setGroupID(" + groupID + ")");
-      }
+      logger.trace("setGroupID({})", groupID);
 
       raProperties.setGroupID(groupID);
    }
@@ -1479,9 +1313,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The value
     */
    public Boolean getUseLocalTx() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getUseLocalTx()");
-      }
+      logger.trace("getUseLocalTx()");
 
       return raProperties.getUseLocalTx();
    }
@@ -1492,38 +1324,32 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @param localTx The value
     */
    public void setUseLocalTx(final Boolean localTx) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setUseXA(" + localTx + ")");
-      }
+      logger.trace("setUseXA({})", localTx);
 
       raProperties.setUseLocalTx(localTx);
    }
 
    public int getSetupAttempts() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getSetupAttempts()");
-      }
+      logger.trace("getSetupAttempts()");
+
       return raProperties.getSetupAttempts();
    }
 
    public void setSetupAttempts(Integer setupAttempts) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setSetupAttempts(" + setupAttempts + ")");
-      }
+      logger.trace("setSetupAttempts({})", setupAttempts);
+
       raProperties.setSetupAttempts(setupAttempts);
    }
 
    public long getSetupInterval() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getSetupInterval()");
-      }
+      logger.trace("getSetupInterval()");
+
       return raProperties.getSetupInterval();
    }
 
    public void setSetupInterval(Long interval) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setSetupInterval(" + interval + ")");
-      }
+      logger.trace("setSetupInterval({})", interval);
+
       raProperties.setSetupInterval(interval);
    }
 
@@ -1535,9 +1361,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    @Override
    public boolean equals(final Object obj) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("equals(" + obj + ")");
-      }
+      logger.trace("equals({})", obj);
 
       if (obj == null) {
          return false;
@@ -1556,9 +1380,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     */
    @Override
    public int hashCode() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("hashCode()");
-      }
+      logger.trace("hashCode()");
 
       return raProperties.hashCode();
    }
@@ -1569,9 +1391,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The manager
     */
    public WorkManager getWorkManager() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getWorkManager()");
-      }
+      logger.trace("getWorkManager()");
 
       if (ctx == null) {
          return null;
@@ -1622,7 +1442,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
       }
 
-      logger.debug("Using queue connection " + result);
+      logger.debug("Using queue connection {}", result);
 
       return result;
 
@@ -1638,9 +1458,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
     * @return The properties
     */
    public ActiveMQRAProperties getProperties() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getProperties()");
-      }
+      logger.trace("getProperties()");
 
       return raProperties;
    }
@@ -1751,9 +1569,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          DiscoveryGroupConfiguration groupConfiguration = new DiscoveryGroupConfiguration().setRefreshTimeout(refreshTimeout).setDiscoveryInitialWaitTimeout(initialTimeout).setBroadcastEndpointFactory(endpointFactory);
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("Creating Connection Factory on the resource adapter for discovery=" + groupConfiguration + " with ha=" + ha);
-         }
+         logger.debug("Creating Connection Factory on the resource adapter for discovery={} with ha={}", groupConfiguration, ha);
 
          if (ha) {
             cf = ActiveMQJMSClient.createConnectionFactoryWithHA(groupConfiguration, JMSFactoryType.XA_CF);
@@ -1783,7 +1599,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
 
          if (logger.isDebugEnabled()) {
-            logger.debug("Creating Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations) + " with ha=" + ha);
+            logger.debug("Creating Connection Factory on the resource adapter for transport={} with ha={}", Arrays.toString(transportConfigurations), ha);
          }
 
          if (ha) {
@@ -1826,9 +1642,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
 
          groupConfiguration.setRefreshTimeout(refreshTimeout);
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("Creating Recovery Connection Factory on the resource adapter for discovery=" + groupConfiguration);
-         }
+         logger.debug("Creating Recovery Connection Factory on the resource adapter for discovery={}", groupConfiguration);
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(groupConfiguration, JMSFactoryType.XA_CF);
       } else {
@@ -1854,7 +1668,7 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
          }
 
          if (logger.isDebugEnabled()) {
-            logger.debug("Creating Recovery Connection Factory on the resource adapter for transport=" + Arrays.toString(transportConfigurations));
+            logger.debug("Creating Recovery Connection Factory on the resource adapter for transport={}", Arrays.toString(transportConfigurations));
          }
 
          cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.XA_CF, transportConfigurations);

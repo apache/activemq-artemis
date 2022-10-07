@@ -654,16 +654,16 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
          }
       }
       for (Map.Entry<String, List<String>> entry : results.entrySet()) {
-         StringBuilder logMessage = new StringBuilder();
-         logMessage.append("Messages received with lastval=" + entry.getKey() + " (");
+         StringBuilder values = new StringBuilder();
          for (String s : entry.getValue()) {
             int occurrences = Collections.frequency(entry.getValue(), s);
             if (occurrences > 1 && !dups.containsValue(Integer.parseInt(s))) {
                dups.put(s, occurrences);
             }
-            logMessage.append(s + ",");
+            values.append(s);
+            values.append(",");
          }
-         logger.info(logMessage + ")");
+         logger.info("Messages received with lastval={} ({})", entry.getKey(), values);
       }
       if (dups.size() > 0) {
          StringBuffer sb = new StringBuffer();

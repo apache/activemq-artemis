@@ -678,9 +678,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             replaceInitialHeader(deliveryAnnotationsToEncode, context, new NettyWritable(frameBuffer));
          } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
             assert position == 0 : "this shouldn't happen unless replaceInitialHeader is updating position before modifying frameBuffer";
-            if (log.isDebugEnabled()) {
-               log.debug("Delivery of message failed with an overFlowException, retrying again with expandable buffer");
-            }
+            log.debug("Delivery of message failed with an overFlowException, retrying again with expandable buffer");
+
             // on the very first packet, if the initial header was replaced with a much bigger header (re-encoding)
             // we could recover the situation with a retry using an expandable buffer.
             // this is tested on org.apache.activemq.artemis.tests.integration.amqp.AmqpMessageDivertsTest

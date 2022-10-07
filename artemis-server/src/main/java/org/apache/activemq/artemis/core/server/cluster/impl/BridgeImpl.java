@@ -238,7 +238,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void onCreditsFail(ClientProducerCredits producerCredits) {
-      ActiveMQServerLogger.LOGGER.bridgeAddressFull("" + producerCredits.getAddress(), "" + this.getName());
+      ActiveMQServerLogger.LOGGER.bridgeAddressFull(String.valueOf(producerCredits.getAddress()), String.valueOf(this.getName()));
       disconnect();
    }
 
@@ -281,11 +281,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("BridgeImpl::cancelRefs cancelling " + list.size() + " references");
+         logger.trace("BridgeImpl::cancelRefs cancelling {} references", list.size());
       }
 
       if (logger.isTraceEnabled() && list.isEmpty()) {
-         logger.trace("didn't have any references to cancel on bridge " + this);
+         logger.trace("didn't have any references to cancel on bridge {}", this);
          return;
       }
 
@@ -298,9 +298,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       while (listIterator.hasPrevious()) {
          MessageReference ref = listIterator.previous();
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("BridgeImpl::cancelRefs Cancelling reference " + ref + " on bridge " + this);
-         }
+         logger.trace("BridgeImpl::cancelRefs Cancelling reference {} on bridge {}", ref, this);
 
          refqueue = ref.getQueue();
 
@@ -373,9 +371,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       stopping = true;
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Bridge " + this.configuration.getName() + " being stopped");
-      }
+      logger.debug("Bridge {} being stopped", configuration.getName());
 
       if (futureScheduledReconnection != null) {
          futureScheduledReconnection.cancel(true);
@@ -397,9 +393,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void pause() throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("Bridge " + this.configuration.getName() + " being paused");
-      }
+      logger.debug("Bridge {} being paused", configuration.getName());
 
       executor.execute(new PauseRunnable());
 
@@ -466,9 +460,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void sendAcknowledged(final Message message) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("BridgeImpl::sendAcknowledged received confirmation for message " + message);
-      }
+      logger.trace("BridgeImpl::sendAcknowledged received confirmation for message {}", message);
+
       if (active) {
          try {
 
@@ -480,7 +473,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
             if (ref != null) {
                if (logger.isTraceEnabled()) {
-                  logger.trace("BridgeImpl::sendAcknowledged bridge " + this + " Acking " + ref + " on queue " + ref.getQueue());
+                  logger.trace("BridgeImpl::sendAcknowledged bridge {} Acking {} on queue {}", this, ref, ref.getQueue());
                }
                ref.getQueue().acknowledge(ref);
                pendingAcks.countDown();
@@ -490,9 +483,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                   server.callBrokerBridgePlugins(plugin -> plugin.afterAcknowledgeBridge(this, ref));
                }
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("BridgeImpl::sendAcknowledged bridge " + this + " could not find reference for message " + message);
-               }
+               logger.trace("BridgeImpl::sendAcknowledged bridge {} could not find reference for message {}", this, message);
             }
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.bridgeFailedToAck(e);
@@ -542,12 +533,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       if (transformer != null) {
          final Message transformedMessage = transformer.transform(message);
          if (transformedMessage != message) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("The transformer " + transformer +
-                               " made a copy of the message " +
-                               message +
-                               " as transformedMessage");
-            }
+            logger.debug("The transformer {} made a copy of the message {} as transformedMessage", transformer, message);
          }
          return EmbedMessageUtil.embedAsCoreMessage(transformedMessage);
       } else {
@@ -564,33 +550,29 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
       if (filter != null && !filter.match(ref.getMessage())) {
-         if (logger.isTraceEnabled()) {
-            logger.trace("message reference {} is no match for bridge {}", ref, this.getName());
-         }
+         logger.trace("message reference {} is no match for bridge {}", ref, configuration.getName());
          return HandleStatus.NO_MATCH;
       }
 
       synchronized (this) {
          if (!active || !session.isWritable(this)) {
             if (logger.isDebugEnabled()) {
-               logger.debug(this + "::Ignoring reference on bridge as it is set to inactive ref {}, active = {}", ref, active);
+               logger.debug("{}::Ignoring reference on bridge as it is set to inactive ref {}, active = {}", this, ref, active);
             }
             return HandleStatus.BUSY;
          }
 
          if (blockedOnFlowControl) {
-            logger.debug("Bridge {} is blocked on flow control, cannot receive {}", getName(), ref);
+            logger.debug("Bridge {} is blocked on flow control, cannot receive {}", configuration.getName(), ref);
             return HandleStatus.BUSY;
          }
 
          if (deliveringLargeMessage) {
-            logger.trace("Bridge {} is busy delivering a large message", this.getName());
+            logger.trace("Bridge {} is busy delivering a large message", configuration.getName());
             return HandleStatus.BUSY;
          }
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Bridge {} is handling reference {} ", ref);
-         }
+         logger.trace("Bridge {} is handling reference {} ", ref);
 
          ref.handled();
 
@@ -683,10 +665,10 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          scaleDown(scaleDownTargetNodeID);
       } else if (scaleDownTargetNodeID != null) {
          // the disconnected node is scaling down to me, no need to reconnect to it
-         logger.debug("Received scaleDownTargetNodeID: " + scaleDownTargetNodeID + "; cancelling reconnect.");
+         logger.debug("Received scaleDownTargetNodeID: {}; cancelling reconnect.", scaleDownTargetNodeID);
          fail(true, true);
       } else {
-         logger.debug("Received invalid scaleDownTargetNodeID: " + scaleDownTargetNodeID);
+         logger.debug("Received invalid scaleDownTargetNodeID: {}", scaleDownTargetNodeID);
 
          fail(me.getType() == ActiveMQExceptionType.DISCONNECTED, false);
       }
@@ -697,7 +679,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    protected void scaleDown(String scaleDownTargetNodeID) {
       synchronized (this) {
          try {
-            logger.debug("Moving " + queue.getMessageCount() + " messages from " + queue.getName() + " to " + scaleDownTargetNodeID);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Moving {} messages from {} to {}", queue.getMessageCount(), queue.getName(), scaleDownTargetNodeID);
+            }
             ((QueueImpl) queue).moveReferencesBetweenSnFQueues(SimpleString.toSimpleString(scaleDownTargetNodeID));
 
             // stop the bridge from trying to reconnect and clean up all the bindings
@@ -715,7 +699,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void beforeReconnect(final ActiveMQException exception) {
-      // log.warn(name + "::Connection failed before reconnect ", exception);
+      // log.warn("{}::Connection failed before reconnect ", name, exception);
       // fail(false);
    }
 
@@ -758,9 +742,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       // from the acks so it will get resent, duplicate detection will cope
       // with any messages resent
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("going to send message: " + message + " from " + this.getQueue());
-      }
+      logger.trace("going to send message: {} from {}", message, queue);
 
       try {
          producer.send(dest, message);
@@ -836,7 +818,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    }
 
    protected void fail(final boolean permanently, boolean scaleDown) {
-      logger.debug(this + "\n\t::fail being called, permanently=" + permanently);
+      logger.debug("{}\n\t::fail being called, permanently={}", this, permanently);
       //we need to make sure we remove the node from the topology so any incoming quorum requests are voted correctly
       if (targetNodeID != null) {
          this.disconnectedAndDown = true;
@@ -844,9 +826,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
       if (queue != null) {
          try {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Removing consumer on fail " + this + " from queue " + queue);
-            }
+            logger.trace("Removing consumer on fail {} from queue {}", this, queue);
+
             queue.removeConsumer(this);
          } catch (Exception dontcare) {
             logger.debug(dontcare.getMessage(), dontcare);
@@ -926,11 +907,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          return;
 
       synchronized (connectionGuard) {
-         if (!keepConnecting)
+         if (!keepConnecting) {
             return;
+         }
 
-         logger.debug("Connecting  " + this + " to its destination [" + nodeUUID.toString() + "], csf=" + this.csf);
-
+         if (logger.isDebugEnabled()) {
+            logger.debug("Connecting  {} to its destination [{}], csf={}", this, nodeUUID, csf);
+         }
          retryCount++;
 
          try {
@@ -1004,9 +987,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
                return;
             } else {
                ActiveMQServerLogger.LOGGER.errorConnectingBridgeRetry(this);
-               if (logger.isDebugEnabled()) {
-                  logger.debug("Underlying bridge connection failure", e);
-               }
+               logger.debug("Underlying bridge connection failure", e);
+
                scheduleRetryConnect();
             }
          } catch (ActiveMQInterruptedException | InterruptedException e) {
@@ -1051,13 +1033,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          timeout = configuration.getMaxRetryInterval();
       }
 
-      logger.debug("Bridge " + this +
-                      " retrying connection #" +
-                      retryCount +
-                      ", maxRetry=" +
-                      reconnectAttemptsInUse +
-                      ", timeout=" +
-                      timeout);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Bridge {} retrying connection #{}, maxRetry={}, timeout={}", this, retryCount, reconnectAttemptsInUse, timeout);
+      }
 
       scheduleRetryConnectFixedTimeout(timeout);
    }
@@ -1095,7 +1073,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          return;
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Scheduling retry for bridge " + this.configuration.getName() + " in " + milliseconds + " milliseconds");
+         logger.debug("Scheduling retry for bridge {} in {} milliseconds", configuration.getName(), milliseconds);
       }
 
       futureScheduledReconnection = scheduledExecutor.schedule(new FutureConnectRunnable(executor, this), milliseconds, TimeUnit.MILLISECONDS);
@@ -1153,20 +1131,17 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
       @Override
       public void run() {
-         logger.debug("stopping bridge " + BridgeImpl.this);
+         logger.debug("stopping bridge {}", BridgeImpl.this);
          queue.removeConsumer(BridgeImpl.this);
 
          synchronized (BridgeImpl.this) {
-            logger.debug("Closing Session for bridge " + BridgeImpl.this.configuration.getName());
-
+            logger.debug("Closing Session for bridge {}", configuration.getName());
             started = false;
-
             active = false;
-
          }
 
          if (session != null) {
-            logger.debug("Cleaning up session " + session);
+            logger.debug("Cleaning up session {}", session);
             session.removeFailureListener(BridgeImpl.this);
             try {
                session.close();
@@ -1176,7 +1151,7 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
          }
 
          if (sessionConsumer != null) {
-            logger.debug("Cleaning up session " + session);
+            logger.debug("Cleaning up session {}", session);
             try {
                sessionConsumer.close();
                sessionConsumer = null;
@@ -1194,9 +1169,8 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
             keepConnecting = true;
          }
 
-         if (logger.isTraceEnabled()) {
-            logger.trace("Removing consumer on stopRunnable " + this + " from queue " + queue);
-         }
+         logger.trace("Removing consumer on stopRunnable {} from queue {}", this, queue);
+
          ActiveMQServerLogger.LOGGER.bridgeStopped(configuration.getName());
       }
    }

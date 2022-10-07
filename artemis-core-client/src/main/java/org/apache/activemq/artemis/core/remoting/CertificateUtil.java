@@ -119,14 +119,13 @@ public class CertificateUtil {
                   x509Certs[i] = (X509Certificate) CertificateFactory
                      .getInstance("X.509").generateCertificate(new ByteArrayInputStream(plainCerts[i].getEncoded()));
                } catch (Exception ex) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("Failed to convert SSL cert", ex);
-                  }
+                  logger.trace("Failed to convert SSL cert", ex);
                   return null;
                }
             }
+
             if (logger.isTraceEnabled()) {
-               logger.trace("Cert #" + i + " = " + x509Certs[i]);
+               logger.trace("Cert #{} = {}", i, x509Certs[i]);
             }
          }
       }

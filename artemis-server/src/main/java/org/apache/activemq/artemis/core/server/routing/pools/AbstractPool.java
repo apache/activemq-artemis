@@ -134,7 +134,7 @@ public abstract class AbstractPool implements Pool {
       }
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Ready targets are " + targets + " / " + targetMonitors + " and quorumSize is " + quorumSize);
+         logger.debug("Ready targets are {} / {} and quorumSize is {}", targets, targetMonitors, quorumSize);
       }
 
       return targets.size() < quorumSize ? Collections.emptyList() : targets;

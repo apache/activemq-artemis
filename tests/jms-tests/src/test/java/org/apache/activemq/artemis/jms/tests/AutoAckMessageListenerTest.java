@@ -117,7 +117,7 @@ public class AutoAckMessageListenerTest extends JMSTestCase {
                }
             }
          } catch (JMSException e) {
-            logger.warn("Exception caught in message listener:\n" + e);
+            logger.warn("Exception caught in message listener:", e);
             passed = false;
             monitor.countDown();
          }

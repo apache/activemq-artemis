@@ -117,7 +117,7 @@ public class ScaleDownHandler {
 
          // perform a loop per address
          for (SimpleString address : postOffice.getAddresses()) {
-            logger.debug("Scaling down address " + address);
+            logger.debug("Scaling down address {}", address);
             Bindings bindings = postOffice.lookupBindingsForAddress(address);
 
             // It will get a list of queues on this address, ordered by the number of messages
@@ -152,7 +152,7 @@ public class ScaleDownHandler {
                                         final Set<Queue> queues,
                                         final ClientSession clientSession,
                                         final ClientProducer producer) throws Exception {
-      logger.debug("Scaling down messages on address " + address);
+      logger.debug("Scaling down messages on address {}", address);
       long messageCount = 0;
 
       final HashMap<Queue, QueuesXRefInnerManager> controls = new HashMap<>();
@@ -173,7 +173,7 @@ public class ScaleDownHandler {
 
          // compile a list of all the relevant queues and queue iterators for this address
          for (Queue loopQueue : queues) {
-            logger.debug("Scaling down messages on address " + address + " / performing loop on queue " + loopQueue);
+            logger.debug("Scaling down messages on address {} / performing loop on queue {}", address, loopQueue);
 
             try (LinkedListIterator<MessageReference> messagesIterator = loopQueue.browserIterator()) {
 
@@ -189,7 +189,7 @@ public class ScaleDownHandler {
                         // no need to lookup on itself, we just add it
                         queuesFound.add(controlEntry.getValue());
                      } else if (controlEntry.getValue().lookup(messageReference)) {
-                        logger.debug("Message existed on queue " + controlEntry.getKey().getID() + " removeID=" + controlEntry.getValue().getQueueID());
+                        logger.debug("Message existed on queue {} removeID={}", controlEntry.getKey().getID(), controlEntry.getValue().getQueueID());
                         queuesFound.add(controlEntry.getValue());
                      }
                   }
@@ -206,9 +206,9 @@ public class ScaleDownHandler {
 
                   if (logger.isDebugEnabled()) {
                      if (messageReference.isPaged()) {
-                        logger.debug("*********************<<<<< Scaling down pdgmessage " + message);
+                        logger.debug("*********************<<<<< Scaling down pdgmessage {}", message);
                      } else {
-                        logger.debug("*********************<<<<< Scaling down message " + message);
+                        logger.debug("*********************<<<<< Scaling down message {}", message);
                      }
                   }
 
@@ -299,7 +299,9 @@ public class ScaleDownHandler {
                   message.putBytesProperty(Message.HDR_SCALEDOWN_TO_IDS.toString(), oldRouteToIDs);
                }
 
-               logger.debug("Scaling down message " + message + " from " + address + " to " + message.getAddress() + " on node " + targetNodeId);
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Scaling down message {} from {} to {} on node {}", message, address, message.getAddress(), targetNodeId);
+               }
 
                producer.send(message.getAddress(), message);
 
@@ -332,7 +334,7 @@ public class ScaleDownHandler {
       List<Xid> preparedTransactions = resourceManager.getPreparedTransactions();
       Map<String, Long> queueIDs = new HashMap<>();
       for (Xid xid : preparedTransactions) {
-         logger.debug("Scaling down transaction: " + xid);
+         logger.debug("Scaling down transaction: {}", xid);
          Transaction transaction = resourceManager.getTransaction(xid);
          session.start(xid, XAResource.TMNOFLAGS);
          List<TransactionOperation> allOperations = transaction.getAllOperations();
@@ -446,11 +448,17 @@ public class ScaleDownHandler {
       long queueID = getQueueID(session, queue.getName());
       if (queueID == -1) {
          session.createQueue(new QueueConfiguration(queue.getName()).setAddress(addressName).setRoutingType(routingType).setFilterString(queue.getFilter() == null ? null : queue.getFilter().getFilterString()).setDurable(queue.isDurable()));
-         logger.debug("Failed to get queue ID, creating queue [addressName=" + addressName + ", queueName=" + queue.getName() + ", routingType=" + queue.getRoutingType() + ", filter=" + (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()) + ", durable=" + queue.isDurable() + "]");
+         if (logger.isDebugEnabled()) {
+            logger.debug("Failed to get queue ID, creating queue [addressName={}, queueName={}, routingType={}, filter={}, durable={}]",
+                      addressName, queue.getName(), queue.getRoutingType(), (queue.getFilter() == null ? "" : queue.getFilter().getFilterString()), queue.isDurable());
+         }
          queueID = getQueueID(session, queue.getName());
       }
 
-      logger.debug("ID for " + queue + " is: " + queueID);
+      if (logger.isDebugEnabled()) {
+         logger.debug("ID for {} is: {}", queue, queueID);
+      }
+
       return queueID;
    }
 
@@ -461,7 +469,7 @@ public class ScaleDownHandler {
          ClientMessage managementMessage = session.createMessage(false);
          ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queueName, "ID");
          session.start();
-         logger.debug("Requesting ID for: " + queueName);
+         logger.debug("Requesting ID for: {}", queueName);
          ClientMessage reply = requestor.request(managementMessage);
          result = ManagementHelper.getResult(reply);
       }
@@ -578,13 +586,13 @@ public class ScaleDownHandler {
 
             MessageReference initialRef = null;
             for (int i = 0; i < numberOfScans; i++) {
-               logger.debug("Iterating on queue " + queue + " while looking for reference " + reference);
+               logger.debug("Iterating on queue {} while looking for reference {}", queue, reference);
                memoryIterator = queue.iterator();
 
                while (memoryIterator.hasNext()) {
                   lastRef = memoryIterator.next();
 
-                  logger.debug("Iterating on message " + lastRef);
+                  logger.debug("Iterating on message {}", lastRef);
 
                   if (lastRef.getMessage().equals(reference.getMessage())) {
                      memoryIterator.remove();

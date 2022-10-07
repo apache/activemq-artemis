@@ -97,31 +97,31 @@ public class FullQualifiedQueueTest extends ActiveMQTestBase {
       //each anycast consumer receives one, each multicast receives three.
       ClientMessage m = consumer1.receive(2000);
       assertNotNull(m);
-      logger.debug("consumer1 : " + m);
+      logger.debug("consumer1 : {}", m);
       m.acknowledge();
 
       m = consumer2.receive(2000);
       assertNotNull(m);
-      logger.debug("consumer2 : " + m);
+      logger.debug("consumer2 : {}", m);
       m.acknowledge();
 
       m = consumer3.receive(2000);
       assertNotNull(m);
-      logger.debug("consumer3 : " + m);
+      logger.debug("consumer3 : {}", m);
       m.acknowledge();
 
       for (int i = 0; i < num; i++) {
          m = consumer4.receive(2000);
          assertNotNull(m);
-         logger.debug("consumer4 : " + m);
+         logger.debug("consumer4 : {}", m);
          m.acknowledge();
          m = consumer5.receive(2000);
          assertNotNull(m);
-         logger.debug("consumer5 : " + m);
+         logger.debug("consumer5 : {}", m);
          m.acknowledge();
          m = consumer6.receive(2000);
          assertNotNull(m);
-         logger.debug("consumer6 : " + m);
+         logger.debug("consumer6 : {}", m);
          m.acknowledge();
       }
 

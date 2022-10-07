@@ -203,7 +203,7 @@ public abstract class ProcessorBase<T> extends HandlerBase {
 
    private static void logAddOnShutdown() {
       if (logger.isDebugEnabled()) {
-         logger.debug("Ordered executor has been gently shutdown at", new Exception("debug"));
+         logger.debug("Ordered executor has been gently shutdown at {}", new Exception("debug"));
       }
    }
 

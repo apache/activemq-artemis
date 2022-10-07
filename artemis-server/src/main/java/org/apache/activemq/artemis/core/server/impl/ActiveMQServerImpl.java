@@ -555,9 +555,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             final DatabaseStorageConfiguration dbConf = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
             manager = JdbcNodeManager.with(dbConf, scheduledPool, executorFactory);
          } else if (haType == null || haType == HAPolicyConfiguration.TYPE.LIVE_ONLY) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("Detected no Shared Store HA options on JDBC store");
-            }
+            logger.debug("Detected no Shared Store HA options on JDBC store");
             //LIVE_ONLY should be the default HA option when HA isn't configured
             manager = new FileLockNodeManager(directory, replicatingBackup, configuration.getJournalLockAcquisitionTimeout(), scheduledPool);
          } else {
@@ -639,7 +637,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       activationLatch.setCount(1);
 
-      logger.debug("Starting server " + this);
+      logger.debug("Starting server {}", this);
 
       OperationContextImpl.clearContext();
 
@@ -672,9 +670,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             if (haPolicy.isWaitForActivation()) {
                activation.run();
             } else {
-               if (logger.isTraceEnabled()) {
-                  logger.trace("starting activation");
-               }
+               logger.trace("starting activation");
+
                activationThread = new ActivationThread(activation, ActiveMQMessageBundle.BUNDLE.activationForServer(this));
                activationThread.start();
             }
@@ -698,9 +695,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                afterActivationCreated = null;
             }
 
-            if (logger.isTraceEnabled()) {
-               logger.trace("starting backupActivation");
-            }
+            logger.trace("starting backupActivation");
+
             activationThread = new ActivationThread(activation, ActiveMQMessageBundle.BUNDLE.activationForServer(this));
             activationThread.start();
          } else {
@@ -1210,10 +1206,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                      boolean shutdownExternalComponents,
                      boolean restarting,
                      boolean isShutdown) {
-
-      if (logger.isDebugEnabled()) {
-         logger.debug("Stopping server " + this);
-      }
+      logger.debug("Stopping server {}", this);
 
       synchronized (this) {
          if (state == SERVER_STATE.STOPPED || state == SERVER_STATE.STOPPING) {
@@ -1478,7 +1471,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
             ActiveMQServerLogger.LOGGER.timedOutStoppingThreadpool(threadPool);
             for (Runnable r : executorService.shutdownNow()) {
-               logger.debug("Cancelled the execution of " + r);
+               logger.debug("Cancelled the execution of {}", r);
             }
          }
       } catch (InterruptedException e) {
@@ -2298,10 +2291,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          throw ActiveMQMessageBundle.BUNDLE.queueSubscriptionBelongsToDifferentFilter(queueConfiguration.getName());
       }
 
-      if (logger.isDebugEnabled()) {
-         logger.debug("Transient Queue " + queueConfiguration.getName() + " created on address " + queueConfiguration.getName() + " with filter=" + queueConfiguration.getFilterString());
-      }
-
+      logger.debug("Transient Queue {} created on address {} with filter={}", queueConfiguration.getName(), queueConfiguration.getAddress(), queueConfiguration.getFilterString());
    }
 
    @Override
@@ -2656,10 +2646,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          } catch (Throwable e) {
             if (e instanceof ActiveMQException) {
-               logger.debug("plugin " + plugin + " is throwing ActiveMQException");
+               logger.debug("plugin {} is throwing ActiveMQException", plugin);
                throw (ActiveMQException) e;
             } else {
-               logger.warn("Internal error on plugin " + plugin, e.getMessage(), e);
+               logger.warn("Internal error on plugin {}", plugin, e);
             }
          }
       }
@@ -2694,10 +2684,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                pluginRun.run(plugin);
             } catch (Throwable e) {
                if (e instanceof ActiveMQException) {
-                  logger.debug("plugin " + plugin + " is throwing ActiveMQException");
+                  logger.debug("plugin {} is throwing ActiveMQException", plugin);
                   throw (ActiveMQException) e;
                } else {
-                  logger.warn("Internal error on plugin " + pluginRun, e.getMessage(), e);
+                  logger.warn("Internal error on plugin {}", pluginRun, e);
                }
             }
          }
@@ -3744,11 +3734,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public void autoRemoveAddressInfo(SimpleString address, SecurityAuth auth) throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("deleting auto-created address \"" + address + ".\"");
-      }
+      logger.debug("deleting auto-created address \"{}.\"", address);
 
-      ActiveMQServerLogger.LOGGER.autoRemoveAddress("" + address);
+      ActiveMQServerLogger.LOGGER.autoRemoveAddress(String.valueOf(address));
 
       removeAddressInfo(address, auth);
    }
@@ -4457,7 +4445,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             try {
                destroyDivert(divertName);
             } catch (Throwable e) {
-               logger.warn("Divert " + divertName + " could not be removed", e);
+               logger.warn("Divert {} could not be removed", divertName, e);
             }
          }
          recoverStoredDiverts();

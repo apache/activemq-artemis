@@ -464,7 +464,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    private void recordNotFoundCallback(long id, boolean found) {
       if (!found) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Record " + id + " not found");
+            logger.debug("Record {} not found", id);
          }
       }
    }
@@ -639,7 +639,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          messageJournal.appendCommitRecord(txID, syncTransactional, getContext(syncTransactional), lineUpContext);
          if (!lineUpContext && !syncTransactional) {
             if (logger.isTraceEnabled()) {
-               logger.trace("calling getContext(true).done() for txID=" + txID + ",lineupContext=" + lineUpContext + " syncTransactional=" + syncTransactional + "... forcing call on getContext(true).done");
+               logger.trace("calling getContext(true).done() for txID={}, lineupContext={} syncTransactional={}... forcing call on getContext(true).done",
+                  txID, lineUpContext, syncTransactional);
             }
             /**
              * If {@code lineUpContext == false}, it means that we have previously lined up a
@@ -1197,7 +1198,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                      if (sub != null) {
                         if (!sub.reloadPageCompletion(encoding.position)) {
                            if (logger.isDebugEnabled()) {
-                              logger.debug("Complete page " + encoding.position.getPageNr() + " doesn't exist on page manager " + sub.getPagingStore().getAddress());
+                              logger.debug("Complete page {} doesn't exist on page manager {}", encoding.position.getPageNr(), sub.getPagingStore().getAddress());
                            }
                            messageJournal.tryAppendDeleteRecord(record.id, this::recordNotFoundCallback, false);
                         }

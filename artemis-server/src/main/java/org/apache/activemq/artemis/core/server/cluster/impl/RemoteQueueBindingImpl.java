@@ -342,7 +342,7 @@ public class RemoteQueueBindingImpl implements RemoteQueueBinding {
       message.putExtraBytesProperty(idsHeaderName, ids);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Adding remoteQueue ID = " + remoteQueueID + " into message=" + message + " store-forward-queue=" + storeAndForwardQueue);
+         logger.trace("Adding remoteQueue ID = {} into message={} store-forward-queue={}", remoteQueueID, message, storeAndForwardQueue);
       }
    }
 

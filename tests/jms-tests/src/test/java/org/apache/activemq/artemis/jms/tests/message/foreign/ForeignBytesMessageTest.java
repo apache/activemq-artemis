@@ -37,7 +37,7 @@ public class ForeignBytesMessageTest extends ForeignMessageTest {
    protected Message createForeignMessage() throws Exception {
       SimpleJMSBytesMessage m = new SimpleJMSBytesMessage();
 
-      logger.debug("creating JMS Message type " + m.getClass().getName());
+      logger.debug("creating JMS Message type {}", m.getClass().getName());
 
       String bytes = "ActiveMQ";
       m.writeBytes(bytes.getBytes());

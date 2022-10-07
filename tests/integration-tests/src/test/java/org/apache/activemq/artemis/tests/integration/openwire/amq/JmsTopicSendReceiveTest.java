@@ -55,8 +55,6 @@ public class JmsTopicSendReceiveTest extends JmsSendReceiveTestSupport {
       consumer = createConsumer();
       consumer.setMessageListener(this);
       connection.start();
-
-      // log.debug("Created connection: " + connection);
    }
 
    protected String getConsumerSubject() {

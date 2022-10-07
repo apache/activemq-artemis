@@ -41,9 +41,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     * @param mc The managed connection
     */
    public ActiveMQRAMetaData(final ActiveMQRAManagedConnection mc) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + mc + ")");
-      }
+      logger.trace("constructor({})", mc);
 
       this.mc = mc;
    }
@@ -56,9 +54,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public String getEISProductName() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getEISProductName()");
-      }
+      logger.trace("getEISProductName()");
 
       return "ActiveMQ Artemis";
    }
@@ -71,9 +67,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public String getEISProductVersion() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getEISProductVersion()");
-      }
+      logger.trace("getEISProductVersion()");
 
       return "2.0";
    }
@@ -86,9 +80,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public String getUserName() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getUserName()");
-      }
+      logger.trace("getUserName()");
 
       return mc.getUserName();
    }
@@ -101,9 +93,7 @@ public class ActiveMQRAMetaData implements ManagedConnectionMetaData {
     */
    @Override
    public int getMaxConnections() throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getMaxConnections()");
-      }
+      logger.trace("getMaxConnections()");
 
       return 0;
    }

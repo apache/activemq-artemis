@@ -108,7 +108,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
          if (factory != null) {
             result = factory.create(server, manager, connection, protonConnectionDelegate);
          } else {
-            logger.debug("Mo matching mechanism found for: " + mechanism);
+            logger.debug("Mo matching mechanism found for: {}", mechanism);
          }
       }
       return result;
@@ -241,7 +241,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
       }
 
       if (tx == null) {
-         logger.warn("Couldn't find txid = " + txid);
+         logger.warn("Couldn't find txid = {}", txid);
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.txNotFound(txid.toString());
       }
 

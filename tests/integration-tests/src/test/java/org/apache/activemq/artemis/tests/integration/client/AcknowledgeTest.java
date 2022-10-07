@@ -119,7 +119,8 @@ public class AcknowledgeTest extends ActiveMQTestBase {
 
          @Override
          public void onMessage(final ClientMessage message) {
-            logger.debug("Got message " + c++);
+            int msgNum = c++;
+            logger.debug("Got message {}", msgNum);
             latch.countDown();
          }
       });

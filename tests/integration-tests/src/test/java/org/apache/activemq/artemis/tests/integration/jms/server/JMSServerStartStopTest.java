@@ -74,7 +74,7 @@ public class JMSServerStartStopTest extends ActiveMQTestBase {
       final int numMessages = 5;
 
       for (int j = 0; j < numMessages; j++) {
-         logger.debug("Iteration " + j);
+         logger.debug("Iteration {}", j);
 
          server.start();
 

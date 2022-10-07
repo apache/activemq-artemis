@@ -69,13 +69,13 @@ public class BrokerMessageAuthorizationPlugin implements ActiveMQServerPlugin {
       Subject subject = getSubject(consumer);
       if (subject == null) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Subject not found for consumer: " + consumer.getID());
+            logger.debug("Subject not found for consumer: {}", consumer.getID());
          }
          return false;
       }
       boolean permitted = new RolePrincipal(requiredRole).implies(subject);
       if (!permitted && logger.isDebugEnabled()) {
-         logger.debug("Message consumer: " + consumer.getID() + " does not have required role `" + requiredRole + "` needed to receive message: " + reference.getMessageID());
+         logger.debug("Message consumer: {} does not have required role `{}` needed to receive message: {}", consumer.getID(), requiredRole, reference.getMessageID());
       }
       return permitted;
    }

@@ -94,7 +94,7 @@ public class ManagementConnector implements ActiveMQComponent {
          connectorServerFactory.setTrustStorePassword(configuration.getTrustStorePassword());
          connectorServerFactory.init();
       } catch (Exception e) {
-         logger.error("Can't init JMXConnectorServer: " + e.getMessage(), e);
+         logger.error("Can't init JMXConnectorServer:", e);
       }
    }
 

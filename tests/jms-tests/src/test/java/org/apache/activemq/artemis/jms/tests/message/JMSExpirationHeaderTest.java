@@ -169,7 +169,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                ActiveMQMessage msg = (ActiveMQMessage) m;
 
                if (!msg.getCoreMessage().isExpired()) {
-                  logger.error("The message " + m + " should have expired");
+                  logger.error("The message {} should have expired", m);
                   testFailed = true;
                   return;
                }
@@ -190,7 +190,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
          ProxyAssertSupport.fail("Test failed by the sender thread. Watch for exception in logs");
       }
 
-      logger.trace("planned waiting time: " + timeToWaitForReceive + " effective waiting time " + effectiveReceiveTime);
+      logger.trace("planned waiting time: {} effective waiting time {}", timeToWaitForReceive, effectiveReceiveTime);
       ProxyAssertSupport.assertTrue(effectiveReceiveTime >= timeToWaitForReceive);
       ProxyAssertSupport.assertTrue(effectiveReceiveTime < timeToWaitForReceive * 1.5); // well, how exactly I did come
       // up with this coeficient is
@@ -232,7 +232,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
                expectedMessage = queueConsumer.receive();
 
                // NOTE on close, the receive() call will return with null
-               logger.trace("Receive exited without exception:" + expectedMessage);
+               logger.trace("Receive exited without exception:{}", expectedMessage);
 
                if (expectedMessage == null) {
                   received.set(false);
@@ -258,7 +258,7 @@ public class JMSExpirationHeaderTest extends MessageHeaderTestBase {
       // wait for the reading thread to conclude
       ActiveMQTestBase.waitForLatch(latch);
 
-      logger.trace("Expected message:" + expectedMessage);
+      logger.trace("Expected message:{}", expectedMessage);
 
       ProxyAssertSupport.assertFalse(received.get());
    }

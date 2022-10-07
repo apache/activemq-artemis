@@ -164,7 +164,9 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
                   if (blob != null) {
                      file.setWritePosition(blob.length());
                   } else {
-                     logger.trace("No Blob found for file: " + file.getFileName() + " " + file.getId());
+                     if (logger.isTraceEnabled()) {
+                        logger.trace("No Blob found for file: {} {}", file.getFileName(), file.getId());
+                     }
                   }
                }
                connection.commit();

@@ -287,17 +287,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (localConnector.isEquivalent(live.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())
          // check if a server is trying to set its cluster connector config as backup connector config
          && !(serverLocator.getClusterTransportConfiguration() != null && serverLocator.getClusterTransportConfiguration().isSameParams(backUp))) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Setting up backup config = " + backUp + " for live = " + live);
-         }
+         logger.debug("Setting up backup config = {} for live = {}", backUp, live);
          backupConnectorConfig = backUp;
       } else {
          if (logger.isDebugEnabled()) {
-            logger.debug("ClientSessionFactoryImpl received backup update for live/backup pair = " + live +
-                            " / " +
-                            backUp +
-                            " but it didn't belong to " +
-                            currentConnectorConfig);
+            logger.debug("ClientSessionFactoryImpl received backup update for live/backup pair = {} / {}  but it didn't belong to {}",
+                         live, backUp, currentConnectorConfig);
          }
       }
    }
@@ -583,8 +578,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             return;
          }
 
-         if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
-            logger.trace("Client Connection failed, calling failure listeners and trying to reconnect, reconnectAttempts=" + reconnectAttempts);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Client Connection failed, calling failure listeners and trying to reconnect, reconnectAttempts={}", reconnectAttempts);
          }
 
          callFailoverListeners(FailoverEventType.FAILURE_DETECTED);
@@ -847,11 +842,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (!clientProtocolManager.isAlive())
          return;
       if (logger.isTraceEnabled()) {
-         logger.trace("getConnectionWithRetry::" + reconnectAttempts +
-                         " with retryInterval = " +
-                         retryInterval +
-                         " multiplier = " +
-                         retryIntervalMultiplier, new Exception("trace"));
+         logger.trace("getConnectionWithRetry::{} with retryInterval = {} multiplier = {}",
+                      reconnectAttempts, retryInterval, retryIntervalMultiplier, new Exception("trace"));
       }
 
       long interval = retryInterval;
@@ -860,7 +852,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       while (clientProtocolManager.isAlive()) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Trying reconnection attempt " + count + "/" + reconnectAttempts);
+            logger.debug("Trying reconnection attempt {}/{}", count, reconnectAttempts);
          }
 
          if (getConnection() != null) {
@@ -868,9 +860,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                // transferring old connection version into the new connection
                ((CoreRemotingConnection)connection).setChannelVersion(((CoreRemotingConnection)oldConnection).getChannelVersion());
             }
-            if (logger.isDebugEnabled()) {
-               logger.debug("Reconnection successful");
-            }
+            logger.debug("Reconnection successful");
             return;
          } else {
             // Failed to get connection
@@ -886,8 +876,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                   return;
                }
 
-               if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
-                  ClientSessionFactoryImpl.logger.trace("Waiting " + interval + " milliseconds before next retry. RetryInterval=" + retryInterval + " and multiplier=" + retryIntervalMultiplier);
+               if (logger.isTraceEnabled()) {
+                  logger.trace("Waiting {} milliseconds before next retry. RetryInterval={} and multiplier={}", interval, retryInterval, retryIntervalMultiplier);
                }
 
                if (waitForRetry(interval))
@@ -1001,13 +991,13 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
             if (serverLocator.getTopology() != null) {
                if (connection != null) {
-                  if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
-                     logger.trace(this + "::Subscribing Topology");
-                  }
+                  logger.trace("{}::Subscribing Topology", this);
                   clientProtocolManager.sendSubscribeTopology(serverLocator.isClusterConnection());
                }
             } else {
-               logger.debug("serverLocator@" + System.identityHashCode(serverLocator + " had no topology"));
+               if (logger.isDebugEnabled()) {
+                  logger.debug("serverLocator@{} had no topology", System.identityHashCode(serverLocator));
+               }
             }
 
             return connection;
@@ -1115,9 +1105,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = connector.createConnection();
 
       if (transportConnection == null) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Connector towards " + connector + " failed");
-         }
+         logger.debug("Connector towards {} failed", connector);
 
          try {
             connector.close();
@@ -1216,8 +1204,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          transportConnectorConfig.getFactoryClassName());
 
       if (logger.isDebugEnabled()) {
-         logger.debug("Trying to connect with connectorFactory=" + transportConnectorFactory
-            + " and " + name + "ConnectorConfig: " + transportConnectorConfig);
+         logger.debug("Trying to connect with connectorFactory={} and {}ConnectorConfig: {}", transportConnectorFactory, name, transportConnectorConfig);
       }
 
       Connector transportConnector = createConnector(transportConnectorFactory, transportConnectorConfig);
@@ -1225,9 +1212,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = openTransportConnection(transportConnector);
 
       if (transportConnection != null) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("Connected with the " + name + "ConnectorConfig=" + transportConnectorConfig);
-         }
+         logger.debug("Connected with the {}ConnectorConfig={}", name, transportConnectorConfig);
 
          connector = transportConnector;
          connectorFactory = transportConnectorFactory;
@@ -1390,9 +1375,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = createTransportConnection();
 
       if (transportConnection == null) {
-         if (ClientSessionFactoryImpl.logger.isTraceEnabled()) {
-            logger.trace("Neither backup or live were active, will just give up now");
-         }
+         logger.trace("Neither backup or live were active, will just give up now");
          return null;
       }
 
@@ -1402,9 +1385,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
       schedulePing();
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("returning " + newConnection);
-      }
+      logger.trace("returning {}", newConnection);
 
       return newConnection;
    }
@@ -1433,13 +1414,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       public void nodeDisconnected(RemotingConnection conn, String nodeID, DisconnectReason reason, String targetNodeID, TransportConfiguration tagetConnector) {
 
          if (logger.isTraceEnabled()) {
-            logger.trace("Disconnect being called on client:" +
-                    " server locator = " +
-                    serverLocator +
-                    " notifying node " +
-                    nodeID +
-                    " as down with reason " +
-                    reason, new Exception("trace"));
+            logger.trace("Disconnect being called on client: server locator = {} notifying node {} as down with reason {}",
+                         serverLocator, nodeID, reason, new Exception("trace"));
          }
 
          serverLocator.notifyNodeDown(System.currentTimeMillis(), nodeID);
@@ -1451,11 +1427,11 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                if (topologyMember != null) {
                   if (topologyMember.getConnector().getB() != null) {
                      backupConnectorConfig = topologyMember.getConnector().getB();
-                  } else if (logger.isDebugEnabled()) {
-                     logger.debug("The topology member " + nodeID + " with connector " + tagetConnector + " has no backup");
+                  } else {
+                     logger.debug("The topology member {} with connector {} has no backup", nodeID, tagetConnector);
                   }
-               } else if (logger.isDebugEnabled()) {
-                  logger.debug("The topology member " + nodeID + " with connector " + tagetConnector + " not found");
+               } else {
+                  logger.debug("The topology member {} with connector {} not found", nodeID, tagetConnector);
                }
             }
 

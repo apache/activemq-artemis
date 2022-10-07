@@ -306,7 +306,7 @@ public class HierarchicalObjectRepository<T> implements HierarchicalRepository<T
          String modMatch = matchModifier.modify(match);
          boolean isImmutable = immutables.contains(modMatch);
          if (isImmutable) {
-            logger.debug("Cannot remove match " + modMatch + " since it came from a main config");
+            logger.debug("Cannot remove match {} since it came from a main config", modMatch);
          } else {
             /**
              * Clear the cache before removing the match, but only if the match used wildcards. This

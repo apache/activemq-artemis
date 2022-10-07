@@ -4612,9 +4612,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       try {
          return getEmbeddedWebServerComponent().isStarted();
       } catch (Exception e) {
-         if (logger.isTraceEnabled()) {
-            logger.trace(e.getMessage());
-         }
+         logger.trace(e.getMessage());
          return false;
       }
    }

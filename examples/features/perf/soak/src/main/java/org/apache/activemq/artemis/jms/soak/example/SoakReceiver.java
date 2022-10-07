@@ -27,13 +27,17 @@ import javax.jms.MessageListener;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 public class SoakReceiver {
 
-   private static final Logger log = Logger.getLogger(SoakReceiver.class.getName());
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String EOF = UUID.randomUUID().toString();
 

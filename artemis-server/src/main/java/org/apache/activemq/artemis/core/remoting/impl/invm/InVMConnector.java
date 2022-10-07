@@ -201,7 +201,7 @@ public class InVMConnector extends AbstractConnector {
          return conn;
       } else {
          if (logger.isDebugEnabled()) {
-            logger.debug(new StringBuilder().append("Connection limit of ").append(acceptor.getConnectionsAllowed()).append(" reached. Refusing connection.").toString());
+            logger.debug("Connection limit of {} reached. Refusing connection.", acceptor.getConnectionsAllowed());
          }
          return null;
       }

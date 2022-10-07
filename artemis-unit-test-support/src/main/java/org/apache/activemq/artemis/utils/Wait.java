@@ -45,7 +45,7 @@ public class Wait {
          if (logger.isDebugEnabled()) {
             logger.debug("Wait util was unable to locate ThreadDumpUtil class/method", e);
          } else {
-            logger.info("Wait util was unable to locate ThreadDumpUtil class/method due to: " + e.getClass().getName() + ": " + e.getMessage());
+            logger.info("Wait util was unable to locate ThreadDumpUtil class/method due to: {}: {}", e.getClass().getName(), e.getMessage());
          }
       }
    }

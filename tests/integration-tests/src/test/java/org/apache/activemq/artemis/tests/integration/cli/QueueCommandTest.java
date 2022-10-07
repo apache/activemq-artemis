@@ -384,13 +384,13 @@ public class QueueCommandTest extends JMSTestBase {
 
    private void checkExecutionPassed(AbstractAction command) throws Exception {
       String fullMessage = output.toString();
-      logger.debug("output: " + fullMessage);
+      logger.debug("output: {}", fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
    private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
       String fullMessage = error.toString();
-      logger.debug("error: " + fullMessage);
+      logger.debug("error: {}", fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));
    }
 }

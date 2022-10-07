@@ -76,9 +76,8 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
          NettyConnector bridgesConnector = (NettyConnector)factory.createConnector(config.getTransportConfigurations().get(0).getParams(), null, this, server.getExecutorFactory().getExecutor(), server.getThreadPool(), server.getScheduledPool(), new ClientProtocolManagerWithAMQP(protonProtocolManager));
          bridgesConnector.start();
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("Connecting " + config);
-         }
+         logger.debug("Connecting {}", config);
+
          AMQPBrokerConnection amqpBrokerConnection = new AMQPBrokerConnection(this, config, protonProtocolManager, server, bridgesConnector);
          amqpBrokerConnectionList.add(amqpBrokerConnection);
          server.registerBrokerConnection(amqpBrokerConnection);

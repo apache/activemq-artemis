@@ -418,7 +418,7 @@ public class TestConversions extends Assert {
 
       for (int i = 0; i < 10; i++) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Message encoded :: " + encodedMessage.toDebugString());
+            logger.debug("Message encoded :: {}", encodedMessage.toDebugString());
          }
 
          encodedMessage.messageChanged();
@@ -428,9 +428,7 @@ public class TestConversions extends Assert {
          // this line is needed to force a failure
          ICoreMessage coreMessage = encodedMessage.toCore();
 
-         if (logger.isDebugEnabled()) {
-            logger.debug("Converted message: " + coreMessage);
-         }
+         logger.debug("Converted message: {}", coreMessage);
       }
    }
 
@@ -459,9 +457,7 @@ public class TestConversions extends Assert {
          AmqpValue value = (AmqpValue) encodedMessage.getProtonMessage().getBody();
          Assert.assertEquals(text, (String) value.getValue());
          ICoreMessage coreMessage = encodedMessage.toCore();
-         if (logger.isDebugEnabled()) {
-            logger.debug("Converted message: " + coreMessage);
-         }
+         logger.debug("Converted message: {}", coreMessage);
 
          // I'm going to replace the message every 10 messages by a re-encoded version to check if the wiring still acturate.
          // I want to mix replacing and not replacing to make sure the re-encoding is not giving me any surprises

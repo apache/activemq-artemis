@@ -113,13 +113,13 @@ public class InterceptorTest extends ActiveMQTestBase {
             CreateQueueMessage createQueue = (CreateQueueMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            logger.debug("userName on createQueue = " + userName);
+            logger.debug("userName on createQueue = {}", userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
 
-            logger.debug("userName on send = " + userName);
+            logger.debug("userName on send = {}", userName);
          }
 
          return true;
@@ -143,13 +143,13 @@ public class InterceptorTest extends ActiveMQTestBase {
             SessionCreateConsumerMessage createQueue = (SessionCreateConsumerMessage) packet;
             createQueue.setFilterString(new SimpleString("userName='" + userName + "'"));
 
-            logger.debug("userName = " + userName);
+            logger.debug("userName = {}", userName);
          } else if (packet.getType() == PacketImpl.SESS_SEND) {
             String userName = getUsername(packet, connection);
             MessagePacket msgPacket = (MessagePacket) packet;
             msgPacket.getMessage().putStringProperty("userName", userName);
 
-            logger.debug("userName on send = " + userName);
+            logger.debug("userName on send = {}", userName);
          }
 
          return true;

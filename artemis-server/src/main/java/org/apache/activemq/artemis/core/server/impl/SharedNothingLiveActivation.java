@@ -104,7 +104,8 @@ public class SharedNothingLiveActivation extends LiveActivation {
          if (replicatedPolicy.isCheckForLiveServer() && isNodeIdUsed()) {
             //set for when we failback
             if (logger.isTraceEnabled()) {
-               logger.trace("setting up replicatedPolicy.getReplicaPolicy for back start, replicaPolicy::{}, isBackup={}, server={}", replicatedPolicy.getReplicaPolicy(), replicatedPolicy.isBackup(), activeMQServer);
+               logger.trace("setting up replicatedPolicy.getReplicaPolicy for back start, replicaPolicy::{}, isBackup={}, server={}",
+                     replicatedPolicy.getReplicaPolicy(), replicatedPolicy.isBackup(), activeMQServer);
             }
             replicatedPolicy.getReplicaPolicy().setReplicatedPolicy(replicatedPolicy);
             activeMQServer.setHAPolicy(replicatedPolicy.getReplicaPolicy());
@@ -272,9 +273,8 @@ public class SharedNothingLiveActivation extends LiveActivation {
                                     @Override
                                     public void run() {
                                        try {
-                                          if (logger.isTraceEnabled()) {
-                                             logger.trace("Calling activeMQServer.stop() to stop the server");
-                                          }
+                                          logger.trace("Calling activeMQServer.stop() to stop the server");
+
                                           activeMQServer.stop();
                                        } catch (Exception e) {
                                           ActiveMQServerLogger.LOGGER.errorRestartingBackupServer(activeMQServer, e);
@@ -445,9 +445,7 @@ public class SharedNothingLiveActivation extends LiveActivation {
               ClientSession clientSession = clientSessionFactory.createSession(user, password, false, false, false, false, 0)) {
             result = true;
          } catch (Exception e) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("isActive check failed", e);
-            }
+            logger.debug("isActive check failed", e);
          }
 
          return result;

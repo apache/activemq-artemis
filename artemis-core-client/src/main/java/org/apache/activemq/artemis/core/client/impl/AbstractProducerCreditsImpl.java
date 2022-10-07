@@ -89,6 +89,7 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
       if (logger.isDebugEnabled()) {
          logger.debug("AfterAcquire {} credits on address {}", credits, address);
       }
+
       synchronized (this) {
          pendingCredits -= credits;
       }

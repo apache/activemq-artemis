@@ -808,7 +808,7 @@ public class MQTTTest extends MQTTTestSupport {
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
-            log.debug("Client received:\n" + frame);
+            log.debug("Client received:\n{}", frame);
             if (frame.messageType() == PUBLISH.TYPE) {
                PUBLISH publish = new PUBLISH();
                try {
@@ -822,7 +822,7 @@ public class MQTTTest extends MQTTTestSupport {
 
          @Override
          public void onSend(MQTTFrame frame) {
-            log.debug("Client sent:\n" + frame);
+            log.debug("Client sent:\n{}", frame);
          }
       });
 
@@ -894,7 +894,7 @@ public class MQTTTest extends MQTTTestSupport {
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
-            log.debug("Client received:\n" + frame);
+            log.debug("Client received:\n{}", frame);
             if (frame.messageType() == PUBLISH.TYPE) {
                PUBLISH publish = new PUBLISH();
                try {
@@ -908,7 +908,7 @@ public class MQTTTest extends MQTTTestSupport {
 
          @Override
          public void onSend(MQTTFrame frame) {
-            log.debug("Client sent:\n" + frame);
+            log.debug("Client sent:\n{}", frame);
          }
       });
 
@@ -951,12 +951,12 @@ public class MQTTTest extends MQTTTestSupport {
       mqtt.setTracer(new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
-            log.debug("Client received:\n" + frame);
+            log.debug("Client received:\n{}", frame);
             if (frame.messageType() == PUBLISH.TYPE) {
                PUBLISH publish = new PUBLISH();
                try {
                   publish.decode(frame);
-                  log.debug("PUBLISH " + publish);
+                  log.debug("PUBLISH {}", publish);
                } catch (ProtocolException e) {
                   fail("Error decoding publish " + e.getMessage());
                }
@@ -969,7 +969,7 @@ public class MQTTTest extends MQTTTestSupport {
 
          @Override
          public void onSend(MQTTFrame frame) {
-            log.debug("Client sent:\n" + frame);
+            log.debug("Client sent:\n{}", frame);
          }
       });
 
@@ -1031,12 +1031,12 @@ public class MQTTTest extends MQTTTestSupport {
          mqtts[i].setTracer(new Tracer() {
             @Override
             public void onReceive(MQTTFrame frame) {
-               log.debug("Client received:\n" + frame);
+               log.debug("Client received:\n{}", frame);
                if (frame.messageType() == PUBLISH.TYPE) {
                   PUBLISH publish = new PUBLISH();
                   try {
                      publish.decode(frame);
-                     log.debug("PUBLISH " + publish);
+                     log.debug("PUBLISH {}", publish);
                   } catch (ProtocolException e) {
                      fail("Error decoding publish " + e.getMessage());
                   }
@@ -1049,7 +1049,7 @@ public class MQTTTest extends MQTTTestSupport {
 
             @Override
             public void onSend(MQTTFrame frame) {
-               log.debug("Client sent:\n" + frame);
+               log.debug("Client sent:\n{}", frame);
             }
          });
       }
@@ -1546,7 +1546,7 @@ public class MQTTTest extends MQTTTestSupport {
          received++;
          payload = message.getPayload();
          String messageContent = new String(payload);
-         log.debug("Received message from topic: " + message.getTopic() + " Message content: " + messageContent);
+         log.debug("Received message from topic: {} Message content: {}", message.getTopic(), messageContent);
          message.ack();
       }
 
@@ -1692,7 +1692,7 @@ public class MQTTTest extends MQTTTestSupport {
       for (int i = 0; i < 5; ++i) {
          Message message = connectionSub.receive(5, TimeUnit.SECONDS);
          assertNotNull("Missing message " + i, message);
-         log.debug("Message is " + new String(message.getPayload()));
+         log.debug("Message is {}", new String(message.getPayload()));
          received++;
          message.ack();
       }
@@ -1741,7 +1741,7 @@ public class MQTTTest extends MQTTTestSupport {
    //         @Override
    //         public void onReceive(MQTTFrame frame) {
    //            if (frame.messageType() == PUBLISH.TYPE) {
-   //               log.debug("Received message with retain=" + frame.retain());
+   //               log.debug("Received message with retain={}", frame.retain());
    //               if (frame.retain()) {
    //                  retain[0]++;
    //               } else {

@@ -74,9 +74,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * Constructor
     */
    public ActiveMQRAMCFProperties() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor()");
-      }
+      logger.trace("constructor()");
 
       useTryLock = null;
    }
@@ -87,9 +85,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * @return The type
     */
    public int getType() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getType()");
-      }
+      logger.trace("getType()");
 
       return type;
    }
@@ -99,9 +95,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
    }
 
    public void setConnectorClassName(final String connectorClassName) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setConnectorClassName(" + connectorClassName + ")");
-      }
+      logger.trace("setConnectorClassName({})", connectorClassName);
 
       strConnectorClassName = connectorClassName;
 
@@ -126,9 +120,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * @param defaultType either javax.jms.Topic or javax.jms.Queue
     */
    public void setSessionDefaultType(final String defaultType) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setSessionDefaultType(" + type + ")");
-      }
+      logger.trace("setSessionDefaultType({})", type);
 
       if (defaultType.equals(ActiveMQRAMCFProperties.QUEUE_TYPE)) {
          type = ActiveMQRAConnectionFactory.QUEUE_CONNECTION;
@@ -145,9 +137,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * @return The default session type
     */
    public String getSessionDefaultType() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getSessionDefaultType()");
-      }
+      logger.trace("getSessionDefaultType()");
 
       if (type == ActiveMQRAConnectionFactory.CONNECTION) {
          return "BOTH";
@@ -164,9 +154,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * @return the useTryLock.
     */
    public Integer getUseTryLock() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getUseTryLock()");
-      }
+      logger.trace("getUseTryLock()");
 
       return useTryLock;
    }
@@ -177,9 +165,7 @@ public class ActiveMQRAMCFProperties extends ConnectionFactoryProperties impleme
     * @param useTryLock the useTryLock.
     */
    public void setUseTryLock(final Integer useTryLock) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setUseTryLock(" + useTryLock + ")");
-      }
+      logger.trace("setUseTryLock({})", useTryLock);
 
       this.useTryLock = useTryLock;
    }

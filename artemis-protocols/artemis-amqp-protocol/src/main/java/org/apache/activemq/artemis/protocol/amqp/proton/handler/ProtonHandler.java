@@ -411,7 +411,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
       int received = sasl.recv(dataSASL, 0, dataSASL.length);
       if (log.isTraceEnabled()) {
-         log.trace("Working on sasl, length:" + received);
+         log.trace("Working on sasl, length:{}", received);
       }
 
       byte[] response = chosenMechanism.processSASL(received != -1 ? dataSASL : null);
@@ -559,9 +559,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
          }
          while ((ev = collector.peek()) != null) {
             for (EventHandler h : handlers) {
-               if (log.isTraceEnabled()) {
-                  log.trace("Handling " + ev + " towards " + h);
-               }
+               log.trace("Handling {} towards {}", ev, h);
+
                try {
                   Events.dispatch(ev, h);
                } catch (ActiveMQSecurityException e) {

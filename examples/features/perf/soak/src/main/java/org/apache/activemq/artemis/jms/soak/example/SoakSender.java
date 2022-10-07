@@ -27,15 +27,18 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Logger;
 
 import org.apache.activemq.artemis.utils.TokenBucketLimiter;
 import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SoakSender {
 
-   private static final Logger log = Logger.getLogger(SoakSender.class.getName());
+   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static void main(final String[] args) {
       try {

@@ -98,11 +98,13 @@ public class SelfExpandingBufferTest extends ActiveMQTestBase {
 
          byte[] receivedBytes = new byte[bytes.length];
 
-         // log.debug("buffer start pos should be at " + PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT);
+         // final int bufferStartPos = PacketImpl.PACKET_HEADERS_SIZE + DataConstants.SIZE_INT;
          //
-         // log.debug("buffer pos at " + msg2.getBodyBuffer().readerIndex());
+         // log.debug("buffer start pos should be at {}", bufferStartPos);
          //
-         // log.debug("buffer length should be " + msg2.getBodyBuffer().readInt(PacketImpl.PACKET_HEADERS_SIZE));
+         // log.debug("buffer pos at {}", msg2.getBodyBuffer().readerIndex());
+         //
+         // log.debug("buffer length should be {}", msg2.getBodyBuffer().readInt(PacketImpl.PACKET_HEADERS_SIZE));
 
          msg2.getBodyBuffer().readBytes(receivedBytes);
 

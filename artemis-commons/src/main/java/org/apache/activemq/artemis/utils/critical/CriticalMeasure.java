@@ -110,8 +110,8 @@ public class CriticalMeasure {
          if (analyzer != null) {
             long nanoTimeout = analyzer.getTimeoutNanoSeconds();
             if (checkExpiration(nanoTimeout, false)) {
-               logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, leaving at", new Exception("left"));
-               logger.trace("Path " + id + " on component " + getComponentName() + " is taking too long, entered at", traceEnter);
+               logger.trace("Path {} on component {} is taking too long, leaving at {}", id, getComponentName(), new Exception("left"));
+               logger.trace("Path {} on component {} is taking too long, entered at", id, getComponentName(), traceEnter);
             }
          }
          traceEnter = null;
@@ -137,9 +137,9 @@ public class CriticalMeasure {
             Exception lastTraceEnter = this.traceEnter;
 
             if (lastTraceEnter != null) {
-               logger.warn("Component " + getComponentName() + " is expired on path " + id, lastTraceEnter);
+               logger.warn("Component {} is expired on path {}", getComponentName(), id, lastTraceEnter);
             } else {
-               logger.warn("Component " + getComponentName() + " is expired on path " + id);
+               logger.warn("Component {} is expired on path {}", getComponentName(), id);
             }
 
             if (reset) {

@@ -117,7 +117,7 @@ public class LDAPLoginModuleTest extends AbstractLdapTestUnit {
 
    @Test
    public void testLogin() throws Exception {
-      logger.info("num session: " + ldapServer.getLdapSessionManager().getSessions().length);
+      logger.info("num session: {}", ldapServer.getLdapSessionManager().getSessions().length);
 
       LoginContext context = new LoginContext("LDAPLogin", new CallbackHandler() {
          @Override

@@ -86,9 +86,7 @@ public class FilterImpl implements Filter {
          booleanExpression = SelectorParser.parse(filterStr.toString());
       } catch (Throwable e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(filterStr);
-         if (logger.isDebugEnabled()) {
-            logger.debug("Invalid filter", e);
-         }
+         logger.debug("Invalid filter", e);
          throw ActiveMQMessageBundle.BUNDLE.invalidFilter(filterStr, e);
       }
       return new FilterImpl(filterStr, booleanExpression);
@@ -123,9 +121,7 @@ public class FilterImpl implements Filter {
          return booleanExpression.matches(filterable);
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.invalidFilter(sfilterString);
-         if (logger.isDebugEnabled()) {
-            logger.debug("Invalid filter", e);
-         }
+         logger.debug("Invalid filter", e);
          return false;
       }
    }

@@ -55,7 +55,7 @@ public class ForeignMessageTest extends MessageTestBase {
 
    protected Message createForeignMessage() throws Exception {
       SimpleJMSMessage m = new SimpleJMSMessage();
-      logger.debug("creating JMS Message type " + m.getClass().getName());
+      logger.debug("creating JMS Message type {}", m.getClass().getName());
 
       return m;
    }

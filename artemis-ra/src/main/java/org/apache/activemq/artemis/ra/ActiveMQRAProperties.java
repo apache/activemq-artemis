@@ -89,9 +89,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * Constructor
     */
    public ActiveMQRAProperties() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor()");
-      }
+      logger.trace("constructor()");
    }
 
    /**
@@ -100,9 +98,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @return The value
     */
    public String getUserName() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getUserName()");
-      }
+      logger.trace("getUserName()");
 
       return userName;
    }
@@ -113,9 +109,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @param userName The value
     */
    public void setUserName(final String userName) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setUserName(" + userName + ")");
-      }
+      logger.trace("setUserName({})", userName);
 
       this.userName = userName;
    }
@@ -126,9 +120,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @return The value
     */
    public String getPassword() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getPassword()");
-      }
+      logger.trace("getPassword()");
 
       return password;
    }
@@ -144,9 +136,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @param password The value
     */
    public void setPassword(final String password) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setPassword(****)");
-      }
+      logger.trace("setPassword(****)");
 
       this.password = password;
    }
@@ -182,9 +172,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @return The value
     */
    public Boolean getUseLocalTx() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getUseLocalTx()");
-      }
+      logger.trace("getUseLocalTx()");
 
       return localTx;
    }
@@ -195,9 +183,7 @@ public class ActiveMQRAProperties extends ConnectionFactoryProperties implements
     * @param localTx The value
     */
    public void setUseLocalTx(final Boolean localTx) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setUseLocalTx(" + localTx + ")");
-      }
+      logger.trace("setUseLocalTx({})", localTx);
 
       this.localTx = localTx;
    }

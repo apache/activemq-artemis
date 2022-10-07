@@ -75,12 +75,11 @@ public class JChannelManager {
       if (wrapper == null) {
          wrapper = new JChannelWrapper(this, channelName, endpoint.createChannel());
          channels.put(channelName, wrapper);
-         if (logger.isTraceEnabled())
-            logger.trace("Put Channel " + channelName);
+         logger.trace("Put Channel {}", channelName);
          return wrapper;
       }
-      if (logger.isTraceEnabled())
-         logger.trace("Add Ref Count " + channelName);
+      logger.trace("Add Ref Count {}", channelName);
+
       return wrapper.addRef();
    }
 

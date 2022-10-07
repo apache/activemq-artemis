@@ -114,7 +114,7 @@ public class PropertiesLoader {
             }
          }
          if (debug) {
-            logger.debug("Using basedir=" + (baseDir == null ? null : baseDir.getAbsolutePath()));
+            logger.debug("Using basedir={}", (baseDir == null ? null : baseDir.getAbsolutePath()));
          }
          return baseDir;
       }

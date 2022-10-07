@@ -102,7 +102,7 @@ public class LocalTestServer implements Server, Runnable {
 
          boolean deleted = LocalTestServer.deleteDirectory(dir);
 
-         logger.info("Deleted dir: " + dir.getAbsolutePath() + " deleted: " + deleted);
+         logger.info("Deleted dir: {} deleted: {}", dir.getAbsolutePath(), deleted);
       }
 
       javax.management.MBeanServer beanServer = java.lang.management.ManagementFactory.getPlatformMBeanServer();

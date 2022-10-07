@@ -40,9 +40,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
    public ActiveMQRAObjectMessage(final ObjectMessage message, final ActiveMQRASession session) {
       super(message, session);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + message + ", " + session + ")");
-      }
+      logger.trace("constructor({}, {})", message, session);
    }
 
    /**
@@ -53,9 +51,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     */
    @Override
    public Serializable getObject() throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getObject()");
-      }
+      logger.trace("getObject()");
 
       return ((ObjectMessage) message).getObject();
    }
@@ -68,9 +64,7 @@ public class ActiveMQRAObjectMessage extends ActiveMQRAMessage implements Object
     */
    @Override
    public void setObject(final Serializable object) throws JMSException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("setObject(" + object + ")");
-      }
+      logger.trace("setObject({})", object);
 
       ((ObjectMessage) message).setObject(object);
    }

@@ -2198,7 +2198,7 @@ public class PagingTest extends ActiveMQTestBase {
 
       if (!deletedQueueReferences.isEmpty()) {
          for (Long value : deletedQueueReferences) {
-            log.warn("Deleted Queue still has a reference:" + value);
+            log.warn("Deleted Queue still has a reference:{}", value);
          }
 
          fail("Deleted queue still have references");
@@ -2562,7 +2562,7 @@ public class PagingTest extends ActiveMQTestBase {
       sessionConsumer.start();
       ClientConsumer consumer = sessionConsumer.createConsumer(PagingTest.ADDRESS);
       for (int msgCount = 0; msgCount < numberOfMessages; msgCount++) {
-         log.debug("Received " + msgCount);
+         log.debug("Received {}", msgCount);
          msgReceived++;
          ClientMessage msg = consumer.receiveImmediate();
          if (msg == null) {
@@ -3474,7 +3474,7 @@ public class PagingTest extends ActiveMQTestBase {
 
                         if (i % 100 == 0) {
                            if (i % 5000 == 0) {
-                              log.debug(addressToSubscribe + " consumed " + i + " messages");
+                              log.debug("{} consumed {} messages", addressToSubscribe, i);
                            }
                            session.commit();
                         }
@@ -3482,8 +3482,10 @@ public class PagingTest extends ActiveMQTestBase {
                         try {
                            assertBodiesEqual(body, message2.getBodyBuffer());
                         } catch (AssertionError e) {
-                           PagingTest.log.debug("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
-                           PagingTest.log.debug("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+                           if (log.isDebugEnabled()) {
+                              log.debug("Expected buffer:{}", ActiveMQTestBase.dumpBytesHex(body, 40));
+                              log.debug("Arriving buffer:{}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+                           }
                            throw e;
                         }
                      }
@@ -3642,8 +3644,10 @@ public class PagingTest extends ActiveMQTestBase {
                   try {
                      assertBodiesEqual(body, message2.getBodyBuffer());
                   } catch (AssertionError e) {
-                     log.debug("Expected buffer: {}", ActiveMQTestBase.dumpBytesHex(body, 40));
-                     log.debug("Arriving buffer: {}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+                     if (log.isDebugEnabled()) {
+                        log.debug("Expected buffer: {}", ActiveMQTestBase.dumpBytesHex(body, 40));
+                        log.debug("Arriving buffer: {}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+                     }
                      throw e;
                   }
                }
@@ -3768,8 +3772,10 @@ public class PagingTest extends ActiveMQTestBase {
          try {
             assertBodiesEqual(body, message2.getBodyBuffer());
          } catch (AssertionError e) {
-            PagingTest.log.debug("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
-            PagingTest.log.debug("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+            if (log.isDebugEnabled()) {
+               log.debug("Expected buffer:{}", ActiveMQTestBase.dumpBytesHex(body, 40));
+               log.debug("Arriving buffer:{}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+            }
             throw e;
          }
       }
@@ -4385,8 +4391,10 @@ public class PagingTest extends ActiveMQTestBase {
          try {
             assertBodiesEqual(body, message2.getBodyBuffer());
          } catch (AssertionError e) {
-            log.debug("Expected buffer:" + ActiveMQTestBase.dumpBytesHex(body, 40));
-            log.debug("Arriving buffer:" + ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+            if (log.isDebugEnabled()) {
+               log.debug("Expected buffer: {}", ActiveMQTestBase.dumpBytesHex(body, 40));
+               log.debug("Arriving buffer: {}", ActiveMQTestBase.dumpBytesHex(message2.getBodyBuffer().toByteBuffer().array(), 40));
+            }
             throw e;
          }
       }
@@ -6013,12 +6021,16 @@ public class PagingTest extends ActiveMQTestBase {
 
             try {
                if (!message.waitOutputStreamCompletion(10000)) {
-                  log.debug(threadDump("dump"));
+                  if (log.isDebugEnabled()) {
+                     log.debug(threadDump("dump"));
+                  }
                   fail("Couldn't finish large message receiving");
                }
             } catch (Throwable e) {
-               log.debug("output bytes = {}", bytesOutput);
-               log.debug(threadDump("dump"));
+               if (log.isDebugEnabled()) {
+                  log.debug("output bytes = {}", bytesOutput);
+                  log.debug(threadDump("dump"));
+               }
                fail("Couldn't finish large message receiving for id=" + message.getStringProperty("id") + " with messageID=" + message.getMessageID());
             }
 

@@ -50,22 +50,22 @@ public class AmqpDLQReceiverTest extends AmqpClientTestSupport {
       assertNotNull(queue);
       receiver.flow(100);
       for (int i = 0; i < 10; i++) {
-         logger.debug("i = " + i);
+         logger.debug("i = {}", i);
          AmqpMessage receive = receiver.receive(5000, TimeUnit.MILLISECONDS);
          receive.modified(true, false);
          Queue queueView = getProxyToQueue(getQueueName());
-         logger.debug("receive = " + receive.getWrappedMessage().getDeliveryCount());
-         logger.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
-         logger.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
-         logger.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
+         logger.debug("receive = {}", receive.getWrappedMessage().getDeliveryCount());
+         logger.debug("queueView.getMessageCount() = {}", queueView.getMessageCount());
+         logger.debug("queueView.getDeliveringCount() = {}", queueView.getDeliveringCount());
+         logger.debug("queueView.getPersistentSize() = {}", queueView.getPersistentSize());
       }
 
       receiver.close();
       connection.close();
       Queue queueView = getProxyToQueue(getQueueName());
-      logger.debug("queueView.getMessageCount() = " + queueView.getMessageCount());
-      logger.debug("queueView.getDeliveringCount() = " + queueView.getDeliveringCount());
-      logger.debug("queueView.getPersistentSize() = " + queueView.getPersistentSize());
+      logger.debug("queueView.getMessageCount() = {}", queueView.getMessageCount());
+      logger.debug("queueView.getDeliveringCount() = {}", queueView.getDeliveringCount());
+      logger.debug("queueView.getPersistentSize() = {}", queueView.getPersistentSize());
       Wait.assertEquals(0, queueView::getMessageCount);
    }
 

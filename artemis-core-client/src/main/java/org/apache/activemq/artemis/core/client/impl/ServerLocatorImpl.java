@@ -438,17 +438,13 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       synchronized (this) {
          if (usedTopology != null && config.useTopologyForLoadBalancing && !useInitConnector) {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Selecting connector from topology.");
-            }
+            logger.trace("Selecting connector from topology.");
             int pos = loadBalancingPolicy.select(usedTopology.length);
             Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
 
             return pair;
          } else {
-            if (logger.isTraceEnabled()) {
-               logger.trace("Selecting connector from initial connectors.");
-            }
+            logger.trace("Selecting connector from initial connectors.");
 
             int pos = loadBalancingPolicy.select(initialConnectors.length);
 
@@ -573,7 +569,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       TopologyMember topologyMember = topology.getMember(nodeID);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("Creating connection factory towards " + nodeID + " = " + topologyMember + ", topology=" + topology.describe());
+         logger.trace("Creating connection factory towards {} = {}, topology={}", nodeID, topologyMember, topology.describe());
       }
 
       if (topologyMember == null) {
@@ -1320,9 +1316,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    private void doClose(final boolean sendClose) {
       synchronized (stateGuard) {
          if (state == STATE.CLOSED) {
-            if (logger.isDebugEnabled()) {
-               logger.debug(this + " is already closed when calling closed");
-            }
+            logger.debug("{} is already closed when calling closed", this);
             return;
          }
 
@@ -1427,7 +1421,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("nodeDown " + this + " nodeID=" + nodeID + " as being down", new Exception("trace"));
+         logger.trace("nodeDown {} nodeID={} as being down", this, nodeID, new Exception("trace"));
       }
 
       topology.removeMember(eventTime, nodeID);
@@ -1458,7 +1452,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                             final Pair<TransportConfiguration, TransportConfiguration> connectorPair,
                             final boolean last) {
       if (logger.isTraceEnabled()) {
-         logger.trace("NodeUp " + this + "::nodeID=" + nodeID + ", connectorPair=" + connectorPair, new Exception("trace"));
+         logger.trace("NodeUp {}::nodeID={}, connectorPair={}", this, nodeID, connectorPair, new Exception("trace"));
       }
 
       TopologyMemberImpl member = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, connectorPair.getA(), connectorPair.getB());
@@ -1674,9 +1668,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             while (!isClosed()) {
                retryNumber++;
                for (Connector conn : connectors) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace(this + "::Submitting connect towards " + conn);
-                  }
+                  logger.trace("{}::Submitting connect towards {}", this, conn);
 
                   ClientSessionFactory csf = conn.tryConnect();
 
@@ -1710,11 +1702,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                      });
 
                      if (logger.isTraceEnabled()) {
-                        logger.trace("Returning " + csf +
-                                        " after " +
-                                        retryNumber +
-                                        " retries on StaticConnector " +
-                                        ServerLocatorImpl.this);
+                        logger.trace("Returning {} after {} retries on StaticConnector {}", csf, retryNumber, ServerLocatorImpl.this);
                      }
 
                      return csf;
@@ -1787,9 +1775,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          }
 
          public ClientSessionFactory tryConnect() throws ActiveMQException {
-            if (logger.isDebugEnabled()) {
-               logger.trace(this + "::Trying to connect to " + factory);
-            }
+            logger.trace("{}::Trying to connect to {}", this, factory);
             try {
                ClientSessionFactoryInternal factoryToUse = factory;
                if (factoryToUse != null) {
@@ -1803,7 +1789,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
                }
                return factoryToUse;
             } catch (ActiveMQException e) {
-               logger.trace(this + "::Exception on establish connector initial connection", e);
+               logger.trace("{}::Exception on establish connector initial connection", this, e);
                return null;
             }
          }

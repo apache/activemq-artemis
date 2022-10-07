@@ -498,7 +498,7 @@ public class ActiveMQSessionContext extends SessionContext {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("finished commit on " + ClientSessionImpl.convert(xid) + " with response = " + response);
+         logger.trace("finished commit on {} with response = {}", ClientSessionImpl.convert(xid), response);
       }
    }
 
@@ -662,7 +662,7 @@ public class ActiveMQSessionContext extends SessionContext {
                buffer.append(",");
             }
          }
-         logger.trace("xaScan returning " + xidArray.length + " xids = [" + buffer.toString() + "]");
+         logger.trace("xaScan returning {} xids = [{}]", xidArray.length, buffer.toString());
       }
 
       return xidArray;

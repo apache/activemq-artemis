@@ -90,15 +90,14 @@ public class BackupManager implements ActiveMQComponent {
          return;
       //deploy the backup connectors using the cluster configuration
       for (ClusterConnectionConfiguration config : configuration.getClusterConfigurations()) {
-         logger.debug("deploy backup config " + config);
+         logger.debug("deploy backup config {}", config);
          deployBackupConnector(config);
       }
       //start each connector and if we are backup and shared store announce ourselves. NB with replication we don't do this
       //as we wait for replication to start and be notified by the replication manager.
       for (BackupConnector conn : backupConnectors) {
-         if (logger.isDebugEnabled()) {
-            logger.debug("****** BackupManager connecting to {}", conn);
-         }
+         logger.debug("****** BackupManager connecting to {}", conn);
+
          conn.start();
          if (server.getHAPolicy().isBackup() && server.getHAPolicy().isSharedStore()) {
             conn.informTopology();
@@ -251,11 +250,12 @@ public class BackupManager implements ActiveMQComponent {
       public void announceBackup() {
          //this has to be done in a separate thread
          executor.execute(new Runnable() {
-
             @Override
             public void run() {
-               if (stopping)
+               if (stopping) {
                   return;
+               }
+
                try {
                   //make a copy to avoid npe if we are nulled on close
                   ServerLocatorInternal localBackupLocator = backupServerLocator;
@@ -265,8 +265,9 @@ public class BackupManager implements ActiveMQComponent {
                      return;
                   }
                   if (logger.isDebugEnabled()) {
-                     logger.debug(BackupConnector.this + ":: announcing " + connector + " to " + backupServerLocator);
+                     logger.debug("{}:: announcing {} to {}", BackupConnector.this, connector, backupServerLocator);
                   }
+
                   announcingBackup = true;
                   //connect to the cluster
                   ClientSessionFactoryInternal backupSessionFactory = localBackupLocator.connect();
@@ -367,7 +368,7 @@ public class BackupManager implements ActiveMQComponent {
       public ServerLocatorInternal createServerLocator(Topology topology) {
          if (tcConfigs != null && tcConfigs.length > 0) {
             if (logger.isDebugEnabled()) {
-               logger.debug(BackupManager.this + "Creating a serverLocator for " + Arrays.toString(tcConfigs));
+               logger.debug("{} Creating a serverLocator for {}", BackupManager.this, Arrays.toString(tcConfigs));
             }
             ServerLocatorImpl locator = new ServerLocatorImpl(topology, true, tcConfigs);
             locator.setClusterConnection(true);

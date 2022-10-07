@@ -312,7 +312,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             if (wrapped.getBody() instanceof Data) {
                // converters can change this to AmqValue
                Data data = (Data) wrapped.getBody();
-               LOG.debug("received : message: " + data.getValue().getLength());
+               LOG.debug("received : message: {}", data.getValue().getLength());
                assertEquals(payload, data.getValue().getLength());
             }
             message.accept();
@@ -366,7 +366,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
          if (wrapped.getBody() instanceof Data) {
             Data data = (Data) wrapped.getBody();
-            LOG.debug("received : message: " + data.getValue().getLength());
+            LOG.debug("received : message: {}", data.getValue().getLength());
             assertEquals(payload, data.getValue().getLength());
          }
 
@@ -469,7 +469,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          payload[i] = (byte) rand.nextInt(256);
       }
 
-      LOG.debug("Created buffer with size : " + sizeInBytes + " bytes");
+      LOG.debug("Created buffer with size : {} bytes", sizeInBytes);
       return payload;
    }
 
@@ -552,7 +552,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    public void doTestSendLargeMessage(int expectedSize) throws Exception {
-      LOG.debug("doTestSendLargeMessage called with expectedSize " + expectedSize);
+      LOG.debug("doTestSendLargeMessage called with expectedSize {}", expectedSize);
       byte[] payload = createLargePayload(expectedSize);
       assertEquals(expectedSize, payload.length);
 

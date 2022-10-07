@@ -127,7 +127,7 @@ public final class UUIDGenerator {
       dummy[0] |= (byte) 0x01;
 
       if (logger.isDebugEnabled()) {
-         logger.debug("using dummy address " + UUIDGenerator.asString(dummy));
+         logger.debug("using dummy address {}", UUIDGenerator.asString(dummy));
       }
       return dummy;
    }
@@ -158,7 +158,7 @@ public final class UUIDGenerator {
          byte[] address = findFirstMatchingHardwareAddress(ifaces);
          if (address != null) {
             if (logger.isDebugEnabled()) {
-               logger.debug("using hardware address " + UUIDGenerator.asString(address));
+               logger.debug("using hardware address {}", UUIDGenerator.asString(address));
             }
             return address;
          }

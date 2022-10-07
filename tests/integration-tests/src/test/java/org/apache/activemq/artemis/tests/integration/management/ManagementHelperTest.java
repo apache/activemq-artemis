@@ -182,14 +182,14 @@ public class ManagementHelperTest extends Assert {
       String[] val1 = new String[]{"a", "b", "c"};
 
       if (log.isDebugEnabled()) {
-         log.debug("val1 type is " + Arrays.toString(val1));
+         log.debug("val1 type is {}", Arrays.toString(val1));
       }
 
       String key2 = RandomUtil.randomString();
       Long[] val2 = new Long[]{1L, 2L, 3L, 4L, 5L};
 
       if (log.isDebugEnabled()) {
-         log.debug("val2 type is " + Arrays.toString(val2));
+         log.debug("val2 type is {}", Arrays.toString(val2));
       }
 
       map.put(key1, val1);

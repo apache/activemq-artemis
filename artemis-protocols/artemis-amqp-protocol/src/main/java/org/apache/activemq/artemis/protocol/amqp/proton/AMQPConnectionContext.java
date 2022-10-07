@@ -776,7 +776,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       if (handler != null) {
          handler.onMessage(delivery);
       } else {
-         log.warn("Handler is null, can't delivery " + delivery, new Exception("tracing location"));
+         log.warn("Handler is null, can't delivery {}", delivery, new Exception("tracing location"));
       }
    }
 

@@ -44,9 +44,7 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
     * Constructor
     */
    public ActiveMQRAConnectionManager() {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor()");
-      }
+      logger.trace("constructor()");
    }
 
    ConcurrentHashSet<ManagedConnection> connections = new ConcurrentHashSet<>();
@@ -62,16 +60,12 @@ public class ActiveMQRAConnectionManager implements ConnectionManager {
    @Override
    public Object allocateConnection(final ManagedConnectionFactory mcf,
                                     final ConnectionRequestInfo cxRequestInfo) throws ResourceException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("allocateConnection(" + mcf + ", " + cxRequestInfo + ")");
-      }
+      logger.trace("allocateConnection({}, {})", mcf, cxRequestInfo);
 
       ManagedConnection mc = mcf.createManagedConnection(null, cxRequestInfo);
       Object c = mc.getConnection(null, cxRequestInfo);
 
-      if (logger.isTraceEnabled()) {
-         logger.trace("Allocated connection: " + c + ", with managed connection: " + mc);
-      }
+      logger.trace("Allocated connection: {}, with managed connection: {}", c, mc);
 
       connections.add(mc);
       return c;

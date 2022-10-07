@@ -50,7 +50,7 @@ public class BlockingSendTest extends ActiveMQTestBase {
 
       server.start();
 
-      logger.debug("sync = " + server.getConfiguration().isJournalSyncNonTransactional());
+      logger.debug("sync = {}", server.getConfiguration().isJournalSyncNonTransactional());
       locator = createInVMNonHALocator().setBlockOnDurableSend(true);
       factory = createSessionFactory(locator);
 

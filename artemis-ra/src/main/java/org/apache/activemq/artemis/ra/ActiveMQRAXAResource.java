@@ -51,9 +51,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     * @param xaResource        the xa resource
     */
    public ActiveMQRAXAResource(final ActiveMQRAManagedConnection managedConnection, final XAResource xaResource) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("constructor(" + managedConnection + ", " + xaResource + ")");
-      }
+      logger.trace("constructor({} ,{})", managedConnection, xaResource);
 
       this.managedConnection = managedConnection;
       this.xaResource = xaResource;
@@ -69,7 +67,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
    @Override
    public void start(final Xid xid, final int flags) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("start(" + xid + ", " + flags + ")");
+         logger.trace("start({}, {})", xid, flags);
       }
 
       managedConnection.lock();
@@ -104,7 +102,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
    @Override
    public void end(final Xid xid, final int flags) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("end(" + xid + ", " + flags + ")");
+         logger.trace("end({}, {})", xid, flags);
       }
 
       managedConnection.lock();
@@ -125,9 +123,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public int prepare(final Xid xid) throws XAException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("prepare(" + xid + ")");
-      }
+      logger.trace("prepare({})", xid);
 
       return xaResource.prepare(xid);
    }
@@ -142,7 +138,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
    @Override
    public void commit(final Xid xid, final boolean onePhase) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("commit(" + xid + ", " + onePhase + ")");
+         logger.trace("commit({}, {})", xid, onePhase);
       }
 
       xaResource.commit(xid, onePhase);
@@ -156,9 +152,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void rollback(final Xid xid) throws XAException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("rollback(" + xid + ")");
-      }
+      logger.trace("rollback({})", xid);
 
       xaResource.rollback(xid);
    }
@@ -171,9 +165,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public void forget(final Xid xid) throws XAException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("forget(" + xid + ")");
-      }
+      logger.trace("forget({})", xid);
 
       managedConnection.lock();
       try {
@@ -194,9 +186,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public boolean isSameRM(final XAResource xaRes) throws XAException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("isSameRM(" + xaRes + ")");
-      }
+      logger.trace("isSameRM({})", xaRes);
 
       return xaResource.isSameRM(xaRes);
    }
@@ -211,7 +201,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
    @Override
    public Xid[] recover(final int flag) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("recover(" + flag + ")");
+         logger.trace("recover({})", flag);
       }
 
       return xaResource.recover(flag);
@@ -225,9 +215,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
     */
    @Override
    public int getTransactionTimeout() throws XAException {
-      if (logger.isTraceEnabled()) {
-         logger.trace("getTransactionTimeout()");
-      }
+      logger.trace("getTransactionTimeout()");
 
       return xaResource.getTransactionTimeout();
    }
@@ -242,7 +230,7 @@ public class ActiveMQRAXAResource implements ActiveMQXAResource {
    @Override
    public boolean setTransactionTimeout(final int seconds) throws XAException {
       if (logger.isTraceEnabled()) {
-         logger.trace("setTransactionTimeout(" + seconds + ")");
+         logger.trace("setTransactionTimeout({})", seconds);
       }
 
       return xaResource.setTransactionTimeout(seconds);

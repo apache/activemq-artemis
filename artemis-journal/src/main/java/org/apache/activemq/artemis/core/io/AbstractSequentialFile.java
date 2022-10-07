@@ -109,7 +109,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    @Override
    public void copyTo(SequentialFile newFileName) throws Exception {
       try {
-         logger.debug("Copying " + this + " as " + newFileName);
+         logger.debug("Copying {} as {}", this, newFileName);
          if (!newFileName.isOpen()) {
             newFileName.open();
          }

@@ -389,7 +389,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("stop(clearTokens=" + clearTokens + ")", new Exception("Trace"));
+         logger.trace("stop(clearTokens={})", clearTokens, new Exception("Trace"));
       }
 
       // This is to avoid the write holding a lock while we are trying to close it
@@ -818,7 +818,7 @@ public final class ReplicationManager implements ActiveMQComponent {
       if (enabled) {
 
          if (logger.isTraceEnabled()) {
-            logger.trace("sendSynchronizationDone ::" + nodeID + ", " + initialReplicationSyncTimeout);
+            logger.trace("sendSynchronizationDone ::{}, {}", nodeID, initialReplicationSyncTimeout);
          }
 
          synchronizationIsFinishedAcknowledgement.countUp();
@@ -879,9 +879,9 @@ public final class ReplicationManager implements ActiveMQComponent {
     * @return
     */
    public OperationContext sendLiveIsStopping(final LiveStopping finalMessage) {
-      logger.debug("LIVE IS STOPPING?!? message=" + finalMessage + " enabled=" + enabled);
+      logger.debug("LIVE IS STOPPING?!? message={} enabled={}", finalMessage, enabled);
       if (enabled) {
-         logger.debug("LIVE IS STOPPING?!? message=" + finalMessage + " " + enabled);
+         logger.debug("LIVE IS STOPPING?!? message={} {}", finalMessage, enabled);
          return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
       }
       return null;
