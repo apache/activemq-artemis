@@ -85,16 +85,18 @@ public final class SharedStoreLiveActivation extends LiveActivation {
          nodeManagerActivateCallback = activeMQServer.getNodeManager().startLiveNode();
          activeMQServer.registerActivateCallback(nodeManagerActivateCallback);
 
-         if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED
+         synchronized (activeMQServer) {
+            if (activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPED
                || activeMQServer.getState() == ActiveMQServerImpl.SERVER_STATE.STOPPING) {
-            return;
+               return;
+            }
+
+            activeMQServer.initialisePart2(false);
+
+            activeMQServer.completeActivation(false);
+
+            ActiveMQServerLogger.LOGGER.serverIsLive();
          }
-
-         activeMQServer.initialisePart2(false);
-
-         activeMQServer.completeActivation(false);
-
-         ActiveMQServerLogger.LOGGER.serverIsLive();
       } catch (NodeManagerException nodeManagerException) {
          if (nodeManagerException.getCause() instanceof ClosedChannelException) {
             // this is ok, we are being stopped
