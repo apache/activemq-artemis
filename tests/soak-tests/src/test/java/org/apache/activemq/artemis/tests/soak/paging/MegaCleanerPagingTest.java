@@ -27,6 +27,7 @@ import javax.jms.TextMessage;
 import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -50,17 +51,35 @@ import org.slf4j.LoggerFactory;
  * */
 public class MegaCleanerPagingTest extends ActiveMQTestBase {
 
+   // set this to true to have the test to be called directly
+   // useful for debugging, keeping it false
+   private static final boolean DIRECT_CALL = false;
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int OK = 35; // Abitrary code the spawn must return if ok.
 
    @Test
-   public void testCleanup() throws Exception {
-      // Using a spawn to limit memory consumption to the test
-      Process process = SpawnedVMSupport.spawnVM(MegaCleanerPagingTest.class.getName(), new String[]{"-Xmx512M"}, getTestDir());
-      logger.debug("process PID {}", process.pid());
-      Assert.assertTrue(process.waitFor(10, TimeUnit.MINUTES));
-      Assert.assertEquals(OK, process.exitValue());
+   public void testCleanup() throws Throwable {
+      testCleanup(false);
+   }
+
+   @Test
+   public void testCleanupMidstream() throws Throwable {
+      testCleanup(true);
+   }
+
+   public void testCleanup(boolean midstream) throws Throwable {
+
+      if (DIRECT_CALL) {
+         internalTest(midstream);
+      } else {
+         // Using a spawn to limit memory consumption to the test
+         Process process = SpawnedVMSupport.spawnVM(MegaCleanerPagingTest.class.getName(), new String[]{"-Xmx512M"}, getTestDir(), "" + midstream);
+         logger.debug("process PID {}", process.pid());
+         Assert.assertTrue(process.waitFor(10, TimeUnit.MINUTES));
+         Assert.assertEquals(OK, process.exitValue());
+      }
    }
 
    // I am using a separate VM to limit memory..
@@ -69,7 +88,8 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       try {
          MegaCleanerPagingTest megaCleanerPagingTest = new MegaCleanerPagingTest();
          megaCleanerPagingTest.setTestDir(arg[0]);
-         megaCleanerPagingTest.internalTest();
+         boolean midstream = Boolean.parseBoolean(arg[1]);
+         megaCleanerPagingTest.internalTest(midstream);
          System.exit(OK);
       } catch (Throwable e) {
          e.printStackTrace();
@@ -78,7 +98,7 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       }
    }
 
-   public void internalTest() throws Throwable {
+   public void internalTest(boolean midstream) throws Throwable {
       ActiveMQServer server = createServer(true, true);
       server.getConfiguration().clearAddressSettings();
       server.getConfiguration().addAddressSetting("#", new AddressSettings().setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE).setMaxSizeMessages(1000).setPageSizeBytes(10 * 1024 * 1024));
@@ -101,8 +121,34 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       MessageProducer producer = session.createProducer(queue);
 
 
-      final int SIZE = 10 * 1024;
+      org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
+      Assert.assertNotNull(serverQueue);
+      serverQueue.getPagingStore().startPaging();
 
+      ConnectionFactory cf = CFUtil.createConnectionFactory("core", "tcp://localhost:61616?consumerWindowSize=0");
+      Assert.assertEquals(0, ((ActiveMQConnectionFactory)cf).getServerLocator().getConsumerWindowSize());
+      Connection slowConnection  = cf.createConnection();
+      Session slowSession = slowConnection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+      Queue slowQueue = slowSession.createQueue(queueName);
+      MessageProducer slowProducer = slowSession.createProducer(slowQueue);
+      if (midstream) {
+         slowProducer.send(session.createTextMessage("slow"));
+      }
+      slowConnection.start();
+      MessageConsumer slowConsumer = slowSession.createConsumer(slowQueue);
+      TextMessage slowMessage;
+
+      if (midstream) {
+         slowMessage = (TextMessage) slowConsumer.receive(5000);
+         Assert.assertNotNull(slowMessage);
+         Assert.assertEquals("slow", slowMessage.getText());
+      } else {
+         slowMessage = (TextMessage) slowConsumer.receiveNoWait();
+         Assert.assertNull(slowMessage);
+      }
+
+
+      final int SIZE = 10 * 1024;
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
          producer.send(session.createTextMessage(createBuffer(i, SIZE)));
          if (i % 1000 == 0) {
@@ -132,14 +178,18 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       session.commit();
       Assert.assertNull(consumer.receiveNoWait());
       connection.close();
+      slowConnection.close();
 
       AssertionLoggerHandler.startCapture();
       runAfter(AssertionLoggerHandler::stopCapture);
       store.enableCleanup();
       store.getCursorProvider().scheduleCleanup();
-      Wait.assertFalse(store::isPaging);
+      if (!midstream) {
+         Wait.assertFalse(store::isPaging);
+      }
       server.stop();
       Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222023")); // error associated with OME
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222010")); // critical IO Error
    }
 
 

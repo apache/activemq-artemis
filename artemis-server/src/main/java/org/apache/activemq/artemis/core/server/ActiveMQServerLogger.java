@@ -404,7 +404,7 @@ public interface ActiveMQServerLogger {
    void problemCompletingOperations(OperationContext e);
 
    @LogMessage(id = 222025, value = "Problem cleaning page subscription counter", level = LogMessage.Level.WARN)
-   void problemCleaningPagesubscriptionCounter(Exception e);
+   void problemCleaningPagesubscriptionCounter(Throwable e);
 
    @LogMessage(id = 222026, value = "Error on cleaning up cursor pages", level = LogMessage.Level.WARN)
    void problemCleaningCursorPages(Exception e);
