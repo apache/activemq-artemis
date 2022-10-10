@@ -248,7 +248,10 @@ public final class XmlDataImporter extends ActionAbstract {
       }
       try {
          while (reader.hasNext()) {
-            logger.debug("EVENT:[{}][{}] ", reader.getLocation().getLineNumber(), reader.getLocation().getColumnNumber());
+            if (logger.isDebugEnabled()) {
+               logger.debug("EVENT:[{}][{}] ", reader.getLocation().getLineNumber(), reader.getLocation().getColumnNumber());
+            }
+
             if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
                if (XmlDataConstants.OLD_BINDING.equals(reader.getLocalName())) {
                   oldBinding(); // export from 1.x
@@ -313,13 +316,17 @@ public final class XmlDataImporter extends ActionAbstract {
                ClientMessage managementMessage = managementSession.createMessage(false);
                ManagementHelper.putAttribute(managementMessage, ResourceNames.QUEUE + queue, "ID");
                managementSession.start();
-               logger.debug("Requesting ID for: {}", queue);
+               if (debugLog) {
+                  logger.debug("Requesting ID for: {}", queue);
+               }
                ClientMessage reply = requestor.request(managementMessage);
                Number idObject = (Number) ManagementHelper.getResult(reply);
                queueID = idObject.longValue();
             }
 
-            logger.debug("ID for {} is: {}", queue, queueID);
+            if (debugLog) {
+               logger.debug("ID for {} is: {}", queue, queueID);
+            }
             queueIDs.put(queue, queueID);  // store it so we don't have to look it up every time
          }
 
@@ -419,7 +426,9 @@ public final class XmlDataImporter extends ActionAbstract {
 
          if (!queueQuery.isExists()) {
             session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(routingType).setFilterString(filter));
-            logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
+            if (logger.isDebugEnabled()) {
+               logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
+            }
          } else {
             logger.debug("Binding {} already exists so won't re-bind.", queueName);
          }
@@ -457,7 +466,9 @@ public final class XmlDataImporter extends ActionAbstract {
 
       if (!queueQuery.isExists()) {
          session.createQueue(new QueueConfiguration(queueName).setAddress(address).setRoutingType(RoutingType.valueOf(routingType)).setFilterString(filter));
-         logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Binding queue(name={}, address={}, filter={})", queueName, address, filter);
+         }
       } else {
          logger.debug("Binding {} already exists so won't re-bind.", queueName);
       }
