@@ -386,8 +386,9 @@ public class PageCursorProviderImpl implements PageCursorProvider {
                }
             }
          } catch (Throwable e) {
-            logger.warn("Error while Issuing cleanupMiddlePages with {}, counter = {}", pageID, counter, e);
-            depagedPages.forEach(p -> logger.warn("page {}", p));
+            ActiveMQServerLogger.LOGGER.problemCleaningPagesubscriptionCounter(e);
+            logger.debug("Error while Issuing cleanupMiddlePages with {}, counter = {}", pageID, counter, e);
+            depagedPages.forEach(p -> logger.debug("page {}", p));
          }
       });
    }

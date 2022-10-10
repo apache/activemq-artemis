@@ -727,7 +727,11 @@ public class PagingStoreImpl implements PagingStore {
                return null;
             }
 
-            Page page = usePage(pageId);
+            Page page = usePage(pageId, false);
+
+            if (page == null) {
+               page = newPageObject(pageId);
+            }
 
             if (page != null && page.getFile().exists()) {
                page.usageDown();
