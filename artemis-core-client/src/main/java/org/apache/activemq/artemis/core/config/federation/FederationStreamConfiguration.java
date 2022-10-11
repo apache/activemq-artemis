@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.config.federation;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -97,5 +98,10 @@ public abstract class FederationStreamConfiguration <T extends FederationStreamC
       for (int i = 0; i < policyRefNum; i++) {
          policyRefs.add(buffer.readString());
       }
+   }
+
+   public T setStaticConnectors(List<String> connectors) {
+      connectionConfiguration.setStaticConnectors(connectors);
+      return (T) this;
    }
 }
