@@ -46,4 +46,7 @@ public interface ActiveMQJournalBundle {
 
    @Message(id = 149005, value = "Message of {} bytes is bigger than the max record size of {} bytes. You should try to move large application properties to the message body.")
    ActiveMQIOErrorException recordLargerThanStoreMax(long recordSize, long maxRecordSize);
+
+   @Message(id = 149006, value = "The file system returned a file {} with unexpected file size. The broker requested a file sized as {} but the system returned a file sized as {}")
+   ActiveMQIOErrorException unexpectedFileSize(String fileName, long expectedSize, long returnedSize);
 }

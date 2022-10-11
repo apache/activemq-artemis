@@ -102,7 +102,7 @@ public class JournalFilesRepository {
             pushOpenedFile();
          } catch (Exception e) {
             ActiveMQJournalLogger.LOGGER.errorPushingFile(e);
-            fileFactory.onIOError(e, "unable to open ", null);
+            fileFactory.onIOError(e, "unable to open ");
          }
       }
    };
@@ -495,7 +495,7 @@ public class JournalFilesRepository {
          try {
             nextFile = takeFile(true, true, true, false);
          } catch (Exception e) {
-            fileFactory.onIOError(e, "unable to open ", null);
+            fileFactory.onIOError(e, "unable to open ");
             // We need to reconnect the current file with the timed buffer as we were not able to roll the file forward
             // If you don't do this you will get a NPE in TimedBuffer::checkSize where it uses the bufferobserver
             fileFactory.activateBuffer(journal.getCurrentFile().getFile());

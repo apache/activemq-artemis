@@ -662,7 +662,7 @@ public class FakeSequentialFileFactory implements SequentialFileFactory {
    }
 
    @Override
-   public void onIOError(Exception exception, String message, SequentialFile file) {
+   public void onIOError(Throwable exception, String message, String file) {
    }
 
    @Override

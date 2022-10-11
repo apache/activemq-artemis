@@ -180,8 +180,13 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
    }
 
    @Override
-   public void onIOError(Exception exception, String message, SequentialFile file) {
-      ActiveMQJournalLogger.LOGGER.criticalIO(message, exception);
+   public void onIOError(Throwable exception, String message,  String file) {
+      if (file != null) {
+         ActiveMQJournalLogger.LOGGER.criticalIOFile(message, file, exception);
+      } else {
+         ActiveMQJournalLogger.LOGGER.criticalIO(message, exception);
+      }
+
       if (critialErrorListener != null) {
          critialErrorListener.onIOException(exception, message, file);
       }
@@ -222,7 +227,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       boolean ok = journalDir.mkdirs();
       if (!ok && !journalDir.exists()) {
          IOException e = new IOException("Unable to create directory: " + journalDir);
-         onIOError(e, e.getMessage(), null);
+         onIOError(e, e.getMessage());
          throw e;
       }
    }

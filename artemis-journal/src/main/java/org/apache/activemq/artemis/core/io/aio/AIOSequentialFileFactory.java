@@ -418,7 +418,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
             if (callback != null) {
                callback.onError(errorCode, errorMessage);
             }
-            onIOError(new ActiveMQException(errorCode, errorMessage), errorMessage, null);
+            onIOError(new ActiveMQException(errorCode, errorMessage), errorMessage);
             errorMessage = null;
          } else {
             if (callback != null) {
@@ -447,7 +447,7 @@ public final class AIOSequentialFileFactory extends AbstractSequentialFileFactor
                libaioContext.poll();
             } catch (Throwable e) {
                logger.warn(e.getMessage(), e);
-               onIOError(new ActiveMQException("Error on libaio poll"), e.getMessage(), null);
+               onIOError(new ActiveMQException("Error on libaio poll"), e.getMessage());
             }
          }
       }

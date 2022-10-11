@@ -78,7 +78,6 @@ import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
-import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
@@ -4230,7 +4229,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       private final AtomicBoolean failedAlready = new AtomicBoolean();
 
       @Override
-      public synchronized void onIOException(Throwable cause, String message, SequentialFile file) {
+      public synchronized void onIOException(Throwable cause, String message, String file) {
          if (!failedAlready.compareAndSet(false, true)) {
             return;
          }
@@ -4238,7 +4237,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          if (file == null) {
             ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, "NULL", cause);
          } else {
-            ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, file.toString(), cause);
+            ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, file, cause);
          }
 
          stopTheServer(true);
