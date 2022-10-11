@@ -167,8 +167,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
       clientConsumer = null;
       clientSession = null;
 
-      if (clientSessionFactory != null && (!upstream.getConnection().isSharedConnection() ||
-          clientSessionFactory.numSessions() == 0)) {
+      if (clientSessionFactory != null && clientSessionFactory.numSessions() == 0 && !upstream.getConnection().isSharedConnection()) {
          clientSessionFactory.close();
          clientSessionFactory = null;
       }
