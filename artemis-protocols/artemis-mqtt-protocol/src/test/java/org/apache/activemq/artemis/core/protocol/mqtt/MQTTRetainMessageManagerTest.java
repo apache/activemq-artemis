@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.junit.EmbeddedJMSResource;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.After;
@@ -43,9 +44,6 @@ import org.junit.rules.RuleChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
-
-import com.github.javafaker.ChuckNorris;
-import com.github.javafaker.Faker;
 
 @SuppressWarnings("deprecation")
 public class MQTTRetainMessageManagerTest {
@@ -73,8 +71,6 @@ public class MQTTRetainMessageManagerTest {
    private final AtomicReference<MqttMessage> lastMessageArrivedOnConsumerAfterPublish2 = new AtomicReference<>();
 
    private final String topic = "fact";
-
-   private final ChuckNorris chuckNorris = (new Faker()).chuckNorris();
 
    private final int numberOfMessages = 1000;
    private final int numberOfTests = 10;
@@ -186,7 +182,7 @@ public class MQTTRetainMessageManagerTest {
    protected void publish(final int qos) throws MqttException {
       mqttConsumerCount.subscribe(topic, qos);
       IntStream.range(0, numberOfMessages).forEach(i -> {
-         final String fact = String.format("[%s] %s", i, chuckNorris.fact());
+         final String fact = String.format("[%s] %s", i, RandomStringUtils.randomAlphanumeric(128));
          final MqttMessage message = message(fact, qos, true);
          mqttPublisher.publish(topic, message);
          lastMessagePublished.set(message);
