@@ -66,7 +66,7 @@ public class OpenWireFrameParser extends ByteToMessageDecoder {
                logger.trace("Creating a heapBuffer sized as {} as it is beyond {} chunk limit", bufferSize, openwireMaxPacketChunkSize);
             }
             // we will use a heap buffer for large frames.
-            // to avoid competing for resources with the broker on native messages.
+            // to avoid competing for resources with the broker on native buffers.
             // to save the broker in case users send huge messages in openwire.
             outBuffer = UnpooledByteBufAllocator.DEFAULT.heapBuffer(bufferSize);
          }
