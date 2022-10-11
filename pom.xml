@@ -719,38 +719,6 @@
             <version>${log4j.version}</version>
          </dependency>
 
-         <!--needed for the rest support-->
-         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxrs</artifactId>
-            <version>${resteasy.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jaxb-provider</artifactId>
-            <version>${resteasy.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>resteasy-jackson2-provider</artifactId>
-            <version>${resteasy.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>tjws</artifactId>
-            <version>${resteasy.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${commons.codec.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-
          <!-- ## Jetty web Dependencies ##-->
          <dependency>
             <groupId>org.eclipse.jetty</groupId>
