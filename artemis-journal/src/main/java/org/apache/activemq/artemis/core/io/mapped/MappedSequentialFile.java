@@ -168,7 +168,7 @@ final class MappedSequentialFile implements SequentialFile {
          callback.done();
       } catch (IOException e) {
          if (this.criticalErrorListener != null) {
-            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
          callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          throw e;
@@ -204,7 +204,7 @@ final class MappedSequentialFile implements SequentialFile {
          callback.done();
       } catch (IOException e) {
          if (this.criticalErrorListener != null) {
-            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
          callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          throw e;
@@ -241,7 +241,7 @@ final class MappedSequentialFile implements SequentialFile {
          callback.done();
       } catch (IOException e) {
          if (this.criticalErrorListener != null) {
-            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
          callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          throw new RuntimeException(e);
@@ -315,7 +315,7 @@ final class MappedSequentialFile implements SequentialFile {
          }
       } catch (IOException e) {
          if (this.criticalErrorListener != null) {
-            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+            this.criticalErrorListener.onIOException(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.getFileName());
          }
          callback.onError(ActiveMQExceptionType.IO_ERROR.getCode(), e.getMessage());
          throw e;

@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
-import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.journal.IOCompletion;
 import org.apache.activemq.artemis.core.journal.PreparedTransactionInfo;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
@@ -128,7 +127,7 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       executorService = Executors.newSingleThreadExecutor();
       journal = new JDBCJournalImpl(dbConf.getConnectionProvider(), sqlProvider, scheduledExecutorService, executorService, new IOCriticalErrorListener() {
          @Override
-         public void onIOException(Throwable code, String message, SequentialFile file) {
+         public void onIOException(Throwable code, String message, String file) {
 
          }
       }, 5);

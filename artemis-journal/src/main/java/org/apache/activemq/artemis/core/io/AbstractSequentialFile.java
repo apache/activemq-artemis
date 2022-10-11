@@ -126,7 +126,7 @@ public abstract class AbstractSequentialFile implements SequentialFile {
       } catch (ClosedChannelException e) {
          throw e;
       } catch (IOException e) {
-         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this);
+         factory.onIOError(new ActiveMQIOErrorException(e.getMessage(), e), e.getMessage(), this.file.getName());
          throw e;
       }
    }

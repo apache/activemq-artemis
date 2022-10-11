@@ -1888,11 +1888,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                   }
                });
             } catch (Throwable e) {
-               try {
-                  criticalIO(e);
-               } catch (Throwable ignored) {
-                  logger.warn(ignored.getMessage(), ignored);
-               }
+               fileFactory.onIOError(e, e.getMessage());
                return;
             } finally {
                journalLock.writeLock().unlock();
@@ -1909,11 +1905,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             logger.debug("Finished compacting on journal {}", this);
 
          } catch (Throwable e) {
-            try {
-               criticalIO(e);
-            } catch (Throwable ignored) {
-               logger.warn(ignored.getMessage(), ignored);
-            }
+            fileFactory.onIOError(e, e.getMessage());
          }
       } finally {
          compactorLock.writeLock().unlock();
@@ -2478,11 +2470,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          try {
             Files.copy(copyFrom.toPath(), copyTo.toPath(), StandardCopyOption.REPLACE_EXISTING);
          } catch (IOException e) {
-            logger.warn(e.getMessage(), e);
-            try {
-               criticalIO(e);
-            } catch (Exception ignored) {
-            }
+            fileFactory.onIOError(e, e.getMessage(), copyFrom.getName());
          }
 
          try {
@@ -2490,7 +2478,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
             if (criticalErrorListener != null) {
-               criticalErrorListener.onIOException(e, e.getMessage(), fileToCopy.getFile());
+               criticalErrorListener.onIOException(e, e.getMessage(), fileToCopy.getFile().getFileName());
             }
          }
 
@@ -3507,21 +3495,21 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
             // The same check needs to be done at the new file also
             if (!currentFile.getFile().fits(size)) {
-               // Sanity check, this should never happen
-               throw new IllegalStateException("Invalid logic on buffer allocation");
+               // The exception will be thrown by criticalIO
+               Exception reportingException = ActiveMQJournalBundle.BUNDLE.unexpectedFileSize(currentFile.getFile().getFileName(), size, currentFile.getFile().size());
+               fileFactory.onIOError(reportingException, reportingException.getMessage());
+               return null;
             }
          }
          return currentFile;
       } catch (Throwable e) {
-         criticalIO(e);
+         criticalIO(e, null);
          return null; // this will never happen, the method will call throw
       }
    }
 
-   private void criticalIO(Throwable e) throws Exception {
-      if (criticalErrorListener != null) {
-         criticalErrorListener.onIOException(e, e.getMessage(), currentFile == null ? null : currentFile.getFile());
-      }
+   private void criticalIO(Throwable e, SequentialFile file) throws Exception {
+      fileFactory.onIOError(e, e.getMessage(), file);
       if (e instanceof Exception) {
          throw (Exception) e;
       } else if (e instanceof IllegalStateException) {

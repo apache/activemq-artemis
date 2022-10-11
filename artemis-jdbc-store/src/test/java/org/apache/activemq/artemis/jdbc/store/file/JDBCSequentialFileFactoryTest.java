@@ -99,7 +99,7 @@ public class JDBCSequentialFileFactoryTest {
       String jdbcDatasourceClass = ActiveMQDefaultConfiguration.getDefaultDataSourceClassName();
       factory = new JDBCSequentialFileFactory(new JDBCConnectionProvider(JDBCDataSourceUtils.getDataSource(jdbcDatasourceClass, dataSourceProperties)), JDBCUtils.getSQLProvider(dataSourceProperties, tableName, SQLProvider.DatabaseStoreType.PAGE), executor, new IOCriticalErrorListener() {
          @Override
-         public void onIOException(Throwable code, String message, SequentialFile file) {
+         public void onIOException(Throwable code, String message, String file) {
          }
       });
       factory.start();

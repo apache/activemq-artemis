@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.tests.integration.journal;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,8 +30,12 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.SequentialFileFactoryTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected SequentialFileFactory createFactory(String folder) {
@@ -60,8 +65,8 @@ public class NIOSequentialFileFactoryTest extends SequentialFileFactoryTestBase 
       final AtomicInteger calls = new AtomicInteger(0);
       final NIOSequentialFileFactory factory = new NIOSequentialFileFactory(new File(getTestDir()), new IOCriticalErrorListener() {
          @Override
-         public void onIOException(Throwable code, String message, SequentialFile file) {
-            new Exception("shutdown").printStackTrace();
+         public void onIOException(Throwable code, String message, String file) {
+            logger.debug("IOException happening", code);
             calls.incrementAndGet();
          }
       }, 1);

@@ -198,6 +198,9 @@ public interface ActiveMQJournalLogger {
    void cantOpenFileTimeout(long timeout);
 
    @LogMessage(id = 144010, value = "Critical IO Exception happened: {}", level = LogMessage.Level.WARN)
-   void criticalIO(String message, Exception error);
+   void criticalIO(String message, Throwable error);
 
+   // same as criticalIO but with the FileName associated (if there's a file available)
+   @LogMessage(id = 144011, value = "Critical IO Exception happened: {} on {}", level = LogMessage.Level.WARN)
+   void criticalIOFile(String message, String fileName, Throwable error);
 }

@@ -152,7 +152,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    }
 
    @Override
-   public void onIOError(Exception exception, String message, SequentialFile file) {
+   public void onIOError(Throwable exception, String message, String file) {
       criticalErrorListener.onIOException(exception, message, file);
    }
 
@@ -236,7 +236,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
          try {
             file.sync();
          } catch (Exception e) {
-            criticalErrorListener.onIOException(e, "Error during JDBC file sync.", file);
+            criticalErrorListener.onIOException(e, "Error during JDBC file sync.", file.getFileName());
          }
       }
    }

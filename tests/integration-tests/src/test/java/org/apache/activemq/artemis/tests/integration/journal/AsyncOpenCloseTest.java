@@ -50,7 +50,7 @@ public class AsyncOpenCloseTest extends ActiveMQTestBase {
       Assume.assumeTrue(LibaioContext.isLoaded());
       AtomicInteger errors = new AtomicInteger(0);
 
-      SequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder.getRoot(), (Throwable error, String message, SequentialFile file) -> errors.incrementAndGet(), 4 * 1024);
+      SequentialFileFactory factory = new AIOSequentialFileFactory(temporaryFolder.getRoot(), (Throwable error, String message, String file) -> errors.incrementAndGet(), 4 * 1024);
       factory.start();
 
       SequentialFile file = factory.createSequentialFile("fileAIO.bin");

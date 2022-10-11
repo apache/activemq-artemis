@@ -55,7 +55,15 @@ public interface SequentialFileFactory {
    /**
     * The SequentialFile will call this method when a disk IO Error happens during the live phase.
     */
-   void onIOError(Exception exception, String message, SequentialFile file);
+   void onIOError(Throwable exception, String message, String file);
+
+   default void onIOError(Throwable exception, String message, SequentialFile file) {
+      onIOError(exception, message, file.getFileName());
+   }
+
+   default void onIOError(Throwable exception, String message) {
+      onIOError(exception, message, (String) null);
+   }
 
    /**
     * used for cases where you need direct buffer outside of the journal context.
