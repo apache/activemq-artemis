@@ -46,7 +46,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ProtonTransactionHandler implements ProtonDeliveryHandler {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final int amqpCredit;
    private final int amqpLowMark;
@@ -174,7 +174,7 @@ public class ProtonTransactionHandler implements ProtonDeliveryHandler {
    }
 
    private void txError(Delivery delivery, Throwable e) {
-      log.warn(e.getMessage(), e);
+      logger.warn(e.getMessage(), e);
       connection.runNow(() -> {
          delivery.settle();
          if (e instanceof ActiveMQAMQPException) {

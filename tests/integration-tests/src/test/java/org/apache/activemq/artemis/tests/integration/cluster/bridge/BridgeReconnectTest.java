@@ -86,7 +86,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
    @Parameterized.Parameter(0)
    public boolean persistCache;
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int NUM_MESSAGES = 100;
 
@@ -238,7 +238,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       startServers();
 
-      BridgeReconnectTest.log.debug("** failing connection");
+      BridgeReconnectTest.logger.debug("** failing connection");
       // Now we will simulate a failure of the bridge connection between server0 and server1
       server0.fail(true);
 
@@ -507,7 +507,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
                // Simulate CPU load until bridge delivery after failure
                deliveryAfterFailureLatch.await();
             } catch (InterruptedException e) {
-               log.debug("Interrupted", e);
+               logger.debug("Interrupted", e);
             }
          }
 
@@ -519,9 +519,9 @@ public class BridgeReconnectTest extends BridgeTestBase {
                   // before routing messages delivered by bridge before failure
                   routingBarrier.await();
                } catch (InterruptedException e) {
-                  log.debug("Interrupted", e);
+                  logger.debug("Interrupted", e);
                } catch (BrokenBarrierException e) {
-                  log.debug("Interrupted", e);
+                  logger.debug("Interrupted", e);
                }
             }
          }
@@ -611,16 +611,16 @@ public class BridgeReconnectTest extends BridgeTestBase {
 
       ClientProducer prod0 = session0.createProducer(testAddress);
 
-      BridgeReconnectTest.log.debug("stopping server1");
+      BridgeReconnectTest.logger.debug("stopping server1");
       server1.stop();
 
       if (sleep) {
          Thread.sleep(2 * clientFailureCheckPeriod);
       }
 
-      BridgeReconnectTest.log.debug("restarting server1");
+      BridgeReconnectTest.logger.debug("restarting server1");
       server1.start();
-      BridgeReconnectTest.log.debug("server 1 restarted");
+      BridgeReconnectTest.logger.debug("server 1 restarted");
 
       ClientSessionFactory csf1 = locator.createSessionFactory(server1tc);
       session1 = csf1.createSession(false, true, true);
@@ -640,7 +640,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          prod0.send(message);
       }
 
-      BridgeReconnectTest.log.debug("sent messages");
+      BridgeReconnectTest.logger.debug("sent messages");
 
       for (int i = 0; i < numMessages; i++) {
          ClientMessage r1 = cons1.receive(30000);
@@ -648,7 +648,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          assertEquals("property value matches", i, r1.getObjectProperty(propKey));
       }
 
-      BridgeReconnectTest.log.debug("got messages");
+      BridgeReconnectTest.logger.debug("got messages");
       closeServers();
       assertNoMoreConnections();
    }
@@ -751,7 +751,7 @@ public class BridgeReconnectTest extends BridgeTestBase {
          fail("Message " + outOfOrder + " was received out of order, it was supposed to be " + supposed);
       }
 
-      log.debug("=========== second failure, sending message");
+      logger.debug("=========== second failure, sending message");
 
       // Fail again - should reconnect
       forwardingConnection = ((BridgeImpl) bridge).getForwardingConnection();

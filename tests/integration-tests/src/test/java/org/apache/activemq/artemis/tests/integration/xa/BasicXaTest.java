@@ -60,7 +60,7 @@ import java.lang.invoke.MethodHandles;
 @RunWith(Parameterized.class)
 public class BasicXaTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -311,7 +311,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       clientSession = sessionFactory.createSession(true, false, false);
 
-      log.debug("committing");
+      logger.debug("committing");
 
       clientSession.commit(xid, false);
       clientSession.start();
@@ -675,7 +675,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
-      log.debug(preparedTransactions[0]);
+      logger.debug(preparedTransactions[0]);
       Assert.assertTrue(messagingService.getActiveMQServerControl().commitPreparedTransaction(XidImpl.toBase64String(xid)));
       Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicCommittedTransactions().length);
 
@@ -693,7 +693,7 @@ public class BasicXaTest extends ActiveMQTestBase {
 
       String[] preparedTransactions = messagingService.getActiveMQServerControl().listPreparedTransactions();
       Assert.assertEquals(1, preparedTransactions.length);
-      log.debug(preparedTransactions[0]);
+      logger.debug(preparedTransactions[0]);
 
       Assert.assertTrue(messagingService.getActiveMQServerControl().rollbackPreparedTransaction(XidImpl.toBase64String(xid)));
       Assert.assertEquals(1, messagingService.getActiveMQServerControl().listHeuristicRolledBackTransactions().length);
@@ -1024,7 +1024,7 @@ public class BasicXaTest extends ActiveMQTestBase {
          try {
             message.acknowledge();
          } catch (ActiveMQException e) {
-            BasicXaTest.log.error("Failed to process message", e);
+            BasicXaTest.logger.error("Failed to process message", e);
          }
          try {
             session.end(xid, XAResource.TMSUCCESS);

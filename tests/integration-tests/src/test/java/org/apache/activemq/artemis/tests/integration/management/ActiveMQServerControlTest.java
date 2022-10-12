@@ -120,7 +120,7 @@ import java.lang.invoke.MethodHandles;
 @RunWith(Parameterized.class)
 public class ActiveMQServerControlTest extends ManagementTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public RetryRule retryRule = new RetryRule(0);
@@ -2611,7 +2611,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientSession(factories.get(1).createSession());
 
       String jsonString = serverControl.listConnectionsAsJSON();
-      log.debug(jsonString);
+      logger.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(usingCore() ? 3 : 2, array.size());
@@ -2674,7 +2674,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientConsumer(session.createConsumer(queueName, SimpleString.toSimpleString(filter), true));
 
       String jsonString = serverControl.listConsumersAsJSON(factory.getConnection().getID().toString());
-      log.debug(jsonString);
+      logger.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2, array.size());
@@ -2737,7 +2737,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       addClientConsumer(session2.createConsumer(queueName));
 
       String jsonString = serverControl.listAllConsumersAsJSON();
-      log.debug(jsonString);
+      logger.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(usingCore() ? 3 : 2, array.size());
@@ -2810,7 +2810,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session2.createConsumer(queueName);
 
       String jsonString = serverControl.listSessionsAsJSON(factory.getConnection().getID().toString());
-      log.debug(jsonString);
+      logger.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2, array.size());
@@ -2874,7 +2874,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       session2.createConsumer(queueName);
 
       String jsonString = serverControl.listAllSessionsAsJSON();
-      log.debug(jsonString);
+      logger.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(2 + (usingCore() ? 1 : 0), array.size());
@@ -2915,7 +2915,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       con.setClientID(clientID);
 
       String jsonString = serverControl.listAllSessionsAsJSON();
-      log.debug(jsonString);
+      logger.debug(jsonString);
       Assert.assertNotNull(jsonString);
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(1 + (usingCore() ? 1 : 0), array.size());

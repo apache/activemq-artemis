@@ -78,7 +78,7 @@ import java.lang.invoke.MethodHandles;
 
 public class JMSSaslGssapiTest extends JMSClientTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -117,15 +117,15 @@ public class JMSSaslGssapiTest extends JMSClientTestSupport {
       rewriteKrbConfFile(kdc);
 
       if (debug) {
-         LOG.debug("java.security.krb5.conf='{}'", System.getProperty("java.security.krb5.conf"));
+         logger.debug("java.security.krb5.conf='{}'", System.getProperty("java.security.krb5.conf"));
          try (BufferedReader br = new BufferedReader(new FileReader(System.getProperty("java.security.krb5.conf")))) {
-            br.lines().forEach(line -> LOG.debug(line));
+            br.lines().forEach(line -> logger.debug(line));
          }
 
          Keytab kt = Keytab.loadKeytab(userKeyTab);
          for (PrincipalName name : kt.getPrincipals()) {
             for (KeytabEntry entry : kt.getKeytabEntries(name)) {
-               LOG.info("KeyTab Entry: PrincipalName:{} ; KeyInfo:{}", entry.getPrincipal(), entry.getKey().getKeyType());
+               logger.info("KeyTab Entry: PrincipalName:{} ; KeyInfo:{}", entry.getPrincipal(), entry.getKey().getKeyType());
             }
          }
 

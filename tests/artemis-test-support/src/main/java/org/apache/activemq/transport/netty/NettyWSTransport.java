@@ -50,7 +50,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
  */
 public class NettyWSTransport extends NettyTcpTransport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String AMQP_SUB_PROTOCOL = "amqp";
 
@@ -103,7 +103,7 @@ public class NettyWSTransport extends NettyTcpTransport {
 
    @Override
    protected void handleConnected(Channel channel) throws Exception {
-      LOG.trace("Channel has become active, awaiting WebSocket handshake! Channel is {}", channel);
+      logger.trace("Channel has become active, awaiting WebSocket handshake! Channel is {}", channel);
    }
 
    // ----- Handle connection events -----------------------------------------//
@@ -127,12 +127,12 @@ public class NettyWSTransport extends NettyTcpTransport {
 
       @Override
       protected void channelRead0(ChannelHandlerContext ctx, Object message) throws Exception {
-         LOG.trace("New data read: incoming: {}", message);
+         logger.trace("New data read: incoming: {}", message);
 
          Channel ch = ctx.channel();
          if (!handshaker.isHandshakeComplete()) {
             handshaker.finishHandshake(ch, (FullHttpResponse) message);
-            LOG.trace("WebSocket Client connected! {}", ctx.channel());
+            logger.trace("WebSocket Client connected! {}", ctx.channel());
             // Now trigger super processing as we are really connected.
             NettyWSTransport.super.handleConnected(ch);
             return;
@@ -148,21 +148,21 @@ public class NettyWSTransport extends NettyTcpTransport {
          WebSocketFrame frame = (WebSocketFrame) message;
          if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            LOG.warn("WebSocket Client received message: {}", textFrame.text());
+            logger.warn("WebSocket Client received message: {}", textFrame.text());
             ctx.fireExceptionCaught(new IOException("Received invalid frame over WebSocket."));
          } else if (frame instanceof BinaryWebSocketFrame) {
             BinaryWebSocketFrame binaryFrame = (BinaryWebSocketFrame) frame;
-            LOG.trace("WebSocket Client received data: {} bytes", binaryFrame.content().readableBytes());
+            logger.trace("WebSocket Client received data: {} bytes", binaryFrame.content().readableBytes());
             listener.onData(binaryFrame.content());
          } else if (frame instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame continuationFrame = (ContinuationWebSocketFrame) frame;
-            LOG.trace("WebSocket Client received data continuation: {} bytes", continuationFrame.content().readableBytes());
+            logger.trace("WebSocket Client received data continuation: {} bytes", continuationFrame.content().readableBytes());
             listener.onData(continuationFrame.content());
          } else if (frame instanceof PingWebSocketFrame) {
-            LOG.trace("WebSocket Client received ping, response with pong");
+            logger.trace("WebSocket Client received ping, response with pong");
             ch.write(new PongWebSocketFrame(frame.content()));
          } else if (frame instanceof CloseWebSocketFrame) {
-            LOG.trace("WebSocket Client received closing");
+            logger.trace("WebSocket Client received closing");
             ch.close();
          }
       }

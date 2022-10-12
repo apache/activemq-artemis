@@ -48,7 +48,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MessageGroupingTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -201,7 +201,7 @@ public class MessageGroupingTest extends ActiveMQTestBase {
          Assert.assertEquals(cm.getBodyBuffer().readString(), "m" + i);
       }
 
-      log.debug("closing consumer2");
+      logger.debug("closing consumer2");
 
       consumer2.close();
 

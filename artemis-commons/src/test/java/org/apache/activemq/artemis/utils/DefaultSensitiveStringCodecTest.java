@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 
 public class DefaultSensitiveStringCodecTest {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testDefaultAlgorithm() throws Exception {
@@ -55,7 +55,7 @@ public class DefaultSensitiveStringCodecTest {
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
-      log.debug("encoded value: {}", maskedText);
+      logger.debug("encoded value: {}", maskedText);
 
       if (algorithm.equals(DefaultSensitiveStringCodec.ONE_WAY)) {
          //one way can't decode
@@ -66,7 +66,7 @@ public class DefaultSensitiveStringCodecTest {
          }
       } else {
          String decoded = codec.decode(maskedText);
-         log.debug("encoded value: {}", maskedText);
+         logger.debug("encoded value: {}", maskedText);
 
          assertEquals("decoded result not match: " + decoded, decoded, plainText);
       }
@@ -110,7 +110,7 @@ public class DefaultSensitiveStringCodecTest {
 
       String plainText = "some_password";
       String maskedText = codec.encode(plainText);
-      log.debug("encoded value: {}", maskedText);
+      logger.debug("encoded value: {}", maskedText);
 
       assertTrue(codec.verify(plainText.toCharArray(), maskedText));
 

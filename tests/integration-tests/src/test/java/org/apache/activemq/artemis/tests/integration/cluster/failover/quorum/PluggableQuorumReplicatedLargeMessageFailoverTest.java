@@ -28,7 +28,7 @@ import static org.apache.activemq.artemis.tests.integration.cluster.failover.quo
 
 public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMessageFailoverTest {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    @Override
    protected void createConfigs() throws Exception {
       createPluggableReplicatedConfigs();
@@ -65,6 +65,6 @@ public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMess
 
    @Override
    protected void decrementActivationSequenceForForceRestartOf(TestableServer liveServer) throws Exception {
-      doDecrementActivationSequenceForForceRestartOf(log, nodeManager, managerConfiguration);
+      doDecrementActivationSequenceForForceRestartOf(logger, nodeManager, managerConfiguration);
    }
 }

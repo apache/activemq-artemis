@@ -42,7 +42,7 @@ import java.lang.invoke.MethodHandles;
 
 public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean maxFrameSizeConfigSet = false;
    private static final int CONFIGURED_FRAME_SIZE = 4321;
@@ -182,7 +182,7 @@ public class AmqpMaxFrameSizeTest extends AmqpClientTestSupport {
 
             verifyMessage(receivedMessage, payloadSize);
 
-            LOG.trace("received : message {}", i);
+            logger.trace("received : message {}", i);
             receivedMessage.accept();
          }
 

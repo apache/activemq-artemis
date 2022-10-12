@@ -36,7 +36,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpMessagePriorityTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testMessageDefaultPriority() throws Exception {

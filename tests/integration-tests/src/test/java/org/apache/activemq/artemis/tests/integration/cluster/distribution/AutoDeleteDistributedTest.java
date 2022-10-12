@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public class AutoDeleteDistributedTest extends ClusterTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before
@@ -111,7 +111,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
          client2JmsConsumer.setMessageListener(new MessageListener() {
             @Override
             public void onMessage(final javax.jms.Message m) {
-               log.debug("Message received. {}", m);
+               logger.debug("Message received. {}", m);
                onMessageReceived.countDown();
             }
          });
@@ -126,7 +126,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
             jmsProducer.setAsync(new javax.jms.CompletionListener() {
                @Override
                public void onCompletion(final javax.jms.Message m) {
-                  log.debug("Message sent. {}", m);
+                  logger.debug("Message sent. {}", m);
                   onMessageSent.countDown();
                }
 
@@ -142,11 +142,11 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
                jmsProducer.send(client1JmsContext.createQueue("queues.myQueue"), jmsMsg);
             }
 
-            log.debug("Waiting for message to be sent...");
+            logger.debug("Waiting for message to be sent...");
             onMessageSent.await(5, TimeUnit.SECONDS);
          }
 
-         log.debug("Waiting for message to be received...");
+         logger.debug("Waiting for message to be received...");
          Assert.assertTrue(onMessageReceived.await(5, TimeUnit.SECONDS));
 
          client2JmsConsumer.close();

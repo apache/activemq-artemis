@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OrderedExecutorSanityTest {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void shouldExecuteTasksInOrder() throws InterruptedException {
@@ -179,7 +179,7 @@ public class OrderedExecutorSanityTest {
 
             long elapsed = (end - start);
 
-            log.info("execution {} in {} milliseconds", i, TimeUnit.NANOSECONDS.toMillis(elapsed));
+            logger.info("execution {} in {} milliseconds", i, TimeUnit.NANOSECONDS.toMillis(elapsed));
          }
       } finally {
          executorService.shutdown();
@@ -202,7 +202,7 @@ public class OrderedExecutorSanityTest {
          CountDownLatch latchBlock3 = new CountDownLatch(1);
          executor.execute(() -> {
             try {
-               log.info("Exec 1");
+               logger.info("Exec 1");
                latchDone1.countDown();
                latchBlock1.await(10, TimeUnit.SECONDS);
             } catch (Exception e) {
@@ -216,7 +216,7 @@ public class OrderedExecutorSanityTest {
          executor.execute(() -> {
             try {
                // Exec 2 is supposed to yield to Exec3, so Exec3 will happen first
-               log.info("Exec 2");
+               logger.info("Exec 2");
                latchDone2.countDown();
             } catch (Exception e) {
                e.printStackTrace();
@@ -226,7 +226,7 @@ public class OrderedExecutorSanityTest {
 
          executor2.execute(() -> {
             try {
-               log.info("Exec 3");
+               logger.info("Exec 3");
                latchDone3.countDown();
                latchBlock3.await(10, TimeUnit.SECONDS);
             } catch (Exception e) {

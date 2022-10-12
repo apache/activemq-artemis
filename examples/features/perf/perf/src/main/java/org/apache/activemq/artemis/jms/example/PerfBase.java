@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class PerfBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String DEFAULT_PERF_PROPERTIES_FILE_NAME = "target/classes/perf.properties";
 
@@ -95,20 +95,20 @@ public abstract class PerfBase {
       String clientLibrary = props.getProperty("client-library", "core");
       String uri = props.getProperty("server-uri", "tcp://localhost:61616");
 
-      PerfBase.log.info("num-messages: {}", noOfMessages);
-      PerfBase.log.info("num-warmup-messages: {}", noOfWarmupMessages);
-      PerfBase.log.info("message-size: {}", messageSize);
-      PerfBase.log.info("durable: {}", durable);
-      PerfBase.log.info("transacted: {}", transacted);
-      PerfBase.log.info("batch-size: {}", batchSize);
-      PerfBase.log.info("drain-queue: {}", drainQueue);
-      PerfBase.log.info("throttle-rate: {}", throttleRate);
-      PerfBase.log.info("destination-name: {}", destinationName);
-      PerfBase.log.info("disable-message-id: {}", disableMessageID);
-      PerfBase.log.info("disable-message-timestamp: {}", disableTimestamp);
-      PerfBase.log.info("dups-ok-acknowledge: {}", dupsOK);
-      PerfBase.log.info("server-uri: {}", uri);
-      PerfBase.log.info("client-library:{}", clientLibrary);
+      PerfBase.logger.info("num-messages: {}", noOfMessages);
+      PerfBase.logger.info("num-warmup-messages: {}", noOfWarmupMessages);
+      PerfBase.logger.info("message-size: {}", messageSize);
+      PerfBase.logger.info("durable: {}", durable);
+      PerfBase.logger.info("transacted: {}", transacted);
+      PerfBase.logger.info("batch-size: {}", batchSize);
+      PerfBase.logger.info("drain-queue: {}", drainQueue);
+      PerfBase.logger.info("throttle-rate: {}", throttleRate);
+      PerfBase.logger.info("destination-name: {}", destinationName);
+      PerfBase.logger.info("disable-message-id: {}", disableMessageID);
+      PerfBase.logger.info("disable-message-timestamp: {}", disableTimestamp);
+      PerfBase.logger.info("dups-ok-acknowledge: {}", dupsOK);
+      PerfBase.logger.info("server-uri: {}", uri);
+      PerfBase.logger.info("client-library:{}", clientLibrary);
 
       PerfParams perfParams = new PerfParams();
       perfParams.setNoOfMessagesToSend(noOfMessages);
@@ -179,7 +179,7 @@ public abstract class PerfBase {
    private void displayAverage(final long numberOfMessages, final long start, final long end) {
       double duration = (1.0 * end - start) / 1000; // in seconds
       double average = 1.0 * numberOfMessages / duration;
-      PerfBase.log.info(String.format("average: %.2f msg/s (%d messages in %2.2fs)", average, numberOfMessages, duration));
+      PerfBase.logger.info(String.format("average: %.2f msg/s (%d messages in %2.2fs)", average, numberOfMessages, duration));
    }
 
    protected void runSender() {
@@ -191,9 +191,9 @@ public abstract class PerfBase {
          }
 
          start = System.currentTimeMillis();
-         PerfBase.log.info("warming up by sending {} messages", perfParams.getNoOfWarmupMessages());
+         PerfBase.logger.info("warming up by sending {} messages", perfParams.getNoOfWarmupMessages());
          sendMessages(perfParams.getNoOfWarmupMessages(), perfParams.getBatchSize(), perfParams.isDurable(), perfParams.isSessionTransacted(), false, perfParams.getThrottleRate(), perfParams.getMessageSize());
-         PerfBase.log.info("warmed up");
+         PerfBase.logger.info("warmed up");
          start = System.currentTimeMillis();
          sendMessages(perfParams.getNoOfMessagesToSend(), perfParams.getBatchSize(), perfParams.isDurable(), perfParams.isSessionTransacted(), true, perfParams.getThrottleRate(), perfParams.getMessageSize());
          long end = System.currentTimeMillis();
@@ -230,7 +230,7 @@ public abstract class PerfBase {
 
          connection.start();
 
-         PerfBase.log.info("READY!!!");
+         PerfBase.logger.info("READY!!!");
 
          CountDownLatch countDownLatch = new CountDownLatch(1);
          consumer.setMessageListener(new PerfListener(countDownLatch, perfParams));
@@ -259,7 +259,7 @@ public abstract class PerfBase {
    }
 
    private void drainQueue() throws Exception {
-      PerfBase.log.info("Draining queue");
+      PerfBase.logger.info("Draining queue");
 
       Session drainSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -283,7 +283,7 @@ public abstract class PerfBase {
 
       drainSession.close();
 
-      PerfBase.log.info("Drained {} messages", count);
+      PerfBase.logger.info("Drained {} messages", count);
    }
 
    private void sendMessages(final int numberOfMessages,
@@ -326,7 +326,7 @@ public abstract class PerfBase {
 
          if (display && i % modulo == 0) {
             double duration = (1.0 * System.currentTimeMillis() - start) / 1000;
-            PerfBase.log.info(String.format("sent %6d messages in %2.2fs", i, duration));
+            PerfBase.logger.info(String.format("sent %6d messages in %2.2fs", i, duration));
          }
 
          if (tbl != null) {
@@ -365,7 +365,7 @@ public abstract class PerfBase {
             if (warmingUp) {
                boolean committed = checkCommit();
                if (count.incrementAndGet() == perfParams.getNoOfWarmupMessages()) {
-                  PerfBase.log.info("warmed up after receiving {} msgs", count.longValue());
+                  PerfBase.logger.info("warmed up after receiving {} msgs", count.longValue());
                   if (!committed) {
                      checkCommit();
                   }
@@ -391,7 +391,7 @@ public abstract class PerfBase {
             }
             if (currentCount % modulo == 0) {
                double duration = (1.0 * System.currentTimeMillis() - start) / 1000;
-               PerfBase.log.info(String.format("received %6d messages in %2.2fs", currentCount, duration));
+               PerfBase.logger.info(String.format("received %6d messages in %2.2fs", currentCount, duration));
             }
          } catch (Exception e) {
             e.printStackTrace();

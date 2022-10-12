@@ -57,7 +57,7 @@ import java.lang.invoke.MethodHandles;
 @RunWith(Parameterized.class)
 public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Map<String, AddressSettings> addressSettings = new HashMap<>();
 
@@ -285,7 +285,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      log.debug("*** stopping and restarting");
+      logger.debug("*** stopping and restarting");
 
       if (restartServer) {
          stopAndRestartServer();
@@ -522,7 +522,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      log.debug("shutting down server");
+      logger.debug("shutting down server");
 
       if (stopServer) {
          stopAndRestartServer();
@@ -530,7 +530,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          recreateClients();
       }
 
-      log.debug("restarted");
+      logger.debug("restarted");
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 
@@ -947,7 +947,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
       clientSession.end(xid, XAResource.TMSUCCESS);
       clientSession.prepare(xid);
 
-      log.debug("stopping and restarting");
+      logger.debug("stopping and restarting");
 
       if (stopServer) {
          stopAndRestartServer();
@@ -955,7 +955,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          recreateClients();
       }
 
-      log.debug("Restarted");
+      logger.debug("Restarted");
 
       Xid[] xids = clientSession.recover(XAResource.TMSTARTRSCAN);
 

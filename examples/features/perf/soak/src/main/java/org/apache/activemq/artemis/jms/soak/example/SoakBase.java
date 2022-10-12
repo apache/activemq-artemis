@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SoakBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String DEFAULT_SOAK_PROPERTIES_FILE_NAME = "soak.properties";
 
@@ -75,19 +75,19 @@ public class SoakBase {
       boolean disableMessageID = Boolean.valueOf(props.getProperty("disable-message-id"));
       boolean disableTimestamp = Boolean.valueOf(props.getProperty("disable-message-timestamp"));
 
-      SoakBase.log.info("duration-in-minutes: {}", durationInMinutes);
-      SoakBase.log.info("num-warmup-messages: {}", noOfWarmupMessages);
-      SoakBase.log.info("message-size: {}", messageSize);
-      SoakBase.log.info("durable: {}", durable);
-      SoakBase.log.info("transacted: {}", transacted);
-      SoakBase.log.info("batch-size: {}", batchSize);
-      SoakBase.log.info("drain-queue: {}", drainQueue);
-      SoakBase.log.info("throttle-rate: {}", throttleRate);
-      SoakBase.log.info("connection-factory-lookup: {}", connectionFactoryLookup);
-      SoakBase.log.info("destination-lookup: {}", destinationLookup);
-      SoakBase.log.info("disable-message-id: {}", disableMessageID);
-      SoakBase.log.info("disable-message-timestamp: {}", disableTimestamp);
-      SoakBase.log.info("dups-ok-acknowledge: {}", dupsOK);
+      SoakBase.logger.info("duration-in-minutes: {}", durationInMinutes);
+      SoakBase.logger.info("num-warmup-messages: {}", noOfWarmupMessages);
+      SoakBase.logger.info("message-size: {}", messageSize);
+      SoakBase.logger.info("durable: {}", durable);
+      SoakBase.logger.info("transacted: {}", transacted);
+      SoakBase.logger.info("batch-size: {}", batchSize);
+      SoakBase.logger.info("drain-queue: {}", drainQueue);
+      SoakBase.logger.info("throttle-rate: {}", throttleRate);
+      SoakBase.logger.info("connection-factory-lookup: {}", connectionFactoryLookup);
+      SoakBase.logger.info("destination-lookup: {}", destinationLookup);
+      SoakBase.logger.info("disable-message-id: {}", disableMessageID);
+      SoakBase.logger.info("disable-message-timestamp: {}", disableTimestamp);
+      SoakBase.logger.info("dups-ok-acknowledge: {}", dupsOK);
 
       SoakParams soakParams = new SoakParams();
       soakParams.setDurationInMinutes(durationInMinutes);

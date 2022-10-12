@@ -31,10 +31,10 @@ import java.lang.invoke.MethodHandles;
 
 public class SelectorParserTest {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public void info(String msg) {
-      log.debug(msg);
+      logger.debug(msg);
    }
 
    @Test

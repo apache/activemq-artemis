@@ -32,7 +32,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ManagementHelperTest extends Assert {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testArrayOfStringParameter() throws Exception {
@@ -47,7 +47,7 @@ public class ManagementHelperTest extends Assert {
       Assert.assertEquals(2, parameters.length);
       Assert.assertEquals(param, parameters[0]);
       Object parameter_2 = parameters[1];
-      log.debug("type {}", parameter_2);
+      logger.debug("type {}", parameter_2);
       Assert.assertTrue(parameter_2 instanceof Object[]);
       Object[] retrievedParams = (Object[]) parameter_2;
       Assert.assertEquals(params.length, retrievedParams.length);
@@ -181,15 +181,15 @@ public class ManagementHelperTest extends Assert {
       String key1 = RandomUtil.randomString();
       String[] val1 = new String[]{"a", "b", "c"};
 
-      if (log.isDebugEnabled()) {
-         log.debug("val1 type is {}", Arrays.toString(val1));
+      if (logger.isDebugEnabled()) {
+         logger.debug("val1 type is {}", Arrays.toString(val1));
       }
 
       String key2 = RandomUtil.randomString();
       Long[] val2 = new Long[]{1L, 2L, 3L, 4L, 5L};
 
-      if (log.isDebugEnabled()) {
-         log.debug("val2 type is {}", Arrays.toString(val2));
+      if (logger.isDebugEnabled()) {
+         logger.debug("val2 type is {}", Arrays.toString(val2));
       }
 
       map.put(key1, val1);

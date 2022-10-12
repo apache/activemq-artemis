@@ -43,7 +43,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class QueueConcurrentTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private FakeQueueFactory queueFactory = new FakeQueueFactory();
 
@@ -101,9 +101,9 @@ public class QueueConcurrentTest extends ActiveMQTestBase {
 
       assertRefListsIdenticalRefs(sender.getReferences(), consumer.getReferences());
 
-      log.info("num refs: {}", sender.getReferences().size());
+      logger.info("num refs: {}", sender.getReferences().size());
 
-      log.info("num toggles: {}", toggler.getNumToggles());
+      logger.info("num toggles: {}", toggler.getNumToggles());
 
    }
 

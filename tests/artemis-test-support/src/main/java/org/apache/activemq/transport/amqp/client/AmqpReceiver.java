@@ -62,7 +62,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final AtomicBoolean closed = new AtomicBoolean();
    private final BlockingQueue<AmqpMessage> prefetch = new LinkedBlockingDeque<>();
@@ -318,11 +318,11 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
             long timeoutMills = unit.toMillis(timeout);
 
             try {
-               LOG.trace("Pull on Receiver {} with timeout = {}", getSubscriptionName(), timeoutMills);
+               logger.trace("Pull on Receiver {} with timeout = {}", getSubscriptionName(), timeoutMills);
                if (timeoutMills < 0) {
                   // Wait until message arrives. Just give credit if needed.
                   if (getEndpoint().getCredit() == 0) {
-                     LOG.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
+                     logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
                      getEndpoint().flow(1);
                   }
 
@@ -333,7 +333,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                   // try to fulfill the request, then drain down what is there to
                   // ensure we consume what is available and remove all credit.
                   if (getEndpoint().getCredit() == 0) {
-                     LOG.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
+                     logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
                      getEndpoint().flow(1);
                   }
 
@@ -345,7 +345,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                   // try to fulfill the request, then drain down what is there to
                   // ensure we consume what is available and remove all credit.
                   if (getEndpoint().getCredit() == 0) {
-                     LOG.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
+                     logger.trace("Receiver {} granting 1 additional credit for pull.", getSubscriptionName());
                      getEndpoint().flow(1);
                   }
 
@@ -904,7 +904,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          incoming = getEndpoint().current();
          if (incoming != null) {
             if (incoming.isReadable() && !incoming.isPartial()) {
-               LOG.trace("{} has incoming Message(s).", this);
+               logger.trace("{} has incoming Message(s).", this);
                try {
                   processDelivery(incoming);
                } catch (Exception e) {
@@ -912,7 +912,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
                }
                getEndpoint().advance();
             } else {
-               LOG.trace("{} has a partial incoming Message(s), deferring.", this);
+               logger.trace("{} has a partial incoming Message(s), deferring.", this);
                incoming = null;
             }
          } else {
@@ -938,7 +938,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
       try {
          message = decodeIncomingMessage(incoming);
       } catch (Exception e) {
-         LOG.warn("Error on transform: {}", e.getMessage());
+         logger.warn("Error on transform: {}", e.getMessage());
          deliveryFailed(incoming, true);
          return;
       }
@@ -981,7 +981,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
          }
       }
 
-      LOG.trace("Consumer {} flow updated, remote credit = {}", getSubscriptionName(), getEndpoint().getRemoteCredit());
+      logger.trace("Consumer {} flow updated, remote credit = {}", getSubscriptionName(), getEndpoint().getRemoteCredit());
 
       super.processFlowUpdates(connection);
    }
@@ -1046,7 +1046,7 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
             final ScheduledFuture<?> future = getSession().getScheduler().schedule(new Runnable() {
                @Override
                public void run() {
-                  LOG.trace("Consumer {} drain request timed out", this);
+                  logger.trace("Consumer {} drain request timed out", this);
                   Exception cause = new AmqpOperationTimedOutException("Remote did not respond to a drain request in time");
                   locallyClosed(session.getConnection(), cause);
                   stopRequest.onFailure(cause);
@@ -1060,12 +1060,12 @@ public class AmqpReceiver extends AmqpAbstractResource<Receiver> {
    }
 
    private void stopOnSchedule(long timeout, final AsyncResult request) {
-      LOG.trace("Receiver {} scheduling stop", this);
+      logger.trace("Receiver {} scheduling stop", this);
       // We need to drain the credit if no message(s) arrive to use it.
       final ScheduledFuture<?> future = getSession().getScheduler().schedule(new Runnable() {
          @Override
          public void run() {
-            LOG.trace("Receiver {} running scheduled stop", this);
+            logger.trace("Receiver {} running scheduled stop", this);
             if (getEndpoint().getRemoteCredit() != 0) {
                stop(request);
                session.pumpToProtonTransport(request);

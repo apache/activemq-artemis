@@ -84,7 +84,7 @@ import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEM
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final Symbol CONNECTION_OPEN_FAILED = Symbol.valueOf("amqp:connection-establishment-failed");
    public static final String AMQP_CONTAINER_ID = "amqp-container-id";
@@ -235,8 +235,8 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    public void inputBuffer(ByteBuf buffer) {
-      if (log.isTraceEnabled()) {
-         ByteUtil.debugFrame(log, "Buffer Received ", buffer);
+      if (logger.isTraceEnabled()) {
+         ByteUtil.debugFrame(logger, "Buffer Received ", buffer);
       }
 
       handler.inputBuffer(buffer);
@@ -376,7 +376,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
                      throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingDesiredCapability(AMQPMirrorControllerSource.MIRROR_CAPABILITY.toString());
                   }
                } catch (ActiveMQAMQPException e) {
-                  log.warn(e.getMessage(), e);
+                  logger.warn(e.getMessage(), e);
 
                   link.setTarget(null);
                   link.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
@@ -547,7 +547,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       try {
          initInternal();
       } catch (Exception e) {
-         log.error("Error init connection", e);
+         logger.error("Error init connection", e);
       }
 
       if (!validateUser(connection) || (connectionCallback.getTransportConnection().getRouter() != null
@@ -594,7 +594,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          try {
             validatedUser = protocolManager.getServer().validateUser(user, password, connectionCallback.getProtonConnectionDelegate(), protocolManager.getSecurityDomain());
          } catch (ActiveMQSecurityException e) {
-            log.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
             ErrorCondition error = new ErrorCondition();
             error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
             error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
@@ -732,7 +732,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          try {
             linkContext.close(true);
          } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
          }
       }
 
@@ -776,7 +776,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       if (handler != null) {
          handler.onMessage(delivery);
       } else {
-         log.warn("Handler is null, can't delivery {}", delivery, new Exception("tracing location"));
+         logger.warn("Handler is null, can't delivery {}", delivery, new Exception("tracing location"));
       }
    }
 

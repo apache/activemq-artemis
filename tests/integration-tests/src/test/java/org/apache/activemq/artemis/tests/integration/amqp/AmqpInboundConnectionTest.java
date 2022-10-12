@@ -50,7 +50,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String BROKER_NAME = "localhost";
    private static final String PRODUCT_NAME = "apache-activemq-artemis";
@@ -286,7 +286,7 @@ public class AmqpInboundConnectionTest extends AmqpClientTestSupport {
          connection2.connect();
          fail("Should not be able to connect with same container Id.");
       } catch (Exception ex) {
-         LOG.debug("Second connection with same container Id failed as expected.");
+         logger.debug("Second connection with same container Id failed as expected.");
       }
 
       connection2.getStateInspector().assertValid();

@@ -34,7 +34,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class CrashClient {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static int OK = 9;
    public static int NOT_OK = 1;
@@ -59,7 +59,7 @@ public class CrashClient {
          // exit without closing the session properly
          System.exit(OK);
       } catch (Throwable t) {
-         CrashClient.log.error(t.getMessage(), t);
+         CrashClient.logger.error(t.getMessage(), t);
          System.exit(NOT_OK);
       }
    }

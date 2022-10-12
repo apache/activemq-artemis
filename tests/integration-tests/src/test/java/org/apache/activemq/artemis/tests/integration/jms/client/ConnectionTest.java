@@ -49,7 +49,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ConnectionTest extends JMSTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private Connection conn2;
 
@@ -288,7 +288,7 @@ public class ConnectionTest extends JMSTestBase {
                         // ignore
                         break;
                      } catch (Throwable t) {
-                        log.warn(t.getMessage(), t);
+                        logger.warn(t.getMessage(), t);
                         error.set(true);
                         break;
                      }

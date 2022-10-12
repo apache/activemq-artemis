@@ -34,7 +34,7 @@ import java.lang.invoke.MethodHandles;
  * Code to be run in an external VM, via main()
  */
 public class GracefulClient {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    public static void main(final String[] args) throws Exception {
@@ -64,7 +64,7 @@ public class GracefulClient {
          session.close();
          System.exit(0);
       } catch (Throwable t) {
-         GracefulClient.log.error(t.getMessage(), t);
+         GracefulClient.logger.error(t.getMessage(), t);
          System.exit(1);
       }
    }

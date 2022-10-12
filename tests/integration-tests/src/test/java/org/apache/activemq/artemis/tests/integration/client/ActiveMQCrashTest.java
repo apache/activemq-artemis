@@ -44,7 +44,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ActiveMQCrashTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public ActiveMQServer server;
 
@@ -100,11 +100,11 @@ public class ActiveMQCrashTest extends ActiveMQTestBase {
 
       @Override
       public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-         log.debug("AckInterceptor.intercept {}", packet);
+         logger.debug("AckInterceptor.intercept {}", packet);
 
          if (packet.getType() == PacketImpl.SESS_SEND) {
             try {
-               log.debug("Stopping server");
+               logger.debug("Stopping server");
 
                new Thread() {
                   @Override

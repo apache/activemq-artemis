@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public class TimedBufferTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private static final int ONE_SECOND_IN_NANOS = 1000000000; // in nanoseconds
@@ -164,7 +164,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
       IOCallback callback = new IOCallback() {
          @Override
          public void done() {
-            log.debug("done");
+            logger.debug("done");
             latchFlushed.countDown();
          }
 
@@ -385,7 +385,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          assert observer.flushesDone() == 2;
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
-         log.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
+         logger.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
          final long maxExpected = timeout + deviceTime;
          Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
       } finally {
@@ -426,7 +426,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          assert observer.flushesDone() == 2;
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
-         log.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
+         logger.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
          final long maxExpected = timeout + deviceTime;
          Assert.assertTrue("elapsed = " + elapsedTime + " max expected = " + maxExpected, elapsedTime <= maxExpected);
       } finally {

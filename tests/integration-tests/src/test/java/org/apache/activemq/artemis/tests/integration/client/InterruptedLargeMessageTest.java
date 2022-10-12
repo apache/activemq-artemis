@@ -76,7 +76,7 @@ import java.lang.invoke.MethodHandles;
 
 public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static final int RECEIVE_WAIT_TIME = 60000;
 
@@ -181,7 +181,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          @Override
          public void run() {
             try {
-               log.debug("Receiving message");
+               logger.debug("Receiving message");
                ClientMessage msg = cons.receive(5000);
                if (msg == null) {
                   System.err.println("Message not received");
@@ -235,7 +235,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          @Override
          public void run() {
             try {
-               log.debug("Receiving message");
+               logger.debug("Receiving message");
                javax.jms.Message msg = consumer.receive(5000);
                if (msg == null) {
                   System.err.println("Message not received");
@@ -243,10 +243,10 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
                   return;
                }
             } catch (JMSException e) {
-               log.debug("This exception was ok as it was expected", e);
+               logger.debug("This exception was ok as it was expected", e);
                expectedErrors.incrementAndGet();
             } catch (Throwable e) {
-               log.warn("Captured unexpected exception", e);
+               logger.warn("Captured unexpected exception", e);
                unexpectedErrors.incrementAndGet();
             }
          }
@@ -452,7 +452,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
       server.start();
 
       for (int start = 0; start < 2; start++) {
-         log.debug("Start {}", start);
+         logger.debug("Start {}", start);
 
          sf = createSessionFactory(locator);
 
@@ -466,7 +466,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          ClientConsumer cons1 = session.createConsumer(ADDRESS);
          session.start();
          for (int i = 0; i < 10; i++) {
-            log.info("I = {}", i);
+            logger.info("I = {}", i);
             ClientMessage msg = cons1.receive(5000);
             Assert.assertNotNull(msg);
             Assert.assertEquals(1, msg.getIntProperty("txid").intValue());
@@ -531,7 +531,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
 
          @Override
          public void postAcknowledge(final MessageReference ref, AckReason reason) {
-            log.debug("Ignoring postACK on message {}", ref);
+            logger.debug("Ignoring postACK on message {}", ref);
          }
 
          @Override
@@ -745,7 +745,7 @@ public class InterruptedLargeMessageTest extends LargeMessageTestBase {
          if (packet instanceof SessionContinuationMessage) {
             SessionContinuationMessage msg = (SessionContinuationMessage) packet;
             if (!msg.isContinues() && intMessages) {
-               log.debug("Ignored a message");
+               logger.debug("Ignored a message");
                latch.countDown();
                return false;
             }

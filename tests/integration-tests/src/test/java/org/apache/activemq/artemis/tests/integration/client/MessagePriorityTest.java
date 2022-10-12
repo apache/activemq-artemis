@@ -38,7 +38,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MessagePriorityTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -111,7 +111,7 @@ public class MessagePriorityTest extends ActiveMQTestBase {
       for (int i = 9; i >= 0; i--) {
          ClientMessage m = consumer.receive(500);
 
-         log.debug("received msg {}", m.getPriority());
+         logger.debug("received msg {}", m.getPriority());
 
          Assert.assertNotNull(m);
          Assert.assertEquals(i, m.getPriority());

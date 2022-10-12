@@ -58,7 +58,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected SimpleString address;
    protected SimpleString lastAddress;
@@ -124,7 +124,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
                } catch (ActiveMQAMQPNotFoundException e) {
                   throw e;
                } catch (Exception e) {
-                  log.debug(e.getMessage(), e);
+                  logger.debug(e.getMessage(), e);
                   throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
                }
 
@@ -188,7 +188,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             sessionSPI.serverSend(this, tx, receiver, delivery, address, routingContext, message);
          }
       } catch (Exception e) {
-         log.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
 
          deliveryFailed(delivery, receiver, e);
 
@@ -205,7 +205,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
                ActiveMQAMQPProtocolLogger.LOGGER.incompatibleAddressFullMessagePolicy(lastAddress.toString(), String.valueOf(lastAddressPolicy), newAddress.toString(), String.valueOf(currentPolicy));
             }
 
-            log.debug("AddressFullPolicy clash between {}/{} and {}/{}", lastAddress, lastAddressPolicy, newAddress, lastAddressPolicy);
+            logger.debug("AddressFullPolicy clash between {}/{} and {}/{}", lastAddress, lastAddressPolicy, newAddress, lastAddressPolicy);
          }
          this.lastAddress = message.getAddressSimpleString();
          this.lastAddressPolicy = currentPolicy;

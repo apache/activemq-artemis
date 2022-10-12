@@ -41,7 +41,7 @@ import static org.junit.Assert.fail;
 
 public class ByteUtilTest {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testBytesToString() {
@@ -56,13 +56,13 @@ public class ByteUtilTest {
    public void testNonASCII() {
       assertEquals("aA", ByteUtil.toSimpleString(new byte[]{97, 0, 65, 0}));
       assertEquals(ByteUtil.NON_ASCII_STRING, ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
-      log.debug(ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
+      logger.debug(ByteUtil.toSimpleString(new byte[]{0, 97, 0, 65}));
    }
 
    @Test
    public void testMaxString() {
       byte[] byteArray = new byte[20 * 1024];
-      log.debug(ByteUtil.maxString(ByteUtil.bytesToHex(byteArray, 2), 150));
+      logger.debug(ByteUtil.maxString(ByteUtil.bytesToHex(byteArray, 2), 150));
    }
 
    void testEquals(String string1, String string2) {

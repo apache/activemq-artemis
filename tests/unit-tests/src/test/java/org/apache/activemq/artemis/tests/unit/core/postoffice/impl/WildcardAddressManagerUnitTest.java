@@ -51,7 +51,7 @@ import java.lang.invoke.MethodHandles;
  * This test is replicating the behaviour from https://issues.jboss.org/browse/HORNETQ-988.
  */
 public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testUnitOnWildCardFailingScenario() throws Exception {
@@ -486,7 +486,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       @Override
       public void route(Message message, RoutingContext context) throws Exception {
-         log.debug("routing message: {}", message);
+         logger.debug("routing message: {}", message);
       }
 
       @Override

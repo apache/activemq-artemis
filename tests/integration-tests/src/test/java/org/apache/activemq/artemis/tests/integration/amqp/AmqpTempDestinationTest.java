@@ -44,7 +44,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testCreateDynamicSenderToTopic() throws Exception {
@@ -210,7 +210,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       // Get the new address
       String address = sender.getSender().getRemoteTarget().getAddress();
-      LOG.debug("New dynamic sender address -> {}", address);
+      logger.debug("New dynamic sender address -> {}", address);
 
       // Create a message and send to a receive that is listening on the newly
       // created dynamic link address.
@@ -259,7 +259,7 @@ public class AmqpTempDestinationTest extends AmqpClientTestSupport {
 
       // Get the new address
       String address = receiver.getReceiver().getRemoteSource().getAddress();
-      LOG.debug("New dynamic receiver address -> {}", address);
+      logger.debug("New dynamic receiver address -> {}", address);
 
       // Create a message and send to a receive that is listening on the newly
       // created dynamic link address.

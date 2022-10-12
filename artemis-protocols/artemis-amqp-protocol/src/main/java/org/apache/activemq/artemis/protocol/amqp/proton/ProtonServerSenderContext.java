@@ -101,7 +101,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ProtonServerSenderContext extends ProtonInitializable implements ProtonDeliveryHandler {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final Symbol COPY = Symbol.valueOf("copy");
    private static final Symbol TOPIC = Symbol.valueOf("topic");
@@ -298,7 +298,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          try {
             sessionSPI.closeSender(brokerConsumer);
          } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
          }
          sender.close();
          connection.flush();
@@ -320,7 +320,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          try {
             internalClose(remoteLinkClose);
          } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
          }
       });
    }
@@ -336,7 +336,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          }
       } catch (Exception e) {
-         log.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
       }
    }
@@ -380,7 +380,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       try {
          sessionSPI.ack(null, brokerConsumer, message);
       } catch (Exception e) {
-         log.warn(e.toString(), e);
+         logger.warn(e.toString(), e);
          throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.errorAcknowledgingMessage(message.toString(), e.getMessage());
       }
    }
@@ -390,7 +390,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       boolean handled = true;
 
       if (remoteState == null) {
-         log.debug("Received null disposition for delivery update: {}", remoteState);
+         logger.debug("Received null disposition for delivery update: {}", remoteState);
          return true;
       }
 
@@ -459,7 +459,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
             break;
          default:
-            log.debug("Received null or unknown disposition for delivery update: {}", remoteState);
+            logger.debug("Received null or unknown disposition for delivery update: {}", remoteState);
             handled = false;
       }
 
@@ -535,7 +535,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       try {
          if (sender.getLocalState() == EndpointState.CLOSED) {
-            log.debug("Not delivering message {} as the sender is closed and credits were available, if you see too many of these it means clients are issuing credits and closing the connection with pending credits a lot of times", messageReference);
+            logger.debug("Not delivering message {} as the sender is closed and credits were available, if you see too many of these it means clients are issuing credits and closing the connection with pending credits a lot of times", messageReference);
             return;
          }
          AMQPMessage message = CoreAmqpConverter.checkAMQP(messageReference.getMessage(), sessionSPI.getStorageManager());
@@ -560,7 +560,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
             return;
          }
-         log.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
          brokerConsumer.errorProcessing(e, messageReference);
       }
    }
@@ -635,7 +635,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                try {
                   sessionSPI.ack(null, brokerConsumer, reference.getMessage());
                } catch (Exception e) {
-                  log.debug(e.getMessage(), e);
+                  logger.debug(e.getMessage(), e);
                }
                delivery.settle();
             } else {
@@ -650,7 +650,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
             finishLargeMessage();
          } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
             brokerConsumer.errorProcessing(e, reference);
          }
       }
@@ -678,7 +678,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             replaceInitialHeader(deliveryAnnotationsToEncode, context, new NettyWritable(frameBuffer));
          } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
             assert position == 0 : "this shouldn't happen unless replaceInitialHeader is updating position before modifying frameBuffer";
-            log.debug("Delivery of message failed with an overFlowException, retrying again with expandable buffer");
+            logger.debug("Delivery of message failed with an overFlowException, retrying again with expandable buffer");
 
             // on the very first packet, if the initial header was replaced with a much bigger header (re-encoding)
             // we could recover the situation with a retry using an expandable buffer.
@@ -847,7 +847,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             try {
                sessionSPI.ack(null, brokerConsumer, messageReference.getMessage());
             } catch (Exception e) {
-               log.debug(e.getMessage(), e);
+               logger.debug(e.getMessage(), e);
             }
             delivery.settle();
          } else {

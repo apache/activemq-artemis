@@ -38,7 +38,7 @@ import org.junit.runner.Description;
  */
 public class ThreadLeakCheckRule extends TestWatcher {
 
-   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static Set<String> knownThreads = new HashSet<>();
 
@@ -84,8 +84,8 @@ public class ThreadLeakCheckRule extends TestWatcher {
     */
    @Override
    protected void finished(Description description) {
-      if (log.isDebugEnabled()) {
-         log.debug("checking thread enabled? {}, testFailed? {}", enabled, testFailed);
+      if (logger.isDebugEnabled()) {
+         logger.debug("checking thread enabled? {}, testFailed? {}", enabled, testFailed);
       }
       try {
          if (enabled) {
@@ -139,10 +139,10 @@ public class ThreadLeakCheckRule extends TestWatcher {
    public static void forceGC() {
 
       if (failedGCCalls >= 10) {
-         log.info("ignoring forceGC call since it seems System.gc is not working anyways");
+         logger.info("ignoring forceGC call since it seems System.gc is not working anyways");
          return;
       }
-      log.info("#test forceGC");
+      logger.info("#test forceGC");
       CountDownLatch finalized = new CountDownLatch(1);
       WeakReference<DumbReference> dumbReference = new WeakReference<>(new DumbReference(finalized));
 
@@ -160,12 +160,12 @@ public class ThreadLeakCheckRule extends TestWatcher {
 
       if (dumbReference.get() != null) {
          failedGCCalls++;
-         log.info("It seems that GC is disabled at your VM");
+         logger.info("It seems that GC is disabled at your VM");
       } else {
          // a success would reset the count
          failedGCCalls = 0;
       }
-      log.info("#test forceGC Done ");
+      logger.info("#test forceGC Done ");
    }
 
    public static void forceGC(final Reference<?> ref, final long timeout) {

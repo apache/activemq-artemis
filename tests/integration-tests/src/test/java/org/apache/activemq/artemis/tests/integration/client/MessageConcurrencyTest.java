@@ -41,7 +41,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MessageConcurrencyTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -219,7 +219,7 @@ public class MessageConcurrencyTest extends ActiveMQTestBase {
                producer.send(msg);
             }
          } catch (Exception e) {
-            log.error("Failed to send message", e);
+            logger.error("Failed to send message", e);
 
             failed = true;
          }

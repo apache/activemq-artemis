@@ -39,7 +39,7 @@ import java.lang.invoke.MethodHandles;
 
 public class SessionStopStartTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -284,7 +284,7 @@ public class SessionStopStartTest extends ActiveMQTestBase {
       try {
          session.stop();
       } catch (Exception e) {
-         SessionStopStartTest.log.warn(e.getMessage(), e);
+         SessionStopStartTest.logger.warn(e.getMessage(), e);
          throw e;
       }
 

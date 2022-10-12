@@ -28,7 +28,7 @@ import java.lang.invoke.MethodHandles;
 
 public class DummyInterceptorB implements Interceptor {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static AtomicInteger syncCounter = new AtomicInteger(0);
 
@@ -43,7 +43,7 @@ public class DummyInterceptorB implements Interceptor {
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
       DummyInterceptorB.syncCounter.addAndGet(1);
-      log.debug("DummyFilter packet = {}", packet);
+      logger.debug("DummyFilter packet = {}", packet);
       return true;
    }
 }

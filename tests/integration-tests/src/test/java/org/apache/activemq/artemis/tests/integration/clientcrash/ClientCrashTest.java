@@ -46,7 +46,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ClientCrashTest extends ClientTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public SpawnedVMCheck spawnedVMCheck = new SpawnedVMCheck();
@@ -148,7 +148,7 @@ public class ClientCrashTest extends ClientTestBase {
       // spawn a JVM that creates a Core client, which sends a message
       p = SpawnedVMSupport.spawnVM(CrashClient2.class.getName());
 
-      ClientCrashTest.log.debug("waiting for the client VM to crash ...");
+      ClientCrashTest.logger.debug("waiting for the client VM to crash ...");
       Assert.assertTrue(p.waitFor(1, TimeUnit.MINUTES));
 
       assertEquals(CrashClient2.OK, p.exitValue());

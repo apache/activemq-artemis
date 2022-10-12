@@ -30,7 +30,7 @@ import javax.servlet.ServletContextListener;
  **/
 public class PluginContextListener implements ServletContextListener {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    HawtioPlugin plugin = null;
 
@@ -51,7 +51,7 @@ public class PluginContextListener implements ServletContextListener {
          throw createServletException(e);
       }
 
-      LOG.info("Initialized {} plugin", plugin.getName());
+      logger.info("Initialized {} plugin", plugin.getName());
    }
 
    @Override
@@ -62,7 +62,7 @@ public class PluginContextListener implements ServletContextListener {
          throw createServletException(e);
       }
 
-      LOG.info("Destroyed {} plugin", plugin.getName());
+      logger.info("Destroyed {} plugin", plugin.getName());
    }
 
    protected RuntimeException createServletException(Exception e) {

@@ -95,7 +95,7 @@ import java.lang.invoke.MethodHandles;
 @RunWith(value = Parameterized.class)
 public class BridgeTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server0;
    private ActiveMQServer server1;
@@ -1497,7 +1497,7 @@ public class BridgeTest extends ActiveMQTestBase {
             msgCount.incrementAndGet();
 
             if (i % 500 == 0)
-               log.debug("received {}", i);
+               logger.debug("received {}", i);
          }
 
          boolean failed = false;
@@ -1815,7 +1815,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
          File outputFile = new File(getTemporaryDir(), "huge_message_received.dat");
 
-         log.debug("-----message save to: {}", outputFile.getAbsolutePath());
+         logger.debug("-----message save to: {}", outputFile.getAbsolutePath());
          FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
 
          BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutputStream);
@@ -1860,7 +1860,7 @@ public class BridgeTest extends ActiveMQTestBase {
 
       createFile(fileInput, largeMessageSize);
 
-      log.debug("File created at: {}", fileInput.getAbsolutePath());
+      logger.debug("File created at: {}", fileInput.getAbsolutePath());
 
       ClientMessage message = session.createMessage(Message.BYTES_TYPE, true);
 
@@ -1874,13 +1874,13 @@ public class BridgeTest extends ActiveMQTestBase {
 
    private static void createFile(final File file, final long fileSize) throws IOException {
       if (file.exists()) {
-         log.warn("---file already there {}", file.length());
+         logger.warn("---file already there {}", file.length());
          return;
       }
       FileOutputStream fileOut = new FileOutputStream(file);
       BufferedOutputStream buffOut = new BufferedOutputStream(fileOut);
       byte[] outBuffer = new byte[1024 * 1024];
-      log.debug(" --- creating file, size: {}", fileSize);
+      logger.debug(" --- creating file, size: {}", fileSize);
       for (long i = 0; i < fileSize; i += outBuffer.length) {
          buffOut.write(outBuffer);
       }

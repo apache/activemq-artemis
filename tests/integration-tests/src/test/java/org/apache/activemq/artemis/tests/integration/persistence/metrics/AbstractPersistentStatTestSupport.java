@@ -49,7 +49,7 @@ import java.lang.invoke.MethodHandles;
  */
 public abstract class AbstractPersistentStatTestSupport extends JMSTestBase {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected static int defaultMessageSize = 1000;
 

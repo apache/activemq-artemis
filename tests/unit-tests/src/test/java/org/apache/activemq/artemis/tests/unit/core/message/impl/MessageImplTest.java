@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public class MessageImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void getSetAttributes() {
@@ -242,7 +242,7 @@ public class MessageImplTest extends ActiveMQTestBase {
    public void testMessageCopyIssue() throws Exception {
       for (long i = 0; i < 300; i++) {
          if (i % 10 == 0)
-            log.debug("#test {}", i);
+            logger.debug("#test {}", i);
          internalMessageCopy();
       }
    }

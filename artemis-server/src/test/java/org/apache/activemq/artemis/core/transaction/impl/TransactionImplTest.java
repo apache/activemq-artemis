@@ -74,7 +74,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TransactionImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testTimeoutAndThenCommitWithARollback() throws Exception {
@@ -102,7 +102,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterCommit(Transaction tx) {
-            log.debug("commit...");
+            logger.debug("commit...");
             commit.incrementAndGet();
          }
 
@@ -113,7 +113,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterRollback(Transaction tx) {
-            log.debug("rollback...");
+            logger.debug("rollback...");
             rollback.incrementAndGet();
          }
 
@@ -170,7 +170,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterCommit(Transaction tx) {
-            log.debug("commit...");
+            logger.debug("commit...");
             commit.incrementAndGet();
          }
 
@@ -181,7 +181,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
          @Override
          public void afterRollback(Transaction tx) {
-            log.debug("rollback...");
+            logger.debug("rollback...");
             rollback.incrementAndGet();
          }
 

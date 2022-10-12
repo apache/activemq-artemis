@@ -34,7 +34,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class CrashClient2 {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    public static final int OK = 9;
 
    public static void main(final String[] args) throws Exception {
@@ -62,7 +62,7 @@ public class CrashClient2 {
          ClientMessage msg = cons.receive(10000);
 
          if (msg == null) {
-            log.error("Didn't receive msg");
+            logger.error("Didn't receive msg");
 
             System.exit(1);
          }
@@ -70,7 +70,7 @@ public class CrashClient2 {
          // exit without closing the session properly
          System.exit(OK);
       } catch (Throwable t) {
-         log.error(t.getMessage(), t);
+         logger.error(t.getMessage(), t);
          System.exit(1);
       }
    }

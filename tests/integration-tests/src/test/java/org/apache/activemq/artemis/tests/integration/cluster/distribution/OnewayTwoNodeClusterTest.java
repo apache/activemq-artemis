@@ -27,7 +27,7 @@ import java.lang.invoke.MethodHandles;
 
 public class OnewayTwoNodeClusterTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before
@@ -145,19 +145,19 @@ public class OnewayTwoNodeClusterTest extends ClusterTestBase {
 
       long start = System.currentTimeMillis();
 
-      OnewayTwoNodeClusterTest.log.debug("stopping server 1");
+      OnewayTwoNodeClusterTest.logger.debug("stopping server 1");
 
       stopServers(1);
 
       waitForTopology(servers[0], 1);
 
-      OnewayTwoNodeClusterTest.log.debug("restarting server 1({})", servers[1].getIdentity());
+      OnewayTwoNodeClusterTest.logger.debug("restarting server 1({})", servers[1].getIdentity());
 
       startServers(1);
 
       waitForTopology(servers[0], 2);
 
-      log.debug("Server 1 id={}", servers[1].getNodeID());
+      logger.debug("Server 1 id={}", servers[1].getNodeID());
 
       long end = System.currentTimeMillis();
 

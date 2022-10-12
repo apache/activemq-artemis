@@ -31,7 +31,7 @@ import java.lang.invoke.MethodHandles;
 
 public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @After
@@ -143,7 +143,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          }
 
          if (count % 100 == 0) {
-            JournalImplTestUnit.log.debug("Done: {}", count);
+            JournalImplTestUnit.logger.debug("Done: {}", count);
          }
       }
 
@@ -151,9 +151,9 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
 
       double rate = 1000 * (double) NUMBER_OF_RECORDS / (end - start);
 
-      log.debug("Rate of {} adds/removes per sec", rate);
+      logger.debug("Rate of {} adds/removes per sec", rate);
 
-      log.debug("Reclaim status = {}", debugJournal());
+      logger.debug("Reclaim status = {}", debugJournal());
 
       stopJournal();
       createJournal();

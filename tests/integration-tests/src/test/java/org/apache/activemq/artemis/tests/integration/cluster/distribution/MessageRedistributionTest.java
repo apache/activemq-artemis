@@ -58,7 +58,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MessageRedistributionTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before
@@ -91,7 +91,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    public void testRedistributionWithMessageGroups() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      log.debug("Doing test");
+      logger.debug("Doing test");
 
       getServer(0).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.LOCAL).setAddress(new SimpleString("queues")));
       getServer(1).getConfiguration().setGroupingHandlerConfiguration(new GroupingHandlerConfiguration().setName(new SimpleString("handler")).setType(GroupingHandlerConfiguration.TYPE.REMOTE).setAddress(new SimpleString("queues")));
@@ -170,7 +170,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
          message.acknowledge();
          Assert.assertNotNull(message.getSimpleStringProperty(Message.HDR_GROUP_ID));
       }
-      log.debug("Test done");
+      logger.debug("Test done");
    }
 
    //https://issues.jboss.org/browse/HORNETQ-1057
@@ -178,7 +178,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
    public void testRedistributionStopsWhenConsumerAdded() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      log.debug("Doing test");
+      logger.debug("Doing test");
 
       startServers(0, 1, 2);
 
@@ -208,14 +208,14 @@ public class MessageRedistributionTest extends ClusterTestBase {
       Bindable bindable = servers[0].getPostOffice().getBinding(new SimpleString("queue0")).getBindable();
       String debug = ((QueueImpl) bindable).debug();
       Assert.assertFalse(debug.contains(Redistributor.class.getName()));
-      log.debug("Test done");
+      logger.debug("Test done");
    }
 
    @Test
    public void testRedistributionWhenConsumerIsClosed() throws Exception {
       setupCluster(MessageLoadBalancingType.ON_DEMAND);
 
-      log.debug("Doing test");
+      logger.debug("Doing test");
 
       startServers(0, 1, 2);
 
@@ -249,7 +249,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
 
       verifyReceiveRoundRobinInSomeOrderWithCounts(false, ids1, 0, 2);
 
-      log.debug("Test done");
+      logger.debug("Test done");
    }
 
    @Test
@@ -331,7 +331,7 @@ public class MessageRedistributionTest extends ClusterTestBase {
       Assert.assertNull(consumer1.receiveImmediate());
       Assert.assertNull(consumer2.receiveImmediate());
 
-      log.debug("Test done");
+      logger.debug("Test done");
    }
 
    @Test

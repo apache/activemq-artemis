@@ -67,7 +67,7 @@ import java.lang.invoke.MethodHandles;
 @RunWith(Parameterized.class)
 public abstract class StompTestBase extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameter
    public String scheme;
@@ -639,7 +639,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
          assertEquals(uuid, frame.getHeader(Stomp.Headers.Response.RECEIPT_ID));
       }
 
-      log.debug("Received: {}", frame);
+      logger.debug("Received: {}", frame);
 
       return frame;
    }

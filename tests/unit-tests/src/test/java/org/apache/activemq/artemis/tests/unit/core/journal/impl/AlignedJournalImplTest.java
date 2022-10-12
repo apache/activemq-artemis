@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public class AlignedJournalImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private static final LoaderCallback dummyLoader = new LoaderCallback() {
@@ -261,9 +261,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      log.debug("Initial:--> {}", journalImpl.debug());
+      logger.debug("Initial:--> {}", journalImpl.debug());
 
-      log.debug("_______________________________");
+      logger.debug("_______________________________");
 
       for (int i = 0; i < 50; i++) {
          journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
@@ -305,9 +305,9 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
-      log.debug("Initial:--> {}", journalImpl.debug());
+      logger.debug("Initial:--> {}", journalImpl.debug());
 
-      log.debug("_______________________________");
+      logger.debug("_______________________________");
 
       for (int i = 0; i < 50; i++) {
          journalImpl.appendAddRecord(i, (byte) 1, new SimpleEncoding(1, (byte) 'x'), false);
@@ -339,15 +339,15 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.checkReclaimStatus();
 
-      log.debug(journalImpl.debug());
+      logger.debug(journalImpl.debug());
 
       journalImpl.debugWait();
 
-      log.debug("Final:--> {}", journalImpl.debug());
+      logger.debug("Final:--> {}", journalImpl.debug());
 
-      log.debug("_______________________________");
+      logger.debug("_______________________________");
 
-      log.debug("Files bufferSize: {}", factory.listFiles("tt").size());
+      logger.debug("Files bufferSize: {}", factory.listFiles("tt").size());
 
       Assert.assertEquals(2, factory.listFiles("tt").size());
 
@@ -375,7 +375,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       } catch (Exception e) {
-         log.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -423,7 +423,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          // forgotten (interrupted by a reload).
          Assert.fail("Supposed to throw exception");
       } catch (Exception e) {
-         log.debug("Got an expected exception:", e);
+         logger.debug("Got an expected exception:", e);
       }
 
       setupAndLoadJournal(JOURNAL_SIZE, 100);
@@ -530,7 +530,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
 
       journalImpl.debugWait();
 
-      log.debug("Files = {}", factory.listFiles("tt"));
+      logger.debug("Files = {}", factory.listFiles("tt"));
 
       SequentialFile file = factory.createSequentialFile("tt-1.tt");
 
@@ -1327,7 +1327,7 @@ public class AlignedJournalImplTest extends ActiveMQTestBase {
          public void failedTransaction(final long transactionID,
                                        final List<RecordInfo> records,
                                        final List<RecordInfo> recordsToDelete) {
-            log.debug("records.length = {}", records.size());
+            logger.debug("records.length = {}", records.size());
             incompleteTransactions.add(transactionID);
          }
 

@@ -44,7 +44,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ValidateTransactionHealthTest extends SpawnedTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int OK = 10;
 
@@ -138,7 +138,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
                              final int numberOfThreads) throws Exception {
       try {
          if (type.equals("aio") && !LibaioContext.isLoaded()) {
-            log.warn("AIO not found, test being ignored on this platform");
+            logger.warn("AIO not found, test being ignored on this platform");
             return;
          }
 
@@ -215,7 +215,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
       @Override
       public void addRecord(final RecordInfo info) {
          if (info.id == lastID) {
-            log.debug("id = {} last id = {}", info.id, lastID);
+            logger.debug("id = {} last id = {}", info.id, lastID);
          }
 
          ByteBuffer buffer = ByteBuffer.wrap(info.data);
@@ -399,7 +399,7 @@ public class ValidateTransactionHealthTest extends SpawnedTestBase {
                   journal.appendAddRecordTransactional(transactionId, id, (byte) 99, buffer.array());
 
                   if (++transactionCounter == transactionSize) {
-                     log.debug("Commit transaction {}", transactionId);
+                     logger.debug("Commit transaction {}", transactionId);
                      journal.appendCommitRecord(transactionId, true);
                      transactionCounter = 0;
                      transactionId = nextID.incrementAndGet();

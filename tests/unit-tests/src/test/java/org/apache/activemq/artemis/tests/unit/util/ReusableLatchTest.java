@@ -28,7 +28,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ReusableLatchTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testLatchWithParameterizedDown() throws Exception {
@@ -86,10 +86,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
          public void run() {
             try {
                if (!latch.await(5000)) {
-                  log.error("Latch timed out");
+                  logger.error("Latch timed out");
                }
             } catch (Exception e) {
-               log.error(e.getMessage(), e);
+               logger.error(e.getMessage(), e);
             }
             waiting = false;
          }
@@ -117,7 +117,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                   latch.countUp();
                }
             } catch (Exception e) {
-               log.error(e.getMessage(), e);
+               logger.error(e.getMessage(), e);
             }
          }
       }
@@ -170,7 +170,7 @@ public class ReusableLatchTest extends ActiveMQTestBase {
                   latch.countDown();
                }
             } catch (Exception e) {
-               log.error(e.getMessage(), e);
+               logger.error(e.getMessage(), e);
             }
          }
       }
@@ -234,10 +234,10 @@ public class ReusableLatchTest extends ActiveMQTestBase {
             readyLatch.countDown();
             try {
                if (!latch.await(1000)) {
-                  log.error("Latch timed out!", new Exception("trace"));
+                  logger.error("Latch timed out!", new Exception("trace"));
                }
             } catch (Exception e) {
-               log.error(e.getMessage(), e);
+               logger.error(e.getMessage(), e);
                this.e = e;
             }
             waiting = false;

@@ -45,7 +45,7 @@ public class ClientExitTest extends ClientTestBase {
 
    private static final SimpleString QUEUE = new SimpleString("ClientExitTestQueue");
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ClientSession session;
 
@@ -65,7 +65,7 @@ public class ClientExitTest extends ClientTestBase {
 
       // the client VM should exit by itself. If it doesn't, that means we have a problem
       // and the test will timeout
-      ClientExitTest.log.debug("waiting for the client VM to exit ...");
+      ClientExitTest.logger.debug("waiting for the client VM to exit ...");
       p.waitFor();
 
       assertEquals(0, p.exitValue());

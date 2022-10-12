@@ -40,7 +40,7 @@ import java.lang.invoke.MethodHandles;
 
 public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final int DURATION_MILLIS = 30_000;
    public static final int NEGATIVE_DURATION_MILLIS = 1_000;
@@ -87,14 +87,14 @@ public class AddressQueueDeleteDelayTest extends ActiveMQTestBase {
 
 
       long elapsedTime = System.currentTimeMillis() - start;
-      log.debug("Elapsed time to delete queue: {}", elapsedTime);
+      logger.debug("Elapsed time to delete queue: {}", elapsedTime);
       assertTrue(elapsedTime >= (deleteQueuesDelay));
 
       start = info.getBindingRemovedTimestamp();
 
       assertTrue(Wait.waitFor(() -> server.getAddressInfo(address) == null, DURATION_MILLIS, SLEEP_MILLIS));
       elapsedTime = System.currentTimeMillis() - start;
-      log.debug("Elapsed time to delete address: {}", elapsedTime);
+      logger.debug("Elapsed time to delete address: {}", elapsedTime);
       assertTrue("ellapsedTime=" + elapsedTime + " while delay is " + deleteAddressesDelay, elapsedTime >= (deleteAddressesDelay));
    }
 

@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public class QueueImplTest extends ActiveMQTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // The tests ----------------------------------------------------------------
 
@@ -235,7 +235,7 @@ public class QueueImplTest extends ActiveMQTestBase {
       float rate = (float) getRate.invoke(queue, null);
 
       Assert.assertTrue(rate <= 10.0f);
-      log.debug("Rate: {}", rate);
+      logger.debug("Rate: {}", rate);
    }
 
    @Test

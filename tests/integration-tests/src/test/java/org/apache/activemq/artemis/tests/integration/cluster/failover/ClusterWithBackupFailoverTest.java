@@ -60,8 +60,8 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       send(2, QUEUES_TESTADDRESS, 10, false, null);
       verifyReceiveRoundRobinInSomeOrder(true, 10, 0, 1, 2);
       Thread.sleep(1000);
-      log.debug("######### Topology on client = {} locator = {}", locators[0].getTopology().describe(), locators[0]);
-      log.debug("######### Crashing it........., sfs[0] = {}", sfs[0]);
+      logger.debug("######### Topology on client = {} locator = {}", locators[0].getTopology().describe(), locators[0]);
+      logger.debug("######### Crashing it........., sfs[0] = {}", sfs[0]);
       failNode(0);
 
       waitForFailoverTopology(4, 3, 1, 2);
@@ -79,7 +79,7 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       // activated backup nodes
       waitForBindings(3, QUEUES_TESTADDRESS, 2, 2, false);
 
-      ClusterWithBackupFailoverTestBase.log.debug("** now sending");
+      ClusterWithBackupFailoverTestBase.logger.debug("** now sending");
 
       send(0, QUEUES_TESTADDRESS, 10, false, null);
       verifyReceiveRoundRobinInSomeOrder(true, 10, 0, 1, 2);
@@ -269,7 +269,7 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       // activated backup nodes
       waitForBindings(3, QUEUES_TESTADDRESS, 2, 2, false);
 
-      ClusterWithBackupFailoverTestBase.log.debug("** now sending");
+      ClusterWithBackupFailoverTestBase.logger.debug("** now sending");
 
       send(0, QUEUES_TESTADDRESS, 10, false, null);
       verifyReceiveRoundRobinInSomeOrder(true, 10, 0, 1, 2);

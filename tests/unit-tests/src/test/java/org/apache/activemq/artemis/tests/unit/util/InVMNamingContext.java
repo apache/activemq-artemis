@@ -42,7 +42,7 @@ import java.lang.invoke.MethodHandles;
 
 public class InVMNamingContext implements Context, Serializable {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long serialVersionUID = 385743957345L;
 
@@ -288,7 +288,7 @@ public class InVMNamingContext implements Context, Serializable {
    }
 
    private void internalBind(String name, final Object obj, final boolean rebind) throws NamingException {
-      log.debug("Binding {} obj {} rebind {}", name, obj, rebind);
+      logger.debug("Binding {} obj {} rebind {}", name, obj, rebind);
       name = trimSlashes(name);
       int i = name.lastIndexOf("/");
       InVMNamingContext c = this;

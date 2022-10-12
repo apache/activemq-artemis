@@ -43,7 +43,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private static final int TIME_TO_RUN = 60 * 1000;
@@ -317,7 +317,7 @@ public class MultipleConsumersPageStressTest extends ActiveMQTestBase {
                for (int i = 0; i < numberOfMessages; i++) {
                   ClientMessage msg = consumer.receive(10000);
                   if (msg == null) {
-                     log.warn("msg {} was null, currentBatchSize={}, current msg being read={}", count, numberOfMessages, i);
+                     logger.warn("msg {} was null, currentBatchSize={}, current msg being read={}", count, numberOfMessages, i);
                   }
                   Assert.assertNotNull("msg " + count +
                                           " was null, currentBatchSize=" +

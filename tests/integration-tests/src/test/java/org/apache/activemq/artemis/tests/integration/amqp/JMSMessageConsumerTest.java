@@ -56,7 +56,7 @@ import java.lang.invoke.MethodHandles;
 
 public class JMSMessageConsumerTest extends JMSClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected String getConfiguredProtocols() {
@@ -651,7 +651,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
                message.acknowledge();
                done.countDown();
             } catch (JMSException ex) {
-               LOG.debug("Caught exception.", ex);
+               logger.debug("Caught exception.", ex);
             }
          }
       });
@@ -731,7 +731,7 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
                while (count > 0) {
                   try {
                      if (++n % 1000 == 0) {
-                        LOG.debug("received {} messages", n);
+                        logger.debug("received {} messages", n);
                      }
 
                      Message m = consumer.receive(5000);
@@ -783,11 +783,11 @@ public class JMSMessageConsumerTest extends JMSClientTestSupport {
       Wait.assertEquals(0, queueView::getMessageCount);
 
       long taken = (System.currentTimeMillis() - time);
-      LOG.debug("Microbenchamrk ran in {} milliseconds, sending/receiving {}", taken, numMessages);
+      logger.debug("Microbenchamrk ran in {} milliseconds, sending/receiving {}", taken, numMessages);
 
       double messagesPerSecond = ((double) numMessages / (double) taken) * 1000;
 
-      LOG.debug("{} messages per second", ((int) messagesPerSecond));
+      logger.debug("{} messages per second", ((int) messagesPerSecond));
    }
 
    @Test(timeout = 60000)

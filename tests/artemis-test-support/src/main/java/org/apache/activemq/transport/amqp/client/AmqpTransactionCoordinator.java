@@ -54,7 +54,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final byte[] OUTBOUND_BUFFER = new byte[64];
 
@@ -87,12 +87,12 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
             }
 
             if (state instanceof Declared) {
-               LOG.debug("New TX started: {}", txId.getTxId());
+               logger.debug("New TX started: {}", txId.getTxId());
                Declared declared = (Declared) state;
                txId.setRemoteTxId(declared.getTxnId());
                pendingRequest.onSuccess();
             } else if (state instanceof Rejected) {
-               LOG.debug("Last TX request failed: {}", txId.getTxId());
+               logger.debug("Last TX request failed: {}", txId.getTxId());
                Rejected rejected = (Rejected) state;
                Exception cause = AmqpSupport.convertToException(rejected.getError());
                JMSException failureCause = null;
@@ -104,7 +104,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
 
                pendingRequest.onFailure(failureCause);
             } else {
-               LOG.debug("Last TX request succeeded: {}", txId.getTxId());
+               logger.debug("Last TX request succeeded: {}", txId.getTxId());
                pendingRequest.onSuccess();
             }
 
@@ -203,7 +203,7 @@ public class AmqpTransactionCoordinator extends AmqpAbstractResource<Sender> {
          getEndpoint().free();
       }
 
-      LOG.debug("Transaction Coordinator link {} was remotely closed", getEndpoint());
+      logger.debug("Transaction Coordinator link {} was remotely closed", getEndpoint());
    }
 
    //----- Internal implementation ------------------------------------------//

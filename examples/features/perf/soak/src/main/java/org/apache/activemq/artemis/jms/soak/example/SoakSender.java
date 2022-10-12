@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class SoakSender {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static void main(final String[] args) {
       try {
@@ -120,7 +120,7 @@ public class SoakSender {
             if (display && count.longValue() % modulo == 0) {
                double duration = (1.0 * System.currentTimeMillis() - moduleStart) / 1000;
                moduleStart = System.currentTimeMillis();
-               SoakSender.log.info(String.format("sent %s messages in %2.2fs (time: %.0fs)", modulo, duration, totalDuration / 1000.0));
+               SoakSender.logger.info(String.format("sent %s messages in %2.2fs (time: %.0fs)", modulo, duration, totalDuration / 1000.0));
             }
 
             if (tbl != null) {
@@ -135,8 +135,8 @@ public class SoakSender {
          }
       }
 
-      SoakSender.log.info(String.format("Sent %s messages in %s minutes", count, perfParams.getDurationInMinutes()));
-      SoakSender.log.info("END OF RUN");
+      SoakSender.logger.info(String.format("Sent %s messages in %s minutes", count, perfParams.getDurationInMinutes()));
+      SoakSender.logger.info("END OF RUN");
 
       if (connection != null) {
          connection.close();

@@ -33,7 +33,7 @@ import java.util.Set;
 
 public class MQTTQueueCleanTest extends MQTTTestSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testQueueClean() throws Exception {
@@ -113,7 +113,7 @@ public class MQTTQueueCleanTest extends MQTTTestSupport {
                clientProvider.subscribe(address, AT_LEAST_ONCE);
             }
          } catch (Throwable e) {
-            LOG.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
          } finally {
             for (MQTTClientProvider clientProvider : clientProviders) {
                clientProvider.disconnect();

@@ -45,7 +45,7 @@ import java.lang.invoke.MethodHandles;
 
 public class FailBackAutoTest extends FailoverTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int NUM_MESSAGES = 100;
    private ServerLocatorInternal locator;
@@ -74,9 +74,9 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       assertTrue(latch.await(5, TimeUnit.SECONDS));
 
-      log.debug("backup (nowLive) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      logger.debug("backup (nowLive) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
-      log.debug("Server Crash!!!");
+      logger.debug("Server Crash!!!");
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -96,12 +96,12 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      log.debug("******* starting live server back");
+      logger.debug("******* starting live server back");
       liveServer.start();
 
       Thread.sleep(1000);
 
-      log.debug("After failback: {}", locator.getTopology().describe());
+      logger.debug("After failback: {}", locator.getTopology().describe());
 
       assertTrue(latch2.await(5, TimeUnit.SECONDS));
 
@@ -148,7 +148,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      log.debug("Crashing live server...");
+      logger.debug("Crashing live server...");
 
       liveServer.crash(session);
 
@@ -165,7 +165,7 @@ public class FailBackAutoTest extends FailoverTestBase {
       listener = new CountDownSessionFailureListener(session);
 
       session.addFailureListener(listener);
-      log.debug("restarting live node now");
+      logger.debug("restarting live node now");
       liveServer.start();
 
       assertTrue("expected a session failure 1", listener.getLatch().await(5, TimeUnit.SECONDS));
@@ -184,7 +184,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       waitForBackup(sf, 10);
 
-      log.debug("Crashing live server again...");
+      logger.debug("Crashing live server again...");
 
       liveServer.crash();
 

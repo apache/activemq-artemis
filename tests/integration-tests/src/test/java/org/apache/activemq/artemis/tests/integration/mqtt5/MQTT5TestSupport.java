@@ -111,7 +111,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       return new MqttAsyncClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
    }
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected static final long DEFAULT_TIMEOUT = 300000;
    protected ActiveMQServer server;
 
@@ -255,7 +255,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
 
-      log.debug("Added CORE connector to broker");
+      logger.debug("Added CORE connector to broker");
    }
 
    protected void addMQTTConnector() throws Exception {
@@ -266,7 +266,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       server.getConfiguration().addAcceptorConfiguration(MQTT_PROTOCOL_NAME, "tcp://localhost:" + (isUseSsl() ? sslPort : port) + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:" + (isUseSsl() ? "&sslEnabled=true&keyStorePath=server-keystore.p12&keyStorePassword=securepass" : "") + (isMutualSsl() ? "&needClientAuth=true&trustStorePath=client-ca-truststore.p12&trustStorePassword=securepass" : ""));
       server.getConfiguration().setConnectionTtlCheckInterval(100);
 
-      log.debug("Added MQTT connector to broker");
+      logger.debug("Added MQTT connector to broker");
    }
 
    public void stopBroker() throws Exception {

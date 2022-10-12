@@ -119,7 +119,7 @@ import static org.junit.Assert.fail;
  * Test to validate that the CLI doesn't throw improper exceptions when invoked.
  */
 public class ArtemisTest extends CliTestBase {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // some tests will set this, as some security methods will need to know the server the CLI started
    private ActiveMQServer server;
@@ -170,9 +170,9 @@ public class ArtemisTest extends CliTestBase {
       int writes = 2;
       int tries = 5;
       long totalAvg = SyncCalculation.syncTest(temporaryFolder.getRoot(), 4096, writes, tries, true, true, true, "file.tmp", 1, JournalType.NIO);
-      log.debug("TotalAvg = {}", totalAvg);
+      logger.debug("TotalAvg = {}", totalAvg);
       long nanoTime = SyncCalculation.toNanos(totalAvg, writes, false);
-      log.debug("nanoTime avg = {}", nanoTime);
+      logger.debug("nanoTime avg = {}", nanoTime);
       assertEquals(0, LibaioContext.getTotalMaxIO());
 
    }
@@ -303,7 +303,7 @@ public class ArtemisTest extends CliTestBase {
 
       byte[] contents = Files.readAllBytes(bootstrapFile.toPath());
       String cfgText = new String(contents);
-      log.debug("confg: {}", cfgText);
+      logger.debug("confg: {}", cfgText);
 
       config = parseXml(bootstrapFile);
       webElem = (Element) config.getElementsByTagName("web").item(0);
@@ -449,7 +449,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
 
          String result = context.getStdout();
-         log.debug("output1:\n{}", result);
+         logger.debug("output1:\n{}", result);
 
          //default only one user admin with role amq
          assertTrue(result.contains("\"admin\"(amq)"));
@@ -468,7 +468,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output2:\n{}", result);
+         logger.debug("output2:\n{}", result);
 
          assertTrue(result.contains("\"admin\"(amq)"));
          assertTrue(result.contains("\"guest\"(admin)"));
@@ -489,7 +489,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output3:\n{}", result);
+         logger.debug("output3:\n{}", result);
 
          assertTrue(result.contains("\"admin\"(amq)"));
          assertTrue(result.contains("\"guest\"(admin)"));
@@ -514,7 +514,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output4:\n{}", result);
+         logger.debug("output4:\n{}", result);
 
          assertTrue(result.contains("\"admin\"(amq)"));
          assertTrue(result.contains("\"guest\"(admin)"));
@@ -531,7 +531,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output5:\n{}", result);
+         logger.debug("output5:\n{}", result);
 
          assertTrue(result.contains("\"admin\"(amq)"));
          assertFalse(result.contains("\"guest\"(admin)"));
@@ -549,7 +549,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output6:\n{}", result);
+         logger.debug("output6:\n{}", result);
 
          assertTrue(result.contains("\"admin\"(amq)"));
          assertFalse(result.contains("\"guest\"(admin)"));
@@ -570,7 +570,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output7:\n{}", result);
+         logger.debug("output7:\n{}", result);
          assertTrue(result.contains("\"admin\"(amq)"));
          assertTrue(result.contains("Total: 1"));
 
@@ -585,7 +585,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output8:\n{}", result);
+         logger.debug("output8:\n{}", result);
 
          assertTrue(result.contains("Total: 0"));
       } finally {
@@ -879,7 +879,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
 
          String result = context.getStdout();
-         log.debug("output1:\n{}", result);
+         logger.debug("output1:\n{}", result);
 
          //default only one user admin with role amq
          assertTrue(result.contains("\"admin\"(amq)"));
@@ -895,7 +895,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output8:\n{}", result);
+         logger.debug("output8:\n{}", result);
 
          assertTrue(result.contains("Total: 0"));
 
@@ -928,7 +928,7 @@ public class ArtemisTest extends CliTestBase {
          context = new TestActionContext();
          listCmd.execute(context);
          result = context.getStdout();
-         log.debug("output2:\n{}", result);
+         logger.debug("output2:\n{}", result);
 
          assertTrue(result.contains("Total: 4"));
          assertTrue(result.contains("\"guest\"(admin)"));
@@ -1009,7 +1009,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
 
          String result = context.getStdout();
-         log.debug("output1:\n{}", result);
+         logger.debug("output1:\n{}", result);
 
          assertTrue(result.contains("Total: 1"));
          assertTrue(result.contains("\"admin\"(amq)"));
@@ -1039,7 +1039,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
 
          result = context.getStdout();
-         log.debug("output2:\n{}", result);
+         logger.debug("output2:\n{}", result);
 
          // make sure the admin user is still in tact (i.e. that the file wasn't corrupted via concurrent access)
          assertTrue(result.contains("\"admin\"(amq)"));
@@ -1112,7 +1112,7 @@ public class ArtemisTest extends CliTestBase {
          listCmd.execute(context);
 
          String result = context.getStdout();
-         log.debug("output1:\n{}", result);
+         logger.debug("output1:\n{}", result);
 
          assertTrue(result.contains("\"admin\"(" + roleWithSpaces + ")"));
 
@@ -1215,7 +1215,7 @@ public class ArtemisTest extends CliTestBase {
       mask.setPassword(password1);
 
       String result = (String) mask.execute(context);
-      log.debug(context.getStdout());
+      logger.debug(context.getStdout());
       assertEquals(encrypt1, result);
 
       context = new TestActionContext();
@@ -1223,7 +1223,7 @@ public class ArtemisTest extends CliTestBase {
       mask.setPassword(password1);
       mask.setHash(true);
       result = (String) mask.execute(context);
-      log.debug(context.getStdout());
+      logger.debug(context.getStdout());
       SensitiveDataCodec<String> codec = mask.getCodec();
       Assert.assertEquals(DefaultSensitiveStringCodec.class, codec.getClass());
       Assert.assertTrue(((DefaultSensitiveStringCodec)codec).verify(password1.toCharArray(), result));
@@ -1233,7 +1233,7 @@ public class ArtemisTest extends CliTestBase {
       mask.setPassword(password1);
       mask.setKey(newKey);
       result = (String) mask.execute(context);
-      log.debug(context.getStdout());
+      logger.debug(context.getStdout());
       assertEquals(encrypt2, result);
    }
 
@@ -2096,7 +2096,7 @@ public class ArtemisTest extends CliTestBase {
       TestActionContext context = new TestActionContext();
       PrintVersion printVersion = new PrintVersion();
       Version result = (Version) printVersion.execute(context);
-      log.debug(context.getStdout());
+      logger.debug(context.getStdout());
    }
 
    //read individual lines from byteStream
@@ -2167,7 +2167,7 @@ public class ArtemisTest extends CliTestBase {
          for (String r : roles) {
             String storedUsers = (String) roleConfig.getProperty(r);
 
-            log.debug("users in role: {} ; {}", r, storedUsers);
+            logger.debug("users in role: {} ; {}", r, storedUsers);
             List<String> userList = StringUtil.splitStringList(storedUsers, ",");
             assertTrue(userList.contains(user));
          }

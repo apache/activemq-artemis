@@ -41,7 +41,7 @@ import java.lang.invoke.MethodHandles;
 
 public class JMSMessageGroupsTest extends JMSClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int ITERATIONS = 10;
    private static final int MESSAGE_COUNT = 10;
@@ -279,11 +279,11 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
       for (int i = 0; i < MESSAGE_COUNT; ++i) {
          Message message = consumer.receive(RECEIVE_TIMEOUT);
          assertNotNull(message);
-         LOG.debug("Read message #{}: type = {}", i, message.getClass().getSimpleName());
+         logger.debug("Read message #{}: type = {}", i, message.getClass().getSimpleName());
          String gid = message.getStringProperty("JMSXGroupID");
          int seq = message.getIntProperty("JMSXGroupSeq");
-         LOG.debug("Message assigned JMSXGroupID := {}", gid);
-         LOG.debug("Message assigned JMSXGroupSeq := {}", seq);
+         logger.debug("Message assigned JMSXGroupID := {}", gid);
+         logger.debug("Message assigned JMSXGroupSeq := {}", seq);
          assertEquals("Sequence order should match", sequence.incrementAndGet(), seq);
          if (additionalCheck != null) {
             additionalCheck.accept(i, message);
@@ -308,7 +308,7 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
          buffer[count] = (byte) value;
       }
 
-      LOG.debug("Sending {} messages to destination: {}", MESSAGE_COUNT, queue);
+      logger.debug("Sending {} messages to destination: {}", MESSAGE_COUNT, queue);
       for (int i = 1; i <= MESSAGE_COUNT; i++) {
          BytesMessage message = session.createBytesMessage();
          message.setJMSDeliveryMode(DeliveryMode.PERSISTENT);

@@ -31,7 +31,7 @@ import java.lang.invoke.MethodHandles;
 
 public class DummyInterceptor implements Interceptor {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    boolean sendException = false;
 
@@ -49,7 +49,7 @@ public class DummyInterceptor implements Interceptor {
 
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
-      log.debug("DummyFilter packet = {}", packet.getClass().getName());
+      logger.debug("DummyFilter packet = {}", packet.getClass().getName());
       syncCounter.addAndGet(1);
       if (sendException) {
          throw new ActiveMQInternalErrorException();
@@ -57,7 +57,7 @@ public class DummyInterceptor implements Interceptor {
       if (changeMessage) {
          if (packet instanceof SessionReceiveMessage) {
             SessionReceiveMessage deliver = (SessionReceiveMessage) packet;
-            log.debug("msg = {}", deliver.getMessage().getClass().getName());
+            logger.debug("msg = {}", deliver.getMessage().getClass().getName());
             deliver.getMessage().putStringProperty(new SimpleString("DummyInterceptor"), new SimpleString("was here"));
          }
       }

@@ -27,14 +27,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class HashUtilTest {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testDefaultHashFormat() throws Exception {
       final String password = "helloworld";
       String hash = HashUtil.tryHash(new TestActionContext(), password);
       String hashStr = PasswordMaskingUtil.unwrap(hash);
-      log.debug("hashString: {}", hashStr);
+      logger.debug("hashString: {}", hashStr);
       String[] parts = hashStr.split(":");
       assertEquals(3, parts.length);
       //first part should be able to convert to an int

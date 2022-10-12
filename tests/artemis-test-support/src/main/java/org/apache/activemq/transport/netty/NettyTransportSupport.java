@@ -50,7 +50,7 @@ import io.netty.handler.ssl.SslHandler;
  */
 public class NettyTransportSupport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    /**
     * Creates a Netty SslHandler instance for use in Transports that require an SSL encoder /
@@ -85,7 +85,7 @@ public class NettyTransportSupport {
    public static SSLContext createSslContext(NettyTransportSslOptions options) throws Exception {
       try {
          String contextProtocol = options.getContextProtocol();
-         LOG.trace("Getting SSLContext instance using protocol: {}", contextProtocol);
+         logger.trace("Getting SSLContext instance using protocol: {}", contextProtocol);
 
          SSLContext context = SSLContext.getInstance(contextProtocol);
          KeyManager[] keyMgrs = loadKeyManagers(options);
@@ -94,7 +94,7 @@ public class NettyTransportSupport {
          context.init(keyMgrs, trustManagers, new SecureRandom());
          return context;
       } catch (Exception e) {
-         LOG.error("Failed to create SSLContext: {}", e, e);
+         logger.error("Failed to create SSLContext: {}", e, e);
          throw e;
       }
    }
@@ -160,22 +160,22 @@ public class NettyTransportSupport {
 
       if (options.getEnabledProtocols() != null) {
          List<String> configuredProtocols = Arrays.asList(options.getEnabledProtocols());
-         LOG.trace("Configured protocols from transport options: {}", configuredProtocols);
+         logger.trace("Configured protocols from transport options: {}", configuredProtocols);
          enabledProtocols.addAll(configuredProtocols);
       } else {
          List<String> engineProtocols = Arrays.asList(engine.getEnabledProtocols());
-         LOG.trace("Default protocols from the SSLEngine: {}", engineProtocols);
+         logger.trace("Default protocols from the SSLEngine: {}", engineProtocols);
          enabledProtocols.addAll(engineProtocols);
       }
 
       String[] disabledProtocols = options.getDisabledProtocols();
       if (disabledProtocols != null) {
          List<String> disabled = Arrays.asList(disabledProtocols);
-         LOG.trace("Disabled protocols: {}", disabled);
+         logger.trace("Disabled protocols: {}", disabled);
          enabledProtocols.removeAll(disabled);
       }
 
-      LOG.trace("Enabled protocols: {}", enabledProtocols);
+      logger.trace("Enabled protocols: {}", enabledProtocols);
 
       return enabledProtocols.toArray(new String[0]);
    }
@@ -185,22 +185,22 @@ public class NettyTransportSupport {
 
       if (options.getEnabledCipherSuites() != null) {
          List<String> configuredCipherSuites = Arrays.asList(options.getEnabledCipherSuites());
-         LOG.trace("Configured cipher suites from transport options: {}", configuredCipherSuites);
+         logger.trace("Configured cipher suites from transport options: {}", configuredCipherSuites);
          enabledCipherSuites.addAll(configuredCipherSuites);
       } else {
          List<String> engineCipherSuites = Arrays.asList(engine.getEnabledCipherSuites());
-         LOG.trace("Default cipher suites from the SSLEngine: {}", engineCipherSuites);
+         logger.trace("Default cipher suites from the SSLEngine: {}", engineCipherSuites);
          enabledCipherSuites.addAll(engineCipherSuites);
       }
 
       String[] disabledCipherSuites = options.getDisabledCipherSuites();
       if (disabledCipherSuites != null) {
          List<String> disabled = Arrays.asList(disabledCipherSuites);
-         LOG.trace("Disabled cipher suites: {}", disabled);
+         logger.trace("Disabled cipher suites: {}", disabled);
          enabledCipherSuites.removeAll(disabled);
       }
 
-      LOG.trace("Enabled cipher suites: {}", enabledCipherSuites);
+      logger.trace("Enabled cipher suites: {}", enabledCipherSuites);
 
       return enabledCipherSuites.toArray(new String[0]);
    }
@@ -220,7 +220,7 @@ public class NettyTransportSupport {
       String storePassword = options.getTrustStorePassword();
       String storeType = options.getStoreType();
 
-      LOG.trace("Attempt to load TrustStore from location {} of type {}", storeLocation, storeType);
+      logger.trace("Attempt to load TrustStore from location {} of type {}", storeLocation, storeType);
 
       KeyStore trustStore = loadStore(storeLocation, storePassword, storeType);
       fact.init(trustStore);
@@ -240,7 +240,7 @@ public class NettyTransportSupport {
       String storeType = options.getStoreType();
       String alias = options.getKeyAlias();
 
-      LOG.trace("Attempt to load KeyStore from location {} of type {}", storeLocation, storeType);
+      logger.trace("Attempt to load KeyStore from location {} of type {}", storeLocation, storeType);
 
       KeyStore keyStore = loadStore(storeLocation, storePassword, storeType);
       fact.init(keyStore, storePassword != null ? storePassword.toCharArray() : null);

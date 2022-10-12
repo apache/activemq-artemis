@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 public abstract class NodeManager implements ActiveMQComponent {
-   private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @FunctionalInterface
    public interface LockListener {
@@ -171,7 +171,7 @@ public abstract class NodeManager implements ActiveMQComponent {
          try {
             lockListener.lostLock();
          } catch (Exception e) {
-            LOGGER.warn("On notify lost lock", e);
+            logger.warn("On notify lost lock", e);
             // Need to notify everyone so ignore any exception
          }
       });

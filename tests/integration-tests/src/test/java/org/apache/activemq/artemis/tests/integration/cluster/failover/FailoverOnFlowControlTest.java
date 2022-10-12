@@ -41,7 +41,7 @@ import java.lang.invoke.MethodHandles;
 
 public class FailoverOnFlowControlTest extends FailoverTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    @Test
    public void testOverflowSend() throws Exception {
       ServerLocator locator = getServerLocator().setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setProducerWindowSize(1000).setRetryInterval(100);
@@ -51,14 +51,14 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
 
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-            log.debug("Intercept...{}", packet.getClass().getName());
+            logger.debug("Intercept...{}", packet.getClass().getName());
 
             if (packet instanceof SessionProducerCreditsMessage) {
                SessionProducerCreditsMessage credit = (SessionProducerCreditsMessage) packet;
 
-               log.debug("Credits: {}", credit.getCredits());
+               logger.debug("Credits: {}", credit.getCredits());
                if (count.incrementAndGet() == 2) {
-                  log.debug("### crashing server");
+                  logger.debug("### crashing server");
                   try {
                      InVMConnection.setFlushEnabled(false);
                      crash(false, sessionList.get(0));

@@ -51,7 +51,7 @@ public class MultiThreadConvertTest extends SmokeTestBase {
 
    private static final String SERVER_NAME_0 = "standard";
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Before
    public void before() throws Exception {
@@ -130,7 +130,7 @@ public class MultiThreadConvertTest extends SmokeTestBase {
                   }
 
                } catch (Throwable t) {
-                  LOG.error("Error during message consumption: ", t);
+                  logger.error("Error during message consumption: ", t);
                   error.set(true);
                } finally {
                   try {

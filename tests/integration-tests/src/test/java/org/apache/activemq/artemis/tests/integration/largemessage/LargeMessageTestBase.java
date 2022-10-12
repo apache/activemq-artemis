@@ -60,7 +60,7 @@ import java.lang.invoke.MethodHandles;
 public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
@@ -285,9 +285,9 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                               public void write(final byte[] b) throws IOException {
                                  if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                     bytesRead.addAndGet(b.length);
-                                    LargeMessageTestBase.log.debug("Read position {} on consumer", bytesRead.get());
+                                    LargeMessageTestBase.logger.debug("Read position {} on consumer", bytesRead.get());
                                  } else {
-                                    LargeMessageTestBase.log.warn("Received invalid packet at position {}", bytesRead.get());
+                                    LargeMessageTestBase.logger.warn("Received invalid packet at position {}", bytesRead.get());
                                  }
                               }
 
@@ -296,7 +296,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                                  if (b == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                     bytesRead.incrementAndGet();
                                  } else {
-                                    LargeMessageTestBase.log.warn("byte not as expected!");
+                                    LargeMessageTestBase.logger.warn("byte not as expected!");
                                  }
                               }
                            });
@@ -308,7 +308,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                            buffer.resetReaderIndex();
                            for (long b = 0; b < numberOfBytes; b++) {
                               if (b % (1024L * 1024L) == 0) {
-                                 LargeMessageTestBase.log.debug("Read {} bytes", b);
+                                 LargeMessageTestBase.logger.debug("Read {} bytes", b);
                               }
 
                               Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
@@ -322,7 +322,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                         }
                      } catch (Throwable e) {
                         e.printStackTrace();
-                        LargeMessageTestBase.log.warn("Got an error", e);
+                        LargeMessageTestBase.logger.warn("Got an error", e);
                         errors.incrementAndGet();
                      } finally {
                         latchDone.countDown();
@@ -373,7 +373,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                               if (b[0] == ActiveMQTestBase.getSamplebyte(bytesRead.get())) {
                                  bytesRead.addAndGet(b.length);
                               } else {
-                                 LargeMessageTestBase.log.warn("Received invalid packet at position {}", bytesRead.get());
+                                 LargeMessageTestBase.logger.warn("Received invalid packet at position {}", bytesRead.get());
                               }
                            }
                         }
@@ -381,12 +381,12 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                         @Override
                         public void write(final int b) throws IOException {
                            if (bytesRead.get() % (1024L * 1024L) == 0) {
-                              LargeMessageTestBase.log.debug("Read {} bytes", bytesRead.get());
+                              LargeMessageTestBase.logger.debug("Read {} bytes", bytesRead.get());
                            }
                            if (b == (byte) 'a') {
                               bytesRead.incrementAndGet();
                            } else {
-                              LargeMessageTestBase.log.warn("byte not as expected!");
+                              LargeMessageTestBase.logger.warn("byte not as expected!");
                            }
                         }
                      });
@@ -398,7 +398,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
 
                      for (long b = 0; b < numberOfBytes; b++) {
                         if (b % (1024L * 1024L) == 0L) {
-                           LargeMessageTestBase.log.debug("Read {} bytes", b);
+                           LargeMessageTestBase.logger.debug("Read {} bytes", b);
                         }
                         Assert.assertEquals(ActiveMQTestBase.getSamplebyte(b), buffer.readByte());
                      }
@@ -465,17 +465,17 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
                              final long delayDelivery,
                              final ClientSession session,
                              final ClientProducer producer) throws Exception {
-      LargeMessageTestBase.log.debug("NumberOfBytes = {}", numberOfBytes);
+      LargeMessageTestBase.logger.debug("NumberOfBytes = {}", numberOfBytes);
       for (int i = 0; i < numberOfMessages; i++) {
          ClientMessage message = session.createMessage(true);
 
          // If the test is using more than 1M, we will only use the Streaming, as it require too much memory from the
          // test
          if (numberOfBytes > 1024 * 1024 || i % 2 == 0) {
-            LargeMessageTestBase.log.debug("Sending message (stream){}", i);
+            LargeMessageTestBase.logger.debug("Sending message (stream){}", i);
             message.setBodyInputStream(ActiveMQTestBase.createFakeLargeStream(numberOfBytes));
          } else {
-            LargeMessageTestBase.log.debug("Sending message (array){}", i);
+            LargeMessageTestBase.logger.debug("Sending message (array){}", i);
             byte[] bytes = new byte[(int) numberOfBytes];
             for (int j = 0; j < bytes.length; j++) {
                bytes[j] = ActiveMQTestBase.getSamplebyte(j);
@@ -571,7 +571,7 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
          @Override
          public void write(final int b) throws IOException {
             if (count++ % 1024 * 1024 == 0) {
-               LargeMessageTestBase.log.debug("OutputStream received {} bytes", count);
+               LargeMessageTestBase.logger.debug("OutputStream received {} bytes", count);
             }
             if (closed) {
                throw new IOException("Stream was closed");

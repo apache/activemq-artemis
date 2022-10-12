@@ -34,7 +34,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
    protected static final String QUEUE_NAME = "queue0";
    protected static final String QUEUES_TESTADDRESS = "queues.testaddress";
 
-   protected static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected abstract void setupCluster(MessageLoadBalancingType messageLoadBalancingType) throws Exception;
 
@@ -75,7 +75,7 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
     * @throws Exception
     */
    protected void failNode(final int node, final int originalLiveNode) throws Exception {
-      log.debug("*** failing node {}", node);
+      logger.debug("*** failing node {}", node);
 
       ActiveMQServer server = getServer(node);
 

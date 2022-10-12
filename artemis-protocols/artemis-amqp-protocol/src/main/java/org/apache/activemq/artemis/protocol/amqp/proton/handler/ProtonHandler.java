@@ -56,7 +56,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final byte SASL = 0x03;
 
@@ -157,7 +157,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
          ((TransportInternal) transport).setUseReadOnlyOutputBuffer(false);
       } catch (NoSuchMethodError nsme) {
          // using a version at runtime where the optimization isn't available, ignore
-         log.trace("Proton output buffer optimisation unavailable");
+         logger.trace("Proton output buffer optimisation unavailable");
       }
 
       transport.bind(connection);
@@ -176,7 +176,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
                return rescheduleAt;
             }
          } catch (Exception e) {
-            log.warn(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
             transport.close();
             connection.setCondition(new ErrorCondition());
          } finally {
@@ -318,9 +318,9 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
             flush();
          } else {
             if (capacity == 0) {
-               log.debug("abandoning: readableBytes={}", buffer.readableBytes());
+               logger.debug("abandoning: readableBytes={}", buffer.readableBytes());
             } else {
-               log.debug("transport closed, discarding: readableBytes={}, capacity={}", buffer.readableBytes(), transport.capacity());
+               logger.debug("transport closed, discarding: readableBytes={}, capacity={}", buffer.readableBytes(), transport.capacity());
             }
             break;
          }
@@ -393,7 +393,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    // server side SASL Listener
    @Override
    public void onSaslInit(Sasl sasl, Transport transport) {
-      log.debug("onSaslInit: {}", sasl);
+      logger.debug("onSaslInit: {}", sasl);
       dispatchRemoteMechanismChosen(sasl.getRemoteMechanisms()[0]);
 
       if (chosenMechanism != null) {
@@ -410,8 +410,8 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       byte[] dataSASL = new byte[sasl.pending()];
 
       int received = sasl.recv(dataSASL, 0, dataSASL.length);
-      if (log.isTraceEnabled()) {
-         log.trace("Working on sasl, length:{}", received);
+      if (logger.isTraceEnabled()) {
+         logger.trace("Working on sasl, length:{}", received);
       }
 
       byte[] response = chosenMechanism.processSASL(received != -1 ? dataSASL : null);
@@ -431,7 +431,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    @Override
    public void onSaslResponse(Sasl sasl, Transport transport) {
-      log.debug("onSaslResponse: {}", sasl);
+      logger.debug("onSaslResponse: {}", sasl);
       processPending(sasl);
    }
 
@@ -442,7 +442,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
       dispatchMechanismsOffered(sasl.getRemoteMechanisms());
 
       if (clientSASLMechanism == null) {
-         log.info("Outbound connection failed - unknown mechanism, offered mechanisms: {}",
+         logger.info("Outbound connection failed - unknown mechanism, offered mechanisms: {}",
                    Arrays.asList(sasl.getRemoteMechanisms()));
          dispatchAuthFailed();
       } else {
@@ -465,14 +465,14 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
 
    @Override
    public void onSaslOutcome(Sasl sasl, Transport transport) {
-      log.debug("onSaslOutcome: {}", sasl);
+      logger.debug("onSaslOutcome: {}", sasl);
       switch (sasl.getState()) {
          case PN_SASL_FAIL:
-            log.info("Outbound connection failed, authentication failure");
+            logger.info("Outbound connection failed, authentication failure");
             dispatchAuthFailed();
             break;
          case PN_SASL_PASS:
-            log.debug("Outbound connection succeeded");
+            logger.debug("Outbound connection succeeded");
 
             if (sasl.pending() != 0) {
                byte[] additionalData = new byte[sasl.pending()];
@@ -506,7 +506,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    private void saslComplete(Sasl sasl, Sasl.SaslOutcome saslOutcome) {
-      log.debug("saslComplete: {}", sasl);
+      logger.debug("saslComplete: {}", sasl);
       sasl.done(saslOutcome);
       if (chosenMechanism != null) {
          chosenMechanism.done();
@@ -559,19 +559,19 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
          }
          while ((ev = collector.peek()) != null) {
             for (EventHandler h : handlers) {
-               log.trace("Handling {} towards {}", ev, h);
+               logger.trace("Handling {} towards {}", ev, h);
 
                try {
                   Events.dispatch(ev, h);
                } catch (ActiveMQSecurityException e) {
-                  log.warn(e.getMessage(), e);
+                  logger.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
                   error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
                   connection.setCondition(error);
                   connection.close();
                } catch (Exception e) {
-                  log.warn(e.getMessage(), e);
+                  logger.warn(e.getMessage(), e);
                   ErrorCondition error = new ErrorCondition();
                   error.setCondition(AmqpError.INTERNAL_ERROR);
                   error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
@@ -602,7 +602,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    }
 
    private void internalHandlerError(Exception e) {
-      log.warn(e.getMessage(), e);
+      logger.warn(e.getMessage(), e);
       ErrorCondition error = new ErrorCondition();
       error.setCondition(AmqpError.INTERNAL_ERROR);
       error.setDescription("Unrecoverable error: " + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
@@ -645,7 +645,7 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
             }
          }
       } catch (Throwable e) {
-         log.warn(e.getMessage(), e);
+         logger.warn(e.getMessage(), e);
       }
 
       receivedFirstPacket = true;

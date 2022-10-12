@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class NewQueueRequestorTest extends JMSTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testQueueRequestor() throws Exception {
@@ -90,7 +90,7 @@ public class NewQueueRequestorTest extends JMSTestBase {
             Message m2 = sess.createTextMessage("This is the response");
             sender.send(queue, m2);
          } catch (JMSException e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
          }
       }
    }

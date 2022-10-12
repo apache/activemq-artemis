@@ -37,7 +37,7 @@ import java.lang.invoke.MethodHandles;
 
 public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
 
@@ -71,19 +71,19 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
       startServers(0, 1, 2, 3, 4, 5);
 
-      log.debug("");
+      logger.debug("");
       for (int i = 0; i <= 5; i++) {
-         log.debug(servers[i].describe());
-         log.debug(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
+         logger.debug(servers[i].describe());
+         logger.debug(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
       }
-      log.debug("");
+      logger.debug("");
 
-      log.debug("");
+      logger.debug("");
       for (int i = 0; i <= 5; i++) {
-         log.debug(servers[i].describe());
-         log.debug(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
+         logger.debug(servers[i].describe());
+         logger.debug(debugBindings(servers[i], servers[i].getConfiguration().getManagementNotificationAddress().toString()));
       }
-      log.debug("");
+      logger.debug("");
 
       stopServers(0, 1, 2, 3, 4, 5);
 
@@ -284,7 +284,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
    public void _testLoop() throws Throwable {
       for (int i = 0; i < 10; i++) {
          loopNumber = i;
-         log.debug("#test {}", i);
+         logger.debug("#test {}", i);
          testSimple();
          tearDown();
          setUp();
@@ -315,7 +315,7 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
          waitForTopology(servers[i], 5);
       }
 
-      log.debug("All the servers have been started already!");
+      logger.debug("All the servers have been started already!");
 
       for (int i = 0; i <= 4; i++) {
          setupSessionFactory(i, isNetty());

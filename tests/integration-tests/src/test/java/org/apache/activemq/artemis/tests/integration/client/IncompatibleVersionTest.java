@@ -55,7 +55,7 @@ import static org.apache.activemq.artemis.tests.util.RandomUtil.randomString;
 
 public class IncompatibleVersionTest extends SpawnedTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String WORD_START = "&*STARTED&*";
 
@@ -230,7 +230,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
 
          System.out.println(WORD_START);
 
-         log.debug("### server: {}", startedString);
+         logger.debug("### server: {}", startedString);
       }
    }
 
@@ -243,7 +243,7 @@ public class IncompatibleVersionTest extends SpawnedTestBase {
             locator = createNettyNonHALocator();
             sf = locator.createSessionFactory();
             ClientSession session = sf.createSession(false, true, true);
-            log.debug("### client: connected. server incrementingVersion = {}", session.getVersion());
+            logger.debug("### client: connected. server incrementingVersion = {}", session.getVersion());
             session.close();
          } finally {
             closeSessionFactory(sf);

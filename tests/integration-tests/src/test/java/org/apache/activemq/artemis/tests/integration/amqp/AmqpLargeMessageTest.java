@@ -78,7 +78,7 @@ import java.lang.invoke.MethodHandles;
 @RunWith(Parameterized.class)
 public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final Random rand = new Random(System.currentTimeMillis());
 
@@ -312,7 +312,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
             if (wrapped.getBody() instanceof Data) {
                // converters can change this to AmqValue
                Data data = (Data) wrapped.getBody();
-               LOG.debug("received : message: {}", data.getValue().getLength());
+               logger.debug("received : message: {}", data.getValue().getLength());
                assertEquals(payload, data.getValue().getLength());
             }
             message.accept();
@@ -366,7 +366,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          MessageImpl wrapped = (MessageImpl) message.getWrappedMessage();
          if (wrapped.getBody() instanceof Data) {
             Data data = (Data) wrapped.getBody();
-            LOG.debug("received : message: {}", data.getValue().getLength());
+            logger.debug("received : message: {}", data.getValue().getLength());
             assertEquals(payload, data.getValue().getLength());
          }
 
@@ -469,7 +469,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          payload[i] = (byte) rand.nextInt(256);
       }
 
-      LOG.debug("Created buffer with size : {} bytes", sizeInBytes);
+      logger.debug("Created buffer with size : {} bytes", sizeInBytes);
       return payload;
    }
 
@@ -552,7 +552,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
    }
 
    public void doTestSendLargeMessage(int expectedSize) throws Exception {
-      LOG.debug("doTestSendLargeMessage called with expectedSize {}", expectedSize);
+      logger.debug("doTestSendLargeMessage called with expectedSize {}", expectedSize);
       byte[] payload = createLargePayload(expectedSize);
       assertEquals(expectedSize, payload.length);
 
@@ -572,12 +572,12 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          producer.send(message);
          long endTime = System.currentTimeMillis();
 
-         LOG.debug("Returned from send after {} ms", endTime - startTime);
+         logger.debug("Returned from send after {} ms", endTime - startTime);
          startTime = System.currentTimeMillis();
          MessageConsumer consumer = session.createConsumer(queue);
          connection.start();
 
-         LOG.debug("Calling receive");
+         logger.debug("Calling receive");
          Message received = consumer.receive();
          assertNotNull(received);
          assertTrue(received instanceof BytesMessage);
@@ -585,7 +585,7 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          assertNotNull(bytesMessage);
          endTime = System.currentTimeMillis();
 
-         LOG.debug("Returned from receive after {} ms", endTime - startTime);
+         logger.debug("Returned from receive after {} ms", endTime - startTime);
          byte[] bytesReceived = new byte[expectedSize];
          assertEquals(expectedSize, bytesMessage.readBytes(bytesReceived, expectedSize));
          assertTrue(Arrays.equals(payload, bytesReceived));
@@ -729,27 +729,27 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          boolean timeRemaining = true;
          while (timeRemaining) {
             if (messagesA.size() < numMsgs) {
-               LOG.debug("Attempting to receive message for receiver A");
+               logger.debug("Attempting to receive message for receiver A");
                AmqpMessage messageA = receiverA.receive(20, TimeUnit.MILLISECONDS);
                if (messageA != null) {
-                  LOG.debug("Got message for receiver A");
+                  logger.debug("Got message for receiver A");
                   messagesA.add(messageA);
                   messageA.accept();
                }
             }
 
             if (messagesB.size() < numMsgs) {
-               LOG.debug("Attempting to receive message for receiver B");
+               logger.debug("Attempting to receive message for receiver B");
                AmqpMessage messageB = receiverB.receive(20, TimeUnit.MILLISECONDS);
                if (messageB != null) {
-                  LOG.debug("Got message for receiver B");
+                  logger.debug("Got message for receiver B");
                   messagesB.add(messageB);
                   messageB.accept();
                }
             }
 
             if (messagesA.size() == numMsgs && messagesB.size() == numMsgs) {
-               LOG.debug("Received expected messages");
+               logger.debug("Received expected messages");
                break;
             }
 

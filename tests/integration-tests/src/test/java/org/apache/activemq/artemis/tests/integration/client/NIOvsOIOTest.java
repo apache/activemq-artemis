@@ -48,7 +48,7 @@ import java.lang.invoke.MethodHandles;
 
 public class NIOvsOIOTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testNIOPerf() throws Exception {
@@ -198,7 +198,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
             try {
                producer.send(msg);
             } catch (Exception e) {
-               log.error("Caught exception", e);
+               logger.error("Caught exception", e);
             }
          }
       }
@@ -263,7 +263,7 @@ public class NIOvsOIOTest extends ActiveMQTestBase {
          try {
             msg.acknowledge();
          } catch (Exception e) {
-            log.error("Caught exception", e);
+            logger.error("Caught exception", e);
          }
 
          count++;

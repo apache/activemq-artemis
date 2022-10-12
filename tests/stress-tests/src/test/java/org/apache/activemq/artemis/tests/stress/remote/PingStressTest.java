@@ -38,7 +38,7 @@ import java.lang.invoke.MethodHandles;
 
 public class PingStressTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long PING_INTERVAL = 500;
 
@@ -75,9 +75,9 @@ public class PingStressTest extends ActiveMQTestBase {
       Interceptor noPongInterceptor = new Interceptor() {
          @Override
          public boolean intercept(final Packet packet, final RemotingConnection conn) throws ActiveMQException {
-            PingStressTest.log.info("In interceptor, packet is {}", packet.getType());
+            PingStressTest.logger.info("In interceptor, packet is {}", packet.getType());
             if (packet.getType() == PacketImpl.PING) {
-               PingStressTest.log.info("Ignoring Ping packet.. it will be dropped");
+               PingStressTest.logger.info("Ignoring Ping packet.. it will be dropped");
                return false;
             } else {
                return true;

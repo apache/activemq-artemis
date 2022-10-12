@@ -78,7 +78,7 @@ import java.lang.invoke.MethodHandles;
 
 public class PublishTests extends MQTT5TestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public PublishTests(String protocol) {
       super(protocol);
@@ -1282,7 +1282,7 @@ public class PublishTests extends MQTT5TestSupport {
       @Override
       public void messageArrived(String topic, MqttMessage message) throws Exception {
          int sentAs = Integer.valueOf(new String(message.getPayload(), StandardCharsets.UTF_8));
-         log.info("QoS of publish: {}; QoS of subscription: {}; QoS of receive: {}", sentAs, qosOfSubscription, message.getQos());
+         logger.info("QoS of publish: {}; QoS of subscription: {}; QoS of receive: {}", sentAs, qosOfSubscription, message.getQos());
          if (sentAs == 0) {
             assertTrue(message.getQos() == 0);
          } else if (sentAs == 1) {

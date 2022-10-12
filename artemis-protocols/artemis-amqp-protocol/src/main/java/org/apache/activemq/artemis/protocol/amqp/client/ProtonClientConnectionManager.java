@@ -41,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ProtonClientConnectionManager implements BaseConnectionLifeCycleListener<ProtonProtocolManager>, BufferHandler {
    private final Map<Object, ActiveMQProtonRemotingConnection> connectionMap = new ConcurrentHashMap<>();
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private final AMQPClientConnectionFactory connectionFactory;
    private final Optional<EventHandler> eventHandler;
    private final ClientSASLFactory clientSASLFactory;
@@ -58,17 +58,17 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       connectionMap.put(connection.getID(), amqpConnection);
       amqpConnection.open();
 
-      log.info("Connection {} created", amqpConnection.getRemoteAddress());
+      logger.info("Connection {} created", amqpConnection.getRemoteAddress());
    }
 
    @Override
    public void connectionDestroyed(Object connectionID) {
       RemotingConnection connection = connectionMap.remove(connectionID);
       if (connection != null) {
-         log.info("Connection {} destroyed", connection.getRemoteAddress());
+         logger.info("Connection {} destroyed", connection.getRemoteAddress());
          connection.fail(new ActiveMQRemoteDisconnectException());
       } else {
-         log.error("Connection with id {} not found in connectionDestroyed", connectionID);
+         logger.error("Connection with id {} not found in connectionDestroyed", connectionID);
       }
    }
 
@@ -76,10 +76,10 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
    public void connectionException(Object connectionID, ActiveMQException me) {
       RemotingConnection connection = connectionMap.get(connectionID);
       if (connection != null) {
-         log.info("Connection {} exception: {}", connection.getRemoteAddress(),  me.getMessage());
+         logger.info("Connection {} exception: {}", connection.getRemoteAddress(),  me.getMessage());
          connection.fail(me);
       } else {
-         log.error("Connection with id {} not found in connectionException", connectionID);
+         logger.error("Connection with id {} not found in connectionException", connectionID);
       }
    }
 
@@ -87,10 +87,10 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
    public void connectionReadyForWrites(Object connectionID, boolean ready) {
       RemotingConnection connection = connectionMap.get(connectionID);
       if (connection != null) {
-         log.info("Connection {} ready", connection.getRemoteAddress());
+         logger.info("Connection {} ready", connection.getRemoteAddress());
          connection.getTransportConnection().fireReady(true);
       } else {
-         log.error("Connection with id {} not found in connectionReadyForWrites()!", connectionID);
+         logger.error("Connection with id {} not found in connectionReadyForWrites()!", connectionID);
       }
    }
 
@@ -106,7 +106,7 @@ public class ProtonClientConnectionManager implements BaseConnectionLifeCycleLis
       if (connection != null) {
          connection.bufferReceived(connectionID, buffer);
       } else {
-         log.error("Connection with id {} not found in bufferReceived()!", connectionID);
+         logger.error("Connection with id {} not found in bufferReceived()!", connectionID);
       }
    }
 

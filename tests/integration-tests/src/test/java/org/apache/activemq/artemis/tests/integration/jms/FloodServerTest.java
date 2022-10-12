@@ -41,7 +41,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class FloodServerTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -171,7 +171,7 @@ public class FloodServerTest extends ActiveMQTestBase {
                Message msg = consumer.receive();
 
                if (msg == null) {
-                  FloodServerTest.log.error("message is null");
+                  FloodServerTest.logger.error("message is null");
                   break;
                }
             }

@@ -21,17 +21,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 import org.junit.rules.ExternalResource;
 
 /**
  * This will make sure any properties changed through tests are cleaned up between tests.
  */
 public class CleanupSystemPropertiesRule extends ExternalResource {
-
-   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private Properties originalProperties;
 

@@ -32,14 +32,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AcceptorParserTest {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test
    public void testAcceptor() throws Exception {
       List<TransportConfiguration> configs = ConfigurationUtils.parseAcceptorURI("test", "tcp://localhost:8080?tcpSendBufferSize=1048576&tcpReceiveBufferSize=1048576&protocols=openwire&banana=x");
 
       for (TransportConfiguration config : configs) {
-         log.debug("config: {}", config);
+         logger.debug("config: {}", config);
          Assert.assertTrue(config.getExtraParams().get("banana").equals("x"));
       }
    }
@@ -64,8 +64,8 @@ public class AcceptorParserTest {
       List<TransportConfiguration> configs = ConfigurationUtils.parseAcceptorURI("test", "tcp://0.0.0.0:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;virtualTopicConsumerWildcards=Consumer.*.%3E%3B2");
 
       for (TransportConfiguration config : configs) {
-         log.debug("config: {}", config);
-         log.debug("{}", config.getExtraParams().get("virtualTopicConsumerWildcards"));
+         logger.debug("config: {}", config);
+         logger.debug("{}", config.getExtraParams().get("virtualTopicConsumerWildcards"));
          Assert.assertTrue(config.getExtraParams().get("virtualTopicConsumerWildcards").equals("Consumer.*.>;2"));
       }
    }

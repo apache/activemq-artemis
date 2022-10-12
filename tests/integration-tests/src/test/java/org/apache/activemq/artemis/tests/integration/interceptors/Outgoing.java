@@ -29,11 +29,11 @@ import java.lang.invoke.MethodHandles;
 
 public class Outgoing implements Interceptor {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    public boolean intercept(final Packet packet, final RemotingConnection connection) throws ActiveMQException {
-      log.debug("Outgoin:Packet : {}", packet);
+      logger.debug("Outgoin:Packet : {}", packet);
       if (packet.getType() == PacketImpl.SESS_SEND) {
          SessionSendMessage p = (SessionSendMessage) packet;
 

@@ -103,7 +103,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class ConnectTests extends MQTT5TestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public ConnectTests(String protocol) {
       super(protocol);
@@ -437,7 +437,7 @@ public class ConnectTests extends MQTT5TestSupport {
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PINGREQ) {
             try {
-               log.info("Caught PING so sleeping...");
+               logger.info("Caught PING so sleeping...");
                Thread.sleep(3000);
             } catch (InterruptedException e) {
                // ignore

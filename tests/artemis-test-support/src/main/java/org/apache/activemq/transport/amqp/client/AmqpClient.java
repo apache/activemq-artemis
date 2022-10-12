@@ -34,7 +34,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class AmqpClient {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String username;
    private final String password;
@@ -70,7 +70,7 @@ public class AmqpClient {
 
       AmqpConnection connection = createConnection();
 
-      LOG.debug("Attempting to create new connection to peer: {}", remoteURI);
+      logger.debug("Attempting to create new connection to peer: {}", remoteURI);
       connection.connect();
 
       return connection;
@@ -88,7 +88,7 @@ public class AmqpClient {
       AmqpConnection connection = createConnection();
       connection.setNoContainerID();
 
-      LOG.debug("Attempting to create new connection to peer: {}", remoteURI);
+      logger.debug("Attempting to create new connection to peer: {}", remoteURI);
       connection.connect();
 
       return connection;
@@ -107,7 +107,7 @@ public class AmqpClient {
       AmqpConnection connection = createConnection();
       connection.setContainerId(containerId);
 
-      LOG.debug("Attempting to create new connection to peer: {}", remoteURI);
+      logger.debug("Attempting to create new connection to peer: {}", remoteURI);
       connection.connect();
 
       return connection;

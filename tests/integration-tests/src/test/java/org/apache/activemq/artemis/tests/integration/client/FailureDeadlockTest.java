@@ -40,7 +40,7 @@ import java.lang.invoke.MethodHandles;
 
 public class FailureDeadlockTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -81,7 +81,7 @@ public class FailureDeadlockTest extends ActiveMQTestBase {
                try {
                   conn2.close();
                } catch (Exception e) {
-                  log.error("Failed to close connection2", e);
+                  logger.error("Failed to close connection2", e);
                }
             }
          };

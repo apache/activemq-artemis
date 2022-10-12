@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AmqpSessionTest extends AmqpClientTestSupport {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testCreateSession() throws Exception {
@@ -54,7 +54,7 @@ public class AmqpSessionTest extends AmqpClientTestSupport {
 
          @Override
          public void inspectClosedResource(Session session) {
-            log.debug("Session closed: {}", session.getContext());
+            logger.debug("Session closed: {}", session.getContext());
          }
 
          @Override

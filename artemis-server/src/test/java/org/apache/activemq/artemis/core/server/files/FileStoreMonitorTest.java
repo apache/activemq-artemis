@@ -40,7 +40,7 @@ import org.junit.Test;
 
 public class FileStoreMonitorTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ScheduledExecutorService scheduledExecutorService;
    private ExecutorService executorService;
@@ -81,19 +81,19 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
          @Override
          public void tick(long usableSpace, long totalSpace) {
             tick.incrementAndGet();
-            log.debug("tick:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
+            logger.debug("tick:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
          }
 
          @Override
          public void over(long usableSpace, long totalSpace) {
             over.incrementAndGet();
-            log.debug("over:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
+            logger.debug("over:: usableSpace: {}, totalSpace:{}", usableSpace, totalSpace);
          }
 
          @Override
          public void under(long usableSpace, long totalSpace) {
             under.incrementAndGet();
-            log.debug("under:: usableSpace: {}, totalSpace: {}", usableSpace, totalSpace);
+            logger.debug("under:: usableSpace: {}, totalSpace: {}", usableSpace, totalSpace);
          }
       };
       FileStoreMonitor storeMonitor = new FileStoreMonitor(scheduledExecutorService, executorService, 100, TimeUnit.MILLISECONDS, 0.999, null);
@@ -125,7 +125,7 @@ public class FileStoreMonitorTest extends ActiveMQTestBase {
       storeMonitor.addCallback(new FileStoreMonitor.Callback() {
          @Override
          public void tick(long usableSpace, long totalSpace) {
-            log.debug("Tick");
+            logger.debug("Tick");
             latch.countDown();
          }
 

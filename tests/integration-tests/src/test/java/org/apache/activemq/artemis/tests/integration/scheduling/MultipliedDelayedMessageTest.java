@@ -36,7 +36,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -103,11 +103,11 @@ public class MultipliedDelayedMessageTest extends ActiveMQTestBase {
          session.rollback();
 
          long expectedDelay = calculateExpectedDelay(DELAY, MAX_DELAY, MULTIPLIER, i);
-         log.debug("\nExpected delay: {}", expectedDelay);
+         logger.debug("\nExpected delay: {}", expectedDelay);
          tm = consumer.receive(expectedDelay + 500);
          long stop = System.currentTimeMillis();
          Assert.assertNotNull(tm);
-         log.debug("Actual delay: {}", (stop - start));
+         logger.debug("Actual delay: {}", (stop - start));
          Assert.assertTrue(stop - start >= expectedDelay);
       }
 

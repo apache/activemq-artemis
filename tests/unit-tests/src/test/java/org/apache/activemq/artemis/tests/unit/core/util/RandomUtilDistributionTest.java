@@ -33,7 +33,7 @@ import java.lang.invoke.MethodHandles;
  * This test will start many parallel VMs, to make sure each VM would generate a good distribution of random numbers
  */
 public class RandomUtilDistributionTest {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public SpawnedVMCheck check = new SpawnedVMCheck();
@@ -71,7 +71,7 @@ public class RandomUtilDistributionTest {
       // Be careful removing it (make sure you know what you're doing in case you do so)
       int minimumExpected = (int) ((iterations * numberOfStarts) * 0.80);
 
-      log.debug("values = {}, minimum expected = {}", value, minimumExpected);
+      logger.debug("values = {}, minimum expected = {}", value, minimumExpected);
       Assert.assertTrue("The Random distribution is pretty bad. Many tries have returned duplicated randoms. Number of different values=" + value + ", minimum expected = " + minimumExpected, value >= minimumExpected);
    }
 
@@ -92,7 +92,7 @@ public class RandomUtilDistributionTest {
             valueSet.add(process[i].exitValue());
          }
 
-         log.debug("Generated {} randoms out of {} tries", valueSet.size(), numberOfTries);
+         logger.debug("Generated {} randoms out of {} tries", valueSet.size(), numberOfTries);
 
          return valueSet.size();
 

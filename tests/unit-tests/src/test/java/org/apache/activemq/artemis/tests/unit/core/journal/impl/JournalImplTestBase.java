@@ -67,7 +67,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
       }
    }
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected List<RecordInfo> records = new LinkedList<>();
 
@@ -255,7 +255,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
     * @throws Exception
     */
    protected void exportImportJournal() throws Exception {
-      log.debug("Exporting to {}/output.log", getTestDir());
+      logger.debug("Exporting to {}/output.log", getTestDir());
 
       EncodeJournal.exportJournal(getTestDir(), this.filePrefix, this.fileExtension, this.minFiles, this.fileSize, getTestDir() + "/output.log");
 
@@ -268,12 +268,12 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          }
       };
 
-      log.debug("file = {}", dir);
+      logger.debug("file = {}", dir);
 
       File[] files = dir.listFiles(fnf);
 
       for (File file : files) {
-         log.debug("Deleting {}", file);
+         logger.debug("Deleting {}", file);
          file.delete();
       }
 
@@ -679,7 +679,7 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          expectedSet.removeAll(actualSet);
 
          for (RecordInfo info : expectedSet) {
-            log.warn("The following record is missing:: {}", info);
+            logger.warn("The following record is missing:: {}", info);
          }
 
          Assert.assertEquals("There are duplicates on the actual list", actualSet.size(), actualSet.size());
@@ -695,29 +695,29 @@ public abstract class JournalImplTestBase extends ActiveMQTestBase {
          HashSet<RecordInfo> hashExpected = new HashSet<>();
          hashExpected.addAll(expected);
 
-         log.debug("#Summary **********************************************************************************************************************");
+         logger.debug("#Summary **********************************************************************************************************************");
          for (RecordInfo r : hashActual) {
             if (!hashExpected.contains(r)) {
-               log.debug("Record {} was supposed to be removed and it exists", r);
+               logger.debug("Record {} was supposed to be removed and it exists", r);
             }
          }
 
          for (RecordInfo r : hashExpected) {
             if (!hashActual.contains(r)) {
-               log.debug("Record {} was not found on actual list", r);
+               logger.debug("Record {} was not found on actual list", r);
             }
          }
 
-         log.debug("#expected **********************************************************************************************************************");
+         logger.debug("#expected **********************************************************************************************************************");
          for (RecordInfo recordInfo : expected) {
-            log.debug("Record::{}", recordInfo);
+            logger.debug("Record::{}", recordInfo);
          }
-         log.debug("#actual ************************************************************************************************************************");
+         logger.debug("#actual ************************************************************************************************************************");
          for (RecordInfo recordInfo : actual) {
-            log.debug("Record::{}", recordInfo);
+            logger.debug("Record::{}", recordInfo);
          }
 
-         log.debug("#records ***********************************************************************************************************************");
+         logger.debug("#records ***********************************************************************************************************************");
 
          try {
             describeJournal(journal.getFileFactory(), (JournalImpl) journal, journal.getFileFactory().getDirectory(), System.out);

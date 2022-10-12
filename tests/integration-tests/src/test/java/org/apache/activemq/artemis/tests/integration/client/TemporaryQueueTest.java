@@ -60,7 +60,7 @@ import java.lang.invoke.MethodHandles;
 
 public class TemporaryQueueTest extends SingleServerTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final long CONNECTION_TTL = 2000;
 
@@ -372,11 +372,11 @@ public class TemporaryQueueTest extends SingleServerTestBase {
                latch.countDown();
 
                if (!message.getStringProperty("color").equals(color)) {
-                  log.warn("Unexpected color {} when we were expecting {}", message.getStringProperty("color"), color);
+                  logger.warn("Unexpected color {} when we were expecting {}", message.getStringProperty("color"), color);
                   errors.incrementAndGet();
                }
             } catch (Exception e) {
-               log.warn(e.getMessage(), e);
+               logger.warn(e.getMessage(), e);
                errors.incrementAndGet();
             }
          }

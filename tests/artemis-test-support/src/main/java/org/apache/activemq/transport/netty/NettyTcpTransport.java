@@ -57,7 +57,7 @@ import io.netty.util.concurrent.GenericFutureListener;
  */
 public class NettyTcpTransport implements NettyTransport {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int SHUTDOWN_TIMEOUT = 100;
    public static final int DEFAULT_MAX_FRAME_SIZE = 65535;
@@ -158,7 +158,7 @@ public class NettyTcpTransport implements NettyTransport {
       try {
          connectLatch.await();
       } catch (InterruptedException ex) {
-         LOG.debug("Transport connection was interrupted.");
+         logger.debug("Transport connection was interrupted.");
          Thread.interrupted();
          failureCause = IOExceptionSupport.create(ex);
       }
@@ -172,7 +172,7 @@ public class NettyTcpTransport implements NettyTransport {
          if (group != null) {
             Future<?> fut = group.shutdownGracefully(0, SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
             if (!fut.awaitUninterruptibly(2 * SHUTDOWN_TIMEOUT)) {
-               LOG.trace("Channel group shutdown failed to complete in allotted time");
+               logger.trace("Channel group shutdown failed to complete in allotted time");
             }
             group = null;
          }
@@ -214,7 +214,7 @@ public class NettyTcpTransport implements NettyTransport {
             if (group != null) {
                Future<?> fut = group.shutdownGracefully(0, SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
                if (!fut.awaitUninterruptibly(2 * SHUTDOWN_TIMEOUT)) {
-                  LOG.trace("Channel group shutdown failed to complete in allotted time");
+                  logger.trace("Channel group shutdown failed to complete in allotted time");
                }
             }
          }
@@ -242,7 +242,7 @@ public class NettyTcpTransport implements NettyTransport {
          return null;
       }
 
-      LOG.trace("Attempted write of: {} bytes", length);
+      logger.trace("Attempted write of: {} bytes", length);
 
       return channel.writeAndFlush(bufferTransformer.apply(output), promise);
    }
@@ -328,22 +328,22 @@ public class NettyTcpTransport implements NettyTransport {
    // ----- Event Handlers which can be overridden in subclasses -------------//
 
    protected void handleConnected(Channel channel) throws Exception {
-      LOG.trace("Channel has become active! Channel is {}", channel);
+      logger.trace("Channel has become active! Channel is {}", channel);
       connectionEstablished(channel);
    }
 
    protected void handleChannelInactive(Channel channel) throws Exception {
-      LOG.trace("Channel has gone inactive! Channel is {}", channel);
+      logger.trace("Channel has gone inactive! Channel is {}", channel);
       if (connected.compareAndSet(true, false) && !closed.get()) {
-         LOG.trace("Firing onTransportClosed listener");
+         logger.trace("Firing onTransportClosed listener");
          listener.onTransportClosed();
       }
    }
 
    protected void handleException(Channel channel, Throwable cause) throws Exception {
-      LOG.trace("Exception on channel! Channel is {}", channel);
+      logger.trace("Exception on channel! Channel is {}", channel);
       if (connected.compareAndSet(true, false) && !closed.get()) {
-         LOG.trace("Firing onTransportError listener");
+         logger.trace("Firing onTransportError listener");
          if (failureCause != null) {
             listener.onTransportError(failureCause);
          } else {
@@ -353,7 +353,7 @@ public class NettyTcpTransport implements NettyTransport {
          // Hold the first failure for later dispatch if connect succeeds.
          // This will then trigger disconnect using the first error reported.
          if (failureCause == null) {
-            LOG.trace("Holding error until connect succeeds: {}", cause.getMessage());
+            logger.trace("Holding error until connect succeeds: {}", cause.getMessage());
             failureCause = IOExceptionSupport.create(cause);
          }
 
@@ -447,10 +447,10 @@ public class NettyTcpTransport implements NettyTransport {
                @Override
                public void operationComplete(Future<Channel> future) throws Exception {
                   if (future.isSuccess()) {
-                     LOG.trace("SSL Handshake has completed: {}", channel);
+                     logger.trace("SSL Handshake has completed: {}", channel);
                      handleConnected(channel);
                   } else {
-                     LOG.trace("SSL Handshake has failed: {}", channel);
+                     logger.trace("SSL Handshake has failed: {}", channel);
                      handleException(channel, future.cause());
                   }
                }
@@ -475,7 +475,7 @@ public class NettyTcpTransport implements NettyTransport {
 
       @Override
       protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
-         LOG.trace("New data read: {} bytes incoming: {}", buffer.readableBytes(), buffer);
+         logger.trace("New data read: {} bytes incoming: {}", buffer.readableBytes(), buffer);
          listener.onData(buffer);
       }
    }

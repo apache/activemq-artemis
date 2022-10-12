@@ -26,7 +26,7 @@ import java.lang.invoke.MethodHandles;
 
 public class StompClientConnectionV10 extends AbstractStompClientConnection {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public StompClientConnectionV10(String host, int port) throws IOException {
       super("1.0", host, port);
@@ -64,7 +64,7 @@ public class StompClientConnectionV10 extends AbstractStompClientConnection {
       if (response.getCommand().equals(Stomp.Responses.CONNECTED)) {
          connected = true;
       } else {
-         log.warn("Connection failed with: {}", response);
+         logger.warn("Connection failed with: {}", response);
          connected = false;
       }
       return response;

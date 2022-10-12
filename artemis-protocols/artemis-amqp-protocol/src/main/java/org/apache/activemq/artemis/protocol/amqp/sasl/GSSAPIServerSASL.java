@@ -38,7 +38,7 @@ import java.util.HashMap;
  * delegate the the jdk GSSAPI support
  */
 public class GSSAPIServerSASL implements ServerSASL {
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String NAME = "GSSAPI";
    private String loginConfigScope;
@@ -83,7 +83,7 @@ public class GSSAPIServerSASL implements ServerSASL {
          return challenge;
 
       } catch (Exception outOfHere) {
-         log.info("Error on sasl input: {}", outOfHere.toString(), outOfHere);
+         logger.info("Error on sasl input: {}", outOfHere.toString(), outOfHere);
          result = new PrincipalSASLResult(false, null);
       }
       return null;
@@ -100,7 +100,7 @@ public class GSSAPIServerSASL implements ServerSASL {
          try {
             saslServer.dispose();
          } catch (SaslException error) {
-            log.debug("Exception on sasl dispose", error);
+            logger.debug("Exception on sasl dispose", error);
          }
       }
    }

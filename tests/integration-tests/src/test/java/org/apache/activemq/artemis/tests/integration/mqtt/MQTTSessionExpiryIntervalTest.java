@@ -28,7 +28,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MQTTSessionExpiryIntervalTest extends MQTTTestSupport {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60 * 1000)
    public void testCustomSessionExpiryInterval() throws Exception {
@@ -50,6 +50,6 @@ public class MQTTSessionExpiryIntervalTest extends MQTTTestSupport {
    protected void addMQTTConnector() throws Exception {
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:;defaultMqttSessionExpiryInterval=3");
 
-      log.debug("Added MQTT connector to broker");
+      logger.debug("Added MQTT connector to broker");
    }
 }

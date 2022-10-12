@@ -38,7 +38,7 @@ import java.lang.invoke.MethodHandles;
  */
 public abstract class ClientAbstract extends Thread {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected ClientSession session;
 
@@ -104,7 +104,7 @@ public abstract class ClientAbstract extends Thread {
 
             break;
          } catch (Exception e) {
-            ClientAbstract.log.warn("Can't connect to server, retrying");
+            ClientAbstract.logger.warn("Can't connect to server, retrying");
             disconnect();
             try {
                Thread.sleep(1000);

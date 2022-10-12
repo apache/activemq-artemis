@@ -76,7 +76,7 @@ import java.lang.invoke.MethodHandles;
 
 public class LargeMessageTest extends LargeMessageTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int RECEIVE_WAIT_TIME = 10000;
 
@@ -99,7 +99,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
    @Test
    public void testRollbackPartiallyConsumedBuffer() throws Exception {
       for (int i = 0; i < 1; i++) {
-         log.debug("#test {}", i);
+         logger.debug("#test {}", i);
          internalTestRollbackPartiallyConsumedBuffer(false);
          tearDown();
          setUp();
@@ -670,7 +670,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       msg.acknowledge();
       Assert.assertEquals(1, msg.getDeliveryCount());
 
-      log.debug("body buffer is {}", msg.getBodyBuffer());
+      logger.debug("body buffer is {}", msg.getBodyBuffer());
 
       for (int i = 0; i < messageSize; i++) {
          Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), msg.getBodyBuffer().readByte());
@@ -1574,7 +1574,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       msg.acknowledge();
       consumer.close();
 
-      log.debug("Stopping");
+      logger.debug("Stopping");
 
       session.stop();
 
@@ -2243,12 +2243,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session.start();
 
-         log.debug("Sending");
+         logger.debug("Sending");
          producer.send(clientFile);
 
          producer.close();
 
-         log.debug("Waiting");
+         logger.debug("Waiting");
 
          ClientConsumer consumer = session.createConsumer(ADDRESS);
 
@@ -2311,12 +2311,12 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session.start();
 
-         log.debug("Sending");
+         logger.debug("Sending");
          producer.send(clientFile);
 
          producer.close();
 
-         log.debug("Waiting");
+         logger.debug("Waiting");
 
          ClientConsumer consumer = session.createConsumer(ADDRESS);
 
@@ -2455,16 +2455,16 @@ public class LargeMessageTest extends LargeMessageTestBase {
          msg.putIntProperty(new SimpleString("key"), i);
          producer.send(msg);
 
-         log.debug("Sent msg {}", i);
+         logger.debug("Sent msg {}", i);
       }
 
       session.start();
 
-      log.debug("Sending");
+      logger.debug("Sending");
 
       producer.close();
 
-      log.debug("Waiting");
+      logger.debug("Waiting");
 
       ClientConsumer consumer = session.createConsumer(ADDRESS);
 
@@ -2484,7 +2484,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
       Assert.assertEquals(0, ((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable()).getDeliveringCount());
       Assert.assertEquals(0, getMessageCount(((Queue) server.getPostOffice().getBinding(ADDRESS).getBindable())));
 
-      log.debug("Thread done");
+      logger.debug("Thread done");
    }
 
    @Test

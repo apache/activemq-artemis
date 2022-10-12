@@ -54,7 +54,6 @@ import org.apache.activemq.artemis.jms.server.embedded.EmbeddedJMS;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Deprecated in favor of EmbeddedActiveMQResource. Since Artemis 2.0 all JMS specific broker management classes,
@@ -79,7 +78,6 @@ import java.lang.invoke.MethodHandles;
  */
 @Deprecated
 public class EmbeddedJMSResource extends ExternalResource {
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    static final String SERVER_NAME = "embedded-jms-server";
 

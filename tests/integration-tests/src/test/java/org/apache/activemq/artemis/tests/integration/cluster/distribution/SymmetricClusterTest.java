@@ -35,7 +35,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class SymmetricClusterTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    @Before
@@ -275,14 +275,14 @@ public class SymmetricClusterTest extends ClusterTestBase {
 
    @Test
    public void testRoundRobinMultipleQueues() throws Exception {
-      log.debug("starting");
+      logger.debug("starting");
       setupCluster();
 
-      log.debug("setup cluster");
+      logger.debug("setup cluster");
 
       startServers();
 
-      log.debug("started servers");
+      logger.debug("started servers");
 
       setupSessionFactory(0, isNetty());
       setupSessionFactory(1, isNetty());
@@ -290,7 +290,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       setupSessionFactory(3, isNetty());
       setupSessionFactory(4, isNetty());
 
-      log.debug("Set up session factories");
+      logger.debug("Set up session factories");
 
       createQueue(0, "queues.testaddress", "queue0", null, false);
       createQueue(1, "queues.testaddress", "queue0", null, false);
@@ -310,7 +310,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       createQueue(3, "queues.testaddress", "queue2", null, false);
       createQueue(4, "queues.testaddress", "queue2", null, false);
 
-      log.debug("created queues");
+      logger.debug("created queues");
 
       addConsumer(0, 0, "queue0", null);
       addConsumer(1, 1, "queue0", null);
@@ -330,7 +330,7 @@ public class SymmetricClusterTest extends ClusterTestBase {
       addConsumer(13, 3, "queue2", null);
       addConsumer(14, 4, "queue2", null);
 
-      log.debug("added consumers");
+      logger.debug("added consumers");
 
       waitForBindings(0, "queues.testaddress", 3, 3, true);
       waitForBindings(1, "queues.testaddress", 3, 3, true);
@@ -344,23 +344,23 @@ public class SymmetricClusterTest extends ClusterTestBase {
       waitForBindings(3, "queues.testaddress", 12, 12, false);
       waitForBindings(4, "queues.testaddress", 12, 12, false);
 
-      log.debug("waited for bindings");
+      logger.debug("waited for bindings");
 
       send(0, "queues.testaddress", 10, false, null);
 
-      log.debug("sent messages");
+      logger.debug("sent messages");
 
       verifyReceiveRoundRobinInSomeOrder(10, 0, 1, 2, 3, 4);
 
-      log.debug("verified 1");
+      logger.debug("verified 1");
 
       verifyReceiveRoundRobinInSomeOrder(10, 5, 6, 7, 8, 9);
 
-      log.debug("verified 2");
+      logger.debug("verified 2");
 
       verifyReceiveRoundRobinInSomeOrder(10, 10, 11, 12, 13, 14);
 
-      log.debug("verified 3");
+      logger.debug("verified 3");
    }
 
    @Test

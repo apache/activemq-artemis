@@ -28,7 +28,7 @@ import java.lang.invoke.MethodHandles;
 
 public class RealJournalImplAIOTest extends JournalImplTestUnit {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @BeforeClass
    public static void hasAIO() {
@@ -45,7 +45,7 @@ public class RealJournalImplAIOTest extends JournalImplTestUnit {
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
-      RealJournalImplAIOTest.log.debug("deleting directory {}", file);
+      RealJournalImplAIOTest.logger.debug("deleting directory {}", file);
 
       deleteDirectory(file);
 

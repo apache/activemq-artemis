@@ -26,13 +26,13 @@ import java.lang.invoke.MethodHandles;
 
 public class RealJournalImplNIOTest extends JournalImplTestUnit {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Override
    protected SequentialFileFactory getFileFactory() throws Exception {
       File file = new File(getTestDir());
 
-      RealJournalImplNIOTest.log.debug("deleting directory {}", getTestDir());
+      RealJournalImplNIOTest.logger.debug("deleting directory {}", getTestDir());
 
       deleteDirectory(file);
 

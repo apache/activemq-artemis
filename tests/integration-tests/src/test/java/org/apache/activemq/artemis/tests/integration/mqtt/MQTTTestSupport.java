@@ -74,7 +74,7 @@ import static java.util.Collections.singletonList;
 
 public class MQTTTestSupport extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    protected ActiveMQServer server;
 
    static {
@@ -236,7 +236,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       TransportConfiguration transportConfiguration = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params);
       server.getConfiguration().getAcceptorConfigurations().add(transportConfiguration);
 
-      log.debug("Added CORE connector to broker");
+      logger.debug("Added CORE connector to broker");
    }
 
    protected void addMQTTConnector() throws Exception {
@@ -246,7 +246,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
       server.getConfiguration().addAcceptorConfiguration("MQTT", "tcp://localhost:" + port + "?protocols=MQTT;anycastPrefix=anycast:;multicastPrefix=multicast:");
 
-      log.debug("Added MQTT connector to broker");
+      logger.debug("Added MQTT connector to broker");
    }
 
    public void stopBroker() throws Exception {
@@ -408,18 +408,18 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       return new Tracer() {
          @Override
          public void onReceive(MQTTFrame frame) {
-            log.debug("Client Received:\n{}", frame);
+            logger.debug("Client Received:\n{}", frame);
          }
 
          @Override
          public void onSend(MQTTFrame frame) {
-            log.debug("Client Sent:\n{}", frame);
+            logger.debug("Client Sent:\n{}", frame);
          }
 
          @Override
          public void debug(String message, Object... args) {
-            if (log.isDebugEnabled()) {
-               log.debug(String.format(message, args));
+            if (logger.isDebugEnabled()) {
+               logger.debug(String.format(message, args));
             }
          }
       };

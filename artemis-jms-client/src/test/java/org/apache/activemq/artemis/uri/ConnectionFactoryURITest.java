@@ -57,7 +57,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ConnectionFactoryURITest {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    ConnectionFactoryParser parser = new ConnectionFactoryParser();
 
@@ -409,7 +409,7 @@ public class ConnectionFactoryURITest {
          if (ignoreList.contains(descriptor.getName())) {
             continue;
          }
-         log.info("name::{}", descriptor.getName());
+         logger.info("name::{}", descriptor.getName());
          if (descriptor.getWriteMethod() != null && descriptor.getReadMethod() != null) {
             if (descriptor.getPropertyType() == String.class) {
                String value = RandomUtil.randomString();

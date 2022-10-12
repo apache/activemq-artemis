@@ -58,7 +58,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ClusteredGroupingTest extends ClusterTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public RetryRule retryRule = new RetryRule(2);
@@ -599,12 +599,12 @@ public class ClusteredGroupingTest extends ClusterTestBase {
             groups.add(group);
          }
          producer.send(message);
-         log.trace("Sent message to server 1 with dupID: {}", dupID);
+         logger.trace("Sent message to server 1 with dupID: {}", dupID);
       }
 
       session.commit();
       totalMessageProduced.addAndGet(500);
-      log.trace("Sent block of 500 messages to server 1. Total sent: {}", totalMessageProduced.get());
+      logger.trace("Sent block of 500 messages to server 1. Total sent: {}", totalMessageProduced.get());
       session.close();
 
       // need thread pool to service both consumers and producers plus a thread to cycle nodes
@@ -626,7 +626,7 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                String group = groupx;
 
                String basicID = UUID.randomUUID().toString();
-               log.debug("Starting producer thread...");
+               logger.debug("Starting producer thread...");
                ClientSessionFactory factory;
                ClientSession session = null;
                ClientProducer producer = null;
@@ -644,12 +644,12 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                   } else {
                      factory = sf0;
                   }
-                  log.debug("Creating producer session factory to node {}", targetServer);
+                  logger.debug("Creating producer session factory to node {}", targetServer);
                   session = addClientSession(factory.createSession(false, true, true));
                   producer = addClientProducer(session.createProducer(ADDRESS));
                } catch (Exception e) {
                   errors.incrementAndGet();
-                  log.warn("Producer thread couldn't establish connection", e);
+                  logger.warn("Producer thread couldn't establish connection", e);
                   return;
                }
 
@@ -665,11 +665,11 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                      totalMessageProduced.incrementAndGet();
                      messageCount++;
                   } catch (ActiveMQException e) {
-                     log.warn("Producer thread threw exception while sending messages to {}: {}", targetServer, e.getMessage());
+                     logger.warn("Producer thread threw exception while sending messages to {}: {}", targetServer, e.getMessage());
                      // in case of a failure we change the group to make possible errors more likely
                      group = group + "afterFail";
                   } catch (Exception e) {
-                     log.warn("Producer thread threw unexpected exception while sending messages to {}: {}", targetServer, e.getMessage());
+                     logger.warn("Producer thread threw unexpected exception while sending messages to {}: {}", targetServer, e.getMessage());
                      group = group + "afterFail";
                      break;
                   }
@@ -711,13 +711,13 @@ public class ClusteredGroupingTest extends ClusterTestBase {
             @Override
             public void run() {
                try {
-                  log.debug("Waiting to start consumer thread...");
+                  logger.debug("Waiting to start consumer thread...");
                   okToConsume.await(20, TimeUnit.SECONDS);
                } catch (InterruptedException e) {
                   e.printStackTrace();
                   return;
                }
-               log.debug("Starting consumer thread...");
+               logger.debug("Starting consumer thread...");
                ClientSessionFactory factory;
                ClientSession session = null;
                ClientConsumer consumer = null;
@@ -734,14 +734,14 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                      } else {
                         factory = sf0;
                      }
-                     log.debug("Creating consumer session factory to node {}", targetServer);
+                     logger.debug("Creating consumer session factory to node {}", targetServer);
                      session = addClientSession(factory.createSession(false, false, true));
                      consumer = addClientConsumer(session.createConsumer(QUEUE));
                      session.start();
                      consumerCounter.incrementAndGet();
                   }
                } catch (Exception e) {
-                  log.debug("Consumer thread couldn't establish connection", e);
+                  logger.debug("Consumer thread couldn't establish connection", e);
                   errors.incrementAndGet();
                   return;
                }
@@ -754,13 +754,13 @@ public class ClusteredGroupingTest extends ClusterTestBase {
                         return;
                      }
                      m.acknowledge();
-                     log.trace("Consumed message {} from server {}. Total consumed: {}", m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID), targetServer, totalMessagesConsumed.incrementAndGet());
+                     logger.trace("Consumed message {} from server {}. Total consumed: {}", m.getStringProperty(Message.HDR_DUPLICATE_DETECTION_ID), targetServer, totalMessagesConsumed.incrementAndGet());
                   } catch (ActiveMQException e) {
                      errors.incrementAndGet();
-                     log.warn("Consumer thread threw exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
+                     logger.warn("Consumer thread threw exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
                   } catch (Exception e) {
                      errors.incrementAndGet();
-                     log.warn("Consumer thread threw unexpected exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
+                     logger.warn("Consumer thread threw unexpected exception while receiving messages from server {}.: {}", targetServer, e.getMessage());
                      return;
                   }
                }

@@ -120,7 +120,7 @@ import static org.apache.activemq.artemis.tests.util.ActiveMQTestBase.NETTY_ACCE
 @CreateKdcServer(transports = {@CreateTransport(protocol = "TCP", port = 0)})
 @ApplyLdifFiles("SaslKrb5LDAPSecurityTest.ldif")
 public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static final String QUEUE_NAME = "some_queue";
 
@@ -219,11 +219,11 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
       Method refreshMethod = classRef.getMethod("refresh", new Class[0]);
       refreshMethod.invoke(classRef, new Object[0]);
 
-      LOG.debug("krb5.conf to: {}", krb5conf.getAbsolutePath());
+      logger.debug("krb5.conf to: {}", krb5conf.getAbsolutePath());
       if (debug) {
-         LOG.debug("java.security.krb5.conf='{}'", System.getProperty("java.security.krb5.conf"));
+         logger.debug("java.security.krb5.conf='{}'", System.getProperty("java.security.krb5.conf"));
          try (BufferedReader br = new BufferedReader(new FileReader(System.getProperty("java.security.krb5.conf")))) {
-            br.lines().forEach(line -> LOG.debug(line));
+            br.lines().forEach(line -> logger.debug(line));
          }
       }
    }
@@ -237,7 +237,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          String ss = LdifUtils.convertToLdif(entry);
          st += ss + "\n";
       }
-      LOG.debug(st);
+      logger.debug(st);
 
       cursor = (EntryFilteringCursor) getService().getAdminSession().search(new Dn("dc=example,dc=com"), SearchScope.SUBTREE, new PresenceNode("ObjectClass"), AliasDerefMode.DEREF_ALWAYS);
       st = "";
@@ -247,7 +247,7 @@ public class SaslKrb5LDAPSecurityTest extends AbstractLdapTestUnit {
          String ss = LdifUtils.convertToLdif(entry);
          st += ss + "\n";
       }
-      LOG.debug(st);
+      logger.debug(st);
    }
 
    private void initLogging() {

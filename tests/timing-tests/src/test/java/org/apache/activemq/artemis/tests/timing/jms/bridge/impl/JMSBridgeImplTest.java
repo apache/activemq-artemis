@@ -75,7 +75,7 @@ import java.lang.invoke.MethodHandles;
 
 public class JMSBridgeImplTest extends ActiveMQTestBase {
 
-   private static Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
    private static final String SOURCE = RandomUtil.randomString();
@@ -432,7 +432,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages - 1; i++) {
          TextMessage msg = sourceSess.createTextMessage();
          producer.send(msg);
-         log.info("sent message {}", i);
+         logger.info("sent message {}", i);
       }
 
       Thread.sleep(1000);
@@ -500,7 +500,7 @@ public class JMSBridgeImplTest extends ActiveMQTestBase {
       for (int i = 0; i < numMessages; i++) {
          TextMessage msg = sourceSess.createTextMessage();
          producer.send(msg);
-         log.info("sent message {}", i);
+         logger.info("sent message {}", i);
       }
 
       sourceConn.close();

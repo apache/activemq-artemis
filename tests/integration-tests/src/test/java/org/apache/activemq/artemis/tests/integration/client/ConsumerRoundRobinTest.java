@@ -34,7 +34,7 @@ import java.lang.invoke.MethodHandles;
 
 public class ConsumerRoundRobinTest extends ActiveMQTestBase {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public final SimpleString addressA = new SimpleString("addressA");
 
@@ -69,9 +69,9 @@ public class ConsumerRoundRobinTest extends ActiveMQTestBase {
       }
       int currMessage = 0;
       for (int i = 0; i < numMessage / 5; i++) {
-         log.debug("i is {}", i);
+         logger.debug("i is {}", i);
          for (int j = 0; j < 5; j++) {
-            log.debug("j is {}", j);
+            logger.debug("j is {}", j);
             ClientMessage cm = consumers[j].receive(5000);
             Assert.assertNotNull(cm);
             Assert.assertEquals(currMessage++, cm.getBodyBuffer().readInt());

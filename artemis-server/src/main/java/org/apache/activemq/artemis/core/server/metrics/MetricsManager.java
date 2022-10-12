@@ -42,7 +42,7 @@ import java.lang.invoke.MethodHandles;
 
 public class MetricsManager {
 
-   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final String brokerName;
 
@@ -144,7 +144,7 @@ public class MetricsManager {
          for (Gauge.Builder gaugeBuilder : newMeters) {
             Gauge gauge = gaugeBuilder.register(meterRegistry);
             meters.add(gauge);
-            log.debug("Registered meter: {}", gauge.getId());
+            logger.debug("Registered meter: {}", gauge.getId());
          }
          return meters;
       });
@@ -157,7 +157,7 @@ public class MetricsManager {
          }
          for (Meter meter : meters) {
             Meter removed = meterRegistry.remove(meter);
-            log.debug("Unregistered meter: {}", removed.getId());
+            logger.debug("Unregistered meter: {}", removed.getId());
          }
          return null;
       });

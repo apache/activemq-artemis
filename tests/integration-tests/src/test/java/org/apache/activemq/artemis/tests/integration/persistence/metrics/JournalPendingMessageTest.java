@@ -51,7 +51,7 @@ import java.lang.invoke.MethodHandles;
 
 
 public class JournalPendingMessageTest extends AbstractPersistentStatTestSupport {
-   protected static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    // protected URI brokerConnectURI;
    protected String defaultQueueName = "test.queue";

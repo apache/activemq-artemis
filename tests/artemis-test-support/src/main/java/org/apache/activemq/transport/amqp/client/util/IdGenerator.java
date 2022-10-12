@@ -31,7 +31,7 @@ import java.lang.invoke.MethodHandles;
  */
 public class IdGenerator {
 
-   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final String UNIQUE_STUB;
    private static int instanceCount;
    private static String hostName;
@@ -57,16 +57,16 @@ public class IdGenerator {
          ServerSocket ss = null;
          try {
             idGeneratorPort = Integer.parseInt(System.getProperty(PROPERTY_IDGENERATOR_PORT, "0"));
-            LOG.trace("Using port {}", idGeneratorPort);
+            logger.trace("Using port {}", idGeneratorPort);
             hostName = getLocalHostName();
             ss = new ServerSocket(idGeneratorPort);
             stub = "-" + ss.getLocalPort() + "-" + System.currentTimeMillis() + "-";
             Thread.sleep(100);
          } catch (Exception e) {
-            if (LOG.isTraceEnabled()) {
-               LOG.trace("could not generate unique stub by using DNS and binding to local port", e);
+            if (logger.isTraceEnabled()) {
+               logger.trace("could not generate unique stub by using DNS and binding to local port", e);
             } else {
-               LOG.warn("could not generate unique stub by using DNS and binding to local port: {} {}", e.getClass().getCanonicalName(), e.getMessage());
+               logger.warn("could not generate unique stub by using DNS and binding to local port: {} {}", e.getClass().getCanonicalName(), e.getMessage());
             }
 
             // Restore interrupted state so higher level code can deal with it.
@@ -78,10 +78,10 @@ public class IdGenerator {
                try {
                   ss.close();
                } catch (IOException ioe) {
-                  if (LOG.isTraceEnabled()) {
-                     LOG.trace("Closing the server socket failed", ioe);
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("Closing the server socket failed", ioe);
                   } else {
-                     LOG.warn("Closing the server socket failed due to {}", ioe.getMessage());
+                     logger.warn("Closing the server socket failed due to {}", ioe.getMessage());
                   }
                }
             }
@@ -152,7 +152,7 @@ public class IdGenerator {
 
       if (changed) {
          String newHost = sb.toString();
-         LOG.info("Sanitized hostname from: {} to: {}", hostName, newHost);
+         logger.info("Sanitized hostname from: {} to: {}", hostName, newHost);
          return newHost;
       } else {
          return hostName;
