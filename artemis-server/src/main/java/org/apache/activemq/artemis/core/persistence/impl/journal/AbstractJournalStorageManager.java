@@ -457,7 +457,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    private void messageUpdateCallback(long id, boolean found) {
       if (!found) {
-         ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(id, new Exception());
+         ActiveMQServerLogger.LOGGER.cannotFindMessageOnJournal(id, new Exception("trace"));
       }
    }
 

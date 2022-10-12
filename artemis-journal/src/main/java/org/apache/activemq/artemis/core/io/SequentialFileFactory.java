@@ -58,7 +58,7 @@ public interface SequentialFileFactory {
    void onIOError(Throwable exception, String message, String file);
 
    default void onIOError(Throwable exception, String message, SequentialFile file) {
-      onIOError(exception, message, file.getFileName());
+      onIOError(exception, message, file != null ? file.getFileName() : (String) null);
    }
 
    default void onIOError(Throwable exception, String message) {
