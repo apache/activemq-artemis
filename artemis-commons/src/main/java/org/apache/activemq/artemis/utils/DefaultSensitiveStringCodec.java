@@ -28,6 +28,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -146,6 +147,14 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
                logger.trace("Set key from system property {}", KEY_SYSTEM_PROPERTY);
                updateKey(key);
             }
+            if (key == null) {
+               final String matchingEnvVarName = envVarNameFromSystemPropertyName(KEY_SYSTEM_PROPERTY);
+               key = getFromEnv(matchingEnvVarName);
+               if (key != null) {
+                  logger.trace("Set key from env var {}", matchingEnvVarName);
+                  updateKey(key);
+               }
+            }
          }
       }
 
@@ -203,6 +212,14 @@ public class DefaultSensitiveStringCodec implements SensitiveDataCodec<String> {
             return false;
          }
       }
+   }
+
+   protected String getFromEnv(final String envVarName) {
+      return System.getenv(envVarName);
+   }
+
+   public static String envVarNameFromSystemPropertyName(final String systemPropertyName) {
+      return systemPropertyName.replace(".","_").toUpperCase(Locale.getDefault());
    }
 
    private static class PBKDF2Algorithm extends CodecAlgorithm {
