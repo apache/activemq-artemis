@@ -1516,32 +1516,6 @@ connection factories in a resource adapter:
 These properties, once specified, are eventually set on the corresponding
 internal factories.
 
-### Config for REST interface
-
-Apache Artemis REST interface ([Rest](rest.md)) allows interactions between jms
-client and rest clients.  It uses JMS ObjectMessage to wrap the actual user
-data between the 2 types of clients and deserialization is needed during this
-process. If you want to control the deserialization for REST, you need to set
-the black/white lists for it separately as Apache Artemis REST Interface is
-deployed as a web application.  You need to put the black/white lists in its
-web.xml, as context parameters, as follows
-
-```xml
-<web-app>
-    <context-param>
-        <param-name>org.apache.activemq.artemis.jms.deserialization.whitelist</param-name>
-        <param-value>some.allowed.class</param-value>
-    </context-param>
-    <context-param>
-        <param-name>org.apache.activemq.artemis.jms.deserialization.blacklist</param-name>
-        <param-value>some.forbidden.class</param-value>
-    </context-param>
-...
-</web-app>
-```
-
-The param-value for each list is a comma separated string value representing the list.
-
 ## Masking Passwords
 
 For details about masking passwords in broker.xml please see the [Masking

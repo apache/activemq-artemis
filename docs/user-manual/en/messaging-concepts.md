@@ -194,27 +194,6 @@ the JMS API.
 
 Please see [Core](core.md) for using the Core API with Apache ActiveMQ Artemis.
 
-### RESTful API
-
-[REST](https://en.wikipedia.org/wiki/Representational_State_Transfer)
-approaches to messaging are showing a lot interest recently.
-
-It seems plausible that API standards for cloud computing may converge on a
-REST style set of interfaces and consequently a REST messaging approach is a
-very strong contender for becoming the de-facto method for messaging
-interoperability.
-
-With a REST approach messaging resources are manipulated as resources defined
-by a URI and typically using a simple set of operations on those resources,
-e.g. PUT, POST, GET etc. REST approaches to messaging often use HTTP as their
-underlying protocol.
-
-The advantage of a REST approach with HTTP is in its simplicity and the fact
-the internet is already tuned to deal with HTTP optimally.
-
-Please see [Rest Interface](rest.md) for using Apache ActiveMQ Artemis's
-RESTful interface.
-
 ### AMQP
 
 [AMQP](https://en.wikipedia.org/wiki/AMQP) is a specification for interoperable

@@ -24,9 +24,6 @@ Although JMS and Jakarta Messaging are standardized APIs, they does not define a
 [JMS & Jakarta Messaging clients](using-jms.md) are implemented on top of the core protocol. We also provide a
 [client-side JNDI implementation](using-jms.md#jndi).
 
-The broker also ships with a [REST messaging interface](rest.md) (not to be confused with the REST management API
-provided via our integration with Jolokia).
-
 ## Configuring Acceptors
 
 In order to make use of a particular protocol, a transport must be configured with the desired protocol enabled.  There

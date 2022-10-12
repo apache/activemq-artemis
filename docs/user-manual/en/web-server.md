@@ -3,8 +3,7 @@
 Apache ActiveMQ Artemis embeds the [Jetty web
 server](https://www.eclipse.org/jetty/). Its main purpose is to host the [Management
 Console](management-console.md). However, it can also host other web
-applications like the [REST interface](rest.md) or even Spring-based web
-applications (e.g. using Camel).
+applications.
 
 ## Configuration
 
