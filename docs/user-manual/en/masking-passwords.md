@@ -413,6 +413,10 @@ that key to unmask the password(s). Therefore, it is possible to supply your
     that the key is more obscure since it will not exist in any configuration
     file. It can be set immediately *before* the broker starts and then cleared
     from the environment immediately *after* the broker finishes starting.
+ 3. If expansion of the `ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY` environment
+    variable to set the system property is a concern, modify the startup scripts
+    to remove the system property assignment, the environment variable will then
+    be read directly.
 
 ### Using a custom codec
 

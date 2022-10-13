@@ -26,6 +26,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -74,6 +75,24 @@ public class DefaultSensitiveStringCodecTest {
 
       String otherPassword = "some_other_password";
       assertFalse(codec.verify(otherPassword.toCharArray(), maskedText));
+   }
+
+   @Test
+   public void testInitFromEnvVar() throws Exception {
+      final String someString = "bla";
+      DefaultSensitiveStringCodec codecFromEnvVarConfig = new DefaultSensitiveStringCodec() {
+         @Override
+         public String getFromEnv(String v) {
+            if (v.contains("_") && !v.contains(".")) {
+               return someString;
+            }
+            return null;
+         }
+      };
+      Map<String, String> params = new HashMap<>();
+      codecFromEnvVarConfig.init(params);
+      String blaVersion = codecFromEnvVarConfig.encode(someString);
+      assertNotEquals(blaVersion,  getDefaultSensitiveStringCodec(DefaultSensitiveStringCodec.TWO_WAY).encode(someString));
    }
 
    @Test
