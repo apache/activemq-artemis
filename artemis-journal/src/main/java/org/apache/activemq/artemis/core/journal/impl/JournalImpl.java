@@ -280,9 +280,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          processBackup();
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
-         if (criticalErrorListener != null) {
-            criticalErrorListener.onIOException(e, e.getMessage(), null);
-         }
+         fileFactory.onIOError(e, e.getMessage());
       }
 
       return this;
@@ -295,8 +293,6 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    // Compacting may replace this structure
    private final ConcurrentLongHashMap<JournalTransaction> transactions = new ConcurrentLongHashMap<>();
-
-   private IOCriticalErrorListener criticalErrorListener;
 
    // This will be set only while the JournalCompactor is being executed
    private volatile JournalCompactor compactor;
@@ -447,7 +443,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       super(fileFactory.isSupportsCallbacks(), fileSize);
 
-      this.criticalErrorListener = criticalErrorListener;
+      fileFactory.setCriticalErrorListener(criticalErrorListener);
 
       this.providedIOThreadPool = ioExecutors;
 
@@ -490,12 +486,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
    @Override
    public IOCriticalErrorListener getCriticalErrorListener() {
-      return criticalErrorListener;
+      return fileFactory.getCriticalErrorListener();
    }
 
    @Override
    public JournalImpl setCriticalErrorListener(IOCriticalErrorListener criticalErrorListener) {
-      this.criticalErrorListener = criticalErrorListener;
+      fileFactory.setCriticalErrorListener(criticalErrorListener);
       return this;
    }
 
@@ -2477,9 +2473,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
             fileToCopy.getFile().renameTo(removeBackupExtension(fileToCopy.getFile().getFileName()));
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
-            if (criticalErrorListener != null) {
-               criticalErrorListener.onIOException(e, e.getMessage(), fileToCopy.getFile().getFileName());
-            }
+            fileFactory.onIOError(e, e.getMessage(), fileToCopy.getFile().getFileName());
          }
 
          fileToCopy.setReclaimable(true);

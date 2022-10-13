@@ -58,7 +58,7 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
 
    protected volatile int alignment = -1;
 
-   protected final IOCriticalErrorListener critialErrorListener;
+   protected IOCriticalErrorListener critialErrorListener;
 
    protected final CriticalAnalyzer criticalAnalyzer;
 
@@ -95,6 +95,16 @@ public abstract class AbstractSequentialFileFactory implements SequentialFileFac
       this.bufferTimeout = bufferTimeout;
       this.critialErrorListener = criticalErrorListener;
       this.maxIO = maxIO;
+   }
+
+   @Override
+   public IOCriticalErrorListener getCriticalErrorListener() {
+      return critialErrorListener;
+   }
+
+   @Override
+   public void setCriticalErrorListener(IOCriticalErrorListener listener) {
+      this.critialErrorListener = listener;
    }
 
    @Override

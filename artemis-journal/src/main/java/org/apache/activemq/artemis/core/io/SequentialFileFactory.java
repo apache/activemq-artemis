@@ -27,6 +27,13 @@ import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
  */
 public interface SequentialFileFactory {
 
+   default IOCriticalErrorListener getCriticalErrorListener() {
+      return null;
+   }
+
+   default void setCriticalErrorListener(IOCriticalErrorListener listener) {
+   }
+
    default CriticalAnalyzer getCriticalAnalyzer() {
       return null;
    }
