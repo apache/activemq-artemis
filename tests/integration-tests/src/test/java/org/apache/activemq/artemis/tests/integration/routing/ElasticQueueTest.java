@@ -436,7 +436,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
          Configuration configuration = baseConfig.copy();
          configuration.setName("Node" + nodeId);
          configuration.setBrokerInstance(new File(getTestDirfile(), configuration.getName()));
-         configuration.addAcceptorConfiguration("tcp", "tcp://localhost:" + (base_port + (nodeId)) + "?router=" + roleNameSharder + ";amqpCredits=1000;amqpMinCredits=300");
+         configuration.addAcceptorConfiguration("tcp", "tcp://localhost:" + (base_port + (nodeId)) + "?router=" + roleNameSharder + ";amqpCredits=1000;amqpLowCredits=300");
          nodes.add(new EmbeddedActiveMQ().setConfiguration(configuration));
          nodes.get(nodeId).setSecurityManager(customSecurityManager);
          nodes.get(nodeId).setMbeanServer(mBeanServer);
