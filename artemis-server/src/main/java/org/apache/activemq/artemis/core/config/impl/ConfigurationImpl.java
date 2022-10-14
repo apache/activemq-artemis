@@ -415,8 +415,27 @@ public class ConfigurationImpl implements Configuration, Serializable {
     * Parent folder for all data folders.
     */
    private File artemisInstance;
-   private transient JsonObject status = JsonLoader.createObjectBuilder().build();
-   private final transient Checksum checksum = new Adler32();
+   private transient JsonObject jsonStatus = JsonLoader.createObjectBuilder().build();
+   private transient Checksum transientChecksum = null;
+
+
+   private JsonObject getJsonStatus() {
+      if (jsonStatus == null) {
+         jsonStatus = JsonLoader.createObjectBuilder().build();
+      }
+      return jsonStatus;
+   }
+
+   // Checksum would be otherwise final
+   // however some Quorum actiations are using Serialization to make a deep copy of ConfigurationImpl and it would become null
+   // for that reason this i making the proper initialization when needed.
+   private Checksum getCheckSun() {
+      if (transientChecksum == null) {
+         transientChecksum = new Adler32();
+      }
+      return transientChecksum;
+   }
+
 
    @Override
    public String getJournalRetentionDirectory() {
@@ -532,6 +551,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
       Map<String, Object> beanProperties = new LinkedHashMap<>();
       long alder32Hash = 0;
       synchronized (properties) {
+         Checksum checksum = getCheckSun();
+
          checksum.reset();
          String key = null;
          for (Map.Entry<Object, Object> entry : properties.entrySet()) {
@@ -773,16 +794,19 @@ public class ConfigurationImpl implements Configuration, Serializable {
       for (Map.Entry<String, String> entry : errors.entrySet()) {
          errorsObjectArrayBuilder.add(JsonLoader.createObjectBuilder().add("value", entry.getKey()).add("reason", entry.getValue()));
       }
+
+      JsonObject status = getJsonStatus();
       JsonObjectBuilder jsonObjectBuilder =
          JsonUtil.objectBuilderWithValueAtPath("properties/" + propsId + "/errors", errorsObjectArrayBuilder.build());
-      status = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
+      this.jsonStatus = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
    }
 
    private synchronized void updateReadPropertiesStatus(String propsId, long alder32Hash) {
       JsonObjectBuilder propertiesReadStatusBuilder = JsonLoader.createObjectBuilder();
       propertiesReadStatusBuilder.add("alder32", String.valueOf(alder32Hash));
       JsonObjectBuilder jsonObjectBuilder = JsonUtil.objectBuilderWithValueAtPath("properties/" + propsId, propertiesReadStatusBuilder.build());
-      status = JsonUtil.mergeAndUpdate(status, jsonObjectBuilder.build());
+      JsonObject jsonStatus = getJsonStatus();
+      this.jsonStatus = JsonUtil.mergeAndUpdate(jsonStatus, jsonObjectBuilder.build());
    }
 
    private String getBrokerPropertiesKeySurround(Map<String, Object> propertiesToApply) {
@@ -2722,7 +2746,6 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public Configuration copy() throws Exception {
-
       return AccessController.doPrivileged(new PrivilegedExceptionAction<Configuration>() {
          @Override
          public Configuration run() throws Exception {
@@ -3036,13 +3059,13 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public synchronized String getStatus() {
-      return status.toString();
+      return getJsonStatus().toString();
    }
 
    @Override
    public synchronized void setStatus(String status) {
       JsonObject update = JsonUtil.readJsonObject(status);
-      this.status = JsonUtil.mergeAndUpdate(this.status, update);
+      this.jsonStatus = JsonUtil.mergeAndUpdate(getJsonStatus(), update);
    }
 
    // extend property utils with ability to auto-fill and locate from collections
