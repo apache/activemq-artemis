@@ -84,8 +84,9 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
    @Test
    public void testRestart() throws Throwable {
       remoteCall("populate");
-      System.out.println("Resuming...");
+      logger.debug("Resuming...");
       remoteCall("resume");
+      logger.debug("....done");
    }
 
    private void remoteCall(String methodName) throws Exception {
