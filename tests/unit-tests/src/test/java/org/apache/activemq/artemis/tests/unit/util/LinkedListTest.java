@@ -459,6 +459,25 @@ public class LinkedListTest extends ActiveMQTestBase {
       }
    }
 
+
+   @Test
+   public void testPeek() {
+      assertEquals(0, list.size());
+      assertNull(list.peek());
+      list.addTail(10);
+      assertEquals(10, (int)list.peek());
+      assertEquals(10, (int)list.poll());
+      assertNull(list.peek());
+      list.addTail(12);
+      assertEquals(12, (int)list.peek());
+      list.addHead(5);
+      assertEquals(5, (int)list.peek());
+      list.poll();
+      assertEquals(12, (int)list.peek());
+      list.poll();
+      assertNull(list.peek());
+   }
+
    @Test
    public void testAddHead() {
       int num = 10;

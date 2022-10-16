@@ -832,13 +832,16 @@ public final class PageSubscriptionImpl implements PageSubscription {
    @Override
    public void processReload() throws Exception {
       if (recoveredACK != null) {
-         logger.trace("********** processing reload!!!!!!!");
+         if (logger.isDebugEnabled()) {
+            logger.debug("processing reload queue name={} with id={}", queue != null ? this.queue.getName() : "N/A", cursorId);
+         }
 
          Collections.sort(recoveredACK);
 
          long txDeleteCursorOnReload = -1;
 
          for (PagePosition pos : recoveredACK) {
+            logger.trace("reloading pos {}", pos);
             lastAckedPosition = pos;
             PageCursorInfo pageInfo = getPageInfo(pos);
             pageInfo.loadACK(pos);
@@ -871,7 +874,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public void onDeletePage(Page deletedPage) throws Exception {
-      logger.trace("removing page {}", deletedPage);
+      logger.debug("removing page {}", deletedPage);
       PageCursorInfo info;
       synchronized (consumedPages) {
          info = consumedPages.remove(Long.valueOf(deletedPage.getPageId()));
@@ -907,6 +910,12 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    PageCursorInfo getPageInfo(final PagePosition pos) {
       return getPageInfo(pos.getPageNr());
+   }
+
+   public PageCursorInfo locatePageInfo(final long pageNr) {
+      synchronized (consumedPages) {
+         return consumedPages.get(pageNr);
+      }
    }
 
    public PageCursorInfo getPageInfo(final long pageNr) {
@@ -1278,11 +1287,20 @@ public final class PageSubscriptionImpl implements PageSubscription {
       private LinkedListIterator<PagedMessage> currentPageIterator;
 
       private void initPage(long page) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("initPage {}", page);
+         }
          try {
             if (currentPage != null) {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("usage down {} on subscription {}", currentPage.getPageId(), cursorId);
+               }
                currentPage.usageDown();
             }
             if (currentPageIterator != null) {
+               if (logger.isTraceEnabled()) {
+                  logger.trace("closing pageIterator on {}", cursorId);
+               }
                currentPageIterator.close();
             }
             currentPage = pageStore.usePage(page);
@@ -1460,21 +1478,45 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
       private PagedReference internalGetNext() {
          for (;;) {
+            assert currentPageIterator != null : "currentPageIterator is null";
             PagedMessage message = currentPageIterator.hasNext() ? currentPageIterator.next() : null;
             logger.trace("CursorIterator::internalGetNext:: new reference {}", message);
             if (message != null) {
                return cursorProvider.newReference(message, PageSubscriptionImpl.this);
             }
 
-            if (currentPage.getPageId() < pageStore.getCurrentWritingPage()) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("Current page {}", currentPage != null ? currentPage.getPageId() : null);
+            }
+            long nextPage = getNextPage();
+            if (logger.isTraceEnabled()) {
+               logger.trace("next page {}", nextPage);
+            }
+            if (nextPage >= 0) {
                if (logger.isTraceEnabled()) {
-                  logger.trace("CursorIterator::internalGetNext:: moving to currentPage {}", currentPage.getPageId() + 1);
+                  logger.trace("CursorIterator::internalGetNext:: moving to currentPage {}", nextPage);
                }
-               initPage(currentPage.getPageId() + 1);
+               initPage(nextPage);
             } else {
                return null;
             }
          }
+      }
+
+      private long getNextPage() {
+         long page = currentPage.getPageId() + 1;
+
+         while (page <= pageStore.getCurrentWritingPage()) {
+            PageCursorInfo info = locatePageInfo(page);
+            if (info == null || info.getCompleteInfo() == null) {
+               return page;
+            }
+            if (logger.isDebugEnabled()) {
+               logger.debug("Subscription {} named {}  moving faster from page {} to next", cursorId, queue.getName(), page);
+            }
+            page++;
+         }
+         return -1;
       }
 
 

@@ -879,6 +879,21 @@ public final class PriorityLinkedListTest extends Assert {
 
 
    @Test
+   public void testPeek() {
+      assertNull(list.peek());
+
+      list.addTail(c, 5);
+      assertEquals(c, list.peek());
+
+      list.addTail(k, 0);
+      assertEquals(k, list.peek());
+
+      list.addHead(a, 0);
+      assertEquals(a, list.peek());
+   }
+
+
+   @Test
    public void testRemoveWithID() {
 
       for (int i = 1; i <= 3000; i++) {

@@ -150,15 +150,18 @@ public final class Page  {
    }
 
    public synchronized LinkedList<PagedMessage> read(StorageManager storage, boolean onlyLargeMessages) throws Exception {
-      if (logger.isDebugEnabled()) {
-         logger.debug("reading page {} on address = {} onlyLargeMessages = {}", pageId, storeName, onlyLargeMessages);
-      }
 
       if (!file.isOpen()) {
          if (!file.exists()) {
             return EmptyList.getEmptyList();
          }
          throw ActiveMQMessageBundle.BUNDLE.invalidPageIO();
+      }
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("reading page {} on address = {} onlyLargeMessages = {}", pageId, storeName, onlyLargeMessages, new Exception("trace"));
+      } else if (logger.isDebugEnabled()) {
+         logger.debug("reading page {} on address = {} onlyLargeMessages = {}", pageId, storeName, onlyLargeMessages);
       }
 
       size = file.size();

@@ -31,6 +31,9 @@ public interface PriorityLinkedList<E> {
 
    E poll();
 
+   /** just look at the first element on the list */
+   E peek();
+
    void clear();
 
    /**
