@@ -515,7 +515,9 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public void processReload() throws Exception {
+      logger.debug("Processing reload");
       for (PagingStore store : stores.values()) {
+         logger.debug("Processing reload on page store {}", store.getAddress());
          store.processReload();
       }
    }
