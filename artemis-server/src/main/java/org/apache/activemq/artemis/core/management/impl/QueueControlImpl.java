@@ -874,7 +874,13 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       }
    }
 
-   protected Map<String, Object>[] getFirstMessage() throws Exception {
+   /**
+    * this method returns a Map representing the first message.
+    * or null if there's no first message.
+    * @return
+    * @throws Exception
+    */
+   protected Map<String, Object> getFirstMessage() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessage(queue);
       }
@@ -883,16 +889,12 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       clearIO();
       try {
          List<Map<String, Object>> messages = new ArrayList<>();
-         queue.flushExecutor();
          final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
-         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-            // returns just the first, as it's the first only
-            if (iterator.hasNext()) {
-               MessageReference ref = iterator.next();
-               Message message = ref.getMessage();
-               messages.add(message.toMap(attributeSizeLimit));
-            }
-            return messages.toArray(new Map[1]);
+         MessageReference firstMessage = queue.peekFirstMessage();
+         if (firstMessage != null) {
+            return firstMessage.getMessage().toMap(attributeSizeLimit);
+         } else {
+            return null;
          }
       } finally {
          blockOnIO();
@@ -905,7 +907,8 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getFirstMessageAsJSON(queue);
       }
-      return toJSON(getFirstMessage());
+      Map<String, Object> message = getFirstMessage();
+      return toJSON(message == null ? new Map[0] : new Map[]{message});
    }
 
    @Override
@@ -914,15 +917,16 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.getFirstMessageTimestamp(queue);
       }
 
-      Map<String, Object>[] _message = getFirstMessage();
-      if (_message == null || _message.length == 0 || _message[0] == null) {
+      Map<String, Object> message = getFirstMessage();
+      if (message == null) {
          return null;
+      } else {
+         if (!message.containsKey("timestamp")) {
+            return null;
+         } else {
+            return (Long) message.get("timestamp");
+         }
       }
-      Map<String, Object> message = _message[0];
-      if (!message.containsKey("timestamp")) {
-         return null;
-      }
-      return (Long) message.get("timestamp");
    }
 
    @Override
@@ -1562,7 +1566,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter thefilter = FilterImpl.createFilter(filter);
-         queue.flushExecutor();
 
          final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
@@ -1618,7 +1621,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          int currentPageSize = 0;
          ArrayList<CompositeData> c = new ArrayList<>();
          Filter thefilter = FilterImpl.createFilter(filter);
-         queue.flushExecutor();
          try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
             try {
                while (iterator.hasNext() && currentPageSize++ < limit) {

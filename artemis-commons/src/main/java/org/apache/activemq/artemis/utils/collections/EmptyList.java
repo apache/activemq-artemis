@@ -31,6 +31,10 @@ public class EmptyList<E> implements LinkedList<E> {
    private EmptyList() {
    }
 
+   @Override
+   public E peek() {
+      return null;
+   }
 
    @Override
    public void addHead(E e) {

@@ -126,6 +126,17 @@ public class PriorityLinkedListImpl<E> implements PriorityLinkedList<E> {
       return null;
    }
 
+   @Override
+   public E peek() {
+      for (LinkedListImpl<E> level : levels) {
+         E value = level.peek();
+         if (value != null) {
+            return value;
+         }
+      }
+
+      return null;
+   }
 
    @Override
    public E poll() {

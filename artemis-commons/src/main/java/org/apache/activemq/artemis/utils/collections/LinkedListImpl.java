@@ -104,6 +104,16 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    @Override
+   public E peek() {
+      Node<E> current = head.next;
+      if (current == null) {
+         return null;
+      } else {
+         return current.val();
+      }
+   }
+
+   @Override
    public E get(int position) {
       Node<E> current = head.next;
 
