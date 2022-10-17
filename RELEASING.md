@@ -58,25 +58,25 @@ This should be the same `user.email` and `user.name` you use on your main reposi
 You will have to use this following maven command to perform the release:
 
 ```sh
-mvn clean release:prepare -DautoVersionSubmodules=true -Prelease
+mvn clean release:prepare -Prelease
 ```
 
 You could optionally set `pushChanges=false` so the version commit and tag won't be pushed upstream (you would have to do it yourself):
 
 ```sh
-mvn clean release:prepare -DautoVersionSubmodules=true -DpushChanges=false -Prelease
+mvn clean release:prepare -DpushChanges=false -Prelease
 ```
 
-When prompted make sure the next is a major release. Example:
+When prompted make sure the new development version matches with the next expected release, rather than the offered patch release. Example:
 
 ```
 [INFO] Checking dependencies and plugins for snapshots ...
-What is the release version for "ActiveMQ Artemis Parent"? (org.apache.activemq:artemis-pom) 2.19.0: :
-What is SCM release tag or label for "ActiveMQ Artemis Parent"? (org.apache.activemq:artemis-pom) artemis-pom-2.19.0: : 2.19.0
-What is the new development version for "ActiveMQ Artemis Parent"? (org.apache.activemq:artemis-pom) 2.19.1-SNAPSHOT: : 2.20.0-SNAPSHOT
+What is the release version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.27.0: :
+What is the SCM release tag or label for "ActiveMQ Artemis Parent"? (artemis-pom) 2.27.0: :
+What is the new development version for "ActiveMQ Artemis Parent"? (artemis-pom) 2.27.1-SNAPSHOT: : 2.28.0-SNAPSHOT
 ```
 
-Otherwise snapshots will be created at 2.19.1-SNAPSHOT and forgotten. (Unless we ever release 2.19.1 on that example).
+Otherwise snapshots would be created at 2.27.1-SNAPSHOT and left to go stale rather than get cleaned out if the next release is actually 2.28.0. (Unless we did ever release 2.27.1 in that example).
 
 For more information look at the prepare plugin:
 
