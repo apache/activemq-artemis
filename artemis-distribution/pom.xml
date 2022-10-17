@@ -254,6 +254,30 @@
                      </execution>
                   </executions>
                </plugin>
+               <!-- Calculate SHA-512 checksums. Overrides the apache parent pom
+                    execution configuration, for this module -->
+               <plugin>
+                  <groupId>net.nicoulaj.maven.plugins</groupId>
+                  <artifactId>checksum-maven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>source-release-checksum</id>
+                        <goals>
+                           <goal>artifacts</goal>
+                        </goals>
+                        <phase>post-integration-test</phase>
+                        <configuration>
+                           <algorithms>
+                              <algorithm>SHA-512</algorithm>
+                           </algorithms>
+                           <includeClassifiers>source-release,bin</includeClassifiers>
+                           <excludeMainArtifact>true</excludeMainArtifact>
+                           <csvSummary>false</csvSummary>
+                           <attachChecksums>true</attachChecksums>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
             </plugins>
          </build>
       </profile>
