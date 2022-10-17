@@ -1418,6 +1418,25 @@ public class ArtemisTest extends CliTestBase {
 
          // Checking it was acked before
          assertEquals(Integer.valueOf(100), Artemis.internalExecute("consumer", "--destination", "queue://q1", "--txt-size", "50", "--break-on-null", "--receive-timeout", "100", "--user", "admin", "--password", "admin"));
+
+         //add a simple user
+         AddUser addCmd = new AddUser();
+         addCmd.setUserCommandUser("guest");
+         addCmd.setUserCommandPassword("guest123");
+         addCmd.setRole("admin");
+         addCmd.setUser("admin");
+         addCmd.setPassword("admin");
+         addCmd.execute(new TestActionContext());
+
+         //verify use list cmd
+         TestActionContext context = new TestActionContext();
+         ListUser listCmd = new ListUser();
+         listCmd.setUser("admin");
+         listCmd.setPassword("admin");
+         listCmd.execute(context);
+         String result = context.getStdout();
+
+         assertTrue(result.contains("\"guest\"(admin)"));
       } finally {
          stopServer();
       }
