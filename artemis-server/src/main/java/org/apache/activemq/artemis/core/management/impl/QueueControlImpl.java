@@ -888,7 +888,6 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
       clearIO();
       try {
-         List<Map<String, Object>> messages = new ArrayList<>();
          final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
          MessageReference firstMessage = queue.peekFirstMessage();
          if (firstMessage != null) {
@@ -908,7 +907,9 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
          AuditLogger.getFirstMessageAsJSON(queue);
       }
       Map<String, Object> message = getFirstMessage();
-      return toJSON(message == null ? new Map[0] : new Map[]{message});
+      // I"m returning a new Map[1] in case of no first message, because older versions used to return that when null
+      // and I'm playing safe with the compatibility here.
+      return toJSON(message == null ? new Map[1] : new Map[]{message});
    }
 
    @Override
