@@ -48,9 +48,9 @@ rem "Load Profile Config"
 set ARTEMIS_INSTANCE_ETC="${artemis.instance.etc}"
 call %ARTEMIS_INSTANCE_ETC%\artemis.profile.cmd %*
 
-if not exist "%ARTEMIS_OOME_DUMP%" goto NO_ARTEMIS_OOME_DUMP
+if not exist %ARTEMIS_OOME_DUMP% goto NO_ARTEMIS_OOME_DUMP
 rem "Backup the last OOME heap dump"
-move /Y "%ARTEMIS_OOME_DUMP%" "%ARTEMIS_OOME_DUMP%.bkp"
+move /Y %ARTEMIS_OOME_DUMP% %ARTEMIS_OOME_DUMP%.bkp
 
 :NO_ARTEMIS_OOME_DUMP
 
