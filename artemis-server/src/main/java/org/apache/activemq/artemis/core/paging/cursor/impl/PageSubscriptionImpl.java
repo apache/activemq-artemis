@@ -1508,7 +1508,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
          while (page <= pageStore.getCurrentWritingPage()) {
             PageCursorInfo info = locatePageInfo(page);
-            if (info == null || info.getCompleteInfo() == null) {
+            // if pendingDelete or complete, we just move to next page
+            if (info == null || info.getCompleteInfo() == null && !info.isPendingDelete()) {
                return page;
             }
             if (logger.isDebugEnabled()) {
