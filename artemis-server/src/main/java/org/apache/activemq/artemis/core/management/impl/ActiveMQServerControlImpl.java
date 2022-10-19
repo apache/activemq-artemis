@@ -26,7 +26,10 @@ import javax.management.NotificationEmitter;
 import javax.management.NotificationFilter;
 import javax.management.NotificationListener;
 import javax.transaction.xa.Xid;
+import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -145,7 +148,6 @@ import org.apache.activemq.artemis.utils.SecurityFormatter;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class ActiveMQServerControlImpl extends AbstractControl implements ActiveMQServerControl, NotificationEmitter, org.apache.activemq.artemis.core.server.management.NotificationListener {
 
@@ -4535,8 +4537,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       if (configurationUrl == null) {
          throw ActiveMQMessageBundle.BUNDLE.failedToLocateConfigURL();
       }
-      String path = configurationUrl.getPath();
-      return new PropertiesLoginModuleConfigurator(getSecurityDomain(), path.substring(0, path.lastIndexOf("/")));
+      String path = Path.of(configurationUrl.toURI()).toString();
+      return new PropertiesLoginModuleConfigurator(getSecurityDomain(), path.substring(0, path.lastIndexOf(File.separator)));
    }
 
    @Override
