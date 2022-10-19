@@ -106,7 +106,7 @@
       <tomcat.servlet-api.version>8.5.78</tomcat.servlet-api.version>
       <jgroups.version>5.2.0.Final</jgroups.version>
       <errorprone.version>2.10.0</errorprone.version>
-      <maven.bundle.plugin.version>5.1.6</maven.bundle.plugin.version>
+      <maven.bundle.plugin.version>5.1.8</maven.bundle.plugin.version>
       <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>9.2.1</checkstyle.version>
