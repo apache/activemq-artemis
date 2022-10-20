@@ -521,4 +521,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229243, value = "Embedded web server restart failed")
    ActiveMQException embeddedWebServerRestartFailed(Exception e);
+
+   @Message(id = 229244, value = "Meters already registered for {}")
+   IllegalStateException metersAlreadyRegistered(String resource);
 }

@@ -147,7 +147,7 @@
       <servicemix.json-1.1.spec.version>2.9.0</servicemix.json-1.1.spec.version>
       <version.org.jacoco>0.8.8</version.org.jacoco>
       <version.org.jacoco.plugin>0.8.8</version.org.jacoco.plugin>
-      <version.micrometer>1.8.5</version.micrometer>
+      <version.micrometer>1.9.5</version.micrometer>
       <hamcrest.version>2.1</hamcrest.version>
       <junit.version>4.13.2</junit.version>
       <surefire.version>2.22.2</surefire.version>
