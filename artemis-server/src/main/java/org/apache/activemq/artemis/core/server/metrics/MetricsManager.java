@@ -34,6 +34,7 @@ import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.slf4j.Logger;
@@ -80,15 +81,14 @@ public class MetricsManager {
    @FunctionalInterface
    public interface MetricGaugeBuilder {
 
-      void register(String metricName, Object state, ToDoubleFunction f, String description);
+      void build(String metricName, Object state, ToDoubleFunction f, String description);
    }
 
    public void registerQueueGauge(String address, String queue, Consumer<MetricGaugeBuilder> builder) {
-      final MeterRegistry meterRegistry = this.meterRegistry;
-      if (meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
+      if (this.meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
-      final List<Gauge.Builder> newMeters = new ArrayList<>();
+      final List<Gauge.Builder> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description) -> {
          Gauge.Builder meter = Gauge
             .builder("artemis." + metricName, state, f)
@@ -96,70 +96,66 @@ public class MetricsManager {
             .tag("address", address)
             .tag("queue", queue)
             .description(description);
-         newMeters.add(meter);
+         gaugeBuilders.add(meter);
       });
-      final String resource = ResourceNames.QUEUE + queue;
-      registerMeter(newMeters, resource);
+      registerMeters(gaugeBuilders, ResourceNames.QUEUE + queue);
    }
 
    public void registerAddressGauge(String address, Consumer<MetricGaugeBuilder> builder) {
-      final MeterRegistry meterRegistry = this.meterRegistry;
-      if (meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
+      if (this.meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
-      final List<Gauge.Builder> newMeters = new ArrayList<>();
+      final List<Gauge.Builder> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description) -> {
          Gauge.Builder meter = Gauge
             .builder("artemis." + metricName, state, f)
             .tag("broker", brokerName)
             .tag("address", address)
             .description(description);
-         newMeters.add(meter);
+         gaugeBuilders.add(meter);
       });
-      final String resource = ResourceNames.ADDRESS + address;
-      registerMeter(newMeters, resource);
+      registerMeters(gaugeBuilders, ResourceNames.ADDRESS + address);
    }
 
    public void registerBrokerGauge(Consumer<MetricGaugeBuilder> builder) {
-      final MeterRegistry meterRegistry = this.meterRegistry;
-      if (meterRegistry == null) {
+      if (this.meterRegistry == null) {
          return;
       }
-      final List<Gauge.Builder> newMeters = new ArrayList<>();
+      final List<Gauge.Builder> gaugeBuilders = new ArrayList<>();
       builder.accept((metricName, state, f, description) -> {
          Gauge.Builder meter = Gauge
             .builder("artemis." + metricName, state, f)
             .tag("broker", brokerName)
             .description(description);
-         newMeters.add(meter);
+         gaugeBuilders.add(meter);
       });
-      final String resource = ResourceNames.BROKER + "." + brokerName;
-      registerMeter(newMeters, resource);
+      registerMeters(gaugeBuilders, ResourceNames.BROKER + "." + brokerName);
    }
 
-   private void registerMeter(List<Gauge.Builder> newMeters, String resource) {
-      this.meters.compute(resource, (s, meters) -> {
-         //the old meters are ignored on purpose
-         meters = new ArrayList<>(newMeters.size());
-         for (Gauge.Builder gaugeBuilder : newMeters) {
-            Gauge gauge = gaugeBuilder.register(meterRegistry);
-            meters.add(gauge);
-            logger.debug("Registered meter: {}", gauge.getId());
-         }
-         return meters;
-      });
+   private void registerMeters(List<Gauge.Builder> gaugeBuilders, String resource) {
+      if (meters.get(resource) != null) {
+         throw ActiveMQMessageBundle.BUNDLE.metersAlreadyRegistered(resource);
+      }
+      logger.debug("Registering meters for {}", resource);
+      List<Meter> newMeters = new ArrayList<>(gaugeBuilders.size());
+      for (Gauge.Builder gaugeBuilder : gaugeBuilders) {
+         Gauge gauge = gaugeBuilder.register(meterRegistry);
+         newMeters.add(gauge);
+         logger.debug("Registered meter: {}", gauge.getId());
+      }
+      meters.put(resource, newMeters);
    }
 
-   public void remove(String component) {
-      meters.computeIfPresent(component, (s, meters) -> {
-         if (meters == null) {
-            return null;
-         }
-         for (Meter meter : meters) {
+   public void remove(String resource) {
+      List<Meter> resourceMeters = meters.remove(resource);
+      if (resourceMeters != null) {
+         logger.debug("Unregistering meters for {}", resource);
+         for (Meter meter : resourceMeters) {
             Meter removed = meterRegistry.remove(meter);
             logger.debug("Unregistered meter: {}", removed.getId());
          }
-         return null;
-      });
+      } else {
+         logger.debug("Attempted to unregister meters for {}, but none were found.", resource);
+      }
    }
 }
