@@ -21,25 +21,31 @@ If using [modulised broker.xml](configuration-index.md#modularising-broker.xml) 
 
 **Note:**
 
-Deletion of Address's Queue's and diverts not auto created is controlled by Address Settings
+Addresses, queues and diverts can be removed automatically when removed from
+the configuration:
 
-* config-delete-addresses
-   * OFF (DEFAULT) - will not remove upon config reload.
-   * FORCE - will remove the address and its queues upon config reload, even if messages remains, losing the messages in the address & queues.
+* `config-delete-addresses`
+   * `OFF` (default) - will not remove the address upon config reload.
+     Messages left in the attached queues will be left intact.
+   * `FORCE` - will remove the address and its queues upon config reload.
+     Messages left in the attached queues will be **lost**.
 
-* config-delete-queues
-   * OFF (DEFAULT) - will not remove upon config reload.
-   * FORCE - will remove the queue upon config reload, even if messages remains, losing the messages in the queue.
+* `config-delete-queues`
+   * `OFF` (default) - will not remove the queues upon config reload.
+     Messages left in the queues will be left intact.
+   * `FORCE` - will remove the queues.
+     Messages left in the queues will be **lost**.
 
-* config-delete-diverts
-   * OFF (DEFAULT) - will not remove upon config reload.
-   * FORCE - will remove the queue upon config reload, even if messages remains, losing the messages in the queue.
+* `config-delete-diverts`
+   * `OFF` (default) - will not remove the diverts upon config reload.
+   * `FORCE` - will remove the diverts upon config reload.
 
-By default both settings are OFF as such address & queues won't be removed upon
-reload, given the risk of losing messages.
+By default, all settings are `OFF`, so that addresses, queues and diverts
+aren't removed upon configuration reload, reducing the risk of losing
+messages.
 
-When OFF You may execute explicit CLI or Management operations to remove
-address & queues.
+Addresses, queues and diverts no longer present in the configuration file can
+be removed manually via the web interface, CLI, or JMX management operations.
 
 ## Reloadable Parameters
 
