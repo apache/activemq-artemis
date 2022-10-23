@@ -2492,7 +2492,7 @@ public class PagingTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testReceiveImmediate() throws Exception {
+   public void testReceive() throws Exception {
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
@@ -2564,7 +2564,8 @@ public class PagingTest extends ActiveMQTestBase {
       for (int msgCount = 0; msgCount < numberOfMessages; msgCount++) {
          logger.debug("Received {}", msgCount);
          msgReceived++;
-         ClientMessage msg = consumer.receiveImmediate();
+         Wait.assertTrue(() -> queue.peekFirstMessage() != null, 2000, 100);
+         ClientMessage msg = consumer.receive(1000);
          if (msg == null) {
             logger.debug("It's null. leaving now");
             sessionConsumer.commit();
