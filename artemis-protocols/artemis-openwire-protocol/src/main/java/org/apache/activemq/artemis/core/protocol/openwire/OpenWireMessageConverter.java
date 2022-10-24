@@ -165,7 +165,6 @@ public final class OpenWireMessageConverter {
       final MessageId messageId = messageSend.getMessageId();
       if (messageId != null) {
          coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_MESSAGE_ID, SimpleString.toSimpleString(messageId.toString()));
-         coreMessage.putStringProperty(OpenWireConstants.AMQ_MSG_MESSAGE_ID, SimpleString.toSimpleString(messageId.toString()));
       }
 
       coreMessage.setUserID(UUIDGenerator.getInstance().generateUUID());
