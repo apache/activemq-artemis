@@ -43,14 +43,18 @@ public class AuthenticationFilter implements Filter {
       filterChain.doFilter(servletRequest, servletResponse);
       if (AuditLogger.isAnyLoggingEnabled()) {
          int status = ((Response) servletResponse).getStatus();
-         //status 200 means that the user has been authenticated, anything else must be a failure
-         if (status == 200) {
+         if (status >= 200 && status < 299) {
+            //Successful responses (200 – 299)
+            //the user has been authenticated if the session isn't empty
             //the hawtio logout servlet cleans the session and redirects to the login servlet
             HttpSession session = ((Request) servletRequest).getSession(false);
             if (session != null) {
                AuditLogger.userSuccesfullyAuthenticatedInAudit(session != null ? (Subject) session.getAttribute("subject") : null);
             }
-         } else {
+         } else if (status >= 400 && status < 599) {
+            //Client error responses (400 – 499)
+            //Server error responses (500 – 599)
+            //the user authentication has failed
             AuditLogger.userFailedAuthenticationInAudit("" + status);
          }
       }
