@@ -20,10 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
+import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.impl.Page;
@@ -78,6 +80,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
    private LinkedList<PendingCounter> loadList;
 
+   private final Executor pageExecutor;
+
    public PageSubscriptionCounterImpl(final StorageManager storage,
                                       final PageSubscription subscription,
                                       final boolean persistent,
@@ -86,6 +90,12 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       this.storage = storage;
       this.persistent = persistent;
       this.subscription = subscription;
+      if (subscription == null) {
+         this.pageExecutor = null;
+      } else {
+         this.pageExecutor = subscription.getPagingStore().getExecutor();
+         assert pageExecutor != null;
+      }
    }
 
    @Override
@@ -175,13 +185,23 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    }
 
    @Override
-   public void increment(Transaction tx, int add, long size) throws Exception {
+   public synchronized void increment(Transaction tx, int add, long size) throws Exception {
       if (tx == null) {
          if (persistent) {
             long id = storage.storePageCounterInc(this.subscriptionID, add, size);
-            incrementProcessed(id, add, size);
+            storage.getContext().executeOnCompletion(new IOCallback() {
+               @Override
+               public void done() {
+                  process(id, add, size);
+               }
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+
+               }
+            });
          } else {
-            incrementProcessed(-1, add, size);
+            process(-1, add, size);
          }
       } else {
          if (persistent) {
@@ -227,12 +247,12 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       this.recordID = recordID1;
    }
 
-   public synchronized void incrementProcessed(long id, int add, long size) {
-      addInc(id, add, size);
-      if (incrementRecords.size() > FLUSH_COUNTER) {
-         this.subscription.getPagingStore().execute(this::cleanup);
+   private void process(long id, int add, long size) {
+      if (id >= 0 && pageExecutor != null) {
+         pageExecutor.execute(() -> doIncrement(id, add, size));
+      } else {
+         doIncrement(-1, add, size);
       }
-
    }
 
    @Override
@@ -295,8 +315,8 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       }
    }
 
-   @Override
-   public synchronized void addInc(long id, int variance, long size) {
+   // you need to call this method from the executors when id > 0
+   private synchronized void doIncrement(long id, int variance, long size) {
       value.addAndGet(variance);
       this.persistentSize.addAndGet(size);
       if (variance > 0) {
@@ -307,6 +327,9 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       }
       if (id >= 0) {
          incrementRecords.add(id);
+         if (incrementRecords.size() > FLUSH_COUNTER) {
+            this.cleanup();
+         }
       }
    }
 
@@ -320,20 +343,15 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    /**
     * This method should always be called from a single threaded executor
     */
-   protected void cleanup() {
-      ArrayList<Long> deleteList;
-
-      long valueReplace;
-      long sizeReplace;
-      synchronized (this) {
-         if (incrementRecords.size() <= FLUSH_COUNTER) {
-            return;
-         }
-         valueReplace = value.get();
-         sizeReplace = persistentSize.get();
-         deleteList = new ArrayList<>(incrementRecords);
-         incrementRecords.clear();
+   protected synchronized void cleanup() {
+      if (incrementRecords.size() <= FLUSH_COUNTER) {
+         return;
       }
+
+      long valueReplace = value.get();
+      long sizeReplace = persistentSize.get();
+      ArrayList<Long> deleteList = new ArrayList<>(incrementRecords);
+      incrementRecords.clear();
 
       long newRecordID = -1;
 
@@ -352,7 +370,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
 
          if (logger.isTraceEnabled()) {
             logger.trace("Replacing page-counter record = {} by record = {} on subscriptionID = {} for queue = {}",
-               recordID, newRecordID, subscriptionID, subscription.getQueue().getName());
+                         recordID, newRecordID, subscriptionID, subscription.getQueue().getName());
          }
 
          storage.commit(txCleanup);
@@ -394,7 +412,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       @Override
       public void afterCommit(Transaction tx) {
          for (ItemOper oper : operations) {
-            oper.counter.incrementProcessed(oper.id, oper.amount, oper.persistentSize);
+            oper.counter.process(oper.id, oper.amount, oper.persistentSize);
          }
       }
    }
