@@ -43,12 +43,6 @@ public interface PageSubscriptionCounter {
     */
    void processReload();
 
-   /**
-    * @param id
-    * @param variance
-    */
-   void addInc(long id, int variance, long size);
-
    // used when deleting the counter
    void delete() throws Exception;
 

@@ -18,6 +18,14 @@ package org.apache.activemq.artemis.tests.integration.paging;
 
 import javax.transaction.xa.Xid;
 
+import java.lang.invoke.MethodHandles;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -37,14 +45,17 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PagingCounterTest extends ActiveMQTestBase {
 
-
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private ActiveMQServer server;
 
@@ -86,15 +97,80 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          counter.increment(tx, 1, 1000);
 
-         assertEquals(0, counter.getValue());
-         assertEquals(0, counter.getPersistentSize());
+         Wait.assertEquals(0, counter::getValue);
+         Wait.assertEquals(0, counter::getPersistentSize);
 
          tx.commit();
 
-         storage.waitOnOperations();
+         Wait.assertEquals(1, counter::getValue);
+         Wait.assertEquals(1000, counter::getPersistentSize);
+      } finally {
+         sf.close();
+         session.close();
+      }
+   }
 
-         assertEquals(1, counter.getValue());
-         assertEquals(1000, counter.getPersistentSize());
+   @Test
+   public void testMultiThreadUpdates() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(sl);
+      ClientSession session = sf.createSession();
+      AtomicInteger errors = new AtomicInteger(0);
+
+      try {
+         server.addAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
+         Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
+
+         final PageSubscriptionCounter counter = locateCounter(queue);
+
+         final int THREADS = 10;
+
+         final CyclicBarrier flagStart = new CyclicBarrier(THREADS);
+         final CountDownLatch done = new CountDownLatch(THREADS);
+
+         final int BUMPS = 2000;
+
+         Assert.assertEquals(0, counter.getValue());
+
+         ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+         runAfter(executorService::shutdownNow);
+
+         for (int i = 0; i < THREADS; i++) {
+            executorService.execute(() -> {
+               try {
+                  flagStart.await(10, TimeUnit.SECONDS);
+                  for (int repeat = 0; repeat < BUMPS; repeat++) {
+                     counter.increment(null, 2, 1L);
+                     Transaction tx = new TransactionImpl(server.getStorageManager());
+                     counter.increment(tx, 1, 1L);
+                     tx.commit();
+                     counter.increment(null, -1, -1L);
+                     tx = new TransactionImpl(server.getStorageManager());
+                     counter.increment(tx, -1, -1L);
+                     tx.commit();
+                  }
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+                  errors.incrementAndGet();
+               } finally {
+                  done.countDown();
+               }
+            });
+         }
+
+         // it should take a couple seconds only
+         done.await(1, TimeUnit.MINUTES);
+
+         Wait.assertEquals((long)(BUMPS * THREADS), counter::getValue, 5000, 100);
+
+         server.stop();
+
+         server.start();
+
+         queue = server.locateQueue("A1");
+
+         final PageSubscriptionCounter counterAfterRestart = locateCounter(queue);
+         Wait.assertEquals((long)(BUMPS * THREADS), counterAfterRestart::getValue, 5000, 100);
+
       } finally {
          sf.close();
          session.close();
@@ -125,8 +201,8 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
                storage.waitOnOperations();
 
-               assertEquals(i + 1, counter.getValue());
-               assertEquals((i + 1) * 1000, counter.getPersistentSize());
+               Wait.assertEquals(i + 1, counter::getValue);
+               Wait.assertEquals((i + 1) * 1000,  counter::getPersistentSize);
 
                tx = new TransactionImpl(server.getStorageManager());
             }
@@ -134,10 +210,8 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          tx.commit();
 
-         storage.waitOnOperations();
-
-         assertEquals(2100, counter.getValue());
-         assertEquals(2100 * 1000, counter.getPersistentSize());
+         Wait.assertEquals(2100, counter::getValue);
+         Wait.assertEquals(2100 * 1000, counter::getPersistentSize);
 
          server.stop();
 
@@ -240,10 +314,8 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       tx.commit();
 
-      storage.waitOnOperations();
-
-      assertEquals(1, counter.getValue());
-      assertEquals(1000, counter.getPersistentSize());
+      Wait.assertEquals(1, counter::getValue);
+      Wait.assertEquals(1000, counter::getPersistentSize);
 
       sl.close();
 
@@ -324,7 +396,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       storage.waitOnOperations();
 
-      assertEquals(2000, counter.getValue());
+      Wait.assertEquals(2000, counter::getValue);
 
    }
 
