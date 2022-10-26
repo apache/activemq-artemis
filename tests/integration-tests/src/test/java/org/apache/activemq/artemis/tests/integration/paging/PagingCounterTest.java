@@ -33,7 +33,6 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -164,12 +163,78 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          server.stop();
 
+         server.setRebuildCounters(false);
+
          server.start();
 
          queue = server.locateQueue("A1");
 
          final PageSubscriptionCounter counterAfterRestart = locateCounter(queue);
          Wait.assertEquals((long)(BUMPS * THREADS), counterAfterRestart::getValue, 5000, 100);
+
+      } finally {
+         sf.close();
+         session.close();
+      }
+   }
+
+   @Test
+   public void testMultiThreadCounter() throws Exception {
+      ClientSessionFactory sf = createSessionFactory(sl);
+      ClientSession session = sf.createSession();
+
+      try {
+         server.addAddressInfo(new AddressInfo(new SimpleString("A1"), RoutingType.ANYCAST));
+         Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
+
+         final PageSubscriptionCounter counter = locateCounter(queue);
+
+         final int THREADS = 10;
+
+         final CyclicBarrier flagStart = new CyclicBarrier(THREADS);
+         final CountDownLatch done = new CountDownLatch(THREADS);
+
+         final int BUMPS = 2000;
+
+         Assert.assertEquals(0, counter.getValue());
+
+         ExecutorService executorService = Executors.newFixedThreadPool(THREADS);
+         runAfter(executorService::shutdownNow);
+
+         for (int i = 0; i < THREADS; i++) {
+            executorService.execute(() -> {
+               try {
+                  flagStart.await(10, TimeUnit.SECONDS);
+                  for (int repeat = 0; repeat < BUMPS; repeat++) {
+                     counter.increment(null, 1, 1L);
+                     Transaction tx = new TransactionImpl(server.getStorageManager());
+                     counter.increment(tx, 1, 1L);
+                     tx.commit();
+                  }
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               } finally {
+                  done.countDown();
+               }
+            });
+         }
+
+         // it should take a couple seconds only
+         done.await(1, TimeUnit.MINUTES);
+
+         Wait.assertEquals((long)(BUMPS * 2 * THREADS), counter::getValue, 5000, 100);
+
+         server.stop();
+
+         server.setRebuildCounters(false);
+
+         server.start();
+
+         queue = server.locateQueue("A1");
+
+         final PageSubscriptionCounter counterAfterRestart = locateCounter(queue);
+         Wait.assertEquals((long)(BUMPS * 2 * THREADS), counterAfterRestart::getValue, 5000, 100);
+         Assert.assertEquals(BUMPS * 2 * THREADS, counterAfterRestart.getValue());
 
       } finally {
          sf.close();
@@ -216,6 +281,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          server.stop();
 
          server = newActiveMQServer();
+         server.setRebuildCounters(false);
 
          server.start();
 
@@ -227,6 +293,11 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
          assertEquals(2100, counter.getValue());
          assertEquals(2100 * 1000, counter.getPersistentSize());
+
+         server.getPagingManager().rebuildCounters();
+
+         // it should be zero after rebuild, since no actual messages were sent
+         Wait.assertEquals(0, counter::getValue);
 
       } finally {
          sf.close();
@@ -245,8 +316,6 @@ public class PagingCounterTest extends ActiveMQTestBase {
          Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
 
          PageSubscriptionCounter counter = locateCounter(queue);
-
-         ((PageSubscriptionCounterImpl) counter).setPersistent(false);
 
          StorageManager storage = server.getStorageManager();
 
@@ -321,7 +390,9 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       server.stop();
 
+
       server = newActiveMQServer();
+      server.setRebuildCounters(false);
 
       server.start();
 
@@ -329,10 +400,29 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       assertNotNull(queue);
 
-      counter = locateCounter(queue);
+      PageSubscriptionCounter counterAfterRestart = locateCounter(queue);
 
-      assertEquals(1, counter.getValue());
-      assertEquals(1000, counter.getPersistentSize());
+      Wait.assertEquals(1, counterAfterRestart::getValue);
+      Wait.assertEquals(1000, counterAfterRestart::getPersistentSize);
+
+      counterAfterRestart.markRebuilding();
+
+      // should be using a previously added value while rebuilding
+      Wait.assertEquals(1, counterAfterRestart::getValue);
+
+      tx = new TransactionImpl(server.getStorageManager());
+
+      counterAfterRestart.increment(tx, 10, 10_000);
+      tx.commit();
+
+      Wait.assertEquals(11, counterAfterRestart::getValue);
+      Wait.assertEquals(11_000, counterAfterRestart::getPersistentSize);
+      counterAfterRestart.finishRebuild();
+
+      server.getPagingManager().rebuildCounters();
+
+      Wait.assertEquals(0, counterAfterRestart::getValue);
+      Wait.assertEquals(0, counterAfterRestart::getPersistentSize);
 
    }
 
@@ -349,7 +439,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testPrepareCounter() throws Exception {
+   public void testCommitCounter() throws Exception {
       Xid xid = newXID();
 
       Queue queue = server.createQueue(new QueueConfiguration(new SimpleString("A1")).setRoutingType(RoutingType.ANYCAST));
@@ -366,35 +456,25 @@ public class PagingCounterTest extends ActiveMQTestBase {
 
       assertEquals(0, counter.getValue());
 
-      tx.prepare();
+      tx.commit();
 
       storage.waitOnOperations();
 
-      assertEquals(0, counter.getValue());
+      assertEquals(2000, counter.getValue());
 
       server.stop();
 
       server = newActiveMQServer();
 
-      server.start();
+      server.setRebuildCounters(false);
 
-      storage = server.getStorageManager();
+      server.start();
 
       queue = server.locateQueue(new SimpleString("A1"));
 
       assertNotNull(queue);
 
       counter = locateCounter(queue);
-
-      tx = server.getResourceManager().removeTransaction(xid, null);
-
-      assertNotNull(tx);
-
-      assertEquals(0, counter.getValue());
-
-      tx.commit(false);
-
-      storage.waitOnOperations();
 
       Wait.assertEquals(2000, counter::getValue);
 

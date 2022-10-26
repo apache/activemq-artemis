@@ -14,13 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.io;
 
-public interface IOCriticalErrorListener {
+package pageCounter
 
-   default boolean isPreviouslyFailed() {
-      return false;
-   }
+import org.apache.activemq.artemis.api.core.SimpleString
+import org.apache.activemq.artemis.core.server.Queue
+import org.apache.activemq.artemis.tests.compatibility.GroovyRun
 
-   void onIOException(Throwable code, String message, String file);
+int messages = Integer.parseInt(arg[0]);
+
+Queue queue = server.getJMSServerManager().getActiveMQServer().locateQueue(SimpleString.toSimpleString("queue"))
+for (int i = 0; i < 20 && queue.getMessageCount() != messages; i++) {
+    Thread.sleep(100);
+
 }
+GroovyRun.assertEquals((int)messages, (int)queue.getMessageCount());

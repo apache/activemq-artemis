@@ -16,19 +16,12 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
-import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
-import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -44,173 +37,117 @@ import java.lang.invoke.MethodHandles;
 /**
  * This class will encapsulate the persistent counters for the PagingSubscription
  */
-public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
+public class PageSubscriptionCounterImpl extends BasePagingCounter {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   private static final int FLUSH_COUNTER = 1000;
 
    private final long subscriptionID;
 
    // the journal record id that is holding the current value
    private long recordID = -1;
 
-   private boolean persistent;
+   /** while we rebuild the counters, we will use the recordedValues */
+   private volatile long recordedValue = -1;
+   private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedValueUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedValue");
 
-   private final PageSubscription subscription;
+   /** while we rebuild the counters, we will use the recordedValues */
+   private volatile long recordedSize = -1;
+   private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedSizeUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedSize");
+
+   private PageSubscription subscription;
 
    private final StorageManager storage;
 
-   private final AtomicLong value = new AtomicLong(0);
-   private final AtomicLong persistentSize = new AtomicLong(0);
+   private volatile long value;
+   private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> valueUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "value");
 
-   private final AtomicLong added = new AtomicLong(0);
-   private final AtomicLong addedPersistentSize = new AtomicLong(0);
+   private volatile long persistentSize;
+   private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> persistentSizeUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "persistentSize");
 
-   private final AtomicLong pendingValue = new AtomicLong(0);
-   private final AtomicLong pendingPersistentSize = new AtomicLong(0);
+   private volatile long added;
+   private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> addedUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "added");
 
-   private final LinkedList<Long> incrementRecords = new LinkedList<>();
-
-   // We are storing pending counters for non transactional writes on page
-   // we will recount a page case we still see pending records
-   // as soon as we close a page we remove these records replacing by a regular page increment record
-   // A Map per pageID, each page will have a set of IDs, with the increment on each one
-   private final Map<Long, PendingCounter> pendingCounters = new HashMap<>();
+   private volatile long addedPersistentSize;
+   private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> addedPersistentSizeUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "addedPersistentSize");
 
    private LinkedList<PendingCounter> loadList;
 
-   private final Executor pageExecutor;
-
    public PageSubscriptionCounterImpl(final StorageManager storage,
-                                      final PageSubscription subscription,
-                                      final boolean persistent,
                                       final long subscriptionID) {
       this.subscriptionID = subscriptionID;
       this.storage = storage;
-      this.persistent = persistent;
-      this.subscription = subscription;
-      if (subscription == null) {
-         this.pageExecutor = null;
-      } else {
-         this.pageExecutor = subscription.getPagingStore().getExecutor();
-         assert pageExecutor != null;
+   }
+
+   @Override
+   public void markRebuilding() {
+      if (logger.isDebugEnabled()) {
+         logger.debug("Subscription {} marked for rebuilding", subscriptionID);
       }
+      super.markRebuilding();
+      recordedSizeUpdater.set(this, persistentSizeUpdater.get(this));
+      recordedValueUpdater.set(this, recordedValueUpdater.get(this));
+      try {
+         reset();
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
+   }
+
+   @Override
+   public void finishRebuild() {
+      super.finishRebuild();
+      if (logger.isDebugEnabled()) {
+         logger.debug("Subscription {} finished rebuilding", subscriptionID);
+      }
+      snapshot();
+      addedUpdater.set(this, valueUpdater.get(this));
+      addedPersistentSizeUpdater.set(this, persistentSizeUpdater.get(this));
    }
 
    @Override
    public long getValueAdded() {
-      return added.get() + pendingValue.get();
+      return addedUpdater.get(this);
    }
 
    @Override
    public long getValue() {
-      return value.get() + pendingValue.get();
+      if (isRebuilding()) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("returning getValue from isPending on subscription {}, recordedValue={}, addedUpdater={}", recordedValueUpdater.get(this), addedUpdater.get(this));
+         }
+         return recordedValueUpdater.get(this);
+      }
+      if (logger.isTraceEnabled()) {
+         logger.trace("returning regular getValue subscription {}, value={}", subscriptionID, valueUpdater.get(this));
+      }
+      return valueUpdater.get(this);
    }
 
    @Override
    public long getPersistentSizeAdded() {
-      return addedPersistentSize.get() + pendingPersistentSize.get();
+      return addedPersistentSizeUpdater.get(this);
    }
 
    @Override
    public long getPersistentSize() {
-      return persistentSize.get() + pendingPersistentSize.get();
-   }
-
-   /**
-    * This is used only on non transactional paging
-    *
-    * @param page
-    * @param increment
-    * @throws Exception
-    */
-   @Override
-   public synchronized void pendingCounter(Page page, int increment, long size) throws Exception {
-      if (!persistent) {
-         return; // nothing to be done
+      if (isRebuilding()) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("returning getPersistentSize from isPending on subscription {}, recordedSize={}. addedSize={}", subscriptionID, recordedSizeUpdater.get(this), addedPersistentSizeUpdater.get(this));
+         }
+         return recordedSizeUpdater.get(this);
       }
-
-      assert page != null;
-
-      PendingCounter pendingInfo = pendingCounters.get((long) page.getPageId());
-      if (pendingInfo == null) {
-         // We have to make sure this is sync here
-         // not syncing this to disk may cause the page files to be out of sync on pages.
-         // we can't afford the case where a page file is written without a record here
-         long id = storage.storePendingCounter(this.subscriptionID, page.getPageId());
-         pendingInfo = new PendingCounter(id, increment, size);
-         pendingCounters.put((long) page.getPageId(), pendingInfo);
-      } else {
-         pendingInfo.addAndGet(increment, size);
+      if (logger.isTraceEnabled()) {
+         logger.trace("returning regular getPersistentSize subscription {}, value={}", subscriptionID, persistentSizeUpdater.get(this));
       }
-
-      pendingValue.addAndGet(increment);
-      pendingPersistentSize.addAndGet(size);
-
-      page.addPendingCounter(this);
-   }
-
-   /**
-    * Cleanup temporary page counters on non transactional paged messages
-    *
-    * @param pageID
-    */
-   @Override
-   public void cleanupNonTXCounters(final long pageID) throws Exception {
-      PendingCounter pendingInfo;
-      synchronized (this) {
-         pendingInfo = pendingCounters.remove(pageID);
-      }
-
-      if (pendingInfo != null) {
-         final int valueCleaned = pendingInfo.getCount();
-         final long valueSizeCleaned = pendingInfo.getPersistentSize();
-         Transaction tx = new TransactionImpl(storage);
-         storage.deletePendingPageCounter(tx.getID(), pendingInfo.getId());
-
-         // To apply the increment of the value just being cleaned
-         increment(tx, valueCleaned, valueSizeCleaned);
-
-         tx.addOperation(new TransactionOperationAbstract() {
-            @Override
-            public void afterCommit(Transaction tx) {
-               pendingValue.addAndGet(-valueCleaned);
-               pendingPersistentSize.updateAndGet(val -> val >= valueSizeCleaned ? val - valueSizeCleaned : 0);
-            }
-         });
-
-         tx.commit();
-      }
+      return persistentSizeUpdater.get(this);
    }
 
    @Override
    public void increment(Transaction tx, int add, long size) throws Exception {
       if (tx == null) {
-         if (persistent) {
-            long id = storage.storePageCounterInc(this.subscriptionID, add, size);
-            storage.getContext().executeOnCompletion(new IOCallback() {
-               @Override
-               public void done() {
-                  process(id, add, size);
-               }
-
-               @Override
-               public void onError(int errorCode, String errorMessage) {
-
-               }
-            });
-         } else {
-            process(-1, add, size);
-         }
+         process(add, size);
       } else {
-         if (persistent) {
-            tx.setContainsPersistent();
-            long id = storage.storePageCounterInc(tx.getID(), this.subscriptionID, add, size);
-            applyIncrementOnTX(tx, id, add, size);
-         } else {
-            applyIncrementOnTX(tx, -1, add, size);
-         }
+         applyIncrementOnTX(tx, add, size);
       }
    }
 
@@ -218,11 +155,10 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
     * This method will install the TXs
     *
     * @param tx
-    * @param recordID1
     * @param add
     */
    @Override
-   public void applyIncrementOnTX(Transaction tx, long recordID1, int add, long size) {
+   public void applyIncrementOnTX(Transaction tx, int add, long size) {
       CounterOperations oper = (CounterOperations) tx.getProperty(TransactionPropertyIndexes.PAGE_COUNT_INC);
 
       if (oper == null) {
@@ -231,27 +167,36 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          tx.addOperation(oper);
       }
 
-      oper.operations.add(new ItemOper(this, recordID1, add, size));
+      oper.operations.add(new ItemOper(this, add, size));
    }
 
    @Override
-   public synchronized void loadValue(final long recordID1, final long value1, long size) {
-      if (this.subscription != null) {
-         // it could be null on testcases... which is ok
-         this.subscription.notEmpty();
+   public synchronized void loadValue(final long recordID, final long value, long size) {
+      if (logger.isDebugEnabled()) {
+         logger.debug("Counter for subscription {} reloading recordID={}, value={}, size={}", this.subscriptionID, recordID, value, size);
       }
-      this.value.set(value1);
-      this.added.set(value1);
-      this.persistentSize.set(size);
-      this.addedPersistentSize.set(size);
-      this.recordID = recordID1;
+      this.recordID = recordID;
+      recordedValueUpdater.set(this, value);
+      recordedSizeUpdater.set(this, size);
+      valueUpdater.set(this, value);
+      persistentSizeUpdater.set(this, size);
+      addedUpdater.set(this, size);
    }
 
-   private void process(long id, int add, long size) {
-      if (id >= 0 && pageExecutor != null) {
-         pageExecutor.execute(() -> doIncrement(id, add, size));
-      } else {
-         doIncrement(-1, add, size);
+   private void process(int add, long size) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("process subscription={} add={}, size={}", subscriptionID, add, size);
+      }
+      valueUpdater.addAndGet(this, add);
+      persistentSizeUpdater.addAndGet(this, size);
+      if (add > 0) {
+         addedUpdater.addAndGet(this, add);
+         addedPersistentSizeUpdater.addAndGet(this, size);
+      }
+
+      if (isRebuilding()) {
+         recordedValueUpdater.addAndGet(this, value);
+         recordedSizeUpdater.addAndGet(this, size);
       }
    }
 
@@ -264,24 +209,39 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       tx.commit();
    }
 
+   private void reset() throws Exception {
+      Transaction tx = new TransactionImpl(storage);
+
+      delete(tx, true);
+
+      tx.commit();
+   }
+
    @Override
    public void delete(Transaction tx) throws Exception {
+      delete(tx, false);
+   }
+
+   private void delete(Transaction tx, boolean keepZero) throws Exception {
+      if (logger.isDebugEnabled()) {
+         logger.debug("Subscription {} delete, keepZero={}", subscriptionID, keepZero);
+      }
       // always lock the StorageManager first.
       try (ArtemisCloseable lock = storage.closeableReadLock()) {
          synchronized (this) {
-            for (Long record : incrementRecords) {
-               storage.deleteIncrementRecord(tx.getID(), record.longValue());
-               tx.setContainsPersistent();
-            }
-
             if (recordID >= 0) {
                storage.deletePageCounter(tx.getID(), this.recordID);
                tx.setContainsPersistent();
             }
 
-            recordID = -1;
-            value.set(0);
-            incrementRecords.clear();
+            if (keepZero) {
+               recordID = storage.storePageCounter(tx.getID(), subscriptionID, 0L, 0L);
+            } else {
+               recordID = -1;
+            }
+
+            valueUpdater.set(this, 0);
+            persistentSizeUpdater.set(this, 0);
          }
       }
    }
@@ -298,109 +258,100 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    @Override
    public void processReload() {
       if (loadList != null) {
-         if (subscription != null) {
-            // it could be null on testcases
-            subscription.notEmpty();
-         }
-
-         for (PendingCounter incElement : loadList) {
-            value.addAndGet(incElement.getCount());
-            added.addAndGet(incElement.getCount());
-            persistentSize.addAndGet(incElement.getPersistentSize());
-            addedPersistentSize.addAndGet(incElement.getPersistentSize());
-            incrementRecords.add(incElement.getId());
+         try {
+            long tx = -1L;
+            logger.debug("Removing increment records on cursor {}", subscriptionID);
+            for (PendingCounter incElement : loadList) {
+               if (tx < 0) {
+                  tx = storage.generateID();
+               }
+               storage.deletePageCounter(tx, incElement.id);
+            }
+            if (tx >= 0) {
+               storage.commit(tx);
+            }
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
          }
          loadList.clear();
          loadList = null;
       }
    }
 
-   // you need to call this method from the executors when id > 0
-   private void doIncrement(long id, int variance, long size) {
-      value.addAndGet(variance);
-      this.persistentSize.addAndGet(size);
-      if (variance > 0) {
-         added.addAndGet(variance);
-      }
-      if (size > 0) {
-         addedPersistentSize.addAndGet(size);
-      }
-      if (id >= 0) {
-         synchronized (this) {
-            incrementRecords.add(id);
-            if (incrementRecords.size() > FLUSH_COUNTER) {
-               this.cleanup();
-            }
-         }
-      }
-   }
-
-   /**
-    * used on testing only
-    */
-   public void setPersistent(final boolean persistent) {
-      this.persistent = persistent;
-   }
-
    /**
     * This method should always be called from a single threaded executor
     */
-   protected synchronized void cleanup() {
-      if (incrementRecords.size() <= FLUSH_COUNTER) {
+   @Override
+   public synchronized void snapshot() {
+      if (isRebuilding()) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("snapshot call ignored as cursor is being rebuilt for {}", subscriptionID);
+         }
          return;
       }
 
-      long valueReplace = value.get();
-      long sizeReplace = persistentSize.get();
-      ArrayList<Long> deleteList = new ArrayList<>(incrementRecords);
-      incrementRecords.clear();
+      if (!storage.isStarted()) {
+         logger.debug("Storage is not active, ignoring snapshot call on {}", subscriptionID);
+         return;
+      }
+
+      long valueReplace = valueUpdater.get(this);
+      long sizeReplace = persistentSizeUpdater.get(this);
 
       long newRecordID = -1;
 
-      long txCleanup = storage.generateID();
+      long txCleanup = -1;
 
       try {
-         for (Long value1 : deleteList) {
-            storage.deleteIncrementRecord(txCleanup, value1);
-         }
-
          if (recordID >= 0) {
+            if (txCleanup < 0) {
+               txCleanup = storage.generateID();
+            }
             storage.deletePageCounter(txCleanup, recordID);
+            recordID = -1;
          }
 
-         newRecordID = storage.storePageCounter(txCleanup, subscriptionID, valueReplace, sizeReplace);
-
-         if (logger.isTraceEnabled()) {
-            logger.trace("Replacing page-counter record = {} by record = {} on subscriptionID = {} for queue = {}",
-                         recordID, newRecordID, subscriptionID, subscription.getQueue().getName());
+         if (valueReplace > 0) {
+            if (txCleanup < 0) {
+               txCleanup = storage.generateID();
+            }
+            newRecordID = storage.storePageCounter(txCleanup, subscriptionID, valueReplace, sizeReplace);
          }
 
-         storage.commit(txCleanup);
+         if (logger.isDebugEnabled()) {
+            logger.debug("Replacing page-counter record = {} by record = {} on subscriptionID = {} for queue = {}, value = {}, size = {}",
+                         recordID, newRecordID, subscriptionID, subscription.getQueue().getName(), valueReplace, sizeReplace);
+         }
+
+         if (txCleanup >= 0) {
+            storage.commit(txCleanup);
+         }
       } catch (Exception e) {
          newRecordID = recordID;
 
          ActiveMQServerLogger.LOGGER.problemCleaningPagesubscriptionCounter(e);
-         try {
-            storage.rollback(txCleanup);
-         } catch (Exception ignored) {
+         if (txCleanup >= 0) {
+            try {
+               storage.rollback(txCleanup);
+            } catch (Exception ignored) {
+            }
          }
       } finally {
          recordID = newRecordID;
+         recordedValueUpdater.set(this, valueReplace);
+         recordedSizeUpdater.set(this, sizeReplace);
       }
    }
 
    private static class ItemOper {
 
-      private ItemOper(PageSubscriptionCounterImpl counter, long id, int add, long persistentSize) {
+      private ItemOper(PageSubscriptionCounterImpl counter, int add, long persistentSize) {
          this.counter = counter;
-         this.id = id;
          this.amount = add;
          this.persistentSize = persistentSize;
       }
 
       PageSubscriptionCounterImpl counter;
-
-      long id;
 
       int amount;
 
@@ -414,7 +365,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
       @Override
       public void afterCommit(Transaction tx) {
          for (ItemOper oper : operations) {
-            oper.counter.process(oper.id, oper.amount, oper.persistentSize);
+            oper.counter.process(oper.amount, oper.persistentSize);
          }
       }
    }
@@ -464,5 +415,11 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          COUNT_UPDATER.addAndGet(this, count);
          SIZE_UPDATER.addAndGet(this, persistentSize);
       }
+   }
+
+   @Override
+   public PageSubscriptionCounter setSubscription(PageSubscription subscription) {
+      this.subscription = subscription;
+      return this;
    }
 }

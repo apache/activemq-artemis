@@ -246,6 +246,10 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
    class FakePagingStore implements PagingStore {
 
       @Override
+      public void counterSnapshot() {
+      }
+
+      @Override
       public void execute(Runnable runnable) {
          runnable.run();
       }

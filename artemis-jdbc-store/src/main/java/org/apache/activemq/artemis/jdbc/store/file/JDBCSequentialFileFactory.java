@@ -141,7 +141,9 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
       try {
          return dbDriver.listFiles(extension);
       } catch (SQLException e) {
-         criticalErrorListener.onIOException(e, "Error listing JDBC files.", null);
+         // We can't throw critical error here
+         // exists will call listfiles, and if the store does not exists
+         // it should simply return false
          throw e;
       }
    }

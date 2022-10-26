@@ -472,9 +472,6 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222047, value = "Can not find queue {} while reloading ACKNOWLEDGE_CURSOR", level = LogMessage.Level.WARN)
    void journalCannotFindQueueReloadingACK(Long queueID);
 
-   @LogMessage(id = 222048, value = "PAGE_CURSOR_COUNTER_VALUE record used on a prepared statement, invalid state", level = LogMessage.Level.WARN)
-   void journalPAGEOnPrepared();
-
    @LogMessage(id = 222049, value = "InternalError: Record type {} not recognized. Maybe you are using journal files created on a different version", level = LogMessage.Level.WARN)
    void journalInvalidRecordType(Byte recordType);
 

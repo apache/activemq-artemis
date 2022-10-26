@@ -96,6 +96,9 @@ public abstract class AbstractSequentialFile implements SequentialFile {
    @Override
    public final void delete() throws IOException, InterruptedException, ActiveMQException {
       try {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Deleting {}", this.getFileName(), new Exception("trace"));
+         }
          if (isOpen()) {
             close(false, false);
          }

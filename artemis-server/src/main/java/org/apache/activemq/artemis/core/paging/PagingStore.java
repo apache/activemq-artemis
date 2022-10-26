@@ -24,6 +24,7 @@ import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.impl.Page;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.RouteContextList;
@@ -129,6 +130,9 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    Page getCurrentPage();
 
+   /** it will save snapshots on the counters */
+   void counterSnapshot();
+
    /**
     * @return true if paging was started, or false if paging was already started before this call
     */
@@ -220,4 +224,8 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    void block();
 
    void unblock();
+
+   default StorageManager getStorageManager() {
+      return null;
+   }
 }

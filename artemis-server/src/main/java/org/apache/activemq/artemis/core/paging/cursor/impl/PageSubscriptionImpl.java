@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.ToIntFunction;
@@ -273,14 +274,17 @@ public final class PageSubscriptionImpl implements PageSubscription {
                         final StorageManager store,
                         final Filter filter,
                         final long cursorId,
-                        final boolean persistent) {
+                        final boolean persistent,
+                        final PageSubscriptionCounter counter) {
+      assert counter != null;
       this.pageStore = pageStore;
       this.store = store;
       this.cursorProvider = cursorProvider;
       this.cursorId = cursorId;
       this.filter = filter;
       this.persistent = persistent;
-      this.counter = new PageSubscriptionCounterImpl(store, this, persistent, cursorId);
+      this.counter = counter;
+      this.counter.setSubscription(this);
    }
 
 
@@ -344,6 +348,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
       } else {
          return counter.getValue() - deliveredCount.get();
       }
+   }
+
+   @Override
+   public boolean isCounterPending() {
+      return counter.isRebuilding();
    }
 
    @Override
@@ -418,10 +427,8 @@ public final class PageSubscriptionImpl implements PageSubscription {
 
    @Override
    public void onPageModeCleared(Transaction tx) throws Exception {
-      if (counter != null) {
-         // this could be null on testcases
-         counter.delete(tx);
-      }
+      // this could be null on testcases
+      counter.delete(tx);
       this.empty = true;
    }
 
@@ -746,9 +753,9 @@ public final class PageSubscriptionImpl implements PageSubscription {
    }
 
    @Override
-   public void forEachConsumedPage(Consumer<ConsumedPage> pageCleaner) {
+   public void forEachConsumedPage(Consumer<ConsumedPage> pageConsumer) {
       synchronized (consumedPages) {
-         consumedPages.values().forEach(pageCleaner);
+         consumedPages.values().forEach(pageConsumer);
       }
    }
 
@@ -861,6 +868,11 @@ public final class PageSubscriptionImpl implements PageSubscription {
    }
 
    @Override
+   public void counterSnapshot() {
+      counter.snapshot();
+   }
+
+   @Override
    public void printDebug() {
       printDebug(toString());
    }
@@ -912,6 +924,7 @@ public final class PageSubscriptionImpl implements PageSubscription {
       return getPageInfo(pos.getPageNr());
    }
 
+   @Override
    public PageCursorInfo locatePageInfo(final long pageNr) {
       synchronized (consumedPages) {
          return consumedPages.get(pageNr);
@@ -1064,8 +1077,14 @@ public final class PageSubscriptionImpl implements PageSubscription {
       // expressions
       private final AtomicInteger confirmed = new AtomicInteger(0);
 
+      @Override
       public synchronized boolean isAck(int messageNumber) {
          return completePage != null || acks.get(messageNumber) != null;
+      }
+
+      @Override
+      public void forEachAck(BiConsumer<Integer, PagePosition> ackConsumer) {
+         acks.forEach(ackConsumer);
       }
 
       @Override

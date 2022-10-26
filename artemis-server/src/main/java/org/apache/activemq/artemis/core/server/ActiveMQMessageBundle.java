@@ -524,4 +524,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229244, value = "Meters already registered for {}")
    IllegalStateException metersAlreadyRegistered(String resource);
+
+   @Message(id = 229245, value = "Management controller is busy with another task. Please try again")
+   ActiveMQTimeoutException managementBusy();
 }

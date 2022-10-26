@@ -535,7 +535,7 @@ public final class DescribeJournal {
       PageSubscriptionCounterImpl subsCounter;
       subsCounter = counters.get(queueIDForCounter);
       if (subsCounter == null) {
-         subsCounter = new PageSubscriptionCounterImpl(null, null, false, -1);
+         subsCounter = new PageSubscriptionCounterImpl(null, -1);
          counters.put(queueIDForCounter, subsCounter);
       }
       return subsCounter;

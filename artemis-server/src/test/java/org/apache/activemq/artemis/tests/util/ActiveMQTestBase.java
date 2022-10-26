@@ -295,6 +295,7 @@ public abstract class ActiveMQTestBase extends Assert {
       try {
          DriverManager.getConnection("jdbc:derby:;shutdown=true");
       } catch (Exception ignored) {
+         // it always throws an exception on shutdown
       }
    }
 
@@ -878,7 +879,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return testDir;
    }
 
-   private String getEmbeddedDataBaseName() {
+   protected String getEmbeddedDataBaseName() {
       return "memory:" + getTestDir();
    }
 
@@ -2314,6 +2315,10 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected int getMessageCount(final Queue queue) {
+      try {
+         Wait.waitFor(() -> queue.getPageSubscription().isCounterPending() == false);
+      } catch (Exception ignored) {
+      }
       queue.flushExecutor();
       return (int) queue.getMessageCount();
    }

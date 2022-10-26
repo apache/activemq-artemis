@@ -35,6 +35,9 @@ public interface PageSubscription {
    // To be called before the server is down
    void stop();
 
+   /** Save a snapshot of the current counter value in the journal */
+   void counterSnapshot();
+
    /**
     * This is a callback to inform the PageSubscription that something was routed, so the empty flag can be cleared
     */
@@ -45,6 +48,8 @@ public interface PageSubscription {
    PageSubscriptionCounter getCounter();
 
    long getMessageCount();
+
+   boolean isCounterPending();
 
    long getPersistentSize();
 
@@ -170,4 +175,6 @@ public interface PageSubscription {
    void incrementDeliveredSize(long size);
 
    void removePendingDelivery(PagedMessage pagedMessage);
+
+   ConsumedPage locatePageInfo(long pageNr);
 }

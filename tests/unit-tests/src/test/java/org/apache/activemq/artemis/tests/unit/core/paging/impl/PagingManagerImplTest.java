@@ -61,6 +61,8 @@ public class PagingManagerImplTest extends ActiveMQTestBase {
 
       managerImpl.start();
 
+      runAfter(managerImpl::stop);
+
       PagingStore store = managerImpl.getPageStore(new SimpleString("simple-test"));
 
       ICoreMessage msg = createMessage(1L, new SimpleString("simple-test"), createRandomBuffer(10));

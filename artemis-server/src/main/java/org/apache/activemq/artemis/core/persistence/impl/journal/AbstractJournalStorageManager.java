@@ -22,7 +22,6 @@ import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalR
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.ADD_LARGE_MESSAGE_PENDING;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.DUPLICATE_ID;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_INC;
-import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.PAGE_CURSOR_COUNTER_VALUE;
 import static org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds.SET_SCHEDULED_DELIVERY_TIME;
 
 import java.security.InvalidParameterException;
@@ -1692,7 +1691,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    @Override
    public synchronized boolean isStarted() {
-      return started;
+      if (ioCriticalErrorListener != null) {
+         return started && !ioCriticalErrorListener.isPreviouslyFailed();
+      } else {
+         return started;
+      }
    }
 
    /**
@@ -1895,25 +1898,14 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                }
                break;
             }
-            case PAGE_CURSOR_COUNTER_VALUE: {
-               ActiveMQServerLogger.LOGGER.journalPAGEOnPrepared();
-
-               break;
-            }
-
             case PAGE_CURSOR_COUNTER_INC: {
                PageCountRecordInc encoding = new PageCountRecordInc();
 
                encoding.decode(buff);
 
-               PageSubscription sub = locateSubscription(encoding.getQueueID(), pageSubscriptions, queueInfos, pagingManager);
+               logger.debug("Page cursor counter inc on a prepared TX.");
 
-               if (sub != null) {
-                  sub.getCounter().applyIncrementOnTX(tx, record.id, encoding.getValue(), encoding.getPersistentSize());
-                  sub.notEmpty();
-               } else {
-                  ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingACK(encoding.getQueueID());
-               }
+               // TODO: do I need to remove the record on commit?
 
                break;
             }

@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.paging;
 
 import java.util.Map;
+import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
@@ -141,6 +143,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
     */
    void checkMemory(Runnable runWhenAvailable);
 
+   void counterSnapshot();
 
    /**
     * Use this when you have no refernce of an address. (anonymous AMQP Producers for example)
@@ -157,4 +160,15 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
    default long getMaxMessages() {
       return 0;
    }
+
+   /**
+    * Rebuilds all page counters for destinations that are paging in the background.
+    */
+   default Future<Object> rebuildCounters() {
+      return null;
+   }
+
+   default void forEachTransaction(BiConsumer<Long, PageTransactionInfo> transactionConsumer) {
+   }
+
 }

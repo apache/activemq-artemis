@@ -14,13 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.core.io;
+package org.apache.activemq.artemis.core.paging.cursor.impl;
 
-public interface IOCriticalErrorListener {
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 
-   default boolean isPreviouslyFailed() {
-      return false;
+public abstract class BasePagingCounter implements PageSubscriptionCounter {
+
+   private volatile  boolean rebuilding = false;
+
+   @Override
+   public void markRebuilding() {
+      rebuilding = true;
    }
 
-   void onIOException(Throwable code, String message, String file);
+   @Override
+   public void finishRebuild() {
+      rebuilding = false;
+   }
+
+   @Override
+   public boolean isRebuilding() {
+      return rebuilding;
+   }
+
 }

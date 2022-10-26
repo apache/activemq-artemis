@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReferenceImpl;
 import org.apache.activemq.artemis.core.paging.impl.Page;
@@ -42,6 +43,7 @@ import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.Consumer;
 
 public class PageCursorProviderImpl implements PageCursorProvider {
 
@@ -53,6 +55,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    protected final AtomicInteger scheduledCleanup = new AtomicInteger(0);
 
    protected volatile boolean cleanupEnabled = true;
+
+   // We can't call cleanup before counters were rebuilt
+   // as they will determine if a subscription is empty or not
+   protected volatile boolean countersRebuilt = true;
 
    protected final PagingStore pagingStore;
 
@@ -85,14 +91,28 @@ public class PageCursorProviderImpl implements PageCursorProvider {
          throw new IllegalStateException("Cursor " + cursorID + " had already been created");
       }
 
-      PageSubscription activeCursor = new PageSubscriptionImpl(this, pagingStore, storageManager, filter, cursorID, persistent);
+
+      PageSubscriptionCounter subscriptionCounter = createPageCounter(cursorID, persistent);
+      PageSubscription activeCursor = new PageSubscriptionImpl(this, pagingStore, storageManager, filter, cursorID, persistent, subscriptionCounter);
+
+
       activeCursors.put(cursorID, activeCursor);
       return activeCursor;
+   }
+
+
+   private PageSubscriptionCounter createPageCounter(long cursorID, boolean persistent) {
+      return new PageSubscriptionCounterImpl(storageManager, cursorID);
    }
 
    @Override
    public synchronized PageSubscription getSubscription(long cursorID) {
       return activeCursors.get(cursorID);
+   }
+
+   @Override
+   public void forEachSubscription(Consumer<PageSubscription> consumer) {
+      activeCursors.forEach((k, v) -> consumer.accept(v));
    }
 
    @Override
@@ -136,6 +156,13 @@ public class PageCursorProviderImpl implements PageCursorProvider {
       final int pendingCleanupTasks = scheduledCleanup.get();
       if (pendingCleanupTasks > 0) {
          logger.trace("Stopping with {} cleanup tasks to be completed yet", pendingCleanupTasks);
+      }
+   }
+
+   @Override
+   public void counterSnapshot() {
+      for (PageSubscription cursor : activeCursors.values()) {
+         cursor.counterSnapshot();
       }
    }
 
@@ -215,6 +242,11 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    protected void cleanup() {
+
+      if (!countersRebuilt) {
+         logger.debug("Counters were not rebuilt yet, cleanup has to be ignored on address {}", pagingStore != null ? pagingStore.getAddress() : "NULL");
+         return;
+      }
 
       ArrayList<Page> depagedPages = new ArrayList<>();
       LongHashSet depagedPagesSet = new LongHashSet();
@@ -506,6 +538,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    private long checkMinPage(Collection<PageSubscription> cursorList) {
       long minPage = Long.MAX_VALUE;
 
+      if (logger.isTraceEnabled()) {
+         logger.trace("Min page cursorList size {} on {}", cursorList.size(), pagingStore.getAddress(), new Exception("trace"));
+      }
+
       for (PageSubscription cursor : cursorList) {
          long firstPage = cursor.getFirstPage();
          if (logger.isTraceEnabled()) {
@@ -542,5 +578,15 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             }
          }
       }
+   }
+
+   @Override
+   public void counterRebuildStarted() {
+      this.countersRebuilt = false;
+   }
+
+   @Override
+   public void counterRebuildDone() {
+      this.countersRebuilt = true;
    }
 }

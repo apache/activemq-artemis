@@ -40,6 +40,11 @@ public class FakePagingManager implements PagingManager {
    }
 
    @Override
+   public void counterSnapshot() {
+
+   }
+
+   @Override
    public void addTransaction(final PageTransactionInfo pageTransaction) {
    }
 

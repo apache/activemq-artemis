@@ -17,11 +17,17 @@
 
 package org.apache.activemq.artemis.core.paging.cursor;
 
+import java.util.function.BiConsumer;
+
 // this is to expose PageSubscriptionImpl::PageCursorInfo
 public interface ConsumedPage {
 
    long getPageId();
 
    boolean isDone();
+
+   boolean isAck(int messageNumber);
+
+   void forEachAck(BiConsumer<Integer, PagePosition> ackConsumer);
 
 }

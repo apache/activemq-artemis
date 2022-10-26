@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -4616,6 +4617,15 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       } catch (Exception e) {
          logger.trace(e.getMessage());
          return false;
+      }
+   }
+
+   @Override
+   public void rebuildPageCounters() throws Exception {
+      // managementLock will guarantee there's only one management operation being called
+      try (AutoCloseable lock = server.managementLock()) {
+         Future<Object> task = server.getPagingManager().rebuildCounters();
+         task.get();
       }
    }
 

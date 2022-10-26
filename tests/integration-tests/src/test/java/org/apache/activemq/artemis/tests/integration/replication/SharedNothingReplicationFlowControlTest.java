@@ -150,9 +150,9 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
                ClientProducer producer = session.createProducer("flowcontrol");
                ClientMessage message = session.createMessage(true);
                message.writeBodyBufferBytes(body);
-               logger.info("try to send a message after replicated");
+               logger.debug("try to send a message after replicated");
                producer.send(message);
-               logger.info("send message done");
+               logger.debug("send message done");
                producer.close();
                session.close();
 
@@ -187,8 +187,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.info("got live message {} {}", info.id, info.userRecordType);
             liveJournalCounter.incrementAndGet();
+            logger.info("got live message {} {}, counter={}", info.id, info.userRecordType, liveJournalCounter.get());
          }
       });
 
@@ -207,8 +207,8 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.info("replicated message {}", info.id);
             replicationCounter.incrementAndGet();
+            logger.info("replicated message {}, counter={}", info.id, replicationCounter.get());
          }
       });
 

@@ -1725,7 +1725,13 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       if (pageSubscription != null) {
          // messageReferences will have depaged messages which we need to discount from the counter as they are
          // counted on the pageSubscription as well
-         return (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
+         long returnValue = (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount() + pageSubscription.getMessageCount();
+         if (logger.isTraceEnabled()) {
+            logger.trace("Queue={}/{} returning getMessageCount returning {}. pendingMetrics.getMessageCount() = {}, getScheduledCount() = {}, pageSubscription.getMessageCount()={}, pageSubscription.getDeliveredCount()={}",
+                         name, id, returnValue, pendingMetrics.getMessageCount(), getScheduledCount(), pageSubscription.getMessageCount(),
+                         pageSubscription.getDeliveredCount());
+         }
+         return returnValue;
       } else {
          return (long) pendingMetrics.getMessageCount() + getScheduledCount() + getDeliveringCount();
       }
@@ -2279,6 +2285,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    public void destroyPaging() throws Exception {
       // it could be null on embedded or certain unit tests
       if (pageSubscription != null) {
+         if (logger.isTraceEnabled()) {
+            logger.trace("Destroying paging for {}", this.name, new Exception("trace"));
+         }
          pageSubscription.destroy();
          pageSubscription.cleanupEntries(true);
       }
