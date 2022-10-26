@@ -49,4 +49,8 @@ public interface ActiveMQJournalBundle {
 
    @Message(id = 149006, value = "The file system returned a file {} with unexpected file size. The broker requested a file sized as {} but the system returned a file sized as {}")
    ActiveMQIOErrorException unexpectedFileSize(String fileName, long expectedSize, long returnedSize);
+
+   @Message(id = 149007, value = "Thread dump being generated as the asynchronous file.open is not responding fast enough.")
+   String threadDumpAfterFileOpenTimeout();
+
 }

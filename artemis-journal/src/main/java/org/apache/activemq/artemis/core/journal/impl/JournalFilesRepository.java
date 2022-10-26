@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.journal.ActiveMQJournalBundle;
 import org.apache.activemq.artemis.journal.ActiveMQJournalLogger;
+import org.apache.activemq.artemis.utils.ThreadDumpUtil;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import org.slf4j.Logger;
@@ -492,6 +493,7 @@ public class JournalFilesRepository {
 
       if (nextFile == null) {
          ActiveMQJournalLogger.LOGGER.cantOpenFileTimeout(journalFileOpenTimeout);
+         logger.warn(ThreadDumpUtil.threadDump(ActiveMQJournalBundle.BUNDLE.threadDumpAfterFileOpenTimeout()));
          try {
             nextFile = takeFile(true, true, true, false);
          } catch (Exception e) {
