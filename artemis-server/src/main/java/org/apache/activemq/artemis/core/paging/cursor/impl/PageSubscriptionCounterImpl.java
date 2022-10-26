@@ -185,7 +185,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    }
 
    @Override
-   public synchronized void increment(Transaction tx, int add, long size) throws Exception {
+   public void increment(Transaction tx, int add, long size) throws Exception {
       if (tx == null) {
          if (persistent) {
             long id = storage.storePageCounterInc(this.subscriptionID, add, size);
@@ -316,7 +316,7 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
    }
 
    // you need to call this method from the executors when id > 0
-   private synchronized void doIncrement(long id, int variance, long size) {
+   private void doIncrement(long id, int variance, long size) {
       value.addAndGet(variance);
       this.persistentSize.addAndGet(size);
       if (variance > 0) {
@@ -326,9 +326,11 @@ public class PageSubscriptionCounterImpl implements PageSubscriptionCounter {
          addedPersistentSize.addAndGet(size);
       }
       if (id >= 0) {
-         incrementRecords.add(id);
-         if (incrementRecords.size() > FLUSH_COUNTER) {
-            this.cleanup();
+         synchronized (this) {
+            incrementRecords.add(id);
+            if (incrementRecords.size() > FLUSH_COUNTER) {
+               this.cleanup();
+            }
          }
       }
    }
