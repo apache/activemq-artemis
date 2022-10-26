@@ -120,6 +120,11 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       @Override
       public void run() {
+         if (!connection.isHandler()) {
+            logger.info("Moving execution to proton handler");
+            connectionRun();
+            return;
+         }
          logger.trace("Delivery settling for {}, context={}", delivery, delivery.getContext());
          delivery.disposition(Accepted.getInstance());
          settle(delivery);
@@ -383,7 +388,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
                   performAckOnPage(nodeID, messageID, targetQueue, ackMessageOperation);
                   return;
                } else {
-                  ackMessageOperation.run();
+                  connection.runNow(ackMessageOperation);
                }
          }
       }
