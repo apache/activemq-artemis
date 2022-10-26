@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.cli.factory.serialize;
 
 import javax.jms.Message;
 import javax.jms.Session;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
@@ -36,6 +35,7 @@ import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataConstants;
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ActiveMQSession;
+import org.apache.activemq.artemis.utils.XmlProvider;
 
 public class XMLMessageSerializer implements MessageSerializer {
 
@@ -87,7 +87,7 @@ public class XMLMessageSerializer implements MessageSerializer {
 
    @Override
    public void setInput(InputStream inputStream, Session session) throws Exception {
-      XMLStreamReader streamReader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+      XMLStreamReader streamReader = XmlProvider.createXMLStreamReader(inputStream);
       this.clientSession = ((ActiveMQSession) session).getCoreSession();
       this.reader = new XMLMessageImporter(streamReader, clientSession);
    }

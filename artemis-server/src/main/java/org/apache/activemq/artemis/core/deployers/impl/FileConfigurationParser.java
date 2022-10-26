@@ -16,10 +16,7 @@
  */
 package org.apache.activemq.artemis.core.deployers.impl;
 
-import javax.xml.XMLConstants;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.InputStream;
 import java.security.AccessController;
@@ -110,6 +107,7 @@ import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.XMLConfigurationUtil;
 import org.apache.activemq.artemis.utils.XMLUtil;
+import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -354,9 +352,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    public Configuration parseMainConfig(final InputStream input) throws Exception {
       Element e = XMLUtil.streamToElement(input);
-      SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      Schema schema = schemaFactory.newSchema(XMLUtil.findResource("schema/artemis-server.xsd"));
-      Validator validator = schema.newValidator();
+      Validator validator = XmlProvider.newValidator(XMLUtil.findResource("schema/artemis-server.xsd"));
       try {
          validator.validate(new DOMSource(e));
       } catch (Exception ex) {

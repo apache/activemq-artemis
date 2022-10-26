@@ -22,6 +22,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -72,12 +74,16 @@ import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.utils.RandomUtil;
+import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class FileConfigurationTest extends ConfigurationImplTest {
 
    @BeforeClass
@@ -94,6 +100,15 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       System.clearProperty("falseProp");
       System.clearProperty("trueProp");
       System.clearProperty("ninetyTwoProp");
+   }
+
+   @Parameterized.Parameters(name = "xxeEnabled={0}")
+   public static Collection getParameters() {
+      return Arrays.asList(new Boolean[] {true, false});
+   }
+
+   public FileConfigurationTest(boolean xxeEnabled) {
+      XmlProvider.setXxeEnabled(xxeEnabled);
    }
 
    protected String getConfigurationName() {

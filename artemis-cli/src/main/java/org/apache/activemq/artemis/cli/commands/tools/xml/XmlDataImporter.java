@@ -16,13 +16,9 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools.xml;
 
-import javax.xml.XMLConstants;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stax.StAXSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,6 +59,7 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ListUtil;
+import org.apache.activemq.artemis.utils.XmlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -175,7 +172,7 @@ public final class XmlDataImporter extends ActionAbstract {
    public void process(InputStream inputStream,
                        ClientSession session,
                        ClientSession managementSession) throws Exception {
-      reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
+      reader = XmlProvider.createXMLStreamReader(inputStream);
       messageReader = new XMLMessageImporter(reader, session);
       messageReader.setOldPrefixTranslation(oldPrefixTranslation);
 
@@ -219,11 +216,8 @@ public final class XmlDataImporter extends ActionAbstract {
    }
 
    public void validate(InputStream inputStream) throws Exception {
-      XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(inputStream);
-      SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-      Schema schema = factory.newSchema(XmlDataImporter.findResource("schema/artemis-import-export.xsd"));
-
-      Validator validator = schema.newValidator();
+      XMLStreamReader reader = XmlProvider.createXMLStreamReader(inputStream);
+      Validator validator = XmlProvider.newValidator(XmlDataImporter.findResource("schema/artemis-import-export.xsd"));
       validator.validate(new StAXSource(reader));
       reader.close();
    }

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
@@ -24,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 
 import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
 import org.apache.activemq.artemis.protocol.amqp.converter.AMQPMessageSupport;
+import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
@@ -59,7 +59,7 @@ public class XmlExportTest extends AmqpClientTestSupport {
                               server.getConfiguration().getPagingDirectory(),
                               server.getConfiguration().getLargeMessagesDirectory());
 
-      Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().
+      Document document = XmlProvider.newDocumentBuilder().
          parse(new ByteArrayInputStream(xmlOutputStream.toByteArray()));
 
       Assert.assertNotNull(XPathFactory.newInstance().newXPath().
