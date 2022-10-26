@@ -380,33 +380,39 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
-   public synchronized void stop() throws Exception {
-      if (running) {
-         cursorProvider.flushExecutors();
-         cursorProvider.stop();
+   public void counterSnapshot() {
+      cursorProvider.counterSnapshot();
+   }
 
-         final List<Runnable> pendingTasks = new ArrayList<>();
+   @Override
+   public void stop() throws Exception {
+      synchronized (this) {
+         if (running) {
+            cursorProvider.stop();
+            running = false;
+         } else {
+            return;
+         }
+      }
 
-         // TODO we could have a parameter to use this
-         final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add, 30, TimeUnit.SECONDS);
-         if (pendingTasksWhileShuttingDown > 0) {
-            logger.trace("Try executing {} pending tasks on stop", pendingTasksWhileShuttingDown);
-            for (Runnable pendingTask : pendingTasks) {
-               try {
-                  pendingTask.run();
-               } catch (Throwable t) {
-                  logger.warn("Error while executing a pending task on shutdown", t);
-               }
+      final List<Runnable> pendingTasks = new ArrayList<>();
+
+      final int pendingTasksWhileShuttingDown = executor.shutdownNow(pendingTasks::add, 30, TimeUnit.SECONDS);
+      if (pendingTasksWhileShuttingDown > 0) {
+         logger.trace("Try executing {} pending tasks on stop", pendingTasksWhileShuttingDown);
+         for (Runnable pendingTask : pendingTasks) {
+            try {
+               pendingTask.run();
+            } catch (Throwable t) {
+               logger.warn("Error while executing a pending task on shutdown", t);
             }
          }
+      }
 
-         running = false;
-
-         final Page page = currentPage;
-         if (page != null) {
-            page.close(false);
-            currentPage = null;
-         }
+      final Page page = currentPage;
+      if (page != null) {
+         page.close(false);
+         currentPage = null;
       }
    }
 
@@ -424,10 +430,13 @@ public class PagingStoreImpl implements PagingStore {
    public void flushExecutors() {
       FutureLatch future = new FutureLatch();
 
-      executor.execute(future);
+      try {
+         executor.execute(future);
 
-      if (!future.await(60000)) {
-         ActiveMQServerLogger.LOGGER.pageStoreTimeout(address);
+         if (!future.await(60000)) {
+            ActiveMQServerLogger.LOGGER.pageStoreTimeout(address);
+         }
+      } catch (Exception ignored) {
       }
    }
 
@@ -1122,14 +1131,7 @@ public class PagingStoreImpl implements PagingStore {
       List<org.apache.activemq.artemis.core.server.Queue> durableQueues = ctx.getDurableQueues();
       List<org.apache.activemq.artemis.core.server.Queue> nonDurableQueues = ctx.getNonDurableQueues();
       for (org.apache.activemq.artemis.core.server.Queue q : durableQueues) {
-         if (tx == null) {
-            // non transactional writes need an intermediate place
-            // to avoid the counter getting out of sync
-            q.getPageSubscription().getCounter().pendingCounter(page, 1, size);
-         } else {
-            // null tx is treated through pending counters
-            q.getPageSubscription().getCounter().increment(tx, 1, size);
-         }
+         q.getPageSubscription().getCounter().increment(tx, 1, size);
       }
 
       for (org.apache.activemq.artemis.core.server.Queue q : nonDurableQueues) {
@@ -1408,5 +1410,9 @@ public class PagingStoreImpl implements PagingStore {
       usedPages.forEachUsedPage(consumerPage);
    }
 
+   @Override
+   public StorageManager getStorageManager() {
+      return storageManager;
+   }
 
 }

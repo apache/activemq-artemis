@@ -95,8 +95,10 @@ public class JDBCSequentialFile implements SequentialFile {
       try {
          return fileFactory.listFiles(extension).contains(filename);
       } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         fileFactory.onIOError(e, "Error checking JDBC file exists.", this);
+         logger.debug(e.getMessage(), e);
+         // this shouldn't throw a critical IO Error
+         // as if the destination does not exists (ot table store removed), the table will not exist and
+         // we may get a SQL Exception
          return false;
       }
    }
@@ -114,7 +116,9 @@ public class JDBCSequentialFile implements SequentialFile {
          return true;
       } catch (SQLException e) {
          isLoaded.set(false);
-         fileFactory.onIOError(e, "Error attempting to open JDBC file.", this);
+         // should not throw exceptions, as we drop the table on queue.destroy.
+         // storage.exists could be called for non existing pages during async cleanup and they are
+         // just supposed to return false
       }
       return false;
    }
@@ -158,7 +162,9 @@ public class JDBCSequentialFile implements SequentialFile {
             }
          }
       } catch (SQLException e) {
-         fileFactory.onIOError(e, "Error deleting JDBC file.", this);
+         // file is already gone from a drop somewhere
+         logger.debug("Expected error deleting Sequential File", e);
+         return;
       }
    }
 

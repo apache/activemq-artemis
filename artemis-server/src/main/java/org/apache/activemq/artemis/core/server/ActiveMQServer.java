@@ -111,6 +111,7 @@ public interface ActiveMQServer extends ServiceComponent {
       STOPPED
    }
 
+   AutoCloseable managementLock() throws Exception;
 
    void setState(SERVER_STATE state);
 
@@ -356,6 +357,14 @@ public interface ActiveMQServer extends ServiceComponent {
                                OperationContext context,
                                Map<SimpleString, RoutingType> prefixes,
                                String securityDomain) throws Exception;
+
+   /** should the server rebuild page counters upon startup.
+    *  this will be useful on testing or an embedded broker scenario */
+   boolean isRebuildCounters();
+
+   /** should the server rebuild page counters upon startup.
+    *  this will be useful on testing or an embedded broker scenario */
+   void setRebuildCounters(boolean rebuildCounters);
 
    SecurityStore getSecurityStore();
 

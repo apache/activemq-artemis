@@ -1715,6 +1715,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public boolean isEmbeddedWebServerStarted() {
             return (boolean) proxy.retrieveAttributeValue("embeddedWebServerStarted");
          }
+
+         @Override
+         public void rebuildPageCounters() throws Exception {
+            proxy.invokeOperation("rebuildPageCounters");
+         }
       };
    }
 

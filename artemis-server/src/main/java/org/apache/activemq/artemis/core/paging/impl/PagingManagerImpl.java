@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -32,6 +34,7 @@ import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageCounterRebuildManager;
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
@@ -40,14 +43,16 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
+import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.BiConsumer;
 
 public final class PagingManagerImpl implements PagingManager {
 
-   private static final int ARTEMIS_DEBUG_PAGING_INTERVAL = Integer.valueOf(System.getProperty("artemis.debug.paging.interval", "0"));
+   private static final int ARTEMIS_PAGING_COUNTER_SNAPSHOT_INTERVAL = Integer.valueOf(System.getProperty("artemis.paging.counter.snapshot.interval", "60"));
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -92,13 +97,13 @@ public final class PagingManagerImpl implements PagingManager {
 
    private volatile long diskTotalSpace = 0;
 
-   private final Executor memoryExecutor;
+   private final Executor managerExecutor;
 
    private final Queue<Runnable> memoryCallback = new ConcurrentLinkedQueue<>();
 
    private final ConcurrentMap</*TransactionID*/Long, PageTransactionInfo> transactions = new ConcurrentHashMap<>();
 
-   private ActiveMQScheduledComponent scheduledComponent = null;
+   private ActiveMQScheduledComponent snapshotUpdater = null;
 
    private final SimpleString managementAddress;
 
@@ -127,7 +132,7 @@ public final class PagingManagerImpl implements PagingManager {
       globalSizeMetric.setElementsEnabled(maxMessages >= 0);
       globalSizeMetric.setOverCallback(() -> setGlobalFull(true));
       globalSizeMetric.setUnderCallback(() -> setGlobalFull(false));
-      this.memoryExecutor = pagingSPI.newExecutor();
+      this.managerExecutor = pagingSPI.newExecutor();
       this.managementAddress = managementAddress;
    }
 
@@ -205,8 +210,8 @@ public final class PagingManagerImpl implements PagingManager {
    protected void checkMemoryRelease() {
       if (!diskFull && (maxSize < 0 || !globalFull) && !blockedStored.isEmpty()) {
          if (!memoryCallback.isEmpty()) {
-            if (memoryExecutor != null) {
-               memoryExecutor.execute(this::memoryReleased);
+            if (managerExecutor != null) {
+               managerExecutor.execute(this::memoryReleased);
             } else {
                memoryReleased();
             }
@@ -368,8 +373,8 @@ public final class PagingManagerImpl implements PagingManager {
             PagingStore oldStore = stores.remove(store.getStoreName());
             if (oldStore != null) {
                oldStore.stop();
-               oldStore = null;
             }
+            store.getCursorProvider().counterRebuildStarted(); // TODO-NOW-DONT-MERGE maybe this should be removed
             store.start();
             stores.put(store.getStoreName(), store);
          }
@@ -466,27 +471,37 @@ public final class PagingManagerImpl implements PagingManager {
 
          reloadStores();
 
-         if (ARTEMIS_DEBUG_PAGING_INTERVAL > 0) {
-            this.scheduledComponent = new ActiveMQScheduledComponent(pagingStoreFactory.getScheduledExecutor(), pagingStoreFactory.newExecutor(), ARTEMIS_DEBUG_PAGING_INTERVAL, TimeUnit.SECONDS, false) {
+         if (ARTEMIS_PAGING_COUNTER_SNAPSHOT_INTERVAL > 0) {
+            this.snapshotUpdater = new ActiveMQScheduledComponent(pagingStoreFactory.getScheduledExecutor(), pagingStoreFactory.newExecutor(), ARTEMIS_PAGING_COUNTER_SNAPSHOT_INTERVAL, TimeUnit.SECONDS, false) {
                @Override
                public void run() {
-                  debug();
+                  try {
+                     logger.debug("Updating counter snapshots");
+                     counterSnapshot();
+                  } catch (Throwable e) {
+                     logger.warn(e.getMessage(), e);
+                  }
                }
             };
 
-            this.scheduledComponent.start();
+            this.snapshotUpdater.start();
 
          }
 
          started = true;
+
       } finally {
          unlock();
       }
    }
 
-   public void debug() {
-      logger.info("size = {} bytes, messages = {}", globalSizeMetric.getSize(), globalSizeMetric.getElements());
+   @Override
+   public void counterSnapshot() {
+      for (PagingStore store : stores.values()) {
+         store.counterSnapshot();
+      }
    }
+
 
    @Override
    public synchronized void stop() throws Exception {
@@ -495,9 +510,9 @@ public final class PagingManagerImpl implements PagingManager {
       }
       started = false;
 
-      if (scheduledComponent != null) {
-         this.scheduledComponent.stop();
-         this.scheduledComponent = null;
+      if (snapshotUpdater != null) {
+         this.snapshotUpdater.stop();
+         this.snapshotUpdater = null;
       }
 
       lock();
@@ -548,4 +563,26 @@ public final class PagingManagerImpl implements PagingManager {
       syncLock.writeLock().lock();
    }
 
+   @Override
+   public void forEachTransaction(BiConsumer<Long, PageTransactionInfo> transactionConsumer) {
+      transactions.forEach(transactionConsumer);
+   }
+
+   @Override
+   public Future<Object> rebuildCounters() {
+      LongHashSet transactionsSet = new LongHashSet();
+      transactions.forEach((txId, tx) -> {
+         transactionsSet.add(txId);
+      });
+      stores.forEach((address, pgStore) -> {
+         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(pgStore, transactionsSet);
+         logger.debug("Setting destination {} to rebuild counters", address);
+         managerExecutor.execute(rebuildManager);
+      });
+
+      FutureTask<Object> task = new FutureTask<>(() -> null);
+      managerExecutor.execute(task);
+
+      return task;
+   }
 }

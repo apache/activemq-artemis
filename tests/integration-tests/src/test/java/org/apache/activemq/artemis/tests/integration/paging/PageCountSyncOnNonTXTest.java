@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.paging;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -39,8 +40,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public RetryRule retryRule = new RetryRule(1);
@@ -151,7 +156,7 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
                }
             }
          } catch (Exception expected) {
-            expected.printStackTrace();
+            logger.info("expected exception {}", expected.toString(), expected);
          }
 
       } finally {

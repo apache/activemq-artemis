@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
-import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public interface PageSubscriptionCounter {
@@ -36,7 +35,13 @@ public interface PageSubscriptionCounter {
 
    void loadInc(long recordInd, int add, long persistentSize);
 
-   void applyIncrementOnTX(Transaction tx, long recordID, int add, long persistentSize);
+   void applyIncrementOnTX(Transaction tx, int add, long persistentSize);
+
+   void markRebuilding();
+
+   void finishRebuild();
+
+   boolean isRebuilding();
 
    /**
     * This will process the reload
@@ -46,12 +51,12 @@ public interface PageSubscriptionCounter {
    // used when deleting the counter
    void delete() throws Exception;
 
-   void pendingCounter(Page page, int increment, long persistentSize) throws Exception;
+   void snapshot();
 
    // used when leaving page mode, so the counters are deleted in batches
    // for each queue on the address
    void delete(Transaction tx) throws Exception;
 
-   void cleanupNonTXCounters(long pageID) throws Exception;
+   PageSubscriptionCounter setSubscription(PageSubscription subscription);
 
 }

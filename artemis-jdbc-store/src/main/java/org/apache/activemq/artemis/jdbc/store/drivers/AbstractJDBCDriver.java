@@ -67,6 +67,9 @@ public abstract class AbstractJDBCDriver {
    }
 
    public void destroy() throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace("dropping {}", sqlProvider.getTableName(), new Exception("trace"));
+      }
       final String dropTableSql = "DROP TABLE " + sqlProvider.getTableName();
       try (Connection connection = connectionProvider.getConnection()) {
          try {

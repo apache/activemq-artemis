@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
+import java.util.function.Consumer;
+
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 
@@ -32,11 +34,15 @@ public interface PageCursorProvider {
     */
    PageSubscription getSubscription(long queueId);
 
+   void forEachSubscription(Consumer<PageSubscription> consumer);
+
    PageSubscription createSubscription(long queueId, Filter filter, boolean durable);
 
    void processReload() throws Exception;
 
    void stop();
+
+   void counterSnapshot();
 
    void flushExecutors();
 
@@ -55,5 +61,9 @@ public interface PageCursorProvider {
     * @param pageCursorImpl
     */
    void close(PageSubscription pageCursorImpl);
+
+   void counterRebuildStarted();
+
+   void counterRebuildDone();
 
 }

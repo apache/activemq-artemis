@@ -2003,5 +2003,8 @@ public interface ActiveMQServerControl {
 
    @Attribute(desc = "Whether the embedded web server is started")
    boolean isEmbeddedWebServerStarted();
+
+   @Attribute(desc = "Scan all paged destinations to rebuild the page counters")
+   void rebuildPageCounters() throws Exception;
 }
 

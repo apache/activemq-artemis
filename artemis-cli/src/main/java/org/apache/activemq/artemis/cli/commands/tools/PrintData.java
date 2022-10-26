@@ -279,7 +279,7 @@ public class PrintData extends DBOption {
             folder = pgStore.getFolder();
             out.println("####################################################################################################");
             out.println("Exploring store " + store + " folder = " + folder);
-            int pgid = (int) pgStore.getFirstPage();
+            long pgid = pgStore.getFirstPage();
 
             out.println("Number of pages ::" + pgStore.getNumberOfPages() + ", Current writing page ::" + pgStore.getCurrentWritingPage());
             for (int pg = 0; pg < pgStore.getNumberOfPages(); pg++) {

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.core.paging.impl;
 
 import java.nio.ByteBuffer;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -26,13 +25,11 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
-import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.ReferenceCounterUtil;
-import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.EmptyList;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
@@ -85,11 +82,6 @@ public final class Page  {
    private final StorageManager storageManager;
 
    private final SimpleString storeName;
-
-   /**
-    * A list of subscriptions containing pending counters (with non tx adds) on this page
-    */
-   private Set<PageSubscriptionCounter> pendingCounters;
 
    private ByteBuffer readFileBuffer;
 
@@ -241,13 +233,6 @@ public final class Page  {
          storageManager.pageClosed(storeName, pageId);
       }
       file.close(waitSync, waitSync);
-
-      Set<PageSubscriptionCounter> counters = getPendingCounters();
-      if (counters != null) {
-         for (PageSubscriptionCounter counter : counters) {
-            counter.cleanupNonTXCounters(this.getPageId());
-         }
-      }
    }
 
    public boolean delete(final LinkedList<PagedMessage> messages) throws Exception {
@@ -255,7 +240,9 @@ public final class Page  {
          storageManager.pageDeleted(storeName, pageId);
       }
 
-      if (logger.isDebugEnabled()) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Deleting pageNr={} on store {}", pageId, storeName, new Exception("trace"));
+      } else if (logger.isDebugEnabled()) {
          logger.debug("Deleting pageNr={} on store {}", pageId, storeName);
       }
 
@@ -373,24 +360,4 @@ public final class Page  {
       return file;
    }
 
-   /**
-    * This will indicate a page that will need to be called on cleanup when the page has been closed and confirmed
-    *
-    * @param pageSubscriptionCounter
-    */
-   public void addPendingCounter(PageSubscriptionCounter pageSubscriptionCounter) {
-      getOrCreatePendingCounters().add(pageSubscriptionCounter);
-   }
-
-   private synchronized Set<PageSubscriptionCounter> getPendingCounters() {
-      return pendingCounters;
-   }
-
-   private synchronized Set<PageSubscriptionCounter> getOrCreatePendingCounters() {
-      if (pendingCounters == null) {
-         pendingCounters = new ConcurrentHashSet<>();
-      }
-
-      return pendingCounters;
-   }
 }

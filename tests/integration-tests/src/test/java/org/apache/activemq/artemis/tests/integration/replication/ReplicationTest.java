@@ -651,6 +651,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       PagingManager paging = new PagingManagerImpl(new PagingStoreFactoryNIO(storageManager, configuration.getPagingLocation(), 1000, null, executorFactory, executorFactory, false, null), addressSettingsRepository, configuration.getManagementAddress());
 
       paging.start();
+      runAfter(paging::stop);
       return paging;
    }
 

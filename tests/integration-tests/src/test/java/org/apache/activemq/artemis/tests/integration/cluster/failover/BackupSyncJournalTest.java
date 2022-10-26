@@ -159,7 +159,6 @@ public class BackupSyncJournalTest extends FailoverTestBase {
       for (Pair<Long, Integer> pair : backupIds) {
          totalBackup += pair.getB();
       }
-      assertEquals("number of records must match ", total, totalBackup);
 
       // "+ 2": there two other calls that send N_MSGS.
       for (int i = 0; i < totalRounds + 3; i++) {

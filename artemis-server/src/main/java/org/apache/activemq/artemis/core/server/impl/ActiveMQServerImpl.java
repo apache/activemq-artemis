@@ -239,6 +239,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    private HAPolicy haPolicy;
 
+   // This will be useful on tests or embedded
+   private boolean rebuildCounters = true;
+
    private volatile SERVER_STATE state = SERVER_STATE.STOPPED;
 
    private final Version version;
@@ -270,6 +273,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private volatile ExecutorService ioExecutorPool;
 
    private ReplayManager replayManager;
+
+   /** Certain management operations shouldn't use more than one thread.
+    *  this semaphore is used to guarantee a single thread used. */
+   private final Semaphore managementSemaphore = new Semaphore(1);
 
    /**
     * This is a thread pool for io tasks only.
@@ -494,6 +501,16 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public NetworkHealthCheck getNetworkHealthCheck() {
       return networkHealthCheck;
+   }
+
+   @Override
+   public void setRebuildCounters(boolean rebuildCounters) {
+      this.rebuildCounters = rebuildCounters;
+   }
+
+   @Override
+   public boolean isRebuildCounters() {
+      return this.rebuildCounters;
    }
 
 
@@ -1321,6 +1338,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          } catch (Throwable t) {
             ActiveMQServerLogger.LOGGER.errorStoppingComponent(activation.getClass().getName(), t);
          }
+      }
+
+      if (!criticalIOError && pagingManager != null) {
+         pagingManager.counterSnapshot();
       }
 
       stopComponent(pagingManager);
@@ -3323,6 +3344,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       JournalLoadInformation[] journalInfo = loadJournals();
 
+      if (rebuildCounters) {
+         pagingManager.rebuildCounters();
+      }
+
       removeExtraAddressStores();
 
       if (securityManager instanceof ActiveMQBasicSecurityManager) {
@@ -4246,7 +4271,17 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       private final AtomicBoolean failedAlready = new AtomicBoolean();
 
       @Override
+      public boolean isPreviouslyFailed() {
+         return failedAlready.get();
+      }
+
+      @Override
       public synchronized void onIOException(Throwable cause, String message, String file) {
+         if (logger.isTraceEnabled()) {
+            // the purpose of this is to find where the critical error is being called at
+            // useful for when debugging where the critical error is being called at
+            logger.trace("Throwing critical error {}", cause.getMessage(), new Exception("trace"));
+         }
          if (!failedAlready.compareAndSet(false, true)) {
             return;
          }
@@ -4542,4 +4577,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
+   @Override
+   public AutoCloseable managementLock() throws Exception {
+      if (!managementSemaphore.tryAcquire(1, TimeUnit.MINUTES)) {
+         throw ActiveMQMessageBundle.BUNDLE.managementBusy();
+      } else {
+         return managementSemaphore::release;
+      }
+   }
 }
