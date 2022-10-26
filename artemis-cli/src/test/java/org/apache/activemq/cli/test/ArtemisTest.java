@@ -29,10 +29,8 @@ import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
@@ -94,6 +92,7 @@ import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 import org.apache.activemq.artemis.utils.StringUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.XmlProvider;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Configurations;
@@ -368,8 +367,7 @@ public class ArtemisTest extends CliTestBase {
       originalBootstrapFile.delete();
 
       // write the modified config into the bootstrap.xml file
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      Transformer transformer = transformerFactory.newTransformer();
+      Transformer transformer = XmlProvider.newTransformer();
       DOMSource source = new DOMSource(config);
       StreamResult streamResult = new StreamResult(originalBootstrapFile);
       transformer.transform(source, streamResult);
@@ -2195,8 +2193,7 @@ public class ArtemisTest extends CliTestBase {
    }
 
    private static Document parseXml(File xmlFile) throws ParserConfigurationException, IOException, SAXException {
-      DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder domBuilder = domFactory.newDocumentBuilder();
+      DocumentBuilder domBuilder = XmlProvider.newDocumentBuilder();
       return domBuilder.parse(xmlFile);
    }
 

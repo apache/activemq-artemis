@@ -17,10 +17,12 @@
 package org.apache.activemq.artemis.selector.filter;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.activemq.artemis.utils.XmlProvider;
 
 /**
  * Used to evaluate an XPath Expression in a JMS selector.
@@ -36,19 +38,14 @@ public final class XPathExpression implements BooleanExpression {
    public static final String DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX = "org.apache.activemq.documentBuilderFactory.feature:";
 
    static {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setNamespaceAware(true);
-      factory.setIgnoringElementContentWhitespace(true);
-      factory.setIgnoringComments(true);
-
       try {
-         factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-
-         // setup features from system properties (if any)
-         setupFeatures(factory);
-         builder = factory.newDocumentBuilder();
+         // get features from system properties (if any)
+         Map<String, Boolean> features = getFeatures();
+         Map<String, Boolean> properties = new HashMap<>();
+         properties.put(XmlProvider.NAMESPACE_AWARE_PROPERTY, true);
+         properties.put(XmlProvider.IGNORE_COMMENTS_PROPERTY, true);
+         properties.put(XmlProvider.IGNORE_ELEMENT_CONTENT_WHITESPACE_PROPERTY, true);
+         builder = XmlProvider.newDocumentBuilder(features, properties);
       } catch (ParserConfigurationException e) {
          throw new RuntimeException(e);
       }
@@ -97,14 +94,16 @@ public final class XPathExpression implements BooleanExpression {
       return object == Boolean.TRUE;
    }
 
-   protected static void setupFeatures(DocumentBuilderFactory factory) throws ParserConfigurationException {
+   protected static Map<String, Boolean> getFeatures() throws ParserConfigurationException {
+      Map<String, Boolean> features = new HashMap<>();
       Properties properties = System.getProperties();
       for (Map.Entry<Object, Object> prop : properties.entrySet()) {
          String key = (String) prop.getKey();
          if (key.startsWith(DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX)) {
             Boolean value = Boolean.valueOf((String)prop.getValue());
-            factory.setFeature(key.substring(DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX.length()), value);
+            features.put(key.substring(DOCUMENT_BUILDER_FACTORY_FEATURE_PREFIX.length()), value);
          }
       }
+      return features;
    }
 }

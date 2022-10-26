@@ -16,12 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +27,7 @@ import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
@@ -38,6 +35,8 @@ import org.apache.activemq.artemis.core.client.ActiveMQClientMessageBundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.Map;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -85,10 +84,10 @@ public final class XMLUtil {
    }
 
    public static Element readerToElement(final Reader r) throws Exception {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      factory.setNamespaceAware(true);
-      factory.setXIncludeAware(true);
-      DocumentBuilder parser = factory.newDocumentBuilder();
+      Map<String, Boolean> properties = new HashMap<>();
+      properties.put(XmlProvider.XINCLUDE_AWARE_PROPERTY, true);
+      properties.put(XmlProvider.NAMESPACE_AWARE_PROPERTY, true);
+      DocumentBuilder parser = XmlProvider.newDocumentBuilder(null, properties);
       Document doc = replaceSystemPropsInXml(parser.parse(new InputSource(new StringReader(replaceSystemPropsInString(readerToString(r))))));
       return doc.getDocumentElement();
    }
@@ -366,10 +365,7 @@ public final class XMLUtil {
    }
 
    public static void validate(final Node node, final String schemaFile) throws Exception {
-      SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
-      Schema schema = factory.newSchema(new URL(findResource(schemaFile).toURI().toASCIIString()));
-      Validator validator = schema.newValidator();
+      Validator validator = XmlProvider.newValidator(new URL(findResource(schemaFile).toURI().toASCIIString()));
 
       // validate the DOM tree
       try {

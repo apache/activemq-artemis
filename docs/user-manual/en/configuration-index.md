@@ -46,6 +46,11 @@ For further information on XInclude see:
 
 [https://www.w3.org/TR/xinclude/](https://www.w3.org/TR/xinclude/)
 
+To disable XML external entity processing use the system property `artemis.disableXxe`, e.g.:
+```
+-Dartemis.disableXxe=true
+```
+
 ##### Reloading modular configuration files
 
 Certain changes in `broker.xml` can be picked up at runtime as discussed in the [Configuration Reload](config-reload.md)

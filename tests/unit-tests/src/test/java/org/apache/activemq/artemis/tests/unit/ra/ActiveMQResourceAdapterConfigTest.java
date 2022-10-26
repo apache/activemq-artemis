@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.unit.ra;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -26,6 +25,7 @@ import java.util.Map;
 
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.XmlProvider;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -443,8 +443,7 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
             methodList.put(method.getName(), method);
          }
       }
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      DocumentBuilder db = dbf.newDocumentBuilder();
+      DocumentBuilder db = XmlProvider.newDocumentBuilder();
       InputStream io = new ByteArrayInputStream(rootConfig.getBytes());
       Document dom = db.parse(new InputSource(io));
 

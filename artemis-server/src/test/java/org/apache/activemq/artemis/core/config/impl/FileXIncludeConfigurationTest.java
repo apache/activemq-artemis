@@ -17,9 +17,15 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import org.junit.AfterClass;
+import org.junit.Assume;
 import org.junit.BeforeClass;
 
 public class FileXIncludeConfigurationTest extends FileConfigurationTest {
+
+   public FileXIncludeConfigurationTest(boolean xxeEnabled) {
+      super(xxeEnabled);
+      Assume.assumeTrue(xxeEnabled);
+   }
 
    @BeforeClass
    public static void setupProperties() {
