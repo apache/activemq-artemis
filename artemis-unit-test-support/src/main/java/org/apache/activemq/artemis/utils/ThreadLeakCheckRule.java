@@ -235,7 +235,7 @@ public class ThreadLeakCheckRule extends TestWatcher {
    private boolean isExpectedThread(Thread thread) {
       final String threadName = thread.getName();
       final ThreadGroup group = thread.getThreadGroup();
-      final boolean isSystemThread = group != null && "system".equals(group.getName());
+      final boolean isSystemThread = group != null && ("system".equals(group.getName()) || "InnocuousThreadGroup".equals(group.getName()));
       final String javaVendor = System.getProperty("java.vendor");
 
       if (threadName.contains("SunPKCS11")) {
@@ -244,7 +244,7 @@ public class ThreadLeakCheckRule extends TestWatcher {
          return true;
       } else if (threadName.contains("Attach Listener")) {
          return true;
-      } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("process reaper")) {
+      } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.startsWith("process reaper")) {
          return true;
       } else if ((javaVendor.contains("IBM") || isSystemThread) && threadName.equals("ClassCache Reaper")) {
          return true;
