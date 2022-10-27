@@ -40,7 +40,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
  *  TODO: This could be refactored out of the main codebase but at a high cost.
  *        We may do it some day if we find an easy way that won't clutter the code too much.
  *  */
-public class ExecutorNettyAdapter implements EventLoop {
+public class ExecutorNettyAdapter implements EventLoop, AutoCloseable {
 
    final ArtemisExecutor executor;
 
@@ -187,7 +187,7 @@ public class ExecutorNettyAdapter implements EventLoop {
 
    @Override
    public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-      return false;
+      return true;
    }
 
    @Override
@@ -217,5 +217,10 @@ public class ExecutorNettyAdapter implements EventLoop {
    @Override
    public void execute(Runnable command) {
       executor.execute(command);
+   }
+
+   @Override
+   public void close() {
+     // noop
    }
 }

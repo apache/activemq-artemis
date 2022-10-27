@@ -80,7 +80,7 @@ public class AllClassesTest {
    }
 
 
-   @Test
+   @Test(timeout = 3000)
    public void testToString() {
       Object targetInstance = null;
 
