@@ -65,6 +65,7 @@ set JVM_ARGS=%JVM_ARGS% -Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%
 set JVM_ARGS=%JVM_ARGS% -Dartemis.default.sensitive.string.codec.key=%ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY%
 
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
+if not "%$JAVA_ARGS_APPEND%"=="" set JVM_ARGS=%JVM_ARGS% %$JAVA_ARGS_APPEND%
 
 "%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.Artemis %*
 

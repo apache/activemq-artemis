@@ -114,4 +114,5 @@ exec "$JAVACMD" \
     -Dartemis.instance.etc="$ARTEMIS_INSTANCE_ETC" \
     -Dartemis.default.sensitive.string.codec.key="$ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY" \
     $DEBUG_ARGS \
+    $JAVA_ARGS_APPEND \
     org.apache.activemq.artemis.boot.Artemis "$@"
