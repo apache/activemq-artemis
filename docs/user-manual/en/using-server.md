@@ -527,6 +527,8 @@ manager at boot time. Package the dependency in a jar and put it on the boot
 classpath before of log manager jar. This can be done appending the jar at the
 variable `JAVA_ARGS`, defined in `artemis.profile`, with the option `-Xbootclasspath/a`.
 
+Note: the environment variable `JAVA_ARGS_APPEND` can be used to append or override options.
+
 ## Adding Runtime Dependencies
 
 Runtime dependencies like diverts, transformers, broker plugins, JDBC drivers,

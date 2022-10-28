@@ -53,6 +53,7 @@ if not "%ARTEMIS_CLUSTER_PROPS%"=="" set JVM_ARGS=%JVM_ARGS% %ARTEMIS_CLUSTER_PR
 set JVM_ARGS=%JVM_ARGS% -classpath %ARTEMIS_HOME%\lib\artemis-boot.jar
 set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
 if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
+if not "%JAVA_ARGS_APPEND%"=="" set JVM_ARGS=%JVM_ARGS% %JAVA_ARGS_APPEND%
 
 "%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.Artemis %*
 
