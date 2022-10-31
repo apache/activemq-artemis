@@ -97,7 +97,7 @@ throughput. Multiple Java applications sharing a JMS queue is a classic example
 of this use-case.
 
 In this use-case the broker is configured, for example, with an address, 
-`anycast.foo` using the `anycast` routing type with just one queue, `q1`. When
+`address.foo` using the `anycast` routing type with just one queue, `q1`. When
 a producer sends a message to `address.foo` it is then routed to `q1` and
 finally dispatched to one of the consumers.
 
