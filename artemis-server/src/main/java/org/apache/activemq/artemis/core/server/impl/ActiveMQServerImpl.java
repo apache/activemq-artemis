@@ -2867,8 +2867,12 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       final Divert divert = divertBinding.getDivert();
 
       Filter filter = FilterImpl.createFilter(config.getFilterString());
-      if (filter != null && !filter.equals(divert.getFilter())) {
-         divert.setFilter(filter);
+      if (filter == null) {
+         divert.setFilter(null);
+      } else {
+         if (!filter.equals(divert.getFilter())) {
+            divert.setFilter(filter);
+         }
       }
 
       if (config.getTransformerConfiguration() != null) {
@@ -2880,8 +2884,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       if (config.getForwardingAddress() != null) {
          SimpleString forwardAddress = SimpleString.toSimpleString(config.getForwardingAddress());
-
-         if (!forwardAddress.equals(config)) {
+         if (!forwardAddress.equals(divert.getForwardAddress())) {
             divert.setForwardAddress(forwardAddress);
          }
       }
@@ -4445,16 +4448,34 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          recoverStoredAddressSettings();
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("diverts");
+         // Filter out all active diverts
          final Set<SimpleString> divertsToRemove = postOffice.getAllBindings()
                  .filter(binding -> binding instanceof DivertBinding)
                  .map(Binding::getUniqueName)
                  .collect(Collectors.toSet());
+         // Go through the currently configured diverts
          for (DivertConfiguration divertConfig : configuration.getDivertConfigurations()) {
+            // Retain diverts still configured to exist
             divertsToRemove.remove(SimpleString.toSimpleString(divertConfig.getName()));
-            if (postOffice.getBinding(new SimpleString(divertConfig.getName())) == null) {
+            // Deploy newly added diverts, reconfigure existing
+            final SimpleString divertName = new SimpleString(divertConfig.getName());
+            final DivertBinding divertBinding = (DivertBinding) postOffice.getBinding(divertName);
+            if (divertBinding == null) {
                deployDivert(divertConfig);
+            } else {
+               if ((divertBinding.isExclusive() != divertConfig.isExclusive()) ||
+                       !divertBinding.getAddress().toString().equals(divertConfig.getAddress())) {
+                  // Diverts whose exclusivity or address has changed have to be redeployed.
+                  // See the Divert interface and look for setters. Absent setter is a hint that maybe that property is immutable.
+                  destroyDivert(divertName);
+                  deployDivert(divertConfig);
+               } else {
+                  // Diverts with their exclusivity and address unchanged can be updated directly.
+                  updateDivert(divertConfig);
+               }
             }
          }
+         // Remove all remaining diverts
          for (final SimpleString divertName : divertsToRemove) {
             try {
                destroyDivert(divertName);
