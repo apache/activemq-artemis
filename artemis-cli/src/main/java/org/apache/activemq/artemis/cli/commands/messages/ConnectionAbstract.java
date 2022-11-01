@@ -226,14 +226,16 @@ public class ConnectionAbstract extends InputAbstract {
    private String inputUser(String user) {
       if (user == null) {
          this.user = input("--user", "Type the username for a retry", null);
+         return this.user;
       }
-      return this.user;
+      return user;
    }
 
    private String inputPassword(String password) {
       if (password == null) {
          this.password = inputPassword("--password", "Type the password for a retry", null);
+         return this.password;
       }
-      return this.password;
+      return password;
    }
 }
