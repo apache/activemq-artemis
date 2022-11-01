@@ -225,15 +225,15 @@ public class ConnectionAbstract extends InputAbstract {
 
    private String inputUser(String user) {
       if (user == null) {
-         user = input("--user", "Type the username for a retry", null);
+         this.user = input("--user", "Type the username for a retry", null);
       }
-      return user;
+      return this.user;
    }
 
    private String inputPassword(String password) {
       if (password == null) {
-         password = inputPassword("--password", "Type the password for a retry", null);
+         this.password = inputPassword("--password", "Type the password for a retry", null);
       }
-      return password;
+      return this.password;
    }
 }

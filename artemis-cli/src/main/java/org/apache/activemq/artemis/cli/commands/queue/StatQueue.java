@@ -86,6 +86,8 @@ public class StatQueue extends AbstractAction {
    @Option(name = "--maxColumnSize", description = "max width of data column. Set to -1 for no limit. Default is 25.")
    private int maxColumnSize = DEFAULT_MAX_COLUMN_SIZE;
 
+   private int statCount = 0;
+
    //easier for testing
    public StatQueue setQueueName(String queueName) {
       this.queueName = queueName;
@@ -146,7 +148,7 @@ public class StatQueue extends AbstractAction {
          getActionContext().out.println("maxRows='" + maxRows + "'");
       }
       printStats(getActionContext(), filter);
-      return null;
+      return statCount;
    }
 
    private void printStats(final ActionContext context, final String filter) throws Exception {
@@ -199,6 +201,7 @@ public class StatQueue extends AbstractAction {
 
       for (int i = 0; i < array.size(); i++) {
          printQueueStats(array.getJsonObject(i), columnSizes);
+         statCount++;
       }
 
       if (count > maxRows) {
