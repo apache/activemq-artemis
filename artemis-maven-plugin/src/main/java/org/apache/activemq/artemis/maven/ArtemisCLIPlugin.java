@@ -50,6 +50,10 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
    @Parameter(defaultValue = "${basedir}/target/server0", required = true)
    private File location;
 
+
+   @Parameter
+   private File etc;
+
    @Parameter
    private String[] args;
 
@@ -127,7 +131,7 @@ public class ArtemisCLIPlugin extends ArtemisAbstractPlugin {
                }
             }
          } else {
-            Artemis.execute(home, location, useSystemOutput, args);
+            Artemis.execute(home, location, etc, useSystemOutput, args);
          }
 
          Thread.sleep(600);

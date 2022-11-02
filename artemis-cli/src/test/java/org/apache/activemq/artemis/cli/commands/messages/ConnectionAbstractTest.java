@@ -34,7 +34,7 @@ public class ConnectionAbstractTest {
 
       System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
       try {
-         connectionAbstract.setHomeValues(null, brokerInstanceEtc.getParentFile());
+         connectionAbstract.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
 
          connectionAbstract.execute(new TestActionContext());
 
@@ -54,7 +54,7 @@ public class ConnectionAbstractTest {
 
       System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
       try {
-         connectionAbstract.setHomeValues(null, brokerInstanceEtc.getParentFile());
+         connectionAbstract.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
          connectionAbstract.setAcceptor("amqp");
 
          connectionAbstract.execute(new TestActionContext());

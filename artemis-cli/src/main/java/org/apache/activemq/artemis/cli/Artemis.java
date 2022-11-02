@@ -93,18 +93,26 @@ public class Artemis {
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
 
-      verifyManagementDTO(fileInstance);
 
-      execute(true, true, fileHome, fileInstance, args);
+      String brokerEtc = System.getProperty("artemis.instance.etc");
+      if (brokerEtc != null) {
+         brokerEtc = brokerEtc.replace("\\", "/");
+      } else {
+         brokerEtc = instance + "/etc";
+      }
+
+      File fileBrokerETC = new File(brokerEtc);
+
+      verifyManagementDTO(fileBrokerETC);
+
+      execute(true, true, fileHome, fileInstance, fileBrokerETC, args);
    }
 
 
    // Notice this has to happen before any Log4j is used.
    //        otherwise Log4j's JMX will start the JMX before this property was able to tbe set
-   public static void verifyManagementDTO(File fileInstance) {
-      if (fileInstance != null) {
-
-         File etc = new File(fileInstance, "etc");
+   public static void verifyManagementDTO(File etc) {
+      if (etc != null) {
          File management = new File(etc, "management.xml");
 
          try {
@@ -119,16 +127,21 @@ public class Artemis {
    }
 
    public static Object internalExecute(String... args) throws Exception {
-      return internalExecute(null, null, args);
+      return internalExecute(null, null, null, args);
    }
 
-   public static Object execute(File artemisHome, File artemisInstance, List<String> args) throws Exception {
-      return execute(false, false, artemisHome, artemisInstance, args.toArray(new String[args.size()]));
+   public static Object execute(File artemisHome, File artemisInstance, File etcFolder, List<String> args) throws Exception {
+      return execute(false, false, artemisHome, artemisInstance, etcFolder, args.toArray(new String[args.size()]));
    }
 
-   public static Object execute(boolean inputEnabled, boolean useSystemOut, File artemisHome, File artemisInstance, String... args) throws Exception {
+   public static Object execute(boolean inputEnabled, boolean useSystemOut, File artemisHome, File artemisInstance, File etcFolder, String... args) throws Exception {
 
-      verifyManagementDTO(artemisInstance);
+      // using a default etc in case that is not set in the variables
+      if (etcFolder == null && artemisInstance != null) {
+         etcFolder = new File(artemisInstance, "etc");
+      }
+
+      verifyManagementDTO(etcFolder);
 
       if (inputEnabled) {
          InputAbstract.enableInput();
@@ -145,7 +158,7 @@ public class Artemis {
       ActionContext.setSystem(context);
 
       try {
-         return internalExecute(artemisHome, artemisInstance, args, context);
+         return internalExecute(artemisHome, artemisInstance, etcFolder, args, context);
       } catch (ConfigurationException configException) {
          context.err.println(configException.getMessage());
          context.out.println();
@@ -177,13 +190,13 @@ public class Artemis {
     * This method is used to validate exception returns.
     * Useful on test cases
     */
-   private static Object internalExecute(File artemisHome, File artemisInstance, String[] args) throws Exception {
-      return internalExecute(artemisHome, artemisInstance, args, ActionContext.system());
+   private static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
+      return internalExecute(artemisHome, artemisInstance, etcFolder, args, ActionContext.system());
    }
 
-   public static Object internalExecute(File artemisHome, File artemisInstance, String[] args, ActionContext context) throws Exception {
+   public static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args, ActionContext context) throws Exception {
       Action action = builder(artemisInstance).build().parse(args);
-      action.setHomeValues(artemisHome, artemisInstance);
+      action.setHomeValues(artemisHome, artemisInstance, etcFolder);
 
       if (action.isVerbose()) {
          context.out.print("Executing " + action.getClass().getName() + " ");

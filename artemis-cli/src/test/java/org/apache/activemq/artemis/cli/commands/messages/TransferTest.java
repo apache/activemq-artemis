@@ -35,7 +35,7 @@ public class TransferTest {
 
       System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
       try {
-         transfer.setHomeValues(null, brokerInstanceEtc.getParentFile());
+         transfer.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
 
          try {
             transfer.execute(new TestActionContext());
@@ -58,7 +58,7 @@ public class TransferTest {
 
       System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
       try {
-         transfer.setHomeValues(null, brokerInstanceEtc.getParentFile());
+         transfer.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
          transfer.setSourceAcceptor("amqp");
 
          try {
