@@ -154,7 +154,7 @@ public class CheckTest extends CliTestBase {
                    "--replicated", "--host", "127.0.0.1", "--default-port", "61626", "--silent", "--no-autotune", "--no-web", "--require-login", "--slave");
 
       System.setProperty("artemis.instance", masterInstance.getAbsolutePath());
-      Object master = Artemis.execute(false, false, null, masterInstance, "run");
+      Object master = Artemis.execute(false, false, null, masterInstance, null, "run");
       ActiveMQServerImpl masterServer = (ActiveMQServerImpl)((Pair)master).getB();
 
       try {
@@ -181,7 +181,7 @@ public class CheckTest extends CliTestBase {
          }
 
          LockAbstract.unlock();
-         Object slave = Artemis.execute(false, false, null, slaveInstance, "run");
+         Object slave = Artemis.execute(false, false, null, slaveInstance, null, "run");
          ActiveMQServerImpl slaveServer = (ActiveMQServerImpl)((Pair)slave).getB();
 
          Wait.assertTrue("Backup isn't announced", () -> slaveServer.getBackupManager() != null &&
@@ -197,7 +197,7 @@ public class CheckTest extends CliTestBase {
             nodeCheck.setPeers(2);
             Assert.assertEquals(3, nodeCheck.execute(context));
          } finally {
-            Artemis.internalExecute(null, slaveInstance, new String[] {"stop"}, ActionContext.system());
+            Artemis.internalExecute(null, slaveInstance, null, new String[] {"stop"}, ActionContext.system());
          }
       } finally {
          stopServer();

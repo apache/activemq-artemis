@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * <p>
@@ -37,8 +35,6 @@ import java.util.logging.Logger;
  */
 public class Artemis {
 
-   private static final Logger logger = Logger.getLogger(Artemis.class.getName());
-
    public static void main(String[] args) throws Throwable {
       String home = System.getProperty("artemis.home");
 
@@ -47,7 +43,22 @@ public class Artemis {
       String instance = System.getProperty("artemis.instance");
       File fileInstance = instance != null ? new File(instance) : null;
 
-      Object result = execute(fileHome, fileInstance, true, args);
+
+      String brokerEtc = System.getProperty("artemis.instance.etc");
+      File fileBrokerETC = null;
+      if (brokerEtc != null) {
+         brokerEtc = brokerEtc.replace("\\", "/");
+         fileBrokerETC = new File(brokerEtc);
+      } else {
+         if (instance != null) {
+            brokerEtc = instance + "/etc";
+            fileBrokerETC = new File(brokerEtc);
+         }
+      }
+
+
+
+      Object result = execute(fileHome, fileInstance, fileBrokerETC, true, args);
       if (result instanceof Exception) {
          // Set a nonzero status code for the exceptions caught and printed by org.apache.activemq.artemis.cli.Artemis.execute
          System.exit(1);
@@ -57,14 +68,14 @@ public class Artemis {
    /**
     * This is a good method for booting an embedded command
     */
-   public static Object execute(File artemisHome, File artemisInstance, boolean useSystemOut, List<String> args) throws Throwable {
-      return execute(artemisHome, artemisInstance, useSystemOut, args.toArray(new String[args.size()]));
+   public static Object execute(File artemisHome, File artemisInstance, File fileBrokerETC, boolean useSystemOut, List<String> args) throws Throwable {
+      return execute(artemisHome, artemisInstance, fileBrokerETC, useSystemOut, args.toArray(new String[args.size()]));
    }
 
    /**
     * This is a good method for booting an embedded command
     */
-   public static Object execute(File fileHome, File fileInstance, boolean useSystemOut, String... args) throws Throwable {
+   public static Object execute(File fileHome, File fileInstance, File fileBrokerETC, boolean useSystemOut, String... args) throws Throwable {
       ArrayList<File> dirs = new ArrayList<>();
       if (fileHome != null) {
          dirs.add(new File(fileHome, "lib"));
@@ -76,11 +87,16 @@ public class Artemis {
       ArrayList<URL> urls = new ArrayList<>();
 
       // Without the etc on the config, things like JGroups configuration wouldn't be loaded
-      if (fileInstance != null) {
-         File etcFile = new File(fileInstance, "etc");
-         // Adding etc to the classLoader so modules can lookup for their configs
-         urls.add(etcFile.toURI().toURL());
+      if (fileBrokerETC == null && fileInstance != null) {
+         // the fileBrokerETC could be null if execute is called directly from an external module
+         fileBrokerETC = new File(fileInstance, "etc");
       }
+
+      if (fileBrokerETC != null) {
+         // Adding etc to the classLoader so modules can lookup for their configs
+         urls.add(fileBrokerETC.toURI().toURL());
+      }
+
       if (fileHome != null) {
          File etcFile = new File(fileHome, "etc");
          // Adding etc to the classLoader so modules can lookup for their configs
@@ -122,10 +138,10 @@ public class Artemis {
       URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
       Thread.currentThread().setContextClassLoader(loader);
       Class<?> clazz = loader.loadClass("org.apache.activemq.artemis.cli.Artemis");
-      Method method = clazz.getMethod("execute", Boolean.TYPE, Boolean.TYPE, File.class, File.class, args.getClass());
+      Method method = clazz.getMethod("execute", Boolean.TYPE, Boolean.TYPE, File.class, File.class, File.class, args.getClass());
 
       try {
-         return method.invoke(null, useSystemOut, useSystemOut, fileHome, fileInstance, args);
+         return method.invoke(null, useSystemOut, useSystemOut, fileHome, fileInstance, fileBrokerETC, args);
       } catch (InvocationTargetException e) {
          throw e.getTargetException();
       } finally {
@@ -138,7 +154,7 @@ public class Artemis {
       try {
          urls.add(file.toURI().toURL());
       } catch (MalformedURLException e) {
-         logger.log(Level.WARNING, e.getMessage(), e);
+         e.printStackTrace();
       }
    }
 

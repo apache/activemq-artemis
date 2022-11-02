@@ -103,7 +103,7 @@ public class OptionsValidationTest extends CliTestBase {
          invalidArgs = new String[] {group, command, "--blahblah-" + command, "--rubbish-" + command + "=" + "more-rubbish", "--input=blahblah"};
       }
       try {
-         Artemis.internalExecute(null, needInstance ? this.artemisInstance : null, invalidArgs, context);
+         Artemis.internalExecute(null, needInstance ? this.artemisInstance : null, null, invalidArgs, context);
          fail("cannot detect invalid options");
       } catch (InvalidOptionsError e) {
          assertTrue(e.getMessage().contains("Found unexpected parameters"));

@@ -1287,14 +1287,14 @@ public class ArtemisTest extends CliTestBase {
           * it will read from the InputStream in the ActionContext. It can't read the password since it's using
           * System.console.readPassword() for that.
           */
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute(null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin"}, context));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute(null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin"}, context));
 
          /*
           * This is the same as above except it will prompt the user to re-enter both the URL and the username.
           */
          in = new ByteArrayInputStream("tcp://localhost:61616\nadmin\n".getBytes());
          context = new ActionContext(in, System.out, System.err);
-         assertEquals(Integer.valueOf(100), Artemis.internalExecute(null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin", "--url", "tcp://badhost:11111"}, context));
+         assertEquals(Integer.valueOf(100), Artemis.internalExecute(null, null, null, new String[] {"producer", "--destination", "queue://q1", "--message-count", "100", "--password", "admin", "--url", "tcp://badhost:11111"}, context));
       } finally {
          stopServer();
       }
@@ -1318,14 +1318,14 @@ public class ArtemisTest extends CliTestBase {
           * it will read from the InputStream in the ActionContext. It can't read the password since it's using
           * System.console.readPassword() for that.
           */
-         assertTrue((int) Artemis.internalExecute(null, null, new String[] {"queue", "stat", "--password", "admin"}, context) > 0);
+         assertTrue((int) Artemis.internalExecute(null, null, null, new String[] {"queue", "stat", "--password", "admin"}, context) > 0);
 
          /*
           * This is the same as above except it will prompt the user to re-enter both the URL and the username.
           */
          in = new ByteArrayInputStream("tcp://localhost:61616\nadmin\n".getBytes());
          context = new ActionContext(in, System.out, System.err);
-         assertTrue((int) Artemis.internalExecute(null, null, new String[] {"queue", "stat", "--password", "admin", "--url", "tcp://badhost:11111"}, context) > 0);
+         assertTrue((int) Artemis.internalExecute(null, null, null, new String[] {"queue", "stat", "--password", "admin", "--url", "tcp://badhost:11111"}, context) > 0);
       } finally {
          stopServer();
       }

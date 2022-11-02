@@ -22,7 +22,7 @@ public interface Action {
 
    boolean isVerbose();
 
-   void setHomeValues(File brokerHome, File brokerInstance);
+   void setHomeValues(File brokerHome, File brokerInstance, File etcFolder);
 
    Object execute(ActionContext context) throws Exception;
 

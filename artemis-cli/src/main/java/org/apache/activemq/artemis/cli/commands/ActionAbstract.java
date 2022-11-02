@@ -63,12 +63,15 @@ public abstract class ActionAbstract implements Action {
    }
 
    @Override
-   public void setHomeValues(File brokerHome, File brokerInstance) {
+   public void setHomeValues(File brokerHome, File brokerInstance, File etcFolder) {
       if (brokerHome != null) {
          this.brokerHome = brokerHome.getAbsolutePath();
       }
       if (brokerInstance != null) {
          this.brokerInstance = brokerInstance.getAbsolutePath();
+      }
+      if (etcFolder != null) {
+         this.brokerEtc = etcFolder.getAbsolutePath();
       }
    }
 

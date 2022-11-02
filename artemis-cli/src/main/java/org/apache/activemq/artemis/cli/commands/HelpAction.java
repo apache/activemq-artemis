@@ -28,7 +28,7 @@ public class HelpAction extends Help implements Action {
    }
 
    @Override
-   public void setHomeValues(File brokerHome, File brokerInstance) {
+   public void setHomeValues(File brokerHome, File brokerInstance, File etcFolder) {
 
    }
 

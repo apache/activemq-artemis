@@ -1180,7 +1180,6 @@
                      </args>
                   </configuration>
                </execution>
-
                <execution>
                   <phase>test-compile</phase>
                   <id>create-create-nettynative</id>
@@ -1195,6 +1194,22 @@
                      <noWeb>true</noWeb>
                      <instance>${basedir}/target/nettynative</instance>
                      <configuration>${basedir}/target/classes/servers/nettynative</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-custom-etc</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/customETC/server</instance>
+                     <args>
+                        <arg>--etc</arg>
+                        <arg>${basedir}/target/customETC/theCustomETC</arg>
+                     </args>
                   </configuration>
                </execution>
             </executions>
