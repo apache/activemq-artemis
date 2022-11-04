@@ -40,7 +40,7 @@ diff --git a/broker-instance/bin/artemis.cmd b/broker-instance/bin/artemis.cmd
 index 2d39231708..ed7ea68955 100644
 --- a/broker-instance/bin/artemis.cmd
 +++ b/broker-instance/bin/artemis.cmd
-@@ -48,10 +48,6 @@ rem "Load Profile Config"
+@@ -48,13 +48,9 @@ rem "Load Profile Config"
  set ARTEMIS_INSTANCE_ETC="${artemis.instance.etc}"
  call %ARTEMIS_INSTANCE_ETC%\artemis.profile.cmd %*
  
@@ -48,10 +48,15 @@ index 2d39231708..ed7ea68955 100644
 -set ARTEMIS_LOGGING_CONF=%ARTEMIS_INSTANCE_ETC_URI%/logging.properties
 -set ARTEMIS_LOG_MANAGER=org.jboss.logmanager.LogManager
 -
- if not exist "%ARTEMIS_OOME_DUMP%" goto NO_ARTEMIS_OOME_DUMP
+-if not exist "%ARTEMIS_OOME_DUMP%" goto NO_ARTEMIS_OOME_DUMP
++if not exist %ARTEMIS_OOME_DUMP% goto NO_ARTEMIS_OOME_DUMP
  rem "Backup the last OOME heap dump"
- move /Y "%ARTEMIS_OOME_DUMP%" "%ARTEMIS_OOME_DUMP%.bkp"
-@@ -66,8 +62,6 @@ set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
+-move /Y "%ARTEMIS_OOME_DUMP%" "%ARTEMIS_OOME_DUMP%.bkp"
++move /Y %ARTEMIS_OOME_DUMP% %ARTEMIS_OOME_DUMP%.bkp
+ 
+ :NO_ARTEMIS_OOME_DUMP
+ 
+@@ -66,11 +62,10 @@ set JVM_ARGS=%JVM_ARGS% -Dartemis.home=%ARTEMIS_HOME%
  set JVM_ARGS=%JVM_ARGS% -Dartemis.instance=%ARTEMIS_INSTANCE%
  set JVM_ARGS=%JVM_ARGS% -Ddata.dir=%ARTEMIS_DATA_DIR%
  set JVM_ARGS=%JVM_ARGS% -Dartemis.instance.etc=%ARTEMIS_INSTANCE_ETC%
@@ -60,6 +65,11 @@ index 2d39231708..ed7ea68955 100644
  set JVM_ARGS=%JVM_ARGS% -Dartemis.default.sensitive.string.codec.key=%ARTEMIS_DEFAULT_SENSITIVE_STRING_CODEC_KEY%
  
  if not "%DEBUG_ARGS%"=="" set JVM_ARGS=%JVM_ARGS% %DEBUG_ARGS%
++if not "%$JAVA_ARGS_APPEND%"=="" set JVM_ARGS=%JVM_ARGS% %$JAVA_ARGS_APPEND%
+ 
+ "%_JAVACMD%" %JVM_ARGS% org.apache.activemq.artemis.boot.Artemis %*
+ 
+
 diff --git a/broker-instance/etc/artemis.profile.cmd b/broker-instance/etc/artemis.profile.cmd
 index 5367e34fe4..c4ebbff04a 100644
 --- a/broker-instance/etc/artemis.profile.cmd

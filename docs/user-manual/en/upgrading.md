@@ -49,22 +49,34 @@ the value of this property to the location of the new broker home. Please refer
 to the aforementioned [versions](versions.md) document for additional upgrade
 steps (if required).
 
-It is also possible to do these steps automatically as it can be seen in the next section.
+It is also possible to do many of these update steps automatically as can be seen in the next section.
 
 ## Upgrading tool
 
-An automatic approach can be used to upgrade the instance. You may simply call `./artemis upgrade <old-instance>`.
+An upgrade helper tool from the new broker download can be used to refresh various configuration files
+and scripts from an existing broker instance from a prior version, and thus automate much of work to upgrade
+the instance to use the new version.
+
+> You should back up your existing broker instance before running the command.
 
 ```shell
 cd $NEW_ARTEMIS_DOWNLOAD/bin/
 ./artemis upgrade PATH_TO_UPGRADING_INSTANCE
 ```
 
-artemis, artemis.profile will be updated to the new version.
+The broker instance `bin/artemis` script and `etc/artemis.profile`(artemis.cmd and artemis.cmd.profile on Windows)
+will be updated to the new versions, setting its ARTEMIS_HOME to refer to the new broker version home path. The tool
+will also create the new `<instance>/etc/log4j2.properties` configuration file if needed (e.g if you are migrating
+from a version prior to 2.27.0), and remove the old `<instance>/etc/logging.properties` file if present.
 
-The tool will also update log4j2.properties (if you are migrating from a version previous to 2.27.0).
+The broker.xml file and data are retained as-is.
 
 > **Note:**
-> 
->Eventual customizations to your scripts will be lost, however the script will copy the older version at a created old-config-bkp folder.
-
+>
+> Most existing customisations to the old configuration files and scripts will be lost in the process of refreshing the
+> files. As such you should compare the old configuration files with the refreshed ones and then port any missing
+> customisations you may have made as necessary. The upgrade command itself will copy the older files it changes to
+> an old-config-bkp.<index> folder within the instance dir.
+>
+> Similarly, if you had customised the old logging.properties file you may need to prepare analogous changes for the
+> new log4j2.properties file.
