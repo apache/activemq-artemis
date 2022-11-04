@@ -12,7 +12,7 @@ This chapter provides the following information for each release:
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352246&projectId=12315920)
 
 Highlights:
-- 2.27.0 Introduced a new upgrade tool to help migrating your instance to a newer version. Simply use `./artemis upgrade <path-to-your-instance>` from the new downloaded broker.
+- 2.27.0 Introduced a new upgrade tool to help migrating your instance to a newer version. Simply run `./artemis upgrade <path-to-your-instance>` from the new downloaded broker.
 - The client and broker now use [SLF4J](https://www.slf4j.org/) for their logging API.
 - The broker distribution now uses [Log4J 2](https://logging.apache.org/log4j/2.x/manual/) as its logging implementation.
 
@@ -37,6 +37,11 @@ Note also that brokers `configuration-file-refresh-period` setting no longer cov
 Log4J 2 has its own configuration reload handling, configured via the `monitorInterval` property within the Log4J
 configuration file itself. The default `<instance>/etc/log4j2.properties` file created has a 5 second monitorInterval
 value set to align with the prior default broker behaviour.
+
+These changes will be performed automatically by the new `./artemis upgrade` command as long as your instance.
+It is important to review the changes made by `./artemis upgrade` to ensure they match the expected results.
+Some modifications to an Artemis instance will cause the upgrade script to fail in which case the instructions
+above will be neccessary. The upgrade command will not perform special upgrade instructions from prior Artemis versions.
 
 ## 2.26.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352297&projectId=12315920)
