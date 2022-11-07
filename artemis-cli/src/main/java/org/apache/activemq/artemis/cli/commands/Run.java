@@ -229,15 +229,13 @@ public class Run extends LockAbstract {
    }
 
 
-   public static final String OLD_LOG_NAME = "logging.properties";
-
    public static void verifyOlderLogging(File etc) throws Exception {
       File newLogging = new File(etc, Create.ETC_LOG4J2_PROPERTIES);
-      File oldLogging = new File(etc, OLD_LOG_NAME);
+      File oldLogging = new File(etc, Upgrade.OLD_LOGGING_PROPERTIES);
 
       if (oldLogging.exists() && !newLogging.exists()) {
          System.out.println("******************************************************************************************************************************************************************************");
-         System.out.println("Your system has the older logging file " + OLD_LOG_NAME + ", but not the new " + Create.ETC_LOG4J2_PROPERTIES);
+         System.out.println("Your system has the older logging file " + Upgrade.OLD_LOGGING_PROPERTIES + ", but not the new " + Create.ETC_LOG4J2_PROPERTIES);
          System.out.println("It appears you did not complete the migration on this artemis instance properly. Please check all the settings or run the './artemis upgrade' command from the new artemis home");
          System.out.println("******************************************************************************************************************************************************************************");
       }

@@ -107,7 +107,6 @@ public class InstallAbstract extends InputAbstract {
       return content.replaceAll(Pattern.quote(key), Matcher.quoteReplacement(value));
    }
 
-
    protected void copy(InputStream is, OutputStream os) throws IOException {
       byte[] buffer = new byte[1024 * 4];
       int c = is.read(buffer);
@@ -116,7 +115,6 @@ public class InstallAbstract extends InputAbstract {
          c = is.read(buffer);
       }
    }
-
 
    protected void write(String source,
                       File target,
@@ -165,12 +163,7 @@ public class InstallAbstract extends InputAbstract {
       }
    }
 
-   /**
-    * This method is made public for the testsuite
-    */
-   public InputStream openStream(String source) {
+   protected InputStream openStream(String source) {
       return this.getClass().getResourceAsStream(source);
    }
-
-
 }

@@ -34,6 +34,9 @@ import io.airlift.airline.Command;
 
 @Command(name = "upgrade", description = "Update an artemis instance to the current artemis.home, keeping all the data and broker.xml. Warning: backup your instance before using this command and compare the files.")
 public class Upgrade extends InstallAbstract {
+
+   protected static final String OLD_LOGGING_PROPERTIES = "logging.properties";
+
    /**
     * Checks that the directory provided either exists and is writable or doesn't exist but can be created.
     */
@@ -141,14 +144,17 @@ public class Upgrade extends InstallAbstract {
    }
 
    private String getLine(File cmd, String pattern) throws IOException {
-      Stream<String> lines = Files.lines(cmd.toPath());
-      Iterator<String> iterator = lines.iterator();
-      while (iterator.hasNext()) {
-         String line = iterator.next();
-         if (line.trim().startsWith(pattern)) {
-            return line;
+      try (Stream<String> lines = Files.lines(cmd.toPath())) {
+         Iterator<String> iterator = lines.iterator();
+         while (iterator.hasNext()) {
+            String line = iterator.next();
+
+            if (line.trim().startsWith(pattern)) {
+               return line;
+            }
          }
       }
+
       return null;
    }
 
@@ -156,33 +162,35 @@ public class Upgrade extends InstallAbstract {
       HashMap<String, String> replaceMatrix = new HashMap<>();
 
       doUpgrade(tmpFile, targetFile, bkp,
-              line -> {
+              oldLine -> {
                  for (String prefix : keepingPrefixes) {
-                    if (line.trim().startsWith(prefix)) {
-                       replaceMatrix.put(prefix, line);
+                    if (oldLine.trim().startsWith(prefix)) {
+                       replaceMatrix.put(prefix, oldLine);
                     }
                  }
-              }, line -> {
-            for (String prefix : keepingPrefixes) {
-               if (line.trim().startsWith(prefix)) {
-                  String original = replaceMatrix.get(prefix);
-                  return original;
+              },
+            newLine -> {
+               for (String prefix : keepingPrefixes) {
+                  if (newLine.trim().startsWith(prefix)) {
+                     String originalLine = replaceMatrix.get(prefix);
+                     return originalLine;
+                  }
                }
-            }
-            return line;
-         });
+               return newLine;
+            });
    }
 
    private void doUpgrade(File tmpFile, File targetFile, File bkp, Consumer<String> originalConsumer, Function<String, String> targetFunction) throws Exception {
       Files.copy(targetFile.toPath(), bkp.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
       // we first scan the original lines on the originalConsumer, giving a chance to the caller to fill out the original matrix
-      Stream<String> originalLines = Files.lines(targetFile.toPath());
-      originalLines.forEach(line -> {
-         if (originalConsumer != null) {
-            originalConsumer.accept(line);
+      if (originalConsumer != null) {
+         try (Stream<String> originalLines = Files.lines(targetFile.toPath())) {
+            originalLines.forEach(line -> {
+               originalConsumer.accept(line);
+            });
          }
-      });
+      }
 
       // now we open the new file from the tmp, and we will give a chance for the targetFunction to replace lines from a matrix
       try (Stream<String> lines = Files.lines(tmpFile.toPath());
@@ -200,23 +208,26 @@ public class Upgrade extends InstallAbstract {
    }
 
    private void upgradeLogging(ActionContext context, File bkpFolder, File etc) throws Exception {
-      File oldLogging = new File(etc, "logging.properties");
+      File oldLogging = new File(etc, OLD_LOGGING_PROPERTIES);
 
       if (oldLogging.exists()) {
-         context.out.println("Moving " + oldLogging + " under " + bkpFolder);
-         File oldLoggingCopy = new File(bkpFolder, "logging.properties");
-         context.out.println(oldLogging.toPath() + " copy as " + oldLoggingCopy.toPath());
+         File oldLoggingCopy = new File(bkpFolder, OLD_LOGGING_PROPERTIES);
+         context.out.println("Copying " + oldLogging.toPath() + " to " + oldLoggingCopy.toPath());
+
          Files.copy(oldLogging.toPath(), bkpFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
-         oldLogging.delete();
+
+         context.out.println("Removing " + oldLogging.toPath());
+         if (!oldLogging.delete()) {
+            context.out.println(oldLogging.toPath() + " could not be removed!");
+         }
+
          File newLogging = new File(etc, Create.ETC_LOG4J2_PROPERTIES);
-
-
          if (!newLogging.exists()) {
             context.out.println("Creating " + newLogging);
-            InputStream inputStream = getClass().getResourceAsStream("etc/" + Create.ETC_LOG4J2_PROPERTIES);
-            OutputStream outputStream = new FileOutputStream(newLogging);
-            outputStream.write(inputStream.readAllBytes());
-            inputStream.close();
+            try (InputStream inputStream = openStream("etc/" + Create.ETC_LOG4J2_PROPERTIES);
+                 OutputStream outputStream = new FileOutputStream(newLogging);) {
+               copy(inputStream, outputStream);
+            }
          }
       }
    }
@@ -232,6 +243,4 @@ public class Upgrade extends InstallAbstract {
       }
       throw new RuntimeException("Too many backup folders in place already. Please remove some of the old-config-bkp.* folders");
    }
-
-
 }
