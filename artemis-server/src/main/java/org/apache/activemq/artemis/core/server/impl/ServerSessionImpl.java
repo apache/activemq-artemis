@@ -399,26 +399,19 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             return;
 
          if (failed) {
-
             Transaction txToRollback = tx;
-            if (txToRollback != null) {
-               if (txToRollback.tryRollback() && txToRollback.getXid() != null) {
-                  resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
-               }
+            if (txToRollback != null && txToRollback.getXid() != null && txToRollback.tryRollback()) {
+               resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
             }
 
             txToRollback = pendingTX;
-
-            if (txToRollback != null) {
-               if (txToRollback.tryRollback() && txToRollback.getXid() != null) {
-                  resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
-               }
+            if (txToRollback != null && txToRollback.getXid() != null && txToRollback.tryRollback()) {
+               resourceManager.removeTransaction(txToRollback.getXid(), remotingConnection);
             }
 
          } else {
             if (tx != null && tx.getXid() == null) {
                // We only rollback local txs on close, not XA tx branches
-
                try {
                   rollback(failed, false);
                } catch (Exception e) {
@@ -426,6 +419,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                }
             }
          }
+
          closed = true;
       }
 
