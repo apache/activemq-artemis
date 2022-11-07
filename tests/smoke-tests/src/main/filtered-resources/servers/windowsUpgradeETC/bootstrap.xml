@@ -23,7 +23,7 @@
 
    <!-- artemis.URI.instance is parsed from artemis.instance by the CLI startup.
         This is to avoid situations where you could have spaces or special characters on this URI -->
-   <server configuration="file:/no-change/broker.xml"/>
+   <server configuration="file:${project.basedir}/target/classes/servers/windowsUpgradeETC//broker.xml"/>
 
    <!-- The web server is only bound to localhost by default -->
    <web path="web" rootRedirectLocation="console">

@@ -16,16 +16,16 @@
 # under the License.
 
 ARTEMIS_HOME='must-change'
-ARTEMIS_INSTANCE='${project.basedir}/target/classes/servers/toUpgradeTest'
-ARTEMIS_DATA_DIR='${project.basedir}/target/classes/servers/toUpgradeTest/data'
-ARTEMIS_ETC_DIR='${project.basedir}/target/classes/servers/toUpgradeETC'
-ARTEMIS_OOME_DUMP='${project.basedir}/target/classes/servers/toUpgradeTest/log/oom_dump.hprof'
+ARTEMIS_INSTANCE='${project.basedir}/target/classes/servers/linuxUpgrade'
+ARTEMIS_DATA_DIR='${project.basedir}/target/classes/servers/linuxUpgrade/data'
+ARTEMIS_ETC_DIR='${project.basedir}/target/classes/servers/linuxUpgradeETC'
+ARTEMIS_OOME_DUMP='${project.basedir}/target/classes/servers/linuxUpgrade/log/oom_dump.hprof'
 
 # The logging config will need an URI
 # this will be encoded in case you use spaces or special characters
 # on your directory structure
-ARTEMIS_INSTANCE_URI='file:${project.basedir}/target/classes/servers/toUpgradeTest'
-ARTEMIS_INSTANCE_ETC_URI='file:${project.basedir}/target/classes/servers/toUpgradeETC'
+ARTEMIS_INSTANCE_URI='file:${project.basedir}/target/classes/servers/linuxUpgrade/'
+ARTEMIS_INSTANCE_ETC_URI='file:${project.basedir}/target/classes/servers/linuxUpgradeETC/'
 
 # Cluster Properties: Used to pass arguments to ActiveMQ Artemis which can be referenced in broker.xml
 #ARTEMIS_CLUSTER_PROPS="-Dactivemq.remoting.default.port=61617 -Dactivemq.remoting.amqp.port=5673 -Dactivemq.remoting.stomp.port=61614 -Dactivemq.remoting.hornetq.port=5446"
@@ -39,7 +39,7 @@ HAWTIO_ROLE='amq'
 if [ -z "$JAVA_ARGS" ]; then
     #### I am adding a customization to the JAVA-ARGS that would be replaced
     #### If this line is seen on the upgrade it means that things are not working
-    JAVA_ARGS="-should-not-work -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx2G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml "
+    JAVA_ARGS="-should-not-work -XX:+PrintClassHistogram -XX:+UseG1GC -XX:+UseStringDeduplication -Xms512M -Xmx1G -Dhawtio.disableProxy=true -Dhawtio.realm=activemq -Dhawtio.offline=true -Dhawtio.rolePrincipalClasses=org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal -Djolokia.policyLocation=${ARTEMIS_INSTANCE_ETC_URI}jolokia-access.xml "
 fi
 
 # Uncomment to enable logging for Safepoint JVM pauses
