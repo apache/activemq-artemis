@@ -87,6 +87,30 @@ public class LVQTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testSimpleExclusive() throws Exception {
+      ServerLocator locator = createNettyNonHALocator().setConsumerWindowSize(0);
+      ClientSessionFactory sf = createSessionFactory(locator);
+      ClientSession clientSession = addClientSession(sf.createSession(false, true, true));
+      final String EXCLUSIVE_QUEUE = "exclusiveQueue";
+
+      clientSession.createQueue(new QueueConfiguration(EXCLUSIVE_QUEUE).setExclusive(true).setLastValue(true));
+      ClientProducer producer = clientSession.createProducer(EXCLUSIVE_QUEUE);
+      ClientConsumer consumer = clientSession.createConsumer(EXCLUSIVE_QUEUE);
+      clientSession.start();
+      ClientMessage m1 = createTextMessage(clientSession, "m1");
+      SimpleString rh = new SimpleString("SMID1");
+      m1.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+      ClientMessage m2 = createTextMessage(clientSession, "m2");
+      m2.putStringProperty(Message.HDR_LAST_VALUE_NAME, rh);
+      producer.send(m1);
+      producer.send(m2);
+      ClientMessage m = consumer.receive(1000);
+      Assert.assertNotNull(m);
+      m.acknowledge();
+      Assert.assertEquals(m.getBodyBuffer().readString(), "m2");
+   }
+
+   @Test
    public void testSimpleRestart() throws Exception {
       ClientProducer producer = clientSession.createProducer(address);
       ClientMessage m1 = createTextMessage(clientSession, "m1");
