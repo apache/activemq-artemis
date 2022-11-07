@@ -18,18 +18,18 @@
 -->
 
 <service>
-   <id>artemis-windows-0.0.0.0</id>
-   <name>ActiveMQ Artemis: windows @ 0.0.0.0</name>
+   <id>artemis-windowsUpgrade-0.0.0.0</id>
+   <name>ActiveMQ Artemis: windowsUpgrade @ 0.0.0.0</name>
    <description>Apache ActiveMQ Artemis is a reliable messaging broker</description>
 
    <env name="ARTEMIS_HOME" value="must-change"/>
-   <env name="ARTEMIS_INSTANCE" value="no-change"/>
-   <env name="ARTEMIS_INSTANCE_ETC" value="${project.basedir}/target/classes/servers/windowsETC"/>
-   <env name="ARTEMIS_INSTANCE_URI" value="file:/no-change"/>
-   <env name="ARTEMIS_INSTANCE_ETC_URI" value="file:${project.basedir}/target/classes/servers/windowsETC"/>
-   <env name="ARTEMIS_DATA_DIR" value="no-change"/>
+   <env name="ARTEMIS_INSTANCE" value="${project.basedir}/target/classes/servers/windowsUpgrade"/>
+   <env name="ARTEMIS_INSTANCE_ETC" value="${project.basedir}/target/classes/servers/windowsUpgradeETC"/>
+   <env name="ARTEMIS_INSTANCE_URI" value="file:${project.basedir}/target/classes/servers/windowsUpgrade/"/>
+   <env name="ARTEMIS_INSTANCE_ETC_URI" value="file:${project.basedir}/target/classes/servers/windowsUpgradeETC/"/>
+   <env name="ARTEMIS_DATA_DIR" value="${project.basedir}/target/classes/servers/windowsUpgrade/data"/>
 
-   <logpath>/must-be/servers/windows\log</logpath>
+   <logpath>${project.basedir}/target/classes/servers/windowsUpgrade\log</logpath>
    <logmode>roll</logmode>
 
    <executable>%JAVA_HOME%\bin\java.exe</executable>

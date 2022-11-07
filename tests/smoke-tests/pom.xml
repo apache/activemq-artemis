@@ -1224,12 +1224,14 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
-                  <id>upgrade</id>
+                  <id>upgrade-linux</id>
                   <goals>
                      <goal>upgrade</goal>
                   </goals>
                   <configuration>
-                     <instance>${basedir}/target/classes/servers/toUpgradeTest</instance>
+                     <instance>${basedir}/target/classes/servers/linuxUpgrade</instance>
+                     <!-- we don't pass the java memory argumnent on purpose,
+                          as the upgrade should keep the relevant JVM arguments during the upgrade -->
                   </configuration>
                </execution>
                <execution>
@@ -1239,12 +1241,58 @@
                      <goal>upgrade</goal>
                   </goals>
                   <configuration>
-                     <instance>${basedir}/target/classes/servers/windows</instance>
+                     <instance>${basedir}/target/classes/servers/windowsUpgrade</instance>
                      <args>
                         <arg>--windows</arg>
+                        <!-- we don't pass the java memory argumnent on purpose,
+                             as the upgrade should keep the relevant JVM arguments during the upgrade -->
                      </args>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createExpectedWindows</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <instance>${basedir}/target/classes/servers/windowsUpgradeExpected</instance>
+                     <noWeb>false</noWeb>
+                     <role>amq</role>
+                     <user>y</user>
+                     <password>y</password>
+                     <args>
+                        <arg>--windows</arg>
+                        <arg>--etc</arg>
+                        <arg>${basedir}/target/classes/servers/windowsUpgradeETCExpected</arg>
+                        <arg>--java-memory</arg>
+                        <arg>1G</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createExpectedLinux</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <instance>${basedir}/target/classes/servers/linuxUpgradeExpected</instance>
+                     <noWeb>false</noWeb>
+                     <role>amq</role>
+                     <user>y</user>
+                     <password>y</password>
+                     <args>
+                        <arg>--etc</arg>
+                        <arg>${basedir}/target/classes/servers/linuxUpgradeETCExpected</arg>
+                        <arg>--java-memory</arg>
+                        <arg>1G</arg>
+                     </args>
+                  </configuration>
+               </execution>
+
             </executions>
             <dependencies>
                <dependency>

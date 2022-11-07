@@ -42,7 +42,7 @@ public class UpgradeTest extends SmokeTestBase {
 
    @Before
    public void beforeTest() throws Exception {
-      upgradedServer = new File(basedir + "/target/classes/servers/toUpgradeTest");
+      upgradedServer = new File(basedir + "/target/classes/servers/linuxUpgrade");
       deleteDirectory(new File(upgradedServer, "data"));
       deleteDirectory(new File(upgradedServer, "log"));
 

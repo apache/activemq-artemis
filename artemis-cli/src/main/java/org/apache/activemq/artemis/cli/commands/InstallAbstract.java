@@ -94,7 +94,7 @@ public class InstallAbstract extends InputAbstract {
       return null;
    }
 
-   protected String applyFilters(String content, Map<String, String> filters) {
+   protected static String applyFilters(String content, Map<String, String> filters) {
       if (filters != null) {
          for (Map.Entry<String, String> entry : filters.entrySet()) {
             content = replace(content, entry.getKey(), entry.getValue());
@@ -103,11 +103,11 @@ public class InstallAbstract extends InputAbstract {
       return content;
    }
 
-   protected String replace(String content, String key, String value) {
+   protected static String replace(String content, String key, String value) {
       return content.replaceAll(Pattern.quote(key), Matcher.quoteReplacement(value));
    }
 
-   protected void copy(InputStream is, OutputStream os) throws IOException {
+   protected static void copy(InputStream is, OutputStream os) throws IOException {
       byte[] buffer = new byte[1024 * 4];
       int c = is.read(buffer);
       while (c >= 0) {
@@ -140,7 +140,7 @@ public class InstallAbstract extends InputAbstract {
       }
    }
 
-   protected String readTextFile(String source, Map<String, String> filters) throws IOException {
+   protected static String readTextFile(String source, Map<String, String> filters) throws IOException {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       try (InputStream in = openStream(source)) {
          if (in == null) {
@@ -163,7 +163,7 @@ public class InstallAbstract extends InputAbstract {
       }
    }
 
-   protected InputStream openStream(String source) {
-      return this.getClass().getResourceAsStream(source);
+   protected static InputStream openStream(String source) {
+      return InputAbstract.class.getResourceAsStream(source);
    }
 }

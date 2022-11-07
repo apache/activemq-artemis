@@ -21,6 +21,7 @@ import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -36,18 +37,98 @@ public class CompareUpgradeTest {
 
    public static final String basedir = System.getProperty("basedir");
 
+
+   @Test
+   public void testCompareWindowsFreshInstance() throws Exception {
+      String windows = basedir + "/target/classes/servers/windowsUpgrade";
+      String windowsBin = windows + "/bin";
+      String windowsETC = basedir + "/target/classes/servers/windowsUpgradeETC";
+
+      String windowsExpected = basedir + "/target/classes/servers/windowsUpgradeExpected";
+      String windowsExpectedBin = windowsExpected + "/bin";
+      String windowsExpectedETC = basedir + "/target/classes/servers/windowsUpgradeETCExpected";
+
+      compareDirectories(windowsExpectedBin, windowsBin);
+      compareDirectories(windowsExpectedETC, windowsETC, "broker.xml", "artemis-users.properties");
+   }
+
+   @Test
+   public void testCompareLinuxFreshInstance() throws Exception {
+      String linux = basedir + "/target/classes/servers/linuxUpgrade";
+      String linuxBin = linux + "/bin";
+      String linuxETC = basedir + "/target/classes/servers/linuxUpgradeETC";
+
+      String linuxExpected = basedir + "/target/classes/servers/linuxUpgradeExpected";
+      String linuxExpectedBin = linuxExpected + "/bin";
+      String linuxExpectedETC = basedir + "/target/classes/servers/linuxUpgradeETCExpected";
+
+      compareDirectories(linuxExpectedBin, linuxBin);
+      compareDirectories(linuxExpectedETC, linuxETC, "broker.xml", "artemis-users.properties");
+   }
+
+
+   private void compareDirectories(String expectedFolder, String upgradeFolder, String... ignoredFiles) throws Exception {
+      File expectedFolderFile = new File(expectedFolder);
+      File[] foundFiles = expectedFolderFile.listFiles(pathname -> {
+         for (String i :ignoredFiles) {
+            if (pathname.getName().contains(i)) {
+               return false;
+            }
+         }
+         return true;
+      });
+
+
+      File upgradeFolderFile = new File(upgradeFolder);
+
+      for (File f : foundFiles) {
+         File upgradeFile = new File(upgradeFolderFile, f.getName());
+         if (!upgradeFile.exists()) {
+            Assert.fail(upgradeFile.getAbsolutePath() + " not does exist");
+         }
+
+
+         if (f.getName().endsWith(".exe")) {
+            Assert.assertArrayEquals(f.getName() + " is different after upgrade", Files.readAllBytes(f.toPath()), Files.readAllBytes(upgradeFile.toPath()));
+         } else {
+            try (Stream<String> expectedStream = Files.lines(f.toPath()); Stream<String> upgradeStream = Files.lines(upgradeFile.toPath())) {
+
+               Iterator<String> expectedIterator = expectedStream.iterator();
+               Iterator<String> upgradeIterator = upgradeStream.iterator();
+
+               int line = 1;
+
+               while (expectedIterator.hasNext()) {
+                  Assert.assertTrue(upgradeIterator.hasNext());
+
+                  String expectedString = expectedIterator.next().replace("Expected", "").trim();
+                  String upgradeString = upgradeIterator.next().trim();
+                  Assert.assertEquals("error on line " + line + " at " + upgradeFile, expectedString, upgradeString);
+                  line++;
+               }
+
+               Assert.assertFalse(upgradeIterator.hasNext());
+            }
+         }
+      }
+
+
+
+   }
+
    @Test
    public void testWindows() throws Exception {
-      String windowsBin = basedir + "/target/classes/servers/windows/bin";
-      String windowsETC = basedir + "/target/classes/servers/windowsETC";
+      String windows = basedir + "/target/classes/servers/windowsUpgrade";
+      String windowsBin = windows + "/bin";
+      String windowsETC = basedir + "/target/classes/servers/windowsUpgradeETC";
 
       checkExpectedValues(windowsBin + "/artemis.cmd", "set ARTEMIS_INSTANCE_ETC=", "\"" + windowsETC + "\"");
       Map<String, String> result = checkExpectedValues(windowsBin + "/artemis-service.xml",
                                                        "<env name=\"ARTEMIS_HOME\" value=", null, // no expected value for this, we will check on the output
-                                                       "<env name=\"ARTEMIS_INSTANCE\" value=", "\"no-change\"/>",
+                                                       "<env name=\"ARTEMIS_INSTANCE\" value=", "\"" + windows  + "\"/>",
                                                        "<env name=\"ARTEMIS_INSTANCE_ETC\" value=", "\"" + windowsETC + "\"/>",
-                                                       "<env name=\"ARTEMIS_INSTANCE_URI\" value=", "\"file:/no-change\"/>",
-                                                       "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"no-change\"/>"
+                                                       "<env name=\"ARTEMIS_INSTANCE_URI\" value=", "\"file:" + windows + "/\"/>",
+                                                       "<env name=\"ARTEMIS_DATA_DIR\" value=", "\"" + windows + "/data\"/>"
       );
 
       String home = result.get("<env name=\"ARTEMIS_HOME\" value=");
@@ -56,19 +137,19 @@ public class CompareUpgradeTest {
 
       result = checkExpectedValues(windowsETC + "/artemis.profile.cmd",
                                    "set ARTEMIS_HOME=", null, // no expected value for this, we will check on the output
-                                   "set ARTEMIS_INSTANCE=", "\"no-change\"",
-                                   "set ARTEMIS_DATA_DIR=", "\"no-change\"",
-                                   "set ARTEMIS_ETC_DIR=", "\"no-change\"",
-                                   "set ARTEMIS_OOME_DUMP=", "\"no-change\"",
-                                   "set ARTEMIS_INSTANCE_URI=", "\"file:/no-change/\"",
-                                   "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:/no-change/\"");
+                                   "set ARTEMIS_INSTANCE=", "\"" + windows + "\"",
+                                   "set ARTEMIS_DATA_DIR=","\"" + windows + "/data\"",
+                                   "set ARTEMIS_ETC_DIR=", "\"" + windowsETC + "\"",
+                                   "set ARTEMIS_OOME_DUMP=", "\"" + windows + "/log/oom_dump.hprof\"",
+                                   "set ARTEMIS_INSTANCE_URI=", "\"file:" + windows + "/\"",
+                                   "set ARTEMIS_INSTANCE_ETC_URI=", "\"file:" + windowsETC + "/\"");
 
       home = result.get("set ARTEMIS_HOME=");
       Assert.assertNotNull(home);
       Assert.assertFalse("home value must be changed during upgrade", home.contains("must-change"));
 
       checkExpectedValues(windowsETC + "/bootstrap.xml",
-                          "<server configuration=", "\"file:/no-change/broker.xml\"/>");
+                          "<server configuration=", "\"file:" + windowsETC + "//broker.xml\"/>");
 
       File oldLogging = new File(windowsETC + "/logging.properties");
       File newLogging = new File(windowsETC + "/log4j2.properties");
@@ -81,9 +162,9 @@ public class CompareUpgradeTest {
    @Test
    public void testLinux() throws Exception {
 
-      String instanceDir = basedir + "/target/classes/servers/toUpgradeTest";
+      String instanceDir = basedir + "/target/classes/servers/linuxUpgrade";
       String bin = instanceDir + "/bin";
-      String etc = basedir + "/target/classes/servers/toUpgradeETC";
+      String etc = basedir + "/target/classes/servers/linuxUpgradeETC";
 
       checkExpectedValues(bin + "/artemis", "ARTEMIS_INSTANCE_ETC=", "'" + etc + "'");
 
@@ -93,8 +174,8 @@ public class CompareUpgradeTest {
                                                        "ARTEMIS_DATA_DIR=", "'" + instanceDir + "/data'",
                                                        "ARTEMIS_ETC_DIR=", "'" + etc + "'",
                                                        "ARTEMIS_OOME_DUMP=", "'" + instanceDir + "/log/oom_dump.hprof'",
-                                                       "ARTEMIS_INSTANCE_URI=", "'file:" + instanceDir + "'",
-                                                       "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "'");
+                                                       "ARTEMIS_INSTANCE_URI=", "'file:" + instanceDir + "/'",
+                                                       "ARTEMIS_INSTANCE_ETC_URI=", "'file:" + etc + "/'");
 
       String home = result.get("ARTEMIS_HOME=");
       Assert.assertNotNull(home);

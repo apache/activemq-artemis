@@ -45,7 +45,7 @@ echo.
 :RUN_JAVA
 
 rem "Load Profile Config"
-set ARTEMIS_INSTANCE_ETC="${project.basedir}/target/classes/servers/windowsETC"
+set ARTEMIS_INSTANCE_ETC="${project.basedir}/target/classes/servers/windowsUpgradeETC"
 call %ARTEMIS_INSTANCE_ETC%\artemis.profile.cmd %*
 
 if not exist %ARTEMIS_OOME_DUMP% goto NO_ARTEMIS_OOME_DUMP

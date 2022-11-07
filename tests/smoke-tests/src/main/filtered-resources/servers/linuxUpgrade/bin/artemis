@@ -21,4 +21,4 @@
 ## the upgrade should keep this line in the new script
 
 
-ARTEMIS_INSTANCE_ETC='${project.basedir}/target/classes/servers/toUpgradeETC'
+ARTEMIS_INSTANCE_ETC='${project.basedir}/target/classes/servers/linuxUpgradeETC'
