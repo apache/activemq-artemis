@@ -3127,6 +3127,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
             if (groupConsumer != null) {
                if (noDelivery > 0) {
+                  pruneLastValues();
                   break;
                }
                noDelivery = 0;
