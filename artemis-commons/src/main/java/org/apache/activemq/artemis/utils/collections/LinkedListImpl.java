@@ -16,11 +16,15 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A linked list implementation which allows multiple iterators to exist at the same time on the queue, and which see any
@@ -29,6 +33,8 @@ import java.util.function.Consumer;
  * This class is not thread safe.
  */
 public class LinkedListImpl<E> implements LinkedList<E> {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final int INITIAL_ITERATOR_ARRAY_SIZE = 10;
 
@@ -41,6 +47,8 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    private int numIters;
    private int nextIndex;
    private NodeStore<E> nodeStore;
+
+   private volatile Node<E> lastAdd;
 
    public LinkedListImpl() {
       this(null, null);
@@ -155,12 +163,18 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    private void itemAdded(Node<E> node, E item) {
+      assert node.val() == item;
+      lastAdd = node;
+      if (logger.isTraceEnabled()) {
+         logger.trace("Setting lastAdd as {}, e={}", lastAdd, lastAdd.val());
+      }
       if (nodeStore != null) {
          putID(item, node);
       }
    }
 
    private void itemRemoved(Node<E> node) {
+      lastAdd = null;
       if (nodeStore != null) {
          nodeStore.removeNode(node.val(), node);
       }
@@ -186,13 +200,22 @@ public class LinkedListImpl<E> implements LinkedList<E> {
    }
 
    public void addSorted(E e) {
+      final Node<E> localLastAdd = lastAdd;
+
+      logger.trace("**** addSorted element {}", e);
+
       if (comparator == null) {
          throw new NullPointerException("comparator=null");
       }
+
       if (size == 0) {
+         logger.trace("adding head as there are no elements {}", e);
          addHead(e);
       } else {
          if (comparator.compare(head.next.val(), e) < 0) {
+            if (logger.isTraceEnabled()) {
+               logger.trace("addHead as e={} and head={}", e, head.next.val());
+            }
             addHead(e);
             return;
          }
@@ -203,18 +226,30 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          // This would be an optimization for our usage.
          // avoiding scanning the entire List just to add at the end, so we compare the end first.
          if (comparator.compare(tail.val(), e) >= 0) {
+            logger.trace("addTail as e={} and tail={}", e, tail.val());
             addTail(e);
             return;
          }
 
-         Node<E> fetching = head.next;
-         while (fetching.next != null) {
-            int compareNext = comparator.compare(fetching.next.val(), e);
-            if (compareNext <= 0) {
-               addAfter(fetching, e);
-               return;
+         if (localLastAdd != null) { // as an optimization we check against the last add rather than always scan.
+            if (localLastAdd.prev != null && localLastAdd.prev.val() != null) {
+               if (comparator.compare(localLastAdd.prev.val(), e) > 0 && comparator.compare(localLastAdd.val(), e) < 0) {
+                  logger.trace("Adding {} before most recent added element {}", e, localLastAdd.val());
+                  addAfter(localLastAdd.prev, e);
+                  return;
+               }
             }
-            fetching = fetching.next;
+            if (localLastAdd.next != null && localLastAdd.next.val() != null) {
+               if (comparator.compare(localLastAdd.val(), e) > 0 && comparator.compare(localLastAdd.next.val(), e) < 0) {
+                  logger.trace("Adding {} after most recent added element {}", e, localLastAdd.val());
+                  addAfter(localLastAdd, e);
+                  return;
+               }
+            }
+         }
+
+         if (addSortedScan(e)) {
+            return;
          }
 
          // this shouldn't happen as the tail was compared before iterating
@@ -229,6 +264,22 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       }
    }
 
+   protected boolean addSortedScan(E e) {
+      logger.trace("addSortedScan {}...", e);
+      Node<E> fetching = head.next;
+      while (fetching.next != null) {
+         int compareNext = comparator.compare(fetching.next.val(), e);
+         if (compareNext <= 0) {
+            addAfter(fetching, e);
+            logger.trace("... addSortedScan done, returning true");
+            return true;
+         }
+         fetching = fetching.next;
+      }
+      logger.trace("... addSortedScan done, could not find a spot, returning false");
+      return false;
+   }
+
    private void addAfter(Node<E> node, E e) {
       Node<E> newNode = Node.with(e);
       Node<E> nextNode = node.next;
@@ -236,7 +287,7 @@ public class LinkedListImpl<E> implements LinkedList<E> {
       newNode.prev = node;
       newNode.next = nextNode;
       nextNode.prev = newNode;
-      itemAdded(node, e);
+      itemAdded(newNode, e);
       size++;
    }
 
