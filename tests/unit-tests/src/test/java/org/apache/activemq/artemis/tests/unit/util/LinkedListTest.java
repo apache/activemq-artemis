@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.util;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,27 +39,42 @@ import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LinkedListTest extends ActiveMQTestBase {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private int scans = 0;
    private LinkedListImpl<Integer> list;
 
    @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      list = new LinkedListImpl<>(integerComparator);
+      list = new LinkedListImpl<>(integerComparator) {
+         @Override
+         protected boolean addSortedScan(Integer e) {
+            scans++;
+            return super.addSortedScan(e);
+         }
+      };
    }
 
    Comparator<Integer> integerComparator = new Comparator<Integer>() {
       @Override
       public int compare(Integer o1, Integer o2) {
+         logger.trace("Compare {} and {}", o1, o2);
          if (o1.intValue() == o2.intValue()) {
+            logger.trace("Return 0");
             return 0;
          }
          if (o2.intValue() > o1.intValue()) {
+            logger.trace("o2 is greater than, returning 1");
             return 1;
          } else {
+            logger.trace("o2 is lower than, returning -1");
             return -1;
          }
       }
@@ -66,27 +82,68 @@ public class LinkedListTest extends ActiveMQTestBase {
 
    @Test
    public void addSorted() {
+      Assert.assertEquals(0, scans); // sanity check
 
       list.addSorted(1);
       list.addSorted(3);
       list.addSorted(2);
       list.addSorted(0);
+
+      Assert.assertEquals(0, scans); // all adds were somewhat ordered, it shouldn't be doing any scans
+
       validateOrder(null);
       Assert.assertEquals(4, list.size());
 
    }
 
+   @Test
+   public void addSortedCachedLast() {
+      Assert.assertEquals(0, scans); // just a sanity check
+      list.addSorted(5);
+      list.addSorted(1);
+      list.addSorted(3);
+      list.addSorted(4);
+      Assert.assertEquals(0, scans); // no scans made until now
+      list.addSorted(2); // this should need a scan
+      Assert.assertEquals(1, scans);
+      list.addSorted(10);
+      list.addSorted(20);
+      list.addSorted(7); // this will need a scan as it's totally random
+      Assert.assertEquals(2, scans);
+      printDebug();
+
+      validateOrder(null);
+
+   }
+
+   private void printDebug() {
+      if (logger.isDebugEnabled()) {
+         logger.debug("**** list output:");
+         LinkedListIterator<Integer> integerIterator = list.iterator();
+         while (integerIterator.hasNext()) {
+            logger.debug("list {}", integerIterator.next());
+         }
+         integerIterator.close();
+      }
+   }
 
    @Test
    public void randomSorted() {
 
-      HashSet<Integer> values = new HashSet<>();
-      for (int i = 0; i < 1000; i++) {
+      int elements = 10_000;
 
-         int value = RandomUtil.randomInt();
-         if (!values.contains(value)) {
-            values.add(value);
-            list.addSorted(value);
+      HashSet<Integer> values = new HashSet<>();
+      for (int i = 0; i < elements; i++) {
+         for (;;) { // a retry loop, if a random give me the same value twice, I would retry
+            int value = RandomUtil.randomInt();
+            if (!values.contains(value)) { // validating if the random is repeated or not, and retrying otherwise
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Adding {}", value);
+               }
+               values.add(value);
+               list.addSorted(value);
+               break;
+            }
          }
       }
 
@@ -102,8 +159,8 @@ public class LinkedListTest extends ActiveMQTestBase {
       Integer previous = null;
       LinkedListIterator<Integer> integerIterator = list.iterator();
       while (integerIterator.hasNext()) {
-
          Integer value = integerIterator.next();
+         logger.debug("Reading {}", value);
          if (previous != null) {
             Assert.assertTrue(value + " should be > " + previous, integerComparator.compare(previous, value) > 0);
             Assert.assertTrue(value + " should be > " + previous, value.intValue() > previous.intValue());
