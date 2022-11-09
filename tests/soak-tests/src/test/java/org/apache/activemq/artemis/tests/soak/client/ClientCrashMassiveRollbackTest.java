@@ -56,7 +56,7 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
       config.setCriticalAnalyzerTimeout(10000);
       config.setCriticalAnalyzerCheckPeriod(5000);
       config.setConnectionTTLOverride(5000);
-      config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.LOG);
+      config.setCriticalAnalyzerPolicy(CriticalAnalyzerPolicy.SHUTDOWN);
       server = createServer(false, config);
       server.start();
    }
