@@ -24,6 +24,8 @@ import javax.jms.Session;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.ByteBuffer;
@@ -31,6 +33,7 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sun.management.UnixOperatingSystemMXBean;
@@ -2790,6 +2793,61 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       Wait.assertTrue(() -> ((UnixOperatingSystemMXBean)os).getOpenFileDescriptorCount() - fdBefore < 3);
    }
+
+   @Test
+   public void testStream() throws Exception {
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      locator.setCompressLargeMessage(true);
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(false, false);
+
+      final SimpleString MY_QUEUE = new SimpleString("MY-QUEUE");
+
+      server.createQueue(new QueueConfiguration(MY_QUEUE).setRoutingType(RoutingType.ANYCAST));
+
+      ClientProducer producer = session.createProducer(MY_QUEUE);
+
+      AtomicBoolean closed = new AtomicBoolean(false);
+
+      InputStream inputStream = new InputStream() {
+         int bytes = 10_000;
+         @Override
+         public int read() throws IOException {
+            if (bytes-- > 0) {
+               return 10;
+            } else {
+               return -1;
+            }
+         }
+
+         @Override
+         public void close() {
+            closed.set(true);
+         }
+
+
+         @Override
+         public int available () throws IOException {
+            return bytes;
+         }
+
+      };
+
+      ClientMessage message = session.createMessage(true);
+      message.setBodyInputStream(inputStream);
+      producer.send(message);
+
+      Wait.assertTrue(closed::get);
+
+      session.close();
+
+   }
+
 
 
 
