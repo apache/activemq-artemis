@@ -107,7 +107,8 @@ public class DeflaterReader extends InputStream {
       return read;
    }
 
-   public void closeStream() throws IOException {
+   @Override
+   public void close() throws IOException {
       super.close();
       input.close();
    }
