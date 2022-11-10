@@ -108,8 +108,14 @@ public class LinkedListTest extends ActiveMQTestBase {
       Assert.assertEquals(1, scans);
       list.addSorted(10);
       list.addSorted(20);
+      list.addSorted(19);
       list.addSorted(7); // this will need a scan as it's totally random
       Assert.assertEquals(2, scans);
+      list.addSorted(8);
+      Assert.assertEquals(2, scans);
+      Assert.assertEquals(1, (int)list.poll());
+      list.addSorted(9);
+      Assert.assertEquals(3, scans); // remove (poll) should clear the last added cache
       printDebug();
 
       validateOrder(null);
