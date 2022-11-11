@@ -110,6 +110,8 @@ public interface ServerSession extends SecurityAuth {
 
    void addCloseable(Closeable closeable);
 
+   boolean checkAutoCreate(SimpleString address, RoutingType routingType) throws Exception;
+
    ServerConsumer createConsumer(long consumerID,
                                  SimpleString queueName,
                                  SimpleString filterString,

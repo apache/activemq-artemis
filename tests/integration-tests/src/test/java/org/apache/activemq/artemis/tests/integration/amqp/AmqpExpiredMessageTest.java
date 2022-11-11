@@ -23,6 +23,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -49,8 +50,12 @@ import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Test(timeout = 60000)
    public void testSendMessageThatIsAlreadyExpiredUsingAbsoluteTime() throws Exception {
@@ -568,7 +573,11 @@ public class AmqpExpiredMessageTest extends AmqpClientTestSupport {
          message.setText("Test-Message");
          message.setDeliveryAnnotation("shouldDisappear", 1);
          message.setMessageAnnotation("x-opt-routing-type", (byte) 1);
+
+         logger.debug("*******************************************************************************************************************************");
+         logger.debug("message being sent {}", message);
          sender.send(message);
+         logger.debug("*******************************************************************************************************************************");
 
          Queue forward = getProxyToQueue(FORWARDING_ADDRESS);
          assertTrue("Message not diverted", Wait.waitFor(() -> forward.getMessageCount() > 0, 7000, 500));

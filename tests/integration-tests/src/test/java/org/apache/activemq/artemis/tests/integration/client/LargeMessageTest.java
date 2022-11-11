@@ -272,6 +272,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
       Message clientFile = createLargeClientMessageStreaming(session, messageSize, true);
 
+      logger.debug("****** Send message");
       producer.send(clientFile);
 
       session.commit();
@@ -292,7 +293,7 @@ public class LargeMessageTest extends LargeMessageTestBase {
          msg1.getBodyBuffer().readByte();
          Assert.fail("Exception was expected");
       } catch (final Exception ignored) {
-         // empty on purpose
+         logger.debug(ignored.getMessage(), ignored);
       }
 
       session.close();

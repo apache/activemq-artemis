@@ -636,6 +636,7 @@ public class AddressControlTest extends ManagementTestBase {
       session.createAddress(address, RoutingType.ANYCAST, false);
 
       AddressControl addressControl = createManagementControl(address);
+      Assert.assertNotNull(addressControl);
       assertEquals(0, addressControl.getMessageCount());
 
       ClientProducer producer = session.createProducer(address.toString());
