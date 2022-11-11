@@ -103,5 +103,9 @@ public interface RoutingContext {
 
    MessageLoadBalancingType getLoadBalancingType();
 
+   RoutingContext setServerSession(ServerSession session);
+
+   ServerSession getServerSession();
+
 
 }

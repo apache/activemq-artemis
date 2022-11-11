@@ -38,6 +38,7 @@ import java.util.stream.Stream;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -1154,7 +1155,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
       message.clearInternalProperties();
       Bindings bindings;
-      final AddressInfo addressInfo = addressManager.getAddressInfo(address);
+      final AddressInfo addressInfo = checkAddress(context, address);
+
+      final RoutingStatus status;
       if (bindingMove != null) {
          context.clear();
          context.setReusable(false);
@@ -1162,18 +1165,28 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          if (addressInfo != null) {
             addressInfo.incrementRoutedMessageCount();
          }
-      } else if ((bindings = addressManager.getBindingsForRoutingAddress(address)) != null) {
-         bindings.route(message, context);
-         if (addressInfo != null) {
-            addressInfo.incrementRoutedMessageCount();
-         }
+         status = RoutingStatus.OK;
       } else {
-         context.setReusable(false);
-         if (addressInfo != null) {
-            addressInfo.incrementUnRoutedMessageCount();
+         bindings = simpleRoute(address, context, message, addressInfo);
+         if (logger.isDebugEnabled()) {
+            if (bindings != null) {
+               logger.debug("PostOffice::simpleRoute returned bindings with size = {}", bindings.getBindings().size());
+            } else {
+               logger.debug("PostOffice::simpleRoute null as bindings");
+            }
          }
-         // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)
-         logger.debug("Couldn't find any bindings for address={} on message={}", address, message);
+         if (bindings == null) {
+            context.setReusable(false);
+            context.clear();
+            if (addressInfo != null) {
+               addressInfo.incrementUnRoutedMessageCount();
+            }
+            // this is a debug and not warn because this could be a regular scenario on publish-subscribe queues (or topic subscriptions on JMS)
+            logger.debug("Couldn't find any bindings for address={} on message={}", address, message);
+            status = RoutingStatus.NO_BINDINGS;
+         } else {
+            status = RoutingStatus.OK;
+         }
       }
 
       if (server.hasBrokerMessagePlugins()) {
@@ -1182,14 +1195,20 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       logger.trace("Message after routed={}\n{}", message, context);
 
+      final RoutingStatus finalStatus;
       try {
-         final RoutingStatus status;
-         if (context.getQueueCount() == 0) {
-            status = maybeSendToDLA(message, context, address, sendToDLA);
+         if ( status == RoutingStatus.NO_BINDINGS) {
+            finalStatus = maybeSendToDLA(message, context, address, sendToDLA);
          } else {
-            status = RoutingStatus.OK;
+            finalStatus = status;
             try {
-               processRoute(message, context, direct);
+               if (context.getQueueCount() > 0) {
+                  processRoute(message, context, direct);
+               } else {
+                  if (message.isLargeMessage()) {
+                     ((LargeServerMessage) message).deleteFile();
+                  }
+               }
             } catch (ActiveMQAddressFullException e) {
                if (startedTX) {
                   context.getTransaction().rollback();
@@ -1203,9 +1222,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
             context.getTransaction().commit();
          }
          if (server.hasBrokerMessagePlugins()) {
-            server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, status));
+            server.callBrokerMessagePlugins(plugin -> plugin.afterMessageRoute(message, context, direct, rejectDuplicates, finalStatus));
          }
-         return status;
+         return finalStatus;
       } catch (Exception e) {
          if (server.hasBrokerMessagePlugins()) {
             server.callBrokerMessagePlugins(plugin -> plugin.onMessageRouteException(message, context, direct, rejectDuplicates, e));
@@ -1213,6 +1232,45 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          throw e;
       }
    }
+
+   private AddressInfo checkAddress(RoutingContext context, SimpleString address) throws Exception {
+      AddressInfo addressInfo = addressManager.getAddressInfo(address);
+      if (addressInfo == null && context.getServerSession() != null) {
+         if (context.getServerSession().checkAutoCreate(address, context.getRoutingType())) {
+            addressInfo = addressManager.getAddressInfo(address);
+         } else {
+            ActiveMQException ex = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
+            if (context.getTransaction() != null) {
+               context.getTransaction().markAsRollbackOnly(ex);
+            }
+            throw ex;
+         }
+      }
+      return addressInfo;
+   }
+
+   Bindings simpleRoute(SimpleString address, RoutingContext context, Message message, AddressInfo addressInfo) throws Exception {
+      Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
+      if (bindings == null && context.getServerSession() != null) {
+         if (!context.getServerSession().checkAutoCreate(address, context.getRoutingType())) {
+            ActiveMQException e = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
+            Transaction tx = context.getTransaction();
+            if (tx != null) {
+               tx.markAsRollbackOnly(e);
+            }
+            throw e;
+         }
+         bindings = addressManager.getBindingsForRoutingAddress(address);
+      }
+      if (bindings != null) {
+         bindings.route(message, context);
+         if (addressInfo != null) {
+            addressInfo.incrementRoutedMessageCount();
+         }
+      }
+      return bindings;
+   }
+
 
    private RoutingStatus maybeSendToDLA(final Message message,
                                         final RoutingContext context,

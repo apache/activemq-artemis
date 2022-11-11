@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -35,7 +34,6 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
@@ -47,7 +45,6 @@ import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPResourceLimitExceededException;
@@ -332,45 +329,8 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
 
-
    public boolean checkAddressAndAutocreateIfPossible(SimpleString address, RoutingType routingType) throws Exception {
-      boolean result = false;
-      SimpleString unPrefixedAddress = serverSession.removePrefix(address);
-      AddressSettings addressSettings = manager.getServer().getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
-
-      if (routingType == RoutingType.MULTICAST) {
-         if (manager.getServer().getAddressInfo(unPrefixedAddress) == null) {
-            if (addressSettings.isAutoCreateAddresses()) {
-               try {
-                  serverSession.createAddress(address, routingType, true);
-               } catch (ActiveMQAddressExistsException e) {
-                  // The address may have been created by another thread in the mean time.  Catch and do nothing.
-               }
-               result = true;
-            }
-         } else {
-            result = true;
-         }
-      } else if (routingType == RoutingType.ANYCAST) {
-         if (manager.getServer().locateQueue(unPrefixedAddress) == null) {
-            Bindings bindings = manager.getServer().getPostOffice().lookupBindingsForAddress(address);
-            if (bindings != null) {
-               // this means the address has another queue with a different name, which is fine, we just ignore it on this case
-               result = true;
-            } else if (addressSettings.isAutoCreateQueues()) {
-               try {
-                  serverSession.createQueue(new QueueConfiguration(address).setRoutingType(routingType).setAutoCreated(true));
-               } catch (ActiveMQQueueExistsException e) {
-                  // The queue may have been created by another thread in the mean time.  Catch and do nothing.
-               }
-               result = true;
-            }
-         } else {
-            result = true;
-         }
-      }
-
-      return result;
+      return serverSession.checkAutoCreate(address, routingType);
    }
 
    public AddressQueryResult addressQuery(SimpleString addressName,
@@ -506,7 +466,11 @@ public class AMQPSessionCallback implements SessionCallback {
 
       //here check queue-autocreation
       if (!checkAddressAndAutocreateIfPossible(address, routingType)) {
-         throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+         ActiveMQException e = ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+         if (transaction != null) {
+            transaction.markAsRollbackOnly(e);
+         }
+         throw e;
       }
 
       OperationContext oldcontext = recoverContext();

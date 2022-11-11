@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.security.cert.X509Certificate;
@@ -169,7 +172,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private final SimpleString managementAddress;
 
-   protected final RoutingContext routingContext = new RoutingContextImpl(null);
+   protected final RoutingContext routingContext = new RoutingContextImpl(null).setServerSession(this);
 
    protected final SessionCallback callback;
 
@@ -1737,6 +1740,55 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return tx;
    }
 
+
+   @Override
+   public boolean checkAutoCreate(SimpleString address, RoutingType routingType) throws Exception {
+      boolean result;
+      SimpleString unPrefixedAddress = removePrefix(address);
+      AddressSettings addressSettings =  server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
+
+      if (routingType == RoutingType.MULTICAST) {
+         if (server.getAddressInfo(unPrefixedAddress) == null) {
+            if (addressSettings.isAutoCreateAddresses()) {
+               try {
+                  createAddress(address, routingType, true);
+               } catch (ActiveMQAddressExistsException e) {
+                  // The address may have been created by another thread in the mean time.  Catch and do nothing.
+               }
+               result = true;
+            } else {
+               result = false;
+            }
+         } else {
+            result = true;
+         }
+      } else if (routingType == RoutingType.ANYCAST) {
+         if (server.locateQueue(unPrefixedAddress) == null) {
+            Bindings bindings = server.getPostOffice().lookupBindingsForAddress(address);
+            if (bindings != null) {
+               // this means the address has another queue with a different name, which is fine, we just ignore it on this case
+               result = true;
+            } else if (addressSettings.isAutoCreateQueues()) {
+               try {
+                  createQueue(new QueueConfiguration(address).setRoutingType(routingType).setAutoCreated(true));
+               } catch (ActiveMQQueueExistsException e) {
+                  // The queue may have been created by another thread in the mean time.  Catch and do nothing.
+               }
+               result = true;
+            } else {
+               result = false;
+            }
+         } else {
+            result = true;
+         }
+      } else {
+         result = true;
+      }
+
+      return result;
+   }
+
+
    @Override
    public RoutingStatus send(final Message message, final boolean direct) throws Exception {
       return send(message, direct, false);
@@ -2218,6 +2270,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          result = postOffice.route(msg, routingContext, direct);
 
+         logger.debug("Routing result for {} = {}", msg, result);
+
          Pair<Object, AtomicLong> value = targetAddressInfos.get(msg.getAddressSimpleString());
 
          if (value == null) {
@@ -2231,6 +2285,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
             routingContext.clear();
          }
       }
+
       return result;
    }
 

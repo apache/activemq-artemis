@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -30,6 +29,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
 import org.apache.activemq.artemis.core.transaction.Transaction;
@@ -65,9 +65,9 @@ public class RoutingContextImpl implements RoutingContext {
 
    boolean mirrorDisabled = false;
 
-   private final Executor executor;
-
    private boolean duplicateDetection = true;
+
+   private ServerSession serverSession;
 
    @Override
    public boolean isDuplicateDetection() {
@@ -81,12 +81,7 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    public RoutingContextImpl(final Transaction transaction) {
-      this(transaction, null);
-   }
-
-   public RoutingContextImpl(final Transaction transaction, Executor executor) {
       this.transaction = transaction;
-      this.executor = executor;
    }
 
    @Override
@@ -121,7 +116,7 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public RoutingContext setReusable(boolean reusable) {
+   public RoutingContextImpl setReusable(boolean reusable) {
       if (this.reusable != null && !this.reusable.booleanValue()) {
          // cannot set to Reusable once it was set to false
          return this;
@@ -131,7 +126,7 @@ public class RoutingContextImpl implements RoutingContext {
       return this;
    }
    @Override
-   public RoutingContext setReusable(boolean reusable, int previousBindings) {
+   public RoutingContextImpl setReusable(boolean reusable, int previousBindings) {
       this.version = previousBindings;
       this.previousAddress = address;
       this.previousRoutingType = routingType;
@@ -144,7 +139,7 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public RoutingContext clear() {
+   public RoutingContextImpl clear() {
       map.clear();
 
       queueCount = 0;
@@ -252,7 +247,7 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public RoutingContext setRoutingType(RoutingType routingType) {
+   public RoutingContextImpl setRoutingType(RoutingType routingType) {
       if (this.routingType == null && routingType != null || this.routingType != routingType) {
          this.clear();
       }
@@ -311,6 +306,17 @@ public class RoutingContextImpl implements RoutingContext {
    @Override
    public List<Queue> getDurableQueues(SimpleString address) {
       return getContextListing(address).getDurableQueues();
+   }
+
+   @Override
+   public RoutingContextImpl setServerSession(ServerSession session) {
+      this.serverSession = session;
+      return this;
+   }
+
+   @Override
+   public ServerSession getServerSession() {
+      return serverSession;
    }
 
    @Override
