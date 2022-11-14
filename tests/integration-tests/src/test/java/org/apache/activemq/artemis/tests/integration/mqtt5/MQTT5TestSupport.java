@@ -346,9 +346,17 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    }
 
    protected Queue getSubscriptionQueue(String TOPIC, String clientId) {
+      return getSubscriptionQueue(TOPIC, clientId, null);
+   }
+
+   protected Queue getSubscriptionQueue(String TOPIC, String clientId, String sharedSubscriptionName) {
       try {
          for (Binding b : server.getPostOffice().getMatchingBindings(SimpleString.toSimpleString(TOPIC))) {
-            if (((LocalQueueBinding)b).getQueue().getName().startsWith(SimpleString.toSimpleString(clientId))) {
+            if (sharedSubscriptionName != null) {
+               if (((LocalQueueBinding)b).getQueue().getName().startsWith(SimpleString.toSimpleString(sharedSubscriptionName))) {
+                  return ((LocalQueueBinding)b).getQueue();
+               }
+            } else if (((LocalQueueBinding)b).getQueue().getName().startsWith(SimpleString.toSimpleString(clientId))) {
                return ((LocalQueueBinding)b).getQueue();
             }
          }

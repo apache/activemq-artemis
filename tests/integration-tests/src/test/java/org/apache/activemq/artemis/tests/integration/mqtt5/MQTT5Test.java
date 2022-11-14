@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.paging.impl.PagingManagerImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingManagerImplAccessor;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
@@ -241,5 +242,104 @@ public class MQTT5Test extends MQTT5TestSupport {
       } finally {
          AssertionLoggerHandler.stopCapture();
       }
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSharedSubscriptionsWithSameName() throws Exception {
+      final String TOPIC1 = "myTopic1";
+      final String TOPIC2 = "myTopic2";
+      final String SUB_NAME = "mySub";
+      final String SHARED_SUB1 = MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC1;
+      final String SHARED_SUB2 = MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC2;
+      CountDownLatch ackLatch1 = new CountDownLatch(1);
+      CountDownLatch ackLatch2 = new CountDownLatch(1);
+
+      MqttClient consumer1 = createPahoClient("consumer1");
+      consumer1.connect();
+      consumer1.setCallback(new LatchedMqttCallback(ackLatch1));
+      consumer1.subscribe(SHARED_SUB1, 1);
+
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC1)));
+      Queue q1 = getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME);
+      assertNotNull(q1);
+      assertEquals(TOPIC1, q1.getAddress().toString());
+      assertEquals(1, q1.getConsumerCount());
+
+      MqttClient consumer2 = createPahoClient("consumer2");
+      consumer2.connect();
+      consumer2.setCallback(new LatchedMqttCallback(ackLatch2));
+      consumer2.subscribe(SHARED_SUB2, 1);
+
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC2)));
+      Queue q2 = getSubscriptionQueue(TOPIC2, "consumer2", SUB_NAME);
+      assertNotNull(q2);
+      assertEquals(TOPIC2, q2.getAddress().toString());
+      assertEquals(1, q2.getConsumerCount());
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(TOPIC1, new byte[0], 1, false);
+      producer.publish(TOPIC2, new byte[0], 1, false);
+      producer.disconnect();
+      producer.close();
+
+      assertTrue(ackLatch1.await(2, TimeUnit.SECONDS));
+      assertTrue(ackLatch2.await(2, TimeUnit.SECONDS));
+
+      consumer1.unsubscribe(SHARED_SUB1);
+      assertNull(getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME));
+
+      consumer2.unsubscribe(SHARED_SUB2);
+      assertNull(getSubscriptionQueue(TOPIC2, "consumer2", SUB_NAME));
+
+      consumer1.disconnect();
+      consumer1.close();
+      consumer2.disconnect();
+      consumer2.close();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSharedSubscriptionsWithSameName2() throws Exception {
+      final String TOPIC1 = "myTopic1";
+      final String TOPIC2 = "myTopic2";
+      final String SUB_NAME = "mySub";
+      final String[] SHARED_SUBS = new String[]{
+         MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC1,
+         MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC2
+      };
+      CountDownLatch ackLatch = new CountDownLatch(2);
+
+      MqttClient consumer = createPahoClient("consumer1");
+      consumer.connect();
+      consumer.setCallback(new LatchedMqttCallback(ackLatch));
+      consumer.subscribe(SHARED_SUBS, new int[]{1, 1});
+
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC1)));
+      Queue q1 = getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME);
+      assertNotNull(q1);
+      assertEquals(TOPIC1, q1.getAddress().toString());
+      assertEquals(1, q1.getConsumerCount());
+
+      assertNotNull(server.getAddressInfo(SimpleString.toSimpleString(TOPIC2)));
+      Queue q2 = getSubscriptionQueue(TOPIC2, "consumer1", SUB_NAME);
+      assertNotNull(q2);
+      assertEquals(TOPIC2, q2.getAddress().toString());
+      assertEquals(1, q2.getConsumerCount());
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(TOPIC1, new byte[0], 1, false);
+      producer.publish(TOPIC2, new byte[0], 1, false);
+      producer.disconnect();
+      producer.close();
+
+      assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
+
+      consumer.unsubscribe(SHARED_SUBS);
+      assertNull(getSubscriptionQueue(TOPIC1, "consumer1", SUB_NAME));
+      assertNull(getSubscriptionQueue(TOPIC2, "consumer1", SUB_NAME));
+
+      consumer.disconnect();
+      consumer.close();
    }
 }
