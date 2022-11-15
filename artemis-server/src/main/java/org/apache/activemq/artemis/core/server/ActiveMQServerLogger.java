@@ -646,7 +646,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222111, value = "exception while invoking {} on {}", level = LogMessage.Level.TRACE)
    void managementOperationError(String op, String resourceName, Exception e);
 
-   @LogMessage(id = 222112, value = "exception while retrieving attribute {} on {}", level = LogMessage.Level.WARN)
+   @LogMessage(id = 222112, value = "exception while retrieving attribute {} on {}", level = LogMessage.Level.TRACE)
    void managementAttributeError(String att, String resourceName, Exception e);
 
    @LogMessage(id = 222113, value = "On ManagementService stop, there are {} unexpected registered MBeans: {}", level = LogMessage.Level.WARN)

@@ -149,7 +149,20 @@ public class LiveOnlyActivation extends Activation {
          // a timeout is necessary here in case we use a NamedLiveNodeLocatorForScaleDown and there's no matching node in the cluster
          // should the timeout be configurable?
          nodeLocator.locateNode(ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT);
+
          ClientSessionFactoryInternal clientSessionFactory = null;
+         if (nodeLocator instanceof AnyLiveNodeLocatorForScaleDown && scaleDownPolicy.getConnectors() != null) {
+            try {
+               clientSessionFactory = scaleDownServerLocator.connect();
+            } catch (Exception e) {
+               logger.trace("Failed to connect to {}", scaleDownPolicy.getConnectors().get(0));
+               if (clientSessionFactory != null) {
+                  clientSessionFactory.close();
+               }
+               clientSessionFactory = null;
+            }
+         }
+
          while (clientSessionFactory == null) {
             Pair<TransportConfiguration, TransportConfiguration> possibleLive = null;
             possibleLive = nodeLocator.getLiveConfiguration();

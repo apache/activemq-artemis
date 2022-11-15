@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Message;
@@ -430,7 +431,8 @@ public class ClusterConnectionBridge extends BridgeImpl {
             try {
                queue.deleteQueue(true);
                queue.removeAddress();
-
+            } catch (ActiveMQAddressDoesNotExistException e) {
+               // ignore
             } catch (Exception e) {
                logger.warn(e.getMessage(), e);
             }
