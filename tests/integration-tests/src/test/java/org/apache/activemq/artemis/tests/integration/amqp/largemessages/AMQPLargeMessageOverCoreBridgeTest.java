@@ -123,6 +123,8 @@ public class AMQPLargeMessageOverCoreBridgeTest extends AmqpClientTestSupport {
       }
 
       sendTextMessages(AMQP_PORT + 1, getQueueName(useDivert ? 0 : 1), largeText.toString(), 10);
+      server.stop();
+      server.start();
       receiveTextMessages(AMQP_PORT, getQueueName(2), largeText.toString(), 10);
       if (useDivert) {
          // We diverted, so messages were copied, we need to make sure we consume from the original queue

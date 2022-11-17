@@ -112,7 +112,15 @@ public class EmbedMessageUtil {
    private static Message extractLargeMessage(ICoreMessage message, StorageManager storageManager) {
       ActiveMQBuffer buffer = ActiveMQBuffers.wrappedBuffer(message.getBytesProperty(AMQP_ENCODE_PROPERTY));
 
-      return readEncoded(message, storageManager, buffer);
+      Message largeMessageReturn = readEncoded(message, storageManager, buffer);
+
+      if (message instanceof LargeServerMessage && largeMessageReturn instanceof LargeServerMessage) {
+         LargeServerMessage returnMessage = (LargeServerMessage) largeMessageReturn;
+         LargeServerMessage sourceMessage = (LargeServerMessage) message;
+         returnMessage.setPendingRecordID(sourceMessage.getPendingRecordID());
+      }
+
+      return largeMessageReturn;
    }
 
    private static boolean checkSignature(final ActiveMQBuffer buffer) {
