@@ -45,7 +45,7 @@ public class Upgrade extends InstallAbstract {
    // this is the prefix where we can find the JDK arguments in Linux script
    private static final String JDK_PREFIX_LINUX = "JAVA_ARGS=";
 
-   protected static final String OLD_LOGGING_PROPERTIES = "logging.properties";
+   public static final String OLD_LOGGING_PROPERTIES = "logging.properties";
 
    /**
     * Checks that the directory provided either exists and is writable or doesn't exist but can be created.
@@ -109,42 +109,49 @@ public class Upgrade extends InstallAbstract {
 
       if (IS_WINDOWS) {
          // recreating the service.exe in case we ever upgrade it
+         Files.copy(new File(directory, Create.BIN_ARTEMIS_SERVICE_EXE).toPath(), new File(bkpFolder, Create.BIN_ARTEMIS_SERVICE_EXE).toPath(), StandardCopyOption.REPLACE_EXISTING);
          write(Create.BIN_ARTEMIS_SERVICE_EXE, true);
+
+         File serviceExeConfig = new File(directory, Create.BIN_ARTEMIS_SERVICE_EXE_CONFIG);
+         if (serviceExeConfig.exists()) {
+            // It didnt exist until more recently
+            Files.copy(serviceExeConfig.toPath(), new File(bkpFolder, Create.BIN_ARTEMIS_SERVICE_EXE_CONFIG).toPath(), StandardCopyOption.REPLACE_EXISTING);
+         }
          write(Create.BIN_ARTEMIS_SERVICE_EXE_CONFIG, true);
 
          write(Create.BIN_ARTEMIS_CMD, new File(tmp, Create.ARTEMIS_CMD), filters, false, false);
-         upgrade(new File(tmp, Create.ARTEMIS_CMD), new File(bin, Create.ARTEMIS_CMD), binBkp, "set ARTEMIS_INSTANCE_ETC=");
+         upgrade(new File(tmp, Create.ARTEMIS_CMD), new File(bin, Create.ARTEMIS_CMD), new File(binBkp, Create.ARTEMIS_CMD), "set ARTEMIS_INSTANCE_ETC=");
 
          write(Create.BIN_ARTEMIS_SERVICE_XML, new File(tmp, Create.ARTEMIS_SERVICE_XML), filters, false, false);
-         upgrade(new File(tmp, Create.ARTEMIS_SERVICE_XML), new File(bin, Create.ARTEMIS_SERVICE_XML), binBkp,
+         upgrade(new File(tmp, Create.ARTEMIS_SERVICE_XML), new File(bin, Create.ARTEMIS_SERVICE_XML), new File(binBkp, Create.ARTEMIS_SERVICE_XML),
                  "<env name=\"ARTEMIS_INSTANCE\"", "<env name=\"ARTEMIS_INSTANCE_ETC\"",
                  "<env name=\"ARTEMIS_INSTANCE_URI\"", "<env name=\"ARTEMIS_INSTANCE_ETC_URI\"",
                  "<env name=\"ARTEMIS_DATA_DIR\"", "<logpath>", "<startargument>-Xmx", "<stopargument>-Xmx",
                  "<name>", "<id>", "<startargument>-Dhawtio.role=");
 
          write("etc/" + Create.ETC_ARTEMIS_PROFILE_CMD, new File(tmp, Create.ETC_ARTEMIS_PROFILE_CMD), filters, false, false);
-         upgradeJDK(JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS, new File(tmp, Create.ETC_ARTEMIS_PROFILE_CMD), new File(etcFolder, Create.ETC_ARTEMIS_PROFILE_CMD), binBkp,
+         upgradeJDK(JDK_PREFIX_WINDOWS, "", KEEPING_JVM_ARGUMENTS, new File(tmp, Create.ETC_ARTEMIS_PROFILE_CMD), new File(etcFolder, Create.ETC_ARTEMIS_PROFILE_CMD), new File(etcBkp, Create.ETC_ARTEMIS_PROFILE_CMD),
                     "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
       }
 
       if (!IS_WINDOWS || IS_CYGWIN) {
          write(Create.BIN_ARTEMIS, new File(tmp, Create.ARTEMIS), filters, false, false);
-         upgrade(new File(tmp, Create.ARTEMIS), new File(bin, Create.ARTEMIS), binBkp, "ARTEMIS_INSTANCE_ETC=");
+         upgrade(new File(tmp, Create.ARTEMIS), new File(bin, Create.ARTEMIS), new File(binBkp, Create.ARTEMIS), "ARTEMIS_INSTANCE_ETC=");
 
          write(Create.BIN_ARTEMIS_SERVICE, new File(tmp, Create.ARTEMIS_SERVICE), filters, false, false);
-         upgrade(new File(tmp, Create.ARTEMIS_SERVICE), new File(bin, Create.ARTEMIS_SERVICE), binBkp); // we replace the whole thing
+         upgrade(new File(tmp, Create.ARTEMIS_SERVICE), new File(bin, Create.ARTEMIS_SERVICE), new File(binBkp, Create.ARTEMIS_SERVICE)); // we replace the whole thing
 
          write("etc/" + Create.ETC_ARTEMIS_PROFILE, new File(tmp, Create.ETC_ARTEMIS_PROFILE), filters, false, false);
          upgradeJDK(JDK_PREFIX_LINUX, "\"", KEEPING_JVM_ARGUMENTS,
-                    new File(tmp, Create.ETC_ARTEMIS_PROFILE), new File(etcFolder, Create.ETC_ARTEMIS_PROFILE), etcBkp, "ARTEMIS_INSTANCE=",
+                    new File(tmp, Create.ETC_ARTEMIS_PROFILE), new File(etcFolder, Create.ETC_ARTEMIS_PROFILE), new File(etcBkp, Create.ETC_ARTEMIS_PROFILE), "ARTEMIS_INSTANCE=",
                     "ARTEMIS_DATA_DIR=", "ARTEMIS_ETC_DIR=", "ARTEMIS_OOME_DUMP=", "ARTEMIS_INSTANCE_URI=", "ARTEMIS_INSTANCE_ETC_URI=", "HAWTIO_ROLE=");
       }
 
 
       Files.copy( new File(etcFolder, Create.ETC_BOOTSTRAP_XML).toPath(), new File(tmp, Create.ETC_BOOTSTRAP_XML).toPath());
-      replaceLines(new File(tmp, Create.ETC_BOOTSTRAP_XML), new File(etcFolder, Create.ETC_BOOTSTRAP_XML), binBkp, "<web path", "   <web path=\"web\" rootRedirectLocation=\"console\">");
+      replaceLines(new File(tmp, Create.ETC_BOOTSTRAP_XML), new File(etcFolder, Create.ETC_BOOTSTRAP_XML), new File(etcBkp, Create.ETC_BOOTSTRAP_XML), "<web path", "   <web path=\"web\" rootRedirectLocation=\"console\">");
 
-      upgradeLogging(context, etcBkp, etcFolder);
+      upgradeLogging(context, etcFolder, etcBkp);
 
       context.out.println();
       context.out.println("*******************************************************************************************************************************");
@@ -179,12 +186,12 @@ public class Upgrade extends InstallAbstract {
    }
 
 
-   private void upgradeJDK(String jdkPrefix, String endOfLine, String[] keepArguments, File tmpFile, File targetFile, File bkp, String... keepingPrefixes) throws Exception {
+   private void upgradeJDK(String jdkPrefix, String endOfLine, String[] keepArguments, File tmpFile, File targetFile, File bkpFile, String... keepingPrefixes) throws Exception {
 
       final HashMap<String, String> replaceMatrix = new HashMap<>();
       final HashMap<String, String> currentArguments = new HashMap<>();
 
-      doUpgrade(tmpFile, targetFile, bkp,
+      doUpgrade(tmpFile, targetFile, bkpFile,
                 oldLine -> {
                    if (oldLine.trim().startsWith(jdkPrefix)) {
                       JVMArgumentParser.parseOriginalArgs(jdkPrefix, endOfLine, oldLine, keepArguments, currentArguments);
@@ -213,8 +220,8 @@ public class Upgrade extends InstallAbstract {
                 });
    }
 
-   private void replaceLines(File tmpFile, File targetFile, File bkp, String... replacePairs) throws Exception {
-      doUpgrade(tmpFile, targetFile, bkp,
+   private void replaceLines(File tmpFile, File targetFile, File bkpFile, String... replacePairs) throws Exception {
+      doUpgrade(tmpFile, targetFile, bkpFile,
                 null,
                 newLine -> {
                    for (int i = 0; i < replacePairs.length; i += 2) {
@@ -226,10 +233,10 @@ public class Upgrade extends InstallAbstract {
                 });
    }
 
-   private void upgrade(File tmpFile, File targetFile, File bkp, String... keepingPrefixes) throws Exception {
+   private void upgrade(File tmpFile, File targetFile, File bkpFile, String... keepingPrefixes) throws Exception {
       HashMap<String, String> replaceMatrix = new HashMap<>();
 
-      doUpgrade(tmpFile, targetFile, bkp,
+      doUpgrade(tmpFile, targetFile, bkpFile,
               oldLine -> {
                  for (String prefix : keepingPrefixes) {
                     if (oldLine.trim().startsWith(prefix)) {
@@ -248,8 +255,8 @@ public class Upgrade extends InstallAbstract {
             });
    }
 
-   private void doUpgrade(File tmpFile, File targetFile, File bkp, Consumer<String> originalConsumer, Function<String, String> targetFunction) throws Exception {
-      Files.copy(targetFile.toPath(), bkp.toPath(), StandardCopyOption.REPLACE_EXISTING);
+   private void doUpgrade(File tmpFile, File targetFile, File bkpFile, Consumer<String> originalConsumer, Function<String, String> targetFunction) throws Exception {
+      Files.copy(targetFile.toPath(), bkpFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
       // we first scan the original lines on the originalConsumer, giving a chance to the caller to fill out the original matrix
       if (originalConsumer != null) {
@@ -275,21 +282,21 @@ public class Upgrade extends InstallAbstract {
       }
    }
 
-   private void upgradeLogging(ActionContext context, File bkpFolder, File etc) throws Exception {
-      File oldLogging = new File(etc, OLD_LOGGING_PROPERTIES);
+   private void upgradeLogging(ActionContext context, File etcFolder, File bkpFolder) throws Exception {
+      File oldLogging = new File(etcFolder, OLD_LOGGING_PROPERTIES);
 
       if (oldLogging.exists()) {
          File oldLoggingCopy = new File(bkpFolder, OLD_LOGGING_PROPERTIES);
          context.out.println("Copying " + oldLogging.toPath() + " to " + oldLoggingCopy.toPath());
 
-         Files.copy(oldLogging.toPath(), bkpFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
+         Files.copy(oldLogging.toPath(), oldLoggingCopy.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
          context.out.println("Removing " + oldLogging.toPath());
          if (!oldLogging.delete()) {
             context.out.println(oldLogging.toPath() + " could not be removed!");
          }
 
-         File newLogging = new File(etc, Create.ETC_LOG4J2_PROPERTIES);
+         File newLogging = new File(etcFolder, Create.ETC_LOG4J2_PROPERTIES);
          if (!newLogging.exists()) {
             context.out.println("Creating " + newLogging);
             try (InputStream inputStream = openStream("etc/" + Create.ETC_LOG4J2_PROPERTIES);
