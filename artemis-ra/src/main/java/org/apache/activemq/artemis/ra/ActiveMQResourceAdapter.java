@@ -821,6 +821,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setUseTopologyForLoadBalancing(useTopologyForLoadBalancing);
    }
 
+   public Boolean getUseTopologyForLoadBalancing() {
+      return raProperties.isUseTopologyForLoadBalancing();
+   }
+
    public Boolean isUseTopologyForLoadBalancing() {
       return raProperties.isUseTopologyForLoadBalancing();
    }

@@ -500,6 +500,36 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    }
 
    /**
+    * Get the userName
+    *
+    * @return The value
+    */
+   public String getUserName() {
+      if (logger.isTraceEnabled()) {
+         logger.trace("getUserName()");
+      }
+
+      if (user == null) {
+         return ra.getUserName();
+      } else {
+         return user;
+      }
+   }
+
+   /**
+    * Set the user
+    *
+    * @param value The value
+    */
+   public void setUserName(final String value) {
+      if (logger.isTraceEnabled()) {
+         logger.trace("setUserName(" + value + ")");
+      }
+
+      user = value;
+   }
+
+   /**
     * Get the password
     *
     * @return The value
@@ -617,6 +647,10 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
    public void setUseLocalTx(final Boolean localTx) {
       this.localTx = localTx;
+   }
+
+   public Boolean getRebalanceConnections() {
+      return rebalanceConnections;
    }
 
    public Boolean isRebalanceConnections() {

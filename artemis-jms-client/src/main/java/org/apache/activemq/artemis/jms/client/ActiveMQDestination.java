@@ -389,6 +389,10 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       }
    }
 
+   public void setSimpleAddress(String address) {
+      setSimpleAddress(new SimpleString(address));
+   }
+
    public void delete() throws JMSException {
       if (session != null) {
          boolean openedHere = false;
@@ -451,12 +455,20 @@ public class ActiveMQDestination extends JNDIStorable implements Destination, Se
       return temporary;
    }
 
+   public boolean getCreated() {
+      return created;
+   }
+
    public boolean isCreated() {
       return created;
    }
 
    public void setCreated(boolean created) {
       this.created = created;
+   }
+
+   public void setCreated(String created) {
+      this.created = Boolean.parseBoolean(created);
    }
 
    public TYPE getType() {
