@@ -54,7 +54,7 @@ public class PropertiesLoader {
       return result.obtained();
    }
 
-   private static boolean booleanOption(String name, Map options) {
+   protected static boolean booleanOption(String name, Map options) {
       return Boolean.parseBoolean((String) options.get(name));
    }
 
