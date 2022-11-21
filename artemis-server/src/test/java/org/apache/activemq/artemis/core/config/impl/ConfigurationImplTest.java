@@ -925,6 +925,20 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(false, configuration.getAddressConfigurations().get(0).getQueueConfigs().get(0).isDurable());
    }
 
+   @Test
+   public void testIDCacheSizeViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Assert.assertTrue(configuration.isPersistIDCache());
+      Properties properties = new Properties();
+
+      properties.put("iDCacheSize", "50");
+      properties.put("persistIDCache", false);
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(50, configuration.getIDCacheSize());
+      Assert.assertFalse(configuration.isPersistIDCache());
+   }
 
    @Test
    public void testAcceptorViaProperties() throws Throwable {
