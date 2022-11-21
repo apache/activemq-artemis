@@ -169,6 +169,7 @@
       <groovy.version>4.0.5</groovy.version>
       <vertx.version>4.3.3</vertx.version>
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
+      <mockserver.version>5.13.2</mockserver.version>
 
       <owasp.version>6.1.0</owasp.version>
       <spring.version>5.3.20</spring.version>
@@ -232,7 +233,7 @@
 
       <directory-version>2.0.0.AM25</directory-version>
       <directory-jdbm2-version>2.0.0-M1</directory-jdbm2-version>
-      <bcprov-jdk15on-version>1.69</bcprov-jdk15on-version>
+      <bcprov-jdk15on-version>1.70</bcprov-jdk15on-version>
 
       <netty-transport-native-epoll-classifier>linux-x86_64</netty-transport-native-epoll-classifier>
       <netty-transport-native-kqueue-classifier>osx-x86_64</netty-transport-native-kqueue-classifier>

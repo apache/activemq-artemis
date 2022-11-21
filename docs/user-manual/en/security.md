@@ -1056,6 +1056,37 @@ org.apache.activemq.artemis.spi.core.security.jaas.Krb5LoginModule required
 The simplest way to make the login configuration available to JAAS is to add
 the directory containing the file, `login.config`, to your CLASSPATH.
 
+#### KubernetesLoginModule
+
+The Kubernetes login module enables you to perform authentication and authorization
+by validating the `Bearer` token against the Kubernetes API. The authentication is done
+by submitting a `TokenReview` request that the Kubernetes cluster validates. The response will
+tell whether the user is authenticated and the associated username. It is implemented by `org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModule`.
+
+- `org.apache.activemq.jaas.kubernetes.role` - the path to the file which
+  contains user and role mapping
+
+- `reload` - boolean flag; whether or not to reload the properties files when a
+  modification occurs; default is `false`
+
+- `debug` - boolean flag; if `true`, enable debugging; this is used only for
+  testing or debugging; normally, it should be set to `false`, or omitted;
+  default is `false`
+
+The login module must be allowed to query such Rest API. For that, it will use the available
+token under `/var/run/secrets/kubernetes.io/serviceaccount/token`. Besides, in order to trust the
+connection the client will use the `ca.crt` file existing in the same folder. These two files will
+be mounted in the container. The service account running the KubernetesLoginModule must
+be allowed to `create::TokenReview`. The `system:auth-delegator` role is typically use for
+that purpose.
+
+The `k8s-roles.properties` file consists of a list of properties of the form, `Role=UserList`, where `UserList` is a comma-separated list of users. For example, to define the roles admins, users, and guests, you could create a file like the following:
+
+```properties
+admins=system:serviceaccounts:example-ns:admin-sa
+users=system:serviceaccounts:other-ns:test-sa
+```
+
 ### SCRAM-SHA SASL Mechanism
 
 SCRAM (Salted Challenge Response Authentication Mechanism) is an authentication mechanism that can establish mutual
