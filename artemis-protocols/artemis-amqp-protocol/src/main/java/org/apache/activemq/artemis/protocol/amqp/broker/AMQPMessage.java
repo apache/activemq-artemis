@@ -919,6 +919,9 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
          if (properties.getReplyTo() != null) {
             map.put(propertiesPrefix + "replyTo", properties.getReplyTo());
          }
+         if (properties.getCorrelationId() != null) {
+            map.put(propertiesPrefix + "correlationId", properties.getCorrelationId());
+         }
       }
 
       return map;
