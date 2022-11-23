@@ -17,6 +17,10 @@
 
 package org.apache.activemq.artemis.tests.smoke.upgradeTest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
@@ -25,6 +29,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.cli.commands.Create;
+import org.apache.activemq.artemis.cli.commands.Upgrade;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -50,6 +56,12 @@ public class CompareUpgradeTest {
 
       compareDirectories(windowsExpectedBin, windowsBin);
       compareDirectories(windowsExpectedETC, windowsETC, "broker.xml", "artemis-users.properties");
+
+      String referenceBin = basedir + "/target/reference-for-backup-check/servers/windowsUpgrade/bin";
+      String referenceEtc = basedir + "/target/reference-for-backup-check/servers/windowsUpgradeETC";
+
+      verifyBackupFiles(windows + "/old-config-bkp.0/bin", referenceBin, Create.ARTEMIS_CMD, Create.ARTEMIS_SERVICE_EXE, Create.ARTEMIS_SERVICE_EXE_CONFIG, Create.ARTEMIS_SERVICE_XML);
+      verifyBackupFiles(windows + "/old-config-bkp.0/etc", referenceEtc, Create.ETC_ARTEMIS_PROFILE_CMD, Create.ETC_BOOTSTRAP_XML, Upgrade.OLD_LOGGING_PROPERTIES);
    }
 
    @Test
@@ -64,8 +76,42 @@ public class CompareUpgradeTest {
 
       compareDirectories(linuxExpectedBin, linuxBin);
       compareDirectories(linuxExpectedETC, linuxETC, "broker.xml", "artemis-users.properties");
+
+      String referenceBin = basedir + "/target/reference-for-backup-check/servers/linuxUpgrade/bin";
+      String referenceEtc = basedir + "/target/reference-for-backup-check/servers/linuxUpgradeETC";
+
+      verifyBackupFiles(linux + "/old-config-bkp.0/bin", referenceBin, Create.ARTEMIS, Create.ARTEMIS_SERVICE);
+      verifyBackupFiles(linux + "/old-config-bkp.0/etc", referenceEtc, Create.ETC_ARTEMIS_PROFILE, Create.ETC_BOOTSTRAP_XML, Upgrade.OLD_LOGGING_PROPERTIES);
    }
 
+   private void verifyBackupFiles(String backupFolder, String referenceFolder, String... files) throws Exception {
+      assertTrue("Files to check must be specified", files.length > 0);
+
+      File bck = new File(backupFolder);
+      if (!(bck.exists() && bck.isDirectory())) {
+         Assert.fail("Backup folder does not exist at: " + bck.getAbsolutePath());
+      }
+
+      File[] backupFiles = bck.listFiles();
+      assertNotNull("Some backup files must exist", backupFiles);
+      int backupFilesCount = backupFiles.length;
+      assertTrue("Some backup files must exist", backupFilesCount > 0);
+      assertEquals("Different number of backup files found than specified for inspection, update test if backup procedure changed", files.length, backupFilesCount);
+
+      for (String f : files) {
+         File bf = new File(backupFolder, f);
+         if (!bf.exists()) {
+            Assert.fail("Expected backup file does not exist at: " + bf.getAbsolutePath());
+         }
+
+         File reference = new File(referenceFolder, bf.getName());
+         if (!reference.exists()) {
+            Assert.fail("Reference file does not exist at: " + reference.getAbsolutePath());
+         }
+
+         Assert.assertArrayEquals(bf.getName() + " backup contents do not match reference file", Files.readAllBytes(bf.toPath()), Files.readAllBytes(reference.toPath()));
+      }
+   }
 
    private void compareDirectories(String expectedFolder, String upgradeFolder, String... ignoredFiles) throws Exception {
       File expectedFolderFile = new File(expectedFolder);

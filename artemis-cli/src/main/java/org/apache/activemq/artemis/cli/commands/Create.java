@@ -64,8 +64,10 @@ public class Create extends InstallAbstract {
 
    public static final String ARTEMIS_CMD = "artemis.cmd";
    public static final String BIN_ARTEMIS_CMD = "bin/" + ARTEMIS_CMD;
-   public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/artemis-service.exe";
-   public static final String BIN_ARTEMIS_SERVICE_EXE_CONFIG = "bin/artemis-service.exe.config";
+   public static final String ARTEMIS_SERVICE_EXE = "artemis-service.exe";
+   public static final String BIN_ARTEMIS_SERVICE_EXE = "bin/" + ARTEMIS_SERVICE_EXE;
+   public static final String ARTEMIS_SERVICE_EXE_CONFIG = "artemis-service.exe.config";
+   public static final String BIN_ARTEMIS_SERVICE_EXE_CONFIG = "bin/" + ARTEMIS_SERVICE_EXE_CONFIG;
    public static final String ARTEMIS_SERVICE_XML = "artemis-service.xml";
    public static final String BIN_ARTEMIS_SERVICE_XML = "bin/" + ARTEMIS_SERVICE_XML;
    public static final String ETC_ARTEMIS_PROFILE_CMD = "artemis.profile.cmd";
