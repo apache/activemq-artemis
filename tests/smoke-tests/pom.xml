@@ -220,6 +220,22 @@
                      </resources>
                   </configuration>
                </execution>
+               <execution>
+                  <id>copy-reference-for-upgrade-backup-checks</id>
+                  <phase>process-test-resources</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${project.build.directory}/reference-for-backup-check</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>src/main/filtered-resources</directory>
+                           <filtering>true</filtering>
+                        </resource>
+                     </resources>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
          <plugin>
