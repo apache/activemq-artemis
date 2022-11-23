@@ -2251,6 +2251,7 @@ public class AMQPMessageTest {
       long testExpiryTime = testCreationTime + 5000;
       String testSubject = "testSubject";
       String testMessageId = "testMessageId";
+      String testCorrelationId = "testCorrelationId";
 
       Properties protonProperties = new Properties();
       protonProperties.setContentType(Symbol.valueOf(AMQPMessageSupport.OCTET_STREAM_CONTENT_TYPE));
@@ -2263,6 +2264,7 @@ public class AMQPMessageTest {
       protonProperties.setSubject(testSubject);
       protonProperties.setTo(TEST_TO_ADDRESS);
       protonProperties.setMessageId(testMessageId);
+      protonProperties.setCorrelationId(testCorrelationId);
 
       protonMessage.setProperties(protonProperties);
 
@@ -2284,13 +2286,12 @@ public class AMQPMessageTest {
       assertTrue(properties.contains(PROPERTY_MAP_PROPERTIES_PREFIX + "absoluteExpiryTime" + "=" + testExpiryTime));
       assertTrue(properties.contains(PROPERTY_MAP_PROPERTIES_PREFIX + "to" + "=" + TEST_TO_ADDRESS));
       assertTrue(properties.contains(PROPERTY_MAP_PROPERTIES_PREFIX + "subject" + "=" + testSubject));
+      assertTrue(properties.contains(PROPERTY_MAP_PROPERTIES_PREFIX + "correlationId" + "=" + testCorrelationId));
 
       // TODO: should these fields be included in the 'properties' string and tested above?
       // Some are shown elsewhere in a way, others missing entirely. Eg:
       //
-      // correlation-id: not included.
       // message-id: included'ish, with an ID: prefix added, as the CompositeDataConstants.USER_ID.
-      // reply-to: not included, though the replyToGroupId is given as shown above.
       // user-id: not included.
 
       // Some fields of the properties section already align with fields given
