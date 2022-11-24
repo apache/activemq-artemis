@@ -6,9 +6,9 @@ connection between the client and the server.
 
 ## 100% Transparent session re-attachment
 
-If the failure was due to some transient failure such as a temporary network
-failure, and the target server was not restarted, then the sessions will still
-be existent on the server, assuming the client hasn't been disconnected for
+If the disconnection was due to some transient failure such as a temporary
+network outage and the target server was not restarted, then the sessions will
+still exist on the server, assuming the client hasn't been disconnected for
 more than [connection-ttl](connection-ttl.md)
 
 In this scenario, Apache ActiveMQ Artemis will automatically re-attach the
@@ -44,13 +44,13 @@ occur)
 ## Session reconnection
 
 Alternatively, the server might have actually been restarted after crashing or
-being stopped. In this case any sessions will no longer be existent on the
-server and it won't be possible to 100% transparently re-attach to them.
+being stopped. In this case any sessions will no longer exist on the server and
+it won't be possible to 100% transparently re-attach to them.
 
-In this case, Apache ActiveMQ Artemis will automatically reconnect the
-connection and *recreate* any sessions and consumers on the server
-corresponding to the sessions and consumers on the client. This process is
-exactly the same as what happens during failover onto a backup server.
+In this case, the Apache ActiveMQ Artemis client will automatically reconnect
+and *recreate* any sessions and consumers on the server corresponding to the
+sessions and consumers on the client. This process is exactly the same as what
+happens during failover onto a backup server.
 
 Client reconnection is also used internally by components such as core bridges
 to allow them to reconnect to their target servers.
