@@ -71,11 +71,6 @@ public class KubernetesClientImplTest {
       System.setProperty("KUBERNETES_SERVICE_PORT", port);
       System.setProperty("KUBERNETES_TOKEN_PATH",
             KubernetesClientImplTest.class.getClassLoader().getResource("client_token").getPath());
-      URL caPath = KubernetesClientImplTest.class.getClassLoader()
-            .getResource("CertificateAuthorityCertificate.pem");
-      if (caPath != null) {
-         System.setProperty("KUBERNETES_CA_PATH", caPath.getPath());
-      }
 
       mockServer.when(
             request()
@@ -105,6 +100,13 @@ public class KubernetesClientImplTest {
                   response()
                         .withStatusCode(HTTP_INTERNAL_ERROR));
 
+
+      // proactivelyInitialiseTLS to dynamicallyCreateCertificateAuthorityCertificate
+      // only kicks in when the client is created to support the mock responses
+      URL caPath = KubernetesClientImplTest.class.getClassLoader()
+         .getResource("CertificateAuthorityCertificate.pem");
+      assertNotNull(caPath);
+      System.setProperty("KUBERNETES_CA_PATH", caPath.getPath());
    }
 
    @AfterClass
