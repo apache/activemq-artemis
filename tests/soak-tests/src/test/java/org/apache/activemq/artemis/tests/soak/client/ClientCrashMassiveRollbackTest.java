@@ -77,8 +77,12 @@ public class ClientCrashMassiveRollbackTest extends ActiveMQTestBase {
             Session consumerSession = connection.createSession(true, Session.SESSION_TRANSACTED);
             Queue destination = consumerSession.createQueue(queueName);
             MessageConsumer consumer = consumerSession.createConsumer(destination);
+            MessageConsumer consumer2 = consumerSession.createConsumer(destination);
+            MessageConsumer consumer3 = consumerSession.createConsumer(destination);
             for (;;) {
                consumer.receive();
+               consumer2.receive();
+               consumer3.receive();
             }
          } catch (Exception e) {
          }
