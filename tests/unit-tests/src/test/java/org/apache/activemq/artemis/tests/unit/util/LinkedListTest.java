@@ -33,9 +33,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,23 +103,45 @@ public class LinkedListTest extends ActiveMQTestBase {
       list.addSorted(1);
       list.addSorted(3);
       list.addSorted(4);
-      Assert.assertEquals(0, scans); // no scans made until now
-      list.addSorted(2); // this should need a scan
-      Assert.assertEquals(1, scans);
+      list.addSorted(2);
       list.addSorted(10);
       list.addSorted(20);
       list.addSorted(19);
-      list.addSorted(7); // this will need a scan as it's totally random
-      Assert.assertEquals(2, scans);
+      list.addSorted(7);
       list.addSorted(8);
-      Assert.assertEquals(2, scans);
+      Assert.assertEquals(0, scans); // no full scans should be done
       Assert.assertEquals(1, (int)list.poll());
       list.addSorted(9);
-      Assert.assertEquals(3, scans); // remove (poll) should clear the last added cache
+      Assert.assertEquals(1, scans); // remove (poll) should clear the last added cache, a scan will be needed
+
       printDebug();
-
       validateOrder(null);
+   }
 
+   @Test
+   public void scanDirectionalTest() {
+      list.addSorted(9);
+      Assert.assertEquals(1, list.size());
+      list.addSorted(5);
+      Assert.assertEquals(2, list.size());
+      list.addSorted(6);
+      Assert.assertEquals(3, list.size());
+      list.addSorted(2);
+      Assert.assertEquals(4, list.size());
+      list.addSorted(7);
+      Assert.assertEquals(5, list.size());
+      list.addSorted(4);
+      Assert.assertEquals(6, list.size());
+      list.addSorted(8);
+      Assert.assertEquals(7, list.size());
+      list.addSorted(1);
+      Assert.assertEquals(8, list.size());
+      list.addSorted(10);
+      Assert.assertEquals(9, list.size());
+      list.addSorted(3);
+      Assert.assertEquals(10, list.size());
+      printDebug();
+      validateOrder(null);
    }
 
    private void printDebug() {

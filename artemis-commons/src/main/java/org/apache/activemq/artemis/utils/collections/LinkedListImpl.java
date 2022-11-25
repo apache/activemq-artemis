@@ -232,17 +232,20 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          }
 
          if (localLastAdd != null) { // as an optimization we check against the last add rather than always scan.
-            if (localLastAdd.prev != null && localLastAdd.prev.val() != null) {
-               if (comparator.compare(localLastAdd.prev.val(), e) > 0 && comparator.compare(localLastAdd.val(), e) < 0) {
-                  logger.trace("Adding {} before most recent added element {}", e, localLastAdd.val());
-                  addAfter(localLastAdd.prev, e);
+            if (logger.isDebugEnabled()) {
+               logger.debug("localLastAdd Value = {}, we are adding {}", localLastAdd.val(), e);
+            }
+
+            int compareLastAdd = comparator.compare(localLastAdd.val(), e);
+
+            if (compareLastAdd > 0) {
+               if (scanRight(localLastAdd, e)) {
                   return;
                }
             }
-            if (localLastAdd.next != null && localLastAdd.next.val() != null) {
-               if (comparator.compare(localLastAdd.val(), e) > 0 && comparator.compare(localLastAdd.next.val(), e) < 0) {
-                  logger.trace("Adding {} after most recent added element {}", e, localLastAdd.val());
-                  addAfter(localLastAdd, e);
+
+            if (compareLastAdd < 0) {
+               if (scanLeft(localLastAdd, e)) {
                   return;
                }
             }
@@ -262,6 +265,31 @@ public class LinkedListImpl<E> implements LinkedList<E> {
          //      is because my OCD level is not letting this out.
          throw new IllegalStateException("Cannot find a suitable place for your element, There's a mismatch in the comparator or there was concurrent adccess on the queue");
       }
+   }
+
+   protected boolean scanRight(Node<E> position, E e) {
+      Node<E> fetching = position.next;
+      while (fetching != null) {
+         if (comparator.compare(fetching.val(), e) < 0) {
+            addAfter(position, e);
+            return true;
+         }
+         position = fetching;
+         fetching = fetching.next;
+      }
+      return false; // unlikely to happen, using this just to be safe
+   }
+
+   protected boolean scanLeft(Node<E> position, E e) {
+      Node<E> fetching = position.prev;
+      while (fetching != null) {
+         if (comparator.compare(fetching.val(), e) > 0) {
+            addAfter(fetching, e);
+            return true;
+         }
+         fetching = fetching.prev;
+      }
+      return false; // unlikely to happen, using this just to be safe
    }
 
    protected boolean addSortedScan(E e) {
