@@ -37,15 +37,15 @@ import org.apache.activemq.artemis.quorum.MutableLong;
 
 import static org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceUtils.applyCoordinationId;
 
-@Command(name = "list", description = "list local and/or coordinated activation sequences")
+@Command(name = "list", description = "List local and/or remote (i.e. coordinated) activation sequences.")
 public class ActivationSequenceList extends LockAbstract {
 
    private static final int MANAGER_START_TIMEOUT_SECONDS = 60;
-   @Option(name = "--node-id", description = "This can be used just with --remote option. If not set, broker NodeID is used instead")
+   @Option(name = "--node-id", description = "This can be used just with --remote option. If not set, broker NodeID is used instead.")
    public String nodeId = null;
-   @Option(name = "--remote", description = "List just coordinated activation sequence")
+   @Option(name = "--remote", description = "List just remote (i.e. coordinated) activation sequence.")
    public boolean remote = false;
-   @Option(name = "--local", description = "List just local activation sequence")
+   @Option(name = "--local", description = "List just local activation sequence.")
    public boolean local = false;
 
    @Override

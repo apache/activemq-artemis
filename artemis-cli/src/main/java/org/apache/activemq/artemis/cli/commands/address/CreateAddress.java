@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "create", description = "create an address")
+@Command(name = "create", description = "Create an address.")
 public class CreateAddress extends AddressAbstract {
 
    @Override

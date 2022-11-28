@@ -23,11 +23,11 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "show", description = "Get the selected address")
+@Command(name = "show", description = "Show the selected address.")
 public class ShowAddress extends AddressAbstract {
 
 
-   @Option(name = "--bindings", description = "Shows the bindings for this address")
+   @Option(name = "--bindings", description = "Show the bindings for this address.")
    boolean bindings;
 
    @Override

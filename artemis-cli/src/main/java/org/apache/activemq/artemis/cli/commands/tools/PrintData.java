@@ -64,24 +64,24 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
-@Command(name = "print", description = "Print data records information (WARNING: don't use while a production server is running)")
+@Command(name = "print", description = "Print data records information. WARNING: don't use while a production server is running.")
 public class PrintData extends DBOption {
 
 
-   @Option(name = "--safe", description = "It will print your data structure without showing your data")
+   @Option(name = "--safe", description = "Print your data structure without showing your data.")
    private boolean safe = false;
 
 
-   @Option(name = "--reclaimed", description = "This option will try to print as many records as possible from reclaimed files")
+   @Option(name = "--reclaimed", description = "Try to print as many records as possible from reclaimed files.")
    private boolean reclaimed = false;
 
-   @Option(name = "--max-pages", description = "It will print your data structure without showing your data")
+   @Option(name = "--max-pages", description = "Maximum number of pages to read. Default: unlimited (-1).")
    private int maxPages = -1;
 
-   @Option(name = "--skip-bindings", description = "It will ignore printing the bindings journal")
+   @Option(name = "--skip-bindings", description = "Do not print data from the bindings journal.")
    private boolean skipBindings = false;
 
-   @Option(name = "--skip-journal", description = "It will ignore printing the messages journal")
+   @Option(name = "--skip-journal", description = "Do not print data from the messages journal.")
    private boolean skipJournal = false;
 
    private static final String BINDINGS_BANNER = "B I N D I N G S  J O U R N A L";

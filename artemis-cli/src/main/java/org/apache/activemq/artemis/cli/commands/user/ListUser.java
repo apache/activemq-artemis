@@ -30,7 +30,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
  * list existing users, example:
  * ./artemis user list --user guest
  */
-@Command(name = "list", description = "List existing user(s)")
+@Command(name = "list", description = "List user(s).")
 public class ListUser extends UserAction {
 
    @Override

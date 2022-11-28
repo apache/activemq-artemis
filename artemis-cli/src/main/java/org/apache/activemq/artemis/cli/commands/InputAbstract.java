@@ -34,7 +34,7 @@ public class InputAbstract extends ActionAbstract {
       inputEnabled = true;
    }
 
-   @Option(name = "--silent", description = "It will disable all the inputs, and it would make a best guess for any required input")
+   @Option(name = "--silent", description = "Disable all the inputs, and make a best guess for any required input.")
    private boolean silentInput = false;
 
    public boolean isSilentInput() {
@@ -52,7 +52,7 @@ public class InputAbstract extends ActionAbstract {
 
       Boolean booleanValue = null;
       do {
-         String value = input(propertyName, prompt + ", valid values are Y,N,True,False", Boolean.toString(silentDefault));
+         String value = input(propertyName, prompt + ", valid values are Y, N, True, False", Boolean.toString(silentDefault));
 
          switch (value.toUpperCase().trim()) {
             case "TRUE":

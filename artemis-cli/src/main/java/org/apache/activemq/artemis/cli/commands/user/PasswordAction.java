@@ -20,12 +20,12 @@ import io.airlift.airline.Option;
 
 public class PasswordAction extends UserAction {
 
-   @Option(name = "--user-command-password", description = "The password to use for the chosen user command (Default: input)")
+   @Option(name = "--user-command-password", description = "The password to use for the chosen user command. Default: input.")
    String userCommandPassword;
 
    void checkInputPassword() {
       if (userCommandPassword == null) {
-         userCommandPassword = inputPassword("--user-command-password", "Please provide the password to use for the chosen user command:", null);
+         userCommandPassword = inputPassword("--user-command-password", "What is the password to use for the chosen user command?", null);
       }
    }
 

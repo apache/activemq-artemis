@@ -36,22 +36,22 @@ import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.utils.Base64;
 
-@Command(name = "decode", description = "Decode a journal's internal format into a new journal set of files")
+@Command(name = "decode", description = "Decode a journal's internal format into a new set of journal files.")
 public class DecodeJournal extends LockAbstract {
 
-   @Option(name = "--directory", description = "The journal folder (default journal folder from broker.xml)")
+   @Option(name = "--directory", description = "The journal folder. Default: read 'journal-directory' from broker.xml.")
    public String directory;
 
-   @Option(name = "--prefix", description = "The journal prefix (default activemq-data)")
+   @Option(name = "--prefix", description = "The journal prefix. Default: activemq-data.")
    public String prefix = "activemq-data";
 
-   @Option(name = "--suffix", description = "The journal suffix (default amq)")
+   @Option(name = "--suffix", description = "The journal suffix. Default: amq.")
    public String suffix = "amq";
 
-   @Option(name = "--file-size", description = "The journal size (default 10485760)")
+   @Option(name = "--file-size", description = "The journal size. Default: 10485760.")
    public int size = 10485760;
 
-   @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
+   @Option(name = "--input", description = "The input file name. Default: exp.dmp.", required = true)
    public String input = "exp.dmp";
 
    @Override

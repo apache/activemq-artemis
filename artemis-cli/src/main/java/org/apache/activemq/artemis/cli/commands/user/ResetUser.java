@@ -27,10 +27,10 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
  * Reset a user's password or roles, example:
  * ./artemis user reset --user guest --role admin --password ***
  */
-@Command(name = "reset", description = "Reset user's password or roles")
+@Command(name = "reset", description = "Reset user's password or roles.")
 public class ResetUser extends PasswordAction {
 
-   @Option(name = "--plaintext", description = "store the password in plaintext (Default: false)")
+   @Option(name = "--plaintext", description = "Store the password in plaintext. Default: false.")
    boolean plaintext = false;
 
    @Override

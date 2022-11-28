@@ -36,7 +36,7 @@ public abstract class ActionAbstract implements Action {
 
    public static final String DEFAULT_BROKER_ACCEPTOR = "artemis";
 
-   @Option(name = "--verbose", description = "Adds more information on the execution")
+   @Option(name = "--verbose", description = "Print additional information.")
    public boolean verbose;
 
    private String brokerInstance;

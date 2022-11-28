@@ -33,13 +33,13 @@ import org.apache.commons.lang3.time.StopWatch;
 
 public abstract class CheckAbstract extends AbstractAction {
 
-   @Option(name = "--name", description = "Name of the target to check")
+   @Option(name = "--name", description = "Name of the target to check.")
    protected String name;
 
-   @Option(name = "--timeout", description = "Time to wait for the check execution, in milliseconds")
+   @Option(name = "--timeout", description = "Time to wait for the check to complete (in milliseconds).")
    private int timeout = 30000;
 
-   @Option(name = "--fail-at-end", description = "If a particular module check fails, continue the rest of the checks")
+   @Option(name = "--fail-at-end", description = "Continue with the rest of the checks even if a particular module check fails.")
    private boolean failAtEnd = false;
 
    public String getName() {

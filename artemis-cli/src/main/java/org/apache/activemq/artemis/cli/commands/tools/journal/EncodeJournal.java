@@ -34,19 +34,19 @@ import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.utils.Base64;
 
-@Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format")
+@Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format.")
 public class EncodeJournal extends LockAbstract {
 
-   @Option(name = "--directory", description = "The journal folder (default the journal folder from broker.xml)")
+   @Option(name = "--directory", description = "The journal folder. Default: read 'journal-directory' from broker.xml.")
    public String directory;
 
-   @Option(name = "--prefix", description = "The journal prefix (default activemq-data)")
+   @Option(name = "--prefix", description = "The journal prefix. Default: activemq-data.")
    public String prefix = "activemq-data";
 
-   @Option(name = "--suffix", description = "The journal suffix (default amq)")
+   @Option(name = "--suffix", description = "The journal suffix. Default: amq.")
    public String suffix = "amq";
 
-   @Option(name = "--file-size", description = "The journal size (default 10485760)")
+   @Option(name = "--file-size", description = "The journal size. Default: 10485760.")
    public int size = 10485760;
 
    @Override

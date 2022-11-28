@@ -59,31 +59,31 @@ public class DBOption extends OptionalLocking {
 
    protected ScheduledExecutorService scheduledExecutorService;
 
-   @Option(name = "--output", description = "Output name for the file")
+   @Option(name = "--output", description = "Output name for the file.")
    private String output;
 
-   @Option(name = "--jdbc", description = "It will activate jdbc")
+   @Option(name = "--jdbc", description = "Whether to store message data in JDBC instead of local files.")
    Boolean jdbc;
 
-   @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindigns table")
+   @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
 
-   @Option(name = "--jdbc-message-table-name", description = "Name of the jdbc messages table")
-   private String jdbcMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
+   @Option(name = "--jdbc-message-table-name", description = "Name of the jdbc messages table.")
+   private String jdbcMessages = ActiveMQDefaultConfiguration.getDefaultMessageTableName();
 
-   @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table")
+   @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table.")
    private String jdbcLargeMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
 
-   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page store messages table")
+   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page store messages table.")
    private String jdbcPageStore = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
 
-   @Option(name = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table")
+   @Option(name = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table.")
    private String jdbcNodeManager = ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName();
 
-   @Option(name = "--jdbc-connection-url", description = "The connection used for the database")
+   @Option(name = "--jdbc-connection-url", description = "The URL used for the database connection.")
    private String jdbcURL = null;
 
-   @Option(name = "--jdbc-driver-class-name", description = "JDBC driver classname")
+   @Option(name = "--jdbc-driver-class-name", description = "JDBC driver classname.")
    private String jdbcClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
 
    public boolean isJDBC() throws Exception {

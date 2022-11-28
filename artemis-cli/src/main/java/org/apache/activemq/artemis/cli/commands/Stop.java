@@ -21,7 +21,7 @@ import java.io.File;
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 
-@Command(name = "stop", description = "stops the broker instance")
+@Command(name = "stop", description = "Stop the broker.")
 public class Stop extends Configurable {
 
    public static final String STOP_FILE_NAME = "STOP_ME";

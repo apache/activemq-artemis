@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "create", description = "create a queue or topic")
+@Command(name = "create", description = "Create a queue.")
 public class CreateQueue extends QueueAbstract {
 
    @Override

@@ -31,22 +31,22 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 
-@Command(name = "consumer", description = "It will consume messages from an instance")
+@Command(name = "consumer", description = "Consume messages from a queue.")
 public class Consumer extends DestAbstract {
 
-   @Option(name = "--durable", description = "It will use durable subscription in case of client")
+   @Option(name = "--durable", description = "Whether the consumer's subscription will be durable.")
    boolean durable = false;
 
-   @Option(name = "--break-on-null", description = "It will break on null messages")
+   @Option(name = "--break-on-null", description = "Stop consuming when a null message is received.")
    boolean breakOnNull = false;
 
-   @Option(name = "--receive-timeout", description = "Time used on receive(timeout)")
+   @Option(name = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds).")
    int receiveTimeout = 3000;
 
-   @Option(name = "--filter", description = "filter to be used with the consumer")
+   @Option(name = "--filter", description = "The message filter.")
    String filter;
 
-   @Option(name = "--data", description = "serialize the messages to the specified file as they are consumed")
+   @Option(name = "--data", description = "Serialize the messages to the specified file as they are consumed.")
    String file;
 
    @Override

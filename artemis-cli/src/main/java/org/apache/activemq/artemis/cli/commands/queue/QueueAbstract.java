@@ -21,37 +21,37 @@ import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
 public class QueueAbstract extends AbstractAction {
 
-   @Option(name = "--name", description = "queue name")
+   @Option(name = "--name", description = "The queue's name.")
    private String name;
 
-   @Option(name = "--filter", description = "queue's filter string (default null)")
+   @Option(name = "--filter", description = "The queue's filter string. Default: null.")
    private String filter = null;
 
-   @Option(name = "--address", description = "address of the queue (default queue's name)")
+   @Option(name = "--address", description = "The queue's address. Default: queue's name.")
    private String address;
 
-   @Option(name = "--durable", description = "whether the queue is durable or not (default input)")
+   @Option(name = "--durable", description = "The queue is durable. Default: input.")
    private Boolean durable;
 
-   @Option(name = "--no-durable", description = "whether the queue is durable or not (default input)")
+   @Option(name = "--no-durable", description = "The queue is not durable. Default: input.")
    private Boolean noDurable;
 
-   @Option(name = "--purge-on-no-consumers", description = "whether to delete the contents of this queue when its last consumer disconnects (default input)")
+   @Option(name = "--purge-on-no-consumers", description = "Delete the contents of this queue when its last consumer disconnects. Default: input.")
    private Boolean purgeOnNoConsumers;
 
-   @Option(name = "--preserve-on-no-consumers", description = "whether to preserve the contents of this queue when its last consumer disconnects (default input)")
+   @Option(name = "--preserve-on-no-consumers", description = "Preserve the contents of this queue when its last consumer disconnects. Default: input.")
    private Boolean preserveOnNoConsumers;
 
-   @Option(name = "--max-consumers", description = "Maximum number of consumers allowed on this queue at any one time (default no limit)")
+   @Option(name = "--max-consumers", description = "The maximum number of concurrent consumers allowed on this queue. Default: no limit.")
    private Integer maxConsumers;
 
-   @Option(name = "--auto-create-address", description = "Auto create the address (if it doesn't exist) with default values (default input)")
+   @Option(name = "--auto-create-address", description = "Automatically create the address (if it doesn't exist) with default values. Default: input.")
    private Boolean autoCreateAddress;
 
-   @Option(name = "--anycast", description = "It will determine this queue as anycast (default input)")
+   @Option(name = "--anycast", description = "Create an anycast queue. Default: input.")
    private Boolean anycast;
 
-   @Option(name = "--multicast", description = "It will determine this queue as multicast (default input)")
+   @Option(name = "--multicast", description = "Create a multicast queue. Default: input.")
    private Boolean multicast;
 
    public void setFilter(String filter) {
@@ -67,7 +67,7 @@ public class QueueAbstract extends AbstractAction {
       String queueName = getName();
 
       if (requireInput && (address == null || "".equals(address.trim()))) {
-         address = input("--address", "Enter the address name. <Enter for " + queueName + ">", null, true);
+         address = input("--address", "What is the name of the address? <Enter for " + queueName + ">", null, true);
       }
 
       if (address == null || "".equals(address.trim())) {
@@ -85,7 +85,7 @@ public class QueueAbstract extends AbstractAction {
       }
 
       if (durable == null) {
-         durable = inputBoolean("--durable", "Is this a durable queue", false);
+         durable = inputBoolean("--durable", "Is this a durable queue?", false);
       }
 
       return durable;
@@ -114,7 +114,7 @@ public class QueueAbstract extends AbstractAction {
 
    public boolean isAutoCreateAddress() {
       if (autoCreateAddress == null) {
-         autoCreateAddress = inputBoolean("--auto-create-address", "should auto create the address if it doesn't exist", false);
+         autoCreateAddress = inputBoolean("--auto-create-address", "Automatically create the address if it doesn't exist?", false);
       }
       return autoCreateAddress;
    }
@@ -133,7 +133,7 @@ public class QueueAbstract extends AbstractAction {
 
          if (anycast == null) {
             // if it is still null
-            anycast = inputBoolean("--anycast", "is this an anycast queue", false);
+            anycast = inputBoolean("--anycast", "Is this an anycast queue?", false);
          }
       }
       return anycast;
@@ -153,7 +153,7 @@ public class QueueAbstract extends AbstractAction {
 
          if (multicast == null) {
             // if it is still null
-            multicast = inputBoolean("--multicast", "is this a multicast queue", false);
+            multicast = inputBoolean("--multicast", "Is this a multicast queue?", false);
          }
       }
       return multicast;
@@ -180,7 +180,7 @@ public class QueueAbstract extends AbstractAction {
 
 
       if (value == null && useInput) {
-         value = inputBoolean("--purge-on-no-consumers", "Purge the contents of the queue once there are no consumers", false);
+         value = inputBoolean("--purge-on-no-consumers", "Purge the contents of the queue once the last consumer disconnects?", false);
       }
 
       if (value == null) {
@@ -214,7 +214,7 @@ public class QueueAbstract extends AbstractAction {
 
    public String getName() {
       if (name == null) {
-         name = input("--name", "Please provide the destination name:", "");
+         name = input("--name", "What is the name of the queue?", "");
       }
 
       return name;
@@ -222,7 +222,7 @@ public class QueueAbstract extends AbstractAction {
 
    public String getRoutingType() {
       if (isAnycast() && isMulticast()) {
-         throw new IllegalArgumentException("--multicast and --anycast are exclusive options for a Queue");
+         throw new IllegalArgumentException("--multicast and --anycast are exclusive options for a queue");
       }
 
       if (isMulticast()) {

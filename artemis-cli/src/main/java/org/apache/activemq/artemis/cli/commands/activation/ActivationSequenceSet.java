@@ -37,17 +37,17 @@ import org.apache.activemq.artemis.quorum.MutableLong;
 
 import static org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceUtils.applyCoordinationId;
 
-@Command(name = "set", description = "Set local and/or remote activation sequence")
+@Command(name = "set", description = "Set local and/or remote (i.e. coordinated) activation sequence.")
 public class ActivationSequenceSet extends LockAbstract {
 
    private static final int MANAGER_START_TIMEOUT_SECONDS = 60;
    @Option(name = "--node-id", description = "Target sequence for this UUID overwriting the NodeID of this broker too. If not set, broker NodeID is used instead.")
    public String nodeId = null;
-   @Option(name = "--remote", description = "Set just coordinated activation sequence")
+   @Option(name = "--remote", description = "Set just remote (i.e. coordinated) activation sequence.")
    public boolean remote = false;
-   @Option(name = "--local", description = "Set just local activation sequence")
+   @Option(name = "--local", description = "Set just local activation sequence.")
    public boolean local = false;
-   @Option(name = "--to", description = "new activation sequence.", required = true)
+   @Option(name = "--to", description = "The new activation sequence.", required = true)
    public long value;
 
    @Override
@@ -68,7 +68,7 @@ public class ActivationSequenceSet extends LockAbstract {
       final boolean local = command.local;
       final long value = command.value;
       if (remote && local) {
-         throw new IllegalArgumentException("--local and --remote cannot be both present: to set both sequences just drop both options");
+         throw new IllegalArgumentException("Both --local and --remote cannot be present. To set both sequences just remove --local and --remote.");
       }
       if (value < 0) {
          throw new IllegalArgumentException("--to must be >= 0");
@@ -84,7 +84,7 @@ public class ActivationSequenceSet extends LockAbstract {
          managerConfiguration = primaryPolicyConfig.getDistributedManagerConfiguration();
          if (primaryPolicyConfig.getCoordinationId() != null) {
             if (nodeId != null) {
-               throw new IllegalArgumentException("forcing NodeID with multi-primary is not supported! Try again without --node-id");
+               throw new IllegalArgumentException("Forcing NodeID with multi-primary is not supported! Try again without --node-id");
             }
             coordinationId = primaryPolicyConfig.getCoordinationId();
          }

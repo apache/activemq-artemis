@@ -24,16 +24,16 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
-@Command(name = "delete", description = "delete a queue")
+@Command(name = "delete", description = "Delete a queue.")
 public class DeleteQueue extends AbstractAction {
 
-   @Option(name = "--name", description = "queue name")
+   @Option(name = "--name", description = "The queue's name")
    String name;
 
-   @Option(name = "--removeConsumers", description = "whether deleting destination with consumers or not (default false)")
+   @Option(name = "--removeConsumers", description = "Whether to delete the queue even if it has active consumers. Default: false.")
    boolean removeConsumers = false;
 
-   @Option(name = "--autoDeleteAddress", description = "delete the address if this it's last last queue")
+   @Option(name = "--autoDeleteAddress", description = "Whether to delete the address if this is its only queue.")
    boolean autoDeleteAddress = false;
 
    @Override
@@ -77,7 +77,7 @@ public class DeleteQueue extends AbstractAction {
 
    public String getName() {
       if (name == null) {
-         name = input("--name", "Please provide the destination name:", "");
+         name = input("--name", "What is the name of the queue?", "");
       }
 
       return name;

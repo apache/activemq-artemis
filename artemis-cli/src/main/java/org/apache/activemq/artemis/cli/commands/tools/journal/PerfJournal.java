@@ -26,35 +26,35 @@ import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
 
-@Command(name = "perf-journal", description = "Calculates the journal-buffer-timeout you should use with the current data folder")
+@Command(name = "perf-journal", description = "Calculate the journal-buffer-timeout to use with the current data folder.")
 public class PerfJournal extends OptionalLocking {
 
 
-   @Option(name = "--block-size", description = "The block size for each write (default 4096)")
+   @Option(name = "--block-size", description = "The block size for each write. Default 4096.")
    public int size = 4 * 1024;
 
-   @Option(name = "--writes", description = "The number of writes to be performed (default 250)")
+   @Option(name = "--writes", description = "The number of writes to be performed. Default: 250.")
    public int writes = 250;
 
-   @Option(name = "--tries", description = "The number of tries for the test (default 5)")
+   @Option(name = "--tries", description = "The number of tries for the test. Default: 5.")
    public int tries = 5;
 
-   @Option(name = "--no-sync", description = "Disable sync")
+   @Option(name = "--no-sync", description = "Disable syncs.")
    public boolean nosyncs = false;
 
-   @Option(name = "--sync", description = "Enable syncs")
+   @Option(name = "--sync", description = "Enable syncs.")
    public boolean syncs = false;
 
-   @Option(name = "--journal-type", description = "Journal Type to be used (default from broker.xml)")
+   @Option(name = "--journal-type", description = "Journal type to be used: Default: read from broker.xml.")
    public String journalType = null;
 
-   @Option(name = "--sync-writes", description = "It will perform each write synchronously, like if you had a single producer")
+   @Option(name = "--sync-writes", description = "Perform each write synchronously, e.g. if there was a single producer.")
    public boolean syncWrites = false;
 
-   @Option(name = "--file", description = "The file name to be used (default test.tmp)")
+   @Option(name = "--file", description = "The file name to be used. Default: test.tmp.")
    public String fileName = "test.tmp";
 
-   @Option(name = "--max-aio", description = "libaio.maxAIO to be used (default: configuration::getJournalMaxIO_AIO()")
+   @Option(name = "--max-aio", description = "libaio.maxAIO to be used. Default: read from broker.xml.")
    public int maxAIO = 0;
 
 

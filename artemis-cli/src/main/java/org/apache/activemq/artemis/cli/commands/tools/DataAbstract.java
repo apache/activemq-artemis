@@ -27,16 +27,16 @@ import org.apache.activemq.artemis.cli.commands.Configurable;
  */
 public abstract class DataAbstract extends Configurable {
 
-   @Option(name = "--bindings", description = "The folder used for bindings (default from broker.xml)")
+   @Option(name = "--bindings", description = "The folder used for bindings. Default: read from broker.xml.")
    public String binding;
 
-   @Option(name = "--journal", description = "The folder used for messages journal (default from broker.xml)")
+   @Option(name = "--journal", description = "The folder used for normal messages. Default: read from broker.xml.")
    public String journal;
 
-   @Option(name = "--paging", description = "The folder used for paging (default from broker.xml)")
+   @Option(name = "--paging", description = "The folder used for paged messages. Default: read from broker.xml.")
    public String paging;
 
-   @Option(name = "--large-messages", description = "The folder used for large-messages (default from broker.xml)")
+   @Option(name = "--large-messages", description = "The folder used for large-messages. Default: read from broker.xml.")
    public String largeMessges;
 
    public String getLargeMessages() throws Exception {

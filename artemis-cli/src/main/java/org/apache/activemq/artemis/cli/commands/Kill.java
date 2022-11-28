@@ -21,7 +21,7 @@ import java.io.File;
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 
-@Command(name = "kill", description = "Kills a broker instance started with --allow-kill")
+@Command(name = "kill", description = "Kill a broker started with --allow-kill.")
 public class Kill extends Configurable {
 
    @Override

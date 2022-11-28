@@ -36,73 +36,73 @@ import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.qpid.jms.JmsConnectionFactory;
 
-@Command(name = "transfer", description = "Moves Messages from one destination towards another destination")
+@Command(name = "transfer", description = "Move messages from one destination towards another destination.")
 public class Transfer extends InputAbstract {
 
-   @Option(name = "--source-url", description = "URL towards the broker. (default: Build URL from acceptors defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
+   @Option(name = "--source-url", description = "URL for the source broker. Default: build URL from 'artemis' acceptor defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed.")
    protected String sourceURL = DEFAULT_BROKER_URL;
 
-   @Option(name = "--source-acceptor", description = "Acceptor used to build URL towards the broker")
+   @Option(name = "--source-acceptor", description = "Acceptor used to build URL towards the broker. Default: 'artemis'.")
    protected String sourceAcceptor;
 
-   @Option(name = "--source-user", description = "User used to connect")
+   @Option(name = "--source-user", description = "User used to connect to source broker.")
    protected String sourceUser;
 
-   @Option(name = "--source-password", description = "Password used to connect")
+   @Option(name = "--source-password", description = "Password used to connect to source broker.")
    protected String sourcePassword;
 
-   @Option(name = "--target-url", description = "URL towards the broker. (default: Read from current broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
+   @Option(name = "--target-url", description = "URL for the target broker. Default: build URL from 'artemis' acceptor defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed.")
    protected String targetURL = DEFAULT_BROKER_URL;
 
-   @Option(name = "--target-user", description = "User used to connect")
+   @Option(name = "--target-user", description = "User used to connect to target broker.")
    protected String targetUser;
 
-   @Option(name = "--target-password", description = "Password used to connect")
+   @Option(name = "--target-password", description = "Password used to connect to target broker.")
    protected String targetPassword;
 
-   @Option(name = "--receive-timeout", description = "Amount of time (in milliseconds) to wait before giving up the loop. 0 means receiveNoWait, -1 means consumer.receive() waiting forever. (default=5000)")
+   @Option(name = "--receive-timeout", description = "Amount of time (in milliseconds) to wait before giving up the receiving loop; 0 means no wait, -1 means wait forever. Default: 5000.")
    int receiveTimeout = 5000;
 
-   @Option(name = "--source-client-id", description = "ClientID to be associated with connection")
+   @Option(name = "--source-client-id", description = "ClientID to be associated with source connection.")
    String sourceClientID;
 
-   @Option(name = "--source-protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
+   @Option(name = "--source-protocol", description = "Protocol used. Valid values are amqp or core. Default: core.")
    String sourceProtocol = "core";
 
-   @Option(name = "--source-queue", description = "JMS Queue to be used.")
+   @Option(name = "--source-queue", description = "Source JMS queue to be used. Cannot be set with --source-topic.")
    String sourceQueue;
 
-   @Option(name = "--shared-durable-subscription", description = "Name of a shared subscription name to be used on the input topic")
+   @Option(name = "--shared-durable-subscription", description = "Name of a shared subscription name to be used on the source topic.")
    String sharedDurableSubscription;
 
-   @Option(name = "--shared-subscription", description = "Name of a shared subscription name to be used on the input topic")
+   @Option(name = "--shared-subscription", description = "Name of a shared subscription name to be used on the source topic.")
    String sharedSubscription;
 
-   @Option(name = "--durable-consumer", description = "Name of a durable consumer to be used on the input topic")
+   @Option(name = "--durable-consumer", description = "Name of a durable consumer to be used on the source topic.")
    String durableConsumer;
 
    @Option(name = "--no-Local", description = "Use noLocal when applicable on topic operation")
    boolean noLocal;
 
-   @Option(name = "--source-topic", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
+   @Option(name = "--source-topic", description = "Source JMS topic to be used. Cannot bet set with --source-queue.")
    String sourceTopic;
 
-   @Option(name = "--source-filter", description = "filter to be used with the consumer")
+   @Option(name = "--source-filter", description = "Filter to be used with the source consumer.")
    String filter;
 
-   @Option(name = "--target-protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
+   @Option(name = "--target-protocol", description = "Protocol used. Valid values are amqp or core. Default: core.")
    String targetProtocol = "core";
 
    @Option(name = "--commit-interval", description = "Transaction batch interval.")
    int commitInterval = 1000;
 
-   @Option(name = "--copy", description = "If this option is chosen we will perform a copy of the queue by rolling back the original TX on the source.")
+   @Option(name = "--copy", description = "If this option is chosen we will perform a copy by rolling back the original transaction on the source.")
    boolean copy;
 
-   @Option(name = "--target-queue", description = "JMS Queue to be used.")
+   @Option(name = "--target-queue", description = "Target JMS queue to be used. Cannot be set with --target-topic.")
    String targetQueue;
 
-   @Option(name = "--target-topic", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
+   @Option(name = "--target-topic", description = "Target JMS topic to be used. Cannot bet set with --target-queue.")
    String targetTopic;
 
    @Option(name = "--message-count", description = "Number of messages to transfer.")

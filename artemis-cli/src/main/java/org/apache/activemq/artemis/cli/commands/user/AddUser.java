@@ -27,10 +27,10 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
  * Adding a new user, example:
  * ./artemis user add --user-command-user guest --role admin --user-command-password ***
  */
-@Command(name = "add", description = "Add a new user")
+@Command(name = "add", description = "Add a user.")
 public class AddUser extends PasswordAction {
 
-   @Option(name = "--plaintext", description = "store the password in plaintext (Default: false)")
+   @Option(name = "--plaintext", description = "Store the password in plaintext. Default: false.")
    boolean plaintext = false;
 
    @Override
