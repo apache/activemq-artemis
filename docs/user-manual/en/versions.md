@@ -8,6 +8,16 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.27.1
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352610&projectId=12315920)
+
+Highlights:
+
+- Bug Fixes
+- AMQP Large Message over Bridges were broken
+- Rollback of massive transactions would take a long time to process
+- Improvements to auto-create and auto-delete queues.
+ 
 ## 2.27.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352246&projectId=12315920)
 
