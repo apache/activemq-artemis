@@ -33,64 +33,64 @@ import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
-@Command(name = "client", description = "It will produce and consume messages to a broker instance")
+@Command(name = "client", description = "Produce messages to and consume messages from a broker instance.")
 public class PerfClientCommand extends PerfCommand {
 
-   @Option(name = "--tx", description = "Perform Message::acknowledge per each message received (Default: disabled)")
+   @Option(name = "--tx", description = "Perform Message::acknowledge per each message received. Default: disabled.")
    protected boolean transaction;
 
-   @Option(name = "--shared", description = "Create shared subscription (Default: 0)")
+   @Option(name = "--shared", description = "Create a shared subscription. Default: 0.")
    protected int sharedSubscription = 0;
 
-   @Option(name = "--durable", description = "Enabled durable subscription (Default: disabled)")
+   @Option(name = "--durable", description = "Enabled durable subscription. Default: disabled.")
    protected boolean durableSubscription = false;
 
-   @Option(name = "--consumer-connections", description = "Number of consumer connections to be used. Default is same as the total number of consumers")
+   @Option(name = "--consumer-connections", description = "Number of consumer connections to be used. Default: same as the total number of consumers")
    protected int consumerConnections = 0;
 
-   @Option(name = "--consumers", description = "Number of consumer to use for each generated destination (Default: 1)")
+   @Option(name = "--consumers", description = "Number of consumer to use for each generated destination. Default: 1.")
    protected int consumersPerDestination = 1;
 
-   @Option(name = "--persistent", description = "It will send messages persistently. Default is non persistent")
+   @Option(name = "--persistent", description = "Send messages persistently. Default: non persistent")
    protected boolean persistent = false;
 
-   @Option(name = "--message-size", description = "Size of each byteMessage (Default is 1024)")
+   @Option(name = "--message-size", description = "Size of each bytesMessage. Default: is 1024.")
    protected int messageSize = 1024;
 
-   @Option(name = "--rate", description = "Expected total message rate. (Default is unbounded)")
+   @Option(name = "--rate", description = "Expected total message rate. Default: unbounded.")
    protected Long rate = null;
 
-   @Option(name = "--ttl", description = "TTL for each message")
+   @Option(name = "--ttl", description = "TTL for each message.")
    protected long ttl = 0L;
 
-   @Option(name = "--group", description = "Message Group to be used")
+   @Option(name = "--group", description = "Message Group to be used.")
    protected String msgGroupID = null;
 
-   @Option(name = "--shared-connections", description = "It create --threads shared connections among producers (Default: not shared)")
+   @Option(name = "--shared-connections", description = "Create --threads shared connections among producers. Default: not shared.")
    protected boolean sharedConnections = false;
 
-   @Option(name = "--tx-size", description = "TX Size")
+   @Option(name = "--tx-size", description = "Transaction size.")
    protected long txSize;
 
-   @Option(name = "--producers", description = "Number of producers to use for each generated destination (Default: 1)")
+   @Option(name = "--producers", description = "Number of producers to use for each generated destination. Default: 1")
    protected int producersPerDestination = 1;
 
-   @Option(name = "--threads", description = "Number of worker threads to schedule producer load tasks (Default: 1)")
+   @Option(name = "--threads", description = "Number of worker threads to schedule producer load tasks. Default: 1.")
    protected int threads = 1;
 
-   @Option(name = "--max-pending", description = "How many not yet completed messages can exists  (Default is 1)")
+   @Option(name = "--max-pending", description = "How many not yet completed messages can exists. Default: 1.")
    protected long maxPending = 1;
 
-   @Option(name = "--consumer-url", description = "Setup the url used for MessageListener(s) connections. Default is same as --url")
+   @Option(name = "--consumer-url", description = "The url used for MessageListener(s) connections. Default: same as --url.")
    protected String consumerUrl = null;
 
-   @Option(name = "--consumer-protocol", description = "Setup the protocol used for MessageListener(s) connections. Default is same as --protocol")
+   @Option(name = "--consumer-protocol", description = "The protocol used for MessageListener(s) connections. Default: same as --protocol.")
    protected String consumerProtocol = null;
 
-   @Option(name = "--enable-msg-id", description = "Enable setting JMS messageID per-message (Default: disabled)")
+   @Option(name = "--enable-msg-id", description = "Set JMS messageID per-message. Default: disabled.")
    protected boolean enableMessageID;
 
-   @Option(name = "--enable-timestamp", description = "Enable setting JMS timestamp per-message (Default: disabled)")
+   @Option(name = "--enable-timestamp", description = "Set JMS timestamp per-message. Default: disabled.")
    protected boolean enableTimestamp;
 
    private volatile BenchmarkService producerBenchmark;

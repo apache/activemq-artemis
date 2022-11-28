@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 import io.airlift.airline.Command;
 import org.apache.activemq.artemis.util.JVMArgumentParser;
 
-@Command(name = "upgrade", description = "Update an artemis instance to the current artemis.home, keeping all the data and broker.xml. Warning: backup your instance before using this command and compare the files.")
+@Command(name = "upgrade", description = "Update a broker instance to the current artemis.home, keeping all the data and broker.xml. Warning: backup your instance before using this command and compare the files.")
 public class Upgrade extends InstallAbstract {
 
    // these are the JVM argumnents we must keep between upgrades

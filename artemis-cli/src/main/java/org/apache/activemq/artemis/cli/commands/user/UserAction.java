@@ -21,10 +21,10 @@ import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
 public abstract class UserAction extends AbstractAction {
 
-   @Option(name = "--role", description = "user's role(s), comma separated")
+   @Option(name = "--role", description = "The user's role(s). Separate multiple roles with comma.")
    String role;
 
-   @Option(name = "--user-command-user", description = "The username to use for the chosen user command (Default: input)")
+   @Option(name = "--user-command-user", description = "The username to use for the chosen user command. Default: input.")
    String userCommandUser = null;
 
    void checkInputUser() {
@@ -35,7 +35,7 @@ public abstract class UserAction extends AbstractAction {
 
    void checkInputRole() {
       if (role == null) {
-         role = input("--role", "type a comma separated list of roles", null);
+         role = input("--role", "What is the user's role(s)? Separate multiple roles with comma.", null);
       }
    }
 

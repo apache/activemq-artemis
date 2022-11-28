@@ -45,10 +45,10 @@ public abstract class Configurable extends ActionAbstract {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Arguments(description = "Broker Configuration URI, default 'xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml'")
+   @Arguments(description = "Broker Configuration URI. Default: xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml.")
    String configuration;
 
-   @Option(name = "--broker", description = "This would override the broker configuration from the bootstrap")
+   @Option(name = "--broker", description = "Override the broker configuration from the bootstrap.xml.")
    String brokerConfig;
 
    @Inject

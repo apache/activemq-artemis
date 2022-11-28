@@ -27,19 +27,19 @@ import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 
-@Command(name = "mask", description = "mask a password and print it out")
+@Command(name = "mask", description = "Mask a password and print it out.")
 public class Mask extends ActionAbstract {
 
-   @Arguments(description = "The password to be masked", required = true)
+   @Arguments(description = "The password to be masked.", required = true)
    String password;
 
-   @Option(name = "--hash", description = "whether to use hash (one-way), default false")
+   @Option(name = "--hash", description = "Whether to use a hash (one-way). Default: false.")
    boolean hash = false;
 
-   @Option(name = "--key", description = "the key (Blowfish) to mask a password")
+   @Option(name = "--key", description = "The key (Blowfish) to mask a password.")
    String key;
 
-   @Option(name = "--password-codec", description = "whether to use password codec defined in the configuration, default false")
+   @Option(name = "--password-codec", description = "Whether to use the password codec defined in the configuration. Default: false")
    boolean passwordCodec = false;
 
    private SensitiveDataCodec<String> codec;

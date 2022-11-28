@@ -32,33 +32,33 @@ import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 
-@Command(name = "producer", description = "It will send messages to an instance")
+@Command(name = "producer", description = "Send message(s) to a broker.")
 public class Producer extends DestAbstract {
 
    public static final String DEMO_TEXT = "demo.txt";
 
-   @Option(name = "--non-persistent", description = "It will send messages non persistently")
+   @Option(name = "--non-persistent", description = "Send messages non persistently.")
    boolean nonpersistent = false;
 
-   @Option(name = "--message-size", description = "Size of each byteMessage (The producer will use byte message on this case)")
+   @Option(name = "--message-size", description = "Size of each bytesMessage. The producer will use JMS BytesMessage.")
    int messageSize = 0;
 
-   @Option(name = "--message", description = "Content of each textMessage (The producer will use text message on this case)")
+   @Option(name = "--message", description = "Content of each textMessage. The producer will use JMS TextMessage.")
    String message = null;
 
-   @Option(name = "--text-size", description = "Size of each textMessage (The producer will use text message on this case)")
+   @Option(name = "--text-size", description = "Size of each textMessage. The producer will use JMS TextMessage.")
    int textMessageSize;
 
-   @Option(name = "--object-size", description = "Size of each ObjectMessage (The producer will use object message on this case)")
+   @Option(name = "--object-size", description = "Size of each ObjectMessage. The producer will use JMS ObjectMessage.")
    int objectSize;
 
-   @Option(name = "--msgttl", description = "TTL for each message")
+   @Option(name = "--msgttl", description = "TTL for each message.")
    long msgTTL = 0L;
 
-   @Option(name = "--group", description = "Message Group to be used")
+   @Option(name = "--group", description = "Message Group to be used.")
    String msgGroupID = null;
 
-   @Option(name = "--data", description = "Messages will be read form the specified file, other message options will be ignored.")
+   @Option(name = "--data", description = "Messages will be read from the specified file. Other message options will be ignored.")
    String file = null;
 
    public boolean isNonpersistent() {

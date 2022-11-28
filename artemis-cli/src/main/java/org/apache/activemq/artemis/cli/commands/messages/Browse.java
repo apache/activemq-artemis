@@ -26,10 +26,10 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "browser", description = "It will browse messages on an instance")
+@Command(name = "browser", description = "Browse messages on a queue.")
 public class Browse extends DestAbstract {
 
-   @Option(name = "--filter", description = "filter to be used with the consumer")
+   @Option(name = "--filter", description = "The message filter.")
    String filter;
 
    @Override

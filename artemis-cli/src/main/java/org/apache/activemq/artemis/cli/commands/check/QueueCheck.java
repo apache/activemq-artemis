@@ -31,19 +31,19 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 
-@Command(name = "queue", description = "Check a queue")
+@Command(name = "queue", description = "Check a queue.")
 public class QueueCheck extends CheckAbstract {
 
-   @Option(name = "--up", description = "Check that the queue exists and is not paused, it is executed by default if there are no other checks")
+   @Option(name = "--up", description = "Check that the queue exists and is not paused. This check is executed by default if there are no other checks.")
    private boolean up;
 
-   @Option(name = "--browse", description = "Number of the messages to browse or -1 to check that the queue is browsable")
+   @Option(name = "--browse", description = "Number of the messages to browse or -1 to check that the queue is browsable.")
    private Integer browse;
 
-   @Option(name = "--consume", description = "Number of the messages to consume or -1 to check that the queue is consumable")
+   @Option(name = "--consume", description = "Number of the messages to consume or -1 to check that the queue is consumable.")
    private Integer consume;
 
-   @Option(name = "--produce", description = "Number of the messages to produce")
+   @Option(name = "--produce", description = "Number of the messages to produce.")
    private Integer produce;
 
    public boolean isUp() {

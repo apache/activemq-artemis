@@ -38,17 +38,17 @@ import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordId
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.ByteUtil;
 
-@Command(name = "recover", description = "Recover (undelete) every message on the journal by creating a new output journal. Rolled backed and acked messages will be sent out to the output as much as possible.")
+@Command(name = "recover", description = "Recover (undelete) every message on the journal by creating a new output journal. Rolled back and acked messages will be sent out to the output as much as possible.")
 public class RecoverMessages extends DBOption {
 
    static {
       MessagePersister.registerPersister(CoreMessagePersister.getInstance());
    }
 
-   @Option(name = "--reclaimed", description = "This option will try to recover as many records as possible from reclaimed files")
+   @Option(name = "--reclaimed", description = "Try to recover as many records as possible from reclaimed files.")
    private boolean reclaimed = false;
 
-   @Option(name = "--target", description = "Output folder container the new journal with all the generated messages", required = true)
+   @Option(name = "--target", description = "Output folder container the new journal with all the generated messages.", required = true)
    private String outputJournal;
 
 

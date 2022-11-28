@@ -29,22 +29,22 @@ import org.apache.qpid.jms.JmsConnectionFactory;
 
 public class ConnectionAbstract extends InputAbstract {
 
-   @Option(name = "--url", description = "URL towards the broker. (default: Build URL from acceptors defined in the broker.xml or tcp://localhost:61616 if the default cannot be parsed)")
+   @Option(name = "--url", description = "Connection URL. Default: build URL from the 'artemis' acceptor defined in the broker.xml or tcp://localhost:61616 if the acceptor cannot be parsed.")
    protected String brokerURL = DEFAULT_BROKER_URL;
 
-   @Option(name = "--acceptor", description = "Acceptor used to build URL towards the broker")
+   @Option(name = "--acceptor", description = "Acceptor used to build the connection URL.")
    protected String acceptor;
 
-   @Option(name = "--user", description = "User used to connect")
+   @Option(name = "--user", description = "User used to connect.")
    protected String user;
 
-   @Option(name = "--password", description = "Password used to connect")
+   @Option(name = "--password", description = "Password used to connect.")
    protected String password;
 
-   @Option(name = "--clientID", description = "ClientID to be associated with connection")
+   @Option(name = "--clientID", description = "ClientID set on the connection.")
    protected String clientID;
 
-   @Option(name = "--protocol", description = "Protocol used. Valid values are amqp or core. Default=core.")
+   @Option(name = "--protocol", description = "Protocol used. Valid values are amqp or core. Default: core.")
    protected String protocol = "core";
 
    public String getBrokerURL() {
@@ -219,7 +219,7 @@ public class ConnectionAbstract extends InputAbstract {
    }
 
    private String inputBrokerURL(String defaultValue) {
-      return input("--url", "Type in the broker URL for a retry (e.g. tcp://localhost:61616)", defaultValue);
+      return input("--url", "Type in the connection URL for a retry (e.g. tcp://localhost:61616)", defaultValue);
    }
 
    private String inputUser(String user) {

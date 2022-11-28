@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 
-@Command(name = "compact", description = "Compacts the journal of a non running server")
+@Command(name = "compact", description = "Compact the journal of a non running server.")
 public final class CompactJournal extends LockAbstract {
 
    @Override

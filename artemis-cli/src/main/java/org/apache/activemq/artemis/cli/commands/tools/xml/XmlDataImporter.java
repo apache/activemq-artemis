@@ -91,28 +91,28 @@ public final class XmlDataImporter extends ActionAbstract {
 
    private ClientSession session;
 
-   @Option(name = "--host", description = "The host used to import the data (default localhost)")
+   @Option(name = "--host", description = "The host used to import the data. Default: localhost.")
    public String host = "localhost";
 
-   @Option(name = "--port", description = "The port used to import the data (default 61616)")
+   @Option(name = "--port", description = "The port used to import the data. Default: 61616.")
    public int port = 61616;
 
-   @Option(name = "--transaction", description = "If this is set to true you will need a whole transaction to commit at the end. (default false)")
+   @Option(name = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.")
    public boolean transactional;
 
-   @Option(name = "--user", description = "User name used to import the data. (default null)")
+   @Option(name = "--user", description = "User name used to import the data. Default: null.")
    public String user = null;
 
-   @Option(name = "--password", description = "User name used to import the data. (default null)")
+   @Option(name = "--password", description = "User name used to import the data. Default: null.")
    public String password = null;
 
-   @Option(name = "--input", description = "The input file name (default=exp.dmp)", required = true)
+   @Option(name = "--input", description = "The input file name. Default: exp.dmp.", required = true)
    public String input = "exp.dmp";
 
-   @Option(name = "--sort", description = "Sort the messages from the input (used for older versions that won't sort messages)")
+   @Option(name = "--sort", description = "Sort the messages from the input (used for older versions that won't sort messages).")
    public boolean sort = false;
 
-   @Option(name = "--legacy-prefixes", description = "Do not remove prefixes from legacy imports")
+   @Option(name = "--legacy-prefixes", description = "Do not remove prefixes from legacy imports.")
    public boolean legacyPrefixes = false;
 
    TreeSet<XMLMessageImporter.MessageInfo> messages;

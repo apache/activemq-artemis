@@ -22,7 +22,7 @@ import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "update", description = "update an address")
+@Command(name = "update", description = "Update an address.")
 public class UpdateAddress extends AddressAbstract {
 
    @Override

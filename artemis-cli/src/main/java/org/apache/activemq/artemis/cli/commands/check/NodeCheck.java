@@ -23,25 +23,25 @@ import io.airlift.airline.Command;
 import io.airlift.airline.Option;
 import org.apache.activemq.artemis.api.core.management.NodeInfo;
 
-@Command(name = "node", description = "Check a node")
+@Command(name = "node", description = "Check a node.")
 public class NodeCheck extends CheckAbstract {
 
-   @Option(name = "--up", description = "Check that the node is started, it is executed by default if there are no other checks")
+   @Option(name = "--up", description = "Check that the node is started. This check is executed by default if there are no other checks.")
    private boolean up;
 
-   @Option(name = "--diskUsage", description = "Disk usage percentage to check or -1 to use the max-disk-usage")
+   @Option(name = "--diskUsage", description = "Disk usage percentage to check or -1 to use the max-disk-usage.")
    private Integer diskUsage;
 
-   @Option(name = "--memoryUsage", description = "Memory usage percentage to check")
+   @Option(name = "--memoryUsage", description = "Memory usage percentage to check.")
    private Integer memoryUsage;
 
-   @Option(name = "--live", description = "Check that the node has a live")
+   @Option(name = "--live", description = "Check that the node has a connected live.")
    private boolean live;
 
-   @Option(name = "--backup", description = "Check that the node has a backup")
+   @Option(name = "--backup", description = "Check that the node has a connected backup.")
    private boolean backup;
 
-   @Option(name = "--peers", description = "Number of peers to check")
+   @Option(name = "--peers", description = "Number of peers to check.")
    private Integer peers;
 
    public boolean isUp() {

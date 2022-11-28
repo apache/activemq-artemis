@@ -23,10 +23,10 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "delete", description = "delete an address")
+@Command(name = "delete", description = "Delete an address.")
 public class DeleteAddress extends AddressAbstract {
 
-   @Option(name = "--force", description = "delete the address even if it has queues - all messages in those queues will be deleted! (default false)")
+   @Option(name = "--force", description = "Delete the address even if it has queues. All messages in those queues will be deleted! Default: false.")
    private Boolean force = false;
 
    @Override

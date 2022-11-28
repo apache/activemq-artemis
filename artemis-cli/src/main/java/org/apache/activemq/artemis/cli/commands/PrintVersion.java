@@ -20,7 +20,7 @@ import io.airlift.airline.Command;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.utils.VersionLoader;
 
-@Command(name = "version", description = "print version information")
+@Command(name = "version", description = "Print version information.")
 public class PrintVersion extends ActionAbstract {
 
    @Override

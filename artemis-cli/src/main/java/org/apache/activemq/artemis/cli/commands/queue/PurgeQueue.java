@@ -25,10 +25,10 @@ import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
-@Command(name = "purge", description = "purge a queue")
+@Command(name = "purge", description = "Delete all messages in a queue.")
 public class PurgeQueue extends AbstractAction {
 
-   @Option(name = "--name", description = "queue name")
+   @Option(name = "--name", description = "The queue's name.")
    String name;
 
    @Override
@@ -64,7 +64,7 @@ public class PurgeQueue extends AbstractAction {
 
    public String getName() {
       if (name == null) {
-         name = input("--name", "Please provide the destination name:", "");
+         name = input("--name", "What is the name of the queue?", "");
       }
 
       return name;

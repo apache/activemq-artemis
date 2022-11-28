@@ -39,25 +39,25 @@ public class InstallAbstract extends InputAbstract {
    @Arguments(description = "The instance directory to hold the broker's configuration and data. Path must be writable.", required = true)
    protected File directory;
 
-   @Option(name = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory ('etc' by default)")
+   @Option(name = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")
    protected String etc = "etc";
 
-   @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed")
+   @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed.")
    protected File home;
 
-   @Option(name = "--encoding", description = "The encoding that text files should use. Default = UTF-8.")
+   @Option(name = "--encoding", description = "The encoding that text files should use. Default: UTF-8.")
    protected String encoding = "UTF-8";
 
-   @Option(name = "--windows", description = "Force windows script creation. Default based on your actual system.")
+   @Option(name = "--windows", description = "Force Windows script creation. Default: based on your actual system.")
    protected boolean windows = false;
 
-   @Option(name = "--cygwin", description = "Force cygwin script creation. Default based on your actual system.")
+   @Option(name = "--cygwin", description = "Force Cygwin script creation. Default: based on your actual system.")
    protected boolean cygwin = false;
 
-   @Option(name = "--java-options", description = "Extra java options to be passed to the profile")
+   @Option(name = "--java-options", description = "Extra Java options to be passed to the profile.")
    protected String javaOptions = "";
 
-   @Option(name = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default = '2G'")
+   @Option(name = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default: 2G.")
    protected String javaMemory = "2G";
 
 

@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
-@Command(name = "update", description = "update a core queue")
+@Command(name = "update", description = "Update a queue.")
 public class UpdateQueue extends QueueAbstract {
 
    @Override

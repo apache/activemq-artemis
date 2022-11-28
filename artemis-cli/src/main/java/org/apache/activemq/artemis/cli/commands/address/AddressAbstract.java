@@ -21,19 +21,19 @@ import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
 public abstract class AddressAbstract extends AbstractAction {
 
-   @Option(name = "--name", description = "The name of this address")
+   @Option(name = "--name", description = "The address's name.")
    private String name;
 
-   @Option(name = "--anycast", description = "It will determine this address as anycast")
+   @Option(name = "--anycast", description = "Whether the address supports anycast queues.")
    private Boolean anycast;
 
-   @Option(name = "--no-anycast", description = "It will not determine this address as anycast")
+   @Option(name = "--no-anycast", description = "Whether the address won't support anycast queues.")
    private Boolean noAnycast;
 
-   @Option(name = "--multicast", description = "It will determine this address as multicast")
+   @Option(name = "--multicast", description = "Whether the address supports multicast queues.")
    private Boolean multicast;
 
-   @Option(name = "--no-multicast", description = "It will not determine this address as multicast")
+   @Option(name = "--no-multicast", description = "Whether the address won't support multicast queues.")
    private Boolean noMulticast;
 
 
@@ -44,7 +44,7 @@ public abstract class AddressAbstract extends AbstractAction {
 
    public String getName(boolean requireInput) {
       if (name == null && requireInput) {
-         name = input("--name", "Provide the name of the address", null);
+         name = input("--name", "What is the name of the address?", null);
       }
       return name;
    }
@@ -80,7 +80,7 @@ public abstract class AddressAbstract extends AbstractAction {
          anycast = !noAnycast.booleanValue();
       }
       if (anycast == null) {
-         anycast = inputBoolean("--anycast", "Will this address support anycast queues", false);
+         anycast = inputBoolean("--anycast", "Will this address support anycast queues?", false);
       }
       return anycast;
    }
@@ -95,7 +95,7 @@ public abstract class AddressAbstract extends AbstractAction {
          multicast = !noMulticast.booleanValue();
       }
       if (multicast == null) {
-         multicast = inputBoolean("--multicast", "Will this address support multicast queues", true);
+         multicast = inputBoolean("--multicast", "Will this address support multicast queues?", true);
       }
       return multicast;
    }

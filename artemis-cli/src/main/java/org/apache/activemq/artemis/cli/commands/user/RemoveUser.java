@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
  * Remove a user, example:
  * ./artemis user rm --user guest
  */
-@Command(name = "rm", description = "Remove an existing user")
+@Command(name = "rm", description = "Remove an existing user.")
 public class RemoveUser extends UserAction {
 
    @Override

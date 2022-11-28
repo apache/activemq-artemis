@@ -28,22 +28,22 @@ import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
 
 public class DestAbstract extends ConnectionAbstract {
 
-   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. (Default: queue://TEST)")
+   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. Default: queue://TEST.")
    String destination = "queue://TEST";
 
-   @Option(name = "--message-count", description = "Number of messages to act on (Default: 1000)")
+   @Option(name = "--message-count", description = "Number of messages to act on. Default: 1000.")
    int messageCount = 1000;
 
-   @Option(name = "--sleep", description = "Time wait between each message")
+   @Option(name = "--sleep", description = "Time wait between each message.")
    int sleep = 0;
 
-   @Option(name = "--txt-size", description = "TX Batch Size")
+   @Option(name = "--txt-size", description = "Transaction batch size.")
    int txBatchSize;
 
-   @Option(name = "--threads", description = "Number of Threads to be used (Default: 1)")
+   @Option(name = "--threads", description = "Number of threads to use. Default: 1.")
    int threads = 1;
 
-   @Option(name = "--serializer", description = "Override the default serializer with a custom implementation")
+   @Option(name = "--serializer", description = "The class name of the custom serializer implementation to use intead of the default.")
    String serializer;
 
    protected MessageSerializer getMessageSerializer() {
