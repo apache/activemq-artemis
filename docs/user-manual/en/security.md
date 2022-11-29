@@ -821,6 +821,15 @@ system. It is implemented by
   previous role search. This option must always be set to enable role expansion
   because it has no default value. Example value: `(member={0})`.
 
+- `noCacheExceptions` - comma separated list of class names of exceptions which 
+  may thrown during communication with the LDAP server; default is empty.
+  Typically any failure to authenticate will be stored in the authentication cache
+  so that the underlying security data store (e.g. LDAP) is spared any unnecessary
+  traffic. However, in cases where the failure is, for example, due to a temporary
+  network outage and the `security-invalidation-interval` is relatively high this
+  can be problematic. Users can enumerate any relevant exceptions which the cache 
+  should ignore (e.g. `java.net.ConnectException`) to avoid any such problems.
+
 - `debug` - boolean flag; if `true`, enable debugging; this is used only for
   testing or debugging; normally, it should be set to `false`, or omitted;
   default is `false`

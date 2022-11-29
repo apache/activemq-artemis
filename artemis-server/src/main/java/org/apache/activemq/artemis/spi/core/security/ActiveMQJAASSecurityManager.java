@@ -26,7 +26,9 @@ import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
+import org.apache.activemq.artemis.utils.ExceptionUtil;
 import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,7 +141,12 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
          try {
             lc.login();
          } catch (LoginException e) {
-            throw e;
+            Throwable rootCause = ExceptionUtil.getRootCause(e);
+            if (rootCause instanceof NoCacheLoginException) {
+               throw (NoCacheLoginException) rootCause;
+            } else {
+               throw e;
+            }
          }
          return lc.getSubject();
       } finally {

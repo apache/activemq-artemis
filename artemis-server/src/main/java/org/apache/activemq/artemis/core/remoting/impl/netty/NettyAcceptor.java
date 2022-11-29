@@ -21,14 +21,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
+import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -95,10 +94,10 @@ import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextConfig;
 import org.apache.activemq.artemis.spi.core.remoting.ssl.SSLContextFactoryProvider;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
+import org.apache.activemq.artemis.utils.ExceptionUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * A Netty TCP Acceptor that is embedding Netty.
@@ -480,7 +479,7 @@ public class NettyAcceptor extends AbstractAcceptor {
                   pipeline.addLast("ssl", getSslHandler(channel.alloc(), peerInfo.getA(), peerInfo.getB()));
                   pipeline.addLast("sslHandshakeExceptionHandler", new SslHandshakeExceptionHandler());
                } catch (Exception e) {
-                  Throwable rootCause = getRootCause(e);
+                  Throwable rootCause = ExceptionUtil.getRootCause(e);
                   ActiveMQServerLogger.LOGGER.gettingSslHandlerFailed(channel.remoteAddress().toString(), rootCause.getClass().getName() + ": " + rootCause.getMessage());
 
                   logger.debug("Getting SSL handler failed", e);
@@ -1037,7 +1036,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       @Override
       public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
          if (cause.getMessage() != null && cause.getMessage().startsWith(SSLHandshakeException.class.getName())) {
-            Throwable rootCause = getRootCause(cause);
+            Throwable rootCause = ExceptionUtil.getRootCause(cause);
             String errorMessage = rootCause.getClass().getName() + ": " + rootCause.getMessage();
 
             ActiveMQServerLogger.LOGGER.sslHandshakeFailed(ctx.channel().remoteAddress().toString(), errorMessage);
@@ -1045,15 +1044,6 @@ public class NettyAcceptor extends AbstractAcceptor {
             logger.debug("SSL handshake failed", cause);
          }
       }
-   }
-
-   private Throwable getRootCause(Throwable throwable) {
-      List<Throwable> list = new ArrayList<>();
-      while (throwable != null && list.contains(throwable) == false) {
-         list.add(throwable);
-         throwable = throwable.getCause();
-      }
-      return (list.size() < 2 ? throwable : list.get(list.size() - 1));
    }
 
    public boolean isAutoStart() {

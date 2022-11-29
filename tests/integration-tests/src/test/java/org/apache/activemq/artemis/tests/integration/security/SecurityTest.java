@@ -24,6 +24,7 @@ import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import java.security.cert.X509Certificate;
+import javax.security.auth.Subject;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.lang.management.ManagementFactory;
@@ -68,6 +69,8 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
+import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CreateMessage;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -128,6 +131,77 @@ public class SecurityTest extends ActiveMQTestBase {
          e.printStackTrace();
          Assert.fail("should not throw exception");
       }
+   }
+
+   @Test
+   public void testNoCacheException() throws Exception {
+      ActiveMQSecurityManager5 securityManager = new ActiveMQSecurityManager5() {
+         boolean flipper = false;
+
+         @Override
+         public Subject authenticate(String user,
+                                     String password,
+                                     RemotingConnection remotingConnection,
+                                     String securityDomain) {
+            flipper = !flipper;
+            if (flipper) {
+               return new Subject();
+            } else {
+               throw new NoCacheLoginException();
+            }
+         }
+
+         @Override
+         public boolean authorize(Subject subject, Set<Role> roles, CheckType checkType, String address) {
+            return false;
+         }
+
+         @Override
+         public boolean validateUser(String user, String password) {
+            return false;
+         }
+
+         @Override
+         public boolean validateUserAndRole(String user, String password, Set<Role> roles, CheckType checkType) {
+            return false;
+         }
+      };
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.start();
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      cf.createSession("first", "secret", false, true, true, false, 0).close();
+      assertEquals(1, ((SecurityStoreImpl)server.getSecurityStore()).getAuthenticationCacheSize());
+      try {
+         cf.createSession("first", "secret", false, true, true, false, 0);
+      } catch (ActiveMQException e) {
+         // expected
+      }
+      assertEquals(1, ((SecurityStoreImpl)server.getSecurityStore()).getAuthenticationCacheSize());
+   }
+
+   @Test
+   public void testNoCacheNamingException() throws Exception {
+      internalTestNoCacheException("BrokenLDAPLoginNamingException");
+   }
+
+   @Test
+   public void testNoCacheConnectException() throws Exception {
+      internalTestNoCacheException("BrokenLDAPLoginConnectException");
+   }
+
+   private void internalTestNoCacheException(String ldapConfigName) throws Exception {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(ldapConfigName);
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      server.start();
+      ClientSessionFactory cf = createSessionFactory(locator);
+
+      try {
+         cf.createSession("first", "secret", false, true, true, false, 0);
+      } catch (ActiveMQException e) {
+         // expected
+      }
+      assertEquals(0, ((SecurityStoreImpl)server.getSecurityStore()).getAuthenticationCacheSize());
    }
 
    @Test
