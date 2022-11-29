@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager2;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager3;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager4;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.spi.core.security.jaas.UserPrincipal;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
@@ -170,9 +171,13 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
          if (check) {
             if (securityManager instanceof ActiveMQSecurityManager5) {
-               subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
-               authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
-               validatedUser = getUserFromSubject(subject);
+               try {
+                  subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
+                  authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
+                  validatedUser = getUserFromSubject(subject);
+               } catch (NoCacheLoginException e) {
+                  logger.debug("Skipping authentication cache due to exception", e);
+               }
             } else if (securityManager instanceof ActiveMQSecurityManager4) {
                validatedUser = ((ActiveMQSecurityManager4) securityManager).validateUser(user, password, connection, securityDomain);
             } else if (securityManager instanceof ActiveMQSecurityManager3) {
