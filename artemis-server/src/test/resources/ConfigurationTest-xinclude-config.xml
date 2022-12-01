@@ -31,7 +31,7 @@
       <security-invalidation-interval>5423</security-invalidation-interval>
       <authentication-cache-size>333</authentication-cache-size>
       <authorization-cache-size>444</authorization-cache-size>
-      <journal-lock-acquisition-timeout>123</journal-lock-acquisition-timeout>
+      <journal-lock-acquisition-timeout>7654</journal-lock-acquisition-timeout>
       <wild-card-routing-enabled>true</wild-card-routing-enabled>
       <management-address>Giraffe</management-address>
       <management-notification-address>Whatever</management-notification-address>

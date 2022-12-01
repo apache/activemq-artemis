@@ -109,6 +109,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultPagingDir(), conf.getPagingDirectory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultLargeMessagesDir(), conf.getLargeMessagesDirectory());
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalCompactPercentage(), conf.getJournalCompactPercentage());
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalLockAcquisitionTimeout(), conf.getJournalLockAcquisitionTimeout());
       Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_AIO, conf.getJournalBufferTimeout_AIO());
       Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_TIMEOUT_NIO, conf.getJournalBufferTimeout_NIO());
       Assert.assertEquals(ArtemisConstants.DEFAULT_JOURNAL_BUFFER_SIZE_AIO, conf.getJournalBufferSize_AIO());
@@ -256,6 +257,10 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
          i = RandomUtil.randomInt();
          conf.setJournalCompactPercentage(i);
          Assert.assertEquals(i, conf.getJournalCompactPercentage());
+
+         l = RandomUtil.randomLong();
+         conf.setJournalLockAcquisitionTimeout(l);
+         Assert.assertEquals(l, conf.getJournalLockAcquisitionTimeout());
 
          i = RandomUtil.randomInt();
          conf.setJournalBufferSize_AIO(i);

@@ -172,6 +172,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(100, conf.getJournalMinFiles());
       Assert.assertEquals(123, conf.getJournalCompactMinFiles());
       Assert.assertEquals(33, conf.getJournalCompactPercentage());
+      Assert.assertEquals(7654, conf.getJournalLockAcquisitionTimeout());
       Assert.assertEquals(true, conf.isGracefulShutdownEnabled());
       Assert.assertEquals(12345, conf.getGracefulShutdownTimeout());
       Assert.assertEquals(true, conf.isPopulateValidatedUser());

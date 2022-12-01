@@ -346,6 +346,12 @@ The message journal is configured using the following attributes in
   data files on the journal
 
   The default for this parameter is `30`
+
+- `journal-lock-acquisition-timeout`
+
+  How long to wait (in milliseconds) to acquire a file lock on the journal before giving up
+
+  The default for this parameter is `-1` (i.e. indefinite))
   
 - `journal-datasync` (default: true)
   
