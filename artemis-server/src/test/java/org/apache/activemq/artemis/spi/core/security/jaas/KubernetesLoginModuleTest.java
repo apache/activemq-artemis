@@ -139,6 +139,7 @@ public class KubernetesLoginModuleTest {
 
    private Map<String, ?> getDefaultOptions() {
       return Map.of(K8S_ROLE_FILE_PROP_NAME,
-            "k8s-roles.properties");
+                    // java.security.auth.login.config not set to provide baseDir so configure full path
+                    KubernetesLoginModuleTest.class.getClassLoader().getResource("k8s-roles.properties").getPath());
    }
 }
