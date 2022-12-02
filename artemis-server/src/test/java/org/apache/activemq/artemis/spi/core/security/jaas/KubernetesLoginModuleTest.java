@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -138,8 +139,7 @@ public class KubernetesLoginModuleTest {
    }
 
    private Map<String, ?> getDefaultOptions() {
-      return Map.of(K8S_ROLE_FILE_PROP_NAME,
-                    // java.security.auth.login.config not set to provide baseDir so configure full path
-                    KubernetesLoginModuleTest.class.getClassLoader().getResource("k8s-roles.properties").getPath());
+      String baseDirValue = new File(KubernetesLoginModuleTest.class.getClassLoader().getResource("k8s-roles.properties").getPath()).getParentFile().getAbsolutePath();
+      return Map.of(K8S_ROLE_FILE_PROP_NAME, "k8s-roles.properties", "baseDir",baseDirValue);
    }
 }
