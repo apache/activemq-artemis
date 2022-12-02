@@ -60,6 +60,7 @@ public class KubernetesClientImplTest {
    public static void startServer() {
       ConfigurationProperties.dynamicallyCreateCertificateAuthorityCertificate(true);
       ConfigurationProperties.directoryToSaveDynamicSSLCertificate("target/test-classes");
+      ConfigurationProperties.preventCertificateDynamicUpdate(true);
       ConfigurationProperties.proactivelyInitialiseTLS(true);
 
       mockServer = ClientAndServer.startClientAndServer(PortFactory.findFreePort());
@@ -111,6 +112,10 @@ public class KubernetesClientImplTest {
 
    @AfterClass
    public static void stopServer() {
+      System.clearProperty("KUBERNETES_SERVICE_HOST");
+      System.clearProperty("KUBERNETES_SERVICE_PORT");
+      System.clearProperty("KUBERNETES_TOKEN_PATH");
+      System.clearProperty("KUBERNETES_CA_PATH");
       mockServer.stop();
    }
 
