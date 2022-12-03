@@ -27,6 +27,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -75,11 +76,15 @@ import org.apache.activemq.util.ByteSequenceData;
 import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.wireformat.WireFormat;
 import org.fusesource.hawtbuf.UTF8Buffer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.activemq.artemis.api.core.Message.HDR_INGRESS_TIMESTAMP;
 import static org.apache.activemq.command.ActiveMQDestination.QUEUE_TYPE;
 
 public final class OpenWireMessageConverter {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public OpenWireMessageConverter() {
 
@@ -927,6 +932,10 @@ public final class OpenWireMessageConverter {
                                                  final Set<SimpleString> props) throws IOException {
       for (SimpleString s : props) {
          final String keyStr = s.toString();
+         if (keyStr.length() == 0) {
+            logger.debug("ignoring property with empty key name");
+            continue;
+         }
          if (!coreMessage.containsProperty(ManagementHelper.HDR_NOTIFICATION_TYPE) && (keyStr.startsWith("_AMQ") || keyStr.startsWith("__HDR_"))) {
             continue;
          }

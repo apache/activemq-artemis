@@ -249,6 +249,9 @@ public class OpenWireMessageConverterTest {
       coreMessage.putStringProperty(hdrCommandId, "foo");
       coreMessage.putStringProperty(hdrDroppable, "true");
 
+      // this has triggered a java.lang.IllegalArgumentException during conversion in the past
+      coreMessage.putStringProperty("", "bar");
+
       MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
@@ -259,5 +262,6 @@ public class OpenWireMessageConverterTest {
       assertNull(messageDispatch.getMessage().getProperty(hdrBrokerInTime));
       assertNull(messageDispatch.getMessage().getProperty(hdrCommandId));
       assertNull(messageDispatch.getMessage().getProperty(hdrDroppable));
+      assertNull(messageDispatch.getMessage().getProperty(""));
    }
 }
