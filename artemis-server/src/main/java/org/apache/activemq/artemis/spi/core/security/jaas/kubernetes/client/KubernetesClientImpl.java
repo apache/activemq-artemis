@@ -66,12 +66,13 @@ public class KubernetesClientImpl implements KubernetesClient {
       String host = getParam(KUBERNETES_HOST);
       String port = getParam(KUBERNETES_PORT);
       this.apiUri = URI.create(String.format(KUBERNETES_TOKENREVIEW_URI_PATTERN, host, port));
+      logger.debug("using apiUri {}", apiUri);
    }
 
-   private String getParam(String name, String defaultValue) {
-      String value = System.getenv(name);
+   public String getParam(String name, String defaultValue) {
+      String value = System.getProperty(name);
       if (value == null) {
-         value = System.getProperty(name, defaultValue);
+         value = System.getenv(name);
       }
       if (value == null) {
          return defaultValue;
