@@ -67,13 +67,31 @@ sent or received:
 ## MQTT Retain Messages
 
 MQTT has an interesting feature in which messages can be "retained" for a
-particular address.  This means that once a retain message has been sent to an
-address, any new subscribers to that address will receive the last sent retain
-message before any others messages, this happens even if the retained message
+particular address. This means that once a retain message has been sent to an
+address, any new subscribers to that address will receive the last sent retained
+message before any others messages. This happens even if the retained message
 was sent before a client has connected or subscribed.  An example of where this
 feature might be useful is in environments such as IoT where devices need to
 quickly get the current state of a system when they are on boarded into a
 system.
+
+Retained messages are stored in a queue named with a special prefix according to
+the name of the topic where they were originally sent. For example, a retained
+message sent to the topic `/abc/123` will be stored in a multicast queue named
+`$sys.mqtt.retain.abc.123` with an address of the same name. The MQTT
+specification doesn't define how long retained messages should be stored so the
+broker will hold on to this data until a client explicitly deletes the retained
+message or it potentially expires. However, even at that point the queue and
+address for the retained message will remain. These resources can be
+automatically deleted via the following `address-setting`:
+```xml
+<address-setting match="$sys.mqtt.retain.#">
+   <auto-delete-queues>true</auto-delete-queues>
+   <auto-delete-addresses>true</auto-delete-addresses>
+</address-setting>
+```
+Keep in mind that it's also possible to automatically apply an [`expiry-delay`](message-expiry.md)
+to retained messages as well.
 
 ## Will Messages
 

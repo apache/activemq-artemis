@@ -88,8 +88,8 @@ public class MQTTTest extends MQTTTestSupport {
    public void configureBroker() throws Exception {
       super.configureBroker();
       server.getConfiguration().setAddressQueueScanPeriod(100);
+      server.getConfiguration().setMessageExpiryScanPeriod(100);
    }
-
 
    @Test
    public void testConnectWithLargePassword() throws Exception {
@@ -2085,5 +2085,77 @@ public class MQTTTest extends MQTTTestSupport {
       subscriptionProvider.disconnect();
 
       Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString("foo.bar")) == null);
+   }
+
+   @Test(timeout = 60 * 1000)
+   public void testAutoDeleteRetainedQueue() throws Exception {
+      final String TOPIC = "/abc/123";
+      final String RETAINED_QUEUE = MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, server.getConfiguration().getWildcardConfiguration());
+      final MQTTClientProvider publisher = getMQTTClientProvider();
+      final MQTTClientProvider subscriber = getMQTTClientProvider();
+
+      server.getAddressSettingsRepository().addMatch(MQTTUtil.convertMqttTopicFilterToCoreAddress("#", server.getConfiguration().getWildcardConfiguration()), new AddressSettings().setExpiryDelay(500L).setAutoDeleteQueues(true).setAutoDeleteAddresses(true));
+
+      initializeConnection(publisher);
+      initializeConnection(subscriber);
+
+      String RETAINED = "retained";
+      publisher.publish(TOPIC, RETAINED.getBytes(), AT_LEAST_ONCE, true);
+
+      List<String> messages = new ArrayList<>();
+      for (int i = 0; i < 10; i++) {
+         messages.add("TEST MESSAGE:" + i);
+      }
+
+      subscriber.subscribe(TOPIC, AT_LEAST_ONCE);
+
+      for (int i = 0; i < 10; i++) {
+         publisher.publish(TOPIC, messages.get(i).getBytes(), AT_LEAST_ONCE);
+      }
+
+      byte[] msg = subscriber.receive(5000);
+      assertNotNull(msg);
+      assertEquals(RETAINED, new String(msg));
+
+      for (int i = 0; i < 10; i++) {
+         msg = subscriber.receive(5000);
+         assertNotNull(msg);
+         assertEquals(messages.get(i), new String(msg));
+      }
+
+      subscriber.disconnect();
+      publisher.disconnect();
+
+      Wait.assertTrue(() -> server.locateQueue(RETAINED_QUEUE).getMessageCount() == 0, 2000, 50);
+      Wait.assertTrue(() -> server.locateQueue(RETAINED_QUEUE) == null, 2000, 50);
+
+      // now that we auto-deleted do it again to ensure it is recreated and auto-deleted properly
+
+      initializeConnection(publisher);
+      initializeConnection(subscriber);
+
+      publisher.publish(TOPIC, RETAINED.getBytes(), AT_LEAST_ONCE, true);
+
+      subscriber.subscribe(TOPIC, AT_LEAST_ONCE);
+
+      for (int i = 0; i < 10; i++) {
+         publisher.publish(TOPIC, messages.get(i).getBytes(), AT_LEAST_ONCE);
+      }
+
+      msg = subscriber.receive(5000);
+      assertNotNull(msg);
+      assertEquals(RETAINED, new String(msg));
+
+      for (int i = 0; i < 10; i++) {
+         msg = subscriber.receive(5000);
+         assertNotNull(msg);
+         assertEquals(messages.get(i), new String(msg));
+      }
+
+      subscriber.disconnect();
+      publisher.disconnect();
+
+      Wait.assertTrue(() -> server.locateQueue(RETAINED_QUEUE).getMessageCount() == 0, 3000, 50);
+      Wait.assertTrue(() -> server.locateQueue(RETAINED_QUEUE) == null, 3000, 50);
    }
 }
