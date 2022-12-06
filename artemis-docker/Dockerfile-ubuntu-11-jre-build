@@ -17,30 +17,9 @@
 
 # ActiveMQ Artemis
 
-ARG CURRENT_VERSION=2.17.0
-
-FROM eclipse-temurin:11-jdk as builder
-ARG CURRENT_VERSION
-
-ENV VERSION=$CURRENT_VERSION
-
-RUN apt update -y && apt upgrade -y && apt install curl -y
-
-ADD ./prepare-docker.sh /bin/prepareDocker
-WORKDIR /root/artemis-build
-COPY docker-run.sh .
-RUN bash prepareDocker --from-release --artemis-version ${VERSION}
-
 FROM eclipse-temurin:11-jre
 LABEL maintainer="Apache ActiveMQ Team"
 
-ARG CURRENT_VERSION
-
-ENV VERSION=$CURRENT_VERSION
-
-
-
-LABEL maintainer="Apache ActiveMQ Team"
 # Make sure pipes are considered to determine success, see: https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 WORKDIR /opt
@@ -58,7 +37,7 @@ RUN groupadd -g 1001 -r artemis && useradd -r -u 1001 -g artemis artemis \
 
 USER artemis
 
-COPY --from=builder /root/artemis-build/_TMP_/artemis/${VERSION}/ /opt/activemq-artemis
+COPY --chown=artemis:artemis  ./artemis-docker/target/apache-artemis*-bin/*SNAPSHOT /opt/activemq-artemis/
 
 
 # Web Server
@@ -80,7 +59,7 @@ USER root
 
 RUN mkdir /var/lib/artemis-instance && chown -R artemis.artemis /var/lib/artemis-instance
 
-COPY --from=builder /root/artemis-build/_TMP_/artemis/${VERSION}/docker/docker-run.sh /
+COPY --chown=artemis:artemis  ./artemis-docker/docker-run.sh /var/lib/artemis-instance/docker-run.sh
 
 
 USER artemis
@@ -89,5 +68,5 @@ USER artemis
 VOLUME ["/var/lib/artemis-instance"]
 WORKDIR /var/lib/artemis-instance
 
-ENTRYPOINT ["/docker-run.sh"]
+ENTRYPOINT ["./docker-run.sh"]
 CMD ["run"]

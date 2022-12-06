@@ -1,0 +1,23 @@
+version: "3.0.0"
+services:
+  artemis-alpine:
+    build:
+      context: ..
+      dockerfile: ./artemis-docker/Dockerfile-alpine-build
+    image: artemis-alpine
+  artemis-centos:
+    build:
+      context: ..
+      dockerfile: ./artemis-docker/Dockerfile-centos7-11-build
+    image: artemis-centos
+  artemis-ubuntu:
+    build:
+      context: ..
+      dockerfile: ./artemis-docker/Dockerfile-ubuntu-11-build
+    image: artemis-ubuntu
+  artemis-ubuntu-jre:
+    build:
+      context: ..
+      dockerfile: ./artemis-docker/Dockerfile-ubuntu-11-jre-build
+    image: artemis-ubuntu-jre
+

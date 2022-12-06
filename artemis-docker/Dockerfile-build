@@ -1,0 +1,6 @@
+FROM maven:3-eclipse-temurin-11
+WORKDIR /root/artemis-build
+
+RUN apt update -y && apt upgrade -y && apt install curl -y
+COPY . .
+

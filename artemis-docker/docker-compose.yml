@@ -1,0 +1,11 @@
+version: "3.0.0"
+services:
+  javaBuilder:
+    build:
+      context: ..
+      dockerfile: ./artemis-docker/Dockerfile-build
+    image: artemis-docker-base
+    command: >
+      bash -c "rm -rf ./target/*  && mvn install -DskipTests -DskipITs -DskipDocs -DskipDocker -DskipDoc"
+    volumes:
+      - ./target:/root/artemis-build/artemis-distribution/target
