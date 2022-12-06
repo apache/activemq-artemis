@@ -191,26 +191,31 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // If the draining is already running, then don't do anything
          if (draining.compareAndSet(false, true)) {
             final ProtonServerSenderContext plugSender = (ProtonServerSenderContext) serverConsumer.getProtocolContext();
-            serverConsumer.forceDelivery(1, new Runnable() {
-               @Override
-               public void run() {
-                  try {
-                     connection.runNow(() -> {
-                        if (pendingLargeMessage != null) {
-                           afterLargeMessage = () -> drained(plugSender);
-                        } else {
-                           drained(plugSender);
-                        }
-                     });
-                  } finally {
-                     draining.set(false);
-                  }
-               }
-            });
+            flushDrain(serverConsumer, plugSender);
          }
       } else {
          serverConsumer.receiveCredits(-1);
       }
+   }
+
+   private void flushDrain(ServerConsumerImpl serverConsumer, ProtonServerSenderContext plugSender) {
+      serverConsumer.forceDelivery(1, new Runnable() {
+         @Override
+         public void run() {
+            try {
+               connection.runNow(() -> {
+                  if (pendingLargeMessage != null) {
+                     // retry the flush after the large message is done
+                     afterLargeMessage = () -> flushDrain(serverConsumer, plugSender);
+                  } else {
+                     drained(plugSender);
+                  }
+               });
+            } finally {
+               draining.set(false);
+            }
+         }
+      });
    }
 
    private void drained(ProtonServerSenderContext sender) {
