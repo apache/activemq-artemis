@@ -555,7 +555,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
     */
    @Override
    public boolean removeMember(final long uniqueEventID, final String nodeId) {
-      if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
+      if (nodeId.equals(nodeManager.getNodeId().toString())) {
          ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId);
          return false;
       }

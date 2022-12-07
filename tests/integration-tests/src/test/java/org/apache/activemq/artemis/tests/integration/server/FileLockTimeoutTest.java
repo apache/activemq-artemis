@@ -96,6 +96,6 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       service.shutdown();
 
       assertTrue("Expected to find AMQ224000", AssertionLoggerHandler.findText("AMQ224000"));
-      assertTrue("Expected to find \"timed out waiting for lock\"", AssertionLoggerHandler.findText("timed out waiting for lock"));
+      assertTrue("Expected to find \"Timed out waiting for lock\"", AssertionLoggerHandler.findText("Timed out waiting for lock"));
    }
 }
