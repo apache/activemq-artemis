@@ -339,7 +339,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         session.rollback(ackMode != ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
+         session.rollback(ackMode != ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);//ARTEMIS-4111 bugfix
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
