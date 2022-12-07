@@ -338,7 +338,13 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         session.rollback(true);
+         /*
+         When calling Session.recover(), unacknowledged messages must be returned to the queue, that is, ClientSession.rollback (false). 
+         If you call ClientSession.rollback (true), the ActiveMQServerMessagePlugin.messageAcknowledged () is called. Which is illogical 
+         and misleading.
+         However, this introduces the problem that deliveryCount does not increase on rereads. ut this needs to be fixed elsewhere.
+         */
+         session.rollback (false);
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
