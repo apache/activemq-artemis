@@ -66,6 +66,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
+import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQBytesCompatibleMessage;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQMapCompatibleMessage;
