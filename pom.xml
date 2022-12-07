@@ -316,7 +316,7 @@
             <scope>test</scope>
             <!-- License: EPL 1.0 -->
          </dependency>
-         
+
          <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>

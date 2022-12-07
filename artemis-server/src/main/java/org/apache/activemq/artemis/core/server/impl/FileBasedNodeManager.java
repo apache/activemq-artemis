@@ -42,6 +42,7 @@ public abstract class FileBasedNodeManager extends NodeManager {
    public static final String SERVER_ACTIVATION_SEQUENCE_NAME = "server.activation.sequence";
    private static final String ACCESS_MODE = "rw";
    private final File directory;
+   protected File serverLockFile;
    private final Path activationSequencePath;
    protected FileChannel channel;
    protected FileChannel activationSequenceChannel;
@@ -134,7 +135,7 @@ public abstract class FileBasedNodeManager extends NodeManager {
     * </ol>
     */
    protected synchronized void setUpServerLockFile() throws IOException {
-      File serverLockFile = newFile(SERVER_LOCK_NAME);
+      serverLockFile = newFile(SERVER_LOCK_NAME);
 
       boolean fileCreated = false;
 
