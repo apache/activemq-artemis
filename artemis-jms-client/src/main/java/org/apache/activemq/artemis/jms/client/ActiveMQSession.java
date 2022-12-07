@@ -65,8 +65,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSession.AddressQuery;
 import org.apache.activemq.artemis.api.core.client.ClientSession.QueueQuery;
 import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQBytesCompatibleMessage;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQMapCompatibleMessage;
@@ -339,11 +339,9 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         /*
-         When calling Session.recover(), unacknowledged messages must be returned to the queue, that is, ClientSession.rollback (false). 
-         If you call ClientSession.rollback (true), the ActiveMQServerMessagePlugin.messageAcknowledged () is called. Which is illogical 
-         and misleading.
-         */
+         //When calling Session.recover(), unacknowledged messages must be returned to the queue, that is, ClientSession.rollback (false). 
+         //If you call ClientSession.rollback (true), the ActiveMQServerMessagePlugin.messageAcknowledged () is called. Which is illogical 
+         //and misleading.
          session.rollback (ackMode != ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
