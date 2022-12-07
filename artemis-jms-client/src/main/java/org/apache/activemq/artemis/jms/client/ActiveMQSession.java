@@ -339,8 +339,8 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       }
 
       try {
-         //When calling Session.recover(), unacknowledged messages must be returned to the queue, that is, ClientSession.rollback (false). 
-         //If you call ClientSession.rollback (true), the ActiveMQServerMessagePlugin.messageAcknowledged () is called. Which is illogical 
+         //When calling Session.recover(), unacknowledged messages must be returned to the queue, that is, ClientSession.rollback (false).
+         //If you call ClientSession.rollback (true), the ActiveMQServerMessagePlugin.messageAcknowledged () is called. Which is illogical
          //and misleading.
          session.rollback(ackMode != ActiveMQJMSConstants.INDIVIDUAL_ACKNOWLEDGE);
       } catch (ActiveMQException e) {
