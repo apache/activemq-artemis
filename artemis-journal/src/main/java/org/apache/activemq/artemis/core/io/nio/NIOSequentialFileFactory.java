@@ -134,7 +134,9 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
 
    @Override
    public void releaseDirectBuffer(ByteBuffer buffer) {
-      PlatformDependent.freeDirectBuffer(buffer);
+      if (buffer.isDirect()) {
+         PlatformDependent.freeDirectBuffer(buffer);
+      }
    }
 
    @Override
@@ -155,6 +157,8 @@ public class NIOSequentialFileFactory extends AbstractSequentialFileFactory {
    public void releaseBuffer(ByteBuffer buffer) {
       if (this.bufferPooling) {
          bytesPool.release(buffer);
+      } else {
+         releaseDirectBuffer(buffer);
       }
    }
 
