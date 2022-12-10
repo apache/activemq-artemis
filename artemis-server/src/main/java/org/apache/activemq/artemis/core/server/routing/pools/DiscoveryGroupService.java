@@ -16,9 +16,11 @@
  */
 package org.apache.activemq.artemis.core.server.routing.pools;
 
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.core.cluster.DiscoveryEntry;
 import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.cluster.DiscoveryListener;
+import org.apache.activemq.artemis.core.server.routing.targets.Target;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +28,20 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DiscoveryGroupService extends DiscoveryService implements DiscoveryListener {
-   private final DiscoveryGroup discoveryGroup;
+   private final Target localTarget;
+   private final DiscoveryGroupConfiguration config;
+   private DiscoveryGroup discoveryGroup;
 
    private final Map<String, Entry> entries = new ConcurrentHashMap<>();
 
-   public DiscoveryGroupService(DiscoveryGroup discoveryGroup) {
-      this.discoveryGroup = discoveryGroup;
+   public DiscoveryGroupService(Target localTarget, DiscoveryGroupConfiguration config) {
+      this.localTarget = localTarget;
+      this.config = config;
    }
 
    @Override
    public void start() throws Exception {
+      discoveryGroup = new DiscoveryGroup(localTarget.getNodeID(), config.getName(), config.getRefreshTimeout(), config.getBroadcastEndpointFactory(), null);
       discoveryGroup.registerListener(this);
 
       discoveryGroup.start();

@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.server.routing;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.routing.policies.AbstractPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.Policy;
@@ -29,7 +28,6 @@ import org.apache.activemq.artemis.core.server.routing.targets.TargetResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -41,7 +39,6 @@ public class ConnectionRouterTest {
    @Before
    public void setUp() {
       ActiveMQServer mockServer = mock(ActiveMQServer.class);
-      Mockito.when(mockServer.getNodeID()).thenReturn(SimpleString.toSimpleString("UUID"));
       localTarget = new LocalTarget(null, mockServer);
    }
 
