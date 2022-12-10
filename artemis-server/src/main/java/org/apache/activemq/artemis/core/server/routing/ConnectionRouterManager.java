@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.core.server.routing;
 
 import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
-import org.apache.activemq.artemis.core.cluster.DiscoveryGroup;
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
 import org.apache.activemq.artemis.core.config.routing.CacheConfiguration;
 import org.apache.activemq.artemis.core.config.routing.NamedPropertyConfiguration;
@@ -142,8 +141,7 @@ public final class ConnectionRouterManager implements ActiveMQComponent {
          DiscoveryGroupConfiguration discoveryGroupConfiguration = server.getConfiguration().
             getDiscoveryGroupConfigurations().get(config.getDiscoveryGroupName());
 
-         DiscoveryService discoveryService = new DiscoveryGroupService(new DiscoveryGroup(server.getNodeID().toString(), config.getDiscoveryGroupName(),
-            discoveryGroupConfiguration.getRefreshTimeout(), discoveryGroupConfiguration.getBroadcastEndpointFactory(), null));
+         DiscoveryService discoveryService = new DiscoveryGroupService(localTarget, discoveryGroupConfiguration);
 
          pool = new DiscoveryPool(targetFactory, scheduledExecutor, config.getCheckPeriod(), discoveryService);
       } else if (config.getStaticConnectors() != null) {

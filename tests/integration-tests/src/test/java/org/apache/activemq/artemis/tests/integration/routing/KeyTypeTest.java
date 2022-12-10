@@ -16,9 +16,13 @@
  */
 package org.apache.activemq.artemis.tests.integration.routing;
 
+import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
+import org.apache.activemq.artemis.api.core.DiscoveryGroupConfiguration;
+import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
+import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.routing.policies.FirstElementPolicy;
 import org.apache.activemq.artemis.core.server.routing.policies.Policy;
 import org.apache.activemq.artemis.core.server.routing.policies.PolicyFactory;
@@ -47,6 +51,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
 public class KeyTypeTest extends RoutingTestBase {
@@ -110,6 +115,45 @@ public class KeyTypeTest extends RoutingTestBase {
 
       ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
          TransportConstants.DEFAULT_PORT + 0, "test", null, null);
+
+      keys.clear();
+
+      try (Connection connection = connectionFactory.createConnection()) {
+         connection.start();
+      }
+
+      Assert.assertEquals(1, keys.size());
+      Assert.assertEquals("test", keys.get(0));
+   }
+
+   @Override
+   protected boolean isForceUniqueStorageManagerIds() {
+      return false;
+   }
+
+   @Test
+   public void testClientIDKeyOnBackup() throws Exception {
+      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
+      setupRouterServerWithCluster(0, KeyType.CLIENT_ID, FirstElementPolicy.NAME, null, true, null, 1, "cluster0");
+      setupBackupServer(1, 0, false, HAType.SharedNothingReplication, true);
+      UDPBroadcastEndpointFactory endpoint = new UDPBroadcastEndpointFactory().setGroupAddress(GROUP_ADDRESS).setGroupPort(GROUP_PORT);
+      List<String> connectorInfos = getServer(1).getConfiguration().getConnectorConfigurations().keySet().stream().collect(Collectors.toList());
+      BroadcastGroupConfiguration bcConfig = new BroadcastGroupConfiguration().setName("bg1").setBroadcastPeriod(1000).setConnectorInfos(connectorInfos).setEndpointFactory(endpoint);
+      DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(5000).setDiscoveryInitialWaitTimeout(5000).setBroadcastEndpointFactory(endpoint);
+      getServer(1).getConfiguration().addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig);
+      setupDiscoveryClusterConnection("cluster0", 1, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
+      setupRouterServerWithCluster(1, KeyType.CLIENT_ID, MOCK_POLICY_NAME, null, true, null, 1, "cluster0");
+      startServers(0, 1);
+
+      waitForTopology(getServer(0), 1, 1);
+
+      getServer(0).fail(true);
+
+      waitForFailoverTopology(1);
+
+      ConnectionFactory connectionFactory = createFactory(protocol, false, TransportConstants.DEFAULT_HOST,
+                                                          TransportConstants.DEFAULT_PORT + 1, "test", null, null);
 
       keys.clear();
 
