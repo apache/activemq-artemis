@@ -2606,7 +2606,6 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ServerLocator locator = createInVMNonHALocator();
       factories.add(createSessionFactory(locator));
-      Thread.sleep(200);
       factories.add(createSessionFactory(locator));
       addClientSession(factories.get(1).createSession());
 
@@ -2732,9 +2731,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
+      Queue serverQueue = server.locateQueue(queueName);
+
       addClientConsumer(session.createConsumer(queueName));
-      Thread.sleep(200);
+      Wait.assertEquals(1, serverQueue::getConsumerCount);
+      Thread.sleep(100); // we check timestamps, they need to be different
       addClientConsumer(session2.createConsumer(queueName));
+      Wait.assertEquals(2, serverQueue::getConsumerCount);
 
       String jsonString = serverControl.listAllConsumersAsJSON();
       logger.debug(jsonString);
@@ -2742,32 +2745,27 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(usingCore() ? 3 : 2, array.size());
 
-      String key = "creationTime";
       JsonObject[] sorted = new JsonObject[array.size()];
       for (int i = 0; i < array.size(); i++) {
          sorted[i] = array.getJsonObject(i);
       }
 
-      if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
-         JsonObject o = sorted[1];
-         sorted[1] = sorted[0];
-         sorted[0] = o;
-      }
-      if (usingCore()) {
-         if (sorted[1].getJsonNumber(key).longValue() > sorted[2].getJsonNumber(key).longValue()) {
-            JsonObject o = sorted[2];
-            sorted[2] = sorted[1];
-            sorted[1] = o;
+      JsonObject first = null;
+      JsonObject second = null;
+
+      for (JsonObject obj : sorted) {
+
+         if (obj.getString("connectionID").equals(factory.getConnection().getID().toString())) {
+            first = obj;
          }
-         if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
-            JsonObject o = sorted[1];
-            sorted[1] = sorted[0];
-            sorted[0] = o;
+
+         if (obj.getString("connectionID").equals(factory2.getConnection().getID().toString())) {
+            second = obj;
          }
       }
 
-      JsonObject first = sorted[0];
-      JsonObject second = sorted[1];
+      Assert.assertNotNull(first);
+      Assert.assertNotNull(second);
 
       Assert.assertTrue(first.getJsonNumber("creationTime").longValue() > 0);
       Assert.assertNotNull(first.getJsonNumber("consumerID").longValue());
