@@ -33,6 +33,7 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JMSTransactionTest extends JMSTestBase {
@@ -70,7 +71,7 @@ public class JMSTransactionTest extends JMSTestBase {
                @Override
                public void onCompletion(Message message) {
                   try {
-                     commitLatch.await();
+                     commitLatch.await(100, TimeUnit.MILLISECONDS); // can't block the netty thread. We will delay things, but can't block it otherwise the test just blocks
                      sentMessages.incrementAndGet();
                   } catch (Exception e) {
                      e.printStackTrace();
