@@ -306,7 +306,7 @@ public class MQTTSubscriptionManager {
          int slashIndex = topic.indexOf(SLASH) + 1;
          String sharedSubscriptionName = topic.substring(slashIndex, topic.indexOf(SLASH, slashIndex));
          String parsedTopicName = topic.substring(topic.indexOf(SLASH, slashIndex) + 1);
-         return new SimpleString(sharedSubscriptionName).concat(".").concat(session.getState().getClientId()).concat(".").concat(parsedTopicName);
+         return new SimpleString(sharedSubscriptionName).concat(".").concat(parsedTopicName);
       } else {
          return new SimpleString(session.getState().getClientId()).concat(".").concat(topic);
       }

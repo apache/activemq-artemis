@@ -73,8 +73,9 @@ public class SubscriptionTests extends MQTT5TestSupport {
       });
       consumer1.subscribe(SHARED_SUB, 0);
 
-      assertNotNull(server.locateQueue(SUB_NAME));
-      assertEquals(TOPIC, server.locateQueue(SUB_NAME).getAddress().toString());
+      Queue sharedSubQueue = server.locateQueue(SUB_NAME.concat(".").concat(TOPIC));
+      assertNotNull(sharedSubQueue);
+      assertEquals(TOPIC, sharedSubQueue.getAddress().toString());
 
       MqttClient consumer2 = createPahoClient("consumer2");
       consumer2.connect();
@@ -90,7 +91,7 @@ public class SubscriptionTests extends MQTT5TestSupport {
       });
       consumer2.subscribe(SHARED_SUB, 1);
 
-      assertEquals(2, server.locateQueue(SUB_NAME).getConsumerCount());
+      assertEquals(2, sharedSubQueue.getConsumerCount());
 
       MqttClient producer = createPahoClient("producer");
       producer.connect();
@@ -127,7 +128,7 @@ public class SubscriptionTests extends MQTT5TestSupport {
       consumer1.setCallback(new LatchedMqttCallback(ackLatch));
       consumer1.subscribe(SHARED_SUB, 1);
 
-      Queue sharedSubQueue = server.locateQueue(SUB_NAME.concat(".").concat(consumer1.getClientId()).concat(".").concat(TOPIC));
+      Queue sharedSubQueue = server.locateQueue(SUB_NAME.concat(".").concat(TOPIC));
       assertNotNull(sharedSubQueue);
       assertEquals(TOPIC, sharedSubQueue.getAddress().toString());
       assertEquals(1, sharedSubQueue.getConsumerCount());

@@ -19,9 +19,9 @@ Highlights:
    subscription queues has changed. Previously the subscription queue was named according to the subscription name
    provided in the MQTT `SUBSCRIBE` packet. However, MQTT allows the same name to be used across multiple subscriptions
    whereas queues in the broker must be named uniquely. Now the subscription queue will be named according to the
-   subscription name, client ID, and topic name so that all subscription queue names will be unique. Before upgrading
-   please ensure all MQTT shared subscriptions are empty. When the subscribers reconnect they will get a new
-   subscription queue. If they are not empty you can move the messages to the new subscription queue administratively.
+   subscription name and topic name so that all subscription queue names will be unique. Before upgrading please ensure
+   all MQTT shared subscriptions are empty. When the subscribers reconnect they will get a new subscription queue. If
+   they are not empty you can move the messages to the new subscription queue administratively.
 
 ## 2.27.1
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352610&projectId=12315920)
