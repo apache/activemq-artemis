@@ -2615,32 +2615,26 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       JsonArray array = JsonUtil.readJsonArray(jsonString);
       Assert.assertEquals(usingCore() ? 3 : 2, array.size());
 
-      String key = "creationTime";
       JsonObject[] sorted = new JsonObject[array.size()];
       for (int i = 0; i < array.size(); i++) {
          sorted[i] = array.getJsonObject(i);
       }
 
-      if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
-         JsonObject o = sorted[1];
-         sorted[1] = sorted[0];
-         sorted[0] = o;
-      }
-      if (usingCore()) {
-         if (sorted[1].getJsonNumber(key).longValue() > sorted[2].getJsonNumber(key).longValue()) {
-            JsonObject o = sorted[2];
-            sorted[2] = sorted[1];
-            sorted[1] = o;
+      JsonObject first = null;
+      JsonObject second = null;
+
+      for (int i = 0; i < array.size(); i++) {
+         JsonObject obj = array.getJsonObject(i);
+         if (obj.getString("connectionID").equals(factories.get(0).getConnection().getID().toString())) {
+            first = obj;
          }
-         if (sorted[0].getJsonNumber(key).longValue() > sorted[1].getJsonNumber(key).longValue()) {
-            JsonObject o = sorted[1];
-            sorted[1] = sorted[0];
-            sorted[0] = o;
+         if (obj.getString("connectionID").equals(factories.get(1).getConnection().getID().toString())) {
+            second = obj;
          }
       }
 
-      JsonObject first = sorted[0];
-      JsonObject second = sorted[1];
+      Assert.assertNotNull(first);
+      Assert.assertNotNull(second);
 
       Assert.assertTrue(first.getString("connectionID").length() > 0);
       Assert.assertTrue(first.getString("clientAddress").length() > 0);
