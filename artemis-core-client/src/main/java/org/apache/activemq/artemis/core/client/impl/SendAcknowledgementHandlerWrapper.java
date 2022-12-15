@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.util.concurrent.Executor;
+
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
+import org.apache.activemq.artemis.utils.actors.Actor;
 
 public class SendAcknowledgementHandlerWrapper implements SendAcknowledgementHandler {
 
@@ -31,15 +34,19 @@ public class SendAcknowledgementHandlerWrapper implements SendAcknowledgementHan
     */
    private volatile boolean active = true;
 
-   public SendAcknowledgementHandlerWrapper(SendAcknowledgementHandler wrapped) {
+   private final Actor<Message> messageActor;
+
+   public SendAcknowledgementHandlerWrapper(SendAcknowledgementHandler wrapped, Executor executor) {
       this.wrapped = wrapped;
+      messageActor = new Actor<>(executor, wrapped::sendAcknowledged);
    }
+
 
    @Override
    public void sendAcknowledged(Message message) {
       if (active) {
          try {
-            wrapped.sendAcknowledged(message);
+            messageActor.act(message);
          } finally {
             active = false;
          }
