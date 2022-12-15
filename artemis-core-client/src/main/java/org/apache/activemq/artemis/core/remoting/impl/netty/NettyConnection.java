@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.BaseConnectionLifeCycleListener;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
+import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
 import org.slf4j.Logger;
@@ -436,7 +437,9 @@ public class NettyConnection implements Connection {
             continue;
          }
          if (NettyConnectorFactory.class.getName().equals(cfg.getFactoryClassName())) {
-            if (configuration.get(TransportConstants.PORT_PROP_NAME).equals(cfg.getParams().get(TransportConstants.PORT_PROP_NAME))) {
+            int port1 = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, configuration);
+            int port2 = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, TransportConstants.DEFAULT_PORT, cfg.getParams());
+            if (port1 == port2) {
                //port same, check host
                Object hostParam = configuration.get(TransportConstants.HOST_PROP_NAME);
                if (hostParam != null) {
