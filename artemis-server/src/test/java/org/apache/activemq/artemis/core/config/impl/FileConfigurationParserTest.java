@@ -122,6 +122,18 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testParsingZeroIDCacheSize() throws Exception {
+      FileConfigurationParser parser = new FileConfigurationParser();
+
+      String configStr = firstPart + "<id-cache-size>0</id-cache-size>" + lastPart;
+      ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
+
+      Configuration config = parser.parseMainConfig(input);
+
+      Assert.assertEquals(0, config.getIDCacheSize());
+   }
+
+   @Test
    public void testWildcardConfiguration() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
