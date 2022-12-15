@@ -23,7 +23,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.jms.CompletionListener;
@@ -33,7 +32,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class JMSTransactionTest extends JMSTestBase {
@@ -71,7 +69,7 @@ public class JMSTransactionTest extends JMSTestBase {
                @Override
                public void onCompletion(Message message) {
                   try {
-                     commitLatch.await(100, TimeUnit.MILLISECONDS); // can't block the netty thread. We will delay things, but can't block it otherwise the test just blocks
+                     commitLatch.await();
                      sentMessages.incrementAndGet();
                   } catch (Exception e) {
                      e.printStackTrace();
@@ -86,7 +84,7 @@ public class JMSTransactionTest extends JMSTestBase {
          }
 
          session.commit();
-         Assert.assertEquals(messages, sentMessages.get());
+         Wait.assertEquals(messages, sentMessages::get);
 
          org.apache.activemq.artemis.core.server.Queue queueView = server.locateQueue(SimpleString.toSimpleString(queueName));
          Wait.assertEquals(messages, queueView::getMessageCount);

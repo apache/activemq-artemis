@@ -2222,4 +2222,9 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    public SessionContext getSessionContext() {
       return sessionContext;
    }
+
+   @Override
+   public Executor getSessionExecutor() {
+      return executor;
+   }
 }

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.util.concurrent.Executor;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -135,4 +137,6 @@ public interface ClientSessionInternal extends ClientSession {
    boolean isWritable(ReadyListener callback);
 
    SessionContext getSessionContext();
+
+   Executor getSessionExecutor();
 }
