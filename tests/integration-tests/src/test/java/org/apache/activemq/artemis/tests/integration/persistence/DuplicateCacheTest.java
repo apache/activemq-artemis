@@ -128,4 +128,22 @@ public class DuplicateCacheTest extends StorageManagerTestBase {
 
       cache.clear();
    }
+
+   @Test
+   public void testDisabledPersistentCache() throws Exception {
+      createStorage();
+      DuplicateIDCache cache = DuplicateIDCaches.persistent(new SimpleString("test"), 0, journal);
+      byte[] bytes = RandomUtil.randomBytes();
+      // Previously this would throw an ArrayIndexOutOfBoundsException
+      cache.addToCache(bytes);
+   }
+
+   @Test
+   public void testDisabledInMemoryCache() throws Exception {
+      createStorage();
+      DuplicateIDCache cache = DuplicateIDCaches.inMemory(new SimpleString("test"), 0);
+      byte[] bytes = RandomUtil.randomBytes();
+      // Previously this would throw an ArrayIndexOutOfBoundsException
+      cache.addToCache(bytes);
+   }
 }

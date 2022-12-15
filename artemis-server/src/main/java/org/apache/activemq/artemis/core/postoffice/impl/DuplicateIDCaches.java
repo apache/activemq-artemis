@@ -29,11 +29,18 @@ public final class DuplicateIDCaches {
    public static DuplicateIDCache persistent(final SimpleString address,
                                              final int size,
                                              final StorageManager storageManager) {
-      return new PersistentDuplicateIDCache(address, size, storageManager);
+      if (size == 0) {
+         return new NoOpDuplicateIDCache();
+      } else {
+         return new PersistentDuplicateIDCache(address, size, storageManager);
+      }
    }
 
    public static DuplicateIDCache inMemory(final SimpleString address, final int size) {
-      return new InMemoryDuplicateIDCache(address, size);
+      if (size == 0) {
+         return new NoOpDuplicateIDCache();
+      } else {
+         return new InMemoryDuplicateIDCache(address, size);
+      }
    }
-
 }
