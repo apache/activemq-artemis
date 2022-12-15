@@ -69,23 +69,7 @@ public class ReplayManager {
       this.retentionFolder = server.getConfiguration().getJournalRetentionLocation();
    }
 
-   public void replay(Date start, Date end, String sourceAddress, final String targetAddress, String filter) throws Exception {
-
-      if (running.compareAndSet(false, true)) {
-         try {
-            actualReplay(start, end, sourceAddress, targetAddress, filter);
-         } catch (Exception e) {
-            logger.warn(e.getMessage());
-            throw e;
-         } finally {
-            running.set(false);
-         }
-      } else {
-         throw new RuntimeException("Replay manager is currently busy with another operation");
-      }
-   }
-
-   private void actualReplay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
+   public void replay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
       logger.debug("Replay::{}", sourceAddress);
 
       if (sourceAddress == null) {

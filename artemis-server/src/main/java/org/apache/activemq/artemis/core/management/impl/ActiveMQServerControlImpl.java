@@ -826,17 +826,19 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
-   public boolean freezeReplication() {
+   public boolean freezeReplication() throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.freezeReplication(this.server);
       }
-      Activation activation = server.getActivation();
-      if (activation instanceof SharedNothingLiveActivation) {
-         SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) activation;
-         liveActivation.freezeReplication();
-         return true;
+      try (AutoCloseable lock = server.managementLock()) {
+         Activation activation = server.getActivation();
+         if (activation instanceof SharedNothingLiveActivation) {
+            SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) activation;
+            liveActivation.freezeReplication();
+            return true;
+         }
+         return false;
       }
-      return false;
    }
 
    private enum AddressInfoTextFormatter {
@@ -966,21 +968,25 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void deleteAddress(String name, boolean force) throws Exception {
-      checkStarted();
 
-      clearIO();
-      try {
-         server.removeAddressInfo(new SimpleString(name), null, force);
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.deleteAddressSuccess(name);
+      // delete might be a long running task, we ensure only one large task running
+      try (AutoCloseable lock = server.managementLock()) {
+         checkStarted();
+
+         clearIO();
+         try {
+            server.removeAddressInfo(new SimpleString(name), null, force);
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.deleteAddressSuccess(name);
+            }
+         } catch (ActiveMQException e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.deleteAddressFailure(name);
+            }
+            throw new IllegalStateException(e.getMessage());
+         } finally {
+            blockOnIO();
          }
-      } catch (ActiveMQException e) {
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.deleteAddressFailure(name);
-         }
-         throw new IllegalStateException(e.getMessage());
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -1003,10 +1009,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       clearIO();
       try {
-         server.createQueue(new QueueConfiguration(name)
-                            .setAddress(address)
-                            .setFilterString(filterStr)
-                            .setDurable(durable));
+         server.createQueue(new QueueConfiguration(name).setAddress(address).setFilterString(filterStr).setDurable(durable));
       } finally {
          blockOnIO();
       }
@@ -1232,10 +1235,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              boolean autoCreateAddress,
                              long ringSize) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.createQueue(this.server, null, null, address, routingType, name, filterStr, durable,
-                  maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey,
-                  lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch,
-                  autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
+         AuditLogger.createQueue(this.server, null, null, address, routingType, name, filterStr, durable, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, lastValue, lastValueKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, autoDelete, autoDeleteDelay, autoDeleteMessageCount, autoCreateAddress, ringSize);
       }
       checkStarted();
 
@@ -1247,34 +1247,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
             filter = new SimpleString(filterStr);
          }
 
-         final Queue queue = server.createQueue(new QueueConfiguration(name)
-                                                   .setAddress(address)
-                                                   .setRoutingType(RoutingType.valueOf(routingType.toUpperCase()))
-                                                   .setFilterString(filter)
-                                                   .setDurable(durable)
-                                                   .setMaxConsumers(maxConsumers)
-                                                   .setPurgeOnNoConsumers(purgeOnNoConsumers)
-                                                   .setExclusive(exclusive)
-                                                   .setGroupRebalance(groupRebalance)
-                                                   .setGroupBuckets(groupBuckets)
-                                                   .setGroupFirstKey(groupFirstKey)
-                                                   .setLastValue(lastValue)
-                                                   .setLastValueKey(lastValueKey)
-                                                   .setNonDestructive(nonDestructive)
-                                                   .setConsumersBeforeDispatch(consumersBeforeDispatch)
-                                                   .setDelayBeforeDispatch(delayBeforeDispatch)
-                                                   .setAutoDelete(autoDelete)
-                                                   .setAutoDeleteDelay(autoDeleteDelay)
-                                                   .setAutoDeleteMessageCount(autoDeleteMessageCount)
-                                                   .setAutoCreateAddress(autoCreateAddress)
-                                                   .setRingSize(ringSize));
+         final Queue queue = server.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.valueOf(routingType.toUpperCase())).setFilterString(filter).setDurable(durable).setMaxConsumers(maxConsumers).setPurgeOnNoConsumers(purgeOnNoConsumers).setExclusive(exclusive).setGroupRebalance(groupRebalance).setGroupBuckets(groupBuckets).setGroupFirstKey(groupFirstKey).setLastValue(lastValue).setLastValueKey(lastValueKey).setNonDestructive(nonDestructive).setConsumersBeforeDispatch(consumersBeforeDispatch).setDelayBeforeDispatch(delayBeforeDispatch).setAutoDelete(autoDelete).setAutoDeleteDelay(autoDeleteDelay).setAutoDeleteMessageCount(autoDeleteMessageCount).setAutoCreateAddress(autoCreateAddress).setRingSize(ringSize));
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.createQueueSuccess( name, address, routingType);
+            AuditLogger.createQueueSuccess(name, address, routingType);
          }
          return QueueTextFormatter.Long.format(queue, new StringBuilder()).toString();
       } catch (ActiveMQException e) {
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.createQueueFailure( name, address, routingType);
+            AuditLogger.createQueueFailure(name, address, routingType);
          }
          throw new IllegalStateException(e.getMessage());
       } finally {
@@ -1313,7 +1293,6 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public String updateQueue(String queueConfigurationAsJson) throws Exception {
-
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.updateQueue(this.server, queueConfigurationAsJson);
       }
@@ -1414,8 +1393,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                              String user,
                              Long ringSize) throws Exception {
       if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.updateQueue(this.server, name, routingType, filter, maxConsumers, purgeOnNoConsumers,
-                  exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, ringSize);
+         AuditLogger.updateQueue(this.server, name, routingType, filter, maxConsumers, purgeOnNoConsumers, exclusive, groupRebalance, groupBuckets, groupFirstKey, nonDestructive, consumersBeforeDispatch, delayBeforeDispatch, user, ringSize);
       }
       checkStarted();
 
@@ -1592,27 +1570,30 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void destroyQueue(final String name, final boolean removeConsumers, final boolean forceAutoDeleteAddress) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.destroyQueue(this.server, null, null, name, removeConsumers, forceAutoDeleteAddress);
-      }
-      checkStarted();
+      // destroy might be a long running task, we prevent multiple running tasks in this case
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.destroyQueue(this.server, null, null, name, removeConsumers, forceAutoDeleteAddress);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         SimpleString queueName = new SimpleString(name);
+         clearIO();
          try {
-            server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, forceAutoDeleteAddress);
-         } catch (Exception e) {
-            if (AuditLogger.isResourceLoggingEnabled()) {
-               AuditLogger.destroyQueueFailure(name);
+            SimpleString queueName = new SimpleString(name);
+            try {
+               server.destroyQueue(queueName, null, !removeConsumers, removeConsumers, forceAutoDeleteAddress);
+            } catch (Exception e) {
+               if (AuditLogger.isResourceLoggingEnabled()) {
+                  AuditLogger.destroyQueueFailure(name);
+               }
+               throw e;
             }
-            throw e;
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.destroyQueueSuccess(name);
+            }
+         } finally {
+            blockOnIO();
          }
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.destroyQueueSuccess(name);
-         }
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -2149,56 +2130,64 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public synchronized boolean commitPreparedTransaction(final String transactionAsBase64) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.commitPreparedTransaction(this.server, transactionAsBase64);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-         List<Xid> xids = resourceManager.getPreparedTransactions();
-
-         for (Xid xid : xids) {
-            if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
-               Transaction transaction = resourceManager.removeTransaction(xid, null);
-               transaction.commit(false);
-               long recordID = server.getStorageManager().storeHeuristicCompletion(xid, true);
-               storageManager.waitOnOperations();
-               resourceManager.putHeuristicCompletion(recordID, xid, true);
-               return true;
-            }
+      // commit might be a long running task if dealing with a large transaction
+      // ensuring a single one just in case
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.commitPreparedTransaction(this.server, transactionAsBase64);
          }
-         return false;
-      } finally {
-         blockOnIO();
+         checkStarted();
+
+         clearIO();
+         try {
+            List<Xid> xids = resourceManager.getPreparedTransactions();
+
+            for (Xid xid : xids) {
+               if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
+                  Transaction transaction = resourceManager.removeTransaction(xid, null);
+                  transaction.commit(false);
+                  long recordID = server.getStorageManager().storeHeuristicCompletion(xid, true);
+                  storageManager.waitOnOperations();
+                  resourceManager.putHeuristicCompletion(recordID, xid, true);
+                  return true;
+               }
+            }
+            return false;
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
    @Override
    public synchronized boolean rollbackPreparedTransaction(final String transactionAsBase64) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.rollbackPreparedTransaction(this.server, transactionAsBase64);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-
-         List<Xid> xids = resourceManager.getPreparedTransactions();
-
-         for (Xid xid : xids) {
-            if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
-               Transaction transaction = resourceManager.removeTransaction(xid, null);
-               transaction.rollback();
-               long recordID = server.getStorageManager().storeHeuristicCompletion(xid, false);
-               server.getStorageManager().waitOnOperations();
-               resourceManager.putHeuristicCompletion(recordID, xid, false);
-               return true;
-            }
+      // rollback might be a long running task if dealing with a large transaction
+      // ensuring a single task just in case
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.rollbackPreparedTransaction(this.server, transactionAsBase64);
          }
-         return false;
-      } finally {
-         blockOnIO();
+         checkStarted();
+
+         clearIO();
+         try {
+
+            List<Xid> xids = resourceManager.getPreparedTransactions();
+
+            for (Xid xid : xids) {
+               if (XidImpl.toBase64String(xid).equals(transactionAsBase64)) {
+                  Transaction transaction = resourceManager.removeTransaction(xid, null);
+                  transaction.rollback();
+                  long recordID = server.getStorageManager().storeHeuristicCompletion(xid, false);
+                  server.getStorageManager().waitOnOperations();
+                  resourceManager.putHeuristicCompletion(recordID, xid, false);
+                  return true;
+               }
+            }
+            return false;
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -2278,149 +2267,170 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public boolean closeConsumerConnectionsForAddress(final String address) {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.closeConsumerConnectionsForAddress(this.server, address);
-      }
-      boolean closed = false;
-      checkStarted();
+      // this could be a long running task, ensuring a single task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.closeConsumerConnectionsForAddress(this.server, address);
+         }
+         boolean closed = false;
+         checkStarted();
 
-      clearIO();
-      try {
-         for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address))) {
-            if (binding instanceof LocalQueueBinding) {
-               Queue queue = ((LocalQueueBinding) binding).getQueue();
-               for (Consumer consumer : queue.getConsumers()) {
-                  if (consumer instanceof ServerConsumer) {
-                     ServerConsumer serverConsumer = (ServerConsumer) consumer;
-                     RemotingConnection connection = null;
+         clearIO();
+         try {
+            for (Binding binding : postOffice.getMatchingBindings(SimpleString.toSimpleString(address))) {
+               if (binding instanceof LocalQueueBinding) {
+                  Queue queue = ((LocalQueueBinding) binding).getQueue();
+                  for (Consumer consumer : queue.getConsumers()) {
+                     if (consumer instanceof ServerConsumer) {
+                        ServerConsumer serverConsumer = (ServerConsumer) consumer;
+                        RemotingConnection connection = null;
 
-                     for (RemotingConnection potentialConnection : remotingService.getConnections()) {
-                        if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID())) {
-                           connection = potentialConnection;
+                        for (RemotingConnection potentialConnection : remotingService.getConnections()) {
+                           if (potentialConnection.getID().toString().equals(serverConsumer.getConnectionID())) {
+                              connection = potentialConnection;
+                           }
                         }
-                     }
 
-                     if (connection != null) {
-                        remotingService.removeConnection(connection.getID());
-                        connection.fail(ActiveMQMessageBundle.BUNDLE.consumerConnectionsClosedByManagement(address));
-                        closed = true;
+                        if (connection != null) {
+                           remotingService.removeConnection(connection.getID());
+                           connection.fail(ActiveMQMessageBundle.BUNDLE.consumerConnectionsClosedByManagement(address));
+                           closed = true;
+                        }
                      }
                   }
                }
             }
+         } catch (Exception e) {
+            ActiveMQServerLogger.LOGGER.failedToCloseConsumerConnectionsForAddress(address, e);
+         } finally {
+            blockOnIO();
          }
-      } catch (Exception e) {
-         ActiveMQServerLogger.LOGGER.failedToCloseConsumerConnectionsForAddress(address, e);
-      } finally {
-         blockOnIO();
+         return closed;
+      } catch (Throwable e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
-      return closed;
    }
 
    @Override
    public boolean closeConnectionsForUser(final String userName) {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.closeConnectionsForUser(this.server, userName);
-      }
-      boolean closed = false;
-      checkStarted();
+      // possibly a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.closeConnectionsForUser(this.server, userName);
+         }
+         boolean closed = false;
+         checkStarted();
 
-      clearIO();
-      try {
-         for (ServerSession serverSession : server.getSessions()) {
-            if (serverSession.getUsername() != null && serverSession.getUsername().equals(userName)) {
-               RemotingConnection connection = null;
+         clearIO();
+         try {
+            for (ServerSession serverSession : server.getSessions()) {
+               if (serverSession.getUsername() != null && serverSession.getUsername().equals(userName)) {
+                  RemotingConnection connection = null;
 
-               for (RemotingConnection potentialConnection : remotingService.getConnections()) {
-                  if (potentialConnection.getID().toString().equals(serverSession.getConnectionID().toString())) {
-                     connection = potentialConnection;
+                  for (RemotingConnection potentialConnection : remotingService.getConnections()) {
+                     if (potentialConnection.getID().toString().equals(serverSession.getConnectionID().toString())) {
+                        connection = potentialConnection;
+                     }
+                  }
+
+                  if (connection != null) {
+                     remotingService.removeConnection(connection.getID());
+                     connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsForUserClosedByManagement(userName));
+                     closed = true;
                   }
                }
-
-               if (connection != null) {
-                  remotingService.removeConnection(connection.getID());
-                  connection.fail(ActiveMQMessageBundle.BUNDLE.connectionsForUserClosedByManagement(userName));
-                  closed = true;
-               }
             }
+         } finally {
+            blockOnIO();
          }
-      } finally {
-         blockOnIO();
+         return closed;
+      } catch (Throwable e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
-      return closed;
    }
 
    @Override
    public boolean closeConnectionWithID(final String ID) {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.closeConnectionWithID(this.server, ID);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-         for (RemotingConnection connection : remotingService.getConnections()) {
-            if (connection.getID().toString().equals(ID)) {
-               remotingService.removeConnection(connection.getID());
-               connection.fail(ActiveMQMessageBundle.BUNDLE.connectionWithIDClosedByManagement(ID));
-               return true;
-            }
+      // possibly a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.closeConnectionWithID(this.server, ID);
          }
-      } finally {
-         blockOnIO();
+         checkStarted();
+
+         clearIO();
+         try {
+            for (RemotingConnection connection : remotingService.getConnections()) {
+               if (connection.getID().toString().equals(ID)) {
+                  remotingService.removeConnection(connection.getID());
+                  connection.fail(ActiveMQMessageBundle.BUNDLE.connectionWithIDClosedByManagement(ID));
+                  return true;
+               }
+            }
+         } finally {
+            blockOnIO();
+         }
+         return false;
+      } catch (Throwable e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
-      return false;
    }
 
    @Override
    public boolean closeSessionWithID(final String connectionID, final String ID) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.closeSessionWithID(this.server, connectionID, ID);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-         List<ServerSession> sessions = server.getSessions(connectionID);
-         for (ServerSession session : sessions) {
-            if (session.getName().equals(ID.toString())) {
-               session.close(true);
-               return true;
-            }
+      // possibly a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.closeSessionWithID(this.server, connectionID, ID);
          }
+         checkStarted();
 
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            List<ServerSession> sessions = server.getSessions(connectionID);
+            for (ServerSession session : sessions) {
+               if (session.getName().equals(ID.toString())) {
+                  session.close(true);
+                  return true;
+               }
+            }
+
+         } finally {
+            blockOnIO();
+         }
+         return false;
       }
-      return false;
    }
 
    @Override
    public boolean closeConsumerWithID(final String sessionID, final String ID) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.closeConsumerWithID(this.server, sessionID, ID);
-      }
-      checkStarted();
+      // possibly a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.closeConsumerWithID(this.server, sessionID, ID);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         Set<ServerSession> sessions = server.getSessions();
-         for (ServerSession session : sessions) {
-            if (session.getName().equals(sessionID.toString())) {
-               Set<ServerConsumer> serverConsumers = session.getServerConsumers();
-               for (ServerConsumer serverConsumer : serverConsumers) {
-                  if (serverConsumer.sequentialID() == Long.valueOf(ID)) {
-                     serverConsumer.disconnect();
-                     return true;
+         clearIO();
+         try {
+            Set<ServerSession> sessions = server.getSessions();
+            for (ServerSession session : sessions) {
+               if (session.getName().equals(sessionID.toString())) {
+                  Set<ServerConsumer> serverConsumers = session.getServerConsumers();
+                  for (ServerConsumer serverConsumer : serverConsumers) {
+                     if (serverConsumer.sequentialID() == Long.valueOf(ID)) {
+                        serverConsumer.disconnect();
+                        return true;
+                     }
                   }
                }
             }
-         }
 
-      } finally {
-         blockOnIO();
+         } finally {
+            blockOnIO();
+         }
+         return false;
       }
-      return false;
    }
 
    @Override
@@ -4116,27 +4126,29 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
    @Override
    public void scaleDown(String connector) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.scaleDown(this.server, connector);
-      }
-      checkStarted();
-
-      clearIO();
-      HAPolicy haPolicy = server.getHAPolicy();
-      if (haPolicy instanceof LiveOnlyPolicy) {
-         LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
-
-         if (liveOnlyPolicy.getScaleDownPolicy() == null) {
-            liveOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.scaleDown(this.server, connector);
          }
+         checkStarted();
 
-         liveOnlyPolicy.getScaleDownPolicy().setEnabled(true);
+         clearIO();
+         HAPolicy haPolicy = server.getHAPolicy();
+         if (haPolicy instanceof LiveOnlyPolicy) {
+            LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
 
-         if (connector != null) {
-            liveOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
+            if (liveOnlyPolicy.getScaleDownPolicy() == null) {
+               liveOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());
+            }
+
+            liveOnlyPolicy.getScaleDownPolicy().setEnabled(true);
+
+            if (connector != null) {
+               liveOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
+            }
+
+            server.fail(true);
          }
-
-         server.fail(true);
       }
    }
 

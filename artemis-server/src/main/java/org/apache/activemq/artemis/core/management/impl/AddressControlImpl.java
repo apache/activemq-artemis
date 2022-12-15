@@ -431,10 +431,15 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long getMessageCount() {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.getMessageCount(this.addressInfo);
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.getMessageCount(this.addressInfo);
+         }
+         return getMessageCount(DurabilityType.ALL);
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
-      return getMessageCount(DurabilityType.ALL);
    }
 
    @Override
@@ -472,14 +477,17 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
                              final String user,
                              final String password,
                              boolean createMessageId) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.sendMessageThroughManagement(this, headers, type, body, durable, user, "****");
-      }
-      try {
-         return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password, createMessageId);
-      } catch (Exception e) {
-         e.printStackTrace();
-         throw new IllegalStateException(e.getMessage());
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.sendMessageThroughManagement(this, headers, type, body, durable, user, "****");
+         }
+         try {
+            return sendMessage(addressInfo.getName(), server, headers, type, body, durable, user, password, createMessageId);
+         } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalStateException(e.getMessage());
+         }
       }
    }
 
@@ -585,20 +593,25 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public boolean clearDuplicateIdCache() {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.clearDuplicateIdCache(this.addressInfo);
-      }
-      DuplicateIDCache cache = ((PostOfficeImpl)server.getPostOffice()).getDuplicateIDCaches().get(addressInfo.getName());
-      try {
-         if (cache != null) {
-            cache.clear();
-            return true;
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.clearDuplicateIdCache(this.addressInfo);
          }
-      } catch (Exception e) {
-         logger.debug("Failed to clear duplicate ID cache", e);
-      }
+         DuplicateIDCache cache = ((PostOfficeImpl) server.getPostOffice()).getDuplicateIDCaches().get(addressInfo.getName());
+         try {
+            if (cache != null) {
+               cache.clear();
+               return true;
+            }
+         } catch (Exception e) {
+            logger.debug("Failed to clear duplicate ID cache", e);
+         }
 
-      return false;
+         return false;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
+      }
    }
 
    @Override
@@ -627,37 +640,41 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
 
    @Override
    public long purge() throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.purge(this.addressInfo);
-      }
-      clearIO();
-      long totalMsgs = 0;
-      try {
-         Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
-         if (bindings != null) {
-            for (Binding binding : bindings.getBindings()) {
-               if (binding instanceof QueueBinding) {
-                  totalMsgs += ((QueueBinding) binding).getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.purge(this.addressInfo);
+         }
+         clearIO();
+         long totalMsgs = 0;
+         try {
+            Bindings bindings = server.getPostOffice().lookupBindingsForAddress(addressInfo.getName());
+            if (bindings != null) {
+               for (Binding binding : bindings.getBindings()) {
+                  if (binding instanceof QueueBinding) {
+                     totalMsgs += ((QueueBinding) binding).getQueue().deleteMatchingReferences(QueueImpl.DEFAULT_FLUSH_LIMIT, null, AckReason.KILLED);
+                  }
                }
             }
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.purgeAddressSuccess(addressInfo.getName().toString());
+            }
+         } catch (Throwable t) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.purgeAddressFailure(addressInfo.getName().toString());
+            }
+            throw new IllegalStateException(t.getMessage());
+         } finally {
+            blockOnIO();
          }
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.purgeAddressSuccess(addressInfo.getName().toString());
-         }
-      } catch (Throwable t) {
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.purgeAddressFailure(addressInfo.getName().toString());
-         }
-         throw new IllegalStateException(t.getMessage());
-      } finally {
-         blockOnIO();
-      }
 
-      return totalMsgs;
+         return totalMsgs;
+      }
    }
 
    @Override
    public void replay(String target, String filter) throws Exception {
+      // server.replay is already calling the managementLock, no need to do it here
       server.replay(null, null, this.getAddress(), target, filter);
    }
 
@@ -669,22 +686,25 @@ public class AddressControlImpl extends AbstractControl implements AddressContro
       Date startScanDate = format.parse(startScan);
       Date endScanDate = format.parse(endScan);
 
+      // server.replay is already calling the managementLock, no need to do it here
       server.replay(startScanDate, endScanDate, this.getAddress(), target, filter);
    }
 
 
    private long getMessageCount(final DurabilityType durability) {
-      long count = 0;
-      for (String queueName : getQueueNames()) {
-         Queue queue = server.locateQueue(queueName);
-         if (queue != null &&
-            (durability == DurabilityType.ALL ||
-            (durability == DurabilityType.DURABLE && queue.isDurable()) ||
-            (durability == DurabilityType.NON_DURABLE && !queue.isDurable()))) {
-            count += queue.getMessageCount();
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         long count = 0;
+         for (String queueName : getQueueNames()) {
+            Queue queue = server.locateQueue(queueName);
+            if (queue != null && (durability == DurabilityType.ALL || (durability == DurabilityType.DURABLE && queue.isDurable()) || (durability == DurabilityType.NON_DURABLE && !queue.isDurable()))) {
+               count += queue.getMessageCount();
+            }
          }
+         return count;
+      } catch (Exception e) {
+         throw new RuntimeException(e.getMessage(), e);
       }
-      return count;
    }
 
    private void checkStarted() {

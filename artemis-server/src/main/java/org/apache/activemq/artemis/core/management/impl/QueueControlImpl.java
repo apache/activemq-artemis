@@ -740,32 +740,38 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public Map<String, Object>[] listScheduledMessages() throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.listScheduledMessages(queue);
-      }
-      checkStarted();
+      // it could be a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.listScheduledMessages(queue);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         List<MessageReference> refs = queue.getScheduledMessages();
-         return convertMessagesToMaps(refs);
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            List<MessageReference> refs = queue.getScheduledMessages();
+            return convertMessagesToMaps(refs);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
    @Override
    public String listScheduledMessagesAsJSON() throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.listScheduledMessagesAsJSON(queue);
-      }
-      checkStarted();
+      // it could be a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.listScheduledMessagesAsJSON(queue);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         return QueueControlImpl.toJSON(listScheduledMessages());
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            return QueueControlImpl.toJSON(listScheduledMessages());
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -969,33 +975,36 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    private Map<String, Long> internalCountMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
-      checkStarted();
+      //  long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         checkStarted();
 
-      clearIO();
+         clearIO();
 
-      Map<String, Long> result = new HashMap<>();
-      try {
-         Filter filter = FilterImpl.createFilter(filterStr);
-         SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
-         if (filter == null && groupByProperty == null) {
-            result.put(null, getMessageCount());
-         } else {
-            final int limit = addressSettingsRepository.getMatch(address).getManagementBrowsePageSize();
-            int count = 0;
-            try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-               try {
-                  while (iterator.hasNext() && count++ < limit) {
-                     Message message = iterator.next().getMessage();
-                     internalComputeMessage(result, filter, groupByProperty, message);
+         Map<String, Long> result = new HashMap<>();
+         try {
+            Filter filter = FilterImpl.createFilter(filterStr);
+            SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+            if (filter == null && groupByProperty == null) {
+               result.put(null, getMessageCount());
+            } else {
+               final int limit = addressSettingsRepository.getMatch(address).getManagementBrowsePageSize();
+               int count = 0;
+               try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
+                  try {
+                     while (iterator.hasNext() && count++ < limit) {
+                        Message message = iterator.next().getMessage();
+                        internalComputeMessage(result, filter, groupByProperty, message);
+                     }
+                  } catch (NoSuchElementException ignored) {
+                     // this could happen through paging browsing
                   }
-               } catch (NoSuchElementException ignored) {
-                  // this could happen through paging browsing
                }
             }
+            return result;
+         } finally {
+            blockOnIO();
          }
-         return result;
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -1019,26 +1028,26 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
 
    private Map<String, Long> internalCountDeliveryMessages(final String filterStr, final String groupByPropertyStr) throws Exception {
-      checkStarted();
+      // it could be a long running task
+      try (AutoCloseable lock = server.managementLock()) {
+         checkStarted();
 
-      clearIO();
+         clearIO();
 
-      Map<String, Long> result = new HashMap<>();
-      try {
-         Filter filter = FilterImpl.createFilter(filterStr);
-         SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
-         if (filter == null && groupByProperty == null) {
-            result.put(null, Long.valueOf(getDeliveringCount()));
-         } else {
-            Map<String, List<MessageReference>> deliveringMessages = queue.getDeliveringMessages();
-            deliveringMessages.forEach((s, messageReferenceList) ->
-                            messageReferenceList.forEach(messageReference ->
-                                    internalComputeMessage(result, filter, groupByProperty, messageReference.getMessage())
-                            ));
+         Map<String, Long> result = new HashMap<>();
+         try {
+            Filter filter = FilterImpl.createFilter(filterStr);
+            SimpleString groupByProperty = SimpleString.toSimpleString(groupByPropertyStr);
+            if (filter == null && groupByProperty == null) {
+               result.put(null, Long.valueOf(getDeliveringCount()));
+            } else {
+               Map<String, List<MessageReference>> deliveringMessages = queue.getDeliveringMessages();
+               deliveringMessages.forEach((s, messageReferenceList) -> messageReferenceList.forEach(messageReference -> internalComputeMessage(result, filter, groupByProperty, messageReference.getMessage())));
+            }
+            return result;
+         } finally {
+            blockOnIO();
          }
-         return result;
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -1057,18 +1066,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean removeMessage(final long messageID) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.removeMessage(queue, messageID);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.removeMessage(queue, messageID);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         return queue.deleteReference(messageID);
-      } catch (ActiveMQException e) {
-         throw new IllegalStateException(e.getMessage());
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            return queue.deleteReference(messageID);
+         } catch (ActiveMQException e) {
+            throw new IllegalStateException(e.getMessage());
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -1079,30 +1091,33 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int removeMessages(final int flushLimit, final String filterStr) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.removeMessages(queue, flushLimit, filterStr);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-         Filter filter = FilterImpl.createFilter(filterStr);
-
-         int removed = 0;
-         try {
-            removed = queue.deleteMatchingReferences(flushLimit, filter);
-            if (AuditLogger.isResourceLoggingEnabled()) {
-               AuditLogger.removeMessagesSuccess(removed, queue.getName().toString());
-            }
-         } catch (Exception e) {
-            if (AuditLogger.isResourceLoggingEnabled()) {
-               AuditLogger.removeMessagesFailure(queue.getName().toString());
-            }
-            throw e;
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.removeMessages(queue, flushLimit, filterStr);
          }
-         return removed;
-      } finally {
-         blockOnIO();
+         checkStarted();
+
+         clearIO();
+         try {
+            Filter filter = FilterImpl.createFilter(filterStr);
+
+            int removed = 0;
+            try {
+               removed = queue.deleteMatchingReferences(flushLimit, filter);
+               if (AuditLogger.isResourceLoggingEnabled()) {
+                  AuditLogger.removeMessagesSuccess(removed, queue.getName().toString());
+               }
+            } catch (Exception e) {
+               if (AuditLogger.isResourceLoggingEnabled()) {
+                  AuditLogger.removeMessagesFailure(queue.getName().toString());
+               }
+               throw e;
+            }
+            return removed;
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -1113,87 +1128,99 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public boolean expireMessage(final long messageID) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.expireMessage(queue, messageID);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.expireMessage(queue, messageID);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         return queue.expireReference(messageID);
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            return queue.expireReference(messageID);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
    @Override
    public int expireMessages(final String filterStr) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.expireMessages(queue, filterStr);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.expireMessages(queue, filterStr);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         Filter filter = FilterImpl.createFilter(filterStr);
-         return queue.expireReferences(filter);
-      } catch (ActiveMQException e) {
-         throw new IllegalStateException(e.getMessage());
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            Filter filter = FilterImpl.createFilter(filterStr);
+            return queue.expireReferences(filter);
+         } catch (ActiveMQException e) {
+            throw new IllegalStateException(e.getMessage());
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
    @Override
    public boolean retryMessage(final long messageID) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.retryMessage(queue, messageID);
-      }
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.retryMessage(queue, messageID);
+         }
 
-      checkStarted();
-      clearIO();
+         checkStarted();
+         clearIO();
 
-      try {
-         Filter singleMessageFilter = new Filter() {
-            @Override
-            public boolean match(Message message) {
-               return message.getMessageID() == messageID;
-            }
+         try {
+            Filter singleMessageFilter = new Filter() {
+               @Override
+               public boolean match(Message message) {
+                  return message.getMessageID() == messageID;
+               }
 
-            @Override
-            public boolean match(Map<String, String> map) {
-               return false;
-            }
+               @Override
+               public boolean match(Map<String, String> map) {
+                  return false;
+               }
 
-            @Override
-            public boolean match(Filterable filterable) {
-               return false;
-            }
+               @Override
+               public boolean match(Filterable filterable) {
+                  return false;
+               }
 
-            @Override
-            public SimpleString getFilterString() {
-               return new SimpleString("custom filter for MESSAGEID= messageID");
-            }
-         };
+               @Override
+               public SimpleString getFilterString() {
+                  return new SimpleString("custom filter for MESSAGEID= messageID");
+               }
+            };
 
-         return queue.retryMessages(singleMessageFilter) > 0;
-      } finally {
-         blockOnIO();
+            return queue.retryMessages(singleMessageFilter) > 0;
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
    @Override
    public int retryMessages() throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.retryMessages(queue);
-      }
-      checkStarted();
-      clearIO();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.retryMessages(queue);
+         }
+         checkStarted();
+         clearIO();
 
-      try {
-         return queue.retryMessages(null);
-      } finally {
-         blockOnIO();
+         try {
+            return queue.retryMessages(null);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -1206,22 +1233,25 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    public boolean moveMessage(final long messageID,
                               final String otherQueueName,
                               final boolean rejectDuplicates) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.moveMessage(queue, messageID, otherQueueName, rejectDuplicates);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-         Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
-
-         if (binding == null) {
-            throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.moveMessage(queue, messageID, otherQueueName, rejectDuplicates);
          }
+         checkStarted();
 
-         return queue.moveReference(messageID, binding.getAddress(), binding, rejectDuplicates);
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
+
+            if (binding == null) {
+               throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
+            }
+
+            return queue.moveReference(messageID, binding.getAddress(), binding, rejectDuplicates);
+         } finally {
+            blockOnIO();
+         }
       }
 
    }
@@ -1245,25 +1275,28 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                            final String otherQueueName,
                            final boolean rejectDuplicates,
                            final int messageCount) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates, messageCount);
-      }
-      checkStarted();
-
-      clearIO();
-      try {
-         Filter filter = FilterImpl.createFilter(filterStr);
-
-         Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
-
-         if (binding == null) {
-            throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.moveMessages(queue, flushLimit, filterStr, otherQueueName, rejectDuplicates, messageCount);
          }
+         checkStarted();
 
-         int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, messageCount, binding);
-         return retValue;
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            Filter filter = FilterImpl.createFilter(filterStr);
+
+            Binding binding = server.getPostOffice().getBinding(new SimpleString(otherQueueName));
+
+            if (binding == null) {
+               throw ActiveMQMessageBundle.BUNDLE.noQueueFound(otherQueueName);
+            }
+
+            int retValue = queue.moveReferences(flushLimit, filter, binding.getAddress(), rejectDuplicates, messageCount, binding);
+            return retValue;
+         } finally {
+            blockOnIO();
+         }
       }
 
    }
@@ -1277,18 +1310,21 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public int sendMessagesToDeadLetterAddress(final String filterStr) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.sendMessagesToDeadLetterAddress(queue, filterStr);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.sendMessagesToDeadLetterAddress(queue, filterStr);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         Filter filter = FilterImpl.createFilter(filterStr);
+         clearIO();
+         try {
+            Filter filter = FilterImpl.createFilter(filterStr);
 
-         return queue.sendMessagesToDeadLetterAddress(filter);
-      } finally {
-         blockOnIO();
+            return queue.sendMessagesToDeadLetterAddress(filter);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -1310,35 +1346,41 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
                              final String user,
                              final String password,
                              boolean createMessageId) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.sendMessageThroughManagement(queue, headers, type, body, durable, user, "****");
-      }
-      try {
-         String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, createMessageId, queue.getID());
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.sendMessageSuccess(queue.getName().toString(), user);
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.sendMessageThroughManagement(queue, headers, type, body, durable, user, "****");
          }
-         return s;
-      } catch (Exception e) {
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.sendMessageFailure(queue.getName().toString(), user);
+         try {
+            String s = sendMessage(queue.getAddress(), server, headers, type, body, durable, user, password, createMessageId, queue.getID());
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.sendMessageSuccess(queue.getName().toString(), user);
+            }
+            return s;
+         } catch (Exception e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.sendMessageFailure(queue.getName().toString(), user);
+            }
+            throw new IllegalStateException(e.getMessage());
          }
-         throw new IllegalStateException(e.getMessage());
       }
    }
 
    @Override
    public boolean sendMessageToDeadLetterAddress(final long messageID) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.sendMessageToDeadLetterAddress(queue, messageID);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.sendMessageToDeadLetterAddress(queue, messageID);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         return queue.sendMessageToDeadLetterAddress(messageID);
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            return queue.sendMessageToDeadLetterAddress(messageID);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
@@ -1554,52 +1596,55 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public CompositeData[] browse(int page, int pageSize, String filter) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.browse(queue, page, pageSize);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.browse(queue, page, pageSize);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         long index = 0;
-         long start = (long) (page - 1) * pageSize;
-         long end = Math.min(page * pageSize, queue.getMessageCount());
+         clearIO();
+         try {
+            long index = 0;
+            long start = (long) (page - 1) * pageSize;
+            long end = Math.min(page * pageSize, queue.getMessageCount());
 
-         ArrayList<CompositeData> c = new ArrayList<>();
-         Filter thefilter = FilterImpl.createFilter(filter);
+            ArrayList<CompositeData> c = new ArrayList<>();
+            Filter thefilter = FilterImpl.createFilter(filter);
 
-         final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
-         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-            try {
-               while (iterator.hasNext() && index < end) {
-                  MessageReference ref = iterator.next();
-                  if (thefilter == null || thefilter.match(ref.getMessage())) {
-                     if (index >= start) {
-                        c.add(ref.getMessage().toCompositeData(attributeSizeLimit, ref.getDeliveryCount()));
+            final int attributeSizeLimit = addressSettingsRepository.getMatch(address).getManagementMessageAttributeSizeLimit();
+            try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
+               try {
+                  while (iterator.hasNext() && index < end) {
+                     MessageReference ref = iterator.next();
+                     if (thefilter == null || thefilter.match(ref.getMessage())) {
+                        if (index >= start) {
+                           c.add(ref.getMessage().toCompositeData(attributeSizeLimit, ref.getDeliveryCount()));
+                        }
+                        //we only increase the index if we add a message, otherwise we could stop before we get to a filtered message
+                        index++;
                      }
-                     //we only increase the index if we add a message, otherwise we could stop before we get to a filtered message
-                     index++;
                   }
+               } catch (NoSuchElementException ignored) {
+                  // this could happen through paging browsing
                }
-            } catch (NoSuchElementException ignored) {
-               // this could happen through paging browsing
-            }
 
-            CompositeData[] rc = new CompositeData[c.size()];
-            c.toArray(rc);
-            if (AuditLogger.isResourceLoggingEnabled()) {
-               AuditLogger.browseMessagesSuccess(queue.getName().toString(), c.size());
+               CompositeData[] rc = new CompositeData[c.size()];
+               c.toArray(rc);
+               if (AuditLogger.isResourceLoggingEnabled()) {
+                  AuditLogger.browseMessagesSuccess(queue.getName().toString(), c.size());
+               }
+               return rc;
             }
-            return rc;
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.browseMessagesFailure(queue.getName().toString());
+            }
+            throw new IllegalStateException(e.getMessage());
+         } finally {
+            blockOnIO();
          }
-      } catch (Exception e) {
-         logger.warn(e.getMessage(), e);
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.browseMessagesFailure(queue.getName().toString());
-         }
-         throw new IllegalStateException(e.getMessage());
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -1609,46 +1654,49 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
    }
    @Override
    public CompositeData[] browse(String filter) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.browse(queue, filter);
-      }
-      checkStarted();
+      // this is a critical task, we need to prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.browse(queue, filter);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         final AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
-         final int attributeSizeLimit = addressSettings.getManagementMessageAttributeSizeLimit();
-         final int limit = addressSettings.getManagementBrowsePageSize();
-         int currentPageSize = 0;
-         ArrayList<CompositeData> c = new ArrayList<>();
-         Filter thefilter = FilterImpl.createFilter(filter);
-         try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
-            try {
-               while (iterator.hasNext() && currentPageSize++ < limit) {
-                  MessageReference ref = iterator.next();
-                  if (thefilter == null || thefilter.match(ref.getMessage())) {
-                     c.add(ref.getMessage().toCompositeData(attributeSizeLimit, ref.getDeliveryCount()));
+         clearIO();
+         try {
+            final AddressSettings addressSettings = addressSettingsRepository.getMatch(address);
+            final int attributeSizeLimit = addressSettings.getManagementMessageAttributeSizeLimit();
+            final int limit = addressSettings.getManagementBrowsePageSize();
+            int currentPageSize = 0;
+            ArrayList<CompositeData> c = new ArrayList<>();
+            Filter thefilter = FilterImpl.createFilter(filter);
+            try (LinkedListIterator<MessageReference> iterator = queue.browserIterator()) {
+               try {
+                  while (iterator.hasNext() && currentPageSize++ < limit) {
+                     MessageReference ref = iterator.next();
+                     if (thefilter == null || thefilter.match(ref.getMessage())) {
+                        c.add(ref.getMessage().toCompositeData(attributeSizeLimit, ref.getDeliveryCount()));
 
+                     }
                   }
+               } catch (NoSuchElementException ignored) {
+                  // this could happen through paging browsing
                }
-            } catch (NoSuchElementException ignored) {
-               // this could happen through paging browsing
-            }
 
-            CompositeData[] rc = new CompositeData[c.size()];
-            c.toArray(rc);
-            if (AuditLogger.isResourceLoggingEnabled()) {
-               AuditLogger.browseMessagesSuccess(queue.getName().toString(), currentPageSize);
+               CompositeData[] rc = new CompositeData[c.size()];
+               c.toArray(rc);
+               if (AuditLogger.isResourceLoggingEnabled()) {
+                  AuditLogger.browseMessagesSuccess(queue.getName().toString(), currentPageSize);
+               }
+               return rc;
             }
-            return rc;
+         } catch (ActiveMQException e) {
+            if (AuditLogger.isResourceLoggingEnabled()) {
+               AuditLogger.browseMessagesFailure(queue.getName().toString());
+            }
+            throw new IllegalStateException(e.getMessage());
+         } finally {
+            blockOnIO();
          }
-      } catch (ActiveMQException e) {
-         if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.browseMessagesFailure(queue.getName().toString());
-         }
-         throw new IllegalStateException(e.getMessage());
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -1714,32 +1762,35 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public String listGroupsAsJSON() throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.listGroupsAsJSON(queue);
-      }
-      checkStarted();
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.listGroupsAsJSON(queue);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         Map<SimpleString, Consumer> groups = queue.getGroups();
+         clearIO();
+         try {
+            Map<SimpleString, Consumer> groups = queue.getGroups();
 
-         JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
+            JsonArrayBuilder jsonArray = JsonLoader.createArrayBuilder();
 
-         for (Map.Entry<SimpleString, Consumer> group : groups.entrySet()) {
+            for (Map.Entry<SimpleString, Consumer> group : groups.entrySet()) {
 
-            if (group.getValue() instanceof ServerConsumer) {
-               ServerConsumer serverConsumer = (ServerConsumer) group.getValue();
+               if (group.getValue() instanceof ServerConsumer) {
+                  ServerConsumer serverConsumer = (ServerConsumer) group.getValue();
 
-               JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("groupID", group.getKey().toString()).add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
+                  JsonObjectBuilder obj = JsonLoader.createObjectBuilder().add("groupID", group.getKey().toString()).add("consumerID", serverConsumer.getID()).add("connectionID", serverConsumer.getConnectionID().toString()).add("sessionID", serverConsumer.getSessionID()).add("browseOnly", serverConsumer.isBrowseOnly()).add("creationTime", serverConsumer.getCreationTime());
 
-               jsonArray.add(obj);
+                  jsonArray.add(obj);
+               }
+
             }
 
+            return jsonArray.build().toString();
+         } finally {
+            blockOnIO();
          }
-
-         return jsonArray.build().toString();
-      } finally {
-         blockOnIO();
       }
    }
 
@@ -1969,31 +2020,37 @@ public class QueueControlImpl extends AbstractControl implements QueueControl {
 
    @Override
    public void deliverScheduledMessages(String filter) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.deliverScheduledMessage(queue, filter);
-      }
-      checkStarted();
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.deliverScheduledMessage(queue, filter);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         queue.deliverScheduledMessages(filter);
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            queue.deliverScheduledMessages(filter);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
    @Override
    public void deliverScheduledMessage(long messageId) throws Exception {
-      if (AuditLogger.isBaseLoggingEnabled()) {
-         AuditLogger.deliverScheduledMessage(queue, messageId);
-      }
-      checkStarted();
+      // prevent parallel tasks running
+      try (AutoCloseable lock = server.managementLock()) {
+         if (AuditLogger.isBaseLoggingEnabled()) {
+            AuditLogger.deliverScheduledMessage(queue, messageId);
+         }
+         checkStarted();
 
-      clearIO();
-      try {
-         queue.deliverScheduledMessage(messageId);
-      } finally {
-         blockOnIO();
+         clearIO();
+         try {
+            queue.deliverScheduledMessage(messageId);
+         } finally {
+            blockOnIO();
+         }
       }
    }
 
