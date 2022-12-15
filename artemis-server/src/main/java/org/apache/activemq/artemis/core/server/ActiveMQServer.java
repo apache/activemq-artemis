@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -68,8 +69,8 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugi
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerResourcePlugin;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerSessionPlugin;
-import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.server.reload.ReloadManager;
+import org.apache.activemq.artemis.core.server.routing.ConnectionRouterManager;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
@@ -197,6 +198,13 @@ public interface ActiveMQServer extends ServiceComponent {
     * @param listener @see org.apache.activemq.artemis.core.server.ActivationFailureListener
     */
    void registerActivationFailureListener(ActivationFailureListener listener);
+
+   /**
+    * Register a listener to detect I/O Critical errors
+    *
+    * @param listener @see org.apache.activemq.artemis.core.io.IOCriticalErrorListener
+    */
+   void registerIOCriticalErrorListener(IOCriticalErrorListener listener);
 
    void replay(Date start, Date end, String address, String target, String filter) throws Exception;
 
