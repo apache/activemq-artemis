@@ -428,14 +428,17 @@ public class ClusterConnectionBridge extends BridgeImpl {
          clusterConnection.removeRecord(targetNodeID);
 
          if (scaleDown) {
-            try {
-               queue.deleteQueue(true);
-               queue.removeAddress();
-            } catch (ActiveMQAddressDoesNotExistException e) {
-               // ignore
-            } catch (Exception e) {
-               logger.warn(e.getMessage(), e);
-            }
+            executor.execute(() -> {
+               logger.debug("Scaling down queue {}", queue);
+               try {
+                  queue.deleteQueue(true);
+                  queue.removeAddress();
+               } catch (ActiveMQAddressDoesNotExistException e) {
+                  logger.debug("ActiveMQAddressDoesNotExistException during scale down for queue {}", queue);
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
+            });
          }
       } else {
          clusterConnection.disconnectRecord(targetNodeID);
