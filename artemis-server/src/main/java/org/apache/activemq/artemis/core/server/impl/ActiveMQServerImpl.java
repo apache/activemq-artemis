@@ -50,6 +50,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -277,7 +278,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    /** Certain management operations shouldn't use more than one thread.
     *  this semaphore is used to guarantee a single thread used. */
-   private final Semaphore managementSemaphore = new Semaphore(1);
+   private final ReentrantLock managementLock = new ReentrantLock();
 
    /**
     * This is a thread pool for io tasks only.
@@ -522,7 +523,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       if (replayManager == null) {
          throw ActiveMQMessageBundle.BUNDLE.noRetention();
       }
-      replayManager.replay(start, end, address, target, filter);
+      try (AutoCloseable lock = managementLock()) {
+         replayManager.replay(start, end, address, target, filter);
+      }
    }
 
    /**
@@ -4626,10 +4629,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
    @Override
    public AutoCloseable managementLock() throws Exception {
-      if (!managementSemaphore.tryAcquire(1, TimeUnit.MINUTES)) {
+      if (!managementLock.tryLock(1, TimeUnit.MINUTES)) {
          throw ActiveMQMessageBundle.BUNDLE.managementBusy();
       } else {
-         return managementSemaphore::release;
+         return managementLock::unlock;
       }
    }
 }

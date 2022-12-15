@@ -526,7 +526,7 @@ public interface ActiveMQServerControl {
 
    // Operations ----------------------------------------------------
    @Operation(desc = "Isolate the broker", impact = MBeanOperationInfo.ACTION)
-   boolean freezeReplication();
+   boolean freezeReplication() throws Exception;
 
    @Operation(desc = "Create an address", impact = MBeanOperationInfo.ACTION)
    String createAddress(@Parameter(name = "name", desc = "The name of the address") String name,
@@ -1905,7 +1905,7 @@ public interface ActiveMQServerControl {
     * Returns the names of the queues created on this server with the given routing-type.
     */
    @Operation(desc = "Names of the queues created on this server with the given routing-type (i.e. ANYCAST or MULTICAST)", impact = MBeanOperationInfo.INFO)
-   String[] getQueueNames(@Parameter(name = "routingType", desc = "The routing type, MULTICAST or ANYCAST") String routingType);
+   String[] getQueueNames(@Parameter(name = "routingType", desc = "The routing type, MULTICAST or ANYCAST") String routingType) throws Exception;
 
    /**
     * Returns the names of the cluster-connections deployed on this server.
