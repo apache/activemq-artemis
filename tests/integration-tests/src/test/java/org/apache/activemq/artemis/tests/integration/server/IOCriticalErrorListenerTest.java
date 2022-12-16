@@ -28,7 +28,7 @@ public class IOCriticalErrorListenerTest extends ActiveMQTestBase {
 
    @Test
    public void simpleTest() throws Exception {
-      server = createServer(false, createDefaultNettyConfig());
+      server = createServer(true, createDefaultNettyConfig());
       final CountDownLatch latch = new CountDownLatch(1);
       server.registerIOCriticalErrorListener((code, message, file) -> latch.countDown());
       server.start();
