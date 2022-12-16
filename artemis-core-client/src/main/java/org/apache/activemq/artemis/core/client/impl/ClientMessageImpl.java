@@ -46,6 +46,8 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
 
    private int flowControlSize = -1;
 
+   private boolean confirmed;
+
    /**
     * Used on LargeMessages only
     */
@@ -414,4 +416,13 @@ public class ClientMessageImpl extends CoreMessage implements ClientMessageInter
       return new ClientMessageImpl(this);
    }
 
+   @Override
+   public boolean isConfirmed() {
+      return confirmed;
+   }
+
+   @Override
+   public void setConfirmed(boolean confirmed) {
+      this.confirmed = confirmed;
+   }
 }

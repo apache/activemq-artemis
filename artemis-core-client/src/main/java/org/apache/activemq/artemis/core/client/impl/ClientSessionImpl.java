@@ -80,6 +80,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final Executor executor;
 
+   private final Executor confirmationExecutor;
+
    // to be sent to consumers as consumers will need a separate consumer for flow control
    private final Executor flowControlExecutor;
 
@@ -184,6 +186,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final String groupID,
                      final SessionContext sessionContext,
                      final Executor executor,
+                     final Executor confirmationExecutor,
                      final Executor flowControlExecutor,
                      final Executor closeExecutor) throws ActiveMQException {
       this.sessionFactory = sessionFactory;
@@ -195,6 +198,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       this.password = password;
 
       this.executor = executor;
+
+      this.confirmationExecutor = confirmationExecutor;
 
       this.flowControlExecutor = flowControlExecutor;
 
@@ -2209,22 +2214,16 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    }
 
    @Override
-   public void scheduleConfirmation(final SendAcknowledgementHandler handler, final Message message) {
-      executor.execute(new Runnable() {
-         @Override
-         public void run() {
-            handler.sendAcknowledged(message);
-         }
-      });
-   }
-
-   @Override
    public SessionContext getSessionContext() {
       return sessionContext;
    }
 
    @Override
-   public Executor getSessionExecutor() {
-      return executor;
+   public SendAcknowledgementHandler wrap(SendAcknowledgementHandler handler) {
+      if (!(handler instanceof SendAcknowledgementHandlerWrapper)) {
+         handler = new SendAcknowledgementHandlerWrapper(handler, confirmationExecutor);
+      }
+      return handler;
    }
+
 }

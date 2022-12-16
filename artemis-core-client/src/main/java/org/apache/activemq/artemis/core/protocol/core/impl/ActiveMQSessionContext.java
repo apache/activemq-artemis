@@ -278,7 +278,7 @@ public class ActiveMQSessionContext extends SessionContext {
    public void setSendAcknowledgementHandler(final SendAcknowledgementHandler handler) {
       setHandlers();
 
-      this.sendAckHandler = handler;
+      this.sendAckHandler = session.wrap(handler);
    }
 
    @Override
