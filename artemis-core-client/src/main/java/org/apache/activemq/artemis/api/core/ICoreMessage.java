@@ -127,4 +127,12 @@ public interface ICoreMessage extends Message {
       return map;
    }
 
+
+   default boolean isConfirmed() {
+      return false;
+   }
+
+   default void setConfirmed(boolean confirmed) {
+   }
+
 }

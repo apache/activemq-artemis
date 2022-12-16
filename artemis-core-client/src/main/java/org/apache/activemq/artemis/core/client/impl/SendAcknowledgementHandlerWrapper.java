@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.client.impl;
 
 import java.util.concurrent.Executor;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler;
 import org.apache.activemq.artemis.utils.actors.Actor;
@@ -26,13 +27,7 @@ public class SendAcknowledgementHandlerWrapper implements SendAcknowledgementHan
 
    private SendAcknowledgementHandler wrapped;
 
-   /**
-    * It's possible that a SendAcknowledgementHandler might be called twice due to subsequent
-    * packet confirmations on the same connection. Using this boolean avoids that possibility.
-    * A new SendAcknowledgementHandlerWrapper is created for each message sent so once it's
-    * called once it will never be called again.
-    */
-   private volatile boolean active = true;
+
 
    private final Actor<Message> messageActor;
 
@@ -44,22 +39,27 @@ public class SendAcknowledgementHandlerWrapper implements SendAcknowledgementHan
 
    @Override
    public void sendAcknowledged(Message message) {
-      if (active) {
+      ICoreMessage msg = message.toCore();
+
+      // It is possible that a SendAcknowledgementHandler might be called twice due to subsequent
+      // packet confirmations on the same connection. Using this boolean avoids that possibility.
+      if (!msg.isConfirmed()) {
          try {
             messageActor.act(message);
          } finally {
-            active = false;
+            msg.setConfirmed(true);
          }
       }
    }
 
    @Override
    public void sendFailed(Message message, Exception e) {
-      if (active) {
+      ICoreMessage msg = message.toCore();
+      if (!msg.isConfirmed()) {
          try {
             wrapped.sendFailed(message, e);
          } finally {
-            active = false;
+            msg.setConfirmed(true);
          }
       }
    }

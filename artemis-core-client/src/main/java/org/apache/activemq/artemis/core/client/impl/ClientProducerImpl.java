@@ -136,7 +136,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       checkClosed();
 
       if (handler != null) {
-         handler = new SendAcknowledgementHandlerWrapper(handler, session.getSessionExecutor());
+         handler =  session.wrap(handler);
       }
 
       doSend(address1, message, handler);
@@ -145,7 +145,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
          logger.debug("Handler was used on producing messages towards address {} however there is no confirmationWindowEnabled", address1);
 
          // if there is no confirmation enabled, we will at least call the handler after the sent is done
-         session.scheduleConfirmation(handler, message);
+         handler.sendAcknowledged(message); // this is asynchronous as we wrapped with an executor
       }
    }
 
@@ -256,6 +256,8 @@ public class ClientProducerImpl implements ClientProducerInternal {
          final boolean sendBlocking = sendBlockingConfig && handler == null && sessionContext.getSendAcknowledgementHandler() == null;
 
          session.workDone();
+
+         msg.setConfirmed(false);
 
          if (isLarge) {
             largeMessageSend(sendBlocking, msg, theCredits, handler);
