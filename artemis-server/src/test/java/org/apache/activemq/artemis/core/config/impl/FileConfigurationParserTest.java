@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfigu
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
@@ -543,7 +544,11 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       // check that suffixes were interpreted well
       Assert.assertEquals(100 * 1024 * 1024, configuration.getGlobalMaxSize());
       Assert.assertEquals(10 * 1024 * 1024, configuration.getJournalFileSize());
-      Assert.assertEquals(5 * 1024 * 1024, configuration.getJournalBufferSize_NIO());
+      if (LibaioContext.isLoaded()) {
+         Assert.assertEquals(5 * 1024 * 1024, configuration.getJournalBufferSize_AIO());
+      } else {
+         Assert.assertEquals(5 * 1024 * 1024, configuration.getJournalBufferSize_NIO());
+      }
    }
 
    @Test
