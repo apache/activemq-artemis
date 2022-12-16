@@ -101,7 +101,7 @@ public class NullStorageManager implements StorageManager {
 
    @Override
    public void criticalError(Throwable error) {
-
+      ioCriticalErrorListener.onIOException(error, error.getMessage(), null);
    }
 
    @Override

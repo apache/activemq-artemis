@@ -4293,6 +4293,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             return;
          }
 
+         try {
+            for (IOCriticalErrorListener listener : ioCriticalErrorListeners) {
+               listener.onIOException(cause, message, file);
+            }
+         } catch (Throwable ignored) {
+            logger.debug("Ignored exception {}", ignored.getMessage(), ignored);
+         }
+
          if (file == null) {
             ActiveMQServerLogger.LOGGER.ioCriticalIOError(message, "NULL", cause);
          } else {
