@@ -133,7 +133,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public QueueConnection createQueueConnection() throws JMSException {
       logger.trace("createQueueConnection()");
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.QUEUE_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.QUEUE_CONNECTION);
 
       logger.trace("Created queue connection: {}", s);
 
@@ -152,7 +152,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public QueueConnection createQueueConnection(final String userName, final String password) throws JMSException {
       logger.trace("createQueueConnection({}, ****)", userName);
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.QUEUE_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.QUEUE_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
 
@@ -173,7 +173,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public TopicConnection createTopicConnection() throws JMSException {
       logger.trace("createTopicConnection()");
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.TOPIC_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.TOPIC_CONNECTION);
 
       logger.trace("Created topic connection: {}", s);
 
@@ -192,7 +192,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public TopicConnection createTopicConnection(final String userName, final String password) throws JMSException {
       logger.trace("createTopicConnection({}, ****)", userName);
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.TOPIC_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.TOPIC_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
@@ -212,7 +212,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public Connection createConnection() throws JMSException {
       logger.trace("createConnection()");
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.CONNECTION);
 
       logger.trace("Created connection: {}", s);
 
@@ -231,7 +231,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public Connection createConnection(final String userName, final String password) throws JMSException {
       logger.trace("createConnection({}, ****)", userName);
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
 
@@ -252,7 +252,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public XAQueueConnection createXAQueueConnection() throws JMSException {
       logger.trace("createXAQueueConnection()");
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION);
 
       logger.trace("Created queue connection: {}", s);
 
@@ -271,7 +271,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public XAQueueConnection createXAQueueConnection(final String userName, final String password) throws JMSException {
       logger.trace("createXAQueueConnection({}, ****)", userName);
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_QUEUE_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
@@ -291,7 +291,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public XATopicConnection createXATopicConnection() throws JMSException {
       logger.trace("createXATopicConnection()");
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION);
 
       logger.trace("Created topic connection: {}", s);
 
@@ -310,7 +310,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public XATopicConnection createXATopicConnection(final String userName, final String password) throws JMSException {
       logger.trace("createXATopicConnection({}, ****)", userName);
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_TOPIC_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
@@ -330,7 +330,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public XAConnection createXAConnection() throws JMSException {
       logger.trace("createXAConnection()");
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_CONNECTION);
 
       logger.trace("Created connection: {}", s);
 
@@ -349,7 +349,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    public XAConnection createXAConnection(final String userName, final String password) throws JMSException {
       logger.trace("createXAConnection({}, ****)", userName);
 
-      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_CONNECTION);
+      ActiveMQRASessionFactoryImpl s = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_CONNECTION);
       s.setUserName(userName);
       s.setPassword(password);
       validateUser(s);
@@ -372,7 +372,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
    @Override
    public JMSContext createContext(String userName, String password, int sessionMode) {
       @SuppressWarnings("resource")
-      ActiveMQRASessionFactoryImpl conn = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.CONNECTION);
+      ActiveMQRASessionFactoryImpl conn = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.CONNECTION);
       conn.setUserName(userName);
       conn.setPassword(password);
       try {
@@ -401,7 +401,7 @@ public class ActiveMQRAConnectionFactoryImpl implements ActiveMQRAConnectionFact
 
    @Override
    public XAJMSContext createXAContext(String userName, String password) {
-      ActiveMQRASessionFactoryImpl conn = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTM(), ActiveMQRAConnectionFactory.XA_CONNECTION);
+      ActiveMQRASessionFactoryImpl conn = new ActiveMQRASessionFactoryImpl(mcf, cm, getResourceAdapter().getTSR(), ActiveMQRAConnectionFactory.XA_CONNECTION);
       conn.setUserName(userName);
       conn.setPassword(password);
       try {

@@ -16,18 +16,6 @@
  */
 package org.apache.activemq.artemis.ra.inflow;
 
-import javax.jms.Destination;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.Queue;
-import javax.jms.Topic;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.resource.ResourceException;
-import javax.resource.spi.endpoint.MessageEndpointFactory;
-import javax.resource.spi.work.Work;
-import javax.resource.spi.work.WorkManager;
-import javax.transaction.xa.XAResource;
 import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
@@ -38,12 +26,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.jms.Destination;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.Queue;
+import javax.jms.Topic;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.resource.ResourceException;
+import javax.resource.spi.endpoint.MessageEndpointFactory;
+import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
+import javax.resource.spi.work.WorkManager;
+import javax.transaction.xa.XAResource;
+
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
-
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -309,7 +310,7 @@ public class ActiveMQActivation {
                cf = factory.getServerLocator().createSessionFactory();
             }
             session = setupSession(cf);
-            ActiveMQMessageHandler handler = new ActiveMQMessageHandler(factory, this, ra.getTM(), (ClientSessionInternal) session, cf, i);
+            ActiveMQMessageHandler handler = new ActiveMQMessageHandler(factory, this, ra.getTSR(), (ClientSessionInternal) session, cf, i);
             handler.setup();
             handlers.add(handler);
          } catch (Exception e) {

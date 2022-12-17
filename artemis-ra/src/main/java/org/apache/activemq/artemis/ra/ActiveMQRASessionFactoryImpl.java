@@ -16,6 +16,10 @@
  */
 package org.apache.activemq.artemis.ra;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.jms.ConnectionConsumer;
 import javax.jms.ConnectionMetaData;
 import javax.jms.Destination;
@@ -38,12 +42,8 @@ import javax.jms.XATopicSession;
 import javax.naming.Reference;
 import javax.resource.Referenceable;
 import javax.resource.spi.ConnectionManager;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.TransactionManager;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import javax.transaction.Status;
+import javax.transaction.TransactionSynchronizationRegistry;
 
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSConstants;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionForContext;
@@ -99,7 +99,7 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     * The managed connection factory
     */
    private final ActiveMQRAManagedConnectionFactory mcf;
-   private TransactionManager tm;
+   private final TransactionSynchronizationRegistry tsr;
 
    /**
     * The connection manager
@@ -132,11 +132,11 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
     */
    public ActiveMQRASessionFactoryImpl(final ActiveMQRAManagedConnectionFactory mcf,
                                        final ConnectionManager cm,
-                                       final TransactionManager tm,
+                                       final TransactionSynchronizationRegistry tsr,
                                        final int type) {
       this.mcf = mcf;
 
-      this.tm = tm;
+      this.tsr = tsr;
 
       if (cm == null) {
          this.cm = new ActiveMQRAConnectionManager();
@@ -847,14 +847,8 @@ public final class ActiveMQRASessionFactoryImpl extends ActiveMQConnectionForCon
 
    private boolean inJtaTransaction() {
       boolean inJtaTx = false;
-      if (tm != null) {
-         Transaction tx = null;
-         try {
-            tx = tm.getTransaction();
-         } catch (SystemException e) {
-            //assume false
-         }
-         inJtaTx = tx != null;
+      if (tsr != null) {
+         inJtaTx = tsr.getTransactionStatus() != Status.STATUS_NO_TRANSACTION;
       }
       return inJtaTx;
    }
