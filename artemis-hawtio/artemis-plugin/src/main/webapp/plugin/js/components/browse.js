@@ -528,6 +528,8 @@ var Artemis;
 
         var routingTypes = ["multicast", "anycast"];
 
+        var mqttQosTypes = ["at most once", "at least once", "exactly once"];
+
         ctrl.refresh = function() {
             Artemis.log.debug(ctrl.filter)
             //if refreshing always return to the first page
@@ -866,6 +868,8 @@ var Artemis;
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "__HDR_BROKER_IN_TIME") {
                             v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "mqtt.qos.level") {
+                            v2 += " (" + formatWithList(v2, mqttQosTypes) + ")";
                         }
                         properties.push({key: k2, value: v2});
                     });
