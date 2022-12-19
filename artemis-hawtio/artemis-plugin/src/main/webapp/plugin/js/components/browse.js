@@ -280,7 +280,7 @@ var Artemis;
                 itemField: 'type',
                 header: 'Type',
                 templateFn: function(value) {
-                    return formatType(value);
+                    return formatWithList(value, typeLabels);
                 }
             },
             {
@@ -507,37 +507,26 @@ var Artemis;
              return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()) + " " + pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
           }
 
-        var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
-        function formatType(type) {
-            if (isNaN(type) || typeof type !== "number") {
-                return type;
+        function formatWithList(value, valueLabels) {
+            if (isNaN(value) || typeof value !== "number") {
+                return value;
             }
-            return type > -1 && type < typeLabels.length ? typeLabels[type] : type
+            return value > -1 && value < valueLabels.length ? valueLabels[value] : value
         }
+
+        var typeLabels = ["default", "1", "object", "text", "bytes", "map", "stream", "embedded"];
 
         var jmsTypeLabels = ["message", "object", "map", "bytes", "stream", "text"];
-        function formatJmsType(type) {
-            if (isNaN(type) || typeof type !== "number") {
-                return type;
-            }
-            return type > -1 && type < jmsTypeLabels.length ? jmsTypeLabels[type] : type
-        }
 
         var bindingTypeLabels = ["local-queue", "remote-queue", "divert"];
-        function formatBindingType(type) {
-            if (isNaN(type) || typeof type !== "number") {
-                return type;
-            }
-            return type > -1 && type < bindingTypeLabels.length ? bindingTypeLabels[type] : type
-        }
 
         var destTypeLabels = ["queue", "topic", "temp-queue", "temp-topic"];
-        function formatDestType(type) {
-            if (isNaN(type) || typeof type !== "number") {
-                return type;
-            }
-            return type > -1 && type < destTypeLabels.length ? destTypeLabels[type] : type
-        }
+
+        var amqpEncodingLabels = [
+            "amqp-unknown", "amqp-null", "amqp-data", "amqp-sequence", "amqp-value-null",
+            "amqp-value-string", "amqp-value-binary", "amqp-value-map", "amqp-value-list"];
+
+        var routingTypes = ["multicast", "anycast"];
 
         ctrl.refresh = function() {
             Artemis.log.debug(ctrl.filter)
@@ -833,7 +822,7 @@ var Artemis;
                     } else if(key === "timestamp") {
                         value += " (" + formatTimestamp(value) + ")";
                     } else if(key === "type") {
-                        value += " (" + formatType(value) + ")";
+                        value += " (" + formatWithList(value, typeLabels) + ")";
                     }
                     headers.push({key: key, value: value});
                 }
@@ -841,24 +830,6 @@ var Artemis;
             return headers;
         }
 
-
-        var amqpEncodingLabels = [
-            "amqp-unknown", "amqp-null", "amqp-data", "amqp-sequence", "amqp-value-null",
-            "amqp-value-string", "amqp-value-binary", "amqp-value-map", "amqp-value-list"];
-        function formatAmqpEncoding(enc) {
-            if (isNaN(enc) || typeof enc !== "number") {
-                return enc;
-            }
-            return enc > -1 && enc < amqpEncodingLabels.length ? amqpEncodingLabels[enc] : enc;
-        }
-
-        var routingTypes = ["multicast", "anycast"];
-        function formatRoutingType(rt) {
-            if (isNaN(rt) || typeof rt !== "number") {
-                return enc;
-            }
-            return rt > -1 && rt < routingTypes.length ? routingTypes[rt] : rt;
-        }
 
         function createProperties(message) {
             var properties = [];
@@ -868,25 +839,25 @@ var Artemis;
                     angular.forEach(value, function (v2, k2) {
                     Artemis.log.debug("key=" + k2 + " value=" + v2);
                         if(k2 === "_AMQ_Binding_Type") {
-                            v2 += " (" + formatBindingType(v2) + ")";
+                            v2 += " (" + formatWithList(v2, bindingTypeLabels) + ")";
                         } else if(k2 === "JMS_AMQP_ORIGINAL_ENCODING") {
-                            v2 += " (" + formatAmqpEncoding(v2) + ")";
+                            v2 += " (" + formatWithList(v2, amqpEncodingLabels) + ")";
                         } else if(k2 === "_AMQ_ACTUAL_EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "_AMQ_NotifTimestamp") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "_AMQ_ROUTING_TYPE") {
-                            v2 += " (" + formatRoutingType(v2) + ")";
+                            v2 += " (" + formatWithList(v2, routingTypes) + ")";
                         } else if(k2 === "_AMQ_ORIG_ROUTING_TYPE") {
-                            v2 += " (" + formatRoutingType(v2) + ")";
+                            v2 += " (" + formatWithList(v2, routingTypes) + ")";
                         } else if(k2 === "extraProperties._AMQ_ACTUAL_EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-jms-dest") {
-                            v2 += " (" + formatDestType(v2) + ")";
+                            v2 += " (" + formatWithList(v2, destTypeLabels) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-jms-reply-to") {
-                            v2 += " (" + formatDestType(v2) + ")";
+                            v2 += " (" + formatWithList(v2, destTypeLabels) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-jms-msg-type") {
-                            v2 += " (" + formatJmsType(v2) + ")";
+                            v2 += " (" + formatWithList(v2, jmsTypeLabels) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-ACTUAL-EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "properties.absoluteExpiryTime") {
