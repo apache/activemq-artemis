@@ -28,6 +28,7 @@ import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.transaction.Status;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,7 +44,6 @@ import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.After;
 import org.junit.Before;
@@ -54,6 +54,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
    protected ActiveMQResourceAdapter resourceAdapter;
    protected ActiveMQRAConnectionFactory qraConnectionFactory;
    protected ActiveMQRAManagedConnectionFactory mcf;
+   private DummyTransactionSynchronizationRegistry tsr;
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
 
    @Override
@@ -64,7 +65,6 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
    @Override
    @Before
    public void setUp() throws Exception {
-      useDummyTransactionManager();
       super.setUp();
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("testuser", "testpassword");
       ((ActiveMQJAASSecurityManager) server.getSecurityManager()).getConfiguration().addUser("guest", "guest");
@@ -75,12 +75,11 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
       Set<Role> roles = new HashSet<>();
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
-
       resourceAdapter = new ActiveMQResourceAdapter();
       resourceAdapter.setEntries("[\"java://jmsXA\"]");
-
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
-      MyBootstrapContext ctx = new MyBootstrapContext();
+      tsr = new DummyTransactionSynchronizationRegistry();
+      MyBootstrapContext ctx = new MyBootstrapContext().setTransactionSynchronizationRegistry(tsr);
       resourceAdapter.start(ctx);
       mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
@@ -90,7 +89,6 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
    @Override
    @After
    public void tearDown() throws Exception {
-      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = null;
       if (resourceAdapter != null) {
          resourceAdapter.stop();
       }
@@ -101,10 +99,10 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
 
    @Test
    public void testSimpleMessageSendAndReceiveTransacted() throws Exception {
-      setDummyTX();
+      tsr.setStatus(Status.STATUS_ACTIVE);
       setupDLQ(10);
       resourceAdapter = newResourceAdapter();
-      MyBootstrapContext ctx = new MyBootstrapContext();
+      MyBootstrapContext ctx = new MyBootstrapContext().setTransactionSynchronizationRegistry(tsr);
       resourceAdapter.start(ctx);
       ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
@@ -130,7 +128,7 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
 
    public void testQueuSessionAckMode(boolean inTx) throws Exception {
       if (inTx) {
-         setDummyTX();
+         tsr.setStatus(Status.STATUS_ACTIVE);
       }
       QueueConnection queueConnection = qraConnectionFactory.createQueueConnection();
 
@@ -248,9 +246,5 @@ public class OutgoingConnectionJTATest extends ActiveMQRATestBase {
          assertNotNull(msg);
          assertEquals("hello", msg.getStringProperty("strvalue"));
       }
-   }
-
-   private void setDummyTX() {
-      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
    }
 }

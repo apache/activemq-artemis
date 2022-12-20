@@ -19,6 +19,8 @@ package org.apache.activemq.artemis.tests.integration.ra;
 import javax.jms.Message;
 import javax.resource.ResourceException;
 import javax.resource.spi.ApplicationServerInternalException;
+import javax.transaction.Status;
+import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
@@ -79,7 +81,8 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
    @Test
    public void testXABeginFails() throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
-      MyBootstrapContext ctx = new MyBootstrapContext();
+      TransactionSynchronizationRegistry tsr = new DummyTransactionSynchronizationRegistry().setStatus(Status.STATUS_ACTIVE);
+      MyBootstrapContext ctx = new MyBootstrapContext().setTransactionSynchronizationRegistry(tsr);
       qResourceAdapter.start(ctx);
       ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
       spec.setResourceAdapter(qResourceAdapter);
@@ -99,8 +102,7 @@ public class ActiveMQMessageHandlerXATest extends ActiveMQRATestBase {
       session.close();
       latch.await(5, TimeUnit.SECONDS);
 
-      DummyTransaction transaction = (DummyTransaction) ServiceUtils.getTransactionManager().getTransaction();
-      assertTrue(transaction.rollbackOnly);
+      assertTrue(tsr.getRollbackOnly());
       assertTrue(endpoint.afterDelivery);
       qResourceAdapter.endpointDeactivation(endpointFactory, spec);
       qResourceAdapter.stop();

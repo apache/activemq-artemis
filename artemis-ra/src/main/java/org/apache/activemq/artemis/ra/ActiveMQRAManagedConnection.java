@@ -16,18 +16,6 @@
  */
 package org.apache.activemq.artemis.ra;
 
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
-
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.ResourceAllocationException;
@@ -46,6 +34,18 @@ import javax.security.auth.Subject;
 import javax.transaction.Status;
 import javax.transaction.TransactionSynchronizationRegistry;
 import javax.transaction.xa.XAResource;
+import java.io.PrintWriter;
+import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnection;
@@ -56,7 +56,6 @@ import org.apache.activemq.artemis.service.extensions.xa.ActiveMQXAResourceWrapp
 import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * The managed connection
@@ -340,8 +339,18 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
       if (!inManagedTx && tsr != null) {
          int status = tsr.getTransactionStatus();
          // Only allow states that will actually succeed
-         if (status != Status.STATUS_ACTIVE && status != Status.STATUS_PREPARING && status != Status.STATUS_PREPARED && status != Status.STATUS_COMMITTING) {
-            throw new javax.jms.IllegalStateException("Transaction " + tsr.getTransactionKey() + " not active");
+         if (status == Status.STATUS_COMMITTED || status == Status.STATUS_MARKED_ROLLBACK || status == Status.STATUS_ROLLEDBACK || status == Status.STATUS_ROLLING_BACK) {
+            String statusMessage = "";
+            if (status == Status.STATUS_COMMITTED) {
+               statusMessage = "committed";
+            } else if (status == Status.STATUS_MARKED_ROLLBACK) {
+               statusMessage = "marked for rollback";
+            } else if (status == Status.STATUS_ROLLEDBACK) {
+               statusMessage = "rolled back";
+            } else if (status == Status.STATUS_ROLLING_BACK) {
+               statusMessage = "rolling back";
+            }
+            throw new javax.jms.IllegalStateException("Transaction is " + statusMessage);
          }
       }
    }
