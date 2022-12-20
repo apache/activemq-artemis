@@ -37,6 +37,7 @@ import javax.jms.Queue;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.transaction.Status;
 
 public class IgnoreJTATest extends ActiveMQRATestBase {
 
@@ -90,13 +91,12 @@ public class IgnoreJTATest extends ActiveMQRATestBase {
    }
 
    private void testSendAndReceive(Boolean ignoreJTA) throws Exception {
-      setDummyTX();
       setupDLQ(10);
       resourceAdapter = newResourceAdapter();
       if (ignoreJTA != null) {
          resourceAdapter.setIgnoreJTA(ignoreJTA);
       }
-      MyBootstrapContext ctx = new MyBootstrapContext();
+      MyBootstrapContext ctx = new MyBootstrapContext().setTransactionSynchronizationRegistry(new DummyTransactionSynchronizationRegistry().setStatus(Status.STATUS_ACTIVE));
       resourceAdapter.start(ctx);
       ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);

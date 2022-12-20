@@ -23,7 +23,8 @@ import javax.jms.JMSRuntimeException;
 import javax.jms.MessageFormatRuntimeException;
 import javax.jms.Queue;
 import javax.jms.TextMessage;
-import javax.transaction.TransactionManager;
+import javax.resource.ResourceException;
+import javax.transaction.Status;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +35,6 @@ import org.apache.activemq.artemis.ra.ActiveMQRAConnectionFactoryImpl;
 import org.apache.activemq.artemis.ra.ActiveMQRAConnectionManager;
 import org.apache.activemq.artemis.ra.ActiveMQRAManagedConnectionFactory;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
-import org.apache.activemq.artemis.service.extensions.ServiceUtils;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.junit.After;
 import org.junit.Before;
@@ -43,18 +43,13 @@ import org.junit.Test;
 public class JMSContextTest extends ActiveMQRATestBase {
 
    private ActiveMQResourceAdapter resourceAdapter;
-
+   private DummyTransactionSynchronizationRegistry tsr;
    ActiveMQRAConnectionManager qraConnectionManager = new ActiveMQRAConnectionManager();
    private ActiveMQRAConnectionFactory qraConnectionFactory;
-
-   public TransactionManager getTm() {
-      return DummyTransactionManager.tm;
-   }
 
    @Override
    @Before
    public void setUp() throws Exception {
-      useDummyTransactionManager();
       super.setUp();
       ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
       securityManager.getConfiguration().addUser("testuser", "testpassword");
@@ -67,19 +62,21 @@ public class JMSContextTest extends ActiveMQRATestBase {
       roles.add(role);
       server.getSecurityRepository().addMatch(MDBQUEUEPREFIXED, roles);
       resourceAdapter = new ActiveMQResourceAdapter();
-
       resourceAdapter.setConnectorClassName(InVMConnectorFactory.class.getName());
-      MyBootstrapContext ctx = new MyBootstrapContext();
+      tsr = new DummyTransactionSynchronizationRegistry();
+      MyBootstrapContext ctx = new MyBootstrapContext().setTransactionSynchronizationRegistry(tsr);
       resourceAdapter.start(ctx);
       ActiveMQRAManagedConnectionFactory mcf = new ActiveMQRAManagedConnectionFactory();
       mcf.setResourceAdapter(resourceAdapter);
       qraConnectionFactory = new ActiveMQRAConnectionFactoryImpl(mcf, qraConnectionManager);
    }
 
+   private void initRA(int status) throws ResourceException {
+   }
+
    @Override
    @After
    public void tearDown() throws Exception {
-      DummyTransactionManager.tm.tx = null;
       if (resourceAdapter != null) {
          resourceAdapter.stop();
       }
@@ -126,7 +123,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
 
    @Test
    public void sessionTransactedTestNoActiveJTATx() throws Exception {
-      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
+      tsr.setStatus(Status.STATUS_ACTIVE);
       JMSContext context = qraConnectionFactory.createContext(JMSContext.SESSION_TRANSACTED);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }
@@ -143,7 +140,7 @@ public class JMSContextTest extends ActiveMQRATestBase {
 
    @Test
    public void clientAckTestNoActiveJTATx() throws Exception {
-      ((DummyTransactionManager) ServiceUtils.getTransactionManager()).tx = new DummyTransaction();
+      tsr.setStatus(Status.STATUS_ACTIVE);
       JMSContext context = qraConnectionFactory.createContext(JMSContext.CLIENT_ACKNOWLEDGE);
       assertEquals(context.getSessionMode(), JMSContext.AUTO_ACKNOWLEDGE);
    }

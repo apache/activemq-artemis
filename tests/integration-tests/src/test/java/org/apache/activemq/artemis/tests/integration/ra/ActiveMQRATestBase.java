@@ -173,6 +173,12 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
    }
 
    public class MyBootstrapContext implements BootstrapContext {
+      TransactionSynchronizationRegistry tsr = null;
+
+      public MyBootstrapContext setTransactionSynchronizationRegistry(TransactionSynchronizationRegistry tsr) {
+         this.tsr = tsr;
+         return this;
+      }
 
       WorkManager workManager = new DummyWorkManager();
 
@@ -188,7 +194,7 @@ public abstract class ActiveMQRATestBase extends JMSTestBase {
 
       @Override
       public TransactionSynchronizationRegistry getTransactionSynchronizationRegistry() {
-         return null;
+         return tsr;
       }
 
       @Override
