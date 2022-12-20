@@ -328,7 +328,7 @@ public class SecurityTest extends ActiveMQTestBase {
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
-      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      server.getConfiguration().setResolveProtocols(true).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
 
       // ensure advisory permission is still set for openwire to allow connection to succeed, alternative is url param jms.watchTopicAdvisories=false on the client connection factory
       HashSet<Role> roles = new HashSet<>();
@@ -374,7 +374,7 @@ public class SecurityTest extends ActiveMQTestBase {
       params.put(TransportConstants.TRUSTSTORE_PASSWORD_PROP_NAME, "securepass");
       params.put(TransportConstants.NEED_CLIENT_AUTH_PROP_NAME, true);
 
-      server.getConfiguration().addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
+      server.getConfiguration().setResolveProtocols(true).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params));
       server.start();
 
       ActiveMQSslConnectionFactory factory = new ActiveMQSslConnectionFactory("ssl://localhost:61616?verifyHostName=false");

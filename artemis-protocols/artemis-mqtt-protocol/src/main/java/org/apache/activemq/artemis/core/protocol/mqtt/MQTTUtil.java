@@ -86,6 +86,8 @@ public class MQTTUtil {
 
    public static final char SLASH = '/';
 
+   public static final String MQTT_SESSION_STORE = DOLLAR + "sys.mqtt.sessions";
+
    public static final String MQTT_RETAIN_ADDRESS_PREFIX = DOLLAR + "sys.mqtt.retain.";
 
    public static final SimpleString MQTT_QOS_LEVEL_KEY = SimpleString.toSimpleString("mqtt.qos.level");

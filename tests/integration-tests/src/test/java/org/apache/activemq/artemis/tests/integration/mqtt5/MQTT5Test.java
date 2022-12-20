@@ -45,6 +45,7 @@ import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
+import org.eclipse.paho.mqttv5.common.MqttSubscription;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
 import org.junit.Test;
@@ -82,6 +83,69 @@ public class MQTT5Test extends MQTT5TestSupport {
       context.close();
    }
 
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testResumeSubscriptionsAfterRestart() throws Exception {
+      final int SUBSCRIPTION_COUNT = 100;
+      List<String> topicNames = new ArrayList<>(SUBSCRIPTION_COUNT);
+      for (int i = 0; i < SUBSCRIPTION_COUNT; i++) {
+         topicNames.add(getName() + i);
+      }
+
+      CountDownLatch latch = new CountDownLatch(SUBSCRIPTION_COUNT);
+      MqttClient consumer = createPahoClient("myConsumerID");
+      MqttConnectionOptions consumerOptions = new MqttConnectionOptionsBuilder()
+         .cleanStart(false)
+         .sessionExpiryInterval(999L)
+         .build();
+      consumer.connect(consumerOptions);
+      List<MqttSubscription> subs = new ArrayList<>(SUBSCRIPTION_COUNT);
+      for (String subName : topicNames) {
+         subs.add(new MqttSubscription(subName, 1));
+      }
+      consumer.subscribe(subs.toArray(new MqttSubscription[0]));
+      consumer.disconnect();
+
+      MqttClient producer = createPahoClient("myProducerID");
+      MqttConnectionOptions producerOptions = new MqttConnectionOptionsBuilder()
+         .sessionExpiryInterval(0L)
+         .build();
+      producer.connect(producerOptions);
+      for (String subName : topicNames) {
+         producer.publish(subName, new byte[0], 1, false);
+      }
+      producer.disconnect();
+      producer.close();
+
+      Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MQTT_SESSION_STORE).getMessageCount(), 2000, 100);
+
+      server.stop();
+      server.start();
+
+      Wait.assertEquals(1L, () -> server.locateQueue(MQTTUtil.MQTT_SESSION_STORE).getMessageCount(), 2000, 100);
+      Wait.assertTrue(() -> getSessionStates().get("myConsumerID") != null, 2000, 100);
+      consumer.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            if (topicNames.remove(topic)) {
+               latch.countDown();
+            }
+         }
+      });
+      consumerOptions = new MqttConnectionOptionsBuilder()
+         .cleanStart(false)
+         .sessionExpiryInterval(0L)
+         .build();
+      consumer.connect(consumerOptions);
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      consumer.unsubscribe(topicNames.toArray(new String[0]));
+      consumer.disconnect();
+      consumer.close();
+      Wait.assertEquals(0L, () -> server.locateQueue(MQTTUtil.MQTT_SESSION_STORE).getMessageCount(), 5000, 100);
+   }
+
+   /*
+    * Trying to reproduce error from https://issues.apache.org/jira/browse/ARTEMIS-1184
+    */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testAddressAutoCreation() throws Exception {
       final String DESTINATION = RandomUtil.randomString();
@@ -453,6 +517,60 @@ public class MQTT5Test extends MQTT5TestSupport {
       client.connect();
 
       MqttClient client2 = createPahoClient(CLIENT_ID);
+      try {
+         client2.connect();
+         fail("Should have thrown an exception on connect due to disabled link stealing");
+      } catch (Exception e) {
+         // ignore expected exception
+      }
+
+      // only 1 session should exist
+      Wait.assertEquals(1, () -> getSessionStates().size(), 2000, 100);
+      assertNotNull(getSessionStates().get(CLIENT_ID));
+
+      assertTrue(client.isConnected());
+
+      client.disconnect();
+      client.close();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testConnectionStealingOnMultipleAcceptors() throws Exception {
+      int secondaryPort = 1884;
+      final String CLIENT_ID = RandomUtil.randomString();
+
+      server.getRemotingService().createAcceptor(RandomUtil.randomString(), "tcp://localhost:" + secondaryPort);
+      server.getRemotingService().startAcceptors();
+
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect();
+
+      MqttClient client2 = createPahoClient(CLIENT_ID, secondaryPort);
+      client2.connect();
+
+      // only 1 session should exist
+      Wait.assertEquals(1, () -> getSessionStates().size(), 2000, 100);
+      assertNotNull(getSessionStates().get(CLIENT_ID));
+
+      assertFalse(client.isConnected());
+
+      client.close();
+      client2.disconnect();
+      client2.close();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testConnectionStealingDisabledOnMultipleAcceptors() throws Exception {
+      int secondaryPort = 1884;
+      final String CLIENT_ID = RandomUtil.randomString();
+
+      server.getRemotingService().createAcceptor(RandomUtil.randomString(), "tcp://localhost:" + secondaryPort + "?allowLinkStealing=false");
+      server.getRemotingService().startAcceptors();
+
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect();
+
+      MqttClient client2 = createPahoClient(CLIENT_ID, secondaryPort);
       try {
          client2.connect();
          fail("Should have thrown an exception on connect due to disabled link stealing");

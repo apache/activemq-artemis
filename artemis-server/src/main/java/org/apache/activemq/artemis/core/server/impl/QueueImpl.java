@@ -2226,6 +2226,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          Transaction tx = new TransactionImpl(storageManager);
 
          synchronized (this) {
+            // ensure all messages are moved from intermediateMessageReferences so that they can be seen by the iterator
+            doInternalPoll();
 
             try (LinkedListIterator<MessageReference> iter = iterator()) {
 

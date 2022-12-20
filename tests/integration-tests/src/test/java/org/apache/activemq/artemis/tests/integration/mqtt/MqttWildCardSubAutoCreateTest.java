@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -221,7 +222,14 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
          messageConsumer.close();
          messageConsumerAllNews.close();
 
-         int countOfPageStores = server.getPagingManager().getStoreNames().length;
+         int countOfPageStores = 0;
+         SimpleString[] storeNames = server.getPagingManager().getStoreNames();
+         for (int i = 0; i < storeNames.length; i++) {
+            if (!storeNames[i].equals(SimpleString.toSimpleString(MQTTUtil.MQTT_SESSION_STORE))) {
+               countOfPageStores++;
+            }
+         }
+
          assertEquals("there should be 5", 5, countOfPageStores);
 
          connection.close();

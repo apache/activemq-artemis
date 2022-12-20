@@ -59,8 +59,8 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
       super.setUp();
 
       createReplicatedConfigs();
-      liveConfig.addAcceptorConfiguration("amqp", smallFrameLive + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
-      backupConfig.addAcceptorConfiguration("amqp", smallFrameBackup + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
+      liveConfig.setResolveProtocols(true).addAcceptorConfiguration("amqp", smallFrameLive + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
+      backupConfig.setResolveProtocols(true).addAcceptorConfiguration("amqp", smallFrameBackup + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
       liveServer.start();
       backupServer.start();
 

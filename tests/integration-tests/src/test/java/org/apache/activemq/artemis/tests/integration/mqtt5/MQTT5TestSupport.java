@@ -106,6 +106,10 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       return new MqttClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new MemoryPersistence());
    }
 
+   protected MqttClient createPahoClient(String clientId, int port) throws MqttException {
+      return new MqttClient(protocol + "://localhost:" + port, clientId, new MemoryPersistence());
+   }
+
    protected org.eclipse.paho.client.mqttv3.MqttClient createPaho3_1_1Client(String clientId) throws org.eclipse.paho.client.mqttv3.MqttException {
       return new org.eclipse.paho.client.mqttv3.MqttClient(protocol + "://localhost:" + (isUseSsl() ? getSslPort() : getPort()), clientId, new org.eclipse.paho.client.mqttv3.persist.MemoryPersistence());
    }
@@ -333,12 +337,12 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
       if (protocolManager == null) {
          return Collections.emptyMap();
       } else {
-         return protocolManager.getSessionStates();
+         return protocolManager.getStateManager().getSessionStates();
       }
    }
 
    public void scanSessions() {
-      getProtocolManager().scanSessions();
+      getProtocolManager().getStateManager().scanSessions();
    }
 
    public MQTTProtocolManager getProtocolManager() {

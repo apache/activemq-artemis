@@ -288,6 +288,7 @@ public class MessageExpirationTest extends ActiveMQTestBase {
 
       server = createServer(true);
       server.getConfiguration().addAcceptorConfiguration("amqp", "tcp://127.0.0.1:61616");
+      server.getConfiguration().setResolveProtocols(true);
       server.getConfiguration().setMessageExpiryScanPeriod(200);
       server.start();
       locator = createInVMNonHALocator();
