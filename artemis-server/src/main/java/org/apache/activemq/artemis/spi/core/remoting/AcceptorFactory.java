@@ -51,4 +51,8 @@ public interface AcceptorFactory {
                            ScheduledExecutorService scheduledThreadPool,
                            Map<String, ProtocolManager> protocolMap);
 
+   default boolean supportsRemote() {
+      return true;
+   }
+
 }

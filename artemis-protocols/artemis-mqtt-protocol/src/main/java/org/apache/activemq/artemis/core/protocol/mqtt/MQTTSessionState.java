@@ -30,9 +30,14 @@ import java.util.regex.Pattern;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.mqtt.MqttProperties;
+import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttSubscriptionOption;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
+import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +47,13 @@ public class MQTTSessionState {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final MQTTSessionState DEFAULT = new MQTTSessionState(null);
+   public static final MQTTSessionState DEFAULT = new MQTTSessionState((String) null, null);
 
    private MQTTSession session;
 
-   private String clientId;
+   private final String clientId;
+
+   private final MQTTStateManager stateManager;
 
    private final ConcurrentMap<String, Pair<MqttTopicSubscription, Integer>> subscriptions = new ConcurrentHashMap<>();
 
@@ -91,8 +98,50 @@ public class MQTTSessionState {
 
    private Map<String, Integer> serverTopicAliases;
 
-   public MQTTSessionState(String clientId) {
+   public MQTTSessionState(String clientId, MQTTStateManager stateManager) {
       this.clientId = clientId;
+      this.stateManager = stateManager;
+   }
+
+   /**
+    * This constructor deserializes session data from a message. The format is as follows.
+    *
+    *  - byte: version
+    *  - int: subscription count
+    *
+    *  There may be 0 or more subscriptions. The subscription format is as follows.
+    *
+    *  - String: topic name
+    *  - int: QoS
+    *  - boolean: no-local
+    *  - boolean: retain as published
+    *  - int: retain handling
+    *  - int (nullable): subscription identifier
+    *
+    * @param message the message holding the MQTT session data
+    * @param stateManager the manager used to add and remove sessions from storage
+    */
+   public MQTTSessionState(CoreMessage message, MQTTStateManager stateManager) {
+      logger.debug("Deserializing MQTT session state from {}", message);
+      this.clientId = message.getStringProperty(Message.HDR_LAST_VALUE_NAME);
+      this.stateManager = stateManager;
+      ActiveMQBuffer buf = message.getDataBuffer();
+
+      // no need to use the version at this point
+      byte version = buf.readByte();
+
+      int subscriptionCount = buf.readInt();
+      logger.debug("Deserializing {} subscriptions", subscriptionCount);
+      for (int i = 0; i < subscriptionCount; i++) {
+         String topicName = buf.readString();
+         MqttQoS qos = MqttQoS.valueOf(buf.readInt());
+         boolean nolocal = buf.readBoolean();
+         boolean retainAsPublished = buf.readBoolean();
+         MqttSubscriptionOption.RetainedHandlingPolicy retainedHandlingPolicy = MqttSubscriptionOption.RetainedHandlingPolicy.valueOf(buf.readInt());
+         Integer subscriptionId = buf.readNullableInt();
+
+         subscriptions.put(topicName, new Pair<>(new MqttTopicSubscription(topicName, new MqttSubscriptionOption(qos, nolocal, retainAsPublished, retainedHandlingPolicy)), subscriptionId));
+      }
    }
 
    public MQTTSession getSession() {
@@ -103,7 +152,7 @@ public class MQTTSessionState {
       this.session = session;
    }
 
-   public synchronized void clear() {
+   public synchronized void clear() throws Exception {
       subscriptions.clear();
       messageRefStore.clear();
       addressMessageMap.clear();
@@ -148,7 +197,11 @@ public class MQTTSessionState {
       return result;
    }
 
-   public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) {
+   public Collection<Pair<MqttTopicSubscription, Integer>> getSubscriptionsPlusID() {
+      return subscriptions.values();
+   }
+
+   public boolean addSubscription(MqttTopicSubscription subscription, WildcardConfiguration wildcardConfiguration, Integer subscriptionIdentifier) throws Exception {
       // synchronized to prevent race with removeSubscription
       synchronized (subscriptions) {
          addressMessageMap.putIfAbsent(MQTTUtil.convertMqttTopicFilterToCoreAddress(subscription.topicName(), wildcardConfiguration), new ConcurrentHashMap<>());
@@ -172,7 +225,7 @@ public class MQTTSessionState {
       }
    }
 
-   public void removeSubscription(String address) {
+   public void removeSubscription(String address) throws Exception {
       // synchronized to prevent race with addSubscription
       synchronized (subscriptions) {
          subscriptions.remove(address);
@@ -182,6 +235,10 @@ public class MQTTSessionState {
 
    public MqttTopicSubscription getSubscription(String address) {
       return subscriptions.get(address) != null ? subscriptions.get(address).getA() : null;
+   }
+
+   public Pair<MqttTopicSubscription, Integer> getSubscriptionPlusID(String address) {
+      return subscriptions.get(address) != null ? subscriptions.get(address) : null;
    }
 
    public List<Integer> getMatchingSubscriptionIdentifiers(String address) {
@@ -205,10 +262,6 @@ public class MQTTSessionState {
 
    public String getClientId() {
       return clientId;
-   }
-
-   public void setClientId(String clientId) {
-      this.clientId = clientId;
    }
 
    public long getDisconnectedTime() {
@@ -372,6 +425,29 @@ public class MQTTSessionState {
       }
    }
 
+   @Override
+   public String toString() {
+      return "MQTTSessionState[session=" + session +
+         ", clientId=" + clientId +
+         ", subscriptions=" + subscriptions +
+         ", messageRefStore=" + messageRefStore +
+         ", addressMessageMap=" + addressMessageMap +
+         ", pubRec=" + pubRec +
+         ", attached=" + attached +
+         ", outboundStore=" + outboundStore +
+         ", disconnectedTime=" + disconnectedTime +
+         ", sessionExpiryInterval=" + clientSessionExpiryInterval +
+         ", isWill=" + isWill +
+         ", willMessage=" + willMessage +
+         ", willTopic=" + willTopic +
+         ", willQoSLevel=" + willQoSLevel +
+         ", willRetain=" + willRetain +
+         ", willDelayInterval=" + willDelayInterval +
+         ", failed=" + failed +
+         ", maxPacketSize=" + clientMaxPacketSize +
+         "]@" + System.identityHashCode(this);
+   }
+
    public class OutboundStore {
 
       private HashMap<Pair<Long, Long>, Integer> artemisToMqttMessageMap = new HashMap<>();
@@ -443,11 +519,6 @@ public class MQTTSessionState {
             ids.set(0);
          }
       }
-   }
-
-   @Override
-   public String toString() {
-      return "MQTTSessionState[" + "session=" + session + ", clientId='" + clientId + "', subscriptions=" + subscriptions + ", messageRefStore=" + messageRefStore + ", addressMessageMap=" + addressMessageMap + ", pubRec=" + pubRec + ", attached=" + attached + ", outboundStore=" + outboundStore + ", disconnectedTime=" + disconnectedTime + ", sessionExpiryInterval=" + clientSessionExpiryInterval + ", isWill=" + isWill + ", willMessage=" + willMessage + ", willTopic='" + willTopic + "', willQoSLevel=" + willQoSLevel + ", willRetain=" + willRetain + ", willDelayInterval=" + willDelayInterval + ", failed=" + failed + ", maxPacketSize=" + clientMaxPacketSize + ']';
    }
 
    public enum WillStatus {

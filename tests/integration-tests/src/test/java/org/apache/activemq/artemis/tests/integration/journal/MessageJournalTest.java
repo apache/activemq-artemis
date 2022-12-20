@@ -86,7 +86,7 @@ public class MessageJournalTest extends ActiveMQTestBase {
 
    @Test
    public void testStoreAMQP() throws Throwable {
-      ActiveMQServer server = createServer(true);
+      ActiveMQServer server = createServer(true, true);
 
       server.start();
 

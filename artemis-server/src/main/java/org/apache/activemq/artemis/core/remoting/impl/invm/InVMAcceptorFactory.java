@@ -40,4 +40,9 @@ public class InVMAcceptorFactory implements AcceptorFactory {
                                   final Map<String, ProtocolManager> protocolMap) {
       return new InVMAcceptor(name, clusterConnection, configuration, handler, listener, protocolMap, threadPool);
    }
+
+   @Override
+   public boolean supportsRemote() {
+      return false;
+   }
 }

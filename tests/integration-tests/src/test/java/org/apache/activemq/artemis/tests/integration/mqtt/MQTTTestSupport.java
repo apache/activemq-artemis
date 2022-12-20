@@ -387,7 +387,7 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       if (acceptor instanceof AbstractAcceptor) {
          ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
          if (protocolManager instanceof MQTTProtocolManager) {
-            return ((MQTTProtocolManager) protocolManager).getSessionStates();
+            return ((MQTTProtocolManager) protocolManager).getStateManager().getSessionStates();
          }
 
       }

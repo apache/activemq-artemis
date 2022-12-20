@@ -76,7 +76,13 @@ public class MessageReceiptTests extends MQTT5TestSupport {
       for (int i = 0; i < CONSUMER_COUNT; i++) {
          producer.publish(TOPIC + i, ("hello" + i).getBytes(), 0, false);
       }
-      Wait.assertEquals((long) CONSUMER_COUNT, () -> server.getActiveMQServerControl().getTotalMessagesAdded(), 2000, 100);
+      Wait.assertEquals((long) CONSUMER_COUNT, () -> {
+         int totalMessagesAdded = 0;
+         for (int i = 0; i < CONSUMER_COUNT; i++) {
+            totalMessagesAdded += getSubscriptionQueue(TOPIC + i).getMessagesAdded();
+         }
+         return totalMessagesAdded;
+      }, 2000, 100);
       producer.disconnect();
       producer.close();
 

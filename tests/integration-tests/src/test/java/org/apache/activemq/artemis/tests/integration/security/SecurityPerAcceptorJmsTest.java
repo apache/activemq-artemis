@@ -99,7 +99,7 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
 
    @Test
    public void testJAASSecurityManagerAuthentication() throws Exception {
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addAcceptorConfiguration("netty", URL + "?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(), false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).setResolveProtocols(true).addAcceptorConfiguration("netty", URL + "?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(), false));
       server.start();
       try (Connection c = cf.createConnection("first", "secret")) {
          Thread.sleep(200);
@@ -113,7 +113,7 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
       final SimpleString ADDRESS = new SimpleString("address");
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager();
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin").setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setResolveProtocols(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin").setSecurityEnabled(true), ManagementFactory.getPlatformMBeanServer(), securityManager, false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
       server.getConfiguration().putSecurityRoles("#", roles);
@@ -163,7 +163,7 @@ public class SecurityPerAcceptorJmsTest extends ActiveMQTestBase {
    public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
       final String ADDRESS = "address";
 
-      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(), false));
+      ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(createDefaultInVMConfig().setSecurityEnabled(true).setResolveProtocols(true).addAcceptorConfiguration("netty", "tcp://127.0.0.1:61616?securityDomain=PropertiesLogin"), ManagementFactory.getPlatformMBeanServer(), new ActiveMQJAASSecurityManager(), false));
       Set<Role> roles = new HashSet<>();
       roles.add(new Role("programmers", true, true, true, true, true, true, true, true, true, true));
       server.getConfiguration().putSecurityRoles("#", roles);

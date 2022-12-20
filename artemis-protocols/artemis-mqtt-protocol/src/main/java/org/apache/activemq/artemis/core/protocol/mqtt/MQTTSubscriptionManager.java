@@ -16,13 +16,13 @@
  */
 package org.apache.activemq.artemis.core.protocol.mqtt;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttSubscriptionOption;
 import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
@@ -38,7 +38,6 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 
-import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SUBSCRIPTION_IDENTIFIER;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.DOLLAR;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.SLASH;
 import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPERTY_NAME_STRING;
@@ -46,6 +45,8 @@ import static org.apache.activemq.artemis.reader.MessageUtil.CONNECTION_ID_PROPE
 public class MQTTSubscriptionManager {
 
    private final MQTTSession session;
+
+   private final MQTTStateManager stateManager;
 
    private final ConcurrentMap<Long, Integer> consumerQoSLevels;
 
@@ -66,8 +67,9 @@ public class MQTTSubscriptionManager {
 
    private final char anyWords;
 
-   public MQTTSubscriptionManager(MQTTSession session) {
+   public MQTTSubscriptionManager(MQTTSession session, MQTTStateManager stateManager) {
       this.session = session;
+      this.stateManager = stateManager;
 
       singleWord = session.getServer().getConfiguration().getWildcardConfiguration().getSingleWord();
       anyWords = session.getServer().getConfiguration().getWildcardConfiguration().getAnyWords();
@@ -130,7 +132,7 @@ public class MQTTSubscriptionManager {
             session.getState().addSubscription(subscription, session.getWildcardConfiguration(), subscriptionIdentifier);
          }
       } catch (Exception e) {
-         // if anything broke during the creation of the consumer (or otherwise) then ensure the subscription queue is removed
+         // if anything broke during the creation of the consumer (or otherwise) then ensure the subscription queue
          q.deleteQueue();
          throw e;
       }
@@ -246,54 +248,50 @@ public class MQTTSubscriptionManager {
       consumerQoSLevels.put(cid, qos);
    }
 
-   short[] removeSubscriptions(List<String> topics) throws Exception {
+   short[] removeSubscriptions(List<String> topics, boolean enforceSecurity) throws Exception {
       short[] reasonCodes;
+      MQTTSessionState state = session.getState();
 
-      synchronized (session.getState()) {
+      synchronized (state) {
          reasonCodes = new short[topics.size()];
          for (int i = 0; i < topics.size(); i++) {
-            reasonCodes[i] = removeSubscription(topics.get(i));
+            if (session.getState().getSubscription(topics.get(i)) == null) {
+               reasonCodes[i] = MQTTReasonCodes.NO_SUBSCRIPTION_EXISTED;
+               continue;
+            }
+
+            short reasonCode = MQTTReasonCodes.SUCCESS;
+
+            try {
+               session.getState().removeSubscription(topics.get(i));
+               ServerConsumer removed = consumers.remove(parseTopicName(topics.get(i)));
+               if (removed != null) {
+                  removed.close(false);
+                  consumerQoSLevels.remove(removed.getID());
+               }
+
+               SimpleString internalQueueName = getQueueNameForTopic(topics.get(i));
+               Queue queue = session.getServer().locateQueue(internalQueueName);
+               if (queue != null) {
+                  if (queue.isConfigurationManaged()) {
+                     queue.deleteAllReferences();
+                  } else if (!topics.get(i).startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX) || (topics.get(i).startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX) && queue.getConsumerCount() == 0)) {
+                     session.getServerSession().deleteQueue(internalQueueName, enforceSecurity);
+                  }
+               }
+            } catch (Exception e) {
+               MQTTLogger.LOGGER.errorRemovingSubscription(e);
+               reasonCode = MQTTReasonCodes.UNSPECIFIED_ERROR;
+            }
+
+            reasonCodes[i] =  reasonCode;
          }
+
+         // store state after *all* requested subscriptions have been removed in memory
+         stateManager.storeSessionState(state);
       }
 
       return reasonCodes;
-   }
-
-   private short removeSubscription(String address) {
-      return removeSubscription(address, true);
-   }
-
-   private short removeSubscription(String topic, boolean enforceSecurity) {
-      if (session.getState().getSubscription(topic) == null) {
-         return MQTTReasonCodes.NO_SUBSCRIPTION_EXISTED;
-      }
-
-      short reasonCode = MQTTReasonCodes.SUCCESS;
-
-      try {
-         session.getState().removeSubscription(topic);
-
-         ServerConsumer removed = consumers.remove(parseTopicName(topic));
-         if (removed != null) {
-            removed.close(false);
-            consumerQoSLevels.remove(removed.getID());
-         }
-
-         SimpleString internalQueueName = getQueueNameForTopic(topic);
-         Queue queue = session.getServer().locateQueue(internalQueueName);
-         if (queue != null) {
-            if (queue.isConfigurationManaged()) {
-               queue.deleteAllReferences();
-            } else if (!topic.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX) || (topic.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX) && queue.getConsumerCount() == 0)) {
-               session.getServerSession().deleteQueue(internalQueueName, enforceSecurity);
-            }
-         }
-      } catch (Exception e) {
-         MQTTLogger.LOGGER.errorRemovingSubscription(e);
-         reasonCode = MQTTReasonCodes.UNSPECIFIED_ERROR;
-      }
-
-      return reasonCode;
    }
 
    private SimpleString getQueueNameForTopic(String topic) {
@@ -308,19 +306,15 @@ public class MQTTSubscriptionManager {
    }
 
    /**
-    * As per MQTT Spec.  Subscribes this client to a number of MQTT topics.
+    * As per MQTT Spec. Subscribes this client to a number of MQTT topics.
     *
     * @param subscriptions
     * @return An array of integers representing the list of accepted QoS for each topic.
     * @throws Exception
     */
-   int[] addSubscriptions(List<MqttTopicSubscription> subscriptions, MqttProperties properties) throws Exception {
-      synchronized (session.getState()) {
-         Integer subscriptionIdentifier = null;
-         if (properties.getProperty(SUBSCRIPTION_IDENTIFIER.value()) != null) {
-            subscriptionIdentifier = (Integer) properties.getProperty(SUBSCRIPTION_IDENTIFIER.value()).value();
-         }
-
+   int[] addSubscriptions(List<MqttTopicSubscription> subscriptions, Integer subscriptionIdentifier) throws Exception {
+      MQTTSessionState state = session.getState();
+      synchronized (state) {
          int[] qos = new int[subscriptions.size()];
 
          for (int i = 0; i < subscriptions.size(); i++) {
@@ -354,6 +348,10 @@ public class MQTTSubscriptionManager {
                }
             }
          }
+
+         // store state after *all* requested subscriptions have been created in memory
+         stateManager.storeSessionState(state);
+
          return qos;
       }
    }
@@ -362,9 +360,11 @@ public class MQTTSubscriptionManager {
       return consumerQoSLevels;
    }
 
-   void clean(boolean enforceSecurity) {
+   void clean(boolean enforceSecurity) throws Exception {
+      List<String> topics = new ArrayList<>();
       for (MqttTopicSubscription mqttTopicSubscription : session.getState().getSubscriptions()) {
-         removeSubscription(mqttTopicSubscription.topicName(), enforceSecurity);
+         topics.add(mqttTopicSubscription.topicName());
       }
+      removeSubscriptions(topics, enforceSecurity);
    }
 }

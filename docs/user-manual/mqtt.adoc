@@ -89,6 +89,12 @@ As far as the broker is concerned a payload is just an array of bytes.
 However, to facilitate logging the broker will encode the payloads as UTF-8 strings and print them up to 256 characters.
 Payload logging is limited to avoid filling the logs with potentially hundreds of megabytes of unhelpful information.
 
+== Persistent Subscriptions
+
+The subscription information for MQTT sessions is stored in an internal queue named `$sys.mqtt.sessions` and persisted to disk (assuming persistence is enabled).
+The information is durable so that MQTT subscribers can reconnect and resume their subscriptions seamlessly after a broker restart, failure, etc.
+When brokers are configured for high availability this information will be available on the backup so even in the case of a broker fail-over subscribers will be able to resume their subscriptions.
+
 == Custom Client ID Handling
 
 The client ID used by an MQTT application is very important as it uniquely identifies the application.

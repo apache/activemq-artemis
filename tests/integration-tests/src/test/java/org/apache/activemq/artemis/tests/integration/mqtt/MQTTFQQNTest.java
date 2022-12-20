@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.junit.Test;
 
@@ -34,8 +35,9 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         assertEquals(1, server.getPostOffice().getAllBindings().count());
-         Binding b = server.getPostOffice().getAllBindings().iterator().next();
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("foo.bah"));
+         assertEquals(1, bindings.size());
+         Binding b = bindings.getBindings().iterator().next();
          //check that query using bare queue name works as before
          QueueQueryResult result = server.queueQuery(b.getUniqueName());
          assertTrue(result.isExists());
@@ -126,8 +128,9 @@ public class MQTTFQQNTest extends MQTTTestSupport {
       try {
          subscriptionProvider.subscribe("foo/bah", AT_MOST_ONCE);
 
-         assertEquals(1, server.getPostOffice().getAllBindings().count());
-         Binding b = server.getPostOffice().getAllBindings().iterator().next();
+         Bindings bindings = server.getPostOffice().getBindingsForAddress(SimpleString.toSimpleString("foo.bah"));
+         assertEquals(1, bindings.size());
+         Binding b = bindings.getBindings().iterator().next();
 
          //check ::queue
          QueueQueryResult result = server.queueQuery(new SimpleString("::" + b.getUniqueName()));

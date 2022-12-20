@@ -40,9 +40,9 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testUpdateQueueWithNullUser() throws Exception {
-      ActiveMQServer server = createServer(true, true);
+      ActiveMQServer server = createServer(true, false);
 
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
 
       server.start();
 
@@ -80,7 +80,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
       Assert.assertEquals("newUser", user, queue.getUser());
 
-      factory = new ActiveMQConnectionFactory();
+      factory = new ActiveMQConnectionFactory("vm://0");
 
       conn = factory.createConnection();
       session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -110,9 +110,9 @@ public class UpdateQueueTest extends ActiveMQTestBase {
 
    @Test
    public void testUpdateQueue() throws Exception {
-      ActiveMQServer server = createServer(true, true);
+      ActiveMQServer server = createServer(true, false);
 
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
+      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
 
       server.start();
 
@@ -169,7 +169,7 @@ public class UpdateQueueTest extends ActiveMQTestBase {
       Assert.assertEquals("newUser", queue.getUser().toString());
       Assert.assertEquals(180L, queue.getRingSize());
 
-      factory = new ActiveMQConnectionFactory();
+      factory = new ActiveMQConnectionFactory("vm://0");
 
       conn = factory.createConnection();
       session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);

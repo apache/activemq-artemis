@@ -44,8 +44,8 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Pair;
-import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
+import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.InvalidClientIdException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.ConnectionEntry;
@@ -57,6 +57,7 @@ import java.lang.invoke.MethodHandles;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_DATA;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.AUTHENTICATION_METHOD;
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SESSION_EXPIRY_INTERVAL;
+import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SUBSCRIPTION_IDENTIFIER;
 
 /**
  * This class is responsible for receiving and sending MQTT packets, delegating behaviour to one of the
@@ -257,7 +258,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       if (handleLinkStealing() == LinkStealingResult.NEW_LINK_DENIED) {
          return;
       } else {
-         protocolManager.addConnectedClient(session.getConnection().getClientID(), session.getConnection());
+         protocolManager.getStateManager().addConnectedClient(session.getConnection().getClientID(), session.getConnection());
       }
 
       if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
@@ -377,7 +378,8 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleSubscribe(MqttSubscribeMessage message) throws Exception {
-      int[] qos = session.getSubscriptionManager().addSubscriptions(message.payload().topicSubscriptions(), message.idAndPropertiesVariableHeader().properties());
+      Integer subscriptionIdentifier = MQTTUtil.getProperty(Integer.class, message.idAndPropertiesVariableHeader().properties(), SUBSCRIPTION_IDENTIFIER, null);
+      int[] qos = session.getSubscriptionManager().addSubscriptions(message.payload().topicSubscriptions(), subscriptionIdentifier);
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.SUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttMessageIdAndPropertiesVariableHeader variableHeader = new MqttMessageIdAndPropertiesVariableHeader(message.variableHeader().messageId(), MqttProperties.NO_PROPERTIES);
       MqttSubAckMessage subAck = new MqttSubAckMessage(header, variableHeader, new MqttSubAckPayload(qos));
@@ -385,7 +387,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
    }
 
    void handleUnsubscribe(MqttUnsubscribeMessage message) throws Exception {
-      short[] reasonCodes = session.getSubscriptionManager().removeSubscriptions(message.payload().topics());
+      short[] reasonCodes = session.getSubscriptionManager().removeSubscriptions(message.payload().topics(), true);
       MqttFixedHeader header = new MqttFixedHeader(MqttMessageType.UNSUBACK, false, MqttQoS.AT_MOST_ONCE, false, 0);
       MqttUnsubAckMessage unsubAck;
       if (session.getVersion() == MQTTVersion.MQTT_5) {
@@ -462,14 +464,14 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
     *
     * However, this behavior is configurable via the "allowLinkStealing" acceptor URL property.
     */
-   private LinkStealingResult handleLinkStealing() {
+   private LinkStealingResult handleLinkStealing() throws Exception {
       final String clientID = session.getConnection().getClientID();
       LinkStealingResult result;
 
-      if (protocolManager.isClientConnected(clientID)) {
-         MQTTConnection existingConnection = protocolManager.getConnectedClient(clientID);
+      if (protocolManager.getStateManager().isClientConnected(clientID)) {
+         MQTTConnection existingConnection = protocolManager.getStateManager().getConnectedClient(clientID);
          if (protocolManager.isAllowLinkStealing()) {
-            MQTTSession existingSession = protocolManager.getSessionState(clientID).getSession();
+            MQTTSession existingSession = protocolManager.getStateManager().getSessionState(clientID).getSession();
             if (existingSession != null) {
                if (existingSession.getVersion() == MQTTVersion.MQTT_5) {
                   existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);

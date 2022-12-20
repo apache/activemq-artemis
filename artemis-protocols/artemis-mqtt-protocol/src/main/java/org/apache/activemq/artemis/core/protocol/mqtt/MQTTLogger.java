@@ -58,4 +58,7 @@ public interface MQTTLogger {
 
    @LogMessage(id = 834007, value = "Authorization failure sending will message: {}", level = LogMessage.Level.ERROR)
    void authorizationFailureSendingWillMessage(String message);
+
+   @LogMessage(id = 834008, value = "Failed to remove session state for client with ID: {}", level = LogMessage.Level.ERROR)
+   void failedToRemoveSessionState(String clientID, Exception e);
 }

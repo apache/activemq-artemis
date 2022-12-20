@@ -67,7 +67,7 @@ public class MQTTConnectionManager {
       boolean cleanStart = connect.variableHeader().isCleanSession();
 
       String clientId = session.getConnection().getClientID();
-      boolean sessionPresent = session.getProtocolManager().getSessionStates().containsKey(clientId);
+      boolean sessionPresent = session.getStateManager().getSessionStates().containsKey(clientId);
       MQTTSessionState sessionState = getSessionState(clientId);
       synchronized (sessionState) {
          session.setSessionState(sessionState);
@@ -120,6 +120,7 @@ public class MQTTConnectionManager {
 
             connackProperties = getConnackProperties();
          } else {
+            sessionState.setClientSessionExpiryInterval(session.getProtocolManager().getDefaultMqttSessionExpiryInterval());
             connackProperties = MqttProperties.NO_PROPERTIES;
          }
 
@@ -193,15 +194,15 @@ public class MQTTConnectionManager {
                 *  ensure that the connection for the client ID matches *this* connection otherwise we could remove the
                 *  entry for the client who "stole" this client ID via [MQTT-3.1.4-2]
                 */
-               if (clientId != null && session.getProtocolManager().isClientConnected(clientId, session.getConnection())) {
-                  session.getProtocolManager().removeConnectedClient(clientId);
+               if (clientId != null && session.getStateManager().isClientConnected(clientId, session.getConnection())) {
+                  session.getStateManager().removeConnectedClient(clientId);
                }
             }
          }
       }
    }
 
-   private synchronized MQTTSessionState getSessionState(String clientId) {
-      return session.getProtocolManager().getSessionState(clientId);
+   private synchronized MQTTSessionState getSessionState(String clientId) throws Exception {
+      return session.getStateManager().getSessionState(clientId);
    }
 }

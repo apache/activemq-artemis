@@ -45,7 +45,7 @@ under the License.
 
       <!-- We need to create a core queue for the JMS queue explicitly because the bridge will be deployed
       before the JMS queue is deployed, so the first time, it otherwise won't find the queue -->
-      
+
 
       <diverts>
          <divert name="order-divert">

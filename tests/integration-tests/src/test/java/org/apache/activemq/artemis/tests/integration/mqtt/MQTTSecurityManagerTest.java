@@ -100,7 +100,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
          if (acceptor instanceof AbstractAcceptor) {
             ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
             if (protocolManager instanceof MQTTProtocolManager) {
-               sessionStates = ((MQTTProtocolManager) protocolManager).getSessionStates();
+               sessionStates = ((MQTTProtocolManager) protocolManager).getStateManager().getSessionStates();
             }
          }
          assertEquals(1, sessionStates.size());
@@ -132,7 +132,7 @@ public class MQTTSecurityManagerTest extends MQTTTestSupport {
          if (acceptor instanceof AbstractAcceptor) {
             ProtocolManager protocolManager = ((AbstractAcceptor) acceptor).getProtocolMap().get("MQTT");
             if (protocolManager instanceof MQTTProtocolManager) {
-               sessionStates = ((MQTTProtocolManager) protocolManager).getSessionStates();
+               sessionStates = ((MQTTProtocolManager) protocolManager).getStateManager().getSessionStates();
             }
          }
          assertEquals(1, sessionStates.size());

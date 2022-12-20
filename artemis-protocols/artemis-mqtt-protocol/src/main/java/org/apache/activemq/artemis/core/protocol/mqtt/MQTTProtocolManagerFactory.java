@@ -84,7 +84,7 @@ public class MQTTProtocolManagerFactory extends AbstractProtocolManagerFactory<M
             if (protocolHandler != null) {
                protocolHandler.getProtocolMap().values().forEach(m -> {
                   if (m instanceof MQTTProtocolManager) {
-                     ((MQTTProtocolManager)m).scanSessions();
+                     ((MQTTProtocolManager)m).getStateManager().scanSessions();
                   }
                });
             }

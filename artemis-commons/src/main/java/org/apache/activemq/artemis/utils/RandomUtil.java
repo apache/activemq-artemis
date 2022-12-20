@@ -60,6 +60,11 @@ public class RandomUtil {
       return Math.abs(RandomUtil.randomInt());
    }
 
+   public static Integer randomPositiveIntOrNull() {
+      Integer random = RandomUtil.randomInt();
+      return random % 5 == 0 ? null : Math.abs(random);
+   }
+
    public static ActiveMQBuffer randomBuffer(final int size, final long... data) {
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(size + 8 * data.length);
 

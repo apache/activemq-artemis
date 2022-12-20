@@ -585,6 +585,9 @@ public abstract class ActiveMQTestBase extends Assert {
 
       if (netty) {
          configuration.addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, new HashMap<String, Object>(), "netty", new HashMap<String, Object>()));
+      } else {
+         // if we're in-vm it's a waste to resolve protocols since they'll never be used
+         configuration.setResolveProtocols(false);
       }
 
       return configuration;
