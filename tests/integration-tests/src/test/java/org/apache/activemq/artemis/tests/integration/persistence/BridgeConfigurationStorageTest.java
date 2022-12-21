@@ -93,6 +93,7 @@ public class BridgeConfigurationStorageTest extends StorageManagerTestBase {
 
       BridgeConfiguration configuration = new BridgeConfiguration();
       configuration.setName("name");
+      configuration.setParentName("name");
       configuration.setQueueName("QueueName");
       configuration.setConcurrency(2);
       configuration.setForwardingAddress("forward");
