@@ -4579,13 +4579,18 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                deployBridge(newBridgeConfig);
             }
          }
-         for (final Bridge runningBridge: clusterManager.getBridges().values()) {
-            List<BridgeConfiguration> newConfig = configuration.getBridgeConfigurations();
-            BridgeConfiguration running = new BridgeConfiguration(runningBridge.getConfiguration());
-            running.set("name", running.getParentName());
-            if (!configuration.getBridgeConfigurations().contains(running) && running.isConfigurationManaged()) {
+         for (final Bridge existingBridge: clusterManager.getBridges().values()) {
+            BridgeConfiguration existingBridgeConfig = existingBridge.getConfiguration();
+            boolean destroy = true;
+            for (final BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
+               if (existingBridgeConfig.isConfigurationManaged() && (existingBridgeConfig.getParentName().equals(newBridgeConfig.getName()) || existingBridgeConfig.getName().equals(newBridgeConfig.getName()) )) {
+                  destroy = false;
+                  break;
+               }
+            }
+            if (destroy) {
                // this bridge is running but it isn't in the new config which means it was removed so destroy it
-               destroyBridge(runningBridge.getName().toString());
+               destroyBridge(existingBridge.getConfiguration().getParentName());
             }
          }
          recoverStoredBridges();
