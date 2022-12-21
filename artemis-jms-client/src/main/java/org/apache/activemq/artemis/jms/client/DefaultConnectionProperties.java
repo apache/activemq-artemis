@@ -39,6 +39,7 @@ public class DefaultConnectionProperties {
    public static final String AMQ_PORT = "AMQ_PORT";
    public static final String AMQ_USER = "AMQ_USER";
    public static final String AMQ_PASSWORD = "AMQ_PASSWORD";
+   public static final String AMQ_PASSWORD_CODEC = "AMQ_PASSWORD_CODEC";
    public static final String BROKER_BIND_URL = "BROKER_BIND_URL";
    public static final String PREFIX = "org.apache.activemq.";
 
@@ -48,6 +49,7 @@ public class DefaultConnectionProperties {
    public static String DEFAULT_BROKER_URL;
    public static String DEFAULT_USER;
    public static String DEFAULT_PASSWORD;
+   public static String DEFAULT_PASSWORD_CODEC;
 
    static String getProperty(final String defaultValue, final String... propertyNames) {
       return AccessController.doPrivileged(new PrivilegedAction<String>() {
@@ -76,6 +78,7 @@ public class DefaultConnectionProperties {
       String url = getProperty("tcp://" + host + ":" + port, PREFIX + BROKER_BIND_URL, BROKER_BIND_URL);
       DEFAULT_USER = getProperty(null, AMQ_USER, PREFIX + AMQ_USER);
       DEFAULT_PASSWORD = getProperty(null, AMQ_PASSWORD, PREFIX + AMQ_PASSWORD);
+      DEFAULT_PASSWORD_CODEC = getProperty(null, AMQ_PASSWORD_CODEC, PREFIX + AMQ_PASSWORD_CODEC);
 
       DEFAULT_BROKER_BIND_URL = url;
       // TODO: improve this once we implement failover:// as ActiveMQ5 does
