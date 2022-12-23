@@ -298,6 +298,19 @@ and Security Layer (SASL) authentication is currently not supported.
   receive updates made in the LDAP server and update the broker's authorization
   configuration in real-time. The default value is `true`.
 
+  Some LDAP servers (e.g. OpenLDAP) don't support the "persistent search"
+  feature which allows the "listener" functionality to work. For these servers
+  set the `refreshInterval` to a value greater than `0`.
+
+- `refreshInterval`. How long to wait (in seconds) before refreshing the
+  security settings from the LDAP server. This can be used for LDAP servers
+  which don't support the "persistent search" feature needed for use with
+  `enableListener` (e.g. OpenLDAP). Default is `0` (i.e. no refresh).
+
+  Keep in mind that this can be a potentially expensive operation based on how
+  often the refresh is configured and how large the data set is so take care
+  in how `refreshInterval` is configured.
+
 - `mapAdminToManage`. Whether or not to map the legacy `admin` permission to the
   `manage` permission. See details of the mapping semantics below. The default
    value is `false`.

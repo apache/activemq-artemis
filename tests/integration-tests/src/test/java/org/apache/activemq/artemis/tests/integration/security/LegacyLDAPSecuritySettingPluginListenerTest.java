@@ -107,6 +107,15 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       testDir = temporaryFolder.getRoot().getAbsolutePath();
 
       LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = new LegacyLDAPSecuritySettingPlugin();
+      legacyLDAPSecuritySettingPlugin.init(getSecuritSettingPluginConfigMap());
+
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
+      Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false)).setPersistenceEnabled(false).addSecuritySettingPlugin(legacyLDAPSecuritySettingPlugin);
+
+      server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
+   }
+
+   protected Map<String, String> getSecuritSettingPluginConfigMap() {
       Map<String, String> map = new HashMap<>();
       map.put(LegacyLDAPSecuritySettingPlugin.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_URL, "ldap://localhost:1024");
@@ -115,12 +124,7 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       map.put(LegacyLDAPSecuritySettingPlugin.CONNECTION_PROTOCOL, "s");
       map.put(LegacyLDAPSecuritySettingPlugin.AUTHENTICATION, "simple");
       map.put(LegacyLDAPSecuritySettingPlugin.ENABLE_LISTENER, "true");
-      legacyLDAPSecuritySettingPlugin.init(map);
-
-      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
-      Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false)).setPersistenceEnabled(false).addSecuritySettingPlugin(legacyLDAPSecuritySettingPlugin);
-
-      server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
+      return map;
    }
 
    @After
@@ -289,12 +293,14 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       ctx.unbind("cn=read,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
       ctx.close();
 
-      try {
-         session.createConsumer(queue);
-         Assert.fail("Consuming here should fail due to the modified security data.");
-      } catch (ActiveMQException e) {
-         // ok
-      }
+      Wait.assertTrue("Consuming here should fail due to the modified security data.", () -> {
+         try {
+            session.createConsumer(queue);
+            return false;
+         } catch (Exception e) {
+            return true;
+         }
+      }, 2000, 100);
 
       cf.close();
    }
@@ -338,12 +344,14 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       ctx.unbind("cn=write,cn=" + queue + ",ou=queues,ou=destinations,o=ActiveMQ,ou=system");
       ctx.close();
 
-      try {
-         producer.send(session.createMessage(true));
-         Assert.fail("Producing here should fail due to the modified security data.");
-      } catch (ActiveMQException e) {
-         // ok
-      }
+      Wait.assertTrue("Producing here should fail due to the modified security data.", () -> {
+         try {
+            producer.send(session.createMessage(true));
+            return false;
+         } catch (Exception e) {
+            return true;
+         }
+      }, 2000, 100);
 
       cf.close();
    }
@@ -409,7 +417,15 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
 
       ClientSession session = cf.createSession(USERNAME, "secret", false, true, true, false, 0);
       ClientProducer producer = session.createProducer(queue);
-      producer.send(session.createMessage(true));
+
+      Wait.assertTrue("Producing here should succeed due to the modified security data.", () -> {
+         try {
+            producer.send(session.createMessage(true));
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
 
       cf.close();
    }
@@ -491,17 +507,23 @@ public class LegacyLDAPSecuritySettingPluginListenerTest extends AbstractLdapTes
       server.createQueue(new QueueConfiguration(goodQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       ClientSession session = cf.createSession(USERNAME, "secret", false, true, true, false, 0);
-      ClientProducer producer = session.createProducer(goodQueue);
-      producer.send(session.createMessage(true));
+
+      ClientSession finalSession = session;
+      Wait.assertTrue("Producing here should succeed due to the modified security data.", () -> {
+         try (ClientProducer producer = finalSession.createProducer(goodQueue)) {
+            return true;
+         } catch (Exception e) {
+            return false;
+         }
+      }, 2000, 100);
       session.close();
-      producer.close();
 
       server.createQueue(new QueueConfiguration(badQueue).setRoutingType(RoutingType.ANYCAST).setDurable(false));
 
       // authorization for sending should fail for the new queue
       try {
          session = cf.createSession(USERNAME, "secret", false, true, true, false, 0);
-         producer = session.createProducer(badQueue);
+         ClientProducer producer = session.createProducer(badQueue);
          producer.send(session.createMessage(true));
          Assert.fail("Producing here should fail.");
       } catch (ActiveMQException e) {
