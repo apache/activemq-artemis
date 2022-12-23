@@ -47,6 +47,10 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
@@ -67,6 +71,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    public static final String READ_PERMISSION_VALUE = "readPermissionValue";
    public static final String WRITE_PERMISSION_VALUE = "writePermissionValue";
    public static final String ENABLE_LISTENER = "enableListener";
+   public static final String REFRESH_INTERVAL = "refreshInterval";
    public static final String MAP_ADMIN_TO_MANAGE = "mapAdminToManage";
    public static final String ALLOW_QUEUE_ADMIN_ON_READ = "allowQueueAdminOnRead";
 
@@ -83,6 +88,7 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    private String readPermissionValue = "read";
    private String writePermissionValue = "write";
    private boolean enableListener = true;
+   private int refreshInterval = 0;
    private boolean mapAdminToManage = false;
    private boolean allowQueueAdminOnRead = false;
 
@@ -90,6 +96,8 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
    private EventDirContext eventContext;
    private Map<String, Set<Role>> securityRoles;
    private HierarchicalRepository<Set<Role>> securityRepository;
+   private ScheduledExecutorService scheduler;
+   private ScheduledFuture<?> scheduledFuture;
 
    @Override
    public LegacyLDAPSecuritySettingPlugin init(Map<String, String> options) {
@@ -107,8 +115,24 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
          readPermissionValue = getOption(options, READ_PERMISSION_VALUE, readPermissionValue);
          writePermissionValue = getOption(options, WRITE_PERMISSION_VALUE, writePermissionValue);
          enableListener = getOption(options, ENABLE_LISTENER, Boolean.TRUE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
+         refreshInterval = Integer.parseInt(getOption(options, REFRESH_INTERVAL, Integer.valueOf(refreshInterval).toString()));
          mapAdminToManage = getOption(options, MAP_ADMIN_TO_MANAGE, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
          allowQueueAdminOnRead = getOption(options, ALLOW_QUEUE_ADMIN_ON_READ, Boolean.FALSE.toString()).equalsIgnoreCase(Boolean.TRUE.toString());
+      }
+
+      if (refreshInterval > 0) {
+         scheduler = Executors.newScheduledThreadPool(1);
+         logger.debug("Scheduling refresh every {} seconds.", refreshInterval);
+         scheduledFuture = scheduler.scheduleAtFixedRate(() -> {
+            logger.debug("Refreshing after {} seconds...", refreshInterval);
+            try {
+               securityRoles = null;
+               securityRepository.swap(getSecurityRoles().entrySet());
+            } catch (Exception e) {
+               ActiveMQServerLogger.LOGGER.unableToRefreshSecuritySettings(e.getMessage());
+               logger.debug("security refresh failure", e);
+            }
+         }, refreshInterval, refreshInterval, TimeUnit.SECONDS);
       }
 
       return this;
@@ -458,6 +482,13 @@ public class LegacyLDAPSecuritySettingPlugin implements SecuritySettingPlugin {
 
    @Override
    public SecuritySettingPlugin stop() {
+      if (scheduledFuture != null) {
+         scheduledFuture.cancel(true);
+      }
+      if (scheduler != null) {
+         scheduler.shutdown();
+      }
+
       try {
          eventContext.close();
       } catch (NamingException e) {

@@ -1557,4 +1557,6 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224118, value = "The SQL Database is returning a current time too far from this system current time. Adjust clock on the SQL Database server. DatabaseTime={}, CurrentTime={}, allowed variance={}", level = LogMessage.Level.WARN)
    void dbReturnedTimeOffClock(long dbTime, long systemTime, long variance);
 
+   @LogMessage(id = 224119, value = "Unable to refresh security settings: {}", level = LogMessage.Level.WARN)
+   void unableToRefreshSecuritySettings(String exceptionMessage);
 }
