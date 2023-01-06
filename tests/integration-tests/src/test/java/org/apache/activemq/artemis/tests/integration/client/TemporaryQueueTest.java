@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.remoting.CloseListener;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ServerSession;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -196,6 +197,21 @@ public class TemporaryQueueTest extends SingleServerTestBase {
       }
 
       session.close();
+   }
+
+   @Test
+   public void testPreserveNonTemporaryAddressAfterConnectionIsClosed() throws Exception {
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomSimpleString();
+      server.getAddressSettingsRepository().addMatch(address.toString(), new AddressSettings().setAutoDeleteAddresses(false));
+
+      server.addAddressInfo(new AddressInfo(address).setTemporary(false).setAutoCreated(true));
+      session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(false).setTemporary(true));
+      assertNotNull(server.getAddressInfo(address));
+      session.close();
+      sf.close();
+      Wait.assertTrue(() -> server.locateQueue(queue) == null, 2000, 100);
+      assertFalse(Wait.waitFor(() -> server.getAddressInfo(address) == null, 2000, 100));
    }
 
    @Test

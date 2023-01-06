@@ -22,6 +22,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -183,6 +184,39 @@ public class AutoDeleteJmsDestinationTest extends JMSTestBase {
 
       // make sure the JMX control was removed for the JMS topic
       assertNull(server.getManagementService().getResource("jtest"));
+   }
+
+   @Test
+   public void testAutoDeleteTopicNegative() throws Exception {
+      final int numMessages = 100;
+      final SimpleString addressName = new SimpleString("test");
+      server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setAutoDeleteAddresses(false));
+
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic(addressName.toString());
+      MessageConsumer messageConsumer = session.createConsumer(topic);
+      MessageProducer producer = session.createProducer(topic);
+
+      for (int i = 0; i < numMessages; i++) {
+         TextMessage mess = session.createTextMessage("msg" + i);
+         producer.send(mess);
+      }
+
+      producer.close();
+      // ensure the address was created
+      assertNotNull(server.getAddressInfo(addressName));
+
+      connection.start();
+
+      for (int i = 0; i < numMessages; i++) {
+         Message m = messageConsumer.receive(5000);
+         Assert.assertNotNull(m);
+      }
+
+      connection.close();
+      // ensure the topic was not removed
+      assertFalse(Wait.waitFor(() -> server.getAddressInfo(addressName) == null, 2000, 100));
    }
 
    @Test
