@@ -199,8 +199,9 @@ public class MQTTPublishManager {
                topic = message.variableHeader().topicName();
             }
          }
-
-         Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, topic, message);
+         String coreAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(topic, session.getWildcardConfiguration());
+         SimpleString address = SimpleString.toSimpleString(coreAddress, session.getCoreMessageObjectPools().getAddressStringSimpleStringPool());
+         Message serverMessage = MQTTUtil.createServerMessageFromByteBuf(session, address, message);
          int qos = message.fixedHeader().qosLevel().value();
          if (qos > 0) {
             serverMessage.setDurable(MQTTUtil.DURABLE_MESSAGES);
@@ -213,6 +214,9 @@ public class MQTTPublishManager {
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
+               if (session.getServer().getAddressInfo(address) == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
+                  session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
+               }
                session.getServerSession().send(tx, serverMessage, true, false);
 
                if (message.fixedHeader().isRetain()) {

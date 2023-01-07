@@ -20,9 +20,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
+import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
@@ -42,14 +47,21 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
    }
 
    @Test(timeout = DEFAULT_TIMEOUT)
-   public void testAuthorizationFailure() throws Exception {
+   public void testCreateAddressAuthorizationFailure() throws Exception {
       final String CLIENT_ID = "publisher";
+      final CountDownLatch latch = new CountDownLatch(1);
       MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
          .username(noprivUser)
          .password(noprivPass.getBytes(StandardCharsets.UTF_8))
          .build();
       MqttClient client = createPahoClient(CLIENT_ID);
       client.connect(options);
+
+      server.getManagementService().addNotificationListener(notification -> {
+         if (notification.getType() == CoreNotificationType.SECURITY_PERMISSION_VIOLATION && CheckType.valueOf(notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CHECK_TYPE).toString()) == CheckType.CREATE_ADDRESS) {
+            latch.countDown();
+         }
+      });
 
       try {
          client.publish("/foo", new byte[0], 2, false);
@@ -60,7 +72,42 @@ public class PublishTestsWithSecurity extends MQTT5TestSupport {
          fail("Should have thrown an MqttException");
       }
 
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+
       assertFalse(client.isConnected());
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSendAuthorizationFailure() throws Exception {
+      final String CLIENT_ID = "publisher";
+      final CountDownLatch latch = new CountDownLatch(1);
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .username(createAddressUser)
+         .password(createAddressPass.getBytes(StandardCharsets.UTF_8))
+         .build();
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect(options);
+
+      server.getManagementService().addNotificationListener(notification -> {
+         if (notification.getType() == CoreNotificationType.SECURITY_PERMISSION_VIOLATION && CheckType.valueOf(notification.getProperties().getSimpleStringProperty(ManagementHelper.HDR_CHECK_TYPE).toString()) == CheckType.SEND) {
+            latch.countDown();
+         }
+      });
+
+      try {
+         client.publish("/foo", new byte[0], 2, false);
+         fail("Publishing should have failed with a security problem");
+      } catch (MqttException e) {
+         assertEquals(MQTTReasonCodes.NOT_AUTHORIZED, (byte) e.getReasonCode());
+      } catch (Exception e) {
+         fail("Should have thrown an MqttException");
+      }
+
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+
+      assertFalse(client.isConnected());
+
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(".foo")) != null, 2000, 100);
    }
 
    @Test(timeout = DEFAULT_TIMEOUT)
