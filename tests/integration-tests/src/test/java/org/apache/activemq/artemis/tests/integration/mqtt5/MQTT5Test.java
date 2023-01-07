@@ -80,6 +80,34 @@ public class MQTT5Test extends MQTT5TestSupport {
       context.close();
    }
 
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testAddressAutoCreation() throws Exception {
+      final String DESTINATION = RandomUtil.randomString();
+      server.getAddressSettingsRepository().addMatch(DESTINATION, new AddressSettings().setAutoCreateAddresses(true));
+
+      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      producer.connect();
+      producer.publish(DESTINATION, new byte[0], 0, false);
+      producer.disconnect();
+      producer.close();
+
+      Wait.assertTrue(() -> server.getAddressInfo(SimpleString.toSimpleString(DESTINATION)) != null, 2000, 100);
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testAddressAutoCreationNegative() throws Exception {
+      final String DESTINATION = RandomUtil.randomString();
+      server.getAddressSettingsRepository().addMatch(DESTINATION, new AddressSettings().setAutoCreateAddresses(false));
+
+      MqttClient producer = createPahoClient(RandomUtil.randomString());
+      producer.connect();
+      producer.publish(DESTINATION, new byte[0], 0, false);
+      producer.disconnect();
+      producer.close();
+
+      assertTrue(server.getAddressInfo(SimpleString.toSimpleString(DESTINATION)) == null);
+   }
+
    /*
     * Trying to reproduce error from https://issues.apache.org/jira/browse/ARTEMIS-1184
     */

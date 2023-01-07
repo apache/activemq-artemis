@@ -130,6 +130,9 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
    protected String noprivUser = "noprivs";
    protected String noprivPass = "noprivs";
 
+   protected String createAddressUser = "createAddress";
+   protected String createAddressPass = "createAddress";
+
    protected String browseUser = "browser";
    protected String browsePass = "browser";
 
@@ -201,6 +204,8 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
          // User additions
          securityManager.getConfiguration().addUser(noprivUser, noprivPass);
          securityManager.getConfiguration().addRole(noprivUser, "nothing");
+         securityManager.getConfiguration().addUser(createAddressUser, createAddressPass);
+         securityManager.getConfiguration().addRole(createAddressUser, "createAddress");
          securityManager.getConfiguration().addUser(browseUser, browsePass);
          securityManager.getConfiguration().addRole(browseUser, "browser");
          securityManager.getConfiguration().addUser(guestUser, guestPass);
@@ -215,6 +220,7 @@ public class MQTT5TestSupport extends ActiveMQTestBase {
          value.add(new Role("browser", false, false, false, false, false, false, false, true, false, false));
          value.add(new Role("guest", false, true, false, false, false, false, false, true, false, false));
          value.add(new Role("full", true, true, true, true, true, true, true, true, true, true));
+         value.add(new Role("createAddress", false, false, false, false, false, false, false, false, true, false));
          securityRepository.addMatch("#", value);
 
          server.getConfiguration().setSecurityEnabled(true);
