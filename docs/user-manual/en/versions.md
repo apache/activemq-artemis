@@ -93,7 +93,15 @@ Highlights:
 #### Upgrading from older versions
 1. We removed the *-all clients from ./lib/client in the assembly as part of [ARTEMIS-4006](https://issues.apache.org/jira/browse/ARTEMIS-4006). If you use these libraries they can be found at Maven Central, please refer to the [client class path documentation](client-classpath.md) for more information.
 2. We removed ActiveMQ-Artemis rest as part of 2.26.0. If you still require activemq rest you can still have access to its latest version at [Maven central](https://mvnrepository.com/artifact/org.apache.activemq.rest/artemis-rest/2.25.0). You can still follow the steps on Rest from any [previous documentation](https://activemq.apache.org/components/artemis/documentation/2.25.0/rest.html), however you should stop using the module as it will not be maintained any more.
-3. We removed web content from distribution and redirected to the console web requests with the root target as part of  [ARTEMIS-3980](https://issues.apache.org/jira/browse/ARTEMIS-3980). If you used to customize the index page or to add custom content in the web folder please refer to the [web-server documentation](web-server.md) for more information on disabling the redirect and enabling the web content.
+3. We removed web content from distribution and redirected to the console web requests with the root target as part of [ARTEMIS-3980](https://issues.apache.org/jira/browse/ARTEMIS-3980). To enable new redirect behaviour on current instances you have to update `bootstrap.xml`. Change:
+   ```xml
+   <web path="web">
+   ```
+   to:
+   ```xml
+   <web path="web" rootRedirectLocation="console">
+   ```
+   If you used to customize the index page or to add custom content in the web folder please refer to the [web-server documentation](web-server.md) for more information on disabling the redirect and enabling the web content.
 
 ## 2.25.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352143&projectId=12315920)
@@ -341,11 +349,11 @@ Highlights:
       something like this:
       ```sh
       ./artemis user add --user guest --password guest --role admin
-      ``` 
+      ```
       Use this instead:
       ```sh
       ./artemis user add --user-command-user guest --user-command-password guest --role admin
-         ```
+      ```
       In short, use `user-command-user` in lieu of `user` and `user-command-password`
       in lieu of `password`. Both `user` and `password` parameters now apply to the
       connection used to send the command to the broker.
@@ -712,13 +720,13 @@ Highlights:
 1. If configured, remove the Jolokia war file from the `web` element in `<ARTEMIS_INSTANCE>/etc/bootstrap.xml`:
    ```xml
    <app url="jolokia" war="jolokia.war"/>
-   ``` 
+   ```
    This is no longer required as the Jolokia REST interface is now integrated into the console web application.
    
    If the following is absent and you desire to deploy the web console then add:
    ```xml
    <app url="console" war="console.war"/>
-   ```   
+   ```
    **Note:** the Jolokia REST interface URL will now be at `http://<host>:<port>/console/jolokia`
 
 
