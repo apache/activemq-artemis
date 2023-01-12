@@ -1132,7 +1132,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                return;
             }
             logger.debug("deleting temporary queue {}", bindingName);
-            server.destroyQueue(bindingName, null, false, false, server.getAddressInfo(binding.getAddress()).isTemporary());
+            AddressInfo addressInfo = server.getAddressInfo(binding.getAddress());
+            server.destroyQueue(bindingName, null, false, false, addressInfo == null || addressInfo.isTemporary() || addressInfo.isAutoCreated());
             if (observer != null) {
                observer.tempQueueDeleted(bindingName);
             }
