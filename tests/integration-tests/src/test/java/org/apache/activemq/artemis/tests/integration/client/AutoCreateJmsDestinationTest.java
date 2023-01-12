@@ -39,6 +39,8 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeTestAccessor;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -298,6 +300,9 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       assertNotNull(server.getManagementService().getResource(ResourceNames.ADDRESS + topicName));
 
       connection.close();
+
+      PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
+      PostOfficeTestAccessor.reapAddresses((PostOfficeImpl) server.getPostOffice());
 
       Wait.assertTrue(() -> server.getManagementService().getResource(ResourceNames.ADDRESS + topicName) == null);
    }
