@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp;
+package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,7 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-public class JMSMessageGroupsTest extends JMSClientTestSupport {
+public class JMSMessageGroupsTest extends MultiprotocolJMSClientTestSupport {
 
    protected static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -48,15 +48,6 @@ public class JMSMessageGroupsTest extends JMSClientTestSupport {
    private static final int MESSAGE_SIZE = 10 * 1024;
    private static final int RECEIVE_TIMEOUT = 1000;
    private static final String JMSX_GROUP_ID = "JmsGroupsTest";
-
-   private ConnectionSupplier AMQPConnection = () -> createConnection();
-   private ConnectionSupplier CoreConnection = () -> createCoreConnection();
-   private ConnectionSupplier OpenWireConnection = () -> createOpenWireConnection();
-
-   @Override
-   protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE,CORE";
-   }
 
    @Override
    protected void configureAddressPolicy(ActiveMQServer server) {

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp;
+package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
@@ -33,18 +33,9 @@ import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Test;
 
-public class JMSSelectorTest extends JMSClientTestSupport {
+public class JMSSelectorTest extends MultiprotocolJMSClientTestSupport {
 
    private static final String NORMAL_QUEUE_NAME = "NORMAL";
-
-   private ConnectionSupplier AMQPConnection = () -> createConnection();
-   private ConnectionSupplier CoreConnection = () -> createCoreConnection();
-   private ConnectionSupplier OpenWireConnection = () -> createOpenWireConnection();
-
-   @Override
-   protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE,CORE";
-   }
 
    @Override
    protected void addConfiguration(ActiveMQServer server) {
