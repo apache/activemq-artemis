@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp;
+package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
-public class JMSNonDestructiveTest extends JMSClientTestSupport {
+public class JMSNonDestructiveTest extends MultiprotocolJMSClientTestSupport {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -70,9 +70,6 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
    private static final String NON_DESTRUCTIVE_EXPIRY_QUEUE_NAME = "NON_DESTRUCTIVE_EXPIRY_QUEUE";
    private static final String NON_DESTRUCTIVE_LVQ_QUEUE_NAME = "NON_DESTRUCTIVE_LVQ_QUEUE";
    private static final String NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME = "NON_DESTRUCTIVE_LVQ_TOMBSTONE_QUEUE";
-
-   private ConnectionSupplier AMQPConnection = () -> createConnection();
-   private ConnectionSupplier CoreConnection = () -> createCoreConnection();
 
    protected final boolean persistenceEnabled;
    protected final long scanPeriod;
@@ -89,11 +86,6 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
    }
 
    @Override
-   protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE,CORE";
-   }
-
-   @Override
    protected void addConfiguration(ActiveMQServer server) {
       server.getConfiguration().setPersistenceEnabled(persistenceEnabled);
       server.getConfiguration().setMessageExpiryScanPeriod(scanPeriod);
@@ -102,6 +94,7 @@ public class JMSNonDestructiveTest extends JMSClientTestSupport {
       server.getAddressSettingsRepository().addMatch(NON_DESTRUCTIVE_LVQ_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultNonDestructive(true));
       server.getAddressSettingsRepository().addMatch(NON_DESTRUCTIVE_TOMBSTONE_LVQ_QUEUE_NAME, new AddressSettings().setDefaultLastValueQueue(true).setDefaultNonDestructive(true));
    }
+
    @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       super.createAddressAndQueues(server);

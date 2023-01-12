@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp;
+package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 
 import javax.jms.Connection;
 import javax.jms.DeliveryMode;
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class JMSSharedConsumerTest extends JMSClientTestSupport {
+public class JMSSharedConsumerTest extends MultiprotocolJMSClientTestSupport {
 
    @Parameterized.Parameters(name = "{index}: amqpUseCoreSubscriptionNaming={0}")
    public static Collection<Object[]> parameters() {
@@ -52,11 +52,6 @@ public class JMSSharedConsumerTest extends JMSClientTestSupport {
    @Override
    protected void addConfiguration(ActiveMQServer server) {
       server.getConfiguration().setAmqpUseCoreSubscriptionNaming(amqpUseCoreSubscriptionNaming);
-   }
-
-   @Override
-   protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE,CORE";
    }
 
    private void testSharedConsumer(Connection connection1, Connection connection2) throws Exception {
