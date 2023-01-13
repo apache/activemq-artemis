@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.ByteBuffer;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -61,6 +62,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
@@ -2568,6 +2570,79 @@ public class LargeMessageTest extends LargeMessageTestBase {
       msg.acknowledge();
 
       session.commit();
+   }
+
+   @Test
+   public void testSendServerMessageMetrics() throws Exception {
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = sf.createSession(false, false);
+
+      LargeServerMessageImpl fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+      fileMessage.setMessageID(1005);
+
+      for (int i = 0; i < largeMessageSize; i++) {
+         fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+      }
+
+      // The server would be doing this
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+
+      fileMessage.releaseResources(false, false);
+
+      session.createQueue(new QueueConfiguration(ADDRESS));
+
+      ClientProducer prod = session.createProducer(ADDRESS);
+
+      prod.send(fileMessage);
+
+      fileMessage.deleteFile();
+
+      session.commit();
+
+      Collection<ServerProducer> serverProducers = server.getSessions().iterator().next().getServerProducers();
+
+      Assert.assertEquals(1, serverProducers.size());
+
+      ServerProducer producer = serverProducers.iterator().next();
+
+      Assert.assertEquals(1, producer.getMessagesSent());
+
+      Assert.assertEquals(largeMessageSize, producer.getMessagesSentSize());
+
+      fileMessage = new LargeServerMessageImpl((JournalStorageManager) server.getStorageManager());
+
+      fileMessage.setMessageID(1006);
+
+      for (int i = 0; i < largeMessageSize; i++) {
+         fileMessage.addBytes(new byte[]{ActiveMQTestBase.getSamplebyte(i)});
+      }
+
+      // The server would be doing this
+      fileMessage.putLongProperty(Message.HDR_LARGE_BODY_SIZE, largeMessageSize);
+
+      fileMessage.releaseResources(false, false);
+
+      prod.send(fileMessage);
+
+      fileMessage.deleteFile();
+
+      session.commit();
+
+      serverProducers = server.getSessions().iterator().next().getServerProducers();
+
+      Assert.assertEquals(1, serverProducers.size());
+
+      producer = serverProducers.iterator().next();
+
+      Assert.assertEquals(2, producer.getMessagesSent());
+
+      Assert.assertEquals(largeMessageSize * 2, producer.getMessagesSentSize());
    }
 
 

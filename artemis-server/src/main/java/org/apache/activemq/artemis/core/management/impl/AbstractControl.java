@@ -122,7 +122,7 @@ public abstract class AbstractControl extends StandardMBean {
                                                          Integer.MAX_VALUE, fakeConnection,
                                                          true, true, false,
                                                          false, address.toString(), fakeConnection.callback,
-                                                         false, new DummyOperationContext(), Collections.emptyMap(), null, validatedUser);
+                                                         false, new DummyOperationContext(), Collections.emptyMap(), null, validatedUser, false);
       try {
          CoreMessage message = new CoreMessage(storageManager.generateID(), 50);
          if (headers != null) {
@@ -159,7 +159,7 @@ public abstract class AbstractControl extends StandardMBean {
          }
 
          // There's no point on direct delivery using the management thread, use false here
-         serverSession.send(message, false);
+         serverSession.send(message, false, null);
          return "" + message.getMessageID();
       } finally {
          try {

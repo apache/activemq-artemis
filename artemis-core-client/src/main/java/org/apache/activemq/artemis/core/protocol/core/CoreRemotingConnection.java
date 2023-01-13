@@ -76,6 +76,11 @@ public interface CoreRemotingConnection extends RemotingConnection {
       return  version < PacketImpl.ARTEMIS_2_18_0_VERSION;
    }
 
+   default boolean isBeforeProducerMetricsChanged() {
+      int version = getChannelVersion();
+      return version < PacketImpl.ARTEMIS_2_28_0_VERSION;
+   }
+
    /**
     * Sets the client protocol used on the communication. This will determine if the client has
     * support for certain packet types

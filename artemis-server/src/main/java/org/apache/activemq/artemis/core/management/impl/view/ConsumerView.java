@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.management.impl.view;
 
+import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import java.util.Date;
 
@@ -46,7 +47,7 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
    @Override
    public JsonObjectBuilder toJson(ServerConsumer consumer) {
       ServerSession session = server.getSessionByID(consumer.getSessionID());
-
+      ActiveMQServerControlImpl serverControl = server.getActiveMQServerControl();
       //if session is not available then consumer is not in valid state - ignore
       if (session == null) {
          return null;
@@ -71,7 +72,15 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
          .add(ConsumerField.ADDRESS.getName(), toString(consumer.getQueueAddress()))
          .add(ConsumerField.LOCAL_ADDRESS.getName(), toString(consumer.getConnectionLocalAddress()))
          .add(ConsumerField.REMOTE_ADDRESS.getName(), toString(consumer.getConnectionRemoteAddress()))
-         .add(ConsumerField.CREATION_TIME.getName(), new Date(consumer.getCreationTime()).toString());
+         .add(ConsumerField.CREATION_TIME.getName(), new Date(consumer.getCreationTime()).toString())
+         .add(ConsumerField.MESSAGES_IN_TRANSIT.getName(), toString(consumer.getMessagesInTransit()))
+         .add(ConsumerField.MESSAGES_IN_TRANSIT_SIZE.getName(), toString(consumer.getMessagesInTransitSize()))
+         .add(ConsumerField.MESSAGES_DELIVERED.getName(), toString(consumer.getMessagesDelivered()))
+         .add(ConsumerField.MESSAGES_DELIVERED_SIZE.getName(), toString(consumer.getMessagesDeliveredSize()))
+         .add(ConsumerField.MESSAGES_ACKNOWLEDGED.getName(), toString(consumer.getMessagesAcknowledged()))
+         .add(ConsumerField.MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT.getName(), toString(consumer.getMessagesAcknowledgedAwaitingCommit()))
+         .add(ConsumerField.LAST_DELIVERED_TIME.getName(), consumer.getLastDeliveredTime())
+         .add(ConsumerField.LAST_ACKNOWLEDGED_TIME.getName(), consumer.getLastAcknowledgedTime());
       return obj;
    }
 
@@ -111,6 +120,22 @@ public class ConsumerView extends ActiveMQAbstractView<ServerConsumer> {
             return consumer.getConnectionRemoteAddress();
          case CREATION_TIME:
             return new Date(consumer.getCreationTime());
+         case MESSAGES_IN_TRANSIT:
+            return consumer.getMessagesInTransit();
+         case MESSAGES_IN_TRANSIT_SIZE:
+            return consumer.getMessagesInTransitSize();
+         case MESSAGES_DELIVERED:
+            return consumer.getMessagesDelivered();
+         case MESSAGES_DELIVERED_SIZE:
+            return consumer.getMessagesDeliveredSize();
+         case MESSAGES_ACKNOWLEDGED:
+            return consumer.getMessagesAcknowledged();
+         case MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT:
+            return consumer.getMessagesAcknowledgedAwaitingCommit();
+         case LAST_DELIVERED_TIME:
+            return consumer.getLastDeliveredTime();
+         case LAST_ACKNOWLEDGED_TIME:
+            return consumer.getLastAcknowledgedTime();
          default:
             throw new IllegalArgumentException("Unsupported field, " + fieldName);
       }

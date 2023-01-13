@@ -42,8 +42,10 @@ import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectException;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -71,6 +73,10 @@ public class MQTTPublishManager {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private SimpleString managementAddress;
+
+   private final String senderName = UUIDGenerator.getInstance().generateUUID().toString();
+
+   private boolean createProducer = true;
 
    private ServerConsumer managementConsumer;
 
@@ -173,6 +179,10 @@ public class MQTTPublishManager {
     */
    void sendToQueue(MqttPublishMessage message, boolean internal) throws Exception {
       synchronized (lock) {
+         if (createProducer) {
+            session.getServerSession().addProducer(senderName, MQTTProtocolManagerFactory.MQTT_PROTOCOL_NAME, ServerProducer.ANONYMOUS);
+            createProducer = false;
+         }
          String topic = message.variableHeader().topicName();
          if (session.getVersion() == MQTTVersion.MQTT_5) {
             Integer alias = MQTTUtil.getProperty(Integer.class, message.variableHeader().properties(), TOPIC_ALIAS);
@@ -206,7 +216,6 @@ public class MQTTPublishManager {
          if (qos > 0) {
             serverMessage.setDurable(MQTTUtil.DURABLE_MESSAGES);
          }
-
          int messageId = message.variableHeader().packetId();
          if (qos < 2 || !state.getPubRec().contains(messageId)) {
             if (qos == 2 && !internal)
@@ -217,7 +226,7 @@ public class MQTTPublishManager {
                if (session.getServer().getAddressInfo(address) == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
                   session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
                }
-               session.getServerSession().send(tx, serverMessage, true, false);
+               session.getServerSession().send(tx, serverMessage, true, senderName, false);
 
                if (message.fixedHeader().isRetain()) {
                   ByteBuf payload = message.payload();
@@ -303,7 +312,7 @@ public class MQTTPublishManager {
          if (ref != null) {
             Message m = MQTTUtil.createPubRelMessage(session, getManagementAddress(), messageId);
             //send the management message via the internal server session to bypass security.
-            session.getInternalServerSession().send(m, true);
+            session.getInternalServerSession().send(m, true, senderName);
             session.getServerSession().individualAcknowledge(ref.getB(), ref.getA());
             releaseFlowControl(ref.getB());
          } else {

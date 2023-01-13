@@ -161,6 +161,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final CoreMessageObjectPools coreMessageObjectPools = new CoreMessageObjectPools();
 
+   private AtomicInteger producerIDs = new AtomicInteger();
+
    ClientSessionImpl(final ClientSessionFactoryInternal sessionFactory,
                      final String name,
                      final String username,
@@ -2031,9 +2033,19 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                                                  final int maxRate) throws ActiveMQException {
       checkClosed();
 
-      ClientProducerInternal producer = new ClientProducerImpl(this, address, maxRate == -1 ? null : new TokenBucketLimiterImpl(maxRate, false), autoCommitSends && blockOnNonDurableSend, autoCommitSends && blockOnDurableSend, autoGroup, groupID == null ? null : new SimpleString(groupID), minLargeMessageSize, sessionContext);
+      ClientProducerInternal producer = new ClientProducerImpl(this,
+                                                                      address,
+                                                                      maxRate == -1 ? null : new TokenBucketLimiterImpl(maxRate, false),
+                                                                      autoCommitSends && blockOnNonDurableSend,
+                                                                      autoCommitSends && blockOnDurableSend,
+                                                                      autoGroup, groupID == null ? null : new SimpleString(groupID),
+                                                                      minLargeMessageSize,
+                                                                      sessionContext,
+                                                                      producerIDs.incrementAndGet());
 
       addProducer(producer);
+
+      sessionContext.createProducer(producer);
 
       return producer;
    }

@@ -59,6 +59,18 @@ public class ConsumerFilterPredicate extends ActiveMQFilterPredicate<ServerConsu
             return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getLocalAddress());
          case REMOTE_ADDRESS:
             return matches(server.getSessionByID(consumer.getSessionID()).getRemotingConnection().getTransportConnection().getRemoteAddress());
+         case MESSAGES_IN_TRANSIT:
+            return matches(consumer.getMessagesInTransit());
+         case MESSAGES_IN_TRANSIT_SIZE:
+            return matches(consumer.getMessagesInTransitSize());
+         case MESSAGES_DELIVERED:
+            return matches(consumer.getDeliveringMessages());
+         case MESSAGES_DELIVERED_SIZE:
+            return matches(consumer.getMessagesDeliveredSize());
+         case MESSAGES_ACKNOWLEDGED:
+            return matches(consumer.getMessagesAcknowledged());
+         case MESSAGES_ACKNOWLEDGED_AWAITING_COMMIT:
+            return matches(consumer.getMessagesAcknowledgedAwaitingCommit());
       }
       return true;
    }

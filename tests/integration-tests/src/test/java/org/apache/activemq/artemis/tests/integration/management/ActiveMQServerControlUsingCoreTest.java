@@ -31,6 +31,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
 
    public ActiveMQServerControlUsingCoreTest(boolean legacyCreateQueue) {
       super(legacyCreateQueue);
+      extraProducers = 1;
    }
 
 

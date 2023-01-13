@@ -17,7 +17,12 @@
 package org.apache.activemq.artemis.core.server;
 
 public interface ServerProducer {
-   String getAddress();
+   String ANONYMOUS = "ANONYMOUS";
+
+   long getID();
+
+   String getName();
+   String getAddress();;
 
    String getProtocol();
 
@@ -29,7 +34,14 @@ public interface ServerProducer {
 
    String getConnectionID();
 
-   String getID();
 
    long getCreationTime();
+
+   Object getLastProducedMessageID();
+
+   long getMessagesSent();
+
+   long getMessagesSentSize();
+
+   void updateMetrics(Object lastProducedMessageID, int encodeSize);
 }

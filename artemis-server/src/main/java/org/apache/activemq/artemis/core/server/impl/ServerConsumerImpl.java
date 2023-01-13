@@ -26,7 +26,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 import java.util.function.Function;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -61,6 +63,8 @@ import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
@@ -153,13 +157,13 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    private AtomicLong messageConsumedSnapshot = new AtomicLong(0);
 
-   private long acks;
-
    private boolean requiresLegacyPrefix = false;
 
    private boolean anycast = false;
 
    private boolean isClosed = false;
+
+   ServerConsumerMetrics metrics = new ServerConsumerMetrics();
 
 
    public ServerConsumerImpl(final long id,
@@ -356,6 +360,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    }
 
    @Override
+   public void metricsAcknowledge(MessageReference ref, Transaction transaction) {
+      metrics.addAcknowledge(ref.getMessage().getEncodeSize(), transaction);
+   }
+
+   @Override
    public List<MessageReference> getDeliveringMessages() {
       synchronized (lock) {
          int expectedSize = 0;
@@ -441,6 +450,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
                deliveringRefs.add(ref);
             }
 
+            metrics.addMessage(ref.getMessage().getEncodeSize());
+
             ref.handled();
 
             ref.setConsumerId(this.id);
@@ -466,7 +477,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             if (preAcknowledge) {
                // With pre-ack, we ack *before* sending to the client
                ref.getQueue().acknowledge(ref, this);
-               acks++;
+               metrics.addAcknowledge(ref.getMessage().getEncodeSize(), null);
             }
 
          }
@@ -704,9 +715,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          final List<MessageReference> refs = new ArrayList<>(deliveringRefs.size());
          MessageReference ref;
          while ((ref = deliveringRefs.poll()) != null) {
+            metrics.addAcknowledge(ref.getMessage().getEncodeSize(), tx);
             if (performACK) {
                ref.acknowledge(tx, this);
-
                performACK = false;
             } else {
                refs.add(ref);
@@ -911,8 +922,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
             ref.acknowledge(tx, this);
             ackedRefs.add(ref.getMessageID());
-
-            acks++;
+            metrics.addAcknowledge(ref.getMessage().getEncodeSize(), tx);
          }
          while (ref.getMessageID() != messageID);
 
@@ -973,10 +983,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             tx.markAsRollbackOnly(ils);
             throw ils;
          }
-
+         metrics.addAcknowledge(ref.getMessage().getEncodeSize(), tx);
          ref.acknowledge(tx, this);
-
-         acks++;
 
          if (startedTransaction) {
             tx.commit();
@@ -1016,7 +1024,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       if (!failed) {
          ref.decrementDeliveryCount();
       }
-
+      metrics.addAcknowledge(ref.getMessage().getEncodeSize(), null);
       ref.getQueue().cancel(ref, System.currentTimeMillis());
    }
 
@@ -1032,7 +1040,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       if (ref == null) {
          return; // nothing to be done
       }
-
+      metrics.addAcknowledge(ref.getMessage().getEncodeSize(), null);
       ref.getQueue().sendToDeadLetterAddress(null, ref);
    }
 
@@ -1040,6 +1048,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    public synchronized void backToDelivering(MessageReference reference) {
       synchronized (lock) {
          deliveringRefs.addFirst(reference);
+         metrics.addMessage(reference.getMessage().getEncodeSize());
       }
    }
 
@@ -1059,10 +1068,12 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          }
 
          if (deliveringRefs.peek().getMessage().getMessageID() == messageID) {
-            return deliveringRefs.poll();
+            MessageReference ref = deliveringRefs.poll();
+            return ref;
          }
          //slow path in a separate method
-         return removeDeliveringRefById(messageID);
+         MessageReference ref = removeDeliveringRefById(messageID);
+         return ref;
       }
    }
 
@@ -1114,6 +1125,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    public float getRate() {
       float timeSlice = ((System.currentTimeMillis() - consumerRateCheckTime.getAndSet(System.currentTimeMillis())) / 1000.0f);
+      long acks = metrics.getMessagesAcknowledged();
       if (timeSlice == 0) {
          messageConsumedSnapshot.getAndSet(acks);
          return 0.0f;
@@ -1513,7 +1525,143 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       return this.session.getRemotingConnection().getTransportConnection().getRemoteAddress();
    }
 
+   @Override
+   public long getMessagesInTransitSize() {
+      return metrics.getMessagesInTransitSize();
+   }
+
+   @Override
+   public int getMessagesInTransit() {
+      return deliveringRefs.size();
+   }
+
+   @Override
+   public long getLastDeliveredTime() {
+      return metrics.getLastDeliveredTime();
+   }
+
+   @Override
+   public long getLastAcknowledgedTime() {
+      return metrics.getLastAcknowledgedTime();
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      return metrics.getMessagesAcknowledged();
+   }
+
+   @Override
+   public long getMessagesDeliveredSize() {
+      return metrics.getMessagesDeliveredSize();
+   }
+
+   @Override
+   public long getMessagesDelivered() {
+      return metrics.getMessagesDelivered();
+   }
+
+   @Override
+   public int getMessagesAcknowledgedAwaitingCommit() {
+      return metrics.getMessagesAcknowledgedAwaitingCommit();
+   }
+
    public SessionCallback getCallback() {
       return callback;
+   }
+
+   static class ServerConsumerMetrics extends TransactionOperationAbstract {
+
+      /**
+       * Since messages can be delivered (incremented) and acknowledged (decremented) at the same time we have to protect
+       * the encode size and make it atomic. The other fields are ok since they are only accessed from a single thread.
+       */
+      private static final AtomicLongFieldUpdater<ServerConsumerMetrics> messagesInTransitSizeUpdater = AtomicLongFieldUpdater.newUpdater(ServerConsumerMetrics.class, "messagesInTransitSize");
+
+      private volatile long messagesInTransitSize = 0;
+
+      private static final AtomicIntegerFieldUpdater<ServerConsumerMetrics> messagesAcknowledgedAwaitingCommitUpdater = AtomicIntegerFieldUpdater.newUpdater(ServerConsumerMetrics.class, "messagesAcknowledgedAwaitingCommit");
+
+      private volatile int messagesAcknowledgedAwaitingCommit = 0;
+
+      private static final AtomicLongFieldUpdater<ServerConsumerMetrics>messagesDeliveredSizeUpdater = AtomicLongFieldUpdater.newUpdater(ServerConsumerMetrics.class, "messagesDeliveredSize");
+
+      private volatile long messagesDeliveredSize = 0;
+
+      private volatile long lastDeliveredTime = 0;
+
+      private volatile long lastAcknowledgedTime = 0;
+
+      private static final AtomicLongFieldUpdater<ServerConsumerMetrics>messagesDeliveredUpdater = AtomicLongFieldUpdater.newUpdater(ServerConsumerMetrics.class, "messagesDelivered");
+
+      private volatile long messagesDelivered = 0;
+
+      private static final AtomicLongFieldUpdater<ServerConsumerMetrics> messagesAcknowledgedUpdater = AtomicLongFieldUpdater.newUpdater(ServerConsumerMetrics.class, "messagesAcknowledged");
+
+      private volatile long messagesAcknowledged = 0;
+
+
+      public long getMessagesInTransitSize() {
+         return messagesInTransitSizeUpdater.get(this);
+      }
+
+      public long getMessagesDeliveredSize() {
+         return messagesDeliveredSizeUpdater.get(this);
+      }
+
+      public long getLastDeliveredTime() {
+         return lastDeliveredTime;
+      }
+
+      public long getLastAcknowledgedTime() {
+         return lastAcknowledgedTime;
+      }
+
+      public long getMessagesDelivered() {
+         return messagesDeliveredUpdater.get(this);
+      }
+
+      public long getMessagesAcknowledged() {
+         return messagesAcknowledgedUpdater.get(this);
+      }
+
+      public int getMessagesAcknowledgedAwaitingCommit() {
+         return messagesAcknowledgedAwaitingCommitUpdater.get(this);
+      }
+
+      public void addMessage(int encodeSize) {
+         messagesInTransitSizeUpdater.addAndGet(this, encodeSize);
+         messagesDeliveredSizeUpdater.addAndGet(this, encodeSize);
+         messagesDeliveredUpdater.addAndGet(this, 1);
+         lastDeliveredTime = System.currentTimeMillis();
+      }
+
+      public void addAcknowledge(int encodeSize, Transaction tx) {
+         messagesInTransitSizeUpdater.addAndGet(this, -encodeSize);
+         messagesAcknowledgedUpdater.addAndGet(this, 1);
+         lastAcknowledgedTime = System.currentTimeMillis();
+         if (tx != null) {
+            addOperation(tx);
+            messagesAcknowledgedAwaitingCommitUpdater.addAndGet(this, 1);
+         }
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         messagesAcknowledgedAwaitingCommitUpdater.set(this, 0);
+      }
+
+
+      @Override
+      public void afterRollback(Transaction tx) {
+         messagesAcknowledgedAwaitingCommitUpdater.set(this, 0);
+      }
+
+      public void addOperation(Transaction tx) {
+         Object property = tx.getProperty(TransactionPropertyIndexes.CONSUMER_METRICS_OPERATION);
+         if (property == null) {
+            tx.putProperty(TransactionPropertyIndexes.CONSUMER_METRICS_OPERATION, this);
+            tx.addOperation(this);
+         }
+      }
    }
 }

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
+import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -25,17 +26,16 @@ import java.security.cert.X509Certificate;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -102,7 +102,6 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.JsonLoader;
 import org.apache.activemq.artemis.utils.PrefixUtil;
-import org.apache.activemq.artemis.utils.collections.MaxSizeMap;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +113,6 @@ import java.lang.invoke.MethodHandles;
 public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 
    private boolean securityEnabled = true;
 
@@ -140,7 +138,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    protected final Map<Long, ServerConsumer> consumers = new ConcurrentHashMap<>();
 
-   protected final Map<String, ServerProducer> producers = new ConcurrentHashMap<>();
+   protected final ServerProducers serverProducers;
 
    protected Transaction tx;
 
@@ -184,9 +182,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    private final OperationContext context;
 
-   // Session's usage should be by definition single threaded, hence it's not needed to use a concurrentHashMap here
-   protected final Map<SimpleString, Pair<Object, AtomicLong>> targetAddressInfos = new MaxSizeMap<>(100);
-
    private final long creationTime = System.currentTimeMillis();
 
    // to prevent session from being closed twice.
@@ -228,7 +223,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                             final OperationContext context,
                             final PagingManager pagingManager,
                             final Map<SimpleString, RoutingType> prefixes,
-                            final String securityDomain) throws Exception {
+                            final String securityDomain,
+                            boolean isLegacyProducer) throws Exception {
       this.username = username;
 
       this.password = password;
@@ -289,6 +285,11 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       sendSessionNotification(CoreNotificationType.SESSION_CREATED);
 
       this.securityDomain = securityDomain;
+      if (isLegacyProducer) {
+         serverProducers = new ServerLegacyProducersImpl(this);
+      } else {
+         serverProducers = new ServerProducersImpl();
+      }
    }
 
    // ServerSession implementation ---------------------------------------------------------------------------
@@ -450,7 +451,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       }
 
       consumers.clear();
-      producers.clear();
+      serverProducers.clear();
 
       if (closeables != null) {
          for (Closeable closeable : closeables) {
@@ -1186,10 +1187,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          remotingConnection.removeFailureListener(cleaner);
       }
-
-      if (server.getAddressInfo(unPrefixedQueueName) == null) {
-         targetAddressInfos.remove(queueToDelete);
-      }
    }
 
    @Override
@@ -1790,29 +1787,32 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
 
    @Override
-   public RoutingStatus send(final Message message, final boolean direct) throws Exception {
-      return send(message, direct, false);
+   public RoutingStatus send(final Message message, final boolean direct, final String senderName) throws Exception {
+      return send(message, direct, senderName,false);
    }
 
    @Override
    public RoutingStatus send(final Message message,
                              final boolean direct,
+                             final String senderName,
                              boolean noAutoCreateQueue) throws Exception {
-      return send(getCurrentTransaction(), message, direct, noAutoCreateQueue);
+      return send(getCurrentTransaction(), message, direct, senderName, noAutoCreateQueue);
    }
 
    @Override
    public synchronized RoutingStatus send(Transaction tx,
                                           Message msg,
                                           final boolean direct,
+                                          final String senderName,
                                           boolean noAutoCreateQueue) throws Exception {
-      return send(tx, msg, direct, noAutoCreateQueue, routingContext);
+      return send(tx, msg, direct, senderName, noAutoCreateQueue, routingContext);
    }
 
    @Override
    public synchronized RoutingStatus send(Transaction tx,
                                           Message messageParameter,
                                           final boolean direct,
+                                          final String senderName,
                                           boolean noAutoCreateQueue,
                                           RoutingContext routingContext) throws Exception {
       final Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, storageManager);
@@ -1865,7 +1865,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
             result = handleManagementMessage(tx, message, direct);
          } else {
-            result = doSend(tx, message, address, direct, noAutoCreateQueue, routingContext);
+            result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
          }
 
          if (AuditLogger.isMessageLoggingEnabled()) {
@@ -1976,30 +1976,6 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public String[] getTargetAddresses() {
-      Map<SimpleString, Pair<Object, AtomicLong>> copy = cloneTargetAddresses();
-      Iterator<SimpleString> iter = copy.keySet().iterator();
-      int num = copy.keySet().size();
-      String[] addresses = new String[num];
-      int i = 0;
-      while (iter.hasNext()) {
-         addresses[i] = iter.next().toString();
-         i++;
-      }
-      return addresses;
-   }
-
-   @Override
-   public String getLastSentMessageID(String address) {
-      Pair<Object, AtomicLong> value = targetAddressInfos.get(SimpleString.toSimpleString(address));
-      if (value != null) {
-         return value.getA().toString();
-      } else {
-         return null;
-      }
-   }
-
-   @Override
    public long getCreationTime() {
       return this.creationTime;
    }
@@ -2010,14 +1986,22 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void describeProducersInfo(JsonArrayBuilder array) throws Exception {
-      Map<SimpleString, Pair<Object, AtomicLong>> targetCopy = cloneTargetAddresses();
-
-      for (Map.Entry<SimpleString, Pair<Object, AtomicLong>> entry : targetCopy.entrySet()) {
+      Map<String, ServerProducer> targetCopy = cloneProducers();
+      for (Map.Entry<String, ServerProducer> entry : targetCopy.entrySet()) {
          String uuid = null;
-         if (entry.getValue().getA() != null) {
-            uuid = entry.getValue().getA().toString();
+         if (entry.getValue().getLastProducedMessageID() != null) {
+            uuid = entry.getValue().getLastProducedMessageID().toString();
          }
-         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder().add("connectionID", this.getConnectionID().toString()).add("sessionID", this.getName()).add("destination", entry.getKey().toString()).add("lastUUIDSent", uuid, JsonValue.NULL).add("msgSent", entry.getValue().getB().longValue());
+         JsonObjectBuilder producerInfo = JsonLoader.createObjectBuilder()
+               .add(ProducerField.ID.getName(), String.valueOf(entry.getValue().getID()))
+               .add(ProducerField.NAME.getName(), entry.getValue().getName())
+               .add(ProducerField.CONNECTION_ID.getName(), this.getConnectionID().toString())
+               .add(ProducerField.SESSION.getAlternativeName(), this.getName())
+               .add(ProducerField.CREATION_TIME.getName(), String.valueOf(entry.getValue().getCreationTime()))
+               .add(ProducerField.ADDRESS.getAlternativeName(), entry.getValue().getAddress())
+               .add(ProducerField.LAST_PRODUCED_MESSAGE_ID.getName(), uuid, JsonValue.NULL)
+               .add(ProducerField.MESSAGE_SENT.getName(),  entry.getValue().getMessagesSent())
+               .add(ProducerField.MESSAGE_SENT_SIZE.getName(), entry.getValue().getMessagesSentSize());
          array.add(producerInfo);
       }
    }
@@ -2098,8 +2082,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       connectionFailed(me, failedOver);
    }
 
-   public Map<SimpleString, Pair<Object, AtomicLong>> cloneTargetAddresses() {
-      return new HashMap<>(targetAddressInfos);
+   public Map<String, ServerProducer> cloneProducers() {
+      return serverProducers.cloneProducers();
    }
 
    private void setStarted(final boolean s) {
@@ -2140,7 +2124,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          }
          reply.setAddress(replyTo);
 
-         doSend(tx, reply, null, direct, false, routingContext);
+         doSend(tx, reply, null, direct, null, false, routingContext);
       }
       return RoutingStatus.OK;
    }
@@ -2202,8 +2186,9 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                             final Message msg,
                                             final SimpleString originalAddress,
                                             final boolean direct,
+                                            final String senderName,
                                             final boolean noAutoCreateQueue) throws Exception {
-      return doSend(tx, msg, originalAddress, direct, noAutoCreateQueue, routingContext);
+      return doSend(tx, msg, originalAddress, direct, senderName, noAutoCreateQueue, routingContext);
    }
 
 
@@ -2212,6 +2197,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
                                             final Message msg,
                                             final SimpleString originalAddress,
                                             final boolean direct,
+                                            final String senderName,
                                             final boolean noAutoCreateQueue,
                                             final RoutingContext routingContext) throws Exception {
 
@@ -2272,14 +2258,7 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          logger.debug("Routing result for {} = {}", msg, result);
 
-         Pair<Object, AtomicLong> value = targetAddressInfos.get(msg.getAddressSimpleString());
-
-         if (value == null) {
-            targetAddressInfos.put(msg.getAddressSimpleString(), new Pair<>(msg.getUserID(), new AtomicLong(1)));
-         } else {
-            value.setA(msg.getUserID());
-            value.getB().incrementAndGet();
-         }
+         updateProducerMetrics(msg, senderName);
       } finally {
          if (!routingContext.isReusable()) {
             routingContext.clear();
@@ -2395,20 +2374,21 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    }
 
    @Override
-   public void addProducer(ServerProducer serverProducer) {
-      serverProducer.setSessionID(getName());
-      serverProducer.setConnectionID(getConnectionID().toString());
-      producers.put(serverProducer.getID(), serverProducer);
+   public void addProducer(String name, String protocol, String address) {
+      ServerProducer producer = new ServerProducerImpl(name, protocol, address != null ? address : ServerProducer.ANONYMOUS);
+      producer.setSessionID(getName());
+      producer.setConnectionID(getConnectionID() != null ? getConnectionID().toString() : null);
+      serverProducers.put(name, producer);
    }
 
    @Override
    public void removeProducer(String ID) {
-      producers.remove(ID);
+      serverProducers.remove(ID);
    }
 
    @Override
-   public Map<String, ServerProducer> getServerProducers() {
-      return Collections.unmodifiableMap(new HashMap(producers));
+   public Collection<ServerProducer>   getServerProducers() {
+      return serverProducers.getServerProducers();
    }
 
    @Override
@@ -2436,4 +2416,13 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
    public String toManagementString() {
       return "ServerSession [id=" + getConnectionID() + ":" + getName() + "]";
    }
+
+   private void updateProducerMetrics(Message msg, String senderName) {
+      ServerProducer serverProducer = serverProducers.getServerProducer(senderName, msg, this);
+      if (serverProducer != null) {
+         serverProducer.updateMetrics(msg.getUserID(), msg instanceof LargeServerMessageImpl ? ((LargeServerMessageImpl)msg).getBodyBufferSize() : msg.getEncodeSize());
+      }
+   }
+
+
 }

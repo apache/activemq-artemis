@@ -18,21 +18,48 @@ package org.apache.activemq.artemis.core.server.impl;
 
 import org.apache.activemq.artemis.core.server.ServerProducer;
 
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
+
 public class ServerProducerImpl implements ServerProducer {
-   private final String ID;
+
+   private static final AtomicLong PRODUCER_ID_GENERATOR = new AtomicLong();
+
+   private final long ID;
+   private final String name;
    private final String protocol;
    private final long creationTime;
+   private volatile long messagesSent = 0;
+   private volatile long messagesSentSize = 0;
 
+   private static final AtomicLongFieldUpdater<ServerProducerImpl> messagesSentUpdater = AtomicLongFieldUpdater.newUpdater(ServerProducerImpl.class, "messagesSent");
+
+   private static final AtomicLongFieldUpdater<ServerProducerImpl> messagesSentSizeUpdater = AtomicLongFieldUpdater.newUpdater(ServerProducerImpl.class, "messagesSentSize");
 
    private final String address;
+
+   private volatile Object lastProducedMessageID;
+
    private String sessionID;
+
    private String connectionID;
 
-   public ServerProducerImpl(String ID, String protocol, String address) {
-      this.ID = ID;
+   public ServerProducerImpl(String name, String protocol, String address) {
+      this.ID = PRODUCER_ID_GENERATOR.incrementAndGet();
+      this.name = name;
       this.protocol = protocol;
       this.address = address;
       this.creationTime = System.currentTimeMillis();
+   }
+
+   @Override
+   public long getID() {
+      return ID;
+   }
+
+   @Override
+   public String getName() {
+      return name;
    }
 
    @Override
@@ -52,7 +79,6 @@ public class ServerProducerImpl implements ServerProducer {
 
    @Override
    public void setConnectionID(String connectionID) {
-
       this.connectionID = connectionID;
    }
 
@@ -67,12 +93,29 @@ public class ServerProducerImpl implements ServerProducer {
    }
 
    @Override
-   public String getID() {
-      return ID;
+   public long getCreationTime() {
+      return creationTime;
    }
 
    @Override
-   public long getCreationTime() {
-      return creationTime;
+   public void updateMetrics(Object lastProducedMessageID, int encodeSize) {
+      messagesSentUpdater.addAndGet(this, 1);
+      messagesSentSizeUpdater.getAndAdd(this, encodeSize);
+      this.lastProducedMessageID = lastProducedMessageID;
+   }
+
+   @Override
+   public Object getLastProducedMessageID() {
+      return lastProducedMessageID;
+   }
+
+   @Override
+   public long getMessagesSent() {
+      return messagesSent;
+   }
+
+   @Override
+   public long getMessagesSentSize() {
+      return messagesSentSize;
    }
 }

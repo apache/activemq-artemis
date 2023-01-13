@@ -21,15 +21,20 @@ import java.util.TreeMap;
 
 public enum ProducerField {
    ID("id"),
-   SESSION("session"),
+   NAME("name"),
+   SESSION("session", "sessionID"),
    CONNECTION_ID("connectionID"),
-   ADDRESS("address"), USER("user"),
+   ADDRESS("address", "destination"),
+   USER("user"),
    VALIDATED_USER("validatedUser"),
    PROTOCOL("protocol"),
    CLIENT_ID("clientID"),
    LOCAL_ADDRESS("localAddress"),
    REMOTE_ADDRESS("remoteAddress"),
-   CREATION_TIME("creationTime");
+   CREATION_TIME("creationTime"),
+   MESSAGE_SENT("msgSent"),
+   MESSAGE_SENT_SIZE("msgSizeSent"),
+   LAST_PRODUCED_MESSAGE_ID("lastProducedMessageID");
 
    private static final Map<String, ProducerField> lookup = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
@@ -41,12 +46,27 @@ public enum ProducerField {
 
    private final String name;
 
+   private final String alternativeName;
+
    public String getName() {
       return name;
    }
 
+   /**
+    * There is some inconsistency with some json objects returned for consumers because they were hard coded.
+    * This is just to track the differences and provide backward compatibility.
+    * @return the old alternative name
+    */
+   public String getAlternativeName() {
+      return alternativeName;
+   }
+
    ProducerField(String name) {
+      this(name, "");
+   }
+   ProducerField(String name, String alternativeName) {
       this.name = name;
+      this.alternativeName = alternativeName;
    }
 
    public static ProducerField valueOfName(String name) {

@@ -48,7 +48,7 @@ public class TransactionImpl implements Transaction {
 
    private List<TransactionOperation> storeOperations;
 
-   private static final int INITIAL_NUM_PROPERTIES = 10;
+   private static final int INITIAL_NUM_PROPERTIES = 11;
 
    private Object[] properties = null;
 

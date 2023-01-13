@@ -65,6 +65,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
+import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -136,6 +137,7 @@ import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
+import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
@@ -2625,6 +2627,15 @@ public abstract class ActiveMQTestBase extends Assert {
       // we are returning true if it ran ok.
       // had to Interrupt is exactly the opposite of what we are returning
       return !hadToInterrupt;
+   }
+
+   public String createJsonFilter(String fieldName, String operationName, String value) {
+      HashMap<String, Object> filterMap = new HashMap<>();
+      filterMap.put("field", fieldName);
+      filterMap.put("operation", operationName);
+      filterMap.put("value", value);
+      JsonObject jsonFilterObject = JsonUtil.toJsonObject(filterMap);
+      return jsonFilterObject.toString();
    }
 
    protected static ReplicationEndpoint getReplicationEndpoint(ActiveMQServer server) {

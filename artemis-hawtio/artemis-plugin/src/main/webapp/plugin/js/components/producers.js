@@ -72,6 +72,7 @@ var Artemis;
            ordering: false,
            columns: [
                 {name: "ID", visible: true},
+                {name: "Name", visible: true},
                 {name: "Session", visible: true},
                 {name: "Client ID", visible: true},
                 {name: "Protocol", visible: true},
@@ -79,7 +80,10 @@ var Artemis;
                 {name: "Validated User", visible: false},
                 {name: "Address", visible: true},
                 {name: "Remote Address", visible: true},
-                {name: "Local Address", visible: true}
+                {name: "Local Address", visible: true},
+                {name: "Messages Sent", visible: false},
+                {name: "Messages Sent Size", visible: false},
+                {name: "Last Produced Message ID", visible: false}
            ]
           };
 
@@ -103,6 +107,7 @@ var Artemis;
         ctrl.filter = {
             fieldOptions: [
                 {id: 'id', name: 'ID'},
+                {id: 'name', name: 'Name'},
                 {id: 'session', name: 'Session'},
                 {id: 'clientID', name: 'Client ID'},
                 {id: 'user', name: 'User'},
@@ -140,6 +145,7 @@ var Artemis;
         };
         ctrl.tableColumns = [
             { header: 'ID', itemField: 'id' },
+            { header: 'Name', itemField: 'name' },
             { header: 'Session', itemField: 'session' , htmlTemplate: 'producers-anchor-column-template', colActionFn: (item) => selectSession(item.idx) },
             { header: 'Client ID', itemField: 'clientID' },
             { header: 'Protocol', itemField: 'protocol' },
@@ -147,7 +153,10 @@ var Artemis;
             { header: 'Validated User', name: 'validatedUser'},
             { header: 'Address', itemField: 'addressName' , htmlTemplate: 'producers-anchor-column-template', colActionFn: (item) => selectAddress(item.idx) },
             { header: 'Remote Address', itemField: 'remoteAddress' },
-            { header: 'Local Address', itemField: 'localAddress' }
+            { header: 'Local Address', itemField: 'localAddress' },
+            { header: 'Messages Sent', itemField: 'msgSent'},
+            { header: 'Messages Sent Size', itemField: 'msgSizeSent'},
+            { header: 'Last Produced Message ID', itemField: 'lastProducedMessageID'}
         ];
 
         ctrl.refresh = function () {

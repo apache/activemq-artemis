@@ -181,6 +181,26 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public void metricsAcknowledge(MessageReference ref, Transaction transaction) {
+
+   }
+
+   @Override
+   public long getMessagesInTransitSize() {
+      return 0;
+   }
+
+   @Override
+   public long getMessagesDeliveredSize() {
+      return 0;
+   }
+
+   @Override
+   public long getMessagesDelivered() {
+      return 0;
+   }
+
+   @Override
    public void promptDelivery() {
 
    }
@@ -277,5 +297,30 @@ public class DummyServerConsumer implements ServerConsumer {
    public String getConnectionRemoteAddress() {
       // TODO Auto-generated method stub
       return null;
+   }
+
+   @Override
+   public int getMessagesInTransit() {
+      return 0;
+   }
+
+   @Override
+   public long getLastDeliveredTime() {
+      return 0;
+   }
+
+   @Override
+   public long getLastAcknowledgedTime() {
+      return 0;
+   }
+
+   @Override
+   public long getMessagesAcknowledged() {
+      return 0;
+   }
+
+   @Override
+   public int getMessagesAcknowledgedAwaitingCommit() {
+      return 0;
    }
 }
