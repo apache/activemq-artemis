@@ -1718,6 +1718,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), Validators.NO_CHECK));
 
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
+
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), Validators.GT_ZERO));
 
       configuration.setVoteOnReplicationFailure(getBoolean(policyNode, "vote-on-replication-failure", configuration.getVoteOnReplicationFailure()));
@@ -1780,6 +1782,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
 
       configuration.setCoordinationId(getString(policyNode, "coordination-id", configuration.getCoordinationId(), Validators.NOT_NULL_OR_EMPTY));
+
+      configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), Validators.MINUS_ONE_OR_GE_ZERO));
 
       return configuration;
    }

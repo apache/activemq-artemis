@@ -33,6 +33,8 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    private String coordinationId = null;
 
+   private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
+
    public static ReplicationPrimaryPolicyConfiguration withDefault() {
       return new ReplicationPrimaryPolicyConfiguration();
    }
@@ -110,5 +112,14 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
       if (this.coordinationId != null) {
          this.coordinationId = this.coordinationId.replace('-', '.');
       }
+   }
+
+   public int getMaxSavedReplicatedJournalsSize() {
+      return maxSavedReplicatedJournalsSize;
+   }
+
+   public ReplicationPrimaryPolicyConfiguration setMaxSavedReplicatedJournalsSize(int maxSavedReplicatedJournalsSize) {
+      this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
+      return this;
    }
 }

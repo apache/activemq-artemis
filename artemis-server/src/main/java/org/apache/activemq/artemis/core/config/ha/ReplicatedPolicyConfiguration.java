@@ -27,6 +27,8 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    private String clusterName = null;
 
+   private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
+
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    private boolean voteOnReplicationFailure = ActiveMQDefaultConfiguration.getDefaultVoteOnReplicationFailure();
@@ -74,6 +76,15 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
    public ReplicatedPolicyConfiguration setClusterName(String clusterName) {
       this.clusterName = clusterName;
+      return this;
+   }
+
+   public int getMaxSavedReplicatedJournalsSize() {
+      return maxSavedReplicatedJournalsSize;
+   }
+
+   public ReplicatedPolicyConfiguration setMaxSavedReplicatedJournalsSize(int maxSavedReplicatedJournalsSize) {
+      this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       return this;
    }
 

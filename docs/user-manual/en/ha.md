@@ -350,9 +350,10 @@ group-name
 
 - `max-saved-replicated-journals-size`
 
-This specifies how many times a replicated backup server can restart
-after moving its files on start. Once there are this number of backup
-journal files the server will stop permanently after if fails back.
+This option specifies how many replication backup directories will be kept 
+when server starts as replica. Every time when server starts as replica all 
+former data moves to 'oldreplica.{id}' directory, where id is growing backup index,
+this parameter sets the maximum number of such directories kept on disk.
 
 - `allow-failback`
 

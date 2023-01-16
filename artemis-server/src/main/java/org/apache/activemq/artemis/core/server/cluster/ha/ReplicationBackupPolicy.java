@@ -79,12 +79,14 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
     * It creates a companion backup policy for a natural-born primary: it would cause the broker to try failback.
     */
    static ReplicationBackupPolicy failback(long retryReplicationWait,
+                                           int maxSavedReplicatedJournalsSize,
                                            String clusterName,
                                            String groupName,
                                            ReplicationPrimaryPolicy livePolicy,
                                            DistributedPrimitiveManagerConfiguration distributedManagerConfiguration) {
       return new ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration.withDefault()
                                             .setRetryReplicationWait(retryReplicationWait)
+                                            .setMaxSavedReplicatedJournalsSize(maxSavedReplicatedJournalsSize)
                                             .setClusterName(clusterName)
                                             .setGroupName(groupName)
                                             .setDistributedManagerConfiguration(distributedManagerConfiguration),

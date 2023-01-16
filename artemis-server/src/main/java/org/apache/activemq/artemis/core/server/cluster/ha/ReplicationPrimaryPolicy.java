@@ -56,7 +56,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
       initialReplicationSyncTimeout = config.getInitialReplicationSyncTimeout();
       distributedManagerConfiguration = config.getDistributedManagerConfiguration();
       this.allowAutoFailBack = false;
-      backupPolicy = ReplicationBackupPolicy.failback(config.getRetryReplicationWait(), config.getClusterName(),
+      backupPolicy = ReplicationBackupPolicy.failback(config.getRetryReplicationWait(), config.getMaxSavedReplicatedJournalsSize(), config.getClusterName(),
                                                       config.getGroupName(), this,
                                                       config.getDistributedManagerConfiguration());
    }

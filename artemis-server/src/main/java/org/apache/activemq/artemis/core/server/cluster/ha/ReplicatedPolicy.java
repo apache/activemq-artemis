@@ -33,6 +33,8 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    private String clusterName;
 
+   private int maxSavedReplicatedJournalsSize = ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize();
+
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    /*
@@ -75,6 +77,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    public ReplicatedPolicy(boolean checkForLiveServer,
                            String groupName,
                            String clusterName,
+                           int maxSavedReplicatedJournalsSize,
                            long initialReplicationSyncTimeout,
                            NetworkHealthCheck networkHealthCheck,
                            boolean voteOnReplicationFailure,
@@ -86,6 +89,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.checkForLiveServer = checkForLiveServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
+      this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
       this.initialReplicationSyncTimeout = initialReplicationSyncTimeout;
       this.networkHealthCheck = networkHealthCheck;
       this.voteOnReplicationFailure = voteOnReplicationFailure;
@@ -165,6 +169,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
          replicaPolicy.setVoteRetries(voteRetries);
          replicaPolicy.setVoteRetryWait(voteRetryWait);
          replicaPolicy.setretryReplicationWait(retryReplicationWait);
+         replicaPolicy.setMaxSavedReplicatedJournalsSize(maxSavedReplicatedJournalsSize);
          if (clusterName != null && clusterName.length() > 0) {
             replicaPolicy.setClusterName(clusterName);
          }
@@ -250,5 +255,9 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
 
    public long getRetryReplicationWait() {
       return retryReplicationWait;
+   }
+
+   public int getMaxSavedReplicatedJournalsSize() {
+      return maxSavedReplicatedJournalsSize;
    }
 }

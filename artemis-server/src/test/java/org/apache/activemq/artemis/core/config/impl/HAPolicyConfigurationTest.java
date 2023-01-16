@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
@@ -317,7 +316,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(policy.getGroupName(), failbackPolicy.getGroupName());
          assertEquals(policy.getBackupGroupName(), failbackPolicy.getBackupGroupName());
          assertEquals(policy.getClusterName(), failbackPolicy.getClusterName());
-         assertEquals(failbackPolicy.getMaxSavedReplicatedJournalsSize(), ActiveMQDefaultConfiguration.getDefaultMaxSavedReplicatedJournalsSize());
+         assertEquals(73, failbackPolicy.getMaxSavedReplicatedJournalsSize());
          assertTrue(failbackPolicy.isTryFailback());
          assertTrue(failbackPolicy.isBackup());
          assertFalse(failbackPolicy.isSharedStore());
@@ -413,6 +412,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          assertEquals(replicatedPolicy.getClusterName(), "abcdefg");
          assertEquals(replicatedPolicy.getInitialReplicationSyncTimeout(), 9876);
          assertEquals(replicatedPolicy.getRetryReplicationWait(), 12345);
+         assertEquals(replicatedPolicy.getMaxSavedReplicatedJournalsSize(), 73);
       } finally {
          server.stop();
       }
