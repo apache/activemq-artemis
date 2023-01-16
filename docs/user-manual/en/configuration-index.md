@@ -191,7 +191,7 @@ log-delegate-factory-class-name | **deprecated** the name of the factory class t
 [management-address](management.md#configuring-management)| the name of the management address to send management messages to. | `activemq.management`
 [management-notification-address](management.md#configuring-the-management-notification-address) | the name of the address that consumers bind to receive management notifications. | `activemq.notifications`
 [mask-password](masking-passwords.md) | This option controls whether passwords in server configuration need be masked. If set to "true" the passwords are masked. | `false`
-[max-saved-replicated-journals-size](ha.md#data-replication) | This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back. -1 Means no Limit; 0 don't keep a copy at all. | 2
+[max-saved-replicated-journals-size](ha.md#data-replication) | This specifies how many replication backup directories will be kept when server starts as replica. -1 Means no Limit; 0 don't keep a copy at all. | 2
 [max-disk-usage](paging.md#max-disk-usage) | The max percentage of data we should use from disks. The broker will block while the disk is full. Disable by setting -1. | 90
 [memory-measure-interval](perf-tuning.md) | frequency to sample JVM memory in ms (or -1 to disable memory sampling). | -1
 [memory-warning-threshold](perf-tuning.md)| Percentage of available memory which will trigger a warning log. | 25
