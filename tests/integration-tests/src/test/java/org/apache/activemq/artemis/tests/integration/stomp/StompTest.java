@@ -708,6 +708,23 @@ public class StompTest extends StompTestBase {
    }
 
    @Test
+   public void testNullPropertyValue() throws Exception {
+      conn.connect(defUser, defPass);
+
+      subscribe(conn, null, Stomp.Headers.Subscribe.AckModeValues.AUTO);
+
+      sendJmsMessage(getName(), "foo", null);
+
+      ClientStompFrame frame = conn.receiveFrame(2000);
+      Assert.assertEquals(Stomp.Responses.MESSAGE, frame.getCommand());
+      Assert.assertEquals(getQueuePrefix() + getQueueName(), frame.getHeader(Stomp.Headers.Send.DESTINATION));
+      Assert.assertEquals(getName(), frame.getBody());
+      Assert.assertEquals("", frame.getHeader("foo"));
+
+      conn.disconnect();
+   }
+
+   @Test
    public void testTransactedSessionLeak() throws Exception {
       for (int i = 0; i < 10; i++) {
          conn = StompClientConnectionFactory.createClientConnection(uri);

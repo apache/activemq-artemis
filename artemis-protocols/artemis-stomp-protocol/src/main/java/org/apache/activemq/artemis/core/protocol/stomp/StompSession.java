@@ -198,8 +198,7 @@ public class StompSession implements SessionCallback {
 
          return length;
       } catch (Exception e) {
-         logger.debug("exception in sendMessage", e);
-
+         ActiveMQStompProtocolLogger.LOGGER.unableToSendMessageToClient(coreMessage, e);
          return 0;
       }
    }

@@ -103,7 +103,7 @@ public class StompUtils {
 
    public static void copyStandardHeadersFromMessageToFrame(Message message,
                                                             StompFrame command,
-                                                            int deliveryCount) throws Exception {
+                                                            int deliveryCount) {
       command.addHeader(Stomp.Headers.Message.MESSAGE_ID, String.valueOf(message.getMessageID()));
       SimpleString prefix = message.getSimpleStringProperty(Message.HDR_PREFIX);
       command.addHeader(Stomp.Headers.Message.DESTINATION,  (prefix == null ? "" : prefix) + message.getAddress());
@@ -150,9 +150,12 @@ public class StompUtils {
             continue;
          }
 
-         command.addHeader(name.toString(), message.getObjectProperty(name).toString());
+         Object value = message.getObjectProperty(name);
+         if (value != null) {
+            command.addHeader(name.toString(), value.toString());
+         } else {
+            command.addHeader(name.toString(), "");
+         }
       }
    }
-
-
 }
