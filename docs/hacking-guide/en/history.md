@@ -26,6 +26,6 @@ Rebasing original donation
 
 It may be useful to look at the donation history combined with the artemis history. It is the case when eventually looking at old changes.
 
-For that there is a script that will rebase master against the donation branch under master/scripts:
+For that there is a script that will rebase main against the donation branch under main/scripts:
 
 - rebase-donation.sh

@@ -2,7 +2,7 @@
 
 There a few files useful for IDE integration under ./etc/ide-settings on a checked out folder. This folder is not part of the source distribution, but it can be easily obtained:
 
-- https://github.com/apache/activemq-artemis/tree/master/etc/ide-settings
+- https://github.com/apache/activemq-artemis/tree/main/etc/ide-settings
 
 ## IntelliJ IDEA
 
