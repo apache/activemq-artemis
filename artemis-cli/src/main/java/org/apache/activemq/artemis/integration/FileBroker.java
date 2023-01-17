@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.dto.ServerDTO;
 import org.apache.activemq.artemis.integration.bootstrap.ActiveMQBootstrapLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.utils.VersionLoader;
 
 public class FileBroker implements Broker {
 
@@ -59,7 +60,8 @@ public class FileBroker implements Broker {
       }
 
       ArrayList<ActiveMQComponent> componentsByStartOrder = getComponentsByStartOrder(components);
-      ActiveMQBootstrapLogger.LOGGER.serverStarting();
+      String fullVersion = VersionLoader.getVersion().getFullVersion();
+      ActiveMQBootstrapLogger.LOGGER.serverStarting(fullVersion);
       for (ActiveMQComponent component : componentsByStartOrder) {
          component.start();
       }

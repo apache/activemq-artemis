@@ -28,8 +28,8 @@ public interface ActiveMQBootstrapLogger {
 
    ActiveMQBootstrapLogger LOGGER = BundleFactory.newBundle(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
 
-   @LogMessage(id = 101000, value = "Starting ActiveMQ Artemis Server", level = LogMessage.Level.INFO)
-   void serverStarting();
+   @LogMessage(id = 101000, value = "Starting ActiveMQ Artemis Server version {}", level = LogMessage.Level.INFO)
+   void serverStarting(String version);
 
    @LogMessage(id = 101001, value = "Stopping ActiveMQ Artemis Server", level = LogMessage.Level.INFO)
    void serverStopping();
