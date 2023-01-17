@@ -77,22 +77,22 @@ Here are the basic commands to retrieve pull requests, merge, and push them to t
 
         $ git checkout pr/105 -B 105
 
-1. Rebase the branch against master, so the merge would happen at the top of the current master
+1. Rebase the branch against main, so the merge would happen at the top of the current main
 
-        $ git pull --rebase apache master
+        $ git pull --rebase apache main
 
-1. Once you've reviewed the change and are ready to merge checkout `master`.
+1. Once you've reviewed the change and are ready to merge checkout `main`.
 
-        $ git checkout master
+        $ git checkout main
 
-1. Ensure you are up to date on your master also.
+1. Ensure you are up to date on your main also.
 
-        $ git pull --rebase apache master
+        $ git pull --rebase apache main
 
-1. We actually recommend checking out master again, to make sure you wouldn't add any extra commits by accident:
+1. We actually recommend checking out main again, to make sure you wouldn't add any extra commits by accident:
 
         $ git fetch apache
-        $ git checkout apache/master -B master
+        $ git checkout apache/main -B main
 
 1. Create a new merge commit from the pull-request. IMPORTANT: The commit message here should be something like: "This
    closes #105" where "105" is the pull request ID.  The "#105" shows up as a link in the GitHub UI for navigating to
@@ -103,7 +103,7 @@ Here are the basic commands to retrieve pull requests, merge, and push them to t
 
 1. Push to the canonical Apache repo.
 
-        $ git push apache master
+        $ git push apache main
 
 ## Using the automated script
 
@@ -129,19 +129,19 @@ The previous example was taken from a real case that generated this [merge commi
 
 - After this you can push to the canonical Apache repo.
 ```
-$ git push apache master
+$ git push apache main
 ```
 
 
 ## Use a separate branch for your changes
 
-It is recommended that you work away from master for two reasons:
+It is recommended that you work away from main for two reasons:
 
 1. When you send a PR, your PR branch could be rebased during the process and your commit ID changed. You might
    get unexpected conflicts while rebasing your old branch.
 
 1. You could end up pushing things upstream that you didn't intend to. Minimize your risks by working on a branch
-   away from master.
+   away from main.
 
 
 ## Notes:
@@ -149,18 +149,18 @@ It is recommended that you work away from master for two reasons:
 The GitHub mirror repository (i.e. `upstream`) is cloning the canonical Apache repository.  Because of this there may be
 a slight delay between when a commit is pushed to the Apache repo and when that commit is reflected in the GitHub mirror.
 This may cause some difficulty when trying to push a PR to `apache` that has been merged on the out-of-date GitHub mirror.
-You can wait for the mirror to update before performing the steps above or you can change your local master branch to
-track the master branch on the canonical Apache repository rather than the master branch on the GitHub mirror:
+You can wait for the mirror to update before performing the steps above or you can change your local main branch to
+track the main branch on the canonical Apache repository rather than the main branch on the GitHub mirror:
 
-    $ git branch master -u apache/master
+    $ git branch main -u apache/main
 
 Where `apache` points to the canonical Apache repository.
 
-If you'd like your local master branch to always track `upstream/master` (i.e. the GitHub mirror) then another way to
-achieve this is to add another branch that tracks `apache/master` and push from that branch e.g.
+If you'd like your local main branch to always track `upstream/main` (i.e. the GitHub mirror) then another way to
+achieve this is to add another branch that tracks `apache/main` and push from that branch e.g.
 
-    $ git checkout master
-    $ git branch apache_master --track apache/master
+    $ git checkout main
+    $ git branch apache_main --track apache/main
     $ git pull
     $ git merge --no-ff pr/105
     $ git push

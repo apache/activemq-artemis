@@ -99,18 +99,18 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
 
          git push origin my_cool_feature  
     
-   Note that git push references the branch you are pushing and defaults to `master`, not your working branch.
+   Note that git push references the branch you are pushing and defaults to `main`, not your working branch.
    
 1. Discuss your planned changes (if you want feedback)
 
    On mailing list - http://activemq.apache.org/mailing-lists.html
    On IRC - irc://irc.freenode.org/apache-activemq or https://webchat.freenode.net/?channels=apache-activemq
 
-1. Once you're finished coding your feature/fix then rebase your branch against the latest master (applies your patches 
-   on top of master)
+1. Once you're finished coding your feature/fix then rebase your branch against the latest main (applies your patches 
+   on top of main)
    
          git fetch upstream  
-         git rebase -i upstream/master  
+         git rebase -i upstream/main  
          # if you have conflicts fix them and rerun rebase  
          # The -f, forces the push, alters history, see note below  
          git push -f origin my_cool_feature
@@ -128,13 +128,13 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
     1. An email will automatically be sent to the ActiveMQ developer list.
     1. As part of the review you may see an automated test run comment on your request.
     1. After review a maintainer will merge your PR into the canonical git repository at which point those changes will 
-       be synced with the GitHub mirror repository (i.e. your `master`) and your PR will be closed by the `asfgit` bot.
+       be synced with the GitHub mirror repository (i.e. your `main`) and your PR will be closed by the `asfgit` bot.
 
 ## Other common tasks       
     
 1. Pulling updates from upstream
 
-        $ git pull --rebase upstream master
+        $ git pull --rebase upstream main
         
    (`--rebase` will automatically move your local commits, if any, on top of the latest branch you pull from; you can leave
    it off if you do not have any local commits).
@@ -154,7 +154,7 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
         Writing objects: 100% (100/100), 10.67 KiB, done.  
         Total 100 (delta 47), reused 100 (delta 47)  
         To git@github.com:<your-user-name>/apache-artemis.git  
-           3382570..1fa25df  master -> master
+           3382570..1fa25df  main -> main
 
    You might need to say -f to force the changes.
 
