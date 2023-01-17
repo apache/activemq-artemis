@@ -62,7 +62,17 @@ public class StompFrameFactoryV10 implements StompFrameFactory {
 
    @Override
    public String[] handleHeaders(String header) {
-      return header.split(":");
+      String[] result = header.split(":");
+
+      // handle headers with empty value
+      if (result.length == 1) {
+         String[] tmp = new String[2];
+         tmp[0] = result[0];
+         tmp[1] = "";
+         result = tmp;
+      }
+
+      return result;
    }
 
    @Override

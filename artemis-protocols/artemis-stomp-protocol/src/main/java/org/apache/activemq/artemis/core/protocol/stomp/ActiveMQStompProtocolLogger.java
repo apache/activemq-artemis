@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.protocol.stomp;
 
+import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.BundleFactory;
@@ -36,4 +37,7 @@ public interface ActiveMQStompProtocolLogger {
 
    @LogMessage(id = 332070, value = "Unable to send frame {}", level = LogMessage.Level.ERROR)
    void errorSendingFrame(StompFrame frame, Exception e);
+
+   @LogMessage(id = 332071, value = "Unable to send message to client: {}", level = LogMessage.Level.WARN)
+   void unableToSendMessageToClient(ICoreMessage message, Exception e);
 }
