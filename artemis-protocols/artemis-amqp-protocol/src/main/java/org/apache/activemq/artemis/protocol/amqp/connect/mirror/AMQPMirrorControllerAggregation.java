@@ -28,6 +28,7 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /** this will be used when there are multiple replicas in use. */
 public class AMQPMirrorControllerAggregation implements MirrorController, ActiveMQComponent {
@@ -73,6 +74,13 @@ public class AMQPMirrorControllerAggregation implements MirrorController, Active
    }
 
    @Override
+   public void preAcknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception {
+      for (MirrorController partition : partitions) {
+         partition.preAcknowledge(tx, ref, reason);
+      }
+   }
+
+   @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
       for (MirrorController partition : partitions) {
          partition.addAddress(addressInfo);
@@ -102,9 +110,9 @@ public class AMQPMirrorControllerAggregation implements MirrorController, Active
    }
 
    @Override
-   public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+   public void sendMessage(Transaction tx, Message message, RoutingContext context) {
       for (MirrorController partition : partitions) {
-         partition.sendMessage(message, context, refs);
+         partition.sendMessage(tx, message, context);
       }
    }
 

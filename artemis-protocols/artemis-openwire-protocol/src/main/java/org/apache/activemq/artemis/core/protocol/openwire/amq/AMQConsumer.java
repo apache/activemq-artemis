@@ -295,7 +295,7 @@ public class AMQConsumer {
          //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
          dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this, session.getCoreServer().getNodeManager().getUUID());
          int size = dispatch.getMessage().getSize();
-         reference.setProtocolData(dispatch.getMessage().getMessageId());
+         reference.setProtocolData(MessageId.class, dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
          currentWindow.decrementAndGet();
          return size;
@@ -337,7 +337,7 @@ public class AMQConsumer {
 
       // if it's browse only, nothing to be acked
       final boolean removeReferences = !serverConsumer.isBrowseOnly() && !serverConsumer.getQueue().isNonDestructive();
-      final List<MessageReference> ackList = serverConsumer.scanDeliveringReferences(removeReferences, reference -> startID.equals(reference.getProtocolData()), reference -> lastID.equals(reference.getProtocolData()));
+      final List<MessageReference> ackList = serverConsumer.scanDeliveringReferences(removeReferences, reference -> startID.equals(reference.getProtocolData(MessageId.class)), reference -> lastID.equals(reference.getProtocolData(MessageId.class)));
 
       if (!ackList.isEmpty() || !removeReferences || serverConsumer.getQueue().isTemporary()) {
 

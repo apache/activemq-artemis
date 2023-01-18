@@ -1877,8 +1877,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       }
 
       if (logger.isTraceEnabled()) {
-         logger.trace("{} acknowledge tx={} ref={}, reason={}, consumer={}", this, transactional, ref, reason, consumer);
+         logger.trace("queue.acknowledge serverIdentity={}, queue={} acknowledge tx={} ref={}, reason={}, consumer={}", server.getIdentity(), this.getName(), transactional, ref, reason, consumer);
       }
+
+      postOffice.preAcknowledge(tx, ref, reason);
 
       if (nonDestructive && reason == AckReason.NORMAL) {
          if (transactional) {

@@ -89,13 +89,13 @@ public class GroupFirstMessageReference implements MessageReference {
    }
 
    @Override
-   public Object getProtocolData() {
-      return messageReference.getProtocolData();
+   public <T> T getProtocolData(Class<T> typeClass) {
+      return messageReference.getProtocolData(typeClass);
    }
 
    @Override
-   public void setProtocolData(Object data) {
-      messageReference.setProtocolData(data);
+   public <T> void setProtocolData(Class<T> typeClass, T data) {
+      messageReference.setProtocolData(typeClass, data);
    }
 
    @Override

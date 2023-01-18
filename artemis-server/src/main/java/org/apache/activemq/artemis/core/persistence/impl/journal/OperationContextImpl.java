@@ -177,8 +177,12 @@ public class OperationContextImpl implements OperationContext {
                }
             } else {
                if (storeOnly) {
-                  assert !storeOnlyTasks.isEmpty() ? storeOnlyTasks.peekLast().storeLined <= storeLined : true;
-                  storeOnlyTasks.add(new StoreOnlyTaskHolder(completion, storeLined));
+                  if (storeLined == stored && EXECUTORS_PENDING_UPDATER.get(this) == 0) {
+                     executeNow = true;
+                  } else {
+                     assert !storeOnlyTasks.isEmpty() ? storeOnlyTasks.peekLast().storeLined <= storeLined : true;
+                     storeOnlyTasks.add(new StoreOnlyTaskHolder(completion, storeLined));
+                  }
                } else {
                   // ensure total ordering
                   assert validateTasksAdd(storeLined, replicationLined, pageLined);

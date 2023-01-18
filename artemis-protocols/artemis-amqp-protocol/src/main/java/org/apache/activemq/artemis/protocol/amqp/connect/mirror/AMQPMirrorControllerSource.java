@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,9 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
+import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -34,6 +38,9 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.server.mirror.MirrorController;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
+import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessageBrokerAccessor;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
@@ -86,6 +93,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    final boolean deleteQueues;
    final MirrorAddressFilter addressFilter;
    private final AMQPBrokerConnection brokerConnection;
+   private final boolean sync;
 
    final AMQPMirrorBrokerConnectionElement replicaConfig;
 
@@ -116,6 +124,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       this.addressFilter = new MirrorAddressFilter(replicaConfig.getAddressFilter());
       this.acks = replicaConfig.isMessageAcknowledgements();
       this.brokerConnection = brokerConnection;
+      this.sync = replicaConfig.isSync();
    }
 
    public Queue getSnfQueue() {
@@ -216,59 +225,119 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    }
 
    @Override
-   public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+   public void sendMessage(Transaction tx, Message message, RoutingContext context) {
       SimpleString address = context.getAddress(message);
 
       if (invalidTarget(context.getMirrorSource())) {
-         logger.trace("server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
+         logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
          return;
       }
 
       if (context.isInternal()) {
-         logger.trace("server {} is discarding send to avoid sending to internal queue", server);
+         logger.trace("sendMessage::server {} is discarding send to avoid sending to internal queue", server);
          return;
       }
 
       if (ignoreAddress(address)) {
-         logger.trace("server {} is discarding send to address {}, address doesn't match filter", server, address);
+         logger.trace("sendMessage::server {} is discarding send to address {}, address doesn't match filter", server, address);
          return;
       }
 
-      logger.trace("{} send message {}", server, message);
+      logger.trace("sendMessage::{} send message {}", server, message);
 
       try {
          context.setReusable(false);
 
-         MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
-         String nodeID = setProtocolData(idSupplier, ref);
+         String nodeID = idSupplier.getServerID(message);
+
          if (nodeID != null && nodeID.equals(getRemoteMirrorId())) {
-            logger.trace("Message {} already belonged to the node, {}, it won't circle send", message, getRemoteMirrorId());
+            logger.trace("sendMessage::Message {} already belonged to the node, {}, it won't circle send", message, getRemoteMirrorId());
             return;
          }
+
+         MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
+         setProtocolData(ref, nodeID, idSupplier.getID(ref));
+
          snfQueue.refUp(ref);
-         refs.add(ref);
+
+         if (tx != null) {
+            logger.debug("sendMessage::Mirroring Message {} with TX", message);
+            getSendOperation(tx).addRef(ref);
+         } // if non transactional the afterStoreOperations will use the ref directly and call processReferences
+
+         if (sync) {
+            OperationContext operContext = OperationContextImpl.getContext(server.getExecutorFactory());
+            if (tx == null) {
+               // notice that if transactional, the context is lined up on beforeCommit as part of the transaction operation
+               operContext.replicationLineUp();
+            }
+            if (logger.isDebugEnabled()) {
+               logger.debug("sendMessage::mirror syncUp context={}, ref={}", operContext, ref);
+            }
+            ref.setProtocolData(OperationContext.class, operContext);
+         }
 
          if (message.isDurable() && snfQueue.isDurable()) {
             PostOfficeImpl.storeDurableReference(server.getStorageManager(), message, context.getTransaction(), snfQueue, true);
          }
 
+         if (tx == null) {
+            server.getStorageManager().afterStoreOperations(new IOCallback() {
+               @Override
+               public void done() {
+                  PostOfficeImpl.processReference(ref, false);
+               }
+
+               @Override
+               public void onError(int errorCode, String errorMessage) {
+               }
+            });
+         }
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
       }
    }
 
+   private void syncDone(MessageReference reference) {
+      OperationContext ctx = reference.getProtocolData(OperationContext.class);
+      if (ctx != null) {
+         ctx.replicationDone();
+         logger.debug("syncDone::replicationDone::ctx={},ref={}", ctx, reference);
+      }  else {
+         Message message = reference.getMessage();
+         if (message != null) {
+            ctx = (OperationContext) message.getUserContext(OperationContext.class);
+            if (ctx != null) {
+               ctx.replicationDone();
+               logger.debug("syncDone::replicationDone message={}", message);
+            } else {
+               logger.trace("syncDone::No operationContext set on message {}", message);
+            }
+         } else {
+            logger.debug("syncDone::no message set on reference {}", reference);
+         }
+      }
+   }
+
    public static void validateProtocolData(ReferenceNodeStore referenceIDSupplier, MessageReference ref, SimpleString snfAddress) {
-      if (ref.getProtocolData() == null && !ref.getMessage().getAddressSimpleString().equals(snfAddress)) {
+      if (ref.getProtocolData(DeliveryAnnotations.class) == null && !ref.getMessage().getAddressSimpleString().equals(snfAddress)) {
          setProtocolData(referenceIDSupplier, ref);
       }
    }
 
    /** This method will return the brokerID used by the message */
    private static String setProtocolData(ReferenceNodeStore referenceIDSupplier, MessageReference ref) {
+      String brokerID = referenceIDSupplier.getServerID(ref);
+      long id = referenceIDSupplier.getID(ref);
+
+      setProtocolData(ref, brokerID, id);
+
+      return brokerID;
+   }
+
+   private static void setProtocolData(MessageReference ref, String brokerID, long id) {
       Map<Symbol, Object> daMap = new HashMap<>();
       DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(daMap);
-
-      String brokerID = referenceIDSupplier.getServerID(ref);
 
       // getListID will return null when the message was generated on this broker.
       // on this case we do not send the brokerID, and the ControllerTarget will get the information from the link.
@@ -277,8 +346,6 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          // not sending the brokerID, will make the other side to get the brokerID from the remote link's property
          daMap.put(BROKER_ID, brokerID);
       }
-
-      long id = referenceIDSupplier.getID(ref);
 
       daMap.put(INTERNAL_ID, id);
       String address = ref.getMessage().getAddress();
@@ -290,9 +357,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
             daMap.put(INTERNAL_DESTINATION, ref.getMessage().getAddress());
          }
       }
-      ref.setProtocolData(deliveryAnnotations);
-
-      return brokerID;
+      ref.setProtocolData(DeliveryAnnotations.class, deliveryAnnotations);
    }
 
    private static Properties getProperties(Message message) {
@@ -303,12 +368,30 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
    }
 
+   private void postACKInternalMessage(MessageReference reference) {
+      logger.debug("postACKInternalMessage::server={}, ref={}", server, reference);
+      if (sync) {
+         syncDone(reference);
+      }
+   }
+
    @Override
    public void postAcknowledge(MessageReference ref, AckReason reason) throws Exception {
+      if (!acks || ref.getQueue().isMirrorController()) {
+         postACKInternalMessage(ref);
+         return;
+      }
+   }
+
+   @Override
+   public void preAcknowledge(final Transaction tx, final MessageReference ref, final AckReason reason) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace("postACKInternalMessage::tx={}, ref={}, reason={}", tx, ref, reason);
+      }
 
       MirrorController controllerInUse = getControllerInUse();
 
-      if (!acks || ref.getQueue().isMirrorController()) { // we don't call postACK on snfqueues, otherwise we would get infinite loop because of this feedback/
+      if (!acks || ref.getQueue().isMirrorController()) { // we don't call preAcknowledge on snfqueues, otherwise we would get infinite loop because of this feedback/
          return;
       }
 
@@ -318,28 +401,192 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
       if ((ref.getQueue() != null && (ref.getQueue().isInternalQueue() || ref.getQueue().isMirrorController()))) {
          if (logger.isDebugEnabled()) {
-            logger.debug("{} rejecting postAcknowledge queue={}, ref={} to avoid infinite loop with the mirror (reflection)", server, ref.getQueue().getName(), ref);
+            logger.debug("preAcknowledge::{} rejecting preAcknowledge queue={}, ref={} to avoid infinite loop with the mirror (reflection)", server, ref.getQueue().getName(), ref);
          }
          return;
       }
 
       if (ignoreAddress(ref.getQueue().getAddress())) {
          if (logger.isTraceEnabled()) {
-            logger.trace("{} rejecting postAcknowledge queue={}, ref={}, queue address is excluded", server, ref.getQueue().getName(), ref);
+            logger.trace("preAcknowledge::{} rejecting preAcknowledge queue={}, ref={}, queue address is excluded", server, ref.getQueue().getName(), ref);
          }
          return;
       }
 
-      logger.trace("{} postAcknowledge {}", server, ref);
+      logger.trace("preAcknowledge::{} preAcknowledge {}", server, ref);
 
       String nodeID = idSupplier.getServerID(ref); // notice the brokerID will be null for any message generated on this broker.
       long internalID = idSupplier.getID(ref);
-      if (logger.isTraceEnabled()) {
-         logger.trace("{} sending ack message from server {} with messageID={}", server, nodeID, internalID);
+      Message messageCommand = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID, reason);
+      if (sync) {
+         OperationContext operationContext;
+         operationContext = OperationContextImpl.getContext(server.getExecutorFactory());
+         messageCommand.setUserContext(OperationContext.class, operationContext);
+         if (tx == null) {
+            // notice that if transactional, the context is lined up on beforeCommit as part of the transaction operation
+            operationContext.replicationLineUp();
+         }
       }
-      Message message = createMessage(ref.getQueue().getAddress(), ref.getQueue().getName(), POST_ACK, nodeID, internalID, reason);
-      route(server, message);
-      ref.getMessage().usageDown();
+
+      if (tx != null) {
+         MirrorACKOperation operation = getAckOperation(tx);
+         // notice the operationContext.replicationLineUp is done on beforeCommit as part of the TX
+         operation.addMessage(messageCommand, ref);
+      } else {
+         server.getStorageManager().afterStoreOperations(new IOCallback() {
+            @Override
+            public void done() {
+               try {
+                  logger.debug("preAcknowledge::afterStoreOperation for messageReference {}", ref);
+                  route(server, messageCommand);
+               } catch (Exception e) {
+                  logger.warn(e.getMessage(), e);
+               }
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMessage) {
+            }
+         });
+      }
+   }
+
+   private MirrorACKOperation getAckOperation(Transaction tx) {
+      MirrorACKOperation ackOperation = (MirrorACKOperation) tx.getProperty(TransactionPropertyIndexes.MIRROR_ACK_OPERATION);
+      if (ackOperation == null) {
+         logger.trace("getAckOperation::setting operation on transaction {}", tx);
+         ackOperation = new MirrorACKOperation(server);
+         tx.putProperty(TransactionPropertyIndexes.MIRROR_ACK_OPERATION, ackOperation);
+         tx.afterStore(ackOperation);
+      }
+
+      return ackOperation;
+   }
+
+   private MirrorSendOperation getSendOperation(Transaction tx) {
+      if (tx == null) {
+         return null;
+      }
+      MirrorSendOperation sendOperation = (MirrorSendOperation) tx.getProperty(TransactionPropertyIndexes.MIRROR_SEND_OPERATION);
+      if (sendOperation == null) {
+         logger.trace("getSendOperation::setting operation on transaction {}", tx);
+         sendOperation = new MirrorSendOperation();
+         tx.putProperty(TransactionPropertyIndexes.MIRROR_SEND_OPERATION, sendOperation);
+         tx.afterStore(sendOperation);
+      }
+
+      return sendOperation;
+   }
+
+   private static class MirrorACKOperation extends TransactionOperationAbstract {
+
+      final ActiveMQServer server;
+
+      // This map contains the Message used to generate the command towards the target, the reference being acked
+      final HashMap<Message, MessageReference> acks = new HashMap<>();
+
+      MirrorACKOperation(ActiveMQServer server) {
+         this.server = server;
+      }
+
+      /**
+       *
+       * @param message the message with the instruction to ack on the target node. Notice this is not the message owned by the reference.
+       * @param ref the reference being acked
+       */
+      public void addMessage(Message message, MessageReference ref) {
+         acks.put(message, ref);
+      }
+
+      @Override
+      public void beforeCommit(Transaction tx) {
+         logger.debug("MirrorACKOperation::beforeCommit processing {}", acks);
+         acks.forEach(this::doBeforeCommit);
+      }
+
+      // callback to be used on forEach
+      private void doBeforeCommit(Message ack, MessageReference ref) {
+         OperationContext context = (OperationContext) ack.getUserContext(OperationContext.class);
+         if (context != null) {
+            context.replicationLineUp();
+         }
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         logger.debug("MirrorACKOperation::afterCommit processing {}", acks);
+         acks.forEach(this::doAfterCommit);
+      }
+
+      // callback to be used on forEach
+      private void doAfterCommit(Message ack, MessageReference ref) {
+         try {
+            route(server, ack);
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+         ref.getMessage().usageDown();
+      }
+
+      @Override
+      public void afterRollback(Transaction tx) {
+         acks.forEach(this::doAfterRollback);
+      }
+
+      // callback to be used on forEach
+      private void doAfterRollback(Message ack, MessageReference ref) {
+         OperationContext context = (OperationContext) ack.getUserContext(OperationContext.class);
+         if (context != null) {
+            context.replicationDone();
+         }
+      }
+
+   }
+
+   private static final class MirrorSendOperation extends TransactionOperationAbstract {
+      final List<MessageReference> refs = new ArrayList<>();
+
+      public void addRef(MessageReference ref) {
+         refs.add(ref);
+      }
+
+      @Override
+      public void beforeCommit(Transaction tx) {
+         refs.forEach(this::doBeforeCommit);
+      }
+
+      // callback to be used on forEach
+      private void doBeforeCommit(MessageReference ref) {
+         OperationContext context = ref.getProtocolData(OperationContext.class);
+         if (context != null) {
+            context.replicationLineUp();
+         }
+      }
+
+      @Override
+      public void afterRollback(Transaction tx) {
+         logger.debug("MirrorSendOperation::afterRollback, refs:{}", refs);
+         refs.forEach(this::doBeforeRollback);
+      }
+
+      // forEach callback
+      private void doBeforeRollback(MessageReference ref) {
+         OperationContext localCTX = ref.getProtocolData(OperationContext.class);
+         if (localCTX != null) {
+            localCTX.replicationDone();
+         }
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         logger.debug("MirrorSendOperation::afterCommit refs:{}", refs);
+         refs.forEach(this::doAfterCommit);
+      }
+
+      // forEach callback
+      private void doAfterCommit(MessageReference ref) {
+         PostOfficeImpl.processReference(ref, false);
+      }
    }
 
    private Message createMessage(SimpleString address, SimpleString queue, Object event, String brokerID, Object body) {

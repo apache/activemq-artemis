@@ -28,6 +28,8 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
 
    boolean messageAcknowledgements = true;
 
+   boolean sync = false;
+
    SimpleString mirrorSNF;
 
    String addressFilter;
@@ -98,4 +100,12 @@ public class AMQPMirrorBrokerConnectionElement extends AMQPBrokerConnectionEleme
       return this;
    }
 
+   public boolean isSync() {
+      return sync;
+   }
+
+   public AMQPMirrorBrokerConnectionElement setSync(boolean sync) {
+      this.sync = sync;
+      return this;
+   }
 }

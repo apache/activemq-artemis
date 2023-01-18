@@ -681,9 +681,11 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.getConfiguration().setName("thisone");
 
       AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(brokerConnectionName, "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
-      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(acks);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(acks).setDurable(true);
+      replica.setName("theReplica");
       amqpConnection.addElement(replica);
       server_2.getConfiguration().addAMQPConnection(amqpConnection);
+      server_2.getConfiguration().setName("server_2");
 
       int NUMBER_OF_MESSAGES = 200;
 
@@ -698,7 +700,6 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Connection connection = factory.createConnection();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer producer = session.createProducer(session.createQueue(getQueueName()));
-      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
       if (!deferredStart) {
          Queue queueOnServer1 = locateQueue(server, getQueueName());

@@ -27,12 +27,11 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
 /**
  * Implementation of a MessageReference
  */
-public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceImpl> implements MessageReference, Runnable {
+public class MessageReferenceImpl extends AbstractProtocolReference implements MessageReference, Runnable {
 
    private static final MessageReferenceComparatorByID idComparator = new MessageReferenceComparatorByID();
 
@@ -77,8 +76,6 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
    private boolean alreadyAcked;
 
    private boolean deliveredDirectly;
-
-   private Object protocolData;
 
    private Consumer<? super MessageReference> onDelivery;
 
@@ -138,15 +135,7 @@ public class MessageReferenceImpl extends LinkedListImpl.Node<MessageReferenceIm
       }
    }
 
-   @Override
-   public Object getProtocolData() {
-      return protocolData;
-   }
 
-   @Override
-   public void setProtocolData(Object protocolData) {
-      this.protocolData = protocolData;
-   }
 
    /**
     * @return the persistedCount
