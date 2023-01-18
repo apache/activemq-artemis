@@ -224,4 +224,8 @@ public interface PostOffice extends ActiveMQComponent {
    default AddressManager getAddressManager() {
       return null;
    }
+
+   default void preAcknowledge(final Transaction tx, final MessageReference ref, AckReason reason) {
+   }
+
 }

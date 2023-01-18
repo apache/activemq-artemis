@@ -77,7 +77,7 @@ public class AmqpReferenceDeliveryAnnotationTest extends AmqpClientTestSupport {
             Map<Symbol, Object> symbolObjectMap = new HashMap<>();
             DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(symbolObjectMap);
             symbolObjectMap.put(Symbol.getSymbol("KEY"), uuid);
-            reference.setProtocolData(deliveryAnnotations);
+            reference.setProtocolData(DeliveryAnnotations.class, deliveryAnnotations);
          }
       });
 

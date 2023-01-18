@@ -81,8 +81,7 @@ The previous example portrays a case of connection failure towards ServerA. The 
 <div style="page-break-after: always"></div>
 
 ## Mirroring
-The idea of mirroring is to send events that happen on a broker towards another broker, without blocking any operations from producers and consumers, allowing them to keep operating as fast as possible.
-It can be used for Disaster Recovery, and depending on the requirements even for failing over the data.
+Mirroring will reproduce any operation that happened on the source brokers towards a target broker.
 
 The following events are sent through mirroring:
 
@@ -93,6 +92,8 @@ The following events are sent through mirroring:
   * Note that if the message is pending for a consumer on the target mirror, the ack will not succeed and the message might be delivered by both brokers.
 * Queue and address creation.
 * Queue and address deletion.
+
+By default every operation is sent asynchronously without blocking any clients. However if you set sync="true" on the mirror configuration, the clients will always wait a mirror on every blocking operation.
 
 ### Mirror configuration
 
@@ -119,9 +120,10 @@ The following optional arguments can be utilized:
     matches all addresses starting with 'eu' but not those starting with 'eu.uk'
 
   **Note:**
-
   - Address exclusion will always take precedence over address inclusion.
   - Address matching on mirror elements is prefix-based and does not support wild-card matching.
+* `sync`: By default is false. If set it to true any client blocking operation will be held until the mirror as confirmed receiving the operation.
+  * Notice that a disconnected node would hold all operations from the client. If you set sync=true you must reconnect a mirror before performing any operations.
 
 An example of a mirror configuration is shown below:
 ```xml

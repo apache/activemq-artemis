@@ -709,6 +709,11 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
    @Test
    public void testAMQPConnectionsConfiguration() throws Throwable {
+      testAMQPConnectionsConfiguration(true);
+      testAMQPConnectionsConfiguration(false);
+   }
+
+   private void testAMQPConnectionsConfiguration(boolean sync) throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
       Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
@@ -723,6 +728,9 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueCreation", "true");
       insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueRemoval", "true");
       insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.addressFilter", "foo");
+      if (sync) {
+         insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.sync", "true");
+      } // else we just use the default that is false
 
       configuration.parsePrefixedProperties(insertionOrderedProperties, null);
 
@@ -742,6 +750,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isMessageAcknowledgements());
       Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueCreation());
       Assert.assertEquals(true, amqpMirrorBrokerConnectionElement.isQueueRemoval());
+      Assert.assertEquals(sync, ((AMQPMirrorBrokerConnectionElement) amqpBrokerConnectionElement).isSync());
       Assert.assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
    }
 

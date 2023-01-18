@@ -683,14 +683,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          frameBuffer.clear();
 
-         DeliveryAnnotations deliveryAnnotationsToEncode;
          message.checkReference(reference);
 
-         if (reference.getProtocolData() != null && reference.getProtocolData() instanceof DeliveryAnnotations) {
-            deliveryAnnotationsToEncode = (DeliveryAnnotations)reference.getProtocolData();
-         } else {
-            deliveryAnnotationsToEncode = null;
-         }
+         DeliveryAnnotations deliveryAnnotationsToEncode = reference.getProtocolData(DeliveryAnnotations.class);
 
          try {
             replaceInitialHeader(deliveryAnnotationsToEncode, context, new NettyWritable(frameBuffer));

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
-import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.ToIntFunction;
 
@@ -280,6 +279,11 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    @Override
+   public void preAcknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception {
+      // NO-OP
+   }
+
+   @Override
    public void addAddress(AddressInfo addressInfo) throws Exception {
       logger.debug("{} adding address {}", server, addressInfo);
 
@@ -359,10 +363,11 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, final short retry) {
-      if (logger.isTraceEnabled()) {
-         logger.trace("performAck (nodeID={}, messageID={}), targetQueue={}", nodeID, messageID, targetQueue.getName());
-      }
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
+
+      if (logger.isTraceEnabled()) {
+         logger.trace("performAck (nodeID={}, messageID={}), targetQueue={}). Ref={}", nodeID, messageID, targetQueue.getName(), reference);
+      }
 
       if (reference == null) {
          if (logger.isDebugEnabled()) {
@@ -490,7 +495,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    @Override
-   public void sendMessage(Message message, RoutingContext context, List<MessageReference> refs) {
+   public void sendMessage(Transaction tx, Message message, RoutingContext context) {
       // Do nothing
    }
 

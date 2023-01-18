@@ -16,8 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server.mirror;
 
-import java.util.List;
-
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -25,7 +23,7 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-
+import org.apache.activemq.artemis.core.transaction.Transaction;
 
 /**
  * This represents the contract we will use to send messages to replicas.
@@ -35,9 +33,10 @@ public interface MirrorController {
    void deleteAddress(AddressInfo addressInfo) throws Exception;
    void createQueue(QueueConfiguration queueConfiguration) throws Exception;
    void deleteQueue(SimpleString addressName, SimpleString queueName) throws Exception;
-   void sendMessage(Message message, RoutingContext context, List<MessageReference> refs);
+   void sendMessage(Transaction tx, Message message, RoutingContext context);
 
    void postAcknowledge(MessageReference ref, AckReason reason) throws Exception;
+   void preAcknowledge(Transaction tx, MessageReference ref, AckReason reason) throws Exception;
 
    String getRemoteMirrorId();
 }

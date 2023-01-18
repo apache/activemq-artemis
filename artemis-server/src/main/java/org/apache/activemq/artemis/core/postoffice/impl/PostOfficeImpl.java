@@ -247,6 +247,18 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    }
 
    @Override
+   public void preAcknowledge(final Transaction tx, final MessageReference ref, AckReason reason) {
+      if (mirrorControllerSource != null && reason != AckReason.REPLACED) { // we don't send replacements on LVQ as they are replaced themselves on the target
+         try {
+            mirrorControllerSource.preAcknowledge(tx, ref, reason);
+         } catch (Exception e) {
+            logger.warn(e.getMessage(), e);
+         }
+      }
+   }
+
+
+   @Override
    public void postAcknowledge(MessageReference ref, AckReason reason) {
       if (mirrorControllerSource != null && reason != AckReason.REPLACED) { // we don't send replacements on LVQ as they are replaced themselves on the target
          try {
@@ -1624,7 +1636,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
       if (mirrorControllerSource != null && !context.isMirrorDisabled()) {
          // we check for isMirrorDisabled as to avoid recursive loop from there
-         mirrorControllerSource.sendMessage(message, context, refs);
+         mirrorControllerSource.sendMessage(tx, message, context);
       }
 
 
@@ -1647,10 +1659,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       }
    }
 
-   private static void processReferences(List<MessageReference> refs, boolean direct) {
-      for (MessageReference ref : refs) {
-         ref.getQueue().addTail(ref, direct);
-      }
+   public static void processReferences(List<MessageReference> refs, boolean direct) {
+      refs.forEach((ref) -> processReference(ref, direct));
+   }
+
+   public static void processReference(MessageReference ref, boolean direct) {
+      ref.getQueue().addTail(ref, direct);
    }
 
    private void processRouteToDurableQueues(final Message message,

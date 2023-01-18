@@ -74,13 +74,13 @@ public interface MessageReference {
     * To be used on holding protocol specific data during the delivery.
     * This will be only valid while the message is on the delivering queue at the consumer
     */
-   Object getProtocolData();
+   <T> T getProtocolData(Class<T> typeClass);
 
    /**
     * To be used on holding protocol specific data during the delivery.
     * This will be only valid while the message is on the delivering queue at the consumer
     */
-   void setProtocolData(Object data);
+   <T> void setProtocolData(Class<T> typeClass, T data);
 
    MessageReference copy(Queue queue);
 

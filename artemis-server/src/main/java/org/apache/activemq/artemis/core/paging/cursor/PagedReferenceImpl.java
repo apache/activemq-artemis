@@ -26,14 +26,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
+import org.apache.activemq.artemis.core.server.impl.AbstractProtocolReference;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> implements PagedReference, Runnable {
+public class PagedReferenceImpl extends AbstractProtocolReference implements PagedReference, Runnable {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -75,8 +75,6 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
 
    private boolean alreadyAcked;
 
-   private Object protocolData;
-
    //0 is false, 1 is true, 2 not defined
    private static final byte IS_NOT_LARGE_MESSAGE = 0;
    private static final byte IS_LARGE_MESSAGE = 1;
@@ -96,16 +94,6 @@ public class PagedReferenceImpl extends LinkedListImpl.Node<PagedReferenceImpl> 
    private static final byte IS_DURABLE = 1;
    private static final byte UNDEFINED_IS_DURABLE = -1;
    private byte durable = UNDEFINED_IS_DURABLE;
-
-   @Override
-   public Object getProtocolData() {
-      return protocolData;
-   }
-
-   @Override
-   public void setProtocolData(Object protocolData) {
-      this.protocolData = protocolData;
-   }
 
    @Override
    public Message getMessage() {

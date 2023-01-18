@@ -2447,6 +2447,14 @@
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
+      <xsd:attribute name="sync" type="xsd:boolean" use="optional" default="false">
+         <xsd:annotation>
+            <xsd:documentation>
+               If this is true, client blocking operations will be waiting a response from the mirror before the unblocking the operation.
+               This is false by default.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
       <xsd:attribute name="address-filter" type="xsd:string" use="optional">
          <xsd:annotation>
             <xsd:documentation>

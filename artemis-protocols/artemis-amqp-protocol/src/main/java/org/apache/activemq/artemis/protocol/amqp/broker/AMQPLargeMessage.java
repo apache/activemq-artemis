@@ -44,6 +44,7 @@ import org.apache.activemq.artemis.protocol.amqp.util.NettyWritable;
 import org.apache.activemq.artemis.protocol.amqp.util.TLSEncode;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
+import org.apache.qpid.proton.amqp.messaging.DeliveryAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
@@ -148,8 +149,8 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
     * It was written to check the deliveryAnnotationsForSendBuffer and eventually move it to the protocolData.
     */
    public void checkReference(MessageReference reference) {
-      if (reference.getProtocolData() == null && deliveryAnnotationsForSendBuffer != null) {
-         reference.setProtocolData(deliveryAnnotationsForSendBuffer);
+      if (reference.getProtocolData(DeliveryAnnotations.class) == null && deliveryAnnotationsForSendBuffer != null) {
+         reference.setProtocolData(DeliveryAnnotations.class, deliveryAnnotationsForSendBuffer);
       }
    }
 

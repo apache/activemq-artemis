@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 import java.util.HashMap;
 
 import io.netty.util.collection.LongObjectHashMap;
+import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
@@ -112,7 +113,12 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    }
 
    public String getServerID(MessageReference element) {
-      Object nodeID = element.getMessage().getBrokerProperty(INTERNAL_BROKER_ID_EXTRA_PROPERTY);
+      return getServerID(element.getMessage());
+   }
+
+
+   public String getServerID(Message message) {
+      Object nodeID = message.getBrokerProperty(INTERNAL_BROKER_ID_EXTRA_PROPERTY);
       if (nodeID != null) {
          return nodeID.toString();
       } else {
@@ -124,12 +130,17 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    }
 
    public long getID(MessageReference element) {
-      Long id = (Long) element.getMessage().getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
+      Message message = element.getMessage();
+      Long id = getID(message);
       if (id == null) {
          return element.getMessageID();
       } else {
          return id;
       }
+   }
+
+   private Long getID(Message message) {
+      return (Long)message.getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
    }
 
    @Override

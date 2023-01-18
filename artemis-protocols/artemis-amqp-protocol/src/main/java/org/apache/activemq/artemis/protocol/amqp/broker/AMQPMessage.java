@@ -754,12 +754,10 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
    public ReadableBuffer getSendBuffer(int deliveryCount, MessageReference reference) {
       ensureDataIsValid();
 
-      DeliveryAnnotations daToWrite;
+      DeliveryAnnotations daToWrite = reference != null ? reference.getProtocolData(DeliveryAnnotations.class) : null;
 
-      if (reference != null && reference.getProtocolData() instanceof DeliveryAnnotations) {
-         daToWrite = (DeliveryAnnotations) reference.getProtocolData();
-      } else {
-         // deliveryAnnotationsForSendBuffer was an old API form where a deliver could set it before deliver
+      if (reference == null) {
+         // deliveryAnnotationsForSendBuffer is part of an older API, deprecated but still present
          daToWrite = deliveryAnnotationsForSendBuffer;
       }
 

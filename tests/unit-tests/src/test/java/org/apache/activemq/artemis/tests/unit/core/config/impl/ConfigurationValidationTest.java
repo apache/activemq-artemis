@@ -94,6 +94,7 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
       Assert.assertFalse(mirrorConnectionElement.isQueueCreation());
       Assert.assertFalse(mirrorConnectionElement.isQueueRemoval());
       Assert.assertFalse(mirrorConnectionElement.isDurable());
+      Assert.assertTrue(mirrorConnectionElement.isSync());
 
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(1);
@@ -104,6 +105,7 @@ public class ConfigurationValidationTest extends ActiveMQTestBase {
       Assert.assertFalse(mirrorConnectionElement.isDurable());
       Assert.assertTrue(mirrorConnectionElement.isQueueCreation());
       Assert.assertTrue(mirrorConnectionElement.isQueueRemoval());
+      Assert.assertFalse(mirrorConnectionElement.isSync()); // checking the default
 
       amqpBrokerConnectConfiguration = fc.getAMQPConnection().get(2);
       Assert.assertFalse(amqpBrokerConnectConfiguration.isAutostart());

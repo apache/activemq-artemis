@@ -37,4 +37,8 @@ public class TransactionPropertyIndexes {
    public static final int EXPIRY_LOGGER = 9;
 
    public static final int CONSUMER_METRICS_OPERATION = 10;
+
+   public static final int MIRROR_ACK_OPERATION = 11;
+
+   public static final int MIRROR_SEND_OPERATION = 12;
 }
