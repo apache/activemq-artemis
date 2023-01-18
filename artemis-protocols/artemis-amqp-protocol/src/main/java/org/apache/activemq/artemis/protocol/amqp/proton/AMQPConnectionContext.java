@@ -594,7 +594,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          try {
             validatedUser = protocolManager.getServer().validateUser(user, password, connectionCallback.getProtonConnectionDelegate(), protocolManager.getSecurityDomain());
          } catch (ActiveMQSecurityException e) {
-            logger.warn(e.getMessage(), e);
             ErrorCondition error = new ErrorCondition();
             error.setCondition(AmqpError.UNAUTHORIZED_ACCESS);
             error.setDescription(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage());
