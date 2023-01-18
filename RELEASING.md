@@ -378,7 +378,12 @@ Any links to them on the site must be updated to reference the ASF archive inste
 https://archive.apache.org/dist/activemq/activemq-artemis/ (this should already have been done implicitly in the previous step).
 
 Ensure old releases are only removed after the site is updated in order to avoid broken links.
-
+  
+## Update Apache Release Data
+  
+Use https://reporter.apache.org/addrelease.html?activemq to update the release information.
+  
+This information will be used in the quarterly reports submitted to the Apache Board.
 
 ## Apache Guide
 
