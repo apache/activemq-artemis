@@ -328,6 +328,7 @@ var Artemis;
                 itemField: 'validatedUser',
                 header: 'Validated User',
                 templateFn: function(value) {
+                    if (!value) return undefined;
                     return value._AMQ_VALIDATED_USER;
                 }
             }
@@ -339,6 +340,7 @@ var Artemis;
                 itemField: 'StringProperties',
                 header: 'Original Queue',
                 templateFn: function(value) {
+                    if (!value) return undefined;
                     return (value['_AMQ_ORIG_QUEUE'] ? value['_AMQ_ORIG_QUEUE'] : value['extraProperties._AMQ_ORIG_QUEUE']);
                 }
             };
