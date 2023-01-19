@@ -68,6 +68,7 @@ import org.osgi.util.tracker.ServiceTracker;
 
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.when;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.features;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
@@ -119,6 +120,8 @@ public class ArtemisFeatureTest extends Assert {
          editConfigurationFilePut("etc/users.properties", USER, PASSWORD + ",manager"),
          // [KARAF-6600] Use https URL for Maven Central
          editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.repositories", "https://repo1.maven.org/maven2@id=central, https://repository.apache.org/content/groups/snapshots-group@id=apache@snapshots@noreleases, https://oss.sonatype.org/content/repositories/ops4j-snapshots@id=ops4j.sonatype.snapshots.deploy@snapshots@noreleases"),
+         when(System.getProperty("maven.repo.local") != null).useOptions(
+            editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg", "org.ops4j.pax.url.mvn.localRepository", System.getProperty("maven.repo.local"))),
          // uncomment this to debug it.
          // debugConfiguration("5005", true),
          features(getArtemisMQKarafFeatureUrl(), f.toArray(new String[f.size()]))};
