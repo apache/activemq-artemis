@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTReasonCodes;
 import org.apache.activemq.artemis.tests.integration.mqtt5.MQTT5TestSupport;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
@@ -91,5 +92,21 @@ public class SubscribeTestsWithSecurity extends MQTT5TestSupport {
       }
 
       client.disconnect();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSubscriptionQueueRemoved() throws Exception {
+      final String CLIENT_ID = "consumer";
+      MqttConnectionOptions options = new MqttConnectionOptionsBuilder()
+         .username(noDeleteUser)
+         .password(noDeletePass.getBytes(StandardCharsets.UTF_8))
+         .build();
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect(options);
+
+      client.subscribe(getTopicName(), 0).waitForCompletion();
+      client.disconnect();
+
+      Wait.assertTrue(() -> getSubscriptionQueue(getTopicName()) == null, 2000, 100);
    }
 }
