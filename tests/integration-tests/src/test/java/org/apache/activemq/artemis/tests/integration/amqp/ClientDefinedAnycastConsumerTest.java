@@ -16,15 +16,23 @@
  */
 package org.apache.activemq.artemis.tests.integration.amqp;
 
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.QUEUE_CAPABILITY;
+import static org.apache.qpid.jms.provider.amqp.message.AmqpDestinationHelper.TOPIC_CAPABILITY;
+
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
+import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.transport.amqp.client.AmqpClient;
 import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpReceiver;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.apache.qpid.proton.amqp.messaging.Source;
 import org.junit.Test;
 
 public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
@@ -33,17 +41,47 @@ public class ClientDefinedAnycastConsumerTest  extends AmqpClientTestSupport  {
 
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
-
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());
       AmqpSession session = connection.createSession();
 
-      AmqpReceiver receiver = session.createReceiver(address.toString());
+      Source source = new Source();
+      source.setAddress(address.toString());
+      source.setCapabilities(QUEUE_CAPABILITY);
+
+      AmqpReceiver receiver = session.createReceiver(source);
       sendMessages(address.toString(), 1);
       receiver.flow(1);
       AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
       assertNotNull(amqpMessage);
       assertEquals(1, ((QueueImpl)server.getPostOffice().getBinding(address).getBindable()).getConsumerCount());
+
+      receiver.close();
+      connection.close();
+   }
+
+   @Test(timeout = 60000)
+   public void testConsumeFromSingleQueueOnAddressSameNameNegativeValidation() throws Exception {
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      AmqpSession session = connection.createSession();
+
+      Source source = new Source();
+      source.setAddress(address.toString());
+      source.setCapabilities(TOPIC_CAPABILITY);
+
+      AmqpReceiver receiver = session.createReceiver(source);
+      sendMessages(address.toString(), 1);
+      receiver.flow(1);
+      AmqpMessage amqpMessage = receiver.receive(5, TimeUnit.SECONDS);
+      assertNotNull(amqpMessage);
+      Bindings bindings = server.getPostOffice().getBindingsForAddress(address);
+      assertEquals(1, bindings.getBindings().size());
+      bindings.getBindings().forEach((binding) -> {
+         final Queue localQueue = ((LocalQueueBinding) binding).getQueue();
+         assertEquals(1, localQueue.getConsumerCount());
+         assertEquals(RoutingType.MULTICAST, localQueue.getRoutingType());
+      });
 
       receiver.close();
       connection.close();

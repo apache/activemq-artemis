@@ -197,6 +197,7 @@ public class BrokerDefinedAnycastConsumerTest extends AmqpClientTestSupport  {
       server.getAddressSettingsRepository().clear();
       AddressSettings settings = new AddressSettings();
       settings.setAutoCreateAddresses(true);
+      settings.setDefaultAddressRoutingType(RoutingType.ANYCAST);
       server.getAddressSettingsRepository().addMatch(address.toString(), settings);
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.connect());

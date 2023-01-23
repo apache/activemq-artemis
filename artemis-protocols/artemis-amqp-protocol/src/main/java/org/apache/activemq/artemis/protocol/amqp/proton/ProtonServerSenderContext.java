@@ -25,6 +25,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
@@ -960,7 +962,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       SimpleString tempQueueName;
       String selector;
 
-      private final RoutingType defaultRoutingType = RoutingType.ANYCAST;
       private RoutingType routingTypeToUse = RoutingType.ANYCAST;
 
       private boolean isVolatile = false;
@@ -1110,8 +1111,15 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             } else {
                // if not we look up the address
                AddressQueryResult addressQueryResult = null;
+
+               // Set this to the broker configured default for the address prior to the lookup so that
+               // an auto create will actually use the configured defaults.  The actual query result will
+               // contain the true answer on what routing type the address actually has though.
+               final RoutingType routingType = sessionSPI.getDefaultRoutingType(addressToUse);
+               routingTypeToUse = routingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : routingType;
+
                try {
-                  addressQueryResult = sessionSPI.addressQuery(addressToUse, defaultRoutingType, true);
+                  addressQueryResult = sessionSPI.addressQuery(addressToUse, routingTypeToUse, true);
                } catch (ActiveMQSecurityException e) {
                   throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingConsumer(e.getMessage());
                } catch (ActiveMQAMQPException e) {
