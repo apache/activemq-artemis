@@ -26,6 +26,7 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
 
@@ -190,6 +191,18 @@ public final class Validators {
             !val.equals(AddressFullMessagePolicy.DROP.toString()) &&
             !val.equals(AddressFullMessagePolicy.BLOCK.toString()) &&
             !val.equals(AddressFullMessagePolicy.FAIL.toString())) {
+            throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
+         }
+      }
+   };
+
+   public static final Validator PAGE_FULL_MESSAGE_POLICY_TYPE = new Validator() {
+      @Override
+      public void validate(final String name, final Object value) {
+         String val = (String) value;
+         if (val == null ||
+            !val.equals(PageFullMessagePolicy.DROP.toString()) &&
+            !val.equals(PageFullMessagePolicy.FAIL.toString())) {
             throw ActiveMQMessageBundle.BUNDLE.invalidAddressFullPolicyType(val);
          }
       }

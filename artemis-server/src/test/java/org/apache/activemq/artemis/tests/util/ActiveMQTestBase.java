@@ -134,6 +134,7 @@ import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
@@ -1505,12 +1506,28 @@ public abstract class ActiveMQTestBase extends Assert {
       return createServer(realFiles, configuration, pageSize, maxAddressSize, null, null, settings);
    }
 
+
+
+   protected final ActiveMQServer createServer(final boolean realFiles,
+                                               final Configuration configuration,
+                                               final int pageSize,
+                                               final long maxAddressSize,
+                                               final Integer maxReadPageMessages,
+                                               final Integer maxReadPageBytes,
+                                               final Map<String, AddressSettings> settings) {
+      return  createServer(realFiles, configuration, pageSize, maxAddressSize, maxReadPageMessages, maxReadPageBytes, null, null, null, settings);
+
+   }
+
    protected final ActiveMQServer createServer(final boolean realFiles,
                                          final Configuration configuration,
                                          final int pageSize,
                                          final long maxAddressSize,
                                          final Integer maxReadPageMessages,
                                          final Integer maxReadPageBytes,
+                                         final Long pageLimitBytes,
+                                         final Long pageLimitMessages,
+                                         final String pageLimitPolicy,
                                          final Map<String, AddressSettings> settings) {
       ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(configuration, realFiles));
 
@@ -1522,6 +1539,15 @@ public abstract class ActiveMQTestBase extends Assert {
             if (maxReadPageMessages != null) {
                setting.getValue().setMaxReadPageMessages(maxReadPageMessages.intValue());
             }
+            if (pageLimitBytes != null) {
+               setting.getValue().setPageLimitBytes(pageLimitBytes);
+            }
+            if (pageLimitMessages != null) {
+               setting.getValue().setPageLimitMessages(pageLimitMessages);
+            }
+            if (pageLimitPolicy != null) {
+               setting.getValue().setPageFullMessagePolicy(PageFullMessagePolicy.valueOf(pageLimitPolicy));
+            }
             server.getAddressSettingsRepository().addMatch(setting.getKey(), setting.getValue());
          }
       }
@@ -1532,6 +1558,15 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       if (maxReadPageMessages != null) {
          defaultSetting.setMaxReadPageMessages(maxReadPageMessages.intValue());
+      }
+      if (pageLimitBytes != null) {
+         defaultSetting.setPageLimitBytes(pageLimitBytes);
+      }
+      if (pageLimitMessages != null) {
+         defaultSetting.setPageLimitMessages(pageLimitMessages);
+      }
+      if (pageLimitPolicy != null) {
+         defaultSetting.setPageFullMessagePolicy(PageFullMessagePolicy.valueOf(pageLimitPolicy));
       }
 
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);

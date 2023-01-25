@@ -147,6 +147,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer maxReadPageMessages = null;
 
+   private Long pageLimitBytes = null;
+
+   private Long pageLimitMessages = null;
+
+   private PageFullMessagePolicy pageFullMessagePolicy = null;
+
    private Long maxSizeMessages = null;
 
    private Integer pageSizeBytes = null;
@@ -289,6 +295,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.maxSizeMessages = other.maxSizeMessages;
       this.maxReadPageMessages = other.maxReadPageMessages;
       this.maxReadPageBytes = other.maxReadPageBytes;
+      this.pageLimitBytes = other.pageLimitBytes;
+      this.pageLimitMessages = other.pageLimitMessages;
+      this.pageFullMessagePolicy = other.pageFullMessagePolicy;
       this.pageSizeBytes = other.pageSizeBytes;
       this.pageMaxCache = other.pageMaxCache;
       this.dropMessagesWhenFull = other.dropMessagesWhenFull;
@@ -641,6 +650,33 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setMaxReadPageMessages(final int maxReadPageMessages) {
       this.maxReadPageMessages = maxReadPageMessages;
+      return this;
+   }
+
+   public Long getPageLimitBytes() {
+      return pageLimitBytes;
+   }
+
+   public AddressSettings setPageLimitBytes(Long pageLimitBytes) {
+      this.pageLimitBytes = pageLimitBytes;
+      return this;
+   }
+
+   public Long getPageLimitMessages() {
+      return pageLimitMessages;
+   }
+
+   public AddressSettings setPageLimitMessages(Long pageLimitMessages) {
+      this.pageLimitMessages = pageLimitMessages;
+      return this;
+   }
+
+   public PageFullMessagePolicy getPageFullMessagePolicy() {
+      return this.pageFullMessagePolicy;
+   }
+
+   public AddressSettings setPageFullMessagePolicy(PageFullMessagePolicy policy) {
+      this.pageFullMessagePolicy = policy;
       return this;
    }
 
@@ -1223,6 +1259,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (enableIngressTimestamp == null) {
          enableIngressTimestamp = merged.enableIngressTimestamp;
       }
+      if (pageFullMessagePolicy == null) {
+         pageFullMessagePolicy = merged.pageFullMessagePolicy;
+      }
+      if (pageLimitBytes == null) {
+         pageLimitBytes = merged.pageLimitBytes;
+      }
+      if (pageLimitMessages == null) {
+         pageLimitMessages = merged.pageLimitMessages;
+      }
    }
 
    @Override
@@ -1472,6 +1517,24 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          maxReadPageMessages = BufferHelper.readNullableInteger(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         pageLimitBytes = BufferHelper.readNullableLong(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         pageLimitMessages = BufferHelper.readNullableLong(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         policyStr = buffer.readNullableSimpleString();
+
+         if (policyStr != null) {
+            pageFullMessagePolicy = PageFullMessagePolicy.valueOf(policyStr.toString());
+         } else {
+            pageFullMessagePolicy = null;
+         }
+      }
    }
 
    @Override
@@ -1542,7 +1605,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableBoolean(enableIngressTimestamp) +
          BufferHelper.sizeOfNullableLong(maxSizeMessages) +
          BufferHelper.sizeOfNullableInteger(maxReadPageMessages) +
-         BufferHelper.sizeOfNullableInteger(maxReadPageBytes);
+         BufferHelper.sizeOfNullableInteger(maxReadPageBytes) +
+         BufferHelper.sizeOfNullableLong(pageLimitBytes) +
+         BufferHelper.sizeOfNullableLong(pageLimitMessages) +
+         BufferHelper.sizeOfNullableSimpleString(pageFullMessagePolicy != null ? pageFullMessagePolicy.toString() : null);
    }
 
    @Override
@@ -1682,6 +1748,13 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableInteger(buffer, maxReadPageBytes);
 
       BufferHelper.writeNullableInteger(buffer, maxReadPageMessages);
+
+      BufferHelper.writeNullableLong(buffer, pageLimitBytes);
+
+      BufferHelper.writeNullableLong(buffer, pageLimitMessages);
+
+      buffer.writeNullableSimpleString(pageFullMessagePolicy != null ? new SimpleString(pageFullMessagePolicy.toString()) : null);
+
    }
 
    /* (non-Javadoc)
@@ -1758,6 +1831,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((slowConsumerThresholdMeasurementUnit == null) ? 0 : slowConsumerThresholdMeasurementUnit.hashCode());
       result = prime * result + ((enableIngressTimestamp == null) ? 0 : enableIngressTimestamp.hashCode());
       result = prime * result + ((maxSizeMessages == null) ? 0 : maxSizeMessages.hashCode());
+      result = prime * result + ((pageLimitBytes == null) ? 0 : pageLimitBytes.hashCode());
+      result = prime * result + ((pageLimitMessages == null) ? 0 : pageLimitMessages.hashCode());
+      result = prime * result + ((pageFullMessagePolicy == null) ? 0 : pageFullMessagePolicy.hashCode());
+
       return result;
    }
 
@@ -2130,6 +2207,31 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       } else if (!maxSizeMessages.equals(other.maxSizeMessages))
          return false;
 
+      if (pageLimitBytes == null) {
+         if (other.pageLimitBytes != null) {
+            return false;
+         }
+      } else if (!pageLimitBytes.equals(other.pageLimitBytes)) {
+         return false;
+      }
+
+      if (pageLimitMessages == null) {
+         if (other.pageLimitMessages != null) {
+            return false;
+         }
+      } else if (!pageLimitMessages.equals(other.pageLimitMessages)) {
+         return false;
+      }
+
+      if (pageFullMessagePolicy == null) {
+         if (other.pageFullMessagePolicy != null) {
+            return false;
+         }
+      } else if (!pageFullMessagePolicy.equals(other.pageFullMessagePolicy)) {
+         return false;
+      }
+
+
       return true;
    }
 
@@ -2267,6 +2369,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          enableMetrics +
          ", enableIngressTime=" +
          enableIngressTimestamp +
+         ", pageLimitBytes=" +
+         pageLimitBytes +
+         ", pageLimitMessages=" +
+         pageLimitMessages +
+         ", pageFullMessagePolicy=" +
+         pageFullMessagePolicy +
          "]";
    }
 }

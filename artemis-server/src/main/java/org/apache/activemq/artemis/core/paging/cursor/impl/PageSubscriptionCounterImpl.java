@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
+import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -55,6 +56,8 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
    private static final AtomicLongFieldUpdater<PageSubscriptionCounterImpl> recordedSizeUpdater = AtomicLongFieldUpdater.newUpdater(PageSubscriptionCounterImpl.class, "recordedSize");
 
    private PageSubscription subscription;
+
+   private PagingStore pagingStore;
 
    private final StorageManager storage;
 
@@ -187,16 +190,30 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       if (logger.isTraceEnabled()) {
          logger.trace("process subscription={} add={}, size={}", subscriptionID, add, size);
       }
-      valueUpdater.addAndGet(this, add);
+      long value = valueUpdater.addAndGet(this, add);
       persistentSizeUpdater.addAndGet(this, size);
       if (add > 0) {
          addedUpdater.addAndGet(this, add);
          addedPersistentSizeUpdater.addAndGet(this, size);
+
+         /// we could have pagingStore null on tests, so we need to validate if pagingStore != null before anything...
+         if (pagingStore != null && pagingStore.getPageFullMessagePolicy() != null && !pagingStore.isPageFull()) {
+            checkAdd(value);
+         }
       }
 
       if (isRebuilding()) {
          recordedValueUpdater.addAndGet(this, value);
          recordedSizeUpdater.addAndGet(this, size);
+      }
+   }
+
+   private void checkAdd(long numberOfMessages) {
+      Long pageLimitMessages = pagingStore.getPageLimitMessages();
+      if (pageLimitMessages != null) {
+         if (numberOfMessages >= pageLimitMessages.longValue()) {
+            pagingStore.pageFull(this.subscription);
+         }
       }
    }
 
@@ -420,6 +437,7 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
    @Override
    public PageSubscriptionCounter setSubscription(PageSubscription subscription) {
       this.subscription = subscription;
+      this.pagingStore = subscription.getPagingStore();
       return this;
    }
 }

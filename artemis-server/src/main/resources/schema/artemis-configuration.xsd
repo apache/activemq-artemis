@@ -3757,8 +3757,25 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="page-limit-bytes" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  After the address enters into page mode, this attribute will configure how many pages can be written into page before activating the page-full-policy.
+                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="page-limit-messages" type="xsd:long" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  After the address enters into page mode, this attribute will configure how many messages can be written into page before activating the page-full-policy.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="max-size-bytes-reject-threshold" type="xsd:long" default="-1" maxOccurs="1"
-                        minOccurs="0">
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   used with the address full BLOCK policy, the maximum size (in bytes) an address can reach before
@@ -3815,6 +3832,20 @@
                   <xsd:enumeration value="FAIL"/>
                   <xsd:enumeration value="PAGE"/>
                   <xsd:enumeration value="BLOCK"/>
+               </xsd:restriction>
+            </xsd:simpleType>
+         </xsd:element>
+
+         <xsd:element name="page-full-policy" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  After entering page mode, a second limit will be set by page-limit-bytes and/or page-limit-messages. The page-full-policy will configure what to do when that limit is reached.
+               </xsd:documentation>
+            </xsd:annotation>
+            <xsd:simpleType>
+               <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="DROP"/>
+                  <xsd:enumeration value="FAIL"/>
                </xsd:restriction>
             </xsd:simpleType>
          </xsd:element>
@@ -4315,7 +4346,7 @@
          <xsd:attributeGroup ref="xml:specialAttrs"/>
       </xsd:complexType>
    </xsd:element>
-   
+
    <xsd:complexType name="connector-serviceType">
       <xsd:sequence>
          <xsd:element maxOccurs="1" minOccurs="1" name="factory-class" type="xsd:string">

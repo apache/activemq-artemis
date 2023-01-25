@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -52,6 +53,7 @@ import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
@@ -98,6 +100,16 @@ public class PagingStoreImpl implements PagingStore {
    private int maxPageReadMessages = -1;
 
    private long maxMessages;
+
+   private volatile boolean pageFull;
+
+   private Long pageLimitBytes;
+
+   private Long estimatedMaxPages;
+
+   private Long pageLimitMessages;
+
+   private PageFullMessagePolicy pageFullMessagePolicy;
 
    private int pageSize;
 
@@ -225,11 +237,118 @@ public class PagingStoreImpl implements PagingStore {
       addressFullMessagePolicy = addressSettings.getAddressFullMessagePolicy();
 
       rejectThreshold = addressSettings.getMaxSizeBytesRejectThreshold();
+
+      pageFullMessagePolicy = addressSettings.getPageFullMessagePolicy();
+
+      pageLimitBytes = addressSettings.getPageLimitBytes();
+
+      if (pageLimitBytes != null && pageLimitBytes.longValue() < 0) {
+         logger.debug("address {} had pageLimitBytes<0, setting it as null", address);
+         pageLimitBytes = null;
+      }
+
+      pageLimitMessages = addressSettings.getPageLimitMessages();
+
+      if (pageLimitMessages != null && pageLimitMessages.longValue() < 0) {
+         logger.debug("address {} had pageLimitMessages<0, setting it as null", address);
+         pageLimitMessages = null;
+      }
+
+
+      if (pageLimitBytes == null && pageLimitMessages == null && pageFullMessagePolicy != null) {
+         ActiveMQServerLogger.LOGGER.noPageLimitsSet(address, pageFullMessagePolicy);
+         this.pageFullMessagePolicy = null;
+      }
+
+      if (pageLimitBytes != null && pageLimitMessages != null && pageFullMessagePolicy == null) {
+         ActiveMQServerLogger.LOGGER.noPagefullPolicySet(address, pageLimitBytes, pageLimitMessages);
+         this.pageFullMessagePolicy = null;
+         this.pageLimitMessages = null;
+         this.pageLimitBytes = null;
+      }
+
+      if (pageLimitBytes != null && pageSize > 0) {
+         estimatedMaxPages = pageLimitBytes / pageSize;
+         logger.debug("Address {} should not allow more than {} pages", storeName, estimatedMaxPages);
+      }
    }
 
    @Override
    public String toString() {
       return "PagingStoreImpl(" + this.address + ")";
+   }
+
+   @Override
+   public PageFullMessagePolicy getPageFullMessagePolicy() {
+      return pageFullMessagePolicy;
+   }
+
+   @Override
+   public Long getPageLimitMessages() {
+      return pageLimitMessages;
+   }
+
+   @Override
+   public Long getPageLimitBytes() {
+      return pageLimitBytes;
+   }
+
+   @Override
+   public void pageFull(PageSubscription subscription) {
+      this.pageFull = true;
+      try {
+         ActiveMQServerLogger.LOGGER.pageFull(subscription.getQueue().getName(), subscription.getQueue().getAddress(), pageLimitMessages, subscription.getCounter().getValue());
+      } catch (Throwable e) {
+         // I don't think subscription would ever have a null queue. I'm being cautious here for tests
+         logger.warn(e.getMessage(), e);
+      }
+   }
+
+   @Override
+   public boolean isPageFull() {
+      return pageFull;
+   }
+
+   private boolean isBelowPageLimitBytes() {
+      if (estimatedMaxPages != null) {
+         return (numberOfPages <= estimatedMaxPages.longValue());
+      }  else {
+         return true;
+      }
+   }
+
+   private void checkNumberOfPages() {
+      if (!isBelowPageLimitBytes()) {
+         this.pageFull = true;
+         ActiveMQServerLogger.LOGGER.pageFullMaxBytes(storeName, numberOfPages, estimatedMaxPages, pageLimitBytes, pageSize);
+      }
+   }
+
+   @Override
+   public void checkPageLimit(long numberOfMessages) {
+      boolean pageMessageMessagesClear = true;
+      Long pageLimitMessages = getPageLimitMessages();
+
+      if (pageLimitMessages != null) {
+         if (logger.isDebugEnabled()) { // gate to avoid boxing of numberOfMessages
+            logger.debug("Address {} has {} messages on the larger queue", storeName, numberOfMessages);
+         }
+
+         pageMessageMessagesClear = (numberOfMessages < pageLimitMessages.longValue());
+      }
+
+      boolean pageMessageBytesClear = isBelowPageLimitBytes();
+
+      if (pageMessageBytesClear && pageMessageMessagesClear) {
+         pageLimitReleased();
+      }
+   }
+
+   private void pageLimitReleased() {
+      if (pageFull) {
+         ActiveMQServerLogger.LOGGER.pageFree(getAddress());
+         this.pageFull = false;
+      }
    }
 
    @Override
@@ -480,6 +599,8 @@ public class PagingStoreImpl implements PagingStore {
 
                numberOfPages = files.size();
 
+               checkNumberOfPages();
+
                for (String fileName : files) {
                   final int fileId = PagingStoreImpl.getPageIdFromFileName(fileName);
 
@@ -556,6 +677,7 @@ public class PagingStoreImpl implements PagingStore {
          if (isPaging) {
             paging = false;
             ActiveMQServerLogger.LOGGER.pageStoreStop(storeName, getPageInfo());
+            pageLimitReleased();
          }
          this.cursorProvider.onPageModeCleared();
       } finally {
@@ -1029,6 +1151,25 @@ public class PagingStoreImpl implements PagingStore {
          lock.readLock().unlock();
       }
 
+      if (pageFull) {
+         if (message.isLargeMessage()) {
+            ((LargeServerMessage) message).deleteFile();
+         }
+
+         if (pageFullMessagePolicy == PageFullMessagePolicy.FAIL) {
+            throw ActiveMQMessageBundle.BUNDLE.addressIsFull(address.toString());
+         }
+
+         if (!printedDropMessagesWarning) {
+            printedDropMessagesWarning = true;
+            ActiveMQServerLogger.LOGGER.pageStoreDropMessages(storeName, getPageInfo());
+         }
+
+         // we are in page mode, if we got to this point, we are dropping the message while still paging
+         // this needs to return true as it is paging
+         return true;
+      }
+
       return writePage(message, tx, listCtx);
    }
 
@@ -1281,6 +1422,8 @@ public class PagingStoreImpl implements PagingStore {
 
       try {
          numberOfPages++;
+
+         checkNumberOfPages();
 
          final long newPageId = currentPageId + 1;
 
