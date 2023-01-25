@@ -98,6 +98,7 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.DeletionPolicy;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerPolicy;
 import org.apache.activemq.artemis.core.settings.impl.SlowConsumerThresholdMeasurementUnit;
@@ -218,6 +219,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME = "address-full-policy";
 
+   private static final String PAGE_FULL_MESSAGE_POLICY_NODE_NAME = "page-full-policy";
+
    private static final String MAX_READ_PAGE_BYTES_NODE_NAME = "max-read-page-bytes";
 
    private static final String MAX_READ_PAGE_MESSAGES_NODE_NAME = "max-read-page-messages";
@@ -225,6 +228,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
    private static final String PAGE_SIZE_BYTES_NODE_NAME = "page-size-bytes";
 
    private static final String PAGE_MAX_CACHE_SIZE_NODE_NAME = "page-max-cache-size";
+
+   private static final String PAGE_LIMIT_BYTES_NODE_NAME = "page-limit-bytes";
+
+   private static final String PAGE_LIMIT_MESSAGES_NODE_NAME = "page-limit-messages";
 
    private static final String MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME = "message-counter-history-day-limit";
 
@@ -1281,6 +1288,14 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                ActiveMQServerLogger.LOGGER.pageMaxSizeUsed();
             }
             addressSettings.setPageCacheMaxSize(XMLUtil.parseInt(child));
+         } else if (PAGE_LIMIT_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+            long pageLimitBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
+            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(PAGE_LIMIT_BYTES_NODE_NAME, pageLimitBytes);
+            addressSettings.setPageLimitBytes(pageLimitBytes);
+         } else if (PAGE_LIMIT_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            long pageLimitMessages = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
+            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(PAGE_LIMIT_MESSAGES_NODE_NAME, pageLimitMessages);
+            addressSettings.setPageLimitMessages(pageLimitMessages);
          } else if (MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMessageCounterHistoryDayLimit(XMLUtil.parseInt(child));
          } else if (ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
@@ -1288,6 +1303,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             Validators.ADDRESS_FULL_MESSAGE_POLICY_TYPE.validate(ADDRESS_FULL_MESSAGE_POLICY_NODE_NAME, value);
             AddressFullMessagePolicy policy = Enum.valueOf(AddressFullMessagePolicy.class, value);
             addressSettings.setAddressFullMessagePolicy(policy);
+         } else if (PAGE_FULL_MESSAGE_POLICY_NODE_NAME.equalsIgnoreCase(name)) {
+            String value = getTrimmedTextContent(child);
+            Validators.PAGE_FULL_MESSAGE_POLICY_TYPE.validate(PAGE_FULL_MESSAGE_POLICY_NODE_NAME, value);
+            PageFullMessagePolicy policy = Enum.valueOf(PageFullMessagePolicy.class, value);
+            addressSettings.setPageFullMessagePolicy(policy);
          } else if (LVQ_NODE_NAME.equalsIgnoreCase(name) || DEFAULT_LVQ_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setDefaultLastValueQueue(XMLUtil.parseBoolean(child));
          } else if (DEFAULT_LVQ_KEY_NODE_NAME.equalsIgnoreCase(name)) {

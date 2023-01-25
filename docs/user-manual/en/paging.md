@@ -74,6 +74,9 @@ Configuration is done at the address settings in `broker.xml`.
       <max-size-messages>1000</max-size-messages>
       <page-size-bytes>10485760</page-size-bytes>
       <address-full-policy>PAGE</address-full-policy>
+      <page-limit-bytes>10G</page-limit-bytes>
+      <page-limit-messages>1000000</page-limit-messages>
+      <page-full-policy>FAIL</page-full-policy>
    </address-setting>
 </address-settings>
 ```
@@ -98,6 +101,9 @@ Property Name|Description|Default
 `address-full-policy`|This must be set to `PAGE` for paging to enable. If the value is `PAGE` then further messages will be paged to disk. If the value is `DROP` then further messages will be silently dropped. If the value is `FAIL` then the messages will be dropped and the client message producers will receive an exception. If the value is `BLOCK` then client message producers will block when they try and send further messages.|`PAGE`
 `max-read-page-messages` | how many message can be read from paging into the Queue whenever more messages are needed. The system wtill stop reading if `max-read-page-bytes hits the limit first. | -1
 `max-read-page-bytes` | how much memory the messages read from paging can take on the Queue whenever more messages are needed. The system will stop reading if `max-read-page-messages` hits the limit first. | 2 * page-size-bytes
+`page-limit-bytes` | After entering page mode, how much data would the system allow incoming. Notice this will be internally converted as number of pages. | 
+`page-limit-messages` | After entering page mode, how many messages would the system allow incoming on paging. | 
+`page-full-policy` | Valid results are DROP or FAIL. This tells what to do if the system is reaching `page-limit-bytes` or `page-limit-messages` after paging | 
 
 ### max-size-bytes and max-size-messages simultaneous usage
 
@@ -204,6 +210,14 @@ should be `3333333`.
 The system should keep at least one paged file in memory caching ahead reading messages. 
 Also every active subscription could keep one paged file in memory. 
 So, if your system has too many queues it is recommended to minimize the page-size.
+
+## Page Limits and Page Full Policy
+
+Since version `2.28.0` is possible to configure limits on how much data is paged. This is to avoid a single destination using the entire disk in case their consumers are gone.
+
+You can configure either `page-limit-bytes` or `page-limit-messages`, along with `page-full-policy` on the address settings limiting how much data will be recorded in paging.
+
+If you configure `page-full-policy` as DROP, messages will be simplify dropped while the clients will not get any exceptions, while if you configured FAIL the producers will receive a JMS Exception for the error condition.
 
 ## Example
 

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.paging.cursor;
 
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.core.filter.Filter;
@@ -46,7 +47,7 @@ public interface PageCursorProvider {
 
    void flushExecutors();
 
-   void scheduleCleanup();
+   Future<Boolean> scheduleCleanup();
 
    void disableCleanup();
 

@@ -527,4 +527,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229245, value = "Management controller is busy with another task. Please try again")
    ActiveMQTimeoutException managementBusy();
+
+   @Message(id = 229246, value = "Invalid page full message policy type {}")
+   IllegalArgumentException invalidPageFullPolicyType(String val);
 }

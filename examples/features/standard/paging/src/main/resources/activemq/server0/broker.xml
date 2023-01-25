@@ -52,6 +52,16 @@ under the License.
             <permission roles="guest" type="send"/>
          </security-setting>
 
+         <!--security for example pagingQueueLimited-->
+         <security-setting match="pagingQueueLimited">
+            <permission roles="guest" type="createDurableQueue"/>
+            <permission roles="guest" type="deleteDurableQueue"/>
+            <permission roles="guest" type="createNonDurableQueue"/>
+            <permission roles="guest" type="deleteNonDurableQueue"/>
+            <permission roles="guest" type="consume"/>
+            <permission roles="guest" type="send"/>
+         </security-setting>
+
          <security-setting match="pagingQueue">
             <permission roles="guest" type="createDurableQueue"/>
             <permission roles="guest" type="deleteDurableQueue"/>
@@ -68,6 +78,17 @@ under the License.
             <page-size-bytes>20000</page-size-bytes>
          </address-setting>
 
+         <address-setting match="pagingQueueLimited">
+            <!-- what to do after max-size-messages is reached. We start paging at 100 messages -->
+            <address-full-policy>PAGE</address-full-policy>
+            <!-- how soon we should enter into paging -->
+            <max-size-messages>100</max-size-messages>
+            <!-- how many messages we should accept into paging before failing. We start failing after we recorded 1000 messages on paging. -->
+            <page-limit-messages>1000</page-limit-messages>
+            <!-- what to do after page-limit is used -->
+            <page-full-policy>FAIL</page-full-policy>
+         </address-setting>
+
          <address-setting match="exampleQueue">
             <max-size-bytes>10Mb</max-size-bytes>
             <page-size-bytes>1Mb</page-size-bytes>
@@ -82,6 +103,11 @@ under the License.
          <address name="pagingQueue">
             <anycast>
                <queue name="pagingQueue"/>
+            </anycast>
+         </address>
+         <address name="pagingQueueLimited">
+            <anycast>
+               <queue name="pagingQueueLimited"/>
             </anycast>
          </address>
          <address name="exampleQueue">

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -37,12 +38,14 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ArtemisCloseable;
+import org.apache.activemq.artemis.utils.SimpleFutureImpl;
 import org.apache.activemq.artemis.utils.collections.ConcurrentLongHashMap;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 public class PageCursorProviderImpl implements PageCursorProvider {
@@ -179,11 +182,14 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    }
 
    @Override
-   public void scheduleCleanup() {
+   public Future<Boolean> scheduleCleanup() {
+      final SimpleFutureImpl<Boolean> future = new SimpleFutureImpl<>();
       if (!cleanupEnabled || scheduledCleanup.intValue() > 2) {
-         // Scheduled cleanup was already scheduled before.. never mind!
-         // or we have cleanup disabled
-         return;
+         // Scheduled cleanup was already scheduled before.
+         // On that case just flush the executor returning the future.set(true)
+         // after any previous scheduled cleanup is finished.
+         pagingStore.execute(() -> future.set(true));
+         return future;
       }
 
       scheduledCleanup.incrementAndGet();
@@ -199,9 +205,12 @@ public class PageCursorProviderImpl implements PageCursorProvider {
             } finally {
                storageManager.clearContext();
                scheduledCleanup.decrementAndGet();
+               future.set(true);
             }
          }
       });
+
+      return future;
    }
 
    /**
@@ -239,6 +248,22 @@ public class PageCursorProviderImpl implements PageCursorProvider {
    public void resumeCleanup() {
       this.cleanupEnabled = true;
       scheduleCleanup();
+   }
+
+   private long getNumberOfMessagesOnSubscriptions() {
+      AtomicLong largerCounter = new AtomicLong();
+      activeCursors.forEach((id, sub) -> {
+         long value = sub.getCounter().getValue();
+         if (value > largerCounter.get()) {
+            largerCounter.set(value);
+         }
+      });
+
+      return largerCounter.get();
+   }
+
+   void checkClearPageLimit() {
+      pagingStore.checkPageLimit(getNumberOfMessagesOnSubscriptions());
    }
 
    protected void cleanup() {
@@ -298,6 +323,10 @@ public class PageCursorProviderImpl implements PageCursorProvider {
 
                // Then we do some check on eventual pages that can be already removed but they are away from the streaming
                cleanupMiddleStream(depagedPages, depagedPagesSet, cursorList, minPage, firstPage);
+
+               if (pagingStore.isPageFull()) {
+                  checkClearPageLimit();
+               }
 
                assert pagingStore.getNumberOfPages() >= 0;
 

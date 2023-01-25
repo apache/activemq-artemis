@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
@@ -39,6 +40,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
@@ -244,6 +246,36 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
    }
 
    class FakePagingStore implements PagingStore {
+
+      @Override
+      public PageFullMessagePolicy getPageFullMessagePolicy() {
+         return null;
+      }
+
+      @Override
+      public Long getPageLimitMessages() {
+         return null;
+      }
+
+      @Override
+      public Long getPageLimitBytes() {
+         return null;
+      }
+
+      @Override
+      public void pageFull(PageSubscription subscription) {
+
+      }
+
+      @Override
+      public boolean isPageFull() {
+         return false;
+      }
+
+      @Override
+      public void checkPageLimit(long numberOfMessages) {
+
+      }
 
       @Override
       public void counterSnapshot() {

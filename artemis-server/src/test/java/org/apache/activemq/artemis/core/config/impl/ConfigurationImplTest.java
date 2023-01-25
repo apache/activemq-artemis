@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -50,6 +51,12 @@ import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
+import org.apache.activemq.artemis.core.io.SequentialFileFactory;
+import org.apache.activemq.artemis.core.paging.PagingManager;
+import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.paging.PagingStoreFactory;
+import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -58,10 +65,12 @@ import org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServer
 import org.apache.activemq.artemis.core.server.routing.KeyType;
 import org.apache.activemq.artemis.core.server.routing.policies.ConsistentHashModuloPolicy;
 import org.apache.activemq.artemis.core.settings.impl.ResourceLimitSettings;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzerPolicy;
 import org.apache.commons.lang3.ClassUtils;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -1002,6 +1011,125 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+   }
+
+   @Test
+   public void testAddressSettingsPageLimit() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      String randomString = RandomUtil.randomString();
+
+      properties.put("addressSettings.#.expiryAddress", randomString);
+      properties.put("addressSettings.#.pageLimitMessages", "300");
+      properties.put("addressSettings.#.pageLimitBytes", "300000");
+      properties.put("addressSettings.#.pageFullMessagePolicy", "DROP");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(300L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
+      Assert.assertEquals(300000L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
+      Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
+
+      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+
+      Assert.assertEquals(300L, storeImpl.getPageLimitMessages().longValue());
+      Assert.assertEquals(300000L, storeImpl.getPageLimitBytes().longValue());
+      Assert.assertEquals("DROP", storeImpl.getPageFullMessagePolicy().toString());
+   }
+
+   @Test
+   public void testAddressSettingsPageLimitInvalidConfiguration1() throws Throwable {
+      AssertionLoggerHandler.startCapture();
+      runAfter(AssertionLoggerHandler::stopCapture);
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      String randomString = RandomUtil.randomString();
+
+      properties.put("addressSettings.#.expiryAddress", randomString);
+      properties.put("addressSettings.#.pageLimitMessages", "300");
+      properties.put("addressSettings.#.pageLimitBytes", "300000");
+      //properties.put("addressSettings.#.pageFullMessagePolicy", "DROP"); // removing the pageFull on purpose
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(300L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
+      Assert.assertEquals(300000L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
+      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageFullMessagePolicy());
+
+      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224125"));
+
+      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
+      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
+      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+   }
+
+   @Test
+   public void testAddressSettingsPageLimitInvalidConfiguration2() throws Throwable {
+      AssertionLoggerHandler.startCapture();
+      runAfter(AssertionLoggerHandler::stopCapture);
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      String randomString = RandomUtil.randomString();
+
+      properties.put("addressSettings.#.expiryAddress", randomString);
+      //properties.put("addressSettings.#.pageLimitMessages", "300"); // removing this on purpose
+      //properties.put("addressSettings.#.pageLimitBytes", "300000"); // removing this on purpose
+      properties.put("addressSettings.#.pageFullMessagePolicy", "DROP"); // keeping this on purpose
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitMessages());
+      Assert.assertEquals(null, configuration.getAddressSettings().get("#").getPageLimitBytes());
+      Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
+
+      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224124"));
+
+      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
+      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
+      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
+   }
+
+
+   @Test
+   public void testAddressSettingsPageLimitInvalidConfiguration3() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      String randomString = RandomUtil.randomString();
+
+      properties.put("addressSettings.#.expiryAddress", randomString);
+      properties.put("addressSettings.#.pageLimitMessages", "-1"); // -1 on purpose, to make it null on final parsing
+      properties.put("addressSettings.#.pageLimitBytes", "-1"); // -1 on purpose, to make it null on final parsing
+      properties.put("addressSettings.#.pageFullMessagePolicy", "DROP"); // keeping this on purpose
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitMessages().longValue());
+      Assert.assertEquals(-1L, configuration.getAddressSettings().get("#").getPageLimitBytes().longValue());
+      Assert.assertEquals("DROP", configuration.getAddressSettings().get("#").getPageFullMessagePolicy().toString());
+
+      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+
+      Assert.assertEquals(null, storeImpl.getPageLimitMessages());
+      Assert.assertEquals(null, storeImpl.getPageLimitBytes());
+      Assert.assertEquals(null, storeImpl.getPageFullMessagePolicy());
    }
 
    @Test

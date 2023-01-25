@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RefCountMessageListener;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.cursor.PageCursorProvider;
+import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
@@ -30,6 +31,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 
@@ -59,6 +61,19 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
    File getFolder();
 
    AddressFullMessagePolicy getAddressFullMessagePolicy();
+
+   PageFullMessagePolicy getPageFullMessagePolicy();
+
+   Long getPageLimitMessages();
+
+   Long getPageLimitBytes();
+
+   /** Callback to be used by a counter when the Page is full for that counter */
+   void pageFull(PageSubscription subscription);
+
+   boolean isPageFull();
+
+   void checkPageLimit(long numberOfMessages);
 
    long getFirstPage();
 
