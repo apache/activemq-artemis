@@ -856,6 +856,8 @@ var Artemis;
                             v2 += " (" + formatWithList(v2, routingTypes) + ")";
                         } else if(k2 === "extraProperties._AMQ_ACTUAL_EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "extraProperties._AMQ_ORIG_ROUTING_TYPE") {
+                            v2 += " (" + formatWithList(v2, routingTypes) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-jms-dest") {
                             v2 += " (" + formatWithList(v2, destTypeLabels) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-jms-reply-to") {
@@ -864,6 +866,8 @@ var Artemis;
                             v2 += " (" + formatWithList(v2, jmsTypeLabels) + ")";
                         } else if(k2 === "messageAnnotations.x-opt-ACTUAL-EXPIRY") {
                             v2 += " (" + formatTimestamp(v2) + ")";
+                        } else if(k2 === "messageAnnotations.x-opt-ORIG-ROUTING-TYPE") {
+                            v2 += " (" + formatWithList(v2, routingTypes) + ")";
                         } else if(k2 === "properties.absoluteExpiryTime") {
                             v2 += " (" + formatTimestamp(v2) + ")";
                         } else if(k2 === "properties.creationTime") {
