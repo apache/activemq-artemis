@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,7 +33,6 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
-import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
@@ -104,12 +102,7 @@ public class MQTTSubscriptionManager {
 
    private void addSubscription(MqttTopicSubscription subscription, Integer subscriptionIdentifier, boolean initialStart) throws Exception {
       String rawTopicName = CompositeAddress.extractAddressName(subscription.topicName());
-      String parsedTopicName = rawTopicName;
-
-      // if using a shared subscription then parse
-      if (rawTopicName.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX)) {
-         parsedTopicName = rawTopicName.substring(rawTopicName.indexOf(SLASH, rawTopicName.indexOf(SLASH) + 1) + 1);
-      }
+      String parsedTopicName = parseTopicName(rawTopicName);
       int qos = subscription.qualityOfService().value();
       String coreAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(parsedTopicName, session.getWildcardConfiguration());
 
@@ -136,6 +129,16 @@ public class MQTTSubscriptionManager {
 
          session.getState().addSubscription(subscription, session.getWildcardConfiguration(), subscriptionIdentifier);
       }
+   }
+
+   private String parseTopicName(String rawTopicName) {
+      String parsedTopicName = rawTopicName;
+
+      // if using a shared subscription then parse
+      if (rawTopicName.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX)) {
+         parsedTopicName = rawTopicName.substring(rawTopicName.indexOf(SLASH, rawTopicName.indexOf(SLASH) + 1) + 1);
+      }
+      return parsedTopicName;
    }
 
    synchronized void stop() throws Exception {
@@ -227,7 +230,7 @@ public class MQTTSubscriptionManager {
       // for noLocal support we use the MQTT *client id* rather than the connection ID, but we still use the existing property name
       ServerConsumer consumer = session.getServerSession().createConsumer(cid, queue.getName(), noLocal ? SimpleString.toSimpleString(CONNECTION_ID_PROPERTY_NAME_STRING + " <> '" + session.getState().getClientId() + "'") : null, false, false, -1);
 
-      ServerConsumer existingConsumer = consumers.put(topic, consumer);
+      ServerConsumer existingConsumer = consumers.put(parseTopicName(topic), consumer);
       if (existingConsumer != null) {
          existingConsumer.setStarted(false);
          existingConsumer.close(false);
@@ -255,45 +258,28 @@ public class MQTTSubscriptionManager {
       return removeSubscription(address, true);
    }
 
-   private short removeSubscription(String address, boolean enforceSecurity) {
-      if (session.getState().getSubscription(address) == null) {
+   private short removeSubscription(String topic, boolean enforceSecurity) {
+      if (session.getState().getSubscription(topic) == null) {
          return MQTTReasonCodes.NO_SUBSCRIPTION_EXISTED;
       }
 
       short reasonCode = MQTTReasonCodes.SUCCESS;
 
       try {
-         SimpleString internalQueueName = getQueueNameForTopic(address);
-         session.getState().removeSubscription(address);
+         session.getState().removeSubscription(topic);
 
-         Queue queue = session.getServer().locateQueue(internalQueueName);
-         AddressInfo addressInfo = session.getServerSession().getAddress(SimpleString.toSimpleString(MQTTUtil.convertMqttTopicFilterToCoreAddress(address, session.getWildcardConfiguration())));
-         if (addressInfo != null && addressInfo.getRoutingTypes().contains(RoutingType.ANYCAST)) {
-            ServerConsumer consumer = consumers.get(address);
-            consumers.remove(address);
-            if (consumer != null) {
-               consumer.close(false);
-               consumerQoSLevels.remove(consumer.getID());
-            }
-         } else {
-            consumers.remove(address);
-            Set<Consumer> queueConsumers;
-            if (queue != null && (queueConsumers = (Set<Consumer>) queue.getConsumers()) != null) {
-               for (Consumer consumer : queueConsumers) {
-                  if (consumer instanceof ServerConsumer) {
-                     ((ServerConsumer) consumer).close(false);
-                     consumerQoSLevels.remove(((ServerConsumer) consumer).getID());
-                  }
-               }
-            }
+         ServerConsumer removed = consumers.remove(parseTopicName(topic));
+         if (removed != null) {
+            removed.close(false);
+            consumerQoSLevels.remove(removed.getID());
          }
 
+         SimpleString internalQueueName = getQueueNameForTopic(topic);
+         Queue queue = session.getServer().locateQueue(internalQueueName);
          if (queue != null) {
-            assert session.getServerSession().executeQueueQuery(internalQueueName).isExists();
-
             if (queue.isConfigurationManaged()) {
                queue.deleteAllReferences();
-            } else {
+            } else if (!topic.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX) || (topic.startsWith(MQTTUtil.SHARED_SUBSCRIPTION_PREFIX) && queue.getConsumerCount() == 0)) {
                session.getServerSession().deleteQueue(internalQueueName, enforceSecurity);
             }
          }
