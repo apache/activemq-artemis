@@ -36,8 +36,10 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.activemq.artemis.utils.Wait;
 import org.eclipse.paho.mqttv5.client.MqttAsyncClient;
+import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
@@ -369,5 +371,80 @@ public class MQTT5Test extends MQTT5TestSupport {
 
       consumer.disconnect();
       consumer.close();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testSharedSubscriptionQueueRemoval() throws Exception {
+      final String TOPIC = "myTopic";
+      final String SUB_NAME = "myShare";
+      final String SHARED_SUB = MQTTUtil.SHARED_SUBSCRIPTION_PREFIX + SUB_NAME + "/" + TOPIC;
+      ReusableLatch ackLatch = new ReusableLatch(1);
+
+      MqttCallback mqttCallback = new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, org.eclipse.paho.mqttv5.common.MqttMessage message) throws Exception {
+            ackLatch.countDown();
+         }
+      };
+
+      // create consumer 1
+      MqttClient consumer1 = createPahoClient("consumer1");
+      consumer1.connect();
+      consumer1.setCallback(mqttCallback);
+      consumer1.subscribe(SHARED_SUB, 1);
+
+      // create consumer 2
+      MqttClient consumer2 = createPahoClient("consumer2");
+      consumer2.connect();
+      consumer2.setCallback(mqttCallback);
+      consumer2.subscribe(SHARED_SUB, 1);
+
+      // verify there are 2 consumers on the subscription queue
+      Queue sharedSubQueue = server.locateQueue(SUB_NAME.concat(".").concat(TOPIC));
+      assertNotNull(sharedSubQueue);
+      assertEquals(TOPIC, sharedSubQueue.getAddress().toString());
+      assertEquals(2, sharedSubQueue.getConsumerCount());
+
+      // send a message
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(TOPIC, new byte[0], 1, false);
+
+      // ensure one of the consumers receives the message
+      assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
+
+      // disconnect the first consumer
+      consumer1.disconnect();
+
+      // verify there is 1 consumer on the subscription queue
+      sharedSubQueue = server.locateQueue(SUB_NAME.concat(".").concat(TOPIC));
+      assertNotNull(sharedSubQueue);
+      assertEquals(TOPIC, sharedSubQueue.getAddress().toString());
+      assertEquals(1, sharedSubQueue.getConsumerCount());
+
+      // send a message and ensure the remaining consumer receives it
+      ackLatch.countUp();
+      producer.publish(TOPIC, new byte[0], 1, false);
+      assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
+
+      // reconnect previous consumer
+      consumer1.connect();
+      consumer1.setCallback(mqttCallback);
+      consumer1.subscribe(SHARED_SUB, 1);
+
+      // send a message and ensure one of the consumers receives it
+      ackLatch.countUp();
+      producer.publish(TOPIC, new byte[0], 1, false);
+      assertTrue(ackLatch.await(2, TimeUnit.SECONDS));
+
+      producer.disconnect();
+      producer.close();
+      consumer1.disconnect();
+      consumer1.close();
+      consumer2.disconnect();
+      consumer2.close();
+
+      // verify the shared subscription queue is removed after all the subscribers disconnect
+      Wait.assertTrue(() -> server.locateQueue(SUB_NAME.concat(".").concat(TOPIC)) == null, 2000, 100);
    }
 }
