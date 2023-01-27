@@ -408,7 +408,13 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
        * successfully authenticate before requesting authorization for anything.
        */
       if (cached == null) {
-         return securityManager.authenticate(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection(), auth.getSecurityDomain());
+         try {
+            Subject subject = securityManager.authenticate(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection(), auth.getSecurityDomain());
+            authenticationCache.put(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()), new Pair<>(subject != null, subject));
+            return subject;
+         } catch (NoCacheLoginException e) {
+            return null;
+         }
       }
       return cached.getB();
    }

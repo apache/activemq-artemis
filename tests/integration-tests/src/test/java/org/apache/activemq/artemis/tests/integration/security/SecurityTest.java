@@ -2569,6 +2569,42 @@ public class SecurityTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testReauthenticationIsCached() throws Exception {
+      ActiveMQServer server = createServer();
+      server.start();
+
+      HierarchicalRepository<Set<Role>> securityRepository = server.getSecurityRepository();
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
+      securityManager.getConfiguration().addUser("auser", "pass");
+      Role role = new Role("arole", true, false, false, false, false, false, false, false, true, false);
+      Set<Role> roles = new HashSet<>();
+      roles.add(role);
+      securityRepository.addMatch(SecurityTest.addressA, roles);
+      securityManager.getConfiguration().addRole("auser", "arole");
+      server.createQueue(new QueueConfiguration(SecurityTest.queueA).setAddress(SecurityTest.addressA));
+
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthenticationCache();
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthorizationCache();
+
+      locator.setBlockOnNonDurableSend(true);
+      ClientSessionFactory cf = createSessionFactory(locator);
+      ClientSession session = cf.createSession("auser", "pass", false, true, true, false, -1);
+      ClientProducer cp = session.createProducer(SecurityTest.addressA);
+      cp.send(session.createMessage(false));
+
+      assertEquals(1, ((SecurityStoreImpl)server.getSecurityStore()).getAuthenticationCacheSize());
+      assertEquals(1, ((SecurityStoreImpl)server.getSecurityStore()).getAuthorizationCacheSize());
+
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthenticationCache();
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthorizationCache();
+
+      cp.send(session.createMessage(false));
+
+      assertEquals(1, ((SecurityStoreImpl)server.getSecurityStore()).getAuthenticationCacheSize());
+      assertEquals(1, ((SecurityStoreImpl)server.getSecurityStore()).getAuthorizationCacheSize());
+   }
+
    // Check the user connection has both send and receive permissions on the queue
    private void checkUserSendAndReceive(final String genericQueueName,
                                         final ClientSession connection) throws Exception {
