@@ -1173,11 +1173,15 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   QueueQueryResult result = sessionSPI.queueQuery(queue, routingTypeToUse, false);
                   if (result.isExists()) {
                      /*
-                      * If a client reattaches to a durable subscription with a different filter or address then we must
-                      * recreate the queue (JMS semantics). However, if the corresponding queue is managed via the
-                      * configuration then we don't want to change it
+                      * If a client attaches to an existing durable subscription with a different filter or address then
+                      * we must recreate the queue (JMS semantics). However, if the corresponding queue is managed via the
+                      * configuration then we don't want to change it. We must account for optional address prefixes that
+                      * are not carried over into the actual created address by stripping any prefix value that matches
+                      * those configured on the acceptor.
                       */
-                     if (!result.isConfigurationManaged() && (!Objects.equals(result.getAddress(), addressToUse) || !Objects.equals(result.getFilterString(), simpleStringSelector))) {
+                     if (!result.isConfigurationManaged() &&
+                         (!Objects.equals(result.getAddress(), sessionSPI.removePrefix(addressToUse)) ||
+                          !Objects.equals(result.getFilterString(), simpleStringSelector))) {
 
                         if (result.getConsumerCount() == 0) {
                            sessionSPI.deleteQueue(queue);

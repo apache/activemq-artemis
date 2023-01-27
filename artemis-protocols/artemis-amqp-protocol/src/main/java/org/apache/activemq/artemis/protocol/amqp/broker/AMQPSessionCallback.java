@@ -356,6 +356,10 @@ public class AMQPSessionCallback implements SessionCallback {
       return addressQueryResult;
    }
 
+   public SimpleString removePrefix(SimpleString address) {
+      return serverSession.removePrefix(address);
+   }
+
    public void closeSender(final Object brokerConsumer) throws Exception {
       final ServerConsumer consumer = ((ServerConsumer) brokerConsumer);
       consumer.close(false);
