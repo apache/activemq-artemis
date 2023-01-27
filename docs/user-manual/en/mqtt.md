@@ -169,12 +169,22 @@ browsers which support Web Sockets can send and receive MQTT messages.
 MQTT over Web Sockets is supported via a normal MQTT acceptor:
 
 ```xml
-<acceptor name="mqtt-ws-acceptor">tcp://localhost:1883?protocols=MQTT</acceptor>
+<acceptor name="mqtt-ws-acceptor">tcp://host:1883?protocols=MQTT</acceptor>
 ```
 
 With this configuration, Apache ActiveMQ Artemis will accept MQTT connections
 over Web Sockets on the port `1883`. Web browsers can then connect to
 `ws://<server>:1883` using a Web Socket to send and receive MQTT messages.
+
+SSL/TLS is also available, e.g.:
+
+```xml
+<acceptor name="mqtt-wss-acceptor">tcp://host:8883?protocols=MQTT;sslEnabled=true;keyStorePath=/path/to/keystore;keyStorePassword=myPass</acceptor>
+```
+
+Web browsers can then connect to `wss://<server>:8883` using a Web Socket to
+send and receive MQTT messages.
+
 
 ## Automatic Subscription Clean-up
 
