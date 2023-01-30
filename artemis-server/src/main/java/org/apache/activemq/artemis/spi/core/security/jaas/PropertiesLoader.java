@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,7 @@ public class PropertiesLoader {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   public static String LOGIN_CONFIG_SYS_PROP_NAME = "java.security.auth.login.config";
    static final Map<FileNameKey, ReloadableProperties> staticCache = new HashMap<>();
    protected boolean debug;
 
@@ -109,14 +112,20 @@ public class PropertiesLoader {
          if (options.get("baseDir") != null) {
             baseDir = new File((String) options.get("baseDir"));
          } else {
-            if (System.getProperty("java.security.auth.login.config") != null) {
-               baseDir = new File(System.getProperty("java.security.auth.login.config")).getParentFile();
-            }
+            baseDir = parentDirOfLoginConfigSystemProperty();
          }
          if (debug) {
             logger.debug("Using basedir={}", (baseDir == null ? null : baseDir.getAbsolutePath()));
          }
          return baseDir;
+      }
+
+      public static File parentDirOfLoginConfigSystemProperty() {
+         String path = System.getProperty(LOGIN_CONFIG_SYS_PROP_NAME);
+         if (path != null) {
+            return new File(path).getParentFile();
+         }
+         return null;
       }
 
       @Override
@@ -130,6 +139,17 @@ public class PropertiesLoader {
 
       public boolean isDebug() {
          return debug;
+      }
+   }
+
+   public static void reload() {
+      logger.debug("reLoad");
+      Collection<ReloadableProperties> currentSnapshot;
+      synchronized (staticCache) {
+         currentSnapshot = new ArrayList<>(staticCache.values());
+      }
+      for (ReloadableProperties reloadableProperties : currentSnapshot) {
+         reloadableProperties.obtained();
       }
    }
 
