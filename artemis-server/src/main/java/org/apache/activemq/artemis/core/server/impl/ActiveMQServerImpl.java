@@ -195,6 +195,7 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.protocol.SessionCallback;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ActiveMQThreadPoolExecutor;
 import org.apache.activemq.artemis.utils.CompositeAddress;
@@ -3323,6 +3324,15 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                   reloadManager.addCallback(new File(fileUrl).toURI().toURL(), xmlConfigReload);
                }
             }
+         }
+
+         // watch login.config dir for mods to trigger reload, otherwise reloadable properties
+         // only appear in status on a relevant login attempt which may never happen
+         File optionalJaasConfigBaseDir = PropertiesLoader.FileNameKey.parentDirOfLoginConfigSystemProperty();
+         if (optionalJaasConfigBaseDir != null) {
+            reloadManager.addCallback(optionalJaasConfigBaseDir.toURI().toURL(), (uri) -> {
+               PropertiesLoader.reload();
+            });
          }
       }
 
