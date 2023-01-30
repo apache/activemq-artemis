@@ -309,13 +309,12 @@
             <!-- Eclipse Public License - v 2.0 -->
          </dependency>
 
-         <!-- ## Test Dependencies ## Note: Junit 4 is required in certain module tests.  We should control versions from here. -->
          <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
-            <!-- License: CPL 1.0 -->
+            <!-- License: EPL 1.0 -->
          </dependency>
          
          <dependency>
