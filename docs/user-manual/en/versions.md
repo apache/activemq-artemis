@@ -9,19 +9,23 @@ This chapter provides the following information for each release:
     chapter in addition to any version-specific upgrade instructions outlined here.
 
 ## 2.28.0
-[Full release notes]()
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352523&projectId=12315920)
 
 Highlights:
-- ...
+- Bug Fixes and improvements as usual
+- [ARTEMIS-4136](https://issues.apache.org/jira/browse/ARTEMIS-4136) Mirror sync replication
+  - Mirror now has an option to set sync=true. Blocking operations from clients will wait a round trip on the mirror.
+- [ARTEMIS-4065](https://issues.apache.org/jira/browse/ARTEMIS-4065) Paging Counter Journal Records were removed
+  - We don't store page counters records on the journal any longer what should simplify operation and improve performance.
 
 #### Upgrading from older versions
-1. Due to [ARTEMIS-3871](https://issues.apache.org/jira/browse/ARTEMIS-3871) the naming pattern used for MQTT _shared_
-   subscription queues has changed. Previously the subscription queue was named according to the subscription name
-   provided in the MQTT `SUBSCRIBE` packet. However, MQTT allows the same name to be used across multiple subscriptions
-   whereas queues in the broker must be named uniquely. Now the subscription queue will be named according to the
-   subscription name and topic name so that all subscription queue names will be unique. Before upgrading please ensure
-   all MQTT shared subscriptions are empty. When the subscribers reconnect they will get a new subscription queue. If
-   they are not empty you can move the messages to the new subscription queue administratively.
+* Due to [ARTEMIS-3871](https://issues.apache.org/jira/browse/ARTEMIS-3871) the naming pattern used for MQTT _shared_
+  subscription queues has changed. Previously the subscription queue was named according to the subscription name
+  provided in the MQTT `SUBSCRIBE` packet. However, MQTT allows the same name to be used across multiple subscriptions
+  whereas queues in the broker must be named uniquely. Now the subscription queue will be named according to the
+  subscription name and topic name so that all subscription queue names will be unique. Before upgrading please ensure
+  all MQTT shared subscriptions are empty. When the subscribers reconnect they will get a new subscription queue. If
+  they are not empty you can move the messages to the new subscription queue administratively.
 
 ## 2.27.1
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352610&projectId=12315920)
