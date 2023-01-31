@@ -8,6 +8,21 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.29.0
+[Full release notes](...)
+
+Highlights:
+- ...
+
+#### Upgrading from older versions
+* Due to [ARTEMIS-4151](https://issues.apache.org/jira/browse/ARTEMIS-4151) the default access for MBeans not defined in
+  the `role-access` or `allowlist` of `management.xml` is now _read only_. This is a precautionary measure to ensure no
+  unanticipated MBean deployed with the broker poses a risk. However, this will also impact JVM-specific and platform
+  MBeans as well (e.g. which allow manual garbage collection, "flight recording," etc.). Write access and general
+  operational access to these MBeans will now have to be manually enabled in `management.xml` either by changing the
+  `default-access` (not recommended) or specifically configuring a `role-access` for the particular MBean in question.
+  Note: this applies to all MBean access including directly via JMX and via the Jolokia JMX-HTTP bridge.
+
 ## 2.28.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352523&projectId=12315920)
 
