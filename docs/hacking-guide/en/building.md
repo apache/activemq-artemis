@@ -73,3 +73,8 @@ simply run
 ## Building the docs
 
 From either `docs/hacking-guide/en` or `docs/user-manual/en` run `gitbook build` (after you've installed gitbook)
+
+## Building offline
+
+    $ mvn dependency:go-offline
+    $ mvn -o ...
