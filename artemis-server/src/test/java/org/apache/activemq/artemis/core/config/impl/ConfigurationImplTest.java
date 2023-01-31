@@ -1115,7 +1115,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       // pageLimitMessages and pageFullMessagePolicy not set on purpose
       properties.put("addressSettings.#.expiryAddress", randomString);
-      properties.put("addressSettings.#.pageLimitBytes", "300000"); // removing this on purpose
+      properties.put("addressSettings.#.pageLimitBytes", "300000");
 
       configuration.parsePrefixedProperties(properties, null);
 
