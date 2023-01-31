@@ -55,7 +55,7 @@ public class CompareUpgradeTest {
       String windowsExpectedETC = basedir + "/target/classes/servers/windowsUpgradeETCExpected";
 
       compareDirectories(windowsExpectedBin, windowsBin);
-      compareDirectories(windowsExpectedETC, windowsETC, "broker.xml", "artemis-users.properties");
+      compareDirectories(windowsExpectedETC, windowsETC, "broker.xml", "artemis-users.properties", "management.xml");
 
       String referenceBin = basedir + "/target/reference-for-backup-check/servers/windowsUpgrade/bin";
       String referenceEtc = basedir + "/target/reference-for-backup-check/servers/windowsUpgradeETC";
@@ -75,7 +75,7 @@ public class CompareUpgradeTest {
       String linuxExpectedETC = basedir + "/target/classes/servers/linuxUpgradeETCExpected";
 
       compareDirectories(linuxExpectedBin, linuxBin);
-      compareDirectories(linuxExpectedETC, linuxETC, "broker.xml", "artemis-users.properties");
+      compareDirectories(linuxExpectedETC, linuxETC, "broker.xml", "artemis-users.properties", "management.xml");
 
       String referenceBin = basedir + "/target/reference-for-backup-check/servers/linuxUpgrade/bin";
       String referenceEtc = basedir + "/target/reference-for-backup-check/servers/linuxUpgradeETC";
