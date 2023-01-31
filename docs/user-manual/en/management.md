@@ -443,10 +443,15 @@ file. To enable this you simply add the following xml:
 <connector connector-port="1099"/>
 ```
 
-This exposes the agent remotely on the port 1099. If you were connecting via
-JConsole you would connect as a remote process using the service url
-`service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi` and an appropriate user
-name and password.
+This exposes the agent remotely on the port `1099`. If you were connecting via
+JConsole you would connect as a remote process using the service url:
+
+```
+service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi
+```
+
+You'd be able to supply an appropriate user name and password in this case as
+well.
 
 You can also configure the connector using the following:
 
