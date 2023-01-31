@@ -254,14 +254,15 @@ public class PagingStoreImpl implements PagingStore {
          pageLimitMessages = null;
       }
 
-
       if (pageLimitBytes == null && pageLimitMessages == null && pageFullMessagePolicy != null) {
          ActiveMQServerLogger.LOGGER.noPageLimitsSet(address, pageFullMessagePolicy);
          this.pageFullMessagePolicy = null;
       }
 
-      if (pageLimitBytes != null && pageLimitMessages != null && pageFullMessagePolicy == null) {
-         ActiveMQServerLogger.LOGGER.noPagefullPolicySet(address, pageLimitBytes, pageLimitMessages);
+      if (pageFullMessagePolicy == null) {
+         if (pageLimitBytes != null || pageLimitMessages != null) {
+            ActiveMQServerLogger.LOGGER.noPagefullPolicySet(address, pageLimitBytes, pageLimitMessages);
+         }
          this.pageFullMessagePolicy = null;
          this.pageLimitMessages = null;
          this.pageLimitBytes = null;
