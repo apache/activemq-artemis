@@ -11,6 +11,8 @@ distribution has been extracted to as `${ARTEMIS_HOME}`.
 
 ## Installation
 
+You can get the latest release from the [Download](https://activemq.apache.org/components/artemis/download/) page.
+
 The following highlights some important folders on the distribution:
 ```
 |___ bin
