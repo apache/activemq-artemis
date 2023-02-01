@@ -686,9 +686,13 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteOpen(Session session) throws Exception {
-      handler.requireHandler();
-      getSessionExtension(session).initialize();
-      session.open();
+      // If connection already closed then we shouldn't react to the most likely
+      // pipelined Begin event.
+      if (session.getConnection().getLocalState() != EndpointState.CLOSED) {
+         handler.requireHandler();
+         getSessionExtension(session).initialize();
+         session.open();
+      }
    }
 
    @Override
@@ -708,7 +712,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
    @Override
    public void onRemoteOpen(Link link) throws Exception {
-      remoteLinkOpened(link);
+      // If connection already closed then we shouldn't react to the most likely
+      // pipelined Attach event.
+      if (link.getSession().getConnection().getLocalState() != EndpointState.CLOSED) {
+         remoteLinkOpened(link);
+      }
    }
 
    @Override
