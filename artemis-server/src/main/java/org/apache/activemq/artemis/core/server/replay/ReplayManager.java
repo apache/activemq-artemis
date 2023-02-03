@@ -70,7 +70,7 @@ public class ReplayManager {
    }
 
    public void replay(Date start, Date end, String sourceAddress, String targetAddressParameter, String filterStr) throws Exception {
-      logger.debug("Replay::{}", sourceAddress);
+      logger.debug("Replay start::sourceAddress={}", sourceAddress);
 
       if (sourceAddress == null) {
          throw new NullPointerException("sourceAddress");
@@ -129,6 +129,7 @@ public class ReplayManager {
                continue;
             }
          }
+         logger.debug("Reading retention file {}", file);
          JournalImpl.readJournalFile(messagesFF, file, new JournalReaderCallback() {
             @Override
             public void onReadEventRecord(RecordInfo info) throws Exception {
@@ -179,6 +180,8 @@ public class ReplayManager {
 
          }, null, false, null);
       }
+
+      logger.debug("Replay done::sourceAddress={}", sourceAddress);
    }
 
    private boolean messageMatch(Filter filter, Message message, String sourceAddress, String targetAddress) {
