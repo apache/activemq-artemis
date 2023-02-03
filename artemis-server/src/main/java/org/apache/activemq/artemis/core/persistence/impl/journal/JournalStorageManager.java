@@ -878,7 +878,7 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    private void historyBody(long messageId, EncodingSupport partialBuffer) {
 
       try {
-         messageJournal.appendAddEvent(messageId, JournalRecordIds.ADD_MESSAGE_BODY, EncoderPersister.getInstance(), partialBuffer, true, null);
+         messageJournal.appendAddEvent(messageId, JournalRecordIds.ADD_MESSAGE_BODY, EncoderPersister.getInstance(), partialBuffer, false, null);
       } catch (Exception e) {
          logger.warn("Error processing history large message body for {}", messageId, e);
       }

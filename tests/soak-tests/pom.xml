@@ -219,6 +219,34 @@
                      </args>
                   </configuration>
                </execution>
+               <!-- Used on TestRetention -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-lmreplay</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/replay/large-message</instance>
+                     <configuration>${basedir}/target/classes/servers/replay/large-message</configuration>
+                     <args>
+                        <!-- this is needed to run the server remotely -->
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--journal-retention</arg>
+                        <arg>1</arg>
+                        <arg>--queues</arg>
+                        <arg>RetentionTest</arg>
+                        <arg>--name</arg>
+                        <arg>large-message</arg>
+                     </args>
+                  </configuration>
+               </execution>
 
             </executions>
          </plugin>
