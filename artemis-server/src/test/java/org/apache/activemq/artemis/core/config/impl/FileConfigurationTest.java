@@ -452,7 +452,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteQueuesDelay());
       assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteAddressesDelay());
       assertEquals(false, conf.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
-      assertEquals(5, conf.getAddressSettings().get("a1").getDefaultMaxConsumers());
+      assertEquals(Integer.valueOf(5), conf.getAddressSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a1").getDefaultQueueRoutingType());
       assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a1").getDefaultAddressRoutingType());
       assertEquals(3, conf.getAddressSettings().get("a1").getDefaultRingSize());
@@ -488,7 +488,7 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(500, conf.getAddressSettings().get("a2").getAutoDeleteQueuesDelay());
       assertEquals(1000, conf.getAddressSettings().get("a2").getAutoDeleteAddressesDelay());
       assertEquals(true, conf.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
-      assertEquals(15, conf.getAddressSettings().get("a2").getDefaultMaxConsumers());
+      assertEquals(Integer.valueOf(15), conf.getAddressSettings().get("a2").getDefaultMaxConsumers());
       assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a2").getDefaultQueueRoutingType());
       assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a2").getDefaultAddressRoutingType());
       assertEquals(10000, conf.getAddressSettings().get("a2").getDefaultConsumerWindowSize());

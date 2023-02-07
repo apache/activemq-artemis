@@ -409,7 +409,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isAutoCreateQueues() {
+   public Boolean isAutoCreateQueues() {
       return autoCreateQueues != null ? autoCreateQueues : AddressSettings.DEFAULT_AUTO_CREATE_QUEUES;
    }
 
@@ -418,7 +418,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isAutoDeleteQueues() {
+   public Boolean isAutoDeleteQueues() {
       return autoDeleteQueues != null ? autoDeleteQueues : AddressSettings.DEFAULT_AUTO_DELETE_QUEUES;
    }
 
@@ -432,7 +432,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isAutoDeleteCreatedQueues() {
+   public Boolean isAutoDeleteCreatedQueues() {
       return autoDeleteCreatedQueues != null ? autoDeleteCreatedQueues : AddressSettings.DEFAULT_AUTO_DELETE_CREATED_QUEUES;
    }
 
@@ -464,7 +464,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isAutoCreateAddresses() {
+   public Boolean isAutoCreateAddresses() {
       return autoCreateAddresses != null ? autoCreateAddresses : AddressSettings.DEFAULT_AUTO_CREATE_ADDRESSES;
    }
 
@@ -473,7 +473,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isAutoDeleteAddresses() {
+   public Boolean isAutoDeleteAddresses() {
       return autoDeleteAddresses != null ? autoDeleteAddresses : AddressSettings.DEFAULT_AUTO_DELETE_ADDRESSES;
    }
 
@@ -509,7 +509,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return configDeleteDiverts != null ? configDeleteDiverts : AddressSettings.DEFAULT_CONFIG_DELETE_DIVERTS;
    }
 
-   public int getDefaultMaxConsumers() {
+   public Integer getDefaultMaxConsumers() {
       return defaultMaxConsumers != null ? defaultMaxConsumers : ActiveMQDefaultConfiguration.getDefaultMaxQueueConsumers();
    }
 
@@ -518,7 +518,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public int getDefaultConsumersBeforeDispatch() {
+   public Integer getDefaultConsumersBeforeDispatch() {
       return defaultConsumersBeforeDispatch != null ? defaultConsumersBeforeDispatch : ActiveMQDefaultConfiguration.getDefaultConsumersBeforeDispatch();
    }
 
@@ -527,7 +527,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public long getDefaultDelayBeforeDispatch() {
+   public Long getDefaultDelayBeforeDispatch() {
       return defaultDelayBeforeDispatch != null ? defaultDelayBeforeDispatch : ActiveMQDefaultConfiguration.getDefaultDelayBeforeDispatch();
    }
 
@@ -536,7 +536,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isDefaultPurgeOnNoConsumers() {
+   public Boolean isDefaultPurgeOnNoConsumers() {
       return defaultPurgeOnNoConsumers != null ? defaultPurgeOnNoConsumers : ActiveMQDefaultConfiguration.getDefaultPurgeOnNoConsumers();
    }
 
@@ -590,7 +590,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
-   public boolean isDefaultExclusiveQueue() {
+   public Boolean isDefaultExclusiveQueue() {
       return defaultExclusiveQueue != null ? defaultExclusiveQueue : ActiveMQDefaultConfiguration.getDefaultExclusive();
    }
 
