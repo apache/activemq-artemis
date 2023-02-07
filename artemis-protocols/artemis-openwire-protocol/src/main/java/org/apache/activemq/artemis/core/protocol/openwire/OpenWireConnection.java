@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
@@ -153,6 +154,8 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    private final OpenWireProtocolManager protocolManager;
 
    private boolean destroyed = false;
+
+   private volatile ScheduledFuture ttlCheck;
 
    //separated in/out wireFormats allow deliveries (eg async and consumers) to not slow down bufferReceived
    private final OpenWireFormat inWireFormat;
@@ -686,10 +689,18 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
    private void shutdown(boolean fail) {
 
-      if (fail) {
-         transportConnection.forceClose();
-      } else {
-         transportConnection.close();
+      try {
+         if (fail) {
+            transportConnection.forceClose();
+         } else {
+            transportConnection.close();
+         }
+      } finally {
+         ScheduledFuture ttlCheckToCancel = this.ttlCheck;
+         this.ttlCheck = null;
+         if (ttlCheckToCancel != null) {
+            ttlCheckToCancel.cancel(true);
+         }
       }
    }
 
@@ -1012,7 +1023,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.maxInactivityDuration = inactivityDuration;
 
       if (this.useKeepAlive) {
-         protocolManager.getScheduledPool().schedule(new Runnable() {
+         ttlCheck = protocolManager.getScheduledPool().schedule(new Runnable() {
             @Override
             public void run() {
                if (inactivityDuration >= 0) {

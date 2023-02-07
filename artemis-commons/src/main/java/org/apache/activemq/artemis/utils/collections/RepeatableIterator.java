@@ -24,4 +24,6 @@ public interface RepeatableIterator<E> extends Iterator<E> {
     * If the current value should repeat.
     */
    void repeat();
+
+   void removed(E itemRemoved);
 }

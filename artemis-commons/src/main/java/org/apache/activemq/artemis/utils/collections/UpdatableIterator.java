@@ -87,4 +87,9 @@ public class UpdatableIterator<E> implements ResettableIterator<E>, RepeatableIt
    public void repeat() {
       currentIterator.repeat();
    }
+
+   @Override
+   public void removed(E removed) {
+      currentIterator.removed(removed);
+   }
 }

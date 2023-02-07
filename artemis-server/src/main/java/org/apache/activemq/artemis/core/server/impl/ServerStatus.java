@@ -33,6 +33,11 @@ public class ServerStatus {
 
    private static final ServerStatus instance = new ServerStatus();
 
+   public static void clear() {
+      instance.server = null;
+      instance.immutableStateValues.clear();
+   }
+
    public static synchronized ServerStatus getInstanceFor(ActiveMQServerImpl activeMQServer) {
       if (instance.server == null) {
          instance.server = activeMQServer;

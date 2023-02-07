@@ -363,14 +363,17 @@ public class ConsumerTest extends ActiveMQTestBase {
             }
          }
 
-         consumer.close();
-
          Assert.assertTrue(serverConsumer.getProtocolContext() instanceof ProtonServerSenderContext);
 
          final AMQPSessionContext sessionContext = ((ProtonServerSenderContext)
             serverConsumer.getProtocolContext()).getSessionContext();
 
+         consumer.close();
+         final ServerConsumer lambdaServerConsumer = serverConsumer;
+         Wait.assertTrue(() -> lambdaServerConsumer.getProtocolContext() == null);
+
          Wait.assertEquals(0, () -> sessionContext.getSenderCount(), 1000, 10);
+
       } finally {
          context.stop();
          context.close();
