@@ -190,6 +190,7 @@
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
       <skipIntegrationTests>true</skipIntegrationTests>
+      <skipLeakTests>true</skipLeakTests>
       <skipCompatibilityTests>true</skipCompatibilityTests>
       <skipSmokeTests>true</skipSmokeTests>
       <skipJoramTests>true</skipJoramTests>
@@ -1277,6 +1278,7 @@
             <skipSoakTests>true</skipSoakTests>
             <skipPerformanceTests>true</skipPerformanceTests>
             <skipExtraTests>false</skipExtraTests>
+            <skipLeakTests>false</skipLeakTests>
          </properties>
       </profile>
       <profile>
@@ -1289,6 +1291,7 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipCompatibilityTests>false</skipCompatibilityTests>
+            <skipLeakTests>false</skipLeakTests>
             <testFailureIgnore>false</testFailureIgnore>
             <!-- This enables the karaf-<foo>-integration-tests and
                  integration-tests module tests, see fast-tests profile

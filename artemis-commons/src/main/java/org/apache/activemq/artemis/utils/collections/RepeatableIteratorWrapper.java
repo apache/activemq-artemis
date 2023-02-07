@@ -36,6 +36,13 @@ public class RepeatableIteratorWrapper<E> implements RepeatableIterator<E>, Rese
    }
 
    @Override
+   public void removed(E removed) {
+      if (last == removed) {
+         last = null;
+      }
+   }
+
+   @Override
    public boolean hasNext() {
       return repeat || iterator.hasNext();
    }
