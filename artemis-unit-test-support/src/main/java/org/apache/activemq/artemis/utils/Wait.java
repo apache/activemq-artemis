@@ -111,7 +111,7 @@ public class Wait {
 
 
    public static void assertEquals(Object obj, ObjectCondition condition, long timeout, long sleepMillis) throws Exception {
-      boolean result = waitFor(() -> (obj == condition || obj.equals(condition.getObject())), timeout, sleepMillis);
+      boolean result = waitFor(() -> (obj == condition || (obj != null && obj.equals(condition.getObject()))), timeout, sleepMillis);
 
       if (!result) {
          Assert.assertEquals(obj, condition.getObject());

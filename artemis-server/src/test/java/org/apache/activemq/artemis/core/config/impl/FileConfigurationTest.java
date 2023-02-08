@@ -450,7 +450,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(true, conf.getAddressSettings().get("a1").isAutoCreateJmsTopics());
       assertEquals(true, conf.getAddressSettings().get("a1").isAutoDeleteJmsTopics());
       assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteQueuesDelay());
+      assertEquals(false, conf.getAddressSettings().get("a1").getAutoDeleteQueuesSkipUsageCheck());
       assertEquals(0, conf.getAddressSettings().get("a1").getAutoDeleteAddressesDelay());
+      assertEquals(false, conf.getAddressSettings().get("a1").isAutoDeleteAddressesSkipUsageCheck());
       assertEquals(false, conf.getAddressSettings().get("a1").isDefaultPurgeOnNoConsumers());
       assertEquals(Integer.valueOf(5), conf.getAddressSettings().get("a1").getDefaultMaxConsumers());
       assertEquals(RoutingType.ANYCAST, conf.getAddressSettings().get("a1").getDefaultQueueRoutingType());
@@ -486,7 +488,9 @@ public class FileConfigurationTest extends ConfigurationImplTest {
       assertEquals(false, conf.getAddressSettings().get("a2").isAutoCreateJmsTopics());
       assertEquals(false, conf.getAddressSettings().get("a2").isAutoDeleteJmsTopics());
       assertEquals(500, conf.getAddressSettings().get("a2").getAutoDeleteQueuesDelay());
+      assertEquals(true, conf.getAddressSettings().get("a2").getAutoDeleteQueuesSkipUsageCheck());
       assertEquals(1000, conf.getAddressSettings().get("a2").getAutoDeleteAddressesDelay());
+      assertEquals(true, conf.getAddressSettings().get("a2").isAutoDeleteAddressesSkipUsageCheck());
       assertEquals(true, conf.getAddressSettings().get("a2").isDefaultPurgeOnNoConsumers());
       assertEquals(Integer.valueOf(15), conf.getAddressSettings().get("a2").getDefaultMaxConsumers());
       assertEquals(RoutingType.MULTICAST, conf.getAddressSettings().get("a2").getDefaultQueueRoutingType());

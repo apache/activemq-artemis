@@ -368,17 +368,18 @@ public class SimpleAddressManager implements AddressManager {
    }
 
    @Override
-   public boolean checkAutoRemoveAddress(SimpleString address,
-                                         AddressInfo addressInfo,
-                                         AddressSettings settings) throws Exception {
-      return checkAutoRemoveAddress(address, addressInfo, settings, false);
+   public boolean checkAutoRemoveAddress(AddressInfo addressInfo,
+                                         AddressSettings settings,
+                                         boolean ignoreDelay) throws Exception {
+      return settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !bindingsFactory.isAddressBound(addressInfo.getName()) && addressWasUsed(addressInfo, settings) && (ignoreDelay || delayCheck(addressInfo, settings));
    }
 
-   @Override
-   public boolean checkAutoRemoveAddress(SimpleString address,
-                                         AddressInfo addressInfo,
-                                         AddressSettings settings, boolean ignoreDelay) throws Exception {
-      return settings.isAutoDeleteAddresses() && addressInfo != null && addressInfo.isAutoCreated() && !bindingsFactory.isAddressBound(address) && (ignoreDelay || addressInfo.getBindingRemovedTimestamp() != -1 && (System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay()));
+   private boolean delayCheck(AddressInfo addressInfo, AddressSettings settings) {
+      return (!settings.isAutoDeleteAddressesSkipUsageCheck() && System.currentTimeMillis() - addressInfo.getBindingRemovedTimestamp() >= settings.getAutoDeleteAddressesDelay()) || (settings.isAutoDeleteAddressesSkipUsageCheck() && System.currentTimeMillis() - addressInfo.getCreatedTimestamp() >= settings.getAutoDeleteAddressesDelay());
+   }
+
+   private boolean addressWasUsed(AddressInfo addressInfo, AddressSettings settings) {
+      return addressInfo.getBindingRemovedTimestamp() != -1 || settings.isAutoDeleteAddressesSkipUsageCheck();
    }
 
    @Override

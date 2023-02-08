@@ -1540,10 +1540,10 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224111, value = "Both 'whitelist' and 'allowlist' detected. Configuration 'whitelist' is deprecated, please use only the 'allowlist' configuration", level = LogMessage.Level.WARN)
    void useOnlyAllowList();
 
-   @LogMessage(id = 224112, value = "Auto removing Queue {} with queueID={} on address={}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 224112, value = "Auto removing queue {} with queueID={} on address={}", level = LogMessage.Level.INFO)
    void autoRemoveQueue(String name, long queueID, String address);
 
-   @LogMessage(id = 224113, value = "Auto removing Address {}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 224113, value = "Auto removing address {}", level = LogMessage.Level.INFO)
    void autoRemoveAddress(String name);
 
    @LogMessage(id = 224114, value = "Address control block, blocking message production on address '{}'. Clients will not get further credit.", level = LogMessage.Level.INFO)

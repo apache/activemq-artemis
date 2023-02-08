@@ -347,6 +347,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private volatile long ringSize;
 
+   private volatile long createdTimestamp = -1;
+
    @Override
    public boolean isSwept() {
       return swept;
@@ -634,6 +636,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                     final ActiveMQServer server,
                     final QueueFactory factory) {
       super(server == null ? EmptyCriticalAnalyzer.getInstance() : server.getCriticalAnalyzer(), CRITICAL_PATHS);
+
+      this.createdTimestamp = System.currentTimeMillis();
 
       this.id = queueConfiguration.getId();
 
@@ -1601,6 +1605,11 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    @Override
    public synchronized void setRingSize(long ringSize) {
       this.ringSize = ringSize;
+   }
+
+   @Override
+   public long getCreatedTimestamp() {
+      return createdTimestamp;
    }
 
    public long getMessageCountForRing() {

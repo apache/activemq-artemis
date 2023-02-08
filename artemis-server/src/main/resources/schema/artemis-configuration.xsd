@@ -4090,6 +4090,14 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="auto-delete-queues-skip-usage-check" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to check that the queue has actually be used before auto-deleting it
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="config-delete-queues" default="OFF" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
@@ -4128,6 +4136,14 @@
                <xsd:documentation>
                   how long to wait (in milliseconds) before deleting auto-created addresses after they no longer
                   have any queues
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="auto-delete-addresses-skip-usage-check" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  whether or not to check that the address has actually be used before auto-deleting it
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
