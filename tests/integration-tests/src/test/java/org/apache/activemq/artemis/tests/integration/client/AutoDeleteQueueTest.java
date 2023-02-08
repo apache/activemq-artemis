@@ -17,13 +17,15 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
+import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeTestAccessor;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -100,5 +102,30 @@ public class AutoDeleteQueueTest extends ActiveMQTestBase {
       server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
       assertNotNull(server.locateQueue(queueA));
       assertFalse(Wait.waitFor(() -> server.locateQueue(queueA) == null, 5000, 100));
+   }
+
+   @Test
+   public void testAutoDeleteAutoCreatedQueueWithoutUsage() throws Exception {
+      server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteQueuesSkipUsageCheck(true));
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      assertNotNull(server.locateQueue(queueA));
+      PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
+      Wait.assertTrue(() -> server.locateQueue(queueA) == null, 2000, 100);
+   }
+
+   @Test
+   public void testAutoDeleteAutoCreatedQueueWithoutUsageWithDelay() throws Exception {
+      final long DELAY = 1500;
+      server.getAddressSettingsRepository().addMatch(addressA.toString(), new AddressSettings().setAutoDeleteQueuesSkipUsageCheck(true).setAutoDeleteQueuesDelay(DELAY));
+      server.createQueue(new QueueConfiguration(queueA).setAddress(addressA).setRoutingType(RoutingType.ANYCAST).setAutoCreated(true));
+      long start = System.currentTimeMillis();
+      assertNotNull(server.locateQueue(queueA));
+      while (System.currentTimeMillis() - start <= DELAY) {
+         PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
+         assertNotNull(server.locateQueue(queueA));
+         Thread.sleep(100);
+      }
+      PostOfficeTestAccessor.sweepAndReapAddresses((PostOfficeImpl) server.getPostOffice());
+      assertNull(server.locateQueue(queueA));
    }
 }

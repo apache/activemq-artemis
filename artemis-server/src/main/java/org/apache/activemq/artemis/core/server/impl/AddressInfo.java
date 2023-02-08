@@ -73,13 +73,14 @@ public class AddressInfo {
 
    private static final AtomicLongFieldUpdater<AddressInfo> unRoutedMessageCountUpdater = AtomicLongFieldUpdater.newUpdater(AddressInfo.class, "unRoutedMessageCount");
 
-   private long bindingRemovedTimestamp = -1;
+   private volatile long bindingRemovedTimestamp = -1;
 
    private volatile boolean paused = false;
 
    private PostOffice postOffice;
    private StorageManager storageManager;
    private HierarchicalRepositoryChangeListener repositoryChangeListener;
+   private long createdTimestamp = -1;
 
    public boolean isSwept() {
       return swept;
@@ -96,11 +97,11 @@ public class AddressInfo {
    }
 
    public AddressInfo(String name) {
-      this(SimpleString.toSimpleString(name), EnumSet.noneOf(RoutingType.class));
+      this(SimpleString.toSimpleString(name), EMPTY_ROUTING_TYPES);
    }
 
    public AddressInfo(SimpleString name) {
-      this(name, EnumSet.noneOf(RoutingType.class));
+      this(name, EMPTY_ROUTING_TYPES);
    }
 
    /**
@@ -110,6 +111,7 @@ public class AddressInfo {
     */
    public AddressInfo(SimpleString name, EnumSet<RoutingType> routingTypes) {
       this.name = CompositeAddress.extractAddressName(name);
+      this.createdTimestamp = System.currentTimeMillis();
       setRoutingTypes(routingTypes);
    }
 
@@ -120,6 +122,7 @@ public class AddressInfo {
     */
    public AddressInfo(SimpleString name, RoutingType routingType) {
       this.name = CompositeAddress.extractAddressName(name);
+      this.createdTimestamp = System.currentTimeMillis();
       addRoutingType(routingType);
    }
 
@@ -313,6 +316,9 @@ public class AddressInfo {
       buff.append("}");
       buff.append(", autoCreated=").append(autoCreated);
       buff.append(", paused=").append(paused);
+      buff.append(", bindingRemovedTimestamp=").append(bindingRemovedTimestamp);
+      buff.append(", swept=").append(swept);
+      buff.append(", createdTimestamp=").append(createdTimestamp);
       buff.append("]");
       return buff.toString();
    }
@@ -388,6 +394,7 @@ public class AddressInfo {
          }
          builder.add("routingTypes", arrayBuilder);
       }
+      builder.add("created-timestamp", createdTimestamp);
 
       return builder.build().toString();
    }
@@ -412,6 +419,9 @@ public class AddressInfo {
             JsonNumber jsonNumber = (JsonNumber)rtValue;
             this.addRoutingType(RoutingType.getType((byte)jsonNumber.intValue()));
          }
+      } else if (key.equals("created-timestamp")) {
+         JsonNumber jsonLong = (JsonNumber) value;
+         this.createdTimestamp = jsonLong.longValue();
       }
    }
 
@@ -427,4 +437,7 @@ public class AddressInfo {
       return result;
    }
 
+   public long getCreatedTimestamp() {
+      return createdTimestamp;
+   }
 }

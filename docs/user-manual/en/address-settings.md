@@ -44,11 +44,13 @@ that would be found in the `broker.xml` file.
       <auto-delete-created-queues>false</auto-delete-created-queues>
       <auto-delete-queues-delay>0</auto-delete-queues-delay>
       <auto-delete-queues-message-count>0</auto-delete-queues-message-count>
+      <auto-delete-queues-skip-usage-check>false</auto-delete-queues-skip-usage-check>
       <config-delete-queues>OFF</config-delete-queues>
       <config-delete-diverts>OFF</config-delete-diverts>
       <auto-create-addresses>true</auto-create-addresses>
       <auto-delete-addresses>true</auto-delete-addresses>
       <auto-delete-addresses-delay>0</auto-delete-addresses-delay>
+      <auto-delete-addresses-skip-usage-check>false</auto-delete-addresses-skip-usage-check>
       <config-delete-addresses>OFF</config-delete-addresses>
       <management-browse-page-size>200</management-browse-page-size>
       <management-message-attribute-size-limit>256</management-message-attribute-size-limit>
@@ -264,6 +266,15 @@ less than or equal to before deleting auto-created queues.
 To disable message count check `-1` can be set.
 Default is `0` (empty queue).
 
+`auto-delete-queues-skip-usage-check`.  A queue will only be auto-deleted by 
+default if it has actually been "used." A queue is considered "used" if any
+messages have been sent to it or any consumers have connected to it during its
+life. However, there are use-cases where it's useful to skip this check. When
+set to `true` it is **imperative** to also set `auto-delete-queues-delay` to a
+value greater than `0` otherwise queues may be deleted almost immediately after
+being created. In this case the queue will be deleted based on when it was
+created rather then when it was last "used." Default is `false`.
+
 **Note:** the above auto-delete address settings can also be configured 
 individually at the queue level when a client auto creates the queue.
  
@@ -295,6 +306,15 @@ deleting auto-created addresses after they no longer have any queues. Default
 is `0` (delete immediately). The broker's `address-queue-scan-period` controls
 how often (in milliseconds) addresses are scanned for potential deletion. Use
 `-1` to disable scanning. The default scan value is `30000`.
+
+`auto-delete-addresses-skip-usage-check`.  An address will only be auto-deleted by
+default if it has actually been "used." An address is considered "used" if any
+queues have been created on it during its life. However, there are use-cases
+where it's useful to skip this check. When set to `true` it is **imperative** to
+also set `auto-delete-addresses-delay` to a value greater than `0` otherwise
+addresses may be deleted almost immediately after being created. In this case
+the address will be deleted based on when it was created rather then when it was
+last "used." Default is `false`.
 
 `config-delete-addresses`. How the broker should handle addresses deleted on
 config reload, by delete policy: `OFF` or `FORCE`. Default is `OFF`. Read more
