@@ -731,7 +731,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
       insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
       insertionOrderedProperties.put("AMQPConnections.target.password", "password");
-      insertionOrderedProperties.put("AMQPConnections.target.autoStart", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.autostart", "false");
       insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.type", "MIRROR");
       insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.messageAcknowledgements", "true");
       insertionOrderedProperties.put("AMQPConnections.target.connectionElements.mirror.queueCreation", "true");
@@ -751,6 +751,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
       Assert.assertEquals("admin", connectConfiguration.getUser());
       Assert.assertEquals("password", connectConfiguration.getPassword());
+      Assert.assertEquals(false, connectConfiguration.isAutostart());
       Assert.assertEquals(1,connectConfiguration.getConnectionElements().size());
       AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
       Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement);
