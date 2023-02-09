@@ -250,7 +250,7 @@ simple TCP:
   DEBUG level message is issued to the log, and the connection is refused. The
   type of client in use will determine what happens when the connection is
   refused. In the case of a `core` client, it will result in a
-  `org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException`.
+  `org.apache.activemq.artemis.api.core.ActiveMQConnectionTimedOutException`. Default value is -1 (unlimited)
 
 - `handshake-timeout`. Prevents an unauthorised client opening a large number
   of connections and just keeping them open. As connections each require a file
