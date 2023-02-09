@@ -548,12 +548,16 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          final int bufferSize = bytes.length;
          final int maxChunkSize = protocolManager.getOpenwireMaxPacketChunkSize();
 
-         if (maxChunkSize > 0 && bufferSize > maxChunkSize) {
-            chunkSend(bytes, bufferSize, maxChunkSize);
-         } else {
-            final ActiveMQBuffer buffer = transportConnection.createTransportBuffer(bufferSize);
-            buffer.writeBytes(bytes.data, bytes.offset, bufferSize);
-            transportConnection.write(buffer, false, false);
+         // We can't let any other packet to sneak in while chunkSend is happening.
+         // otherwise we may get wrong packts delivered
+         synchronized (transportConnection) {
+            if (maxChunkSize > 0 && bufferSize > maxChunkSize) {
+               chunkSend(bytes, bufferSize, maxChunkSize);
+            } else {
+               final ActiveMQBuffer buffer = transportConnection.createTransportBuffer(bufferSize);
+               buffer.writeBytes(bytes.data, bytes.offset, bufferSize);
+               transportConnection.write(buffer, false, false);
+            }
          }
          bufferSent();
       } catch (IOException e) {
