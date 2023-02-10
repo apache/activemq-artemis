@@ -23,7 +23,7 @@ under the License.
 <restrict>
 
     <cors>
-        <!-- Allow cross origin access from ${http.host} ... -->
+        <!-- Allow cross-origin access from the origins that match the following pattern ... -->
         <allow-origin>*://${http.host}*</allow-origin>
 
 

@@ -395,8 +395,20 @@ public class Create extends InstallAbstract {
       this.etc = etc;
    }
 
+   protected void setNoAutoTune(boolean autTune) {
+      this.noAutoTune = autTune;
+   }
+
    public boolean isAutoDelete() {
       return autoDelete;
+   }
+
+   protected void setHttpHost(String httpHost) {
+      this.httpHost = httpHost;
+   }
+
+   protected void setRelaxJolokia(boolean relaxJolokia) {
+      this.relaxJolokia = relaxJolokia;
    }
 
    public Create setAutoDelete(boolean autoDelete) {
