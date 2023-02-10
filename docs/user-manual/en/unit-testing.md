@@ -113,7 +113,7 @@ public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerEx
 JUnit 4 Rule | JUnit 5 Extension | Description
 --- | --- | ---
 EmbeddedActiveMQResource | EmbeddedActiveMQExtension | Run a Server, without the JMS manager	
-EmbeddedJMSResource | EmbeddedJMSExtension | Run a Server, including the JMS Manager
+~~EmbeddedJMSResource~~ (deprecated) | no equivalent | Run a Server, including the JMS Manager
 ActiveMQConsumerResource | ActiveMQConsumerExtension | Automate the creation of a consumer		
 ActiveMQDynamicProducerResource | ActiveMQDynamicProducerExtension | Automate the creation of a producer
 ActiveMQProducerResource | ActiveMQProducerExtension | Automate the creation of a producer
