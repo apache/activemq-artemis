@@ -101,10 +101,7 @@ related JIRA or an email to the [dev list](http://activemq.apache.org/mailing-li
     
    Note that git push references the branch you are pushing and defaults to `main`, not your working branch.
    
-1. Discuss your planned changes (if you want feedback)
-
-   On mailing list - http://activemq.apache.org/mailing-lists.html
-   On IRC - irc://irc.freenode.org/apache-activemq or https://webchat.freenode.net/?channels=apache-activemq
+1. [Discuss your planned changes](https://activemq.apache.org/contact) (if you want feedback)
 
 1. Once you're finished coding your feature/fix then rebase your branch against the latest main (applies your patches 
    on top of main)
