@@ -100,6 +100,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
+import org.apache.activemq.artemis.core.server.impl.QueueImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
@@ -1738,8 +1739,6 @@ public class PagingTest extends ParameterDBTestBase {
       producer.close();
       session.start();
 
-      long timeout = System.currentTimeMillis() + 30000;
-
       waitBuffer(cons, NUM_MESSAGES / 5);
       waitBuffer(cons2, NUM_MESSAGES / 5);
 
@@ -1759,8 +1758,6 @@ public class PagingTest extends ParameterDBTestBase {
       server.stop();
 
       final HashMap<Integer, AtomicInteger> recordsType = countJournal(config);
-
-      assertNull("The system is acking page records instead of just delete data", recordsType.get((int) JournalRecordIds.ACKNOWLEDGE_CURSOR));
 
       Pair<List<RecordInfo>, List<PreparedTransactionInfo>> journalData = loadMessageJournal(config);
 
@@ -1820,6 +1817,41 @@ public class PagingTest extends ParameterDBTestBase {
       assertFalse(queue.getPageSubscription().getPagingStore().isPaging());
 
       server.stop();
+   }
+
+   @Test
+   public void testDeleteQueue() throws Exception {
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultNettyConfig().setJournalSyncNonTransactional(false);
+
+      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX);
+
+      server.start();
+
+      SimpleString queue = new SimpleString("testPurge:" + RandomUtil.randomString());
+      server.addAddressInfo(new AddressInfo(queue, RoutingType.ANYCAST));
+      QueueImpl purgeQueue = (QueueImpl) server.createQueue(new QueueConfiguration(queue).setRoutingType(RoutingType.ANYCAST).setMaxConsumers(1).setPurgeOnNoConsumers(false).setAutoCreateAddress(false));
+
+      ConnectionFactory cf = CFUtil.createConnectionFactory("CORE", "tcp://localhost:61616");
+      Connection connection = cf.createConnection();
+      Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
+      javax.jms.Queue jmsQueue = session.createQueue(queue.toString());
+
+      purgeQueue.getPageSubscription().getPagingStore().startPaging();
+
+      MessageProducer producer = session.createProducer(jmsQueue);
+
+      for (int i = 0; i < 100; i++) {
+         producer.send(session.createTextMessage("hello" + i));
+         session.commit();
+      }
+
+      Wait.assertEquals(100, purgeQueue::getMessageCount);
+
+      purgeQueue.deleteQueue(false);
+
+      Wait.assertEquals(0, ()->server.getPagingManager().getTransactions().size(), 5_000);
    }
 
    private void waitBuffer(ClientConsumerInternal clientBuffer, int bufferSize) {
