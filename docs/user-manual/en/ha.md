@@ -869,7 +869,7 @@ like:
 
 In this instance the server is configured to use a specific connector to
 scale down, if a connector is not specified then the first INVM
-connector is chosen, this is to make scale down fromm a backup server
+connector is chosen, this is to make scale down from a backup server
 easy to configure. It is also possible to use discovery to scale down,
 this would look like:
 
@@ -909,9 +909,9 @@ It is also possible to mix scale down with HA via backup servers. If a
 slave is configured to scale down then after failover has occurred,
 instead of starting fully the backup server will immediately scale down
 to another live server. The most appropriate configuration for this is
-using the `colocated` approach. it means as you bring up live server
-they will automatically be backed up by server and as live servers are
-shutdown, there messages are made available on another live server. A
+using the `colocated` approach. It means that as you bring up live servers
+they will automatically be backed up, and as live servers are
+shutdown, their messages are made available on another live server. A
 typical configuration would look like:
 
 ```xml
@@ -952,7 +952,7 @@ When a server is stopping and preparing to scale down it will send a
 message to all its clients informing them which server it is scaling
 down to before disconnecting them. At this point the client will
 reconnect however this will only succeed once the server has completed
-scaledown. This is to ensure that any state such as queues or
+the scaledown process. This is to ensure that any state such as queues or
 transactions are there for the client when it reconnects. The normal
 reconnect settings apply when the client is reconnecting so these should
 be high enough to deal with the time needed to scale down.
@@ -971,9 +971,8 @@ problems). This is similar to failover, except it is reconnecting to the
 same server and is discussed in [Client Reconnection and Session Reattachment](client-reconnection.md)
 
 During failover, if the client has consumers on any non persistent or
-temporary queues, those queues will be automatically recreated during
-failover on the backup node, since the backup node will not have any
-knowledge of non persistent queues.
+temporary queues, those queues will be automatically recreated on the backup node, 
+since the backup node will not have any knowledge of non persistent queues.
 
 ### Automatic Client Failover
 
@@ -1138,17 +1137,17 @@ getting sent more than once.
 > **Note:**
 >
 > By catching the rollback exceptions and retrying, catching unblocked
-> calls and enabling duplicate detection, once and only once delivery
-> guarantees for messages can be provided in the case of failure,
+> calls and enabling duplicate detection, *once and only once* delivery
+> guarantees can be provided for messages in the case of failure,
 > guaranteeing 100% no loss or duplication of messages.
 
 #### Handling Failover With Non Transactional Sessions
 
 If the session is non transactional, messages or acknowledgements can be
-lost in the event of failover.
+lost in the event of a failover.
 
 If you wish to provide *once and only once* delivery guarantees for non
-transacted sessions too, enabled duplicate detection, and catch unblock
+transacted sessions too, enable duplicate detection, and catch unblock
 exceptions as described in [Handling Blocking Calls During Failover](ha.md)
 
 ### Getting Notified of Connection Failure
