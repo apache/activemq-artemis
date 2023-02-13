@@ -41,6 +41,44 @@ connect to them with the minimum of configuration.
 > *must* be unique among nodes in the cluster or the cluster will not
 > form properly.
 
+## Performance Considerations
+
+It is important to note that while the goal of clustering is to increase
+overall message throughput via horizontal scaling it is not a "silver bullet."
+In certain situations clustering can, in fact, _reduce_ message throughput
+so care must be taken when choosing a clustered configuration. Here's a few
+general guidelines:
+
+ 1. **Establish a clear, concrete performance goal.** Performance testing &
+    tuning are often difficult and tedious activities. Small, relative gains
+    will tempt you to keep going, and without a goal you will never know when
+    to stop. You need a goal to know "how good is good enough." 
+ 2. **Start simple.** Benchmark your use-case with a single broker first. A
+    single broker can handle _millions_ of messages per second in certain 
+    use-cases. If you can't meet your performance goal with a single broker
+    only then move to a clustered configuration. Only add complexity when
+    there is a _clear benefit_.
+
+The main way a cluster can reduce overall message throughput is if there are
+are not enough producers & consumers on each node leading to message build-up
+on some nodes and consumer starvation others. The cluster has mechanisms to
+deal with this (i.e. message load-balancing & redistribution, which will be
+covered later), but you really don't want the broker to intervene and move
+messages between nodes unless absolutely necessary because **that adds
+latency**.
+
+Therefore, when thinking in performance terms the main question one must
+answer when choosing a clustered configuration is: Do I have enough clients
+so that each node in the cluster has sufficient consumers to receive all the
+messages produced on that node? If the answer to that question is "yes" then
+clustering may, in fact, improve overall message throughput for you. If the
+answer to that question is "no" then you're likely to get better performance
+from either a smaller cluster or just a single broker.
+
+Also keep in mind that a [connection router](connection-routers.md) may improve
+performance of your cluster by grouping related consumers and producers together
+on the same node.
+
 ## Server discovery
 
 Server discovery is a mechanism by which servers can propagate their
