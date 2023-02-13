@@ -128,6 +128,10 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private String deserializationWhiteList;
 
+   private String serialFilter;
+
+   private String serialFilterClassName;
+
    private Boolean enableSharedClientID;
 
    /**
@@ -687,6 +691,28 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       hasBeenUpdated = true;
    }
 
+   @Override
+   public String getSerialFilter() {
+      return serialFilter;
+   }
+
+   @Override
+   public void setSerialFilter(String serialFilter) {
+      this.serialFilter = serialFilter;
+      hasBeenUpdated = true;
+   }
+
+   @Override
+   public String getSerialFilterClassName() {
+      return serialFilterClassName;
+   }
+
+   @Override
+   public void setSerialFilterClassName(String serialFilterClassName) {
+      this.serialFilterClassName = serialFilterClassName;
+      hasBeenUpdated = true;
+   }
+
    public boolean isHasBeenUpdated() {
       return hasBeenUpdated;
    }
@@ -934,6 +960,18 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       } else if (!deserializationWhiteList.equals(other.deserializationWhiteList))
          return false;
 
+      if (serialFilter == null) {
+         if (other.serialFilter != null)
+            return false;
+      } else if (!serialFilter.equals(other.serialFilter))
+         return false;
+
+      if (serialFilterClassName == null) {
+         if (other.serialFilterClassName != null)
+            return false;
+      } else if (!serialFilterClassName.equals(other.serialFilterClassName))
+         return false;
+
       if (this.enable1xPrefixes == null) {
          if (other.enable1xPrefixes != null)
             return false;
@@ -997,6 +1035,8 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       result = prime * result + ((connectionParameters == null) ? 0 : connectionParameters.hashCode());
       result = prime * result + ((deserializationBlackList == null) ? 0 : deserializationBlackList.hashCode());
       result = prime * result + ((deserializationWhiteList == null) ? 0 : deserializationWhiteList.hashCode());
+      result = prime * result + ((serialFilter == null) ? 0 : serialFilter.hashCode());
+      result = prime * result + ((serialFilterClassName == null) ? 0 : serialFilterClassName.hashCode());
       result = prime * result + ((enable1xPrefixes == null) ? 0 : enable1xPrefixes.hashCode());
       result = prime * result + ((enableSharedClientID == null) ? 0 : enableSharedClientID.hashCode());
       return result;

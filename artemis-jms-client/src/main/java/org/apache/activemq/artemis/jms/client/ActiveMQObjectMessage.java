@@ -21,6 +21,7 @@ import javax.jms.MessageFormatException;
 import javax.jms.ObjectMessage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputFilter;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
@@ -145,6 +146,12 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
          if (whiteList != null) {
             ois.setWhiteList(whiteList);
          }
+
+         ObjectInputFilter oif = ObjectInputFilterFactory.getObjectInputFilter(options);
+         if (oif != null) {
+            ois.setObjectInputFilter(oif);
+         }
+
          Serializable object = (Serializable) ois.readObject();
          return object;
       } catch (Exception e) {

@@ -414,6 +414,18 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-value></config-property-value>" +
       "      </config-property>" +
       "      <config-property>" +
+      "         <description>Serial filter pattern to match or reject classes during deserialization</description>" +
+      "         <config-property-name>SerialFilter</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>Class name of an ObjectInputFilter to use during deserialization</description>" +
+      "         <config-property-name>SerialFilterClassName</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
       "         <description>***add***</description>" +
       "         <config-property-name>IgnoreJTA</config-property-name>" +
       "         <config-property-type>boolean</config-property-type>" +

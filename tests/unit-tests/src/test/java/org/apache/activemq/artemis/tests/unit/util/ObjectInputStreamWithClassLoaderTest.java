@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectInputFilter;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
@@ -39,6 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
+import org.apache.activemq.artemis.jms.client.ObjectInputFilterFactory;
+import org.apache.activemq.artemis.ra.ConnectionFactoryProperties;
 import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass;
 import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;
 import org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;
@@ -46,6 +51,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ObjectInputStreamWithClassLoader;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
 
@@ -446,6 +453,379 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       }
    }
 
+   // serialFilter version of testWhiteBlackList()
+   @Test
+   public void testSerialFilter() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         outputStream.writeObject(new TestClass1());
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      String    serialFilter;
+      Exception result;
+
+      // default
+      assertNull(readSerializedObjectSF(null, serializeFile));
+
+      // Allow all
+      assertNull(readSerializedObjectSF("*", serializeFile));
+
+      // Reject all
+      result = readSerializedObjectSF("!*", serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // white list
+
+      // sub-package
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.**;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // package
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+
+      // other package
+      serialFilter = "some.other.package.*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // black list
+
+      // sub-package
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.**";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // package
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // other package
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg2.*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+
+
+      serialFilter = "!some.other.package.*;some.other.package1.*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+
+      // blacklist priority
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*;!some.other.package.*;" +
+                     "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*;*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.pkg2.*;!some.other.package.*;" +
+                     "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+
+      serialFilter = "!some.other.package.*;!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg2.*;" +
+                     "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+
+
+      // wildcard
+      serialFilter = "!*;org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      serialFilter = "!*;*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      serialFilter = "*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+   }
+
+   // serialFilter version of testWhiteBlackListAgainstArrayObject()
+   @Test
+   public void testSerialFilterAgainstArrayObject() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      TestClass1[] sourceObject = new TestClass1[]{new TestClass1()};
+
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         outputStream.writeObject(sourceObject);
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      String    serialFilter;
+      Exception result;
+
+      // default
+      assertNull(readSerializedObjectSF(null, serializeFile));
+
+      // now blacklist TestClass1
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now whitelist TestClass1, it should pass.
+
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+   }
+
+   // serialFilter version of testWhiteBlackListAgainstListObject()
+   @Test
+   public void testSerialFilterListAgainstListObject() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      List<TestClass1> sourceObject = new ArrayList<>();
+      sourceObject.add(new TestClass1());
+
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         outputStream.writeObject(sourceObject);
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      String    serialFilter;
+      Exception result;
+
+      // default
+      assertNull(readSerializedObjectSF(null, serializeFile));
+
+      // now blacklist TestClass1
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now whitelist TestClass1, should fail because the List type is not allowed
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now add List to white list, it should pass
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;java.util.ArrayList;java.lang.Object;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+   }
+
+   // serialFilter version of testWhiteBlackListAgainstListMapObject()
+   @Test
+   public void testSerialFilterAgainstListMapObject() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      Map<TestClass1, TestClass2> sourceObject = new HashMap<>();
+      sourceObject.put(new TestClass1(), new TestClass2());
+
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         outputStream.writeObject(sourceObject);
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      String    serialFilter;
+      Exception result;
+
+      // default
+      assertNull(readSerializedObjectSF(null, serializeFile));
+
+      // now blacklist TestClass1 - key
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now blacklist TestClass2 - value
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now white list the key, should fail too because value is forbidden (and HashMap)
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now white list the value, should fail too because the key is forbidden (and HashMap)
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // both key and value are in the whitelist, it should fail because HashMap not permitted
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;" +
+                     "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // now add HashMap, test should pass.
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;" +
+                     "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass2;" +
+                     "java.util.HashMap;java.util.Map$Entry;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+   }
+
+   // serialFilter version of testWhiteBlackListAnonymousObject()
+   @Test
+   public void testSerialFilterAnonymousObject() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         Serializable object = EnclosingClass.anonymousObject;
+         assertTrue(object.getClass().isAnonymousClass());
+         outputStream.writeObject(object);
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      String    serialFilter;
+      Exception result;
+
+      // default
+      assertNull(readSerializedObjectSF(null, serializeFile));
+
+      // forbidden by specifying the enclosing class
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // do it in whiteList
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+   }
+
+   // serialFilter version of testWhiteBlackListLocalObject()
+   @Test
+   public void testSerialFilterLocalObject() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         Object object = EnclosingClass.getLocalObject();
+         assertTrue(object.getClass().isLocalClass());
+         outputStream.writeObject(object);
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      String    serialFilter;
+      Exception result;
+
+      // default
+      assertNull(readSerializedObjectSF(null, serializeFile));
+
+      // forbidden by specifying the enclosing class
+      serialFilter = "!org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+
+      // do it in whiteList
+      serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.EnclosingClass*;!*";
+      result = readSerializedObjectSF(serialFilter, serializeFile);
+      assertNull(result);
+   }
+
+   @Test
+   public void testSerialFilterSystemProperty() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         outputStream.writeObject(new TestClass1());
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      ConnectionFactoryOptions options = new ConnectionFactoryProperties();
+
+      Exception result;
+
+      // default
+      assertNull(readSerializedObject(options, serializeFile));
+
+      // Set system property filter to block everything
+      System.setProperty(ObjectInputFilterFactory.SERIAL_FILTER_PROPERTY, "!*");
+      try {
+         // Default filter should be read from system property
+         result = readSerializedObject(options, serializeFile);
+         assertTrue(result instanceof InvalidClassException);
+
+         // Set options to allow all, this should override the default system property
+         options.setSerialFilter("*");
+         assertNull(readSerializedObject(options, serializeFile));
+      } finally {
+         System.clearProperty(ObjectInputFilterFactory.SERIAL_FILTER_PROPERTY);
+      }
+   }
+
+   @Test
+   public void testObjectInputFilterFactoryPatternCache() {
+      String serialFilter = "org.apache.activemq.artemis.tests.unit.util.deserialization.pkg1.TestClass1;!*";
+
+      ObjectInputFilter oif1 = ObjectInputFilterFactory.getObjectInputFilterForPattern(serialFilter);
+      ObjectInputFilter oif2 = ObjectInputFilterFactory.getObjectInputFilterForPattern(serialFilter);
+      ObjectInputFilter oif3 = ObjectInputFilterFactory.getObjectInputFilterForPattern(new String(serialFilter));
+
+      assertSame(oif1, oif2);
+      assertSame(oif1, oif3);
+   }
+
+   @Test
+   public void testObjectInputFilterFactoryClassNameCache() {
+      String className = AlwaysRejectObjectInputFilter.class.getName();
+
+      ObjectInputFilter oif1 = ObjectInputFilterFactory.getObjectInputFilterForClassName(className);
+      ObjectInputFilter oif2 = ObjectInputFilterFactory.getObjectInputFilterForClassName(className);
+      ObjectInputFilter oif3 = ObjectInputFilterFactory.getObjectInputFilterForClassName(new String(className));
+
+      assertSame(oif1, oif2);
+      assertSame(oif1, oif3);
+   }
+
+   @Test
+   public void testObjectInputFilter() throws Exception {
+      File serializeFile = new File(temporaryFolder.getRoot(), "testclass.bin");
+      ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(serializeFile));
+      try {
+         outputStream.writeObject(new TestClass1());
+         outputStream.flush();
+      } finally {
+         outputStream.close();
+      }
+
+      ConnectionFactoryOptions options = new ConnectionFactoryProperties();
+
+      Exception result;
+
+      // default
+      assertNull(readSerializedObject(options, serializeFile));
+
+      // always accept filter
+      options.setSerialFilterClassName(AlwaysAcceptObjectInputFilter.class.getName());
+      assertNull(readSerializedObject(options, serializeFile));
+
+      // always reject filter
+      options.setSerialFilterClassName(AlwaysRejectObjectInputFilter.class.getName());
+      result = readSerializedObject(options, serializeFile);
+      assertTrue(result instanceof InvalidClassException);
+   }
+
    private Exception readSerializedObject(String whiteList, String blackList, File serailizeFile) {
       Exception result = null;
 
@@ -468,8 +848,57 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
       return result;
    }
 
+   private Exception readSerializedObjectSF(String serialFilter, File serializeFile) {
+      Exception result = null;
 
+      ObjectInputStreamWithClassLoader ois = null;
 
+      try {
+         ois = new ObjectInputStreamWithClassLoader(new FileInputStream(serializeFile));
+
+         ObjectInputFilter oif = ObjectInputFilterFactory.getObjectInputFilterForPattern(serialFilter);
+         if (oif != null) {
+            ois.setObjectInputFilter(new DebugObjectInputFilter(oif));
+         }
+
+         ois.readObject();
+      } catch (Exception e) {
+         result = e;
+      } finally {
+         try {
+            ois.close();
+         } catch (IOException e) {
+            result = e;
+         }
+      }
+      return result;
+   }
+
+   private Exception readSerializedObject(ConnectionFactoryOptions options, File serializeFile) {
+      Exception result = null;
+
+      ObjectInputStreamWithClassLoader ois = null;
+
+      try {
+         ois = new ObjectInputStreamWithClassLoader(new FileInputStream(serializeFile));
+
+         ObjectInputFilter oif = ObjectInputFilterFactory.getObjectInputFilter(options);
+         if (oif != null) {
+            ois.setObjectInputFilter(new DebugObjectInputFilter(oif));
+         }
+
+         ois.readObject();
+      } catch (Exception e) {
+         result = e;
+      } finally {
+         try {
+            ois.close();
+         } catch (IOException e) {
+            result = e;
+         }
+      }
+      return result;
+   }
 
    public static class ProxyReader implements Runnable {
 
@@ -582,6 +1011,47 @@ public class ObjectInputStreamWithClassLoaderTest extends ActiveMQTestBase {
             return obj;
          }
 
+      }
+   }
+
+   private static class DebugObjectInputFilter implements ObjectInputFilter {
+      private static final Logger logger = LoggerFactory.getLogger("objectfilter");
+
+      private ObjectInputFilter delegate;
+
+      DebugObjectInputFilter(ObjectInputFilter delegate) {
+         this.delegate = delegate;
+      }
+
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         Status status = delegate != null ? delegate.checkInput(filterInfo) : Status.UNDECIDED;
+
+         if (logger.isDebugEnabled()) {
+            logger.debug("checkInput(): serialClass = {}, arrayLength = {}, depth = {}, references = {}, streamBytes = {}, STATUS = {}",
+                         filterInfo.serialClass(),
+                         filterInfo.arrayLength(),
+                         filterInfo.depth(),
+                         filterInfo.references(),
+                         filterInfo.streamBytes(),
+                         status);
+         }
+
+         return status;
+      }
+   }
+
+   public static class AlwaysRejectObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.REJECTED;
+      }
+   }
+
+   public static class AlwaysAcceptObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.ALLOWED;
       }
    }
 }

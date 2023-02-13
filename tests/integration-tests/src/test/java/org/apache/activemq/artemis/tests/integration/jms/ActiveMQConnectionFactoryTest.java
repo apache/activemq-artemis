@@ -26,6 +26,7 @@ import javax.jms.QueueBrowser;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import java.io.ObjectInputFilter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -400,6 +401,149 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testSerialFilterPattern() throws Exception {
+      testSerialFilterPattern(false, false);
+   }
+
+   @Test
+   public void testSerialFilterPatternJndi() throws Exception {
+      testSerialFilterPattern(true, false);
+   }
+
+   @Test
+   public void testSerialFilterPatternBrowser() throws Exception {
+      testSerialFilterPattern(false, true);
+   }
+
+   @Test
+   public void testSerialFilterPatternJndiBrowser() throws Exception {
+      testSerialFilterPattern(true, true);
+   }
+
+   private void testSerialFilterPattern(boolean useJndi, boolean useBrowser) throws Exception {
+      String qname = "SerialTestQueue";
+      SimpleString qaddr = new SimpleString(qname);
+      liveService.createQueue(new QueueConfiguration(qaddr)
+                                 .setRoutingType(RoutingType.ANYCAST));
+
+      // default ok
+      String serialFilter = null;
+      Object obj = receiveObjectMessageSerialFilter(serialFilter, null, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      // whitelist class
+      serialFilter = "org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;!*";
+      obj = receiveObjectMessageSerialFilter(serialFilter, null, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      // blacklist class
+      serialFilter = "!org.apache.activemq.artemis.tests.integration.jms.serializables.TestClass1;*";
+      obj = receiveObjectMessageSerialFilter(serialFilter, null, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+   }
+
+   @Test
+   public void testSerialFilterClass() throws Exception {
+      testSerialFilterClass(false, false);
+   }
+
+   @Test
+   public void testSerialFilterClassJndi() throws Exception {
+      testSerialFilterClass(true, false);
+   }
+
+   @Test
+   public void testSerialFilterClassBrowser() throws Exception {
+      testSerialFilterClass(false, true);
+   }
+
+   @Test
+   public void testSerialFilterClassJndiBrowser() throws Exception {
+      testSerialFilterClass(true, true);
+   }
+
+   private void testSerialFilterClass(boolean useJndi, boolean useBrowser) throws Exception {
+      String qname = "SerialTestQueue";
+      SimpleString qaddr = new SimpleString(qname);
+      liveService.createQueue(new QueueConfiguration(qaddr)
+                                 .setRoutingType(RoutingType.ANYCAST));
+
+      // default ok
+      String serialClassName = null;
+      Object obj = receiveObjectMessageSerialFilter(null, serialClassName, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      // allow all
+      serialClassName = AlwaysAcceptObjectInputFilter.class.getName();
+      obj = receiveObjectMessageSerialFilter(null, serialClassName, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof TestClass1);
+
+      // reject all
+      serialClassName = AlwaysRejectObjectInputFilter.class.getName();
+      obj = receiveObjectMessageSerialFilter(null, serialClassName, qname, new TestClass1(), useJndi, useBrowser);
+      assertTrue("Object is " + obj, obj instanceof JMSException);
+   }
+
+   private Object receiveObjectMessageSerialFilter(String filterPattern,
+                                                   String filterClassName,
+                                                   String qname,
+                                                   Serializable obj,
+                                                   boolean useJndi,
+                                                   boolean useBrowser) throws Exception {
+
+      Assert.assertFalse(filterPattern != null && filterClassName != null); // Only supply pattern or classname
+
+      sendObjectMessage(qname, obj);
+
+      StringBuilder query = new StringBuilder("");
+      if (filterPattern != null) {
+         query.append("?");
+         query.append("serialFilter=");
+         query.append(filterPattern);
+      }
+
+      if (filterClassName != null) {
+         query.append("?");
+         query.append("serialFilterClassName=");
+         query.append(filterClassName);
+      }
+
+      ActiveMQConnectionFactory factory = null;
+      if (useJndi) {
+         Hashtable<String, Object> props = new Hashtable<>();
+         props.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory");
+         props.put("connectionFactory.VmConnectionFactory", "vm://0" + query);
+         Context ctx = new InitialContext(props);
+         factory = (ActiveMQConnectionFactory) ctx.lookup("VmConnectionFactory");
+      } else {
+         factory = new ActiveMQConnectionFactory("vm://0" + query);
+      }
+
+      try (Connection connection = factory.createConnection()) {
+         connection.start();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue queue = session.createQueue(qname);
+         Object result = null;
+         if (useBrowser) {
+            QueueBrowser browser = session.createBrowser(queue);
+            ObjectMessage objMessage = (ObjectMessage) browser.getEnumeration().nextElement();
+            //drain message before triggering deserialization
+            MessageConsumer consumer = session.createConsumer(queue);
+            consumer.receive(5000);
+            result = objMessage.getObject();
+         } else {
+            MessageConsumer consumer = session.createConsumer(queue);
+            ObjectMessage objMessage = (ObjectMessage) consumer.receive(5000);
+            assertNotNull(objMessage);
+            result = objMessage.getObject();
+         }
+         return result;
+      } catch (Exception e) {
+         return e;
+      }
+   }
+
    private void sendObjectMessage(String qname, Serializable obj) throws Exception {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0");
       Connection connection = factory.createConnection();
@@ -706,4 +850,17 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       liveService.start();
    }
 
+   public static class AlwaysRejectObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.REJECTED;
+      }
+   }
+
+   public static class AlwaysAcceptObjectInputFilter implements ObjectInputFilter {
+      @Override
+      public Status checkInput(FilterInfo filterInfo) {
+         return Status.ALLOWED;
+      }
+   }
 }

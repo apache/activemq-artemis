@@ -30,4 +30,11 @@ public interface ConnectionFactoryOptions {
 
    void setDeserializationWhiteList(String whiteList);
 
+   String getSerialFilter();
+
+   void setSerialFilter(String serialFilter);
+
+   String getSerialFilterClassName();
+
+   void setSerialFilterClassName(String serialFilterClassName);
 }

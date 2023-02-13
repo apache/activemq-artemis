@@ -188,6 +188,14 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
 
    void setDeserializationWhiteList(String whiteList);
 
+   String getSerialFilter();
+
+   void setSerialFilter(String serialFilter);
+
+   String getSerialFilterClassName();
+
+   void setSerialFilterClassName(String serialFilterClassName);
+
    int getInitialMessagePacketSize();
 
    ConnectionFactoryConfiguration setInitialMessagePacketSize(int size);

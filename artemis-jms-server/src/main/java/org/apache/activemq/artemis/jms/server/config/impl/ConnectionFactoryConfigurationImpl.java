@@ -119,6 +119,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private String deserializationWhiteList;
 
+   private String serialFilter;
+
+   private String serialFilterClassName;
+
    private int initialMessagePacketSize = ActiveMQClient.DEFAULT_INITIAL_MESSAGE_PACKET_SIZE;
 
    private boolean enable1xPrefixes = ActiveMQJMSClient.DEFAULT_ENABLE_1X_PREFIXES;
@@ -642,6 +646,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       enableSharedClientID = buffer.readableBytes() > 0 ? BufferHelper.readNullableBoolean(buffer) : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
       useTopologyForLoadBalancing = buffer.readableBytes() > 0 ? BufferHelper.readNullableBoolean(buffer) : ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
+
+      serialFilter = buffer.readableBytes() > 0 ? BufferHelper.readNullableSimpleStringAsString(buffer) : null;
+
+      serialFilterClassName = buffer.readableBytes() > 0 ? BufferHelper.readNullableSimpleStringAsString(buffer) : null;
    }
 
    @Override
@@ -738,6 +746,10 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       BufferHelper.writeNullableBoolean(buffer, enableSharedClientID);
 
       BufferHelper.writeNullableBoolean(buffer, useTopologyForLoadBalancing);
+
+      BufferHelper.writeAsNullableSimpleString(buffer, serialFilter);
+
+      BufferHelper.writeAsNullableSimpleString(buffer, serialFilterClassName);
    }
 
    @Override
@@ -858,7 +870,11 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableBoolean(enableSharedClientID) +
 
-         BufferHelper.sizeOfNullableBoolean(useTopologyForLoadBalancing);
+         BufferHelper.sizeOfNullableBoolean(useTopologyForLoadBalancing) +
+
+         BufferHelper.sizeOfNullableSimpleString(serialFilter) +
+
+         BufferHelper.sizeOfNullableSimpleString(serialFilterClassName);
 
       return size;
    }
@@ -892,6 +908,26 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    @Override
    public void setDeserializationWhiteList(String whiteList) {
       this.deserializationWhiteList = whiteList;
+   }
+
+   @Override
+   public String getSerialFilter() {
+      return serialFilter;
+   }
+
+   @Override
+   public void setSerialFilter(String serialFilter) {
+      this.serialFilter = serialFilter;
+   }
+
+   @Override
+   public String getSerialFilterClassName() {
+      return serialFilterClassName;
+   }
+
+   @Override
+   public void setSerialFilterClassName(String serialFilterClassName) {
+      this.serialFilterClassName = serialFilterClassName;
    }
 
    @Override
