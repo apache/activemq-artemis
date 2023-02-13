@@ -34,6 +34,7 @@ under the License.
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
       <version.org.keycloak>19.0.2</version.org.keycloak>
+      <version.jboss.logging>3.5.0.Final</version.jboss.logging>
    </properties>
 
    <dependencies>
@@ -86,6 +87,7 @@ under the License.
                         <arg>org.keycloak:keycloak-adapter-core:jar:${version.org.keycloak}</arg>
                         <arg>org.keycloak:keycloak-core:jar:${version.org.keycloak}</arg>
                         <arg>org.apache.httpcomponents:httpclient:jar:${apache.httpclient.version}</arg>
+                        <arg>org.jboss.logging:jboss-logging:jar:${version.jboss.logging}</arg>
                      </libListWithDeps>
                   </configuration>
                </execution>
@@ -145,6 +147,11 @@ under the License.
                   <groupId>org.apache.httpcomponents</groupId>
                   <artifactId>httpclient</artifactId>
                   <version>${apache.httpclient.version}</version>
+               </dependency>
+               <dependency>
+                  <groupId>org.jboss.logging</groupId>
+                  <artifactId>jboss-logging</artifactId>
+                  <version>${version.jboss.logging}</version>
                </dependency>
             </dependencies>
          </plugin>
