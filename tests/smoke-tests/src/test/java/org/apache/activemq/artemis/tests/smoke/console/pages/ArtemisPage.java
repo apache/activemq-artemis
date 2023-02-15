@@ -57,6 +57,14 @@ public abstract class ArtemisPage extends ConsolePage {
       return null;
    }
 
+   public SendMessagePage getAddressSendMessagePage(String address, int timeout) {
+      driver.get(getServerUrl() + "/console/artemis/artemisAddressSendMessage?nid=root-org.apache.activemq.artemis-0.0.0.0-addresses-" + address);
+
+      waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Send Message')]"), timeout);
+
+      return new SendMessagePage(driver);
+   }
+
    public QueuesPage getQueuesPage(int timeout) {
       WebElement queuesMenuItem = driver.findElement(queuesMenuItemLocator);
 
@@ -75,6 +83,19 @@ public abstract class ArtemisPage extends ConsolePage {
       waitForElementToBeVisible(By.xpath("//h1[contains(text(),'Browse Queues')]"), timeout);
 
       return new QueuesPage(driver);
+   }
+
+   public LoginPage logout(int timeout) {
+      WebElement logoutWebElement = driver.findElement(logoutLocator);
+      WebElement userDropdownMenuWebElement = driver.findElement(userDropdownMenuLocator);
+
+      if (!logoutWebElement.isDisplayed()) {
+         userDropdownMenuWebElement.click();
+      }
+
+      logoutWebElement.click();
+
+      return new LoginPage(driver);
    }
 
    public Object postJolokiaExecRequest(String mbean, String operation, String arguments) {

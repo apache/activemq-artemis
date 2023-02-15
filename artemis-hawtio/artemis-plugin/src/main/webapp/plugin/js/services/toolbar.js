@@ -114,16 +114,6 @@ var Artemis;
                                         title=""
                                         ng-click="$ctrl.reset()">Reset
                                     </button>
-                                    <button ng-show="$ctrl.dlq" class="btn btn-default primary-action ng-binding ng-scope"
-                                        type="button"
-                                        title=""
-                                        ng-click="$ctrl.retry()">Retry Messages
-                                    </button>
-                                    <button ng-show="$ctrl.dlq" class="btn btn-default primary-action ng-binding ng-scope"
-                                        type="button"
-                                        title=""
-                                        ng-click="$ctrl.retry()">Move Messages
-                                    </button>
                             </div>
                         </form>
                     </div>

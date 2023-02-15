@@ -110,10 +110,33 @@ public class QueuesTest extends ConsoleTest {
    }
 
    @Test
-   public void testExpiryQueue() throws Exception {
-      final int messages = 1;
-      final String expiryQueueName = "ExpiryQueue";
-      final String testQueueName = "TEST";
+   public void testDefaultExpiryQueue() throws Exception {
+      testExpiryQueue("TEST", "ExpiryQueue");
+   }
+
+   @Test
+   public void testCustomExpiryQueue() throws Exception {
+      final ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(null, "0.0.0.0", true);
+      final ObjectName activeMQServerObjectName = objectNameBuilder.getActiveMQServerObjectName();
+
+      driver.get(serverUrl + "/console");
+      LoginPage loginPage = new LoginPage(driver);
+      StatusPage statusPage = loginPage.loginValidUser(
+         SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
+
+      Assert.assertTrue(statusPage.postJolokiaExecRequest(activeMQServerObjectName.getCanonicalName(),
+         "createQueue(java.lang.String,java.lang.String,java.lang.String)",
+         "\"foo\",\"foo\",\"ANYCAST\"").toString().contains("\"status\":200"));
+      Assert.assertTrue(statusPage.postJolokiaExecRequest(activeMQServerObjectName.getCanonicalName(),
+         "addAddressSettings(java.lang.String,java.lang.String,java.lang.String,long,boolean,int,long,int,int,long,double,long,long,boolean,java.lang.String,long,long,java.lang.String,boolean,boolean,boolean,boolean)",
+         "\"bar\",\"DLA\",\"foo\",-1,false,0,0,0,0,0,\"0\",0,0,false,\"\",-1,0,\"\",false,false,false,false").toString().contains("\"status\":200"));
+
+      statusPage.logout(DEFAULT_TIMEOUT);
+
+      testExpiryQueue("bar", "foo");
+   }
+
+   private void testExpiryQueue(String queueName, String expiryQueueName) throws Exception {
       final String messageText = "TEST";
       final ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(null, "0.0.0.0", true);
       final ObjectName expiryQueueObjectName = objectNameBuilder.getQueueObjectName(
@@ -121,8 +144,8 @@ public class QueuesTest extends ConsoleTest {
          SimpleString.toSimpleString(expiryQueueName),
          RoutingType.ANYCAST);
       final ObjectName testQueueObjectName = objectNameBuilder.getQueueObjectName(
-         SimpleString.toSimpleString(testQueueName),
-         SimpleString.toSimpleString(testQueueName),
+         SimpleString.toSimpleString(queueName),
+         SimpleString.toSimpleString(queueName),
          RoutingType.ANYCAST);
 
       driver.get(serverUrl + "/console");
@@ -133,14 +156,14 @@ public class QueuesTest extends ConsoleTest {
          "removeAllMessages()", "").toString().contains("\"status\":200"));
 
       QueuesPage beforeQueuesPage = statusPage.getQueuesPage(DEFAULT_TIMEOUT);
-      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue("ExpiryQueue"));
-      Wait.assertEquals(0, () -> beforeQueuesPage.countQueue(testQueueName));
+      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(expiryQueueName));
+      Wait.assertEquals(0, () -> beforeQueuesPage.countQueue(queueName));
 
       Producer producer = new Producer();
       producer.setUser(SERVER_ADMIN_USERNAME);
       producer.setPassword(SERVER_ADMIN_PASSWORD);
-      producer.setDestination(testQueueName);
-      producer.setMessageCount(messages);
+      producer.setDestination(queueName);
+      producer.setMessageCount(1);
       producer.setMessage(messageText);
       producer.setSilentInput(true);
       producer.setProtocol("amqp");
@@ -149,21 +172,28 @@ public class QueuesTest extends ConsoleTest {
       beforeQueuesPage.refresh(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(expiryQueueName));
       assertEquals(0, beforeQueuesPage.getMessagesCount(expiryQueueName));
-      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(testQueueName));
-      assertEquals(messages, beforeQueuesPage.getMessagesCount(testQueueName));
+      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(queueName));
+      assertEquals(1, beforeQueuesPage.getMessagesCount(queueName));
 
-      QueuePage queuePage = beforeQueuesPage.getQueuePage(testQueueName, DEFAULT_TIMEOUT);
+      SendMessagePage sendMessagePage = beforeQueuesPage.getAddressSendMessagePage(queueName, DEFAULT_TIMEOUT);
+      sendMessagePage.appendMessageText("xxx");
+      sendMessagePage.sendMessage();
+
+      QueuePage queuePage = sendMessagePage.getQueuesPage(DEFAULT_TIMEOUT).getQueuePage(queueName, DEFAULT_TIMEOUT);
       Assert.assertTrue(queuePage.postJolokiaExecRequest(testQueueObjectName.getCanonicalName(), "expireMessage(long)",
          String.valueOf(queuePage.getMessageId(0))).toString().contains("\"status\":200"));
+      Assert.assertTrue(queuePage.postJolokiaExecRequest(testQueueObjectName.getCanonicalName(), "expireMessage(long)",
+         String.valueOf(queuePage.getMessageId(1))).toString().contains("\"status\":200"));
 
       QueuesPage afterQueuesPage = queuePage.getQueuesPage(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> afterQueuesPage.countQueue(expiryQueueName));
-      assertEquals(messages, afterQueuesPage.getMessagesCount(expiryQueueName));
-      Wait.assertEquals(1, () -> beforeQueuesPage.countQueue(testQueueName));
-      assertEquals(0, afterQueuesPage.getMessagesCount(testQueueName));
+      assertEquals(2, afterQueuesPage.getMessagesCount(expiryQueueName));
+      Wait.assertEquals(1, () -> afterQueuesPage.countQueue(queueName));
+      assertEquals(0, afterQueuesPage.getMessagesCount(queueName));
 
-      QueuePage dlqPage = afterQueuesPage.getQueuePage(expiryQueueName, DEFAULT_TIMEOUT);
-      assertEquals(testQueueName, dlqPage.getMessageOriginalQueue(0));
+      QueuePage expiryPage = afterQueuesPage.getQueuePage(expiryQueueName, DEFAULT_TIMEOUT);
+      assertEquals(queueName, expiryPage.getMessageOriginalQueue(0));
+      assertEquals(queueName, expiryPage.getMessageOriginalQueue(1));
    }
 
    @Test

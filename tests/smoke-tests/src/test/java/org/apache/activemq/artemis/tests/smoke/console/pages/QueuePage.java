@@ -23,7 +23,7 @@ import org.openqa.selenium.WebElement;
 import java.util.List;
 
 public class QueuePage extends ArtemisPage {
-   private By messageRowLocator = By.cssSelector("tr[role='row'][class='ng-scope odd']");
+   private By messageRowLocator = By.cssSelector("tr[role='row'][class]");
 
    public QueuePage(WebDriver driver) {
       super(driver);

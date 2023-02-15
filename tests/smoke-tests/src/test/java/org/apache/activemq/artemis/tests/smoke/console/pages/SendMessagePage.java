@@ -69,5 +69,7 @@ public class SendMessagePage extends ArtemisPage {
 
    public void sendMessage() {
       driver.findElement(By.xpath("//button[contains(text(),'Send Message')]")).click();
+
+      driver.findElement(By.xpath("//button[@class='close']")).click();
    }
 }
