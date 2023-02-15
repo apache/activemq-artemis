@@ -119,15 +119,25 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
 
    @Test
    public void testAuditHotLogCore() throws Exception {
-      internalSend("CORE");
+      internalSend("CORE", 64);
    }
 
    @Test
    public void testAuditHotLogAMQP() throws Exception {
-      internalSend("AMQP");
+      internalSend("AMQP", 64);
    }
 
-   public void internalSend(String protocol) throws Exception {
+   @Test
+   public void testAuditHotLogCoreLarge() throws Exception {
+      internalSend("CORE", 1024 * 1024);
+   }
+
+   @Test
+   public void testAuditHotLogAMQPLarge() throws Exception {
+      internalSend("AMQP", 1024 * 1024);
+   }
+
+   public void internalSend(String protocol, int messageSize) throws Exception {
       JMXConnector jmxConnector = getJmxConnector();
       MBeanServerConnection mBeanServerConnection = jmxConnector.getMBeanServerConnection();
       String brokerName = "0.0.0.0";  // configured e.g. in broker.xml <broker-name> element
@@ -149,7 +159,13 @@ public class AuditLoggerTest extends AuditLoggerTestBase {
       try {
          Session session = connection.createSession();
          MessageProducer producer = session.createProducer(session.createQueue(address.toString()));
-         TextMessage message = session.createTextMessage("msg1");
+
+         byte[] msgs = new byte[messageSize];
+         for (int i = 0; i < msgs.length; i++) {
+            msgs[i] = RandomUtil.randomByte();
+         }
+
+         TextMessage message = session.createTextMessage(new String(msgs));
          message.setStringProperty("str", uniqueStr);
          producer.send(message);
 

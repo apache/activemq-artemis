@@ -53,6 +53,7 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerPlugin;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -125,9 +126,17 @@ public class CorePluginTest extends JMSTestBase {
       queue = createQueue("queue1");
    }
 
-
    @Test
    public void testSendReceive() throws Exception {
+      internalTestSendReceive(64);
+   }
+
+   @Test
+   public void testSendReceiveLarge() throws Exception {
+      internalTestSendReceive(1024 * 1024);
+   }
+
+   private void internalTestSendReceive(int messageSize) throws Exception {
       final AckPluginVerifier ackVerifier = new AckPluginVerifier((consumer, reason) -> {
          assertEquals(AckReason.NORMAL, reason);
          assertNotNull(consumer);
@@ -142,7 +151,12 @@ public class CorePluginTest extends JMSTestBase {
       MessageProducer prod = sess.createProducer(queue);
       MessageConsumer cons = sess.createConsumer(queue);
 
-      TextMessage msg1 = sess.createTextMessage("test");
+      byte[] msgs = new byte[messageSize];
+      for (int i = 0; i < msgs.length; i++) {
+         msgs[i] = RandomUtil.randomByte();
+      }
+
+      TextMessage msg1 = sess.createTextMessage(new String(msgs));
       prod.send(msg1);
       TextMessage received1 = (TextMessage)cons.receive(1000);
       assertNotNull(received1);
