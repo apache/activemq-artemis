@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console.pages;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 
 import org.openqa.selenium.By;
@@ -30,6 +32,15 @@ public abstract class ConsolePage {
 
    public ConsolePage(WebDriver driver) {
       this.driver = driver;
+   }
+
+   public String getServerUrl() {
+      try {
+         URL currentUrl = new URL(driver.getCurrentUrl());
+         return currentUrl.getProtocol() + "://" + currentUrl.getAuthority();
+      } catch (MalformedURLException e) {
+         throw new RuntimeException(e);
+      }
    }
 
    public void refresh(int timeout) {

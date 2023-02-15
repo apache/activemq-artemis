@@ -209,25 +209,26 @@ var Artemis;
         ctrl.allMessages = [];
         ctrl.messages = [];
 
-        var objName;
+        ctrl.objName = '';
         if (workspace.selection) {
-            objName = workspace.selection.objectName;
+            ctrl.objName = workspace.selection.objectName;
         } else {
         // in case of refresh
             var key = location.search()['nid'];
             var node = workspace.keyToNodeMap[key];
-            objName = node.objectName;
+            ctrl.objName = node.objectName;
         }
-        var artemisDLQ = localStorage['artemisDLQ'] || "^DLQ$";
-        var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "^ExpiryQueue$";
-        Artemis.log.debug("loading table" + artemisExpiryQueue);
-        if (objName) {
-            ctrl.dlq = false;
-            var addressName = jolokia.getAttribute(objName, "Address");
-            if (addressName.match(artemisDLQ) != null || addressName.match(artemisExpiryQueue) != null) {
-                ctrl.dlq = true;
-            }
+        if (ctrl.objName) {
+            ctrl.addressName = jolokia.getAttribute(ctrl.objName, "Address");
+            Artemis.log.debug("addressName: " + ctrl.addressName);
         }
+
+        ctrl.artemisDLQ = localStorage['artemisDLQ'] || "^DLQ$";
+        Artemis.log.debug("artemisDLQ: " + ctrl.artemisDLQ);
+        ctrl.artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "^ExpiryQueue$";
+        Artemis.log.debug("artemisExpiryQueue: " + ctrl.artemisExpiryQueue);
+
+        ctrl.originalQueueColumn = { name: "Original Queue", visible: false };
 
         ctrl.dtOptions = {
            // turn of ordering as we do it ourselves
@@ -244,7 +245,8 @@ var Artemis;
                 {name: "Large", visible: true},
                 {name: "Persistent Size", visible: true},
                 {name: "User ID", visible: true},
-                {name: "Validated User", visible: false}
+                {name: "Validated User", visible: false},
+                ctrl.originalQueueColumn
            ]
         };
 
@@ -331,23 +333,17 @@ var Artemis;
                     if (!value) return undefined;
                     return value._AMQ_VALIDATED_USER;
                 }
-            }
-
-        ];
-
-        if (ctrl.dlq) {
-            origQueue = {
+            },
+            {
                 itemField: 'StringProperties',
                 header: 'Original Queue',
                 templateFn: function(value) {
                     if (!value) return undefined;
                     return (value['_AMQ_ORIG_QUEUE'] ? value['_AMQ_ORIG_QUEUE'] : value['extraProperties._AMQ_ORIG_QUEUE']);
                 }
-            };
-            ctrl.tableColumns.push(origQueue);
+            }
 
-            ctrl.dtOptions.columns.push({name: "Original Queue", visible: true});
-        }
+        ];
 
         var resendConfig = {
             name: 'Resend',
@@ -684,7 +680,12 @@ var Artemis;
                 ctrl.allMessages = data;
             }
             idx = 0;
+
+            ctrl.dlq = ctrl.addressName.match(ctrl.artemisDLQ) != null ||
+                ctrl.addressName.match(ctrl.artemisExpiryQueue) != null;
+
             angular.forEach(ctrl.allMessages, function(message) {
+                ctrl.dlq = ctrl.dlq || (message['StringProperties'] ? (message['StringProperties']['_AMQ_ORIG_QUEUE'] ? true : (message['StringProperties']['extraProperties._AMQ_ORIG_QUEUE'] ? true : false)) : false);
                 message.bodyText = createBodyText(message);
                 if (idx == 0 && !ctrl.loadPrevousPage) {
                 //always load n the first message for paination when viewing message details
@@ -701,6 +702,7 @@ var Artemis;
                 message.idx = idx;
                 idx++;
             });
+            ctrl.originalQueueColumn.visible = ctrl.dlq;
             ctrl.messages = ctrl.allMessages;
             ctrl.isLoading = false;
             Core.$apply($scope);
@@ -886,42 +888,18 @@ var Artemis;
 
         ctrl.loadTable = function() {
             Artemis.log.debug("loading table")
+            ctrl.dlq = false;
             ctrl.isLoading = true;
-            var objName;
-            if (workspace.selection) {
-                objName = workspace.selection.objectName;
-            } else {
-                // in case of refresh
-                var key = location.search()['nid'];
-                var node = workspace.keyToNodeMap[key];
-                objName = node.objectName;
-            }
-            if (objName) {
-                ctrl.dlq = false;
-                var addressName = jolokia.getAttribute(objName, "Address");
-                var artemisDLQ = localStorage['artemisDLQ'] || "^DLQ$";
-                var artemisExpiryQueue = localStorage['artemisExpiryQueue'] || "^ExpiryQueue$";
-                Artemis.log.debug("loading table" + artemisExpiryQueue);
-                if (addressName.match(artemisDLQ) != null || addressName.match(artemisExpiryQueue) != null) {
-                    onDlq(true);
-                } else {
-                    onDlq(false);
-                }
+            if (ctrl.objName) {
                 //make sure to count only filtered messages
                 if (ctrl.filter) {
-                    jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages(java.lang.String)', arguments: [ctrl.filter] }, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                    jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'countMessages(java.lang.String)', arguments: [ctrl.filter] }, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
                 } else {
-                    jolokia.request({ type: 'exec', mbean: objName, operation: 'countMessages()'}, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
+                    jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'countMessages()'}, Core.onSuccess(function(response) { ctrl.pagination.page(response.value); }));
                 }
 
-                jolokia.request({ type: 'exec', mbean: objName, operation: 'browse(int, int, java.lang.String)', arguments: [ctrl.pagination.pageNumber, ctrl.pagination.pageSize, ctrl.filter] }, Core.onSuccess(populateTable));
+                jolokia.request({ type: 'exec', mbean: ctrl.objName, operation: 'browse(int, int, java.lang.String)', arguments: [ctrl.pagination.pageNumber, ctrl.pagination.pageSize, ctrl.filter] }, Core.onSuccess(populateTable));
             }
-        }
-
-        function onDlq(response) {
-            Artemis.log.debug("onDLQ=" + response);
-            ctrl.dlq = response;
-            Core.$apply($scope);
         }
 
         function operationSuccess() {
