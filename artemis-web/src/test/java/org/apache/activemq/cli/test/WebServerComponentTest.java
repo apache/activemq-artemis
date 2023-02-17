@@ -23,8 +23,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -452,6 +454,45 @@ public class WebServerComponentTest extends Assert {
       Assert.assertTrue(webServerComponent.isStarted());
       webServerComponent.stop(true);
       Assert.assertFalse(webServerComponent.isStarted());
+   }
+
+   @Test
+   public void testDefaultRootRedirect() throws Exception {
+      testRootRedirect(null, 404, null);
+   }
+
+   @Test
+   public void testCustomRootRedirect() throws Exception {
+      testRootRedirect("test-root-redirect", 302, "test-root-redirect");
+   }
+
+   public void testRootRedirect(String rootRedirectLocation, int expectedResponseCode, String expectedResponseLocation) throws Exception {
+      BindingDTO bindingDTO = new BindingDTO();
+      bindingDTO.uri = "http://localhost:0";
+      WebServerDTO webServerDTO = new WebServerDTO();
+      webServerDTO.setBindings(Collections.singletonList(bindingDTO));
+      webServerDTO.path = "";
+      webServerDTO.rootRedirectLocation = rootRedirectLocation;
+
+      WebServerComponent webServerComponent = new WebServerComponent();
+      webServerComponent.configure(webServerDTO, null, null);
+      webServerComponent.start();
+      try {
+         int port = webServerComponent.getPort(0);
+         java.net.URL url = new URL("http://localhost:" + port);
+         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+         conn.setInstanceFollowRedirects(false);
+         try {
+            assertEquals(expectedResponseCode, conn.getResponseCode());
+            if (expectedResponseLocation != null) {
+               assertTrue(conn.getHeaderField("Location").endsWith(webServerDTO.rootRedirectLocation));
+            }
+         } finally {
+            conn.disconnect();
+         }
+      } finally {
+         webServerComponent.stop(true);
+      }
    }
 
    private void createTestWar(String warName) throws Exception {

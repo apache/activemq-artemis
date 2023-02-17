@@ -40,7 +40,7 @@ public class DefaultHandler extends org.eclipse.jetty.server.handler.DefaultHand
                       HttpServletRequest request,
                       HttpServletResponse response) throws IOException, ServletException {
       if (rootRedirectLocation != null && target.matches("^$|/")) {
-         response.sendRedirect("/console");
+         response.sendRedirect(rootRedirectLocation);
       } else {
          super.handle(target, baseRequest, request, response);
       }
