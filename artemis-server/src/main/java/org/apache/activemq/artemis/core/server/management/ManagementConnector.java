@@ -55,6 +55,7 @@ public class ManagementConnector implements ActiveMQComponent {
    public void start() throws Exception {
       rmiRegistryFactory = new RmiRegistryFactory();
       rmiRegistryFactory.setPort(configuration.getConnectorPort());
+      rmiRegistryFactory.setHost(configuration.getConnectorHost());
       rmiRegistryFactory.init();
 
       mbeanServerFactory = new MBeanServerFactory();
