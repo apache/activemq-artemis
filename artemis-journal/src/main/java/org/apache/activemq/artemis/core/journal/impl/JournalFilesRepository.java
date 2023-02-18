@@ -248,6 +248,7 @@ public class JournalFilesRepository {
       if (!dataFiles.remove(file)) {
          ActiveMQJournalLogger.LOGGER.couldNotRemoveFile(file);
       }
+      removeNegatives(file);
    }
 
    public int getDataFilesCount() {
@@ -728,7 +729,13 @@ public class JournalFilesRepository {
 
       sf.close(false, false);
 
+      removeNegatives(file);
+
       return jf;
+   }
+
+   public void removeNegatives(final JournalFile file) {
+      dataFiles.forEach(f -> f.fileRemoved(file));
    }
 
    @Override

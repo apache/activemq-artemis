@@ -59,6 +59,12 @@ public interface JournalFile {
    int getTotalNegativeToOthers();
 
    /**
+    * Callback for when a file is removed. to cleanup negatives and avoid leaks.
+    * @param fileRemoved
+    */
+   void fileRemoved(JournalFile fileRemoved);
+
+   /**
     * Whether this file additions all have a delete in some other file
     */
    boolean isPosReclaimCriteria();

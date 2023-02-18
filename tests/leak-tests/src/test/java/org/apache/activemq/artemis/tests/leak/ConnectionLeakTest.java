@@ -82,6 +82,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       server = createServer(true, createDefaultConfig(1, true));
+      server.getConfiguration().setJournalPoolFiles(4).setJournalMinFiles(2);
       server.start();
    }
 

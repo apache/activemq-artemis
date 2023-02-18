@@ -745,6 +745,10 @@ public class ReclaimerTest extends ActiveMQTestBase {
       }
 
       @Override
+      public void fileRemoved(JournalFile fileRemoved) {
+      }
+
+      @Override
       public int getReplaceableCount() {
          return 0;
       }

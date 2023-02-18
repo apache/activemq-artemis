@@ -56,7 +56,7 @@ public class MemoryAssertions {
          for (Object obj : objects) {
             logger.warn("Object {} still in the heap", obj);
          }
-         String report = checkLeak.exploreObjectReferences(5, 10, true, objects);
+         String report = checkLeak.exploreObjectReferences(10, 10, true, objects);
          logger.info(report);
 
          Assert.fail("Class " + clazz + " has leaked " + objects.length + " objects\n" + report);
