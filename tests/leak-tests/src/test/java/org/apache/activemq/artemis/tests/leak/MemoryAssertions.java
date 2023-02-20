@@ -49,6 +49,10 @@ public class MemoryAssertions {
    }
 
    public static void assertMemory(CheckLeak checkLeak, int maxExpected, String clazz) throws Exception {
+      assertMemory(checkLeak, maxExpected, 10, 10, clazz);
+   }
+
+   public static void assertMemory(CheckLeak checkLeak, int maxExpected, int maxLevel, int maxObjects, String clazz) throws Exception {
       Wait.waitFor(() -> checkLeak.getAllObjects(clazz).length <= maxExpected, 5000, 100);
 
       Object[] objects = checkLeak.getAllObjects(clazz);
@@ -56,7 +60,7 @@ public class MemoryAssertions {
          for (Object obj : objects) {
             logger.warn("Object {} still in the heap", obj);
          }
-         String report = checkLeak.exploreObjectReferences(10, 10, true, objects);
+         String report = checkLeak.exploreObjectReferences(maxLevel, maxObjects, true, objects);
          logger.info(report);
 
          Assert.fail("Class " + clazz + " has leaked " + objects.length + " objects\n" + report);

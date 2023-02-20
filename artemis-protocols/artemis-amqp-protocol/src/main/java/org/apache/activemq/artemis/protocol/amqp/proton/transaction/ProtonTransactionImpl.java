@@ -45,26 +45,38 @@ public class ProtonTransactionImpl extends TransactionImpl {
       deliveries have been settled.  We also need to ensure we are settling on the correct link.  Hence why we keep a ref
       to the ProtonServerSenderContext here.
    */
-   private final Map<MessageReference, Pair<Delivery, ProtonServerSenderContext>> deliveries = new HashMap<>();
+   final Map<MessageReference, Pair<Delivery, ProtonServerSenderContext>> deliveries = new HashMap<>();
 
    private boolean discharged;
 
+   private static class TXOperations extends TransactionOperationAbstract {
+      final ProtonTransactionImpl protonTransaction;
+      final AMQPConnectionContext connection;
+
+      TXOperations(AMQPConnectionContext connection, ProtonTransactionImpl tx) {
+         this.protonTransaction = tx;
+         this.connection = connection;
+      }
+
+      @Override
+      public void afterCommit(Transaction tx) {
+         super.afterCommit(tx);
+         connection.runNow(() -> {
+            // Settle all unsettled deliveries if commit is successful
+            for (Pair<Delivery, ProtonServerSenderContext> p : protonTransaction.deliveries.values()) {
+               if (!p.getA().isSettled())
+                  p.getB().settle(p.getA());
+            }
+            connection.flush();
+            protonTransaction.deliveries.forEach((a, b) -> b.getA().setContext(null));
+            protonTransaction.deliveries.clear();
+         });
+      }
+   }
+
    public ProtonTransactionImpl(final Xid xid, final StorageManager storageManager, final int timeoutSeconds, final AMQPConnectionContext connection) {
       super(xid, storageManager, timeoutSeconds);
-      addOperation(new TransactionOperationAbstract() {
-         @Override
-         public void afterCommit(Transaction tx) {
-            super.afterCommit(tx);
-            connection.runNow(() -> {
-               // Settle all unsettled deliveries if commit is successful
-               for (Pair<Delivery, ProtonServerSenderContext> p : deliveries.values()) {
-                  if (!p.getA().isSettled())
-                     p.getB().settle(p.getA());
-               }
-               connection.flush();
-            });
-         }
-      });
+      addOperation(new TXOperations(connection, this));
    }
 
    @Override

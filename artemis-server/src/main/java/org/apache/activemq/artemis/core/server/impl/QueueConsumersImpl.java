@@ -93,9 +93,9 @@ public class QueueConsumersImpl<T extends PriorityAware> implements QueueConsume
 
    @Override
    public boolean remove(T t) {
-      iterator.removed(t);
       boolean result = consumers.remove(t);
       if (result) {
+         iterator.removed(t);
          iterator.update(consumers.resettableIterator());
          if (consumers.isEmpty()) {
             reset();

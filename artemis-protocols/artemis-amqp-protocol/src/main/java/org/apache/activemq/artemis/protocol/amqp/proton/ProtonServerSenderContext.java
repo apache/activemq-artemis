@@ -370,7 +370,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       OperationContext oldContext = sessionSPI.recoverContext();
 
       try {
-         Message message = ((MessageReference) delivery.getContext()).getMessage();
+         MessageReference reference = (MessageReference) delivery.getContext();
+         Message message = reference != null ? reference.getMessage() : null;
+
          DeliveryState remoteState = delivery.getRemoteState();
 
          if (remoteState != null && remoteState.getType() == DeliveryStateType.Accepted) {
