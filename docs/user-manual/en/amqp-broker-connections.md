@@ -36,7 +36,7 @@ To define an AMQP broker connection, add an `<amqp-connection>` element within t
 
 *Notice:* If auto-start is disabled on the broker connection, the start of the broker connection will only happen after the management method `startBrokerConnection(connectionName)` is called on the ServerController.
 
-*Important*: The target endpoint needs permission for all operations that configured. Therefore, If a security manager is being used, ensure to perform the configured operations with a user with sufficient permissions.
+*Important*: The target endpoint needs permission for all operations that are configured. Therefore, If a security manager is being used, ensure that you perform the configured operations with a user with sufficient permissions.
 
 <div style="page-break-after: always"></div>
 
@@ -56,11 +56,11 @@ The following types of operations are supported on an AMQP server connection:
 
 # Reconnecting and Failover
 
-It is possible to determine how reconnection will happen on a broker connection. 
+It is possible to determine how reconnection will happen on a broker connection.
 
-These are the attributes are available on amqp-connection XML element:
-- reconnect-attempts: default as -1 (infinite). How many attempts will be done after a failed connection
-- retry-interval: default as 5000, in milliseconds, the wait between each retry in connections. 
+These are the attributes that are available on the amqp-connection XML element:
+- reconnect-attempts: default is -1 (infinite). How many attempts will be done after a failed connection
+- retry-interval: default is 5000, in milliseconds, the wait between each retry of a connection.
 
 It is also possible to specify alternate hosts on a broker connection by appending a comma separated list after a # at the end of the URI.
 The broker connection would keep trying on the alternate list until one of the targets is available to connect. Example:
@@ -93,7 +93,7 @@ The following events are sent through mirroring:
 * Queue and address creation.
 * Queue and address deletion.
 
-By default every operation is sent asynchronously without blocking any clients. However if you set sync="true" on the mirror configuration, the clients will always wait a mirror on every blocking operation.
+By default every operation is sent asynchronously without blocking any clients. However if you set sync="true" on the mirror configuration, the clients will always wait for the mirror on every blocking operation.
 
 ### Mirror configuration
 
@@ -122,7 +122,7 @@ The following optional arguments can be utilized:
   **Note:**
   - Address exclusion will always take precedence over address inclusion.
   - Address matching on mirror elements is prefix-based and does not support wild-card matching.
-* `sync`: By default is false. If set it to true any client blocking operation will be held until the mirror as confirmed receiving the operation.
+* `sync`: By default is false. If set it to true any client blocking operation will be held until the mirror has confirmed receiving the operation.
   * Notice that a disconnected node would hold all operations from the client. If you set sync=true you must reconnect a mirror before performing any operations.
 
 An example of a mirror configuration is shown below:
@@ -185,7 +185,7 @@ The following xml should be added on DataCenter2's broker.xml:
 ```
 
 
-The broker connections will replicate sends and acknowledgements to the other broker, no matter where they originated. If messages are sent on DC1 (DataCenter1) these will be automatically transferred to DC2 (DataCenter2). Messages acknowledgements received on DC2 will be automatically related back to DC1. 
+The broker connections will replicate sends and acknowledgements to the other broker, no matter where they originated. If messages are sent on DC1 (DataCenter1) these will be automatically transferred to DC2 (DataCenter2). Messages acknowledgements received on DC2 will be automatically related back to DC1.
 The only exception to that rule would be if there were already consumers with pending messages on any server, where a mirrored acknowledgement will not prevent the message being consumed by both consumers. It is recommended to not have active consumers on both servers.
 
 ## Example
