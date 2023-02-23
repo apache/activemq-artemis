@@ -33,7 +33,7 @@ under the License.
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
-      <version.org.keycloak>19.0.2</version.org.keycloak>
+      <version.org.keycloak>21.0.0</version.org.keycloak>
       <version.jboss.logging>3.5.0.Final</version.jboss.logging>
    </properties>
 
@@ -59,7 +59,7 @@ under the License.
                      <goal>wget</goal>
                   </goals>
                   <configuration>
-                     <url>https://github.com/keycloak/keycloak/releases/download/${version.org.keycloak}/keycloak-legacy-${version.org.keycloak}.tar.gz</url>
+                     <url>https://github.com/keycloak/keycloak/releases/download/${version.org.keycloak}/keycloak-${version.org.keycloak}.tar.gz</url>
                      <unpack>true</unpack>
                      <overwrite>false</overwrite>
                      <skip>${noServer}</skip>
@@ -168,26 +168,12 @@ under the License.
                   <configuration>
                      <skip>${noServer}</skip>
                      <async>true</async>
-                     <executable>./target/keycloak-${version.org.keycloak}/bin/standalone.sh</executable>
+                     <executable>./target/keycloak-${version.org.keycloak}/bin/kc.sh</executable>
                      <arguments>
+                        <argument>start-dev</argument>
                         <argument>-Dkeycloak.migration.action=import</argument>
                         <argument>-Dkeycloak.migration.provider=singleFile</argument>
                         <argument>-Dkeycloak.migration.file=./src/main/resources/artemis-keycloak-demo-realm.json</argument>
-                     </arguments>
-                  </configuration>
-               </execution>
-               <execution>
-                  <id>stop-keycloak</id>
-                  <phase>verify</phase>
-                  <goals>
-                     <goal>exec</goal>
-                  </goals>
-                  <configuration>
-                     <skip>${noServer}</skip>
-                     <executable>./target/keycloak-${version.org.keycloak}/bin/jboss-cli.sh</executable>
-                     <arguments>
-                        <argument>--connect</argument>
-                        <argument>command=:shutdown</argument>
                      </arguments>
                   </configuration>
                </execution>

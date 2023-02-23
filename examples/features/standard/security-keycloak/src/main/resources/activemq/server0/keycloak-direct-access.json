@@ -1,7 +1,7 @@
 {
   "realm": "artemis-keycloak-demo",
   "resource": "artemis-broker",
-  "auth-server-url": "http://localhost:8080/auth",
+  "auth-server-url": "http://localhost:8080",
   "use-resource-role-mappings": true,
   "principal-attribute": "preferred_username",
   "ssl-required": "external",

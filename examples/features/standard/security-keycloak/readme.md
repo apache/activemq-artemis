@@ -6,7 +6,7 @@ In this example, broker authentication is delegated to keycloak. A keycloak serv
 a demo realm called "artemis-keycloak-demo".
 
 _NOTE_: The keycloak admin user is admin:admin
-The keycloak admin console is at: http://localhost:8080/auth/admin/master/console/#/realms/artemis-keycloak-demo
+The keycloak admin console is at: http://localhost:8080/admin/master/console/#/realms/artemis-keycloak-demo
 
 Artemis uses JAAS for authentication and authorization, when authentication is delegated to keycloak, JAAS needs a
 way to query keycloak and resolve tokens or authenticate directly.
