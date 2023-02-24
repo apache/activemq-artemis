@@ -134,7 +134,8 @@ public class ServerUtil {
    public static boolean waitForServerToStart(String uri, String username, String password, long timeout) throws InterruptedException {
       long realTimeout = System.currentTimeMillis() + timeout;
       while (System.currentTimeMillis() < realTimeout) {
-         try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null); Connection c = cf.createConnection(username, password)) {
+         try (ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactory(uri, null);
+              Connection c = cf.createConnection(username, password)) {
             System.out.println("server " + uri + " started");
          } catch (Exception e) {
             System.out.println("awaiting server " + uri + " start at ");

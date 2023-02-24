@@ -109,7 +109,9 @@ public class FederatedQueueTest extends FederatedTestBase {
       ConnectionFactory cf1 = getCF(0);
       ConnectionFactory cf2 = getCF(0);
       ConnectionFactory cf3 = getCF(1);
-      try (Connection consumer1Connection = cf1.createConnection(); Connection consumer2Connection = cf2.createConnection(); Connection producerConnection = cf3.createConnection()) {
+      try (Connection consumer1Connection = cf1.createConnection();
+           Connection consumer2Connection = cf2.createConnection();
+           Connection producerConnection = cf3.createConnection()) {
          consumer1Connection.start();
          Session session1 = consumer1Connection.createSession();
          Queue queue1 = session1.createQueue("Test.Q.1");
@@ -167,7 +169,8 @@ public class FederatedQueueTest extends FederatedTestBase {
    private void testFederatedQueueRemoteConsumeUpstreamPriorityAdjustment(final String queueName) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          connection1.start();
          Session session0 = connection0.createSession();
@@ -197,7 +200,8 @@ public class FederatedQueueTest extends FederatedTestBase {
    private void verifyTransformer(String queueName) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          Session session1 = connection1.createSession();
          Queue queue1 = session1.createQueue(queueName);
@@ -254,7 +258,8 @@ public class FederatedQueueTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          Session session1 = connection1.createSession();
          Queue queue1 = session1.createQueue(queueName);
@@ -308,7 +313,8 @@ public class FederatedQueueTest extends FederatedTestBase {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
       final String payload = new String(new byte[1 * 1024 * 1024]).replace('\0','+');
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          Session session1 = connection1.createSession();
          Queue queue1 = session1.createQueue(queueName);
@@ -330,7 +336,8 @@ public class FederatedQueueTest extends FederatedTestBase {
       ConnectionFactory cf0 = getCF(0);
 
       ConnectionFactory cf1 = getCF(1);
-      try (Connection connection0 = cf0.createConnection(); Connection connection1 = cf1.createConnection()) {
+      try (Connection connection0 = cf0.createConnection();
+           Connection connection1 = cf1.createConnection()) {
 
          connection1.start();
          Session session1 = connection1.createSession();
@@ -443,7 +450,8 @@ public class FederatedQueueTest extends FederatedTestBase {
    private void testFederatedQueueShareUpstreamConnection(String queueName, int server0Connections, int server1Connections) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          connection1.start();
          Session session0 = connection0.createSession();
@@ -462,7 +470,8 @@ public class FederatedQueueTest extends FederatedTestBase {
    private void testFederatedQueueBiDirectional(String queueName, boolean shared) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          Session session0 = connection0.createSession();
          Queue queue0 = session0.createQueue(queueName);
@@ -544,7 +553,8 @@ public class FederatedQueueTest extends FederatedTestBase {
 
       ConnectionFactory cf2 = getCF(2);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection2 = cf2.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection2 = cf2.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          Session session0 = connection0.createSession();
          Queue queue0 = session0.createQueue(queueName);

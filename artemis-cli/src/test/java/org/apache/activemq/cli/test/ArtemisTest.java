@@ -1582,7 +1582,8 @@ public class ArtemisTest extends CliTestBase {
       System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
       Artemis.internalExecute("run");
 
-      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
+           Connection connection = cf.createConnection("admin", "admin")) {
 
          //set up some queues with messages and consumers
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -1858,7 +1859,8 @@ public class ArtemisTest extends CliTestBase {
       System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
       Artemis.internalExecute("run");
 
-      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
+           Connection connection = cf.createConnection("admin", "admin")) {
 
          //set up some queues with messages and consumers
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -2035,7 +2037,8 @@ public class ArtemisTest extends CliTestBase {
       System.setProperty("artemis.instance", instanceQstat.getAbsolutePath());
       Artemis.internalExecute("run");
 
-      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
+           Connection connection = cf.createConnection("admin", "admin")) {
 
          TestActionContext context;
          StatQueue statQueue;
@@ -2119,7 +2122,8 @@ public class ArtemisTest extends CliTestBase {
       Artemis.internalExecute("run", "--properties", new File(brokerPropertiesFromClasspath.toURI()).getAbsolutePath());
 
       // verify
-      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61618"); Connection connection = cf.createConnection("admin", "admin");) {
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61618");
+           Connection connection = cf.createConnection("admin", "admin")) {
          connection.start();
       } finally {
          stopServer();

@@ -561,7 +561,8 @@ public class JMSMappingOutboundTransformerTest {
    private CoreObjectMessageWrapper createObjectMessage(Serializable payload) {
       CoreObjectMessageWrapper result = AMQPMessageSupport.createObjectMessage(0, null);
 
-      try (ByteArrayOutputStream baos = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(baos);) {
+      try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+           ObjectOutputStream oos = new ObjectOutputStream(baos)) {
 
          oos.writeObject(payload);
          byte[] data = baos.toByteArray();
@@ -589,7 +590,8 @@ public class JMSMappingOutboundTransformerTest {
    }
 
    private Object deserialize(byte[] payload) throws Exception {
-      try (ByteArrayInputStream bis = new ByteArrayInputStream(payload); ObjectInputStream ois = new ObjectInputStream(bis);) {
+      try (ByteArrayInputStream bis = new ByteArrayInputStream(payload);
+           ObjectInputStream ois = new ObjectInputStream(bis)) {
 
          return ois.readObject();
       }

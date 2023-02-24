@@ -845,7 +845,8 @@ public class DNSSwitchTest extends SmokeTestBase {
          Wait.assertTrue(() -> !liveControl.isReplicaSync());
 
          logger.debug("Waiting enough to let live spread its topology around");
-         try (ActiveMQConnectionFactory firstCf = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=false"); Connection ignored = firstCf.createConnection()) {
+         try (ActiveMQConnectionFactory firstCf = new ActiveMQConnectionFactory("tcp://FIRST:61616?ha=false");
+              Connection ignored = firstCf.createConnection()) {
             waitForTopology(firstCf.getServerLocator().getTopology(), 60_000, 1, 1);
             final Topology topology = firstCf.getServerLocator().getTopology();
             final TopologyMemberImpl member = topology.getMember(liveControl.getNodeID());
@@ -862,7 +863,8 @@ public class DNSSwitchTest extends SmokeTestBase {
             Assert.assertEquals("SECOND", backup.getParams().get("host"));
             Assert.assertEquals("61716", backup.getParams().get("port"));
          }
-         try (ActiveMQConnectionFactory secondCf = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=false"); Connection ignored = secondCf.createConnection()) {
+         try (ActiveMQConnectionFactory secondCf = new ActiveMQConnectionFactory("tcp://SECOND:61716?ha=false");
+              Connection ignored = secondCf.createConnection()) {
             logger.debug("Waiting until second broker topology has just a single live node");
             waitForTopology(secondCf.getServerLocator().getTopology(), 60_000, 1, 0);
             final Topology topology = secondCf.getServerLocator().getTopology();

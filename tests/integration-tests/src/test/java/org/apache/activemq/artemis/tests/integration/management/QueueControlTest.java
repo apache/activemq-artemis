@@ -1595,7 +1595,9 @@ public class QueueControlTest extends ManagementTestBase {
 
          for (int i = 0; i < THREAD_COUNT; i++) {
             producerExecutor.submit(() -> {
-               try (ClientSessionFactory sf = locator.createSessionFactory(); ClientSession session = sf.createSession(false, true, false); ClientProducer producer = session.createProducer(address)) {
+               try (ClientSessionFactory sf = locator.createSessionFactory();
+                    ClientSession session = sf.createSession(false, true, false);
+                    ClientProducer producer = session.createProducer(address)) {
                   for (int j = 0; j < MSG_COUNT; j++) {
                      producer.send(session.createMessage(false));
                      Thread.sleep(5);
@@ -1609,7 +1611,9 @@ public class QueueControlTest extends ManagementTestBase {
 
          for (int i = 0; i < THREAD_COUNT; i++) {
             consumerExecutor.submit(() -> {
-               try (ClientSessionFactory sf = locator.createSessionFactory(); ClientSession session = sf.createSession(false, true, false); ClientConsumer consumer = session.createConsumer(queue)) {
+               try (ClientSessionFactory sf = locator.createSessionFactory();
+                    ClientSession session = sf.createSession(false, true, false);
+                    ClientConsumer consumer = session.createConsumer(queue)) {
                   session.start();
                   for (int j = 0; j < MSG_COUNT; j++) {
                      ClientMessage message = consumer.receive(500);

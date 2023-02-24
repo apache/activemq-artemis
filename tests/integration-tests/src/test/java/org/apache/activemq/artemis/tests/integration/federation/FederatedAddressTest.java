@@ -136,7 +136,8 @@ public class FederatedAddressTest extends FederatedTestBase {
    private void verifyTransformer(String address) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -343,7 +344,8 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -395,7 +397,8 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -452,7 +455,8 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -492,7 +496,8 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -550,7 +555,8 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -624,7 +630,8 @@ public class FederatedAddressTest extends FederatedTestBase {
 
       ConnectionFactory cf2 = getCF(2);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection2 = cf2.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection2 = cf2.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          Session session0 = connection0.createSession();
          Topic topic0 = session0.createTopic(address);

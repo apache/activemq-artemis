@@ -281,7 +281,8 @@ public class MessageSerializerTest extends CliTestBase {
       createQueue(routingType, address, queue1Name);
       createQueue(routingType, address, queue2Name);
 
-      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616"); Connection connection = cf.createConnection("admin", "admin");) {
+      try (ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("tcp://localhost:61616");
+           Connection connection = cf.createConnection("admin", "admin")) {
 
          // send messages to queue
          Session session = createSession(connection);

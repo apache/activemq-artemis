@@ -522,7 +522,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
                   if (files != null && files.length > 0) {
                      Arrays.sort(files);
                      for (String fileName : files) {
-                        try (FileInputStream fileInputStream = new FileInputStream(new File(dir, fileName)); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+                        try (FileInputStream fileInputStream = new FileInputStream(new File(dir, fileName));
+                             BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
                            brokerProperties.clear();
                            brokerProperties.load(reader);
                            parsePrefixedProperties(fileName, brokerProperties, null);
@@ -532,7 +533,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
                }
             } else {
                File file = new File(fileUrl);
-               try (FileInputStream fileInputStream = new FileInputStream(file); BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
+               try (FileInputStream fileInputStream = new FileInputStream(file);
+                    BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
                   brokerProperties.load(reader);
                   parsePrefixedProperties(file.getName(), brokerProperties, null);
                }

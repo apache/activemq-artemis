@@ -165,7 +165,10 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
 
    @Test
    public void testSendMessageToBroker0GetFromBroker1() throws Exception {
-      try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer1URL()); ClientSessionFactory sessionFactory = locator.createSessionFactory(); ClientSession session = sessionFactory.createSession(); ClientConsumer consumer = session.createConsumer(notificationsQueue)) {
+      try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer1URL());
+           ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = sessionFactory.createSession();
+           ClientConsumer consumer = session.createConsumer(notificationsQueue)) {
 
          session.start();
 
@@ -187,7 +190,10 @@ public class AmqpBridgeClusterRedistributionTest extends AmqpClientTestSupport {
 
    @Test
    public void testSendMessageToBroker0GetFromBroker2() throws Exception {
-      try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer2URL()); ClientSessionFactory sessionFactory = locator.createSessionFactory(); ClientSession session = sessionFactory.createSession(); ClientConsumer consumer = session.createConsumer(notificationsQueue)) {
+      try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer2URL());
+           ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = sessionFactory.createSession();
+           ClientConsumer consumer = session.createConsumer(notificationsQueue)) {
 
          session.start();
 

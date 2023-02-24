@@ -137,7 +137,8 @@ public class CompareUpgradeTest {
          if (f.getName().endsWith(".exe")) {
             Assert.assertArrayEquals(f.getName() + " is different after upgrade", Files.readAllBytes(f.toPath()), Files.readAllBytes(upgradeFile.toPath()));
          } else {
-            try (Stream<String> expectedStream = Files.lines(f.toPath()); Stream<String> upgradeStream = Files.lines(upgradeFile.toPath())) {
+            try (Stream<String> expectedStream = Files.lines(f.toPath());
+                 Stream<String> upgradeStream = Files.lines(upgradeFile.toPath())) {
 
                Iterator<String> expectedIterator = expectedStream.iterator();
                Iterator<String> upgradeIterator = upgradeStream.iterator();

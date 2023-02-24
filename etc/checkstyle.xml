@@ -107,5 +107,7 @@ under the License.
          <property name="requiredParameters" value="name"/>
       </module>
 
+      <module name="UnnecessarySemicolonInTryWithResources"/>
+
    </module>
 </module>
