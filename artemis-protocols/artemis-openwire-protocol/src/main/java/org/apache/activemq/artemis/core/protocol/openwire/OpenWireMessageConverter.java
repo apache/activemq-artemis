@@ -865,7 +865,8 @@ public final class OpenWireMessageConverter {
       byte[] bytes = new byte[n];
       buffer.readBytes(bytes);
       if (isCompressed) {
-         try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream(); DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
+         try (ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+              DeflaterOutputStream out = new DeflaterOutputStream(bytesOut, true)) {
             out.write(bytes);
             out.flush();
             bytes = bytesOut.toByteArray();

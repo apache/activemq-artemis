@@ -134,7 +134,10 @@ public class AmqpBridgeApplicationPropertiesTest extends AmqpClientTestSupport {
 
       sendMessages("uswest.Provider.AMC.Agent.f261d0fa-51bd-44bd-abe0-ce22d2a387cd.CustomNotification", 1, RoutingType.ANYCAST, true);
 
-      try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer1URL()); ClientSessionFactory sessionFactory = locator.createSessionFactory(); ClientSession session = sessionFactory.createSession(); ClientConsumer consumer = session.createConsumer(notificationsQueue)) {
+      try (ServerLocator locator = ActiveMQClient.createServerLocator(getServer1URL());
+           ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = sessionFactory.createSession();
+           ClientConsumer consumer = session.createConsumer(notificationsQueue)) {
 
          session.start();
 

@@ -439,12 +439,16 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
       int MESSAGES = 10;
       String producerUri = "amqp://localhost:5672";
       final JmsConnectionFactory producerFactory = new JmsConnectionFactory(producerUri);
-      try (Connection producerConnection = producerFactory.createConnection(); Session producerSession = producerConnection.createSession(tx, tx ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE)) {
+      try (Connection producerConnection = producerFactory.createConnection();
+           Session producerSession = producerConnection.createSession(tx, tx ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE)) {
          producerConnection.start();
          final Destination queue = producerSession.createQueue(getQueueName());
          String consumerUri = "amqp://localhost:5672";
          final JmsConnectionFactory consumerConnectionFactory = new JmsConnectionFactory(consumerUri);
-         try (Connection consumerConnection = consumerConnectionFactory.createConnection(); Session consumerSession = consumerConnection.createSession(tx, tx ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE); MessageConsumer consumer = consumerSession.createConsumer(queue); MessageProducer producer = producerSession.createProducer(queue)) {
+         try (Connection consumerConnection = consumerConnectionFactory.createConnection();
+              Session consumerSession = consumerConnection.createSession(tx, tx ? Session.SESSION_TRANSACTED : Session.AUTO_ACKNOWLEDGE);
+              MessageConsumer consumer = consumerSession.createConsumer(queue);
+              MessageProducer producer = producerSession.createProducer(queue)) {
             if (persistent) {
                producer.setDeliveryMode(DeliveryMode.PERSISTENT);
             } else {

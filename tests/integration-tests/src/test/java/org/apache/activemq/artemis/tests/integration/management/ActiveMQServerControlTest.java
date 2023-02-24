@@ -3772,7 +3772,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator);
+           ClientSession session = csf.createSession()) {
 
          session.start();
          ClientConsumer consumer1_q1 = session.createConsumer(queueName1);
@@ -3926,7 +3928,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator);
+           ClientSession session = csf.createSession()) {
 
          session.start();
          ClientConsumer consumer1_q1 = session.createConsumer(queueName1);
@@ -4182,7 +4186,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator);
+           ClientSession session = csf.createSession()) {
 
          ClientConsumer consumer1_q1 = session.createConsumer(queueName1);
          ClientConsumer consumer2_q1 = session.createConsumer(queueName1);
@@ -4276,7 +4282,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          server.createQueue(new QueueConfiguration(queueName1).setAddress(addressName1).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
 
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSessionImpl session1 = (ClientSessionImpl) csf.createSession();
          ClientSessionImpl session2 = (ClientSessionImpl) csf.createSession();
@@ -4329,7 +4336,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSessionImpl session1 = (ClientSessionImpl) csf.createSession();
          Thread.sleep(500);
@@ -4585,7 +4593,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
          ClientSession session2 = csf.createSession();
@@ -4645,7 +4654,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
          ClientSession session2 = csf.createSession();
@@ -4705,7 +4715,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
 
@@ -4751,7 +4762,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
 
@@ -4807,7 +4819,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          server.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
       // create some producers
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
 
          Session session1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session session2 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -4886,7 +4898,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       // create some producers
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
 
          Session session1 = conn.createSession();
          Session session2 = conn.createSession();
@@ -4983,7 +4995,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       });
       ActiveMQConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       // create some producers
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
 
          Session session1 = conn.createSession();
 
@@ -5060,7 +5072,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       ActiveMQConnectionFactory connectionFactory = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
       // create some producers
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
 
          Session session1 = conn.createSession();
 
@@ -5138,7 +5150,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          server.createQueue(new QueueConfiguration(queueName).setAddress(queueName).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
       // create some producers
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
 
          Session session1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -5234,7 +5246,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          server.createQueue(new QueueConfiguration(queueName3).setAddress(queueName3).setRoutingType(RoutingType.ANYCAST).setDurable(false));
       }
       // create some producers
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
 
          Session session1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session session2 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -5307,7 +5319,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       server.addAddressInfo(new AddressInfo(""));
 
-      try (Connection conn = connectionFactory.createConnection();) {
+      try (Connection conn = connectionFactory.createConnection()) {
          conn.setClientID("clientID");
          Session session1 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
          Session session2 = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -5377,7 +5389,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
          ClientSession session2 = csf.createSession();
@@ -5461,7 +5474,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       int numMessages = 10;
 
-      try (Connection connection = connectionFactory.createConnection();) {
+      try (Connection connection = connectionFactory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
          MessageProducer producer = session.createProducer(session.createQueue(myQueue));
          for (int i = 0; i < numMessages; i++) {
@@ -5511,7 +5524,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
 
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
 
@@ -5564,9 +5578,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       int numMessages = 10;
 
-
       // create some consumers
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator);) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator)) {
 
          ClientSession session1 = csf.createSession();
 
@@ -5614,7 +5628,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals("Memory Usage before adding messages", 0, serverControl.getAddressMemoryUsage());
       assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
 
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator);
+           ClientSession session = csf.createSession()) {
          if (legacyCreateQueue) {
             session.createQueue(name1, RoutingType.ANYCAST, name1);
          } else {
@@ -5650,7 +5666,9 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       assertEquals("Memory Usage before adding messages", 0, serverControl.getAddressMemoryUsage());
       assertEquals("MemoryUsagePercentage", 0, serverControl.getAddressMemoryUsagePercentage());
 
-      try (ServerLocator locator = createInVMNonHALocator(); ClientSessionFactory csf = createSessionFactory(locator); ClientSession session = csf.createSession()) {
+      try (ServerLocator locator = createInVMNonHALocator();
+           ClientSessionFactory csf = createSessionFactory(locator);
+           ClientSession session = csf.createSession()) {
          if (legacyCreateQueue) {
             session.createQueue(name1, RoutingType.ANYCAST, name1);
             session.createQueue(name2, RoutingType.ANYCAST, name2);

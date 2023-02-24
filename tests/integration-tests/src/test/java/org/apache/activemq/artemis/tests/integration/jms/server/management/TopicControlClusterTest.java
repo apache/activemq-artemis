@@ -34,7 +34,8 @@ public class TopicControlClusterTest extends JMSClusteredTestBase {
       final String topicName = "t1";
       final SimpleString simpleTopicName = SimpleString.toSimpleString(topicName);
 
-      try (Connection conn1 = cf1.createConnection(); Connection conn2 = cf2.createConnection()) {
+      try (Connection conn1 = cf1.createConnection();
+           Connection conn2 = cf2.createConnection()) {
          conn1.setClientID("someClient1");
          conn2.setClientID("someClient2");
 

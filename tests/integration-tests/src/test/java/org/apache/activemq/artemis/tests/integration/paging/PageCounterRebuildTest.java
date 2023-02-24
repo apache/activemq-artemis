@@ -160,7 +160,9 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
             try {
                startFlag.await(10, TimeUnit.SECONDS);
                ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
-               try (Connection connection = factory.createConnection(); Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE); Session txSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
+               try (Connection connection = factory.createConnection();
+                    Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+                    Session txSession = connection.createSession(true, Session.AUTO_ACKNOWLEDGE)) {
 
                   logger.info("sending thread {}", threadNumber);
 
@@ -194,7 +196,8 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       Wait.assertEquals(numberOfMessages, serverQueue::getMessageCount);
 
       ConnectionFactory factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
-      try (Connection connection = factory.createConnection(); Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);) {
+      try (Connection connection = factory.createConnection();
+           Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
          MessageConsumer consumer = session.createConsumer(session.createQueue(queueName + "::" + queueName));
          connection.start();
          for (int i = 0; i < CONSUME_MESSAGES; i++) {
@@ -257,7 +260,8 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
 
       logger.info("Consuming messages");
       factory = CFUtil.createConnectionFactory("core", "tcp://localhost:61616");
-      try (Connection connection = factory.createConnection(); Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);) {
+      try (Connection connection = factory.createConnection();
+           Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)) {
          MessageConsumer consumer = session.createConsumer(session.createQueue(queueName + "::" + queueName));
          connection.start();
          for (int i = 0; i < numberOfMessages - CONSUME_MESSAGES; i++) {

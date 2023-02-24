@@ -741,7 +741,8 @@ public final class ReplicationManager implements ActiveMQComponent {
       final ReusableLatch flushed = new ReusableLatch(1);
 
       try {
-         try (FileInputStream fis = new FileInputStream(file.getJavaFile()); FileChannel channel = fis.getChannel()) {
+         try (FileInputStream fis = new FileInputStream(file.getJavaFile());
+              FileChannel channel = fis.getChannel()) {
 
             // We cannot afford having a single buffer here for this entire loop
             // because sendReplicatePacket will encode the packet as a NettyBuffer

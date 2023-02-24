@@ -340,7 +340,7 @@ public class Upgrade extends InstallAbstract {
          if (!newLogging.exists()) {
             context.out.println("Creating " + newLogging);
             try (InputStream inputStream = openStream("etc/" + Create.ETC_LOG4J2_PROPERTIES);
-                 OutputStream outputStream = new FileOutputStream(newLogging);) {
+                 OutputStream outputStream = new FileOutputStream(newLogging)) {
                copy(inputStream, outputStream);
             }
          }

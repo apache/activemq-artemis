@@ -279,7 +279,7 @@ public class NettyTransportSupport {
 
    private static KeyStore loadStore(String storePath, final String password, String storeType) throws Exception {
       KeyStore store = KeyStore.getInstance(storeType);
-      try (InputStream in = new FileInputStream(new File(storePath));) {
+      try (InputStream in = new FileInputStream(new File(storePath))) {
          store.load(in, password != null ? password.toCharArray() : null);
       }
 

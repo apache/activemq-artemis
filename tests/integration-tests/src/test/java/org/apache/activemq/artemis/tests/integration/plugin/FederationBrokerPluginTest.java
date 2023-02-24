@@ -108,7 +108,8 @@ public class FederationBrokerPluginTest extends FederatedTestBase {
    private void testFederationStreamConsumerAddress(String address) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -166,7 +167,8 @@ public class FederationBrokerPluginTest extends FederatedTestBase {
    private void testFederationStreamConsumerQueue(String queueName) throws Exception {
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          connection1.start();
 
@@ -214,7 +216,8 @@ public class FederationBrokerPluginTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection1.start();
          connection0.start();
 
@@ -262,7 +265,8 @@ public class FederationBrokerPluginTest extends FederatedTestBase {
 
       ConnectionFactory cf1 = getCF(1);
       ConnectionFactory cf0 = getCF(0);
-      try (Connection connection1 = cf1.createConnection(); Connection connection0 = cf0.createConnection()) {
+      try (Connection connection1 = cf1.createConnection();
+           Connection connection0 = cf0.createConnection()) {
          connection0.start();
          connection1.start();
 

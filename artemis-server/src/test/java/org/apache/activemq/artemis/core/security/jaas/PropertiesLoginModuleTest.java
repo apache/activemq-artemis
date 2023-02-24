@@ -146,7 +146,8 @@ public class PropertiesLoginModuleTest extends Assert {
    private String genHash(File usersFile) {
       Checksum hash = new Adler32();
 
-      try (FileReader fileReader = new FileReader(usersFile); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+      try (FileReader fileReader = new FileReader(usersFile);
+           BufferedReader bufferedReader = new BufferedReader(fileReader)) {
          String line = null;
          while ((line = bufferedReader.readLine()) != null) {
             if (!line.startsWith("#") && !line.isBlank()) {
