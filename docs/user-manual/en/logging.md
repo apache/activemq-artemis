@@ -162,25 +162,6 @@ The 3 audit loggers can be disable/enabled separately.
 Once enabled, all audit records are written into a separate log
 file (by default audit.log).
 
-### Logging the clients remote address
-
-It is possible to configure the audit loggers to log the remote address of any calling clients either through normal 
-clients or through the console and JMX. This is configured by enabling a specific login module in the login config file. 
-```
-org.apache.activemq.artemis.spi.core.security.jaas.AuditLoginModule optional
-       debug=false;
-```
-
-
-> **Note:**
->
-> This needs to be the first entry in the login.config file
-
-> **Note:**
->
-> This login module does no authentication, it is used only to catch client information through which ever path a client takes
-
-
 ## More on Log4J2 configuration:
 
 For more detail on configuring Log4J 2, see its [manual](https://logging.apache.org/log4j/2.x/manual/).
