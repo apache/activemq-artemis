@@ -104,7 +104,6 @@ var Artemis;
         ctrl.cntQueues = 0;
         ctrl.cntInternalQueues = 0;
 
-        ctrl.hiddenRelations = [];
         function updateAddressKind() {
             if(ctrl.kinds.Address && !ctrl.showAddresses) {
                delete ctrl.kinds.Address;
@@ -184,7 +183,7 @@ var Artemis;
             if(!ctrl.showConnectors) {
                 ctrl.data.relations = [];
             } else {
-                ctrl.data.relations = ctrl.hiddenRelations;
+                ctrl.data.relations = ctrl.relations;
             }
         }
         $scope.$watch('$ctrl.showConnectors', function () {
@@ -245,7 +244,6 @@ var Artemis;
         };
 
         load();
-        ctrl.hiddenRelations = ctrl.relations;
         function load() {
             ctrl.items = {};
 
