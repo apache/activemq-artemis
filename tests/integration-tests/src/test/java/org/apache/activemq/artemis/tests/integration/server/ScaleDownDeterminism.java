@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.integration.server;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -25,12 +27,26 @@ import org.apache.activemq.artemis.tests.integration.cluster.distribution.Cluste
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ScaleDownDeterminism extends ClusterTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   @Parameterized.Parameters(name = "withHostname")
+   public static Collection<Object[]> data() {
+      return Arrays.asList(new Object[][]{{false}, {true}});
+   }
+
+   private final boolean withHostname;
+
+   public ScaleDownDeterminism(boolean withHostname) {
+      this.withHostname = withHostname;
+   }
 
    @Override
    @Before
@@ -82,9 +98,11 @@ public class ScaleDownDeterminism extends ClusterTestBase {
       sfs[0].close();
 
       servers[0].getActiveMQServerControl().addConnector("scaleDown", "tcp://localhost:61617");
-      //Connectors set up in test do ot use the host param whicvh is needed for above command
-      //Removing host param so that cluster connector matches new scaleDown connector
-      servers[0].getConfiguration().getConnectorConfigurations().get("scaleDown").getParams().remove("host");
+      if (!withHostname) {
+         //Connectors set up in test do ot use the host param whicvh is needed for above command
+         //Removing host param so that cluster connector matches new scaleDown connector
+         servers[0].getConfiguration().getConnectorConfigurations().get("scaleDown").getParams().remove("host");
+      }
 
       String server0connector2 = servers[0].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors().get(1);
       String server1connector1 = servers[1].getConfiguration().getClusterConfigurations().iterator().next().getStaticConnectors().get(0);

@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.unit.core.remoting.impl.netty;
 
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientConnectionLifeCycleLi
 import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManager;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.NetworkUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -123,6 +125,15 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       config6.put("port", "1234");
       TransportConfiguration tf6 = new TransportConfiguration("some.other.FactoryClass", config6, "tf6");
 
+      Map<String, Object> configNoHost = new HashMap<>();
+      configNoHost.put("port", "1234");
+      TransportConfiguration tfNoHost = new TransportConfiguration(NettyConnectorFactory.class.getName(), configNoHost, "tf_nohost");
+
+      Map<String, Object> configEmptyHost = new HashMap<>();
+      configEmptyHost.put("host", "");
+      configEmptyHost.put("port", "1234");
+      TransportConfiguration tfEmptyHost = new TransportConfiguration(NettyConnectorFactory.class.getName(), configEmptyHost, "tf_nohost");
+
       Channel channel = createChannel();
       NettyConnection conn = new NettyConnection(config, channel, new MyListener(), false, false);
 
@@ -139,6 +150,48 @@ public class NettyConnectionTest extends ActiveMQTestBase {
       assertFalse(conn.isSameTarget(tf6));
       assertTrue(conn.isSameTarget(tf1, tf6));
       assertTrue(conn.isSameTarget(tf6, tf2));
+      assertTrue(conn.isSameTarget(tfNoHost));
+      assertTrue(conn.isSameTarget(tfEmptyHost));
+
+      String fakeHostName = "example.test.com";
+      String fakeHostIp1 = "10.7.2.2";
+      String fakeHostIp2 = "192.168.1.18";
+
+      NetworkUtil.testMode = hostName -> {
+         if (fakeHostName.equals(hostName)) {
+            return new NetworkUtil.AddressWrapper[] {() -> fakeHostIp1, () -> fakeHostIp2};
+         } else if (fakeHostIp1.equals(hostName)) {
+            return new NetworkUtil.AddressWrapper[] {() -> fakeHostIp1};
+         } else if (fakeHostIp2.equals(hostName)) {
+            return new NetworkUtil.AddressWrapper[] {() -> fakeHostIp2};
+         }
+         throw new UnknownHostException("bad host name");
+      };
+
+      Map<String, Object> config7 = new HashMap<>();
+      config7.put("host", "example.test.com");
+      config7.put("port", "61616");
+      NettyConnection conn2 = new NettyConnection(config7, channel, new MyListener(), false, false);
+
+      Map<String, Object> config8 = new HashMap<>();
+      config8.put("host", "10.7.2.2");
+      config8.put("port", "61616");
+      TransportConfiguration tf8 = new TransportConfiguration(NettyConnectorFactory.class.getName(), config8, "tf8");
+
+      Map<String, Object> config9 = new HashMap<>();
+      config9.put("host", "192.168.1.18");
+      config9.put("port", "61616");
+      TransportConfiguration tf9 = new TransportConfiguration(NettyConnectorFactory.class.getName(), config9, "tf9");
+
+      Map<String, Object> config10 = new HashMap<>();
+      config10.put("host", "192.168.1.12");
+      config10.put("port", "61616");
+      TransportConfiguration tf10 = new TransportConfiguration(NettyConnectorFactory.class.getName(), config10, "tf10");
+
+      assertTrue(conn2.isSameTarget(tf8));
+      assertTrue(conn2.isSameTarget(tf9));
+      assertFalse(conn2.isSameTarget(tf10));
+      NetworkUtil.testMode = null;
    }
 
    private static EmbeddedChannel createChannel() {

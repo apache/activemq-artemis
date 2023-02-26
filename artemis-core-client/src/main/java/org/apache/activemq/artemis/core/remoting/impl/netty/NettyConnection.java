@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.remoting.impl.netty;
 
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +45,7 @@ import org.apache.activemq.artemis.spi.core.remoting.ReadyListener;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.IPV6Util;
+import org.apache.activemq.artemis.utils.NetworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -431,7 +433,6 @@ public class NettyConnection implements Connection {
 
    @Override
    public boolean isSameTarget(TransportConfiguration... configs) {
-      boolean result = false;
       for (TransportConfiguration cfg : configs) {
          if (cfg == null) {
             continue;
@@ -442,32 +443,39 @@ public class NettyConnection implements Connection {
             if (port1 == port2) {
                //port same, check host
                Object hostParam = configuration.get(TransportConstants.HOST_PROP_NAME);
+               Object otherHost = cfg.getParams().get(TransportConstants.HOST_PROP_NAME);
                if (hostParam != null) {
-                  if (hostParam.equals(cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
-                     result = true;
-                     break;
-                  } else {
-                     //check special 'localhost' case
-                     if (isLocalhost((String) configuration.get(TransportConstants.HOST_PROP_NAME)) && isLocalhost((String) cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
-                        result = true;
-                        break;
+                  if (hostParam.equals(otherHost)) {
+                     return true;
+                  }
+                  //check special 'localhost' case
+                  if (isLocalhost((String) configuration.get(TransportConstants.HOST_PROP_NAME)) && isLocalhost((String) cfg.getParams().get(TransportConstants.HOST_PROP_NAME))) {
+                     return true;
+                  }
+                  if (otherHost != null) {
+                     try {
+                        // to check if any ip address matches
+                        if (NetworkUtil.isSameHost((String)hostParam, (String)otherHost)) {
+                           return true;
+                        }
+                     } catch (UnknownHostException e) {
+                        // couldn't use that way to compare, assuming not same
                      }
                   }
-               } else if (cfg.getParams().get(TransportConstants.HOST_PROP_NAME) == null) {
-                  result = true;
-                  break;
+               } else if (otherHost == null) {
+                  return true;
                }
             }
          }
       }
-      return result;
+      return false;
    }
 
    //here we consider 'localhost' is equivalent to '127.0.0.1'
    //other values of 127.0.0.x is not and the user makes sure
    //not to mix use of 'localhost' and '127.0.0.x'
    private boolean isLocalhost(String hostname) {
-      return "127.0.0.1".equals(hostname) || "localhost".equals(hostname);
+      return "127.0.0.1".equals(hostname) || "localhost".equals(hostname) || hostname == null || hostname.isEmpty();
    }
 
    @Override
