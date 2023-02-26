@@ -25,18 +25,35 @@ import javax.jms.Session;
 import javax.jms.Queue;
 import javax.naming.InitialContext;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.activemq.artemis.utils.Waiter;
 
 public class KeycloakSecurityExample {
 
    public static void main(final String[] args) throws Exception {
 
-      boolean result = true;
       Connection connection = null;
 
       InitialContext initialContext = null;
 
       try {
+         // Step 0. Wait for artemis-keycloak-demo
+         Waiter.waitFor(() -> {
+            int responseCode = 0;
+            try {
+               URL url = new URL("http://localhost:8080/realms/artemis-keycloak-demo/.well-known/openid-configuration");
+               HttpURLConnection con = (HttpURLConnection) url.openConnection();
+               responseCode = con.getResponseCode();
+               con.disconnect();
+            } catch (Exception expectedTillInfraStarted) {
+               System.out.println("---- expected error on startup till artemis-keycloak-demo starts: " + expectedTillInfraStarted + ", retry in 5s");
+            }
+            return responseCode == 200;
+         }, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, 5);
+
          // Step 1. Create an initial context to perform the JNDI lookup.
          initialContext = new InitialContext();
 
