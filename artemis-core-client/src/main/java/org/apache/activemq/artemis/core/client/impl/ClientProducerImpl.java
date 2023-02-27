@@ -442,6 +442,10 @@ public class ClientProducerImpl implements ClientProducerInternal {
          msgI.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, true);
          deflaterReader = new DeflaterReader(inputStreamParameter, messageSize);
          input = deflaterReader;
+      } else if (msgI.getBooleanProperty(Message.HDR_LARGE_COMPRESSED)) {
+         //This needs to be false if we do not intend to compress the message
+         //and the header already exists
+         msgI.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, false);
       }
 
       long totalSize = 0;
