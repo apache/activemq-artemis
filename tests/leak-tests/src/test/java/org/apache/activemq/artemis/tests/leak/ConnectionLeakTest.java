@@ -25,6 +25,11 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.checkleak.core.CheckLeak;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -33,9 +38,11 @@ import org.apache.activemq.artemis.core.protocol.core.impl.RemotingConnectionImp
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
+import org.apache.activemq.artemis.core.server.impl.MessageReferenceImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerConsumerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.protocol.amqp.broker.AMQPStandardMessage;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
@@ -54,6 +61,14 @@ import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.assertMemo
 import static org.apache.activemq.artemis.tests.leak.MemoryAssertions.basicMemoryAsserts;
 
 public class ConnectionLeakTest extends ActiveMQTestBase {
+
+   private ConnectionFactory createConnectionFactory(String protocol) {
+      if (protocol.equals("AMQP")) {
+         return CFUtil.createConnectionFactory("AMQP", "amqp://localhost:61616?amqp.idleTimeout=120000&failover.maxReconnectAttempts=1&jms.prefetchPolicy.all=10&jms.forceAsyncAcks=true");
+      } else {
+         return CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      }
+   }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -85,27 +100,27 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
    @Override
    @Before
    public void setUp() throws Exception {
-      server = createServer(false, createDefaultConfig(1, true));
+      server = createServer(true, createDefaultConfig(1, true));
       server.getConfiguration().setJournalPoolFiles(4).setJournalMinFiles(2);
       server.start();
    }
 
    @Test
-   public void testAMQP() throws Exception {
-      doTest("AMQP");
+   public void testManyConsumersAMQP() throws Exception {
+      doTestManyConsumers("AMQP");
    }
 
    @Test
-   public void testCore() throws Exception {
-      doTest("CORE");
+   public void testManyConsumersCore() throws Exception {
+      doTestManyConsumers("CORE");
    }
 
    @Test
-   public void testOpenWire() throws Exception {
-      doTest("OPENWIRE");
+   public void testManyConsumersOpenWire() throws Exception {
+      doTestManyConsumers("OPENWIRE");
    }
 
-   private void doTest(String protocol) throws Exception {
+   private void doTestManyConsumers(String protocol) throws Exception {
       CheckLeak checkLeak = new CheckLeak();
       // Some protocols may create ServerConsumers
       int originalConsumers = checkLeak.getAllObjects(ServerConsumerImpl.class).length;
@@ -113,7 +128,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
       int MESSAGES = 20;
       basicMemoryAsserts();
 
-      ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      ConnectionFactory cf = createConnectionFactory(protocol);
 
       try (Connection producerConnection = cf.createConnection(); Connection consumerConnection = cf.createConnection()) {
 
@@ -183,12 +198,121 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
       Wait.assertEquals(0, sourceQueue::getMessageCount);
       Wait.assertEquals(0, targetQueue::getMessageCount);
 
+      assertMemory(checkLeak, 0, MessageReferenceImpl.class.getName());
+      assertMemory(checkLeak, 0, AMQPStandardMessage.class.getName());
+
       if (cf instanceof ActiveMQConnectionFactory) {
          ((ActiveMQConnectionFactory)cf).close();
       }
 
       basicMemoryAsserts();
    }
+
+
+   @Test
+   public void testCancelledDeliveries() throws Exception {
+      doTestCancelledDelivery("AMQP");
+   }
+
+   private void doTestCancelledDelivery(String protocol) throws Exception {
+
+      CheckLeak checkLeak = new CheckLeak();
+      // Some protocols may create ServerConsumers
+      int originalConsumers = checkLeak.getAllObjects(ServerConsumerImpl.class).length;
+      int REPEATS = 10;
+      int MESSAGES = 100;
+      int SLEEP_PRODUCER = 10;
+      int CONSUMERS = 1; // The test here is using a single consumer. But I'm keeping this code around as I may use more load eventually even if just for a test
+      String queueName = getName();
+
+      ExecutorService executorService = Executors.newFixedThreadPool(CONSUMERS + 1); // there's always one producer
+      runAfter(executorService::shutdownNow);
+
+      Queue serverQueue = server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST));
+
+      ConnectionFactory cf = createConnectionFactory(protocol);
+
+
+      Connection[] connectionConsumers = new Connection[CONSUMERS];
+      Session[] sessionConsumer = new Session[CONSUMERS];
+
+      for (int i = 0; i < CONSUMERS; i++) {
+         connectionConsumers[i] = cf.createConnection();
+         connectionConsumers[i].start();
+         sessionConsumer[i] = connectionConsumers[i].createSession(true, Session.SESSION_TRANSACTED);
+      }
+
+      AtomicInteger errors = new AtomicInteger(0);
+      try (Connection connection = cf.createConnection()) {
+         for (int i = 0; i < REPEATS; i++) {
+            logger.info("Retrying {}", i);
+            CountDownLatch done = new CountDownLatch(CONSUMERS + 1); // there's always one producer
+            AtomicInteger recevied = new AtomicInteger(0);
+            {
+               executorService.execute(() -> {
+                  try (Session producerSession = connection.createSession(true, Session.SESSION_TRANSACTED)) {
+                     Destination queue = producerSession.createQueue(queueName);
+                     MessageProducer producer = producerSession.createProducer(queue);
+                     for (int msg = 0; msg < MESSAGES; msg++) {
+                        Message message = producerSession.createTextMessage("hello " + msg);
+                        message.setIntProperty("i", msg);
+                        producer.send(message);
+                        if (msg % 10 == 0) {
+                           producerSession.commit();
+                           Thread.sleep(SLEEP_PRODUCER);
+                        }
+                     }
+                     producerSession.commit();
+                  } catch (Exception e) {
+                     logger.warn(e.getMessage(), e);
+                     errors.incrementAndGet();
+                  } finally {
+                     done.countDown();
+                  }
+               });
+
+               for (int cons = 0; cons < CONSUMERS; cons++) {
+                  final Connection connectionToUse = connectionConsumers[cons];
+                  final Session consumerSession = sessionConsumer[cons];
+                  executorService.execute(() -> {
+                     try {
+                        javax.jms.Queue queue = consumerSession.createQueue(queueName);
+                        MessageConsumer consumer = consumerSession.createConsumer(queue);
+                        while (recevied.get() < MESSAGES) {
+                           TextMessage message = (TextMessage) consumer.receiveNoWait();
+                           if (message != null) {
+                              consumer.close();
+                              consumerSession.commit();
+                              consumer = consumerSession.createConsumer(queue);
+                              recevied.incrementAndGet();
+                           }
+                        }
+                        consumer.close();
+                     } catch (Throwable e) {
+                        logger.warn(e.getMessage(), e);
+                        errors.incrementAndGet();
+                     } finally {
+                        done.countDown();
+                     }
+                  });
+               }
+
+               Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
+               Assert.assertEquals(0, errors.get());
+               Wait.assertEquals(0, serverQueue::getMessageCount);
+               assertMemory(checkLeak, 0, 5, 1, AMQPStandardMessage.class.getName());
+               assertMemory(checkLeak, 0, 5, 1, DeliveryImpl.class.getName());
+            }
+         }
+      }
+
+      for (Connection connection : connectionConsumers) {
+         connection.close();
+      }
+
+      basicMemoryAsserts();
+   }
+
 
    @Test
    public void testCheckIteratorsAMQP() throws Exception {
@@ -212,7 +336,7 @@ public class ConnectionLeakTest extends ActiveMQTestBase {
 
       Queue queue = server.createQueue(new QueueConfiguration(queueName).setRoutingType(RoutingType.ANYCAST));
 
-      ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      ConnectionFactory cf = createConnectionFactory(protocol);
       for (int i = 0; i < 10; i++) {
          Connection connection = cf.createConnection();
          connection.start();
