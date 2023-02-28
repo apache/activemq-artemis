@@ -441,6 +441,7 @@ public class ClientProducerImpl implements ClientProducerInternal {
       if (session.isCompressLargeMessages()) {
          msgI.putBooleanProperty(Message.HDR_LARGE_COMPRESSED, true);
          deflaterReader = new DeflaterReader(inputStreamParameter, messageSize);
+         deflaterReader.setLevel(session.getCompressionLevel());
          input = deflaterReader;
       }
 

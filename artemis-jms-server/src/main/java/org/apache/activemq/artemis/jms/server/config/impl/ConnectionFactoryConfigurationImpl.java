@@ -67,6 +67,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
    private boolean compressLargeMessage = ActiveMQClient.DEFAULT_COMPRESS_LARGE_MESSAGES;
 
+   private int compressionLevel = ActiveMQClient.DEFAULT_COMPRESSION_LEVEL;
+
    private int consumerWindowSize = ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
 
    private int consumerMaxRate = ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE;
@@ -278,6 +280,17 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
    @Override
    public ConnectionFactoryConfiguration setMinLargeMessageSize(final int minLargeMessageSize) {
       this.minLargeMessageSize = minLargeMessageSize;
+      return this;
+   }
+
+   @Override
+   public int getCompressionLevel() {
+      return compressionLevel;
+   }
+
+   @Override
+   public ConnectionFactoryConfiguration setCompressionLevel(final int compressionLevel) {
+      this.compressionLevel = compressionLevel;
       return this;
    }
 
@@ -642,6 +655,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       enableSharedClientID = buffer.readableBytes() > 0 ? BufferHelper.readNullableBoolean(buffer) : ActiveMQClient.DEFAULT_ENABLED_SHARED_CLIENT_ID;
 
       useTopologyForLoadBalancing = buffer.readableBytes() > 0 ? BufferHelper.readNullableBoolean(buffer) : ActiveMQClient.DEFAULT_USE_TOPOLOGY_FOR_LOADBALANCING;
+
+      compressionLevel = buffer.readableBytes() > 0 ? BufferHelper.readNullableInteger(buffer) : ActiveMQClient.DEFAULT_COMPRESSION_LEVEL;
+
    }
 
    @Override
@@ -738,6 +754,8 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
       BufferHelper.writeNullableBoolean(buffer, enableSharedClientID);
 
       BufferHelper.writeNullableBoolean(buffer, useTopologyForLoadBalancing);
+
+      BufferHelper.writeNullableInteger(buffer, compressionLevel);
    }
 
    @Override
@@ -858,7 +876,9 @@ public class ConnectionFactoryConfigurationImpl implements ConnectionFactoryConf
 
          BufferHelper.sizeOfNullableBoolean(enableSharedClientID) +
 
-         BufferHelper.sizeOfNullableBoolean(useTopologyForLoadBalancing);
+         BufferHelper.sizeOfNullableBoolean(useTopologyForLoadBalancing) +
+
+         BufferHelper.sizeOfNullableInteger(compressionLevel);
 
       return size;
    }

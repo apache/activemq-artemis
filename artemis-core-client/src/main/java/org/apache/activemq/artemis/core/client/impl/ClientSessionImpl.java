@@ -123,6 +123,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    private final boolean compressLargeMessages;
 
+   private final int compressionLevel;
+
    private volatile int initialMessagePacketSize;
 
    private final boolean cacheLargeMessageClient;
@@ -184,6 +186,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final boolean cacheLargeMessageClient,
                      final int minLargeMessageSize,
                      final boolean compressLargeMessages,
+                     final int compressionLevel,
                      final int initialMessagePacketSize,
                      final String groupID,
                      final SessionContext sessionContext,
@@ -236,6 +239,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
       this.minLargeMessageSize = minLargeMessageSize;
 
       this.compressLargeMessages = compressLargeMessages;
+
+      this.compressionLevel = compressionLevel;
 
       this.initialMessagePacketSize = initialMessagePacketSize;
 
@@ -1184,6 +1189,11 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
    @Override
    public boolean isCompressLargeMessages() {
       return compressLargeMessages;
+   }
+
+   @Override
+   public int getCompressionLevel() {
+      return compressionLevel;
    }
 
    /**

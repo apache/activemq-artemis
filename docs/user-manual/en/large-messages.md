@@ -68,10 +68,19 @@ is transferred to the server's side. Notice that there's no special treatment
 at the server's side, all the compressing and uncompressing is done at the
 client.
 
+This behavior can be tuned further by setting an optional parameter: `compressionLevel`.
+This will decide how much the message body should be compressed. `compressionLevel`
+accepts an integer of `-1` or a value between `0-9`. The default value is `-1` which
+corresponds to around level 6-7.
+
 If the compressed size of a large message is below `minLargeMessageSize`, it is
 sent to server as regular messages. This means that the message won't be
 written into the server's large-message data directory, thus reducing the disk
 I/O.
+
+**Note:** A higher `compressionLevel` means the message body will get further compressed,
+but this is at the cost of speed and computational overhead. Make sure to tune this value
+according to its specific use-case.
 
 ## Streaming large messages from Core Protocol
 

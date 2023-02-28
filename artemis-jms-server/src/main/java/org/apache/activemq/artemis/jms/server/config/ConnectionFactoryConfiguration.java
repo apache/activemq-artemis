@@ -82,6 +82,10 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
 
    ConnectionFactoryConfiguration setCompressLargeMessages(boolean avoidLargeMessages);
 
+   int getCompressionLevel();
+
+   ConnectionFactoryConfiguration setCompressionLevel(int compressionLevel);
+
    int getConsumerWindowSize();
 
    ConnectionFactoryConfiguration setConsumerWindowSize(int consumerWindowSize);

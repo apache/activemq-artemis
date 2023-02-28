@@ -69,6 +69,8 @@ public final class ActiveMQClient {
 
    public static final boolean DEFAULT_COMPRESS_LARGE_MESSAGES = false;
 
+   public static final int DEFAULT_COMPRESSION_LEVEL = -1;
+
    public static final int DEFAULT_CONSUMER_WINDOW_SIZE = 1024 * 1024;
 
    public static final int DEFAULT_CONSUMER_MAX_RATE = -1;

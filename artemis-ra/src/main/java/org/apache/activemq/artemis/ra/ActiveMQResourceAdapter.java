@@ -641,6 +641,29 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    /**
+    * Get compressionLevel
+    *
+    * @return The value
+    */
+   public Integer getCompressionLevel() {
+      logger.trace("getCompressionLevel()");
+
+      return raProperties.getCompressionLevel();
+   }
+
+   /**
+    * Sets what compressionLevel to use when compressing messages
+    * Value must be -1 (default) or 0-9
+    *
+    * @param compressionLevel The value
+    */
+   public void setCompressionLevel(final Integer compressionLevel) {
+      logger.trace("setCompressionLevel({})", compressionLevel);
+
+      raProperties.setCompressionLevel(compressionLevel);
+   }
+
+   /**
     * Get call timeout
     *
     * @return The value
@@ -1827,6 +1850,10 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       val2 = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize() : raProperties.getInitialMessagePacketSize();
       if (val2 != null) {
          cf.setInitialMessagePacketSize(val2);
+      }
+      val2 = overrideProperties.getCompressionLevel() != null ? overrideProperties.getCompressionLevel() : raProperties.getCompressionLevel();
+      if (val2 != null) {
+         cf.setCompressionLevel(val2);
       }
 
       Long val3 = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod() : raProperties.getClientFailureCheckPeriod();

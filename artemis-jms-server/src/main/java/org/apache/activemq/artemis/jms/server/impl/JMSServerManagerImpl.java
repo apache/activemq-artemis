@@ -872,6 +872,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                                                     final boolean cacheLargeMessagesClient,
                                                     final int minLargeMessageSize,
                                                     final boolean compressLargeMessage,
+                                                    final int compressionLevel,
                                                     final int consumerWindowSize,
                                                     final int consumerMaxRate,
                                                     final int confirmationWindowSize,
@@ -917,6 +918,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
                                                     final boolean cacheLargeMessagesClient,
                                                     final int minLargeMessageSize,
                                                     final boolean compressLargeMessages,
+                                                    final int compressionLevel,
                                                     final int consumerWindowSize,
                                                     final int consumerMaxRate,
                                                     final int confirmationWindowSize,
@@ -943,7 +945,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       checkInitialised();
       ActiveMQConnectionFactory cf = connectionFactories.get(name);
       if (cf == null) {
-         ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(name).setHA(ha).setBindings(registryBindings).setDiscoveryGroupName(discoveryGroupName).setFactoryType(cfType).setClientID(clientID).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setCacheLargeMessagesClient(cacheLargeMessagesClient).setMinLargeMessageSize(minLargeMessageSize).setCompressLargeMessages(compressLargeMessages).setConsumerWindowSize(consumerWindowSize).setConsumerMaxRate(consumerMaxRate).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setProducerMaxRate(producerMaxRate).setBlockOnAcknowledge(blockOnAcknowledge).setBlockOnDurableSend(blockOnDurableSend).setBlockOnNonDurableSend(blockOnNonDurableSend).setAutoGroup(autoGroup).setPreAcknowledge(preAcknowledge).setLoadBalancingPolicyClassName(loadBalancingPolicyClassName).setTransactionBatchSize(transactionBatchSize).setDupsOKBatchSize(dupsOKBatchSize).setUseGlobalPools(useGlobalPools).setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize).setThreadPoolMaxSize(threadPoolMaxSize).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setReconnectAttempts(reconnectAttempts).setFailoverOnInitialConnection(failoverOnInitialConnection);
+         ConnectionFactoryConfiguration configuration = new ConnectionFactoryConfigurationImpl().setName(name).setHA(ha).setBindings(registryBindings).setDiscoveryGroupName(discoveryGroupName).setFactoryType(cfType).setClientID(clientID).setClientFailureCheckPeriod(clientFailureCheckPeriod).setConnectionTTL(connectionTTL).setCallTimeout(callTimeout).setCallFailoverTimeout(callFailoverTimeout).setCacheLargeMessagesClient(cacheLargeMessagesClient).setMinLargeMessageSize(minLargeMessageSize).setCompressLargeMessages(compressLargeMessages).setCompressionLevel(compressionLevel).setConsumerWindowSize(consumerWindowSize).setConsumerMaxRate(consumerMaxRate).setConfirmationWindowSize(confirmationWindowSize).setProducerWindowSize(producerWindowSize).setProducerMaxRate(producerMaxRate).setBlockOnAcknowledge(blockOnAcknowledge).setBlockOnDurableSend(blockOnDurableSend).setBlockOnNonDurableSend(blockOnNonDurableSend).setAutoGroup(autoGroup).setPreAcknowledge(preAcknowledge).setLoadBalancingPolicyClassName(loadBalancingPolicyClassName).setTransactionBatchSize(transactionBatchSize).setDupsOKBatchSize(dupsOKBatchSize).setUseGlobalPools(useGlobalPools).setScheduledThreadPoolMaxSize(scheduledThreadPoolMaxSize).setThreadPoolMaxSize(threadPoolMaxSize).setRetryInterval(retryInterval).setRetryIntervalMultiplier(retryIntervalMultiplier).setMaxRetryInterval(maxRetryInterval).setReconnectAttempts(reconnectAttempts).setFailoverOnInitialConnection(failoverOnInitialConnection);
          createConnectionFactory(true, configuration, registryBindings);
       }
    }
@@ -1212,6 +1214,7 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       cf.setReconnectAttempts(cfConfig.getReconnectAttempts());
       cf.setFailoverOnInitialConnection(cfConfig.isFailoverOnInitialConnection());
       cf.setCompressLargeMessage(cfConfig.isCompressLargeMessages());
+      cf.setCompressionLevel(cfConfig.getCompressionLevel());
       cf.setGroupID(cfConfig.getGroupID());
       cf.setProtocolManagerFactoryStr(cfConfig.getProtocolManagerFactoryStr());
       cf.setDeserializationBlackList(cfConfig.getDeserializationBlackList());
