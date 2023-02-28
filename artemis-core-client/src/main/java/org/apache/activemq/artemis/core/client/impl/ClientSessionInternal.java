@@ -41,6 +41,8 @@ public interface ClientSessionInternal extends ClientSession {
 
    boolean isCompressLargeMessages();
 
+   int getCompressionLevel();
+
    void expire(ClientConsumer consumer, Message message) throws ActiveMQException;
 
    void addConsumer(ClientConsumerInternal consumer);

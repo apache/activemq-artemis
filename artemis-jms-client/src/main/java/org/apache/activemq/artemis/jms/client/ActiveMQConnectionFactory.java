@@ -854,6 +854,14 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       serverLocator.setCompressLargeMessage(avoidLargeMessages);
    }
 
+   public int getCompressionLevel() {
+      return serverLocator.getCompressionLevel();
+   }
+
+   public void setCompressionLevel(int compressionLevel) {
+      serverLocator.setCompressionLevel(compressionLevel);
+   }
+
    @Override
    public void close() {
       ServerLocator locator0 = serverLocator;

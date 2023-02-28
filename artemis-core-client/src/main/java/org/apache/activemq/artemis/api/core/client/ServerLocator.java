@@ -809,6 +809,22 @@ public interface ServerLocator extends AutoCloseable {
     */
    ServerLocator setCompressLargeMessage(boolean compressLargeMessages);
 
+   /**
+    * What compression level is in use
+    *
+    * @return
+    */
+   int getCompressionLevel();
+
+   /**
+    * Sets what compressionLevel to use when compressing messages
+    * Value must be -1 (default), or 0-9
+    *
+    * @param compressionLevel
+    * @return this ServerLocator
+    */
+   ServerLocator setCompressionLevel(int compressionLevel);
+
    // XXX No javadocs
    ServerLocator addClusterTopologyListener(ClusterTopologyListener listener);
 

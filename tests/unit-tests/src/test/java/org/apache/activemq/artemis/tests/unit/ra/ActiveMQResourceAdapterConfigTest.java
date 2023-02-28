@@ -342,6 +342,12 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-value>false</config-property-value>" +
       "      </config-property>\n" +
       "      <config-property>\n" +
+      "         <description>The level of compression to use. Must be -1 or between 0-9</description>" +
+      "         <config-property-name>CompressionLevel</config-property-name>" +
+      "         <config-property-type>int</config-property-type>" +
+      "         <config-property-value>-1</config-property-value>" +
+      "      </config-property>\n" +
+      "      <config-property>\n" +
       "         <description>The timeout in milliseconds for failover call (or -1 for infinite)</description>\n" +
       "         <config-property-name>CallFailoverTimeout</config-property-name>\n" +
       "         <config-property-type>long</config-property-type>\n" +

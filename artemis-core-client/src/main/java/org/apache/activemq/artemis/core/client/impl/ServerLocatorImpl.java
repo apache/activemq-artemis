@@ -1292,6 +1292,17 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       return this;
    }
 
+   @Override
+   public int getCompressionLevel() {
+      return config.compressionLevel;
+   }
+
+   @Override
+   public ServerLocatorImpl setCompressionLevel(int compressionLevel) {
+      this.config.compressionLevel = compressionLevel;
+      return this;
+   }
+
    private void checkWrite() {
       synchronized (stateGuard) {
          if (state != null && state != STATE.CLOSED) {

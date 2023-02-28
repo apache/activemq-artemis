@@ -117,4 +117,8 @@ public class DeflaterReader extends InputStream {
       return bytesRead.get();
    }
 
+   public void setLevel(int level) {
+      deflater.setLevel(level);
+   }
+
 }

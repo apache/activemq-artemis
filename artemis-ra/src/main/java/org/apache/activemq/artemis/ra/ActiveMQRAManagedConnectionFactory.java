@@ -689,6 +689,14 @@ public final class ActiveMQRAManagedConnectionFactory implements ManagedConnecti
       mcfProperties.setCompressLargeMessage(compressLargeMessage);
    }
 
+   public Integer getCompressionLevel() {
+      return mcfProperties.getCompressionLevel();
+   }
+
+   public void setCompressionLevel(final Integer compressionLevel) {
+      mcfProperties.setCompressionLevel(compressionLevel);
+   }
+
    public Integer getInitialConnectAttempts() {
       return mcfProperties.getInitialConnectAttempts();
    }

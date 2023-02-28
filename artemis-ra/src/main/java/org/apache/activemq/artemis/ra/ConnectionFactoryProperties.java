@@ -76,6 +76,8 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private Boolean compressLargeMessage;
 
+   private Integer compressionLevel;
+
    private Integer consumerWindowSize;
 
    private Integer producerWindowSize;
@@ -176,6 +178,15 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    public void setCompressLargeMessage(Boolean compressLargeMessage) {
       hasBeenUpdated = true;
       this.compressLargeMessage = compressLargeMessage;
+   }
+
+   public Integer getCompressionLevel() {
+      return compressionLevel;
+   }
+
+   public void setCompressionLevel(Integer compressionLevel) {
+      hasBeenUpdated = true;
+      this.compressionLevel = compressionLevel;
    }
 
    public String getConnectionLoadBalancingPolicyClassName() {
