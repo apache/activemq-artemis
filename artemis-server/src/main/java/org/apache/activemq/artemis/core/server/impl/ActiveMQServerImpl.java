@@ -216,6 +216,7 @@ import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.util.stream.Collectors.groupingBy;
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
 /**
@@ -3547,10 +3548,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
               .map(CoreAddressConfiguration::getName)
               .collect(Collectors.toSet());
 
-      Set<SimpleString> queuesInConfig = configuration.getAddressConfigurations().stream()
+      Map<SimpleString, List<QueueConfiguration>> queuesInConfig = configuration.getAddressConfigurations().stream()
               .map(CoreAddressConfiguration::getQueueConfigs)
-              .flatMap(List::stream).map(QueueConfiguration::getName)
-              .collect(Collectors.toSet());
+              .flatMap(List::stream).collect(groupingBy(QueueConfiguration::getName));
 
       for (SimpleString addressName : listAddressNames()) {
          AddressInfo addressInfo = getAddressInfo(addressName);
@@ -3574,7 +3574,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             }
          } else if (addressSettings.getConfigDeleteQueues() == DeletionPolicy.FORCE) {
             for (Queue queue : listConfiguredQueues(addressName)) {
-               if (!queuesInConfig.contains(queue.getName())) {
+               List<QueueConfiguration> queueConfigsInConfig = queuesInConfig.get(queue.getName());
+               if (queueConfigsInConfig == null || !queueConfigsInConfig.stream().anyMatch(
+                  queueConfiguration -> queueConfiguration.getAddress().equals(addressName))) {
                   ActiveMQServerLogger.LOGGER.undeployQueue(queue.getName());
                   try {
                      queue.deleteQueue(true);

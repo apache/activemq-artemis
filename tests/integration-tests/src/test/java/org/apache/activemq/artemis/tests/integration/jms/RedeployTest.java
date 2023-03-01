@@ -1243,6 +1243,52 @@ public class RedeployTest extends ActiveMQTestBase {
    }
 
 
+   @Test
+   public void testRedeployChangeAddressQueueRoutingType() throws Exception {
+      Path brokerXML = getTestDirfile().toPath().resolve("broker.xml");
+      URL url1 = RedeployTest.class.getClassLoader().getResource("reload-address-queue-routingtype.xml");
+      URL url2 = RedeployTest.class.getClassLoader().getResource("reload-address-queue-routingtype-updated.xml");
+      Files.copy(url1.openStream(), brokerXML);
+
+      EmbeddedActiveMQ embeddedActiveMQ = new EmbeddedActiveMQ();
+      embeddedActiveMQ.setConfigResourcePath(brokerXML.toUri().toString());
+      embeddedActiveMQ.start();
+
+      final ReusableLatch latch = new ReusableLatch(1);
+
+      embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(latch::countDown);
+
+      try {
+         latch.await(10, TimeUnit.SECONDS);
+         Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0"));
+         Assert.assertTrue(getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0").getRoutingTypes().contains(RoutingType.ANYCAST));
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.1").getRoutingType());
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.2").getRoutingType());
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.3").getRoutingType());
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.4").getRoutingType());
+
+         Files.copy(url2.openStream(), brokerXML, StandardCopyOption.REPLACE_EXISTING);
+         brokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         latch.setCount(1);
+         embeddedActiveMQ.getActiveMQServer().getReloadManager().setTick(latch::countDown);
+         Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+         AddressInfo testQueue0AddressInfo = getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0");
+         Assert.assertNotNull(testQueue0AddressInfo);
+         Assert.assertTrue(testQueue0AddressInfo.getRoutingTypes().contains(RoutingType.ANYCAST));
+         Assert.assertTrue(testQueue0AddressInfo.getRoutingTypes().contains(RoutingType.MULTICAST));
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.1").getRoutingType());
+         Assert.assertEquals(RoutingType.MULTICAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.2").getRoutingType());
+         Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0.3"));
+         Assert.assertTrue(getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0.3").getRoutingTypes().contains(RoutingType.ANYCAST));
+         Assert.assertEquals(RoutingType.ANYCAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.3").getRoutingType());
+         Assert.assertNotNull(getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0.4"));
+         Assert.assertTrue(getAddressInfo(embeddedActiveMQ, "TEST.QUEUE.0.4").getRoutingTypes().contains(RoutingType.MULTICAST));
+         Assert.assertEquals(RoutingType.MULTICAST, getQueue(embeddedActiveMQ, "TEST.QUEUE.0.4").getRoutingType());
+      } finally {
+         embeddedActiveMQ.stop();
+      }
+   }
 
    /**
     * Simulates Stop and Start that occurs when network health checker stops the server when network is detected unhealthy
