@@ -35,6 +35,7 @@ public class RmiRegistryFactory {
    private int port = Registry.REGISTRY_PORT;
    private Registry registry;
    private String host;
+   private HostLimitedServerSocketFactory socketFactory;
    /**
     * @return the port
     */
@@ -57,14 +58,27 @@ public class RmiRegistryFactory {
       this.host = host;
    }
 
+   /**
+    * Create a server socket for testing purposes.
+    */
+   ServerSocket createTestSocket() throws IOException {
+       return socketFactory.createServerSocket(1100);
+   }
+
    public Object getObject() throws Exception {
       return registry;
    }
 
-   private class HostLimitedServerSocketFactory implements RMIServerSocketFactory {
+   class HostLimitedServerSocketFactory implements RMIServerSocketFactory {
       @Override
       public ServerSocket createServerSocket(int port) throws IOException {
-         return ServerSocketFactory.getDefault().createServerSocket(port, 0, InetAddress.getByName(host));
+          InetAddress hostAddress;
+          if (host != null) {
+              hostAddress = InetAddress.getByName(host);
+          } else {
+              hostAddress = null; // accept connections on all local addresses
+          }
+          return ServerSocketFactory.getDefault().createServerSocket(port, 0, hostAddress);
       }
    }
 
@@ -76,13 +90,10 @@ public class RmiRegistryFactory {
    }
 
    public void init() throws RemoteException, UnknownHostException {
-      if (host != null) {
-         registry = LocateRegistry.createRegistry(port,
-                 new PassThroughToDefaultSocketFactory(),
-                 new HostLimitedServerSocketFactory());
-      } else {
-         registry = LocateRegistry.createRegistry(port);
-      }
+      socketFactory = new HostLimitedServerSocketFactory();
+      registry = LocateRegistry.createRegistry(port,
+              new PassThroughToDefaultSocketFactory(),
+              socketFactory);
    }
 
    public void destroy() throws RemoteException {
