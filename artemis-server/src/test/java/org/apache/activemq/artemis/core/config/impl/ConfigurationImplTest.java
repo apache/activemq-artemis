@@ -768,6 +768,20 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
    }
 
+
+   @Test
+   public void testAMQPConnectionsConfigurationUriEnc() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "tcp://amq-dc1-tls-amqp-${STATEFUL_SET_ORDINAL}-svc.dc1.svc.cluster.local:5673?clientFailureCheckPeriod=30000&connectionTTL=60000&sslEnabled=true&verifyHost=false&trustStorePath=/remote-cluster-truststore/client.ts");
+      insertionOrderedProperties.put("AMQPConnections.target.transportConfigurations.target.params.trustStorePassword","ENC(2a7c211d21c295cdbcde3589c205decb)");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+      AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
+      Assert.assertFalse(connectConfiguration.getTransportConfigurations().get(0).getParams().get("trustStorePassword").toString().contains("ENC"));
+   }
+
    @Test
    public void testCoreBridgeConfiguration() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
