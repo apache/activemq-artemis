@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
@@ -190,6 +191,33 @@ public class ResourceAdapterTest extends ActiveMQRATestBase {
       activation.start();
 
       assertEquals(1, ((AddressControl)server.getManagementService().getResource(ResourceNames.ADDRESS + prefixedDestinationName)).getQueueNames().length);
+
+      activation.stop();
+   }
+
+   @Test
+   public void testAutoCreatedQueueNotFiltered() throws Exception {
+      final String destinationName = "test";
+      ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+      ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+      ra.start(new BootstrapContext());
+      Connection conn = ra.getDefaultActiveMQConnectionFactory().createConnection();
+      conn.close();
+
+      ActiveMQActivationSpec spec = new ActiveMQActivationSpec();
+      spec.setResourceAdapter(ra);
+      spec.setJndiParams("java.naming.factory.initial=org.apache.activemq.artemis.jndi.ActiveMQInitialContextFactory;");
+      spec.setMessageSelector("HeaderField = 'foo'");
+      spec.setDestinationType("javax.jms.Queue");
+      spec.setDestinationLookup(destinationName);
+
+      ActiveMQActivation activation = new ActiveMQActivation(ra, new MessageEndpointFactory(), spec);
+
+      activation.start();
+
+      Queue queue = server.locateQueue(destinationName);
+      assertNotNull(queue);
+      assertNull(queue.getFilter());
 
       activation.stop();
    }

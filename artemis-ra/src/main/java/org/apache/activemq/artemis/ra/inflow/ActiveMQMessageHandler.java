@@ -173,7 +173,7 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
             }
          } else {
             tempQueueName = activation.getAddress();
-            AutoCreateUtil.autoCreateQueue(session, tempQueueName, selectorString);
+            AutoCreateUtil.autoCreateQueue(session, tempQueueName, null);
          }
          consumer = (ClientConsumerInternal) session.createConsumer(tempQueueName, selectorString);
       }
