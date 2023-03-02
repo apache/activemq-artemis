@@ -447,7 +447,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
    public long storePendingLargeMessage(final long messageID) throws Exception {
       try (ArtemisCloseable lock = closeableReadLock()) {
          long recordID = generateID();
-         messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
+         if (logger.isTraceEnabled()) {
+            logger.trace("Storing pending large message for messageID={} on recordID={}", messageID, recordID);
+         }
+         // the pending record has to be stored and synced before the large message file is created
+         messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, null);
+         if (logger.isTraceEnabled()) {
+            logger.trace("...Stored pending large message for messageID={} on recordID={}", messageID, recordID);
+         }
 
          return recordID;
       }
@@ -569,16 +576,16 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          }
       }
 
-      // We do this here to avoid a case where the replication gets a list without this file
-      // to avoid a race
-      largeMessage.validateFile();
-
       if (largeMessage.toMessage().isDurable()) {
          // We store a marker on the journal that the large file is pending
          long pendingRecordID = storePendingLargeMessage(id);
 
          largeMessage.setPendingRecordID(pendingRecordID);
       }
+
+      // the file has to be created after te record is stored
+      largeMessage.validateFile();
+
 
       return largeMessage;
    }

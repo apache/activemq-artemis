@@ -247,6 +247,31 @@
                      </args>
                   </configuration>
                </execution>
+               <!-- Used on LargeMessageInterruptTest -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-lminterrupt</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/lminterrupt</instance>
+                     <configuration>${basedir}/target/classes/servers/lminterrupt</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--queues</arg>
+                        <arg>LargeMessageInterruptTest</arg>
+                        <arg>--name</arg>
+                        <arg>lminterrupt</arg>
+                     </args>
+                  </configuration>
+               </execution>
 
             </executions>
          </plugin>
