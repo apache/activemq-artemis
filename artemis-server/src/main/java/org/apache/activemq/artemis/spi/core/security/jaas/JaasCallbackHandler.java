@@ -34,7 +34,7 @@ import javax.security.auth.kerberos.KerberosPrincipal;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 
 /**
- * A JAAS username password CallbackHandler.
+ * A JAAS CallbackHandler.
  */
 public class JaasCallbackHandler implements CallbackHandler {
 
@@ -52,23 +52,11 @@ public class JaasCallbackHandler implements CallbackHandler {
    public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
       for (Callback callback : callbacks) {
          if (callback instanceof PasswordCallback) {
-            PasswordCallback passwordCallback = (PasswordCallback) callback;
-            if (password == null) {
-               passwordCallback.setPassword(null);
-            } else {
-               passwordCallback.setPassword(password.toCharArray());
-            }
+            ((PasswordCallback) callback).setPassword(password != null ? password.toCharArray() : null);
          } else if (callback instanceof NameCallback) {
-            NameCallback nameCallback = (NameCallback) callback;
-            if (username == null) {
-               nameCallback.setName(null);
-            } else {
-               nameCallback.setName(username);
-            }
+            ((NameCallback) callback).setName(username);
          } else if (callback instanceof CertificateCallback) {
-            CertificateCallback certCallback = (CertificateCallback) callback;
-
-            certCallback.setCertificates(getCertsFromConnection(remotingConnection));
+            ((CertificateCallback) callback).setCertificates(getCertsFromConnection(remotingConnection));
          } else if (callback instanceof PrincipalsCallback) {
             PrincipalsCallback principalsCallback = (PrincipalsCallback) callback;
 
@@ -79,7 +67,7 @@ public class JaasCallbackHandler implements CallbackHandler {
                   return;
                }
                Set<Principal> principals = peerSubject.getPrincipals();
-               if (principals.size() > 0) {
+               if (!principals.isEmpty()) {
                   principalsCallback.setPeerPrincipals(principals.toArray(new Principal[0]));
                   return;
                }
@@ -89,6 +77,8 @@ public class JaasCallbackHandler implements CallbackHandler {
             if (peerPrincipalFromConnection != null) {
                principalsCallback.setPeerPrincipals(new Principal[] {peerPrincipalFromConnection});
             }
+         } else if (callback instanceof ClientIDCallback) {
+            ((ClientIDCallback) callback).setClientID(remotingConnection.getClientID());
          } else {
             throw new UnsupportedCallbackException(callback);
          }
