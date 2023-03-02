@@ -2595,6 +2595,12 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       boolean needCompact = totalLiveSize < compactMargin && dataFiles.length > compactMinFiles;
 
+      if (logger.isDebugEnabled()) {
+         logger.debug("JournalImpl::needsCompact={}, totalBytes={}, dataFiles.length={}, fileSize={}, compactMargin={}, compactingPercentage={}," +
+                         "compactMinFiles={}", needCompact, totalBytes, dataFiles.length, fileSize,
+                      compactMargin, compactPercentage, compactMinFiles);
+      }
+
       return needCompact;
 
    }
