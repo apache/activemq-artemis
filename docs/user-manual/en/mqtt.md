@@ -186,11 +186,18 @@ Web browsers can then connect to `wss://<server>:8883` using a Web Socket to
 send and receive MQTT messages.
 
 
-## Automatic Subscription Clean-up
+## Automatic Subscription Clean-up 
 
-Sometimes MQTT clients don't clean up their subscriptions. In such situations
-the `auto-delete-queues-delay` and `auto-delete-queues-message-count`
-address-settings can be used to clean up the abandoned subscription queues.
+Sometimes MQTT clients using `CleanSession=false` don't clean up their
+subscriptions. In such situations the following address-setting can be used
+to clean up the abandoned subscription queues:
+```xml
+   <address-setting match="myMqttAddress">
+      <auto-delete-created-queues>true</auto-delete-created-queues>
+      <auto-delete-queues-delay>3600000</auto-delete-queues-delay> <!-- 1 hour delay -->
+      <auto-delete-queues-message-count>-1</auto-delete-queues-message-count> <!-- doesn't matter how many messages there are -->
+   </address-setting>
+```
 However, the MQTT session meta-data is still present in memory and needs to be
 cleaned up as well. The URL parameter `defaultMqttSessionExpiryInterval` can be
 configured on the MQTT `acceptor` to deal with this situation.
