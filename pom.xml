@@ -1297,9 +1297,8 @@
                  integration-tests module tests, see fast-tests profile
                  in the latter for specific tests it then runs -->
             <skipIntegrationTests>false</skipIntegrationTests>
-            <!-- only a portion of the smoke tests is run under fast test.
-                 You will see a filter applied on the fast-tests profile under ./tests/smoke-tsts.
-                 Which is mostly for Compare Upgrades. -->
+            <!-- Only a portion of the smoke-tests are run. See the filter
+                 applied in the fast-tests profile under ./tests/smoke-tests -->
             <skipSmokeTests>false</skipSmokeTests>
          </properties>
       </profile>

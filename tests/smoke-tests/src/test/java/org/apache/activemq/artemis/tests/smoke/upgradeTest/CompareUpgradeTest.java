@@ -150,13 +150,7 @@ public class CompareUpgradeTest {
 
                   String expectedString = expectedIterator.next().replace("Expected", "").trim();
                   String upgradeString = upgradeIterator.next().trim();
-
-                  if (f.getName().endsWith("jolokia-access.xml") && expectedString.startsWith("<!--") && upgradeString.startsWith("<!--")) {
-                     // TODO: for now we will just ignore comments in jolokia-access.xml. We should do a proper parser of jologia-access.xml
-                     logger.debug("Ignoring comments from jolokia-access.xml");
-                  } else {
-                     Assert.assertEquals("error on line " + line + " at " + upgradeFile, expectedString, upgradeString);
-                  }
+                  Assert.assertEquals("error on line " + line + " at " + upgradeFile, expectedString, upgradeString);
                   line++;
                }
 
