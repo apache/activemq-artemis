@@ -51,4 +51,26 @@ public class ConnectorTransportConfigurationParserURITest {
       Assert.assertEquals("3", objects.get(2).getParams().get("port"));
    }
 
+   @Test
+   public void testParseMultipleConnectorWithName() throws Exception {
+      ConnectorTransportConfigurationParser parser = new ConnectorTransportConfigurationParser(false);
+
+      URI transportURI = parser.expandURI("(tcp://live:1?name=live1,tcp://backupA:2?name=backupA2,tcp://backupB:3?name=backupB3");
+      System.out.println(transportURI);
+      List<TransportConfiguration> objects = parser.newObject(transportURI, null);
+      if (logger.isInfoEnabled()) {
+         objects.forEach(t -> logger.info("transportConfig: {}", t));
+      }
+
+      Assert.assertEquals(3, objects.size());
+      Assert.assertEquals("live1", objects.get(0).getName());
+      Assert.assertEquals("live", objects.get(0).getParams().get("host"));
+      Assert.assertEquals("1", objects.get(0).getParams().get("port"));
+      Assert.assertEquals("backupA2", objects.get(1).getName());
+      Assert.assertEquals("backupA", objects.get(1).getParams().get("host"));
+      Assert.assertEquals("2", objects.get(1).getParams().get("port"));
+      Assert.assertEquals("backupB3", objects.get(2).getName());
+      Assert.assertEquals("backupB", objects.get(2).getParams().get("host"));
+      Assert.assertEquals("3", objects.get(2).getParams().get("port"));
+   }
 }

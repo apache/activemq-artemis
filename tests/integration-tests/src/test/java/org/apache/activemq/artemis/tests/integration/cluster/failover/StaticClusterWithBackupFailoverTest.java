@@ -20,6 +20,18 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 
 public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase {
 
+   protected int[] getServerIDs() {
+      return new int[]{0, 1, 2, 3, 4, 5};
+   }
+
+   protected int[] getLiveServerIDs() {
+      return new int[]{0, 1, 2};
+   }
+
+   protected int[] getBackupServerIDs() {
+      return new int[]{3, 4, 5};
+   }
+
    @Override
    protected void setupCluster(final MessageLoadBalancingType messageLoadBalancingType) throws Exception {
       setupClusterConnectionWithBackups("cluster0", "queues", messageLoadBalancingType, 1, isNetty(), 0, new int[]{1, 2});

@@ -65,7 +65,11 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
       BeanSupport.setData(uri, props, allowableProperties, query, extraProps);
       List<TransportConfiguration> transportConfigurations = new ArrayList<>();
 
-      TransportConfiguration config = new TransportConfiguration(factoryName, props, name, extraProps);
+      String nameFromQuery = query.getOrDefault(TransportConfiguration.NAME_PARAM, name);
+      if (name != null && !name.equals(nameFromQuery)) {
+         throw new IllegalArgumentException("Name doesn't match query param");
+      }
+      TransportConfiguration config = new TransportConfiguration(factoryName, props, nameFromQuery, extraProps);
 
       transportConfigurations.add(config);
       String connectors = uri.getFragment();
@@ -77,8 +81,10 @@ public class TCPTransportConfigurationSchema extends AbstractTransportConfigurat
             HashMap<String, Object> newProps = new HashMap<>();
             extraProps = new HashMap<>();
             BeanSupport.setData(extraUri, newProps, allowableProperties, query, extraProps);
-            BeanSupport.setData(extraUri, newProps, allowableProperties, parseQuery(extraUri.getQuery(), null), extraProps);
-            transportConfigurations.add(new TransportConfiguration(factoryName, newProps, name + ":" + extraUri.toString(), extraProps));
+            Map<String, String> extraUriQuery = parseQuery(extraUri.getQuery(), null);
+            BeanSupport.setData(extraUri, newProps, allowableProperties, extraUriQuery, extraProps);
+            String extraUriNameFromQuery = extraUriQuery.getOrDefault(TransportConfiguration.NAME_PARAM, name + ":" + extraUri);
+            transportConfigurations.add(new TransportConfiguration(factoryName, newProps, extraUriNameFromQuery, extraProps));
          }
       }
       return transportConfigurations;

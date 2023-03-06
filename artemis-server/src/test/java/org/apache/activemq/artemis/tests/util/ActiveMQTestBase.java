@@ -1338,6 +1338,13 @@ public abstract class ActiveMQTestBase extends Assert {
    protected static final TransportConfiguration createTransportConfiguration(boolean netty,
                                                                               boolean acceptor,
                                                                               Map<String, Object> params) {
+      return createTransportConfiguration(UUIDGenerator.getInstance().generateStringUUID(), netty, acceptor, params);
+   }
+
+   protected static final TransportConfiguration createTransportConfiguration(String name,
+                                                                              boolean netty,
+                                                                              boolean acceptor,
+                                                                              Map<String, Object> params) {
       String className;
       if (netty) {
          if (acceptor) {
@@ -1354,7 +1361,7 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       if (params == null)
          params = new HashMap<>();
-      return new TransportConfiguration(className, params, UUIDGenerator.getInstance().generateStringUUID(), new HashMap<String, Object>());
+      return new TransportConfiguration(className, params, name, new HashMap<String, Object>());
    }
 
    protected void waitForServerToStart(ActiveMQServer server) throws InterruptedException {

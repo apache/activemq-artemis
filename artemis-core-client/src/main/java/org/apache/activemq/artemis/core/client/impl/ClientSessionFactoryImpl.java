@@ -82,7 +82,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final ClientProtocolManager clientProtocolManager;
 
-   private final TransportConfiguration connectorConfig;
+   private TransportConfiguration connectorConfig;
 
    private TransportConfiguration previousConnectorConfig;
 
@@ -158,6 +158,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final Object connectionReadyLock = new Object();
 
+   private final TransportConfiguration[] connectorConfigs;
+
    public ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                                    final TransportConfiguration connectorConfig,
                                    final ServerLocatorConfig locatorConfig,
@@ -172,13 +174,27 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
+      final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
+      final ServerLocatorConfig locatorConfig,
+      final int reconnectAttempts,
+      final Executor threadPool,
+      final ScheduledExecutorService scheduledThreadPool,
+      final List<Interceptor> incomingInterceptors,
+      final List<Interceptor> outgoingInterceptors) {
+      this(serverLocator, connectorConfig,
+         locatorConfig, reconnectAttempts, threadPool,
+         scheduledThreadPool, incomingInterceptors, outgoingInterceptors, null);
+   }
+
+   ClientSessionFactoryImpl(final ServerLocatorInternal serverLocator,
                           final Pair<TransportConfiguration, TransportConfiguration> connectorConfig,
                           final ServerLocatorConfig locatorConfig,
                           final int reconnectAttempts,
                           final Executor threadPool,
                           final ScheduledExecutorService scheduledThreadPool,
                           final List<Interceptor> incomingInterceptors,
-                          final List<Interceptor> outgoingInterceptors) {
+                          final List<Interceptor> outgoingInterceptors,
+                          final TransportConfiguration[] connectorConfigs) {
       createTrace = new Exception();
 
       this.serverLocator = serverLocator;
@@ -238,6 +254,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       if (connectorConfig.getB() != null) {
          this.backupConnectorConfig = connectorConfig.getB();
       }
+
+      this.connectorConfigs = connectorConfigs;
    }
 
    @Override
@@ -1150,6 +1168,20 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
 
          if (backupConnectorConfig != null) {
+            //Try to connect with the client connector that match the backup connector name
+            String backupConnectorName = backupConnectorConfig.getName();
+            if (backupConnectorName != null && connectorConfigs != null) {
+               for (TransportConfiguration connectorConfig : connectorConfigs) {
+                  if (backupConnectorName.equals(connectorConfig.getName())) {
+                     //Try to connect with the backup connector configuration
+                     transportConnection = createTransportConnection("backup", connectorConfig);
+                     if (transportConnection != null) {
+                        return transportConnection;
+                     }
+                  }
+               }
+            }
+
             //Try to connect with the backup connector configuration
             transportConnection = createTransportConnection("backup", backupConnectorConfig);
             if (transportConnection != null) {
