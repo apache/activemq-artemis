@@ -1350,8 +1350,8 @@ public class MQTTTest extends MQTTTestSupport {
       connection.start();
 
       Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      javax.jms.Queue jmsQueue = s.createQueue(jmsTopicAddress);
-      MessageConsumer consumer = s.createConsumer(jmsQueue);
+      javax.jms.Topic jmsTopic = s.createTopic(jmsTopicAddress);
+      MessageConsumer consumer = s.createConsumer(jmsTopic);
 
       provider.publish(address, RETAINED.getBytes(), AT_LEAST_ONCE, true);
 

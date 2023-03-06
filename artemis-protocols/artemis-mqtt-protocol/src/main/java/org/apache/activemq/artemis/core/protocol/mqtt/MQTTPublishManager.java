@@ -43,6 +43,7 @@ import org.apache.activemq.artemis.core.protocol.mqtt.exceptions.DisconnectExcep
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerProducer;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -223,8 +224,13 @@ public class MQTTPublishManager {
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
-               if (session.getServer().getAddressInfo(address) == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
+               AddressInfo addressInfo = session.getServer().getAddressInfo(address);
+               if (addressInfo == null && session.getServer().getAddressSettingsRepository().getMatch(coreAddress).isAutoCreateAddresses()) {
                   session.getServerSession().createAddress(address, RoutingType.MULTICAST, true);
+                  serverMessage.setRoutingType(RoutingType.MULTICAST);
+               }
+               if (addressInfo != null) {
+                  serverMessage.setRoutingType(addressInfo.getRoutingType());
                }
                session.getServerSession().send(tx, serverMessage, true, senderName, false);
 
