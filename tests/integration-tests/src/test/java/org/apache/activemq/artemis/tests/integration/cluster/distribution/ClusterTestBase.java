@@ -1957,13 +1957,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          throw new IllegalStateException("No server at node " + nodeFrom);
       }
 
-      TransportConfiguration connectorFrom = createTransportConfiguration(netty, false, generateParams(nodeFrom, netty));
-      serverFrom.getConfiguration().getConnectorConfigurations().put(name, connectorFrom);
+      String connectorName = "node" + nodeFrom;
+      TransportConfiguration connectorFrom = createTransportConfiguration(connectorName, netty, false, generateParams(nodeFrom, netty));
+      serverFrom.getConfiguration().getConnectorConfigurations().put(connectorName, connectorFrom);
 
       List<String> pairs = getClusterConnectionTCNames(netty, serverFrom, nodesTo);
       Configuration config = serverFrom.getConfiguration();
 
-      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(name).setRetryInterval(250).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs);
+      ClusterConnectionConfiguration clusterConf = new ClusterConnectionConfiguration().setName(name).setAddress(address).setConnectorName(connectorName).setRetryInterval(250).setMessageLoadBalancingType(messageLoadBalancingType).setMaxHops(maxHops).setConfirmationWindowSize(1024).setStaticConnectors(pairs);
 
       config.getClusterConfigurations().add(clusterConf);
    }

@@ -47,6 +47,8 @@ public class TransportConfiguration implements Serializable {
 
    private static final long serialVersionUID = -3994528421527392679L;
 
+   public static final String NAME_PARAM = "name";
+
    public static final String EXTRA_PROPERTY_PREFIX = "$.EP.";
 
    private String name;

@@ -1150,6 +1150,47 @@ If you wish to provide *once and only once* delivery guarantees for non
 transacted sessions too, enable duplicate detection, and catch unblock
 exceptions as described in [Handling Blocking Calls During Failover](ha.md)
 
+#### Use client connectors to fail over
+
+Apache ActiveMQ Artemis clients retrieve the backup connector from the
+topology updates that the cluster brokers send. If the connection options
+of the clients don't match the options of the cluster brokers the clients
+can define a client connector that will be used in place of the connector
+in the topology. To define a client connector it must have a name that matches
+the name of the connector defined in the cluster connection of the broker, i.e.
+supposing to have a live broker with the cluster connector name `node-0`
+and a backup broker with the cluster connector name `node-1` the client
+connection url must define 2 connectors with the names `node-0` and `node-1`:
+
+Live broker config
+```xml
+<connectors>
+    <!-- Connector used to be announced through cluster connections and notifications -->
+    <connector name="node-0">tcp://localhost:61616</connector>
+</connectors>
+<cluster-connections>
+<cluster-connection name="my-cluster">
+  <connector-ref>node-0</connector-ref>
+...
+```
+
+Backup broker config
+```xml
+<connectors>
+    <!-- Connector used to be announced through cluster connections and notifications -->
+    <connector name="node-1">tcp://localhost:61617</connector>
+</connectors>
+<cluster-connections>
+<cluster-connection name="my-cluster">
+  <connector-ref>node-1</connector-ref>
+  ...
+```
+
+Client connection url
+```
+(tcp://localhost:61616?name=node-0,tcp://localhost:61617?name=node-1)?ha=true&reconnectAttempts=-1
+```
+
 ### Getting Notified of Connection Failure
 
 JMS provides a standard mechanism for getting notified asynchronously of
