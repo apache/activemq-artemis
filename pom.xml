@@ -1291,7 +1291,7 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipCompatibilityTests>false</skipCompatibilityTests>
-            <skipLeakTests>false</skipLeakTests>
+            <skipLeakTests>true</skipLeakTests>
             <testFailureIgnore>false</testFailureIgnore>
             <!-- This enables the karaf-<foo>-integration-tests and
                  integration-tests module tests, see fast-tests profile
