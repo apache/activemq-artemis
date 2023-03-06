@@ -32,7 +32,7 @@ public class SizeAwareMetricTest {
 
    ExecutorService executor;
 
-   private void setupExecutor(int threads) throws Exception {
+   private void setupExecutor(int threads) {
       if (executor == null) {
          executor = Executors.newFixedThreadPool(threads);
       }
@@ -48,7 +48,7 @@ public class SizeAwareMetricTest {
    }
 
    @Test
-   public void testWithParent() throws Exception {
+   public void testWithParent() {
       AtomicBoolean childBoolean = new AtomicBoolean(false);
       AtomicBoolean parentBoolean = new AtomicBoolean(false);
 
@@ -227,7 +227,7 @@ public class SizeAwareMetricTest {
 
 
    @Test
-   public void testMaxElements() throws Exception {
+   public void testMaxElements() {
       SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 10,10);
 
       AtomicBoolean over = new AtomicBoolean(false);
@@ -251,7 +251,7 @@ public class SizeAwareMetricTest {
 
    }
    @Test
-   public void testMaxElementsReleaseNonSizeParentMetric() throws Exception {
+   public void testMaxElementsReleaseNonSizeParentMetric() {
       SizeAwareMetric metricMain = new SizeAwareMetric(10000, 500, 10,10);
       SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 1000,1000);
 
@@ -299,7 +299,7 @@ public class SizeAwareMetricTest {
 
 
    @Test
-   public void testMaxElementsReleaseNonSize() throws Exception {
+   public void testMaxElementsReleaseNonSize() {
       SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 10,10);
 
       AtomicBoolean over = new AtomicBoolean(false);
@@ -350,7 +350,7 @@ public class SizeAwareMetricTest {
       final AtomicBoolean globalMetricOver = new AtomicBoolean(false);
       final AtomicBoolean[] metricOverArray = new AtomicBoolean[THREADS];
 
-      SizeAwareMetric globalMetric = new SizeAwareMetric(10000, 500, 0, 0);
+      SizeAwareMetric globalMetric = new SizeAwareMetric(10000, 500, 10000, 500);
 
       SizeAwareMetric[] metric = new SizeAwareMetric[THREADS];
 
@@ -369,24 +369,24 @@ public class SizeAwareMetricTest {
       CyclicBarrier flagStart = new CyclicBarrier(THREADS + 1);
       for (int istart = 0; istart < THREADS; istart++) {
          final AtomicBoolean metricOver = new AtomicBoolean(false);
-         final SizeAwareMetric themetric = new SizeAwareMetric(1000, 500, 0, 0);
-         themetric.setOnSizeCallback(globalMetric::addSize);
-         themetric.setOverCallback(() -> {
+         final SizeAwareMetric theMetric = new SizeAwareMetric(1000, 500, 1000, 500);
+         theMetric.setOnSizeCallback(globalMetric::addSize);
+         theMetric.setOverCallback(() -> {
             metricOver.set(true);
             metricOverCalls.incrementAndGet();
          });
-         themetric.setUnderCallback(() -> {
+         theMetric.setUnderCallback(() -> {
             metricOver.set(false);
             metricUnderCalls.incrementAndGet();
          });
-         metric[istart] = themetric;
+         metric[istart] = theMetric;
          metricOverArray[istart] = metricOver;
          executor.execute(() -> {
             try {
                flagStart.await(10, TimeUnit.SECONDS);
 
                for (int iadd = 0; iadd < ELEMENTS; iadd++) {
-                  themetric.addSize(1);
+                  theMetric.addSize(1);
                }
                latchDone.countDown();
             } catch (Throwable e) {
@@ -463,7 +463,7 @@ public class SizeAwareMetricTest {
    }
 
    @Test
-   public void testUpdateMax() throws Exception {
+   public void testUpdateMax() {
       AtomicBoolean over = new AtomicBoolean(false);
       SizeAwareMetric metric = new SizeAwareMetric(1000, 500, -1, -1);
       metric.setOverCallback(() -> over.set(true));
@@ -472,31 +472,31 @@ public class SizeAwareMetricTest {
       metric.addSize(900);
       Assert.assertFalse(over.get());
 
-      metric.setMax(800, 700, 0, 0);
+      metric.setMax(800, 700, -1, -1);
       Assert.assertTrue(over.get());
 
-      metric.addSize(-200);
+      metric.addSize(-201);
       Assert.assertFalse(over.get());
    }
 
    @Test
-   public void testDisabled() throws Exception {
+   public void testDisabled() {
       AtomicBoolean over = new AtomicBoolean(false);
-      SizeAwareMetric metric = new SizeAwareMetric(0, 0, -1, -1);
-      metric.setSizeEnabled(false);
+      SizeAwareMetric metric = new SizeAwareMetric(-1, -1, -1, -1);
       metric.setOverCallback(() -> over.set(true));
       metric.addSize(100);
+
       Assert.assertEquals(100, metric.getSize());
       Assert.assertEquals(1, metric.getElements());
       Assert.assertFalse(over.get());
    }
 
    @Test
-   public void testMultipleNonSized() throws Exception {
+   public void testMultipleNonSized() {
       AtomicBoolean over = new AtomicBoolean(false);
-      final SizeAwareMetric metricMain = new SizeAwareMetric(0, 0, 1, 1);
-      SizeAwareMetric metric = new SizeAwareMetric(0, 0, 1, 1);
-      metric.setSizeEnabled(false);
+      final SizeAwareMetric metricMain = new SizeAwareMetric(-1, -1, -1, -1);
+      SizeAwareMetric metric = new SizeAwareMetric(-1, -1, -1, -1);
+
       metric.setOverCallback(() -> over.set(true));
       metric.setOnSizeCallback(metricMain::addSize);
       for (int i = 0; i  < 10; i++) {
@@ -516,30 +516,29 @@ public class SizeAwareMetricTest {
       Assert.assertEquals(200, metric.getSize());
       Assert.assertEquals(10, metricMain.getElements());
       Assert.assertEquals(10, metric.getElements());
+
+      Assert.assertFalse(over.get());
    }
 
    @Test
-   public void testResetNeverUsed() throws Exception {
-      SizeAwareMetric metric = new SizeAwareMetric(0, 0, 0, 0);
+   public void testResetNeverUsed() {
       AtomicBoolean over = new AtomicBoolean(false);
 
+      SizeAwareMetric metric = new SizeAwareMetric(0, 0, 0, 0);
       metric.setOverCallback(() -> over.set(true));
-      metric.setElementsEnabled(true);
-      metric.setSizeEnabled(true);
       metric.setMax(0, 0, 0, 0);
+
       Assert.assertFalse(over.get());
       Assert.assertFalse(metric.isOver());
    }
 
    @Test
-   public void testSwitchSides() throws Exception {
+   public void testSwitchSides() {
       SizeAwareMetric metric = new SizeAwareMetric(2000, 2000, 1, 1);
       AtomicBoolean over = new AtomicBoolean(false);
 
       metric.setOverCallback(() -> over.set(true));
       metric.setUnderCallback(() -> over.set(false));
-      metric.setElementsEnabled(true);
-      metric.setSizeEnabled(true);
 
       metric.addSize(2500, true);
 
@@ -633,11 +632,18 @@ public class SizeAwareMetricTest {
 
       Assert.assertTrue(done.await(10, TimeUnit.SECONDS));
 
-
       Assert.assertEquals(0, metric.getSize());
       Assert.assertEquals(0, metric.getElements());
       Assert.assertEquals(0, errors.get());
-
    }
 
+   @Test
+   public void testConsistency() {
+      SizeAwareMetric metric = new SizeAwareMetric(-1, -1, -1, -1);
+      Assert.assertFalse(metric.isSizeEnabled());
+      Assert.assertFalse(metric.isElementsEnabled());
+      metric.setMax(1, 1, 1, 1);
+      Assert.assertTrue(metric.isSizeEnabled());
+      Assert.assertTrue(metric.isElementsEnabled());
+   }
 }

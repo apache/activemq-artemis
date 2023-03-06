@@ -217,9 +217,6 @@ public class PagingStoreImpl implements PagingStore {
 
    private void configureSizeMetric() {
       size.setMax(maxSize, maxSize, maxMessages, maxMessages);
-      size.setSizeEnabled(maxSize >= 0);
-      size.setElementsEnabled(maxMessages >= 0);
-
    }
 
    /**
