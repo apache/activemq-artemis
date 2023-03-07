@@ -460,26 +460,6 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    }
 
    @Override
-   public void clearPendingRecordID() {
-      largeBody.clearPendingRecordID();
-   }
-
-   @Override
-   public boolean hasPendingRecord() {
-      return largeBody.hasPendingRecord();
-   }
-
-   @Override
-   public void setPendingRecordID(long pendingRecordID) {
-      largeBody.setPendingRecordID(pendingRecordID);
-   }
-
-   @Override
-   public long getPendingRecordID() {
-      return largeBody.getPendingRecordID();
-   }
-
-   @Override
    protected void releaseComplete() {
       largeBody.releaseComplete();
    }

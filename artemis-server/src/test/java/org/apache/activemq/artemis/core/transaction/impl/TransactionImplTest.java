@@ -526,6 +526,7 @@ public class TransactionImplTest extends ActiveMQTestBase {
                                                        Map<Long, QueueBindingInfo> queueInfos,
                                                        Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                                        Set<Pair<Long, Long>> pendingLargeMessages,
+                                                       Set<Long> largeMessagesInFolder,
                                                        List<PageCountPending> pendingNonTXPageCounter,
                                                        JournalLoader journalLoader) throws Exception {
          return null;

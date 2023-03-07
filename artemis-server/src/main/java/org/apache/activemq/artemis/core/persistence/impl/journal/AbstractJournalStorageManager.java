@@ -45,7 +45,6 @@ import javax.transaction.xa.Xid;
 import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
-import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -925,6 +924,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                                     Map<Long, QueueBindingInfo> queueInfos,
                                                     final Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                                     final Set<Pair<Long, Long>> pendingLargeMessages,
+                                                    final Set<Long> storedLargeMessages,
                                                     List<PageCountPending> pendingNonTXPageCounter,
                                                     final JournalLoader journalLoader) throws Exception {
       SparseArrayLinkedList<RecordInfo> records = new SparseArrayLinkedList<>();
@@ -995,6 +995,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                      messages.put(record.id, largeMessage.toMessage());
 
+                     if (storedLargeMessages != null) {
+                        storedLargeMessages.remove(largeMessage.getMessageID());
+                     }
+
                      largeMessages.add(largeMessage);
 
                      break;
@@ -1006,6 +1010,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
 
                      Message message = decodeMessage(pools, buff);
+
+                     if (message.isLargeMessage() && storedLargeMessages != null) {
+                        storedLargeMessages.remove(message.getMessageID());
+                     }
 
                      messages.put(record.id, message);
 
@@ -1272,13 +1280,18 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
          journalLoader.handleAddMessage(queueMap);
 
-         loadPreparedTransactions(postOffice, pagingManager, resourceManager, queueInfos, preparedTransactions, this::failedToPrepareException, pageSubscriptions, pendingLargeMessages, journalLoader);
+         loadPreparedTransactions(postOffice, pagingManager, resourceManager, queueInfos, preparedTransactions, this::failedToPrepareException, pageSubscriptions, pendingLargeMessages, storedLargeMessages, journalLoader);
 
          for (PageSubscription sub : pageSubscriptions.values()) {
             sub.getCounter().processReload();
          }
 
          for (LargeServerMessage msg : largeMessages) {
+            if (storedLargeMessages != null && storedLargeMessages.remove(msg.getMessageID())) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug("Large message in folder removed on {}", msg.getMessageID());
+               }
+            }
             if (msg.toMessage().getRefCount() == 0 && msg.toMessage().getDurableCount() == 0) {
                ActiveMQServerLogger.LOGGER.largeMessageWithNoRef(msg.getMessageID());
                msg.toMessage().usageDown();
@@ -1753,23 +1766,6 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       return bindingsJournal;
    }
 
-   protected void confirmLargeMessage(final LargeServerMessage largeServerMessage) {
-      synchronized (largeServerMessage) {
-         if (largeServerMessage.getPendingRecordID() >= 0) {
-            try {
-               confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
-               largeServerMessage.clearPendingRecordID();
-            } catch (ActiveMQShutdownException e) {
-               // this may happen, this is asynchronous as all that would happen is we missed the update
-               // since the update was missed, next restart this operation will be retried
-               logger.debug(e.getMessage(), e);
-            } catch (Throwable e) {
-               logger.warn(e.getMessage(), e);
-            }
-         }
-      }
-   }
-
    protected abstract LargeServerMessage parseLargeMessage(ActiveMQBuffer buff) throws Exception;
 
    private void loadPreparedTransactions(final PostOffice postOffice,
@@ -1780,13 +1776,14 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                                          final BiConsumer<PreparedTransactionInfo, Throwable> failedTransactionCallback,
                                          final Map<Long, PageSubscription> pageSubscriptions,
                                          final Set<Pair<Long, Long>> pendingLargeMessages,
+                                         final Set<Long> storedLargeMessages,
                                          JournalLoader journalLoader) throws Exception {
       // recover prepared transactions
       final CoreMessageObjectPools pools = new CoreMessageObjectPools();
 
       for (PreparedTransactionInfo preparedTransaction : preparedTransactions) {
          try {
-            loadSinglePreparedTransaction(postOffice, pagingManager, resourceManager, queueInfos, pageSubscriptions, pendingLargeMessages, journalLoader, pools, preparedTransaction);
+            loadSinglePreparedTransaction(postOffice, pagingManager, resourceManager, queueInfos, pageSubscriptions, pendingLargeMessages, storedLargeMessages, journalLoader, pools, preparedTransaction);
          } catch (Throwable e) {
             if (failedTransactionCallback != null) {
                failedTransactionCallback.accept(preparedTransaction, e);
@@ -1803,6 +1800,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                           Map<Long, QueueBindingInfo> queueInfos,
                           Map<Long, PageSubscription> pageSubscriptions,
                           Set<Pair<Long, Long>> pendingLargeMessages,
+                          final Set<Long> storedLargeMessages,
                           JournalLoader journalLoader,
                           CoreMessageObjectPools pools,
                           PreparedTransactionInfo preparedTransaction) throws Exception {
@@ -1829,6 +1827,11 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
          switch (recordType) {
             case JournalRecordIds.ADD_LARGE_MESSAGE: {
+               if (storedLargeMessages != null && storedLargeMessages.remove(record.id)) {
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("PreparedTX/AddLargeMessage load removing stored large message {}", record.id);
+                  }
+               }
                messages.put(record.id, parseLargeMessage(buff).toMessage());
 
                break;
@@ -1839,6 +1842,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
             }
             case JournalRecordIds.ADD_MESSAGE_PROTOCOL: {
                Message message = decodeMessage(pools, buff);
+               if (storedLargeMessages != null && message.isLargeMessage() && storedLargeMessages.remove(record.id)) {
+                  logger.debug("PreparedTX/AddMessgeProtocol load removing stored large message {}", record.id);
+               }
 
                messages.put(record.id, message);
 

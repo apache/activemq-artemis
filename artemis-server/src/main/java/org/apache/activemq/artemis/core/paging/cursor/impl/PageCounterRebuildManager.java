@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 /** this class will copy current data from the Subscriptions, count messages while the server is already active
@@ -49,14 +50,16 @@ public class PageCounterRebuildManager implements Runnable {
    private long limitPageId;
    private int limitMessageNr;
    private LongObjectHashMap<CopiedSubscription> copiedSubscriptionMap = new LongObjectHashMap<>();
+   private final Set<Long> storedLargeMessages;
 
 
-   public PageCounterRebuildManager(PagingStore store, LongHashSet transactions) {
+   public PageCounterRebuildManager(PagingStore store, LongHashSet transactions, Set<Long> storedLargeMessages) {
       // we make a copy of the data because we are allowing data to influx. We will consolidate the values at the end
       initialize(store);
       this.pgStore = store;
       this.sm = store.getStorageManager();
       this.transactions = transactions;
+      this.storedLargeMessages = storedLargeMessages;
    }
    /** this method will perform the copy from Acked recorded from the subscription into a separate data structure.
     * So we can count data while we consolidate at the end */
@@ -216,6 +219,12 @@ public class PageCounterRebuildManager implements Runnable {
          try (LinkedListIterator<PagedMessage> iter = msgs.iterator()) {
             while (iter.hasNext()) {
                PagedMessage msg = iter.next();
+               if (storedLargeMessages != null && msg.getMessage().isLargeMessage()) {
+                  if (logger.isDebugEnabled()) {
+                     logger.debug("removing storedLargeMessage {}", msg.getMessage().getMessageID());
+                  }
+                  storedLargeMessages.remove(msg.getMessage().getMessageID());
+               }
                if (limitPageId == pgid) {
                   if (msg.getMessageNumber() >= limitMessageNr) {
                      if (logger.isDebugEnabled()) {

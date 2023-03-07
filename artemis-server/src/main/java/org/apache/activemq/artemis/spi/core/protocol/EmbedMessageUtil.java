@@ -114,12 +114,6 @@ public class EmbedMessageUtil {
 
       Message largeMessageReturn = readEncoded(message, storageManager, buffer);
 
-      if (message instanceof LargeServerMessage && largeMessageReturn instanceof LargeServerMessage) {
-         LargeServerMessage returnMessage = (LargeServerMessage) largeMessageReturn;
-         LargeServerMessage sourceMessage = (LargeServerMessage) message;
-         returnMessage.setPendingRecordID(sourceMessage.getPendingRecordID());
-      }
-
       return largeMessageReturn;
    }
 

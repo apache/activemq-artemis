@@ -342,8 +342,6 @@ public class SimpleStreamingLargeMessageTest extends AmqpClientTestSupport {
 
             Assert.assertNotNull(message);
             Assert.assertTrue(message instanceof LargeServerMessage);
-
-            Assert.assertFalse(((LargeServerMessage)message).hasPendingRecord());
          }
          browserIterator.close();
 

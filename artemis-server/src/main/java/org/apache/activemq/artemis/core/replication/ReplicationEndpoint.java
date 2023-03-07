@@ -607,7 +607,6 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
       final ReplicatedLargeMessage message = lookupLargeMessage(packet.getMessageId(), packet.isDelete(), false);
       if (message != null) {
-         message.setPendingRecordID(packet.getPendingRecordId());
          if (!packet.isDelete()) {
             if (logger.isTraceEnabled()) {
                logger.trace("Closing LargeMessage {} on the executor @ handleLargeMessageEnd", packet.getMessageId());

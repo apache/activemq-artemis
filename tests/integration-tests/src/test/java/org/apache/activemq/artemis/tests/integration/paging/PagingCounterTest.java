@@ -294,7 +294,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
          assertEquals(2100, counter.getValue());
          assertEquals(2100 * 1000, counter.getPersistentSize());
 
-         server.getPagingManager().rebuildCounters();
+         server.getPagingManager().rebuildCounters(null);
 
          // it should be zero after rebuild, since no actual messages were sent
          Wait.assertEquals(0, counter::getValue);
@@ -419,7 +419,7 @@ public class PagingCounterTest extends ActiveMQTestBase {
       Wait.assertEquals(11_000, counterAfterRestart::getPersistentSize);
       counterAfterRestart.finishRebuild();
 
-      server.getPagingManager().rebuildCounters();
+      server.getPagingManager().rebuildCounters(null);
 
       Wait.assertEquals(0, counterAfterRestart::getValue);
       Wait.assertEquals(0, counterAfterRestart::getPersistentSize);

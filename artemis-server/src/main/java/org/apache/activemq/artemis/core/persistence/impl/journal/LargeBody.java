@@ -60,6 +60,8 @@ public class LargeBody {
    // This is to be used only for appending
    private SequentialFile file;
 
+   private boolean deleted;
+
    public LargeBody(LargeServerMessage message, StorageManager storageManager) {
       this.storageManager = storageManager;
       this.message = message;
@@ -113,6 +115,7 @@ public class LargeBody {
 
    public synchronized void deleteFile() {
       try {
+         this.deleted = true;
          validateFile();
          releaseResources(false, false);
          storageManager.deleteLargeMessageBody(message);
@@ -279,6 +282,9 @@ public class LargeBody {
    }
 
    public int getBodyBufferSize() {
+      if (deleted) {
+         return 0;
+      }
       final boolean closeFile = file == null || !file.isOpen();
       try {
          openFile();
@@ -445,23 +451,4 @@ public class LargeBody {
          return getBodySize();
       }
    }
-
-   public boolean hasPendingRecord() {
-      return pendingRecordID != NO_PENDING_ID;
-   }
-
-   public void clearPendingRecordID() {
-      setPendingRecordID(NO_PENDING_ID);
-   }
-
-
-   public long getPendingRecordID() {
-      return this.pendingRecordID;
-   }
-
-   public void setPendingRecordID(long pendingRecordID) {
-      this.pendingRecordID = pendingRecordID;
-   }
-
-
 }

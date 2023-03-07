@@ -1606,10 +1606,6 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          }
 
          if (store != null && storageManager.addToPage(store, message, context.getTransaction(), entry.getValue())) {
-            if (message.isLargeMessage()) {
-               confirmLargeMessageSend(storageManager, tx, message);
-            }
-
             // We need to kick delivery so the Queues may check for the cursors case they are empty
             schedulePageDelivery(tx, entry);
             continue;
@@ -1715,34 +1711,12 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          } else {
             storageManager.storeMessage(message);
          }
-         if (message.isLargeMessage()) {
-            confirmLargeMessageSend(storageManager, tx, message);
-         }
       }
       if (tx != null) {
          storageManager.storeReferenceTransactional(tx.getID(), queue.getID(), message.getMessageID());
          tx.setContainsPersistent();
       } else {
          storageManager.storeReference(queue.getID(), message.getMessageID(), sync);
-      }
-   }
-
-   /**
-    * @param tx
-    * @param message
-    * @throws Exception
-    */
-   private static void confirmLargeMessageSend(StorageManager storageManager, Transaction tx, final Message message) throws Exception {
-      LargeServerMessage largeServerMessage = (LargeServerMessage) message;
-      synchronized (largeServerMessage) {
-         if (largeServerMessage.getPendingRecordID() >= 0) {
-            if (tx == null) {
-               storageManager.confirmPendingLargeMessage(largeServerMessage.getPendingRecordID());
-            } else {
-               storageManager.confirmPendingLargeMessageTX(tx, largeServerMessage.getMessageID(), largeServerMessage.getPendingRecordID());
-            }
-            largeServerMessage.setPendingRecordID(-1);
-         }
       }
    }
 

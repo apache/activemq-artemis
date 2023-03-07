@@ -365,6 +365,7 @@ public class NullStorageManager implements StorageManager {
                                                     final Map<Long, QueueBindingInfo> queueInfos,
                                                     final Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                                     final Set<Pair<Long, Long>> pendingLargeMessages,
+                                                    final Set<Long> storedLargeMessages,
                                                     List<PageCountPending> pendingNonTXPageCounter,
                                                     final JournalLoader journalLoader) throws Exception {
       return new JournalLoadInformation();
