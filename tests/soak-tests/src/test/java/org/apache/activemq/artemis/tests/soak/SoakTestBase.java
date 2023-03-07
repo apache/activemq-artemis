@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.soak;
 
 import javax.management.MBeanServerInvocationHandler;
-import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -29,11 +28,8 @@ import java.net.MalformedURLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.cli.commands.Stop;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -147,34 +143,6 @@ public class SoakTestBase extends ActiveMQTestBase {
             serverControl.isActive(); // making one call to make sure it's working
             return serverControl;
          } catch (Throwable e) {
-            lastException = e;
-            Thread.sleep(500);
-         }
-      }
-      while (expireLoop > System.currentTimeMillis());
-
-      throw lastException;
-   }
-
-   protected static QueueControl getQueueControl(String uri,
-                                                  ObjectNameBuilder builder,
-                                                  String address,
-                                                  String queueName,
-                                                  RoutingType routingType,
-                                                  long timeout) throws Throwable {
-      long expireLoop = System.currentTimeMillis() + timeout;
-      Throwable lastException = null;
-      do {
-         try {
-            JMXConnector connector = newJMXFactory(uri);
-
-            ObjectName objectQueueName = builder.getQueueObjectName(SimpleString.toSimpleString(address), SimpleString.toSimpleString(queueName), routingType);
-
-            QueueControl queueControl = MBeanServerInvocationHandler.newProxyInstance(connector.getMBeanServerConnection(), objectQueueName, QueueControl.class, false);
-            queueControl.getMessagesAcknowledged(); // making one call
-            return queueControl;
-         } catch (Throwable e) {
-            logger.warn(e.getMessage(), e);
             lastException = e;
             Thread.sleep(500);
          }
