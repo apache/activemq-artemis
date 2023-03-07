@@ -252,6 +252,7 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
             }
 
             if (keepZero) {
+               tx.setContainsPersistent();
                recordID = storage.storePageCounter(tx.getID(), subscriptionID, 0L, 0L);
             } else {
                recordID = -1;
