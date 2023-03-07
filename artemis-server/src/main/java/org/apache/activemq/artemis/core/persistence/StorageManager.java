@@ -79,6 +79,9 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
       return Long.MAX_VALUE;
    }
 
+   default void recoverLargeMessagesOnFolder(Set<Long> files) throws Exception {
+   }
+
    default SequentialFileFactory getJournalSequentialFileFactory() {
       return null;
    }
@@ -281,12 +284,24 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
 
    void deletePageTransactional(long recordID) throws Exception;
 
+   default JournalLoadInformation loadMessageJournal(PostOffice postOffice,
+                                             PagingManager pagingManager,
+                                             ResourceManager resourceManager,
+                                             Map<Long, QueueBindingInfo> queueInfos,
+                                             Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
+                                             Set<Pair<Long, Long>> pendingLargeMessages,
+                                             List<PageCountPending> pendingNonTXPageCounter,
+                                             JournalLoader journalLoader) throws Exception {
+      return loadMessageJournal(postOffice, pagingManager, resourceManager, queueInfos, duplicateIDMap, pendingLargeMessages, null, pendingNonTXPageCounter, journalLoader);
+   }
+
    JournalLoadInformation loadMessageJournal(PostOffice postOffice,
                                              PagingManager pagingManager,
                                              ResourceManager resourceManager,
                                              Map<Long, QueueBindingInfo> queueInfos,
                                              Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                              Set<Pair<Long, Long>> pendingLargeMessages,
+                                             Set<Long> largeMessagesInFolder,
                                              List<PageCountPending> pendingNonTXPageCounter,
                                              JournalLoader journalLoader) throws Exception;
 

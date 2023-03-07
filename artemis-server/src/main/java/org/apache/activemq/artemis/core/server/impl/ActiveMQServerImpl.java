@@ -80,6 +80,7 @@ import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
+import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.JournalLoadInformation;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
@@ -3382,10 +3383,24 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       pagingManager.reloadStores();
 
-      JournalLoadInformation[] journalInfo = loadJournals();
+      Set<Long> storedLargeMessages = new HashSet<>();
+      JournalLoadInformation[] journalInfo = loadJournals(storedLargeMessages);
 
       if (rebuildCounters) {
-         pagingManager.rebuildCounters();
+         pagingManager.rebuildCounters(storedLargeMessages);
+
+         pagingManager.execute(() -> {
+            storedLargeMessages.forEach(id -> {
+               try {
+                  SequentialFile file = storageManager.createFileForLargeMessage(id, true);
+                  logger.debug("Removing pending large message for file={}", file);
+                  file.delete();
+               } catch (Exception e) {
+                  // this shouldn't really happen, unless something is off with the storage
+                  logger.warn("It was not possible to remove previously stored large message on folder::It will be retried on next startup", e);
+               }
+            });
+         });
       }
 
       removeExtraAddressStores();
@@ -3697,7 +3712,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
 
 
-   private JournalLoadInformation[] loadJournals() throws Exception {
+   private JournalLoadInformation[] loadJournals(Set<Long> storedLargeMessages) throws Exception {
       JournalLoader journalLoader = activation.createJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer);
 
       JournalLoadInformation[] journalInfo = new JournalLoadInformation[2];
@@ -3726,7 +3741,9 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
       List<PageCountPending> pendingNonTXPageCounter = new LinkedList<>();
 
-      journalInfo[1] = storageManager.loadMessageJournal(postOffice, pagingManager, resourceManager, queueBindingInfosMap, duplicateIDMap, pendingLargeMessages, pendingNonTXPageCounter, journalLoader);
+      storageManager.recoverLargeMessagesOnFolder(storedLargeMessages);
+
+      journalInfo[1] = storageManager.loadMessageJournal(postOffice, pagingManager, resourceManager, queueBindingInfosMap, duplicateIDMap, pendingLargeMessages, storedLargeMessages, pendingNonTXPageCounter, journalLoader);
 
       journalLoader.handleDuplicateIds(duplicateIDMap);
 
@@ -3734,7 +3751,6 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          ActiveMQServerLogger.LOGGER.deletingPendingMessage(msgToDelete);
          LargeServerMessage msg = storageManager.createLargeMessage();
          msg.setMessageID(msgToDelete.getB());
-         msg.setPendingRecordID(msgToDelete.getA());
          msg.setDurable(true);
          msg.deleteFile();
       }

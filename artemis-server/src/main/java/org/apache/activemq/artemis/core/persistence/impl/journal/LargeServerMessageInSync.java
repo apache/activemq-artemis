@@ -157,25 +157,4 @@ public final class LargeServerMessageInSync implements ReplicatedLargeMessage {
       }
       storageManager.addBytesToLargeMessage(appendFile, mainLM.getMessageID(), bytes);
    }
-
-   @Override
-   public void clearPendingRecordID() {
-      mainLM.clearPendingRecordID();
-   }
-
-   @Override
-   public boolean hasPendingRecord() {
-      return mainLM.hasPendingRecord();
-   }
-
-   @Override
-   public void setPendingRecordID(long pendingRecordID) {
-      mainLM.setPendingRecordID(pendingRecordID);
-   }
-
-   @Override
-   public long getPendingRecordID() {
-      return mainLM.getPendingRecordID();
-   }
-
 }

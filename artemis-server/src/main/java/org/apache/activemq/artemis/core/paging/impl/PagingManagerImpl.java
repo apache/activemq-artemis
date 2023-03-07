@@ -221,6 +221,11 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    @Override
+   public void execute(Runnable run) {
+      managerExecutor.execute(run);
+   }
+
+   @Override
    public void injectMonitor(FileStoreMonitor monitor) throws Exception {
       pagingStoreFactory.injectMonitor(monitor);
       monitor.addCallback(new LocalMonitor());
@@ -569,13 +574,13 @@ public final class PagingManagerImpl implements PagingManager {
    }
 
    @Override
-   public Future<Object> rebuildCounters() {
+   public Future<Object> rebuildCounters(Set<Long> storedLargeMessages) {
       LongHashSet transactionsSet = new LongHashSet();
       transactions.forEach((txId, tx) -> {
          transactionsSet.add(txId);
       });
       stores.forEach((address, pgStore) -> {
-         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(pgStore, transactionsSet);
+         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(pgStore, transactionsSet, storedLargeMessages);
          logger.debug("Setting destination {} to rebuild counters", address);
          managerExecutor.execute(rebuildManager);
       });

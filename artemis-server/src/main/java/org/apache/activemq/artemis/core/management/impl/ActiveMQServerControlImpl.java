@@ -4648,7 +4648,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    public void rebuildPageCounters() throws Exception {
       // managementLock will guarantee there's only one management operation being called
       try (AutoCloseable lock = server.managementLock()) {
-         Future<Object> task = server.getPagingManager().rebuildCounters();
+         Future<Object> task = server.getPagingManager().rebuildCounters(null);
          task.get();
       }
    }

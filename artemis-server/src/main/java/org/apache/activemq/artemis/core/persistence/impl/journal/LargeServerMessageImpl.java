@@ -170,29 +170,6 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    }
 
    @Override
-   public long getPendingRecordID() {
-      return largeBody.getPendingRecordID();
-   }
-
-   @Override
-   public void clearPendingRecordID() {
-      largeBody.clearPendingRecordID();
-   }
-
-   @Override
-   public boolean hasPendingRecord() {
-      return largeBody.hasPendingRecord();
-   }
-
-   /**
-    * @param pendingRecordID
-    */
-   @Override
-   public void setPendingRecordID(long pendingRecordID) {
-      largeBody.setPendingRecordID(pendingRecordID);
-   }
-
-   @Override
    public void setPaged() {
       largeBody.setPaged();
    }

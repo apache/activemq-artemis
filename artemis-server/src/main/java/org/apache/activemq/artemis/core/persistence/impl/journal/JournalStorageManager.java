@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
-import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -55,7 +55,6 @@ import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
-import org.apache.activemq.artemis.core.persistence.impl.journal.codec.PendingLargeMessageEncoding;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.RefEncoding;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
@@ -340,7 +339,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             if (replicator != null) {
                replicator.largeMessageDelete(messageId, JournalStorageManager.this);
             }
-            confirmLargeMessage(largeServerMessage);
          });
          largeMessagesToDelete.clear();
       } finally {
@@ -444,15 +442,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       journalFF.releaseBuffer(buffer);
    }
 
-   public long storePendingLargeMessage(final long messageID) throws Exception {
-      try (ArtemisCloseable lock = closeableReadLock()) {
-         long recordID = generateID();
-         messageJournal.appendAddRecord(recordID, JournalRecordIds.ADD_LARGE_MESSAGE_PENDING, new PendingLargeMessageEncoding(messageID), true, getContext(true));
-
-         return recordID;
-      }
-   }
-
    @Override
    public void largeMessageClosed(LargeServerMessage largeServerMessage) throws ActiveMQException {
       try (ArtemisCloseable lock = closeableReadLock()) {
@@ -464,19 +453,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public void deleteLargeMessageBody(final LargeServerMessage largeServerMessage) throws ActiveMQException {
-      synchronized (largeServerMessage) {
-         if (!largeServerMessage.hasPendingRecord()) {
-            try {
-               // The delete file happens asynchronously
-               // And the client won't be waiting for the actual file to be deleted.
-               // We set a temporary record (short lived) on the journal
-               // to avoid a situation where the server is restarted and pending large message stays on forever
-               largeServerMessage.setPendingRecordID(storePendingLargeMessage(largeServerMessage.toMessage().getMessageID()));
-            } catch (Exception e) {
-               throw new ActiveMQInternalErrorException(e.getMessage(), e);
-            }
-         }
-      }
       final SequentialFile file = largeServerMessage.getAppendFile();
       if (file == null) {
          return;
@@ -499,9 +475,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
                      replicator.largeMessageDelete(largeServerMessage.toMessage().getMessageID(), JournalStorageManager.this);
                   }
                   file.delete();
-
-                  // The confirm could only be done after the actual delete is done
-                  confirmLargeMessage(largeServerMessage);
                }
             } catch (Exception e) {
                ActiveMQServerLogger.LOGGER.journalErrorDeletingMessage(largeServerMessage.toMessage().getMessageID(), e);
@@ -573,12 +546,6 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       // to avoid a race
       largeMessage.validateFile();
 
-      if (largeMessage.toMessage().isDurable()) {
-         // We store a marker on the journal that the large file is pending
-         long pendingRecordID = storePendingLargeMessage(id);
-
-         largeMessage.setPendingRecordID(pendingRecordID);
-      }
 
       return largeMessage;
    }
@@ -795,6 +762,14 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
       }
 
       return largeMessages;
+   }
+
+   @Override
+   public void recoverLargeMessagesOnFolder(Set<Long> storedLargeMessages) throws Exception {
+      List<String> filenames = largeMessagesFactory.listFiles("msg");
+      filenames.forEach(f -> {
+         storedLargeMessages.add(getLargeMessageIdFromFilename(f));
+      });
    }
 
    /**

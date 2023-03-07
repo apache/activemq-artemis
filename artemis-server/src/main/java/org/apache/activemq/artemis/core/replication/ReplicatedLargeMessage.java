@@ -52,12 +52,4 @@ public interface ReplicatedLargeMessage {
     */
    void addBytes(byte[] body) throws Exception;
 
-   void clearPendingRecordID();
-
-   void setPendingRecordID(long pendingRecordID);
-
-   long getPendingRecordID();
-
-   boolean hasPendingRecord();
-
 }

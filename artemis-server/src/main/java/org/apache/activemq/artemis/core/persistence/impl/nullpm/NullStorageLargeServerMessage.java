@@ -140,25 +140,6 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
    }
 
    @Override
-   public void setPendingRecordID(long pendingRecordID) {
-   }
-
-   @Override
-   public void clearPendingRecordID() {
-
-   }
-
-   @Override
-   public boolean hasPendingRecord() {
-      return false;
-   }
-
-   @Override
-   public long getPendingRecordID() {
-      return -1;
-   }
-
-   @Override
    public SequentialFile getAppendFile() {
       return null;
    }

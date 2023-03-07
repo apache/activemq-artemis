@@ -133,7 +133,7 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
       journal.loadBindingJournal(new ArrayList<QueueBindingInfo>(), new ArrayList<GroupingInfo>(), new ArrayList<AddressBindingInfo>());
 
-      journal.loadMessageJournal(new FakePostOffice(), null, null, null, null, null, null, new FakeJournalLoader());
+      journal.loadMessageJournal(new FakePostOffice(), null, null, null, null, null, null, null, new FakeJournalLoader());
    }
 
    /**

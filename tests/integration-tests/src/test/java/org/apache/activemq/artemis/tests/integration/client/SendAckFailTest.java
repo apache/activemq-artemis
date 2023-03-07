@@ -599,9 +599,10 @@ public class SendAckFailTest extends SpawnedTestBase {
                                                        Map<Long, QueueBindingInfo> queueInfos,
                                                        Map<SimpleString, List<Pair<byte[], Long>>> duplicateIDMap,
                                                        Set<Pair<Long, Long>> pendingLargeMessages,
+                                                       Set<Long> largeMessagesInFolder,
                                                        List<PageCountPending> pendingNonTXPageCounter,
                                                        JournalLoader journalLoader) throws Exception {
-         return manager.loadMessageJournal(postOffice, pagingManager, resourceManager, queueInfos, duplicateIDMap, pendingLargeMessages, pendingNonTXPageCounter, journalLoader);
+         return manager.loadMessageJournal(postOffice, pagingManager, resourceManager, queueInfos, duplicateIDMap, pendingLargeMessages, largeMessagesInFolder, pendingNonTXPageCounter, journalLoader);
       }
 
       @Override

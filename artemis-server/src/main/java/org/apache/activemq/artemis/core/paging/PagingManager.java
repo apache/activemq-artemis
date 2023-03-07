@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.paging;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiConsumer;
 
@@ -84,6 +85,11 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
    void addBlockedStore(PagingStore store);
 
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
+
+   /** Execute a runnable inside the PagingManager's executor */
+   default void execute(Runnable runnable) {
+      throw new UnsupportedOperationException("not implemented");
+   }
 
    /**
     * Lock the manager. This method should not be called during normal PagingManager usage.
@@ -164,7 +170,7 @@ public interface PagingManager extends ActiveMQComponent, HierarchicalRepository
    /**
     * Rebuilds all page counters for destinations that are paging in the background.
     */
-   default Future<Object> rebuildCounters() {
+   default Future<Object> rebuildCounters(Set<Long> storedLargeMessages) {
       return null;
    }
 
