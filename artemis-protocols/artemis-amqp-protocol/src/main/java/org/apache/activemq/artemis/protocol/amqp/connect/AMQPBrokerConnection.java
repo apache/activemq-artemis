@@ -385,7 +385,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
 
       if (addressInfo.getRoutingType() != RoutingType.ANYCAST) {
-         throw new IllegalArgumentException("sourceMirrorAddress is not ANYCAST");
+         throw new IllegalArgumentException(addressInfo.getName() + " has " + addressInfo.getRoutingType() + " instead of ANYCAST");
       }
 
       Queue mirrorControlQueue = server.locateQueue(getMirrorSNF(replicaConfig));
