@@ -185,6 +185,20 @@ SSL/TLS is also available, e.g.:
 Web browsers can then connect to `wss://<server>:8883` using a Web Socket to
 send and receive MQTT messages.
 
+## Link Stealing
+
+The MQTT specifications define a behavior often referred to as "link stealing."
+This means that whenever a new client connects with the same client ID as
+another existing client then the existing client's session will be closed and
+its network connection will be terminated.
+
+In certain use-cases this behavior is not desired so it is configurable. The
+URL parameter `allowLinkStealing` can be configured on the MQTT `acceptor` to
+modify this behavior. By default `allowLinkStealing` is `true`. If it is set to
+`false` then whenever a new client connects with the same client ID as another
+existing client then the _new_ client's session will be closed and its network
+connection will be terminated. In the case of MQTT 5 clients they will receive
+a disconnect reason code of [`0x80` (i.e. "Unspecified error")](https://docs.oasis-open.org/mqtt/mqtt/v5.0/os/mqtt-v5.0-os.html#_Toc3901208).
 
 ## Automatic Subscription Clean-up 
 

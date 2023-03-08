@@ -154,6 +154,10 @@ public class MQTTSession {
       return stopped;
    }
 
+   void setStopped(boolean stopped) {
+      this.stopped = stopped;
+   }
+
    boolean isClean() {
       return clean;
    }

@@ -490,4 +490,30 @@ public class MQTT5Test extends MQTT5TestSupport {
       consumer.disconnect();
       consumer.close();
    }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testConnectionStealingDisabled() throws Exception {
+      setAcceptorProperty("allowLinkStealing=false");
+      final String CLIENT_ID = RandomUtil.randomString();
+
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect();
+
+      MqttClient client2 = createPahoClient(CLIENT_ID);
+      try {
+         client2.connect();
+         fail("Should have thrown an exception on connect due to disabled link stealing");
+      } catch (Exception e) {
+         // ignore expected exception
+      }
+
+      // only 1 session should exist
+      Wait.assertEquals(1, () -> getSessionStates().size(), 2000, 100);
+      assertNotNull(getSessionStates().get(CLIENT_ID));
+
+      assertTrue(client.isConnected());
+
+      client.disconnect();
+      client.close();
+   }
 }
