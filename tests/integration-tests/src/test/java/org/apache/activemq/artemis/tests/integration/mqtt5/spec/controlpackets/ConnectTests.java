@@ -739,6 +739,47 @@ public class ConnectTests extends MQTT5TestSupport {
    }
 
    /*
+    * [MQTT-3.1.4-3] If the ClientID represents a Client already connected to the Server, the Server sends a DISCONNECT
+    * packet to the existing Client with Reason Code of 0x8E (Session taken over) as described in section 4.13 and MUST
+    * close the Network Connection of the existing Client.
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testConnectionStealingBy3_1_1() throws Exception {
+      final String CLIENT_ID = RandomUtil.randomString();
+
+      MqttClient client = createPahoClient(CLIENT_ID);
+      client.connect();
+      final int[] reasonCode = new int[1];
+      CountDownLatch disconnectedLatch = new CountDownLatch(1);
+      client.setCallback(new LatchedMqttCallback(disconnectedLatch) {
+         @Override
+         public void disconnected(MqttDisconnectResponse disconnectResponse) {
+            reasonCode[0] = disconnectResponse.getReturnCode();
+            disconnectedLatch.countDown();
+         }
+
+         @Override
+         public void mqttErrorOccurred(MqttException exception) {
+            exception.printStackTrace();
+         }
+      });
+
+      org.eclipse.paho.client.mqttv3.MqttClient client2 = createPaho3_1_1Client(CLIENT_ID);
+      client2.connect();
+
+      assertTrue(disconnectedLatch.await(500, TimeUnit.MILLISECONDS));
+      assertEquals(MQTTReasonCodes.SESSION_TAKEN_OVER, (byte) reasonCode[0]);
+
+      // only 1 session should exist
+      assertEquals(1, getSessionStates().size());
+      assertNotNull(getSessionStates().get(CLIENT_ID));
+
+      assertFalse(client.isConnected());
+
+      client2.disconnect();
+   }
+
+   /*
     * [MQTT-3.1.4-4] The Server MUST perform the processing of Clean Start.
     *
     * [MQTT-3.2.2-3] If the Server accepts a connection with Clean Start set to 0 and the Server has Session State for

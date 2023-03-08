@@ -457,7 +457,7 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       if (existingConnection != null) {
          MQTTSession existingSession = session.getProtocolManager().getSessionState(session.getConnection().getClientID()).getSession();
          if (existingSession != null) {
-            if (session.getVersion() == MQTTVersion.MQTT_5) {
+            if (existingSession.getVersion() == MQTTVersion.MQTT_5) {
                existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
             }
             existingSession.getConnectionManager().disconnect(false);
