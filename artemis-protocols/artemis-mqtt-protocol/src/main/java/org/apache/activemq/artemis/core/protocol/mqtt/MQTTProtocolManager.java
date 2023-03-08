@@ -75,6 +75,8 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    private boolean closeMqttConnectionOnPublishAuthorizationFailure = true;
 
+   private boolean allowLinkStealing = true;
+
    private final MQTTRoutingHandler routingHandler;
 
    MQTTProtocolManager(ActiveMQServer server,
@@ -137,6 +139,14 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
 
    public void setCloseMqttConnectionOnPublishAuthorizationFailure(boolean closeMqttConnectionOnPublishAuthorizationFailure) {
       this.closeMqttConnectionOnPublishAuthorizationFailure = closeMqttConnectionOnPublishAuthorizationFailure;
+   }
+
+   public boolean isAllowLinkStealing() {
+      return allowLinkStealing;
+   }
+
+   public void setAllowLinkStealing(boolean allowLinkStealing) {
+      this.allowLinkStealing = allowLinkStealing;
    }
 
    @Override
@@ -348,6 +358,10 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
       return false;
    }
 
+   public boolean isClientConnected(String clientId) {
+      return connectedClients.containsKey(clientId);
+   }
+
    public void removeConnectedClient(String clientId) {
       connectedClients.remove(clientId);
    }
@@ -360,6 +374,10 @@ public class MQTTProtocolManager extends AbstractProtocolManager<MqttMessage, MQ
     */
    public MQTTConnection addConnectedClient(String clientId, MQTTConnection connection) {
       return connectedClients.put(clientId, connection);
+   }
+
+   public MQTTConnection getConnectedClient(String clientId) {
+      return connectedClients.get(clientId);
    }
 
    public MQTTSessionState getSessionState(String clientId) {

@@ -254,8 +254,11 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
          return;
       }
 
-      MQTTConnection existingConnection = session.getProtocolManager().addConnectedClient(session.getConnection().getClientID(), session.getConnection());
-      disconnectExistingSession(existingConnection);
+      if (handleLinkStealing() == LinkStealingResult.NEW_LINK_DENIED) {
+         return;
+      } else {
+         protocolManager.addConnectedClient(session.getConnection().getClientID(), session.getConnection());
+      }
 
       if (connection.getTransportConnection().getRouter() == null || !protocolManager.getRoutingHandler().route(connection, session, connect)) {
          calculateKeepAlive(connect);
@@ -452,19 +455,49 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       return true;
    }
 
-   // [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST disconnect the existing client
-   private void disconnectExistingSession(MQTTConnection existingConnection) {
-      if (existingConnection != null) {
-         MQTTSession existingSession = session.getProtocolManager().getSessionState(session.getConnection().getClientID()).getSession();
-         if (existingSession != null) {
-            if (existingSession.getVersion() == MQTTVersion.MQTT_5) {
-               existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
+   /* The MQTT specification states:
+    *
+    *     [MQTT-3.1.4-2] If the client ID represents a client already connected to the server then the server MUST
+    *     disconnect the existing client
+    *
+    * However, this behavior is configurable via the "allowLinkStealing" acceptor URL property.
+    */
+   private LinkStealingResult handleLinkStealing() {
+      final String clientID = session.getConnection().getClientID();
+      LinkStealingResult result;
+
+      if (protocolManager.isClientConnected(clientID)) {
+         MQTTConnection existingConnection = protocolManager.getConnectedClient(clientID);
+         if (protocolManager.isAllowLinkStealing()) {
+            MQTTSession existingSession = protocolManager.getSessionState(clientID).getSession();
+            if (existingSession != null) {
+               if (existingSession.getVersion() == MQTTVersion.MQTT_5) {
+                  existingSession.getProtocolHandler().sendDisconnect(MQTTReasonCodes.SESSION_TAKEN_OVER);
+               }
+               existingSession.getConnectionManager().disconnect(false);
+            } else {
+               existingConnection.disconnect(false);
             }
-            existingSession.getConnectionManager().disconnect(false);
+            logger.debug("Existing MQTT session from {} closed due to incoming session from {} with the same client ID: {}", existingConnection.getRemoteAddress(), connection.getRemoteAddress(), session.getConnection().getClientID());
+            result = LinkStealingResult.EXISTING_LINK_STOLEN;
          } else {
-            existingConnection.disconnect(false);
+            if (session.getVersion() == MQTTVersion.MQTT_5) {
+               sendDisconnect(MQTTReasonCodes.UNSPECIFIED_ERROR);
+            }
+            logger.debug("Incoming MQTT session from {} closed due to existing session from {} with the same client ID: {}", connection.getRemoteAddress(), existingConnection.getRemoteAddress(), session.getConnection().getClientID());
+            /*
+             * Stopping the session here prevents the connection failure listener from inadvertently removing the
+             * existing session once the connection is disconnected.
+             */
+            session.setStopped(true);
+            connection.disconnect(false);
+            result = LinkStealingResult.NEW_LINK_DENIED;
          }
+      } else {
+         result = LinkStealingResult.NO_ACTION;
       }
+
+      return result;
    }
 
    private Pair<Boolean, String> validateUser(String username, String password) throws Exception {
@@ -509,5 +542,9 @@ public class MQTTProtocolHandler extends ChannelInboundHandlerAdapter {
       }
       disconnect(true);
       return false;
+   }
+
+   private enum LinkStealingResult {
+      EXISTING_LINK_STOLEN, NEW_LINK_DENIED, NO_ACTION;
    }
 }
