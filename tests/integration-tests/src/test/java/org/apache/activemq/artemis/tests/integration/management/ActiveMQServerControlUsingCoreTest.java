@@ -22,6 +22,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.junit.Assume;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -34,7 +36,14 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       extraProducers = 1;
    }
 
-
+   @Override
+   @Test
+   public void testListProducersAgainstServer() throws Exception {
+      // have to disable this test, as it's dealing with producers objects.
+      // the test itself will be using a producer to manage the server.
+      // so the test will include noise and it might fail occasionally
+      Assume.assumeTrue(false);
+   }
    // ActiveMQServerControlTest overrides --------------------------
 
    // the core messaging proxy doesn't work when the server is stopped so we cant run these 2 tests

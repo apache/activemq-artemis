@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -4747,6 +4748,14 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       }
    }
 
+   private int getNumberOfProducers(ActiveMQServer server) {
+      AtomicInteger producers = new AtomicInteger();
+      server.getSessions().forEach(session -> {
+         producers.addAndGet(session.getProducerCount());
+      });
+      return producers.get();
+   }
+
    @Test
    public void testListProducersAgainstServer() throws Exception {
       SimpleString queueName1 = new SimpleString("my_queue_one");
@@ -4770,6 +4779,8 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
          ClientProducer producer1 = session1.createProducer(addressName1);
          producer1.send(session1.createMessage(true));
 
+         Wait.assertEquals(1, () -> getNumberOfProducers(server));
+
          //bring back all producers
          String filterString = createJsonFilter("", "", "");
          String producersAsJsonString = serverControl.listProducers(filterString, 1, 50);
@@ -4780,6 +4791,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
          JsonObject jsonSession = array.getJsonObject(0);
 
+         Wait.assertTrue(() -> server.getSessionByID(jsonSession.getString(ProducerField.SESSION.getName())) != null);
          //get the only server producer
          ServerProducer producer = server.getSessionByID(jsonSession.getString(ProducerField.SESSION.getName())).getServerProducers().iterator().next();
          //check all fields
