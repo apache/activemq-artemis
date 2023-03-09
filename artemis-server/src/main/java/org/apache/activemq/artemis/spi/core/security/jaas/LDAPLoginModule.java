@@ -174,49 +174,52 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    @Override
    public boolean login() throws LoginException {
-
-      if (!authenticateUser) {
-         return false;
-      }
-
-      Callback[] callbacks = new Callback[2];
-
-      callbacks[0] = new NameCallback("User name");
-      callbacks[1] = new PasswordCallback("Password", false);
       try {
-         handler.handle(callbacks);
-      } catch (IOException | UnsupportedCallbackException e) {
-         throw (LoginException) new LoginException().initCause(e);
+         if (!authenticateUser) {
+            return false;
+         }
+
+         Callback[] callbacks = new Callback[2];
+
+         callbacks[0] = new NameCallback("User name");
+         callbacks[1] = new PasswordCallback("Password", false);
+         try {
+            handler.handle(callbacks);
+         } catch (IOException | UnsupportedCallbackException e) {
+            throw (LoginException) new LoginException().initCause(e);
+         }
+
+         String password = null;
+
+         username = ((NameCallback) callbacks[0]).getName();
+         if (username == null) {
+            return false;
+         }
+
+         if (((PasswordCallback) callbacks[1]).getPassword() != null) {
+            password = new String(((PasswordCallback) callbacks[1]).getPassword());
+         }
+
+         /*
+          * https://tools.ietf.org/html/rfc4513#section-6.3.1
+          *
+          * Clients that use the results from a simple Bind operation to make
+          * authorization decisions should actively detect unauthenticated Bind
+          * requests (by verifying that the supplied password is not empty) and
+          * react appropriately.
+          */
+         if (password == null || password.length() == 0) {
+            throw new FailedLoginException("Password cannot be null or empty");
+         }
+
+         // authenticate will throw LoginException
+         // in case of failed authentication
+         authenticate(username, password);
+         userAuthenticated = true;
+         return true;
+      } catch (LoginException e) {
+         throw handleException(e);
       }
-
-      String password = null;
-
-      username = ((NameCallback) callbacks[0]).getName();
-      if (username == null) {
-         return false;
-      }
-
-      if (((PasswordCallback) callbacks[1]).getPassword() != null) {
-         password = new String(((PasswordCallback) callbacks[1]).getPassword());
-      }
-
-      /*
-       * https://tools.ietf.org/html/rfc4513#section-6.3.1
-       *
-       * Clients that use the results from a simple Bind operation to make
-       * authorization decisions should actively detect unauthenticated Bind
-       * requests (by verifying that the supplied password is not empty) and
-       * react appropriately.
-       */
-      if (password == null || password.length() == 0) {
-         throw new FailedLoginException("Password cannot be null or empty");
-      }
-
-      // authenticate will throw LoginException
-      // in case of failed authentication
-      authenticate(username, password);
-      userAuthenticated = true;
-      return true;
    }
 
    @Override
@@ -227,31 +230,43 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    @Override
    public boolean commit() throws LoginException {
-      boolean result = userAuthenticated;
-      Set<UserPrincipal> authenticatedUsers = subject.getPrincipals(UserPrincipal.class);
-      Set<Principal> principals = subject.getPrincipals();
-      if (result) {
-         principals.add(new UserPrincipal(username));
-      }
-
-      // assign roles to any other UserPrincipal
-      for (UserPrincipal authenticatedUser : authenticatedUsers) {
-         List<String> roles = new ArrayList<>();
-         try {
-            String dn = resolveDN(authenticatedUser.getName(), roles);
-            resolveRolesForDN(context, dn, authenticatedUser.getName(), roles);
-         } catch (NamingException e) {
-            closeContext();
-            FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
-            ex.initCause(e);
-            throw ex;
+      try {
+         boolean result = userAuthenticated;
+         Set<UserPrincipal> authenticatedUsers = subject.getPrincipals(UserPrincipal.class);
+         Set<Principal> principals = subject.getPrincipals();
+         if (result) {
+            principals.add(new UserPrincipal(username));
          }
+
+         // assign roles to any other UserPrincipal
+         for (UserPrincipal authenticatedUser : authenticatedUsers) {
+            List<String> roles = new ArrayList<>();
+            try {
+               String dn = resolveDN(authenticatedUser.getName(), roles);
+               resolveRolesForDN(context, dn, authenticatedUser.getName(), roles);
+            } catch (NamingException e) {
+               closeContext();
+               FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
+               ex.initCause(e);
+               throw ex;
+            }
+         }
+
+         principals.addAll(groups);
+
+         clear();
+         return result;
+      } catch (LoginException e) {
+         throw handleException(e);
       }
+   }
 
-      principals.addAll(groups);
-
-      clear();
-      return result;
+   private LoginException handleException(LoginException e) {
+      Throwable t = ExceptionUtil.getRootCause(e);
+      if (noCacheExceptions.contains(t.getClass().getName())) {
+         t.initCause(new NoCacheLoginException());
+      }
+      return e;
    }
 
    private void clear() {
@@ -314,8 +329,10 @@ public class LDAPLoginModule implements AuditLoginModule {
       logger.debug("Create the LDAP initial context.");
       try {
          openContext();
-      } catch (Exception e) {
-         return handleException(e, "Error opening LDAP connection");
+      } catch (Exception ne) {
+         FailedLoginException ex = new FailedLoginException("Error opening LDAP connection");
+         ex.initCause(ne);
+         throw ex;
       }
 
       if (!isLoginPropertySet(ConfigKey.USER_SEARCH_MATCHING)) {
@@ -440,20 +457,12 @@ public class LDAPLoginModule implements AuditLoginModule {
          }
       } catch (NamingException e) {
          closeContext();
-         handleException(e, "Error contacting LDAP");
+         FailedLoginException ex = new FailedLoginException("Error contacting LDAP");
+         ex.initCause(e);
+         throw ex;
       }
 
       return dn;
-   }
-
-   private String handleException(Exception e, String s) throws FailedLoginException {
-      FailedLoginException ex = new FailedLoginException(s);
-      if (noCacheExceptions.contains(ExceptionUtil.getRootCause(e).getClass().getName())) {
-         ex.initCause(new NoCacheLoginException());
-      } else {
-         ex.initCause(e);
-      }
-      throw ex;
    }
 
    protected void addRoles(DirContext context,
