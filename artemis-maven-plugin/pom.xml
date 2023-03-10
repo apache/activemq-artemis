@@ -48,9 +48,9 @@
          <version>2.2.1</version>
       </dependency>
       <dependency>
-         <groupId>org.eclipse.aether</groupId>
-         <artifactId>aether-api</artifactId>
-         <version>1.1.0</version>
+         <groupId>org.apache.maven.resolver</groupId>
+         <artifactId>maven-resolver-api</artifactId>
+         <version>1.9.6</version>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
