@@ -59,8 +59,13 @@ public class AddressInfo {
 
    private volatile boolean temporary = false;
 
-   private static final EnumSet<RoutingType> EMPTY_ROUTING_TYPES = EnumSet.noneOf(RoutingType.class);
-   private EnumSet<RoutingType> routingTypes;
+   // Do not be tempted to cache this on an static variable.
+   // if the empty set gets damaged in any race, the results and unpredictable
+   private static EnumSet<RoutingType> createEmptySet() {
+      return EnumSet.noneOf(RoutingType.class);
+   }
+
+   EnumSet<RoutingType> routingTypes;
    private RoutingType firstSeen;
 
    private boolean internal = false;
@@ -97,11 +102,11 @@ public class AddressInfo {
    }
 
    public AddressInfo(String name) {
-      this(SimpleString.toSimpleString(name), EMPTY_ROUTING_TYPES);
+      this(SimpleString.toSimpleString(name), createEmptySet());
    }
 
    public AddressInfo(SimpleString name) {
-      this(name, EMPTY_ROUTING_TYPES);
+      this(name, createEmptySet());
    }
 
    /**
@@ -157,7 +162,7 @@ public class AddressInfo {
    }
 
    public EnumSet<RoutingType> getRoutingTypes() {
-      return routingTypes == null ? EMPTY_ROUTING_TYPES : routingTypes;
+      return routingTypes == null ? createEmptySet() : routingTypes;
    }
 
    public AddressInfo setRoutingTypes(final EnumSet<RoutingType> routingTypes) {
