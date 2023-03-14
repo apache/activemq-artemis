@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.core.message.LargeBodyReader;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPLargeMessage;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -993,6 +994,93 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
          connection.close();
       }
    }
+
+
+   @Test
+   public void testDeleteUnreferencedMessage() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+         AmqpMessage message = createAmqpMessage((byte)'A', payload);
+         message.setDurable(true);
+         sender.send(message);
+         sender.close();
+      } finally {
+         connection.close();
+      }
+
+      final org.apache.activemq.artemis.core.server.Queue queue = server.locateQueue(getTestName());
+      queue.forEach(ref -> {
+         if (ref.getMessage().isLargeMessage()) {
+            try {
+               // simulating an ACK but the server crashed before the delete of the record, and the large message file
+               server.getStorageManager().storeAcknowledge(queue.getID(), ref.getMessageID());
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      });
+
+      server.stop();
+
+      AssertionLoggerHandler.startCapture();
+      runAfter(AssertionLoggerHandler::stopCapture);
+
+      server.start();
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ221019"));
+
+      validateNoFilesOnLargeDir();
+      runAfter(server::stop);
+   }
+
+   @Test
+   public void testSimpleLargeMessageRestart() throws Exception {
+      server.getAddressSettingsRepository().addMatch("#", new AddressSettings().setDefaultAddressRoutingType(RoutingType.ANYCAST));
+
+      AmqpClient client = createAmqpClient();
+      AmqpConnection connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpSender sender = session.createSender(getTestName());
+         AmqpMessage message = createAmqpMessage((byte)'A', payload);
+         message.setDurable(true);
+         sender.send(message);
+         sender.close();
+      } finally {
+         connection.close();
+      }
+
+      server.stop();
+
+      AssertionLoggerHandler.startCapture();
+      server.start();
+
+      // These two should not happen as the consumer will receive them
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ221019")); // unferenced record
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ221018")); // unferenced large message
+
+      connection = addConnection(client.connect());
+      try {
+         AmqpSession session = connection.createSession();
+         AmqpReceiver receiver = session.createReceiver(getTestName());
+         receiver.flow(1);
+         AmqpMessage message = receiver.receive(5, TimeUnit.SECONDS);
+         Assert.assertNotNull(message);
+         message.accept();
+         receiver.close();
+         session.close();
+      } finally {
+         connection.close();
+      }
+
+      validateNoFilesOnLargeDir();
+      runAfter(server::stop);
+   }
+
 
    private void sendObjectMessages(int nMsgs, ConnectionFactory factory) throws Exception {
       try (Connection connection = factory.createConnection()) {

@@ -273,6 +273,66 @@
                   </configuration>
                </execution>
 
+               <!-- Used on ClusteredLargeMessageInterruptTest -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-lmbroker1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/lmbroker1</instance>
+                     <configuration>${basedir}/target/classes/servers/lmbroker1</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--clustered</arg>
+                        <arg>--staticCluster</arg>
+                        <arg>tcp://localhost:61716</arg>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--queues</arg>
+                        <arg>ClusteredLargeMessageInterruptTest</arg>
+                        <arg>--name</arg>
+                        <arg>lmbroker1</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-lmbroker2</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <allowAnonymous>true</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/lmbroker2</instance>
+                     <configuration>${basedir}/target/classes/servers/lmbroker2</configuration>
+                     <portOffset>100</portOffset>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--clustered</arg>
+                        <arg>--staticCluster</arg>
+                        <arg>tcp://localhost:61616</arg>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--queues</arg>
+                        <arg>ClusteredLargeMessageInterruptTest</arg>
+                        <arg>--name</arg>
+                        <arg>lmbroker2</arg>
+                     </args>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
 

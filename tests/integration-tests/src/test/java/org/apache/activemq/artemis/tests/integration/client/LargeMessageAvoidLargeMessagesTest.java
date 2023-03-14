@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 /**
@@ -56,6 +57,13 @@ public class LargeMessageAvoidLargeMessagesTest extends LargeMessageTest {
    @Override
    protected ServerLocator createFactory(final boolean isNetty) throws Exception {
       return super.createFactory(isNetty).setMinLargeMessageSize(10240).setCompressLargeMessage(true);
+   }
+
+   @Override
+   @Test
+   public void testDeleteUnreferencedMessage() {
+      // this test makes no sense as it needs to delete a large message and its record
+      Assume.assumeFalse(true);
    }
 
    @Test
