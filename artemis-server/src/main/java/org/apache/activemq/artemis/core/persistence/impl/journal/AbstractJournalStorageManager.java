@@ -1015,6 +1015,10 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                         storedLargeMessages.remove(message.getMessageID());
                      }
 
+                     if (message.isLargeMessage()) {
+                        largeMessages.add((LargeServerMessage) message);
+                     }
+
                      messages.put(record.id, message);
 
                      break;

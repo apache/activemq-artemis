@@ -69,6 +69,7 @@ import org.apache.activemq.artemis.core.server.ServerProducer;
 import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerMessagePlugin;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.integration.largemessage.LargeMessageTestBase;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
@@ -373,6 +374,51 @@ public class LargeMessageTest extends LargeMessageTestBase {
       session.close();
 
       validateNoFilesOnLargeDir();
+   }
+
+   @Test
+   public void testDeleteUnreferencedMessage() throws Exception {
+      final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
+
+      ActiveMQServer server = createServer(true, isNetty(), storeType);
+
+      server.start();
+
+      server.createQueue(new QueueConfiguration(getName()).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+
+      ClientSessionFactory sf = addSessionFactory(createSessionFactory(locator));
+
+      ClientSession session = addClientSession(sf.createSession(false, true, false));
+      ClientProducer producer = session.createProducer(getName());
+
+      Message clientFile = createLargeClientMessageStreaming(session, messageSize, true);
+
+      producer.send(clientFile);
+
+      session.close();
+
+      final Queue queue = server.locateQueue(getName());
+      queue.forEach(ref -> {
+         // simulating an ACK but the server crashed before the delete of the record, and the large message file
+         if (ref.getMessage().isLargeMessage()) {
+            try {
+               server.getStorageManager().storeAcknowledge(queue.getID(), ref.getMessageID());
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      });
+      server.stop();
+
+      AssertionLoggerHandler.startCapture();
+      runAfter(AssertionLoggerHandler::stopCapture);
+
+      server.start();
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ221019"));
+
+      validateNoFilesOnLargeDir();
+      runAfter(server::stop);
+
    }
 
 

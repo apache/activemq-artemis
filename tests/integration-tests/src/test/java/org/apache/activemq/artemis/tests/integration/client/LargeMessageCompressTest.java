@@ -86,6 +86,13 @@ public class LargeMessageCompressTest extends LargeMessageTest {
       return super.createFactory(isNetty).setCompressLargeMessage(true);
    }
 
+   @Override
+   @Test
+   public void testDeleteUnreferencedMessage() {
+      // this test makes no sense as it needs to delete a large message and its record
+      Assume.assumeFalse(true);
+   }
+
    @Test
    public void testLargeMessageCompressionNotCompressedAndBrowsed() throws Exception {
       final int messageSize = (int) (3.5 * ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE);
