@@ -27,7 +27,6 @@ import javax.jms.Message;
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -127,7 +126,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      mbeanServer = MBeanServerFactory.createMBeanServer();
+      mbeanServer = getMBeanServer();
 
       Configuration config = createDefaultConfig(true).setSecurityEnabled(useSecurity()).
          addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY)).
@@ -198,8 +197,6 @@ public class JMSTestBase extends ActiveMQTestBase {
       jmsServer = null;
 
       namingContext = null;
-
-      MBeanServerFactory.releaseMBeanServer(mbeanServer);
 
       mbeanServer = null;
 

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +117,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
 
       Configuration conf_0 = createBasicConfig(1).addClusterConfiguration(clusterConnectionConfig_0).addAcceptorConfiguration(acceptorConfig_0).addConnectorConfiguration("netty", connectorConfig_0).addDiscoveryGroupConfiguration(discoveryName, discoveryGroupConfig).addBroadcastGroupConfiguration(broadcastGroupConfig);
 
-      mbeanServer_1 = MBeanServerFactory.createMBeanServer();
+      mbeanServer_1 = getMBeanServer();
       server1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, mbeanServer_1, false));
 
       server0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
@@ -129,7 +128,6 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
    @Override
    @After
    public void tearDown() throws Exception {
-      MBeanServerFactory.releaseMBeanServer(mbeanServer_1);
       super.tearDown();
    }
 

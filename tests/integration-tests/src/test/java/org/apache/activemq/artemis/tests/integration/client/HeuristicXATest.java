@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.client;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
@@ -413,7 +412,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      mbeanServer = MBeanServerFactory.createMBeanServer();
+      mbeanServer = getMBeanServer();
       locator = createInVMNonHALocator();
    }
 

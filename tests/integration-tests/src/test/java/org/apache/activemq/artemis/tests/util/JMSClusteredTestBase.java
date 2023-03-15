@@ -20,7 +20,6 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
@@ -119,7 +118,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
-      mBeanServer2 = MBeanServerFactory.createMBeanServer();
+      mBeanServer2 = getMBeanServer();
       server2 = addServer(ActiveMQServers.newActiveMQServer(configuration, mBeanServer2, enablePersistence()));
       jmsServer2 = new JMSServerManagerImpl(server2, jmsconfig);
       context2 = new InVMNamingContext();
@@ -134,7 +133,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
-      mBeanServer1 = MBeanServerFactory.createMBeanServer();
+      mBeanServer1 = getMBeanServer();
       server1 = addServer(ActiveMQServers.newActiveMQServer(configuration, mBeanServer1, enablePersistence()));
       jmsServer1 = new JMSServerManagerImpl(server1, jmsconfig);
       context1 = new InVMNamingContext();

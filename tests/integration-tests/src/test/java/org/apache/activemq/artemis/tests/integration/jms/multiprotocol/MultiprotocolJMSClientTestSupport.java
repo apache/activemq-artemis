@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashMap;
@@ -71,7 +70,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected ActiveMQServer server;
 
-   protected MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+   protected MBeanServer mBeanServer = getMBeanServer();
 
    protected ConnectionSupplier AMQPConnection = () -> createConnection();
    protected ConnectionSupplier CoreConnection = () -> createCoreConnection();
