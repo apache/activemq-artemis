@@ -83,7 +83,7 @@ public class H2DatabaseAdapter extends BaseDatabaseAdapter {
 
    void verifyInitialization() {
       try (Connection c = getConnection(); Statement st = c.createStatement()) {
-         st.execute("create table if not exists ARTEMIS_LOCKS(LOCKID varchar(64),LONG_VALUE bigint,LAST_ACCESS timestamp)");
+         st.execute("create table if not exists ARTEMIS_LOCKS(LOCKID varchar(64),LONG_VALUE bigint,LAST_ACCESS timestamp,primary key(LOCKID))");
          st.execute("create alias if not exists lock_unlock for \"org.apache.activemq.artemis.quorum.db.H2DatabaseAdapter.h2ReleaseLock\"");
          st.execute("create alias if not exists lock_trylock for \"org.apache.activemq.artemis.quorum.db.H2DatabaseAdapter.h2TryLock\"");
       } catch (SQLException e) {

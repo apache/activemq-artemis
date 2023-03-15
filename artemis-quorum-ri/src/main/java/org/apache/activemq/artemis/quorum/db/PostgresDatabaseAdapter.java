@@ -98,6 +98,7 @@ public class PostgresDatabaseAdapter extends BaseDatabaseAdapter {
 
    }
 
+   @Override
    protected String findOldLocksQuery() {
       return "select LOCKID from ARTEMIS_LOCKS where LAST_ACCESS + interval '2 hours' < CURRENT_TIMESTAMP";
    }
@@ -115,7 +116,7 @@ public class PostgresDatabaseAdapter extends BaseDatabaseAdapter {
    /* We call this when the adapter is initialized to verify that the database meets the criteria for running.
       We will attempt to use current access rights to simply fix the situation and get running
     */
-   private static final String TABLE_CREATION = "create table ARTEMIS_LOCKS(LOCKID varchar(64),LONG_VALUE bigint,LAST_ACCESS timestamp)";
+   private static final String TABLE_CREATION = "create table ARTEMIS_LOCKS(LOCKID varchar(64),LONG_VALUE bigint,LAST_ACCESS timestamp, primary key(LOCKID))";
 
    private void verifyInitialization() {
       try (Connection c = getConnection(); Statement st = c.createStatement()) {

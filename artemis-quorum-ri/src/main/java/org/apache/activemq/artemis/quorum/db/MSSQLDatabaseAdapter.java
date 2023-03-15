@@ -103,7 +103,7 @@ public class MSSQLDatabaseAdapter extends BaseDatabaseAdapter {
       }
    }
 
-   private static final String TABLE_CREATION = "create table ARTEMIS_LOCKS(LOCKID varchar(64),LONG_VALUE bigint,LAST_ACCESS datetime)";
+   private static final String TABLE_CREATION = "create table ARTEMIS_LOCKS(LOCKID varchar(64),LONG_VALUE bigint,LAST_ACCESS datetime, primary key(LOCKID))";
 
    private void verifyInitialization() {
       try (Connection c = getConnection(); Statement st = c.createStatement()) {

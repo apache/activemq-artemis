@@ -125,7 +125,7 @@ public class OracleDatabaseAdapter extends BaseDatabaseAdapter {
       }
    }
 
-   private static final String TABLE_CREATION = "create table ARTEMIS_LOCKS(LOCKID varchar2(64),LONG_VALUE number(16),LAST_ACCESS timestamp)";
+   private static final String TABLE_CREATION = "create table ARTEMIS_LOCKS(LOCKID varchar2(64),LONG_VALUE number(16),LAST_ACCESS timestamp, primary key(LOCKID))";
 
    private void verifyInitialization() {
       try (Connection c = getConnection(); Statement st = c.createStatement()) {
