@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server.cluster.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,8 +33,12 @@ import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Redistributor implements Consumer {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private boolean active;
 
@@ -113,6 +118,7 @@ public class Redistributor implements Consumer {
       final Pair<RoutingContext, Message> routingInfo = postOffice.redistribute(reference.getMessage(), queue, tx);
 
       if (routingInfo == null) {
+         logger.debug("postOffice.redistribute return null for message {}", reference);
          tx.rollback();
          return HandleStatus.BUSY;
       }

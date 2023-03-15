@@ -217,10 +217,14 @@ public class ServerSessionPacketHandler implements ChannelHandler {
    }
 
    private void clearLargeMessage() {
+      if (currentLargeMessage != null) {
+         logger.debug("pending large message on session being removed {}", currentLargeMessage);
+      }
       synchronized (largeMessageLock) {
          if (currentLargeMessage != null) {
             try {
                currentLargeMessage.deleteFile();
+               logger.debug("Remove file {} after a failed session", currentLargeMessage.getAppendFile());
             } catch (Throwable error) {
                ActiveMQServerLogger.LOGGER.errorDeletingLargeMessageFile(error);
             } finally {
@@ -1069,12 +1073,29 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       // need to create the LargeMessage before continue
       long id = storageManager.generateID();
 
+      if (logger.isDebugEnabled()) {
+         logger.debug("initializing large message {}", id);
+      }
       LargeServerMessage largeMsg = storageManager.createLargeMessage(id, message);
 
       logger.trace("sendLarge::{}", largeMsg);
 
       if (currentLargeMessage != null) {
          ActiveMQServerLogger.LOGGER.replacingIncompleteLargeMessage(currentLargeMessage.getMessageID());
+
+         // this shouldn't really happen.
+         // Adding this just in case
+         final LargeServerMessage replaced = currentLargeMessage;
+         callExecutor.execute(() -> {
+            try {
+               if (replaced != null) {
+                  logger.debug("Replaced failed being removed over interrupted send for message {}", replaced);
+                  replaced.deleteFile();
+               }
+            } catch (Exception e) {
+               logger.warn("Error removing currentLargeMessage {}", replaced);
+            }
+         });
       }
 
       currentLargeMessage = largeMsg;
@@ -1106,11 +1127,19 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             LargeServerMessage message = currentLargeMessage;
             currentLargeMessage.setStorageManager(storageManager);
             currentLargeMessage = null;
+
+            logger.info("Sending {}", message.getMessageID());
             try {
                session.send(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage) message.toMessage(), storageManager), false, producers.get(senderID), false);
+               logger.info("Sending finished on {}", message.getMessageID());
             } catch (Exception e) {
                message.deleteFile();
                throw e;
+            } catch (Throwable e) {
+               logger.warn("********************************************************************************");
+               logger.warn("Throwable on currentLargeMessage {}", message.getMessageID(), e);
+               logger.warn("********************************************************************************");
+
             }
          }
       }

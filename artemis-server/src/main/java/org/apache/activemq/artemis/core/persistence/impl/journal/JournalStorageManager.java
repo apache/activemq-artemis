@@ -507,6 +507,9 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
 
    @Override
    public LargeServerMessage createLargeMessage(final long id, final Message message) throws Exception {
+      if (logger.isTraceEnabled()) {
+         logger.trace("Initializing large message {}", id, new Exception("trace"));
+      }
       try (ArtemisCloseable lock = closeableReadLock()) {
          if (isReplicated()) {
             replicator.largeMessageBegin(id);

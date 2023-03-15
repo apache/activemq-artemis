@@ -119,6 +119,11 @@ public class LargeMessageInterruptTest extends SoakTestBase {
       testInterruptLM("CORE", false, true);
    }
 
+   private void killProcess(Process process) throws Exception {
+      Runtime.getRuntime().exec("kill -SIGINT " + process.pid());
+   }
+
+
    private void testInterruptLM(String protocol, boolean tx, boolean paging) throws Throwable {
       final int BODY_SIZE = 500 * 1024;
       final int NUMBER_OF_MESSAGES = 10; // this is per producer
@@ -213,7 +218,8 @@ public class LargeMessageInterruptTest extends SoakTestBase {
       }
 
       Assert.assertTrue(killAt.await(60, TimeUnit.SECONDS));
-      serverProcess.destroyForcibly();
+      killProcess(serverProcess);
+      Assert.assertTrue(serverProcess.waitFor(1, TimeUnit.MINUTES));
       serverProcess = startServer(SERVER_NAME_0, 0, 0);
 
       Assert.assertTrue(done.await(60, TimeUnit.SECONDS));
