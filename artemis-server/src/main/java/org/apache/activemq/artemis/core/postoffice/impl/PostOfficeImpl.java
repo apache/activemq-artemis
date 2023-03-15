@@ -1396,7 +1396,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // arrived the target node
          // as described on https://issues.jboss.org/browse/JBPAPP-6130
          final Message copyRedistribute = message.copy(storageManager.generateID());
-         logger.info("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
+         if (logger.isDebugEnabled()) {
+            logger.debug("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
+         }
          copyRedistribute.setAddress(message.getAddress());
 
          RoutingContext context = new RoutingContextImpl(tx);
