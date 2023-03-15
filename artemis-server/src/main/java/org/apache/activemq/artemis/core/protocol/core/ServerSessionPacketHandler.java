@@ -1128,10 +1128,8 @@ public class ServerSessionPacketHandler implements ChannelHandler {
             currentLargeMessage.setStorageManager(storageManager);
             currentLargeMessage = null;
 
-            logger.info("Sending {}", message.getMessageID());
             try {
                session.send(session.getCurrentTransaction(), EmbedMessageUtil.extractEmbedded((ICoreMessage) message.toMessage(), storageManager), false, producers.get(senderID), false);
-               logger.info("Sending finished on {}", message.getMessageID());
             } catch (Exception e) {
                message.deleteFile();
                throw e;
