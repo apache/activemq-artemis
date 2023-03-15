@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -139,7 +138,7 @@ public class BridgeControlTest extends ManagementTestBase {
 
       Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addQueueConfiguration(sourceQueueConfig).addBridgeConfiguration(bridgeConfig);
 
-      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, MBeanServerFactory.createMBeanServer(), false));
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, getMBeanServer(), false));
       addServer(server_1);
       server_1.start();
 

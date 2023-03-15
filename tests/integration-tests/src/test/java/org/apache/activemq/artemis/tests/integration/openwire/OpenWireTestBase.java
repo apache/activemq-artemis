@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.tests.integration.openwire;
 
 import javax.jms.ConnectionFactory;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -114,7 +113,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole("openwireDestinationManager", "advisoryReceiver");
       }
 
-      mbeanServer = MBeanServerFactory.createMBeanServer();
+      mbeanServer = getMBeanServer();
       server.setMBeanServer(mbeanServer);
       addServer(server);
       server.start();
@@ -133,7 +132,6 @@ public class OpenWireTestBase extends ActiveMQTestBase {
    @Override
    @After
    public void tearDown() throws Exception {
-      MBeanServerFactory.releaseMBeanServer(mbeanServer);
       mbeanServer = null;
       server.stop();
       super.tearDown();

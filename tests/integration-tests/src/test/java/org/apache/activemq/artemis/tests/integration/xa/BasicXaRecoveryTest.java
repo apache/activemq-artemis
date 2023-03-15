@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.xa;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 import java.util.Arrays;
@@ -109,7 +108,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
       }
 
-      mbeanServer = MBeanServerFactory.createMBeanServer();
+      mbeanServer = getMBeanServer();
 
       server = createServer(true, configuration, -1, -1, addressSettings);
       server.setMBeanServer(mbeanServer);
@@ -124,7 +123,6 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
    @Override
    @After
    public void tearDown() throws Exception {
-      MBeanServerFactory.releaseMBeanServer(mbeanServer);
       super.tearDown();
       if (storeType == StoreConfiguration.StoreType.DATABASE) {
          destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE", "NODE_MANAGER_STORE"));

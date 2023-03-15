@@ -155,6 +155,7 @@
          <version>${hamcrest.version}</version>
          <scope>test</scope>
       </dependency>
+
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-client</artifactId>

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.util;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 import javax.naming.Context;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
@@ -175,6 +177,12 @@ import org.junit.runner.Description;
  * Base class with basic utilities on starting up a basic server
  */
 public abstract class ActiveMQTestBase extends Assert {
+
+   public MBeanServer getMBeanServer() {
+      MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
+      return mBeanServer;
+   }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.tests.integration.management;
 
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -35,7 +34,7 @@ import org.junit.Before;
 public abstract class ManagementTestBase extends ActiveMQTestBase {
 
 
-   protected MBeanServer mbeanServer;
+   protected MBeanServer mbeanServer = getMBeanServer();
 
 
 
@@ -71,17 +70,12 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      createMBeanServer();
-   }
-
-   protected void createMBeanServer() {
-      mbeanServer = MBeanServerFactory.createMBeanServer();
+      getMBeanServer();
    }
 
    @Override
    @After
    public void tearDown() throws Exception {
-      MBeanServerFactory.releaseMBeanServer(mbeanServer);
       super.tearDown();
    }
 

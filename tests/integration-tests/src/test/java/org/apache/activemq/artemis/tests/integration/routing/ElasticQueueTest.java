@@ -23,7 +23,6 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.security.auth.Subject;
 import java.io.File;
 import java.net.URI;
@@ -366,7 +365,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
       }
    }
 
-   MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+   MBeanServer mBeanServer = getMBeanServer();
 
    // hardwire authenticaton to map USER to EQ_USER etc
    final ActiveMQSecurityManager5 customSecurityManager = new ActiveMQSecurityManager5() {

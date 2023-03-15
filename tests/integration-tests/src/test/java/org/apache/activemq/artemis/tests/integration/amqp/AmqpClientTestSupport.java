@@ -23,7 +23,6 @@ import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -96,7 +95,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
    protected ActiveMQServer server;
 
-   protected MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+   protected MBeanServer mBeanServer = getMBeanServer();
 
    @Before
    @Override

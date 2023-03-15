@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonValue;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 import java.util.Map;
@@ -44,15 +43,13 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      mbeanServer = MBeanServerFactory.createMBeanServer();
+      mbeanServer = getMBeanServer();
    }
 
    @Override
    @After
    public void tearDown() throws Exception {
       super.tearDown();
-
-      MBeanServerFactory.releaseMBeanServer(mbeanServer);
    }
 
 
