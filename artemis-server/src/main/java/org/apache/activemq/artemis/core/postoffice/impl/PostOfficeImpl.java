@@ -121,6 +121,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    public static final SimpleString BRIDGE_CACHE_STR = new SimpleString("BRIDGE.");
 
+   private final Executor postOfficeExecutor;
+
    private final AddressManager addressManager;
 
    private final QueueFactory queueFactory;
@@ -191,6 +193,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       this.persistIDCache = persistIDCache;
 
       this.addressSettingsRepository = addressSettingsRepository;
+
+      this.postOfficeExecutor = server.getExecutorFactory().getExecutor();
 
       this.server = server;
    }
@@ -1391,7 +1395,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
          // We have to copy the message and store it separately, otherwise we may lose remote bindings in case of restart before the message
          // arrived the target node
          // as described on https://issues.jboss.org/browse/JBPAPP-6130
-         Message copyRedistribute = message.copy(storageManager.generateID());
+         final Message copyRedistribute = message.copy(storageManager.generateID());
+         logger.info("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
          copyRedistribute.setAddress(message.getAddress());
 
          RoutingContext context = new RoutingContextImpl(tx);
@@ -1400,6 +1405,20 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          if (routed) {
             return new Pair<>(context, copyRedistribute);
+         } else {
+            // things have changed, we are not redistributing any more
+            if (copyRedistribute.isLargeMessage()) {
+               LargeServerMessage lsm = (LargeServerMessage) copyRedistribute;
+               postOfficeExecutor.execute(() -> {
+                  try {
+                     logger.debug("Removing large message {} since the routing tables have changed", lsm.getAppendFile());
+                     lsm.deleteFile();
+                  } catch (Exception e) {
+                     logger.warn("Error removing {}", copyRedistribute);
+                  }
+               });
+            }
+
          }
       }
 

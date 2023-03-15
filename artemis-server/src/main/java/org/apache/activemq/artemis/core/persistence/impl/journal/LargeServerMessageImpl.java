@@ -72,7 +72,11 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    private static Message asLargeMessage(Message message, StorageManager storageManager) throws Exception {
       ICoreMessage coreMessage = message.toCore();
-      LargeServerMessage lsm = storageManager.createLargeMessage(storageManager.generateID(), coreMessage);
+      long id = storageManager.generateID();
+      if (logger.isDebugEnabled()) {
+         logger.debug("asLargeMessage create largeMessage with id={}", id);
+      }
+      LargeServerMessage lsm = storageManager.createLargeMessage(id, coreMessage);
       ActiveMQBuffer messageBodyBuffer = coreMessage.getReadOnlyBodyBuffer();
       final int readableBytes = messageBodyBuffer.readableBytes();
 
@@ -306,6 +310,9 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
    @Override
    public Message copy(final long newID) {
       try {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Copy large message id={} as newID={}", this.getMessageID(), newID);
+         }
          LargeServerMessage newMessage = storageManager.createLargeMessage(newID, this);
          largeBody.copyInto(newMessage);
          newMessage.releaseResources(true, true);
