@@ -144,6 +144,8 @@ import java.lang.invoke.MethodHandles;
 public class OpenWireConnection extends AbstractRemotingConnection implements SecurityAuth, TempQueueObserver {
 
 
+   private final Object lockSend = new Object();
+
    // to be used on the packet size estimate processing for the ThresholdActor
    private static final int MINIMAL_SIZE_ESTIAMTE = 1024;
 
@@ -553,7 +555,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
 
          // We can't let any other packet to sneak in while chunkSend is happening.
          // otherwise we may get wrong packts delivered
-         synchronized (transportConnection) {
+         synchronized (lockSend) {
             if (maxChunkSize > 0 && bufferSize > maxChunkSize) {
                chunkSend(bytes, bufferSize, maxChunkSize);
             } else {
@@ -582,7 +584,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
          }
          final ActiveMQBuffer chunk = transportConnection.createTransportBuffer(chunkSize);
          chunk.writeBytes(bytes.data, bytes.offset, chunkSize);
-         transportConnection.write(chunk, true, false);
+         transportConnection.write(chunk, false, false);
          bytes.setOffset(bytes.getOffset() + chunkSize);
       }
    }
