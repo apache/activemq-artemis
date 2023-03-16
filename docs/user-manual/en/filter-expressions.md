@@ -31,6 +31,13 @@ JMS message, Apache ActiveMQ Artemis core filter expressions operate on a core m
 The following identifiers can be used in a core filter expressions to
 refer to attributes of the core message in an expression:
 
+- `AMQUserID`. The ID set by the user when the message is sent. This
+  is analogous to the `JMSMessageID` for JMS-based clients.
+
+- `AMQAddress`. The address to which the message was sent.
+
+- `AMQGroupID`. The group ID used when sending the message.
+
 - `AMQPriority`. To refer to the priority of a message. Message
   priorities are integers with valid values from `0 - 9`. `0` is the
   lowest priority and `9` is the highest. E.g.
