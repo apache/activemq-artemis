@@ -4090,11 +4090,23 @@ public class QueueControlTest extends ManagementTestBase {
 
       Assert.assertEquals(2, browse.length);
 
+      String userID = (String) browse[0].get("userID");
+
+      Assert.assertTrue(userID.startsWith("ID:"));
+
+      Assert.assertFalse(userID.startsWith("ID:ID:"));
+
       String body = (String) browse[0].get("text");
 
       Assert.assertNotNull(body);
 
       Assert.assertEquals("theAMQPBody", body);
+
+      userID = (String) browse[1].get("userID");
+
+      Assert.assertTrue(userID.startsWith("ID:"));
+
+      Assert.assertFalse(userID.startsWith("ID:ID:"));
 
       body = (String) browse[1].get("text");
 

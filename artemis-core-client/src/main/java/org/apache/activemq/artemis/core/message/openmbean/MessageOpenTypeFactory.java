@@ -127,7 +127,8 @@ public class MessageOpenTypeFactory<M extends Message> {
       rc.put(CompositeDataConstants.MESSAGE_ID, "" + m.getMessageID());
       rc.put(CompositeDataConstants.PROTOCOL, m.getProtocolName());
       if (m.getUserID() != null) {
-         rc.put(CompositeDataConstants.USER_ID, "ID:" + m.getUserID().toString());
+         String userID = m.getUserID().toString();
+         rc.put(CompositeDataConstants.USER_ID, userID.startsWith("ID:") ? userID : "ID:" + userID);
       } else {
          rc.put(CompositeDataConstants.USER_ID, "");
       }
