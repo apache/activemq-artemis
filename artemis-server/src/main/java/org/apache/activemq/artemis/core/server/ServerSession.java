@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.server;
 
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.json.JsonArrayBuilder;
 import javax.transaction.xa.Xid;
 import java.util.Collection;
@@ -111,7 +112,7 @@ public interface ServerSession extends SecurityAuth {
 
    void addCloseable(Closeable closeable);
 
-   boolean checkAutoCreate(SimpleString address, RoutingType routingType) throws Exception;
+   AutoCreateResult checkAutoCreate(QueueConfiguration queueConfiguration) throws Exception;
 
    ServerConsumer createConsumer(long consumerID,
                                  SimpleString queueName,

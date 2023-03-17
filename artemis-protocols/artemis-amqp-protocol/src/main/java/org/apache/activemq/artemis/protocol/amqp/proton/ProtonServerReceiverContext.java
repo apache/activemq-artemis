@@ -119,7 +119,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
                defRoutingType = getRoutingType(target.getCapabilities(), address);
                try {
                   if (!sessionSPI.checkAddressAndAutocreateIfPossible(address, defRoutingType)) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist(address.toString());
                   }
                } catch (ActiveMQAMQPNotFoundException e) {
                   throw e;
@@ -157,6 +157,30 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    }
 
    private RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
+      RoutingType explicitRoutingType = getExplicitRoutingType(symbols);
+      if (explicitRoutingType != null) {
+         return explicitRoutingType;
+      } else {
+         final AddressInfo addressInfo = sessionSPI.getAddress(address);
+         /*
+          * If we're dealing with an *existing* address that has just one routing-type simply use that.
+          * This allows "bare" AMQP clients (which have no built-in routing semantics) to send messages
+          * wherever they want in this case because the routing ambiguity is eliminated.
+          */
+         if (addressInfo != null && addressInfo.getRoutingTypes().size() == 1) {
+            return addressInfo.getRoutingType();
+         } else {
+            return getDefaultRoutingType(address);
+         }
+      }
+   }
+
+   private RoutingType getDefaultRoutingType(SimpleString address) {
+      RoutingType defaultRoutingType = sessionSPI.getDefaultRoutingType(address);
+      return defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
+   }
+
+   private RoutingType getExplicitRoutingType(Symbol[] symbols) {
       if (symbols != null) {
          for (Symbol symbol : symbols) {
             if (AmqpSupport.TEMP_TOPIC_CAPABILITY.equals(symbol) || AmqpSupport.TOPIC_CAPABILITY.equals(symbol)) {
@@ -166,15 +190,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
             }
          }
       }
-      final AddressInfo addressInfo = sessionSPI.getAddress(address);
-      if (addressInfo != null && !addressInfo.getRoutingTypes().isEmpty()) {
-         if (addressInfo.getRoutingTypes().size() == 1 && addressInfo.getRoutingType() == RoutingType.MULTICAST) {
-            return RoutingType.MULTICAST;
-         }
-      }
-      RoutingType defaultRoutingType = sessionSPI.getDefaultRoutingType(address);
-      defaultRoutingType = defaultRoutingType == null ? ActiveMQDefaultConfiguration.getDefaultRoutingType() : defaultRoutingType;
-      return defaultRoutingType;
+      return null;
    }
 
    @Override

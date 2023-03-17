@@ -76,6 +76,7 @@ public class QueueConfiguration implements Serializable {
    public static final String INTERNAL = "internal";
    public static final String TRANSIENT = "transient";
    public static final String AUTO_CREATED = "auto-created";
+   public static final String FQQN = "fqqn";
 
    private Long id; // internal use
    private SimpleString name;
@@ -108,8 +109,44 @@ public class QueueConfiguration implements Serializable {
    private Boolean internal;
    private Boolean _transient;
    private Boolean autoCreated;
+   private Boolean fqqn;
 
    public QueueConfiguration() {
+   }
+
+   public QueueConfiguration(QueueConfiguration o) {
+      id = o.id;
+      name = o.name;
+      address = o.address;
+      routingType = o.routingType;
+      filterString = o.filterString;
+      durable = o.durable;
+      user = o.user;
+      maxConsumers = o.maxConsumers;
+      exclusive = o.exclusive;
+      groupRebalance = o.groupRebalance;
+      groupRebalancePauseDispatch = o.groupRebalancePauseDispatch;
+      groupBuckets = o.groupBuckets;
+      groupFirstKey = o.groupFirstKey;
+      lastValue = o.lastValue;
+      lastValueKey = o.lastValueKey;
+      nonDestructive = o.nonDestructive;
+      purgeOnNoConsumers = o.purgeOnNoConsumers;
+      enabled = o.enabled;
+      consumersBeforeDispatch = o.consumersBeforeDispatch;
+      delayBeforeDispatch = o.delayBeforeDispatch;
+      consumerPriority = o.consumerPriority;
+      autoDelete = o.autoDelete;
+      autoDeleteDelay = o.autoDeleteDelay;
+      autoDeleteMessageCount = o.autoDeleteMessageCount;
+      ringSize = o.ringSize;
+      configurationManaged = o.configurationManaged;
+      temporary = o.temporary;
+      autoCreateAddress = o.autoCreateAddress;
+      internal = o.internal;
+      _transient = o._transient;
+      autoCreated = o.autoCreated;
+      fqqn = o.fqqn;
    }
 
    /**
@@ -261,7 +298,7 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
-    * Set the name. If the fully-qualified queue name is used then it will be parsed and the corresponding values for
+    * Set the address. If the fully-qualified queue name is used then it will be parsed and the corresponding values for
     * {@code address} and {@code name} will be set automatically. For example if "myAddress::myQueue" is passed then the
     * resulting value for {@code address} will be "myAddress" and the value for {@code name} will be "myQueue".
     *
@@ -272,6 +309,7 @@ public class QueueConfiguration implements Serializable {
       if (CompositeAddress.isFullyQualified(address)) {
          this.name = CompositeAddress.extractQueueName(address);
          this.address = CompositeAddress.extractAddressName(address);
+         this.fqqn = Boolean.TRUE;
       } else {
          this.address = address;
       }
@@ -301,6 +339,7 @@ public class QueueConfiguration implements Serializable {
       if (CompositeAddress.isFullyQualified(name)) {
          this.name = CompositeAddress.extractQueueName(name);
          this.address = CompositeAddress.extractAddressName(name);
+         this.fqqn = Boolean.TRUE;
       } else {
          this.name = name;
       }
@@ -608,6 +647,16 @@ public class QueueConfiguration implements Serializable {
    }
 
    /**
+    * Based on if the name or address uses FQQN when set
+    *
+    * defaults to {@code false}
+    * @return
+    */
+   public Boolean isFqqn() {
+      return fqqn == null ? Boolean.FALSE : fqqn;
+   }
+
+   /**
     * This method returns a JSON-formatted {@code String} representation of this {@code QueueConfiguration}. It is a
     * simple collection of key/value pairs. The keys used are referenced in {@link #set(String, String)}.
     *
@@ -709,6 +758,9 @@ public class QueueConfiguration implements Serializable {
       if (isAutoCreated() != null) {
          builder.add(AUTO_CREATED, isAutoCreated());
       }
+      if (isFqqn() != null) {
+         builder.add(FQQN, isFqqn());
+      }
 
       return builder.build().toString();
    }
@@ -807,6 +859,8 @@ public class QueueConfiguration implements Serializable {
          return false;
       if (!Objects.equals(autoCreated, that.autoCreated))
          return false;
+      if (!Objects.equals(fqqn, that.fqqn))
+         return false;
 
       return true;
    }
@@ -844,6 +898,7 @@ public class QueueConfiguration implements Serializable {
       result = 31 * result + Objects.hashCode(internal);
       result = 31 * result + Objects.hashCode(_transient);
       result = 31 * result + Objects.hashCode(autoCreated);
+      result = 31 * result + Objects.hashCode(fqqn);
       return result;
    }
 
@@ -880,6 +935,7 @@ public class QueueConfiguration implements Serializable {
          + ", autoCreateAddress=" + autoCreateAddress
          + ", internal=" + internal
          + ", transient=" + _transient
-         + ", autoCreated=" + autoCreated + ']';
+         + ", autoCreated=" + autoCreated
+         + ", fqqn=" + fqqn + ']';
    }
 }

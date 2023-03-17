@@ -166,8 +166,8 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       Set<TransportConfiguration> acceptors = server.getConfiguration().getAcceptorConfigurations();
       for (TransportConfiguration tc : acceptors) {
          if (tc.getName().equals(NETTY_ACCEPTOR)) {
-            tc.getExtraParams().put("anycastPrefix", "anycast://");
-            tc.getExtraParams().put("multicastPrefix", "multicast://");
+            tc.getExtraParams().put("anycastPrefix", ANYCAST_PREFIX);
+            tc.getExtraParams().put("multicastPrefix", MULTICAST_PREFIX);
          }
       }
    }

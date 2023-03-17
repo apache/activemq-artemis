@@ -48,9 +48,15 @@ under the License.
       </acceptors>
 
       <addresses>
-         <address name="source"/>
-         <address name="target1"/>
-         <address name="target2"/>
+         <address name="source">
+            <anycast/>
+         </address>
+         <address name="target1">
+            <anycast/>
+         </address>
+         <address name="target1">
+            <anycast/>
+         </address>
       </addresses>
 
       <diverts>

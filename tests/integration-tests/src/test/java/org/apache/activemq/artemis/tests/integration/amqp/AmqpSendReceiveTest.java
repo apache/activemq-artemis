@@ -185,6 +185,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
    @Test(timeout = 60000)
    public void testMessageDurableTrue() throws Exception {
+      assertNotNull(server.locateQueue(getQueueName()));
       sendMessages(getQueueName(), 1, true);
 
       AmqpClient client = createAmqpClient();
@@ -1115,7 +1116,7 @@ public class AmqpSendReceiveTest extends AmqpClientTestSupport {
 
       assertNotNull(expectedException);
       assertTrue(expectedException.getMessage().contains("amqp:not-found"));
-      assertTrue(expectedException.getMessage().contains("target address does not exist"));
+      assertTrue(expectedException.getMessage().contains("target address AnAddressThatDoesNotExist does not exist"));
 
       connection.close();
    }

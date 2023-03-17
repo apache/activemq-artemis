@@ -45,6 +45,9 @@ public class EmbeddedActiveMQResourceCustomConfigurationTest {
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(server);
 
+   public EmbeddedActiveMQResourceCustomConfigurationTest() throws Exception {
+   }
+
    @After
    public void tear() {
       server.stop();

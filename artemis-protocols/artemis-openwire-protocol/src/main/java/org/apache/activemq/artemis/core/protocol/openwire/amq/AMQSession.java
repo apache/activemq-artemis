@@ -16,25 +16,23 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire.amq;
 
-import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
-
+import javax.jms.InvalidDestinationException;
+import javax.jms.ResourceAllocationException;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.jms.InvalidDestinationException;
-import javax.jms.ResourceAllocationException;
-
 import org.apache.activemq.advisory.AdvisorySupport;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
-import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.paging.PagingStore;
+import org.apache.activemq.artemis.core.persistence.CoreMessageObjectPools;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireConnection;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireMessageConverter;
 import org.apache.activemq.artemis.core.protocol.openwire.OpenWireProtocolManager;
@@ -42,7 +40,6 @@ import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
@@ -66,7 +63,8 @@ import org.apache.activemq.command.SessionInfo;
 import org.apache.activemq.openwire.OpenWireFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+
+import static org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil.OPENWIRE_WILDCARD;
 
 public class AMQSession implements SessionCallback {
    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -230,39 +228,26 @@ public class AMQSession implements SessionCallback {
 
       boolean hasQueue = true;
       if (!connection.containsKnownDestination(queueName)) {
-         QueueQueryResult queueQuery = server.queueQuery(queueName);
-
-         try {
-            if (!queueQuery.isExists()) {
-               if (queueQuery.isAutoCreateQueues()) {
-                  SimpleString queueNameToUse = queueName;
-                  SimpleString addressToUse = queueName;
-                  RoutingType routingTypeToUse = RoutingType.ANYCAST;
-                  if (CompositeAddress.isFullyQualified(queueName.toString())) {
-                     addressToUse = CompositeAddress.extractAddressName(queueName);
-                     queueNameToUse = CompositeAddress.extractQueueName(queueName);
-                     AddressInfo addressInfo = server.getAddressInfo(addressToUse);
-                     if (addressInfo != null) {
-                        routingTypeToUse = addressInfo.getRoutingType();
-                     } else {
-                        AddressSettings as = server.getAddressSettingsRepository().getMatch(addressToUse.toString());
-                        routingTypeToUse = as.getDefaultAddressRoutingType();
-                     }
-                  }
-                  coreSession.createQueue(new QueueConfiguration(queueNameToUse).setAddress(addressToUse).setRoutingType(routingTypeToUse).setTemporary(isTemporary).setAutoCreated(true).setFilterString(filter));
-                  connection.addKnownDestination(queueName);
-               } else {
-                  if (server.getAddressInfo(queueName) == null) {
-                     //Address does not exist and will not get autocreated
-                     throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
-                  }
-                  hasQueue = false;
-               }
+         RoutingType routingTypeToUse = RoutingType.ANYCAST;
+         if (CompositeAddress.isFullyQualified(queueName.toString())) {
+            SimpleString addressToUse = CompositeAddress.extractAddressName(queueName);
+            AddressInfo addressInfo = server.getAddressInfo(addressToUse);
+            if (addressInfo != null) {
+               routingTypeToUse = addressInfo.getRoutingType();
+            } else {
+               AddressSettings as = server.getAddressSettingsRepository().getMatch(addressToUse.toString());
+               routingTypeToUse = as.getDefaultAddressRoutingType();
             }
-         } catch (ActiveMQQueueExistsException e) {
-            // In case another thread created the queue before us but after we did the binding query
-            hasQueue = true;
          }
+         AutoCreateResult autoCreateResult = coreSession.checkAutoCreate(new QueueConfiguration(queueName)
+                                                                            .setAddress(queueName)
+                                                                            .setRoutingType(routingTypeToUse)
+                                                                            .setTemporary(isTemporary)
+                                                                            .setFilterString(filter));
+         if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
+            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(queueName);
+         }
+         connection.addKnownDestination(queueName);
       }
       return hasQueue;
    }

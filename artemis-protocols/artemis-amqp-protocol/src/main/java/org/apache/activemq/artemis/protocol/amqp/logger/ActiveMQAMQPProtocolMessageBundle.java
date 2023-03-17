@@ -39,8 +39,8 @@ public interface ActiveMQAMQPProtocolMessageBundle {
    @Message(id = 119001, value = "error creating temporary queue, {}")
    ActiveMQAMQPInternalErrorException errorCreatingTemporaryQueue(String message);
 
-   @Message(id = 119002, value = "target address does not exist")
-   ActiveMQAMQPNotFoundException addressDoesntExist();
+   @Message(id = 119002, value = "target address {} does not exist")
+   ActiveMQAMQPNotFoundException addressDoesntExist(String address);
 
    @Message(id = 119003, value = "error finding temporary queue, {}")
    ActiveMQAMQPNotFoundException errorFindingTemporaryQueue(String message);

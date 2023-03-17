@@ -48,6 +48,10 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
 
    private final Long defaultDelayBeforeDispatch;
 
+   private final boolean supportsMulticast;
+
+   private final boolean supportsAnycast;
+
    public AddressQueryImpl(final boolean exists,
                            final List<SimpleString> queueNames,
                            final boolean autoCreateQueues,
@@ -59,7 +63,9 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
                            final SimpleString defaultLastValueKey,
                            final Boolean defaultNonDestructive,
                            final Integer defaultConsumersBeforeDispatch,
-                           final Long defaultDelayBeforeDispatch) {
+                           final Long defaultDelayBeforeDispatch,
+                           final boolean supportsMulticast,
+                           final boolean supportsAnycast) {
       this.exists = exists;
       this.queueNames = new ArrayList<>(queueNames);
       this.autoCreateQueues = autoCreateQueues;
@@ -72,6 +78,8 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
       this.defaultNonDestructive = defaultNonDestructive;
       this.defaultConsumersBeforeDispatch = defaultConsumersBeforeDispatch;
       this.defaultDelayBeforeDispatch = defaultDelayBeforeDispatch;
+      this.supportsMulticast = supportsMulticast;
+      this.supportsAnycast = supportsAnycast;
    }
 
    @Override
@@ -132,5 +140,15 @@ public class AddressQueryImpl implements ClientSession.AddressQuery {
    @Override
    public Long getDefaultDelayBeforeDispatch() {
       return defaultDelayBeforeDispatch;
+   }
+
+   @Override
+   public boolean isSupportsMulticast() {
+      return supportsMulticast;
+   }
+
+   @Override
+   public boolean isSupportsAnycast() {
+      return supportsAnycast;
    }
 }

@@ -40,6 +40,16 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
    SimpleString queue1 = new SimpleString("queue1");
    SimpleString queue2 = new SimpleString("queue2");
 
+   @Override
+   protected boolean isAutoCreateQueues() {
+      return false;
+   }
+
+   @Override
+   protected boolean isAutoCreateAddresses() {
+      return false;
+   }
+
    @Test(timeout = 60000)
    public void testConsumeFromSingleQueueOnAddressSameName() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.MULTICAST));
@@ -64,6 +74,7 @@ public class BrokerDefinedMulticastConsumerTest extends AmqpClientTestSupport  {
    @Test(timeout = 60000)
    public void testConsumeWhenOnlyAnycast() throws Exception {
       server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+      server.createQueue(new QueueConfiguration(address).setAddress(address).setRoutingType(RoutingType.ANYCAST));
 
       sendMessages(address.toString(), 1);
 

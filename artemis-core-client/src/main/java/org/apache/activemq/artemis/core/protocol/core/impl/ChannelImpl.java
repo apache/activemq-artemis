@@ -193,6 +193,8 @@ public final class ChannelImpl implements Channel {
          case PacketImpl.CREATESESSION_V2:
          case PacketImpl.DISCONNECT_V3:
             return version >= PacketImpl.ARTEMIS_2_18_0_VERSION;
+         case PacketImpl.SESS_BINDINGQUERY_RESP_V5:
+            return version >= PacketImpl.ARTEMIS_2_29_0_VERSION;
          default:
             return true;
       }

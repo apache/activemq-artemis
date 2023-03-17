@@ -16,15 +16,10 @@
  */
 package org.apache.activemq.artemis.core.server.impl;
 
-import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
-import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
-import org.apache.activemq.artemis.core.postoffice.Bindings;
-import org.apache.activemq.artemis.json.JsonArrayBuilder;
-import org.apache.activemq.artemis.json.JsonObjectBuilder;
-import java.security.cert.X509Certificate;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.Xid;
+import java.lang.invoke.MethodHandles;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,10 +34,13 @@ import java.util.concurrent.Executor;
 
 import org.apache.activemq.artemis.Closeable;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
+import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIOErrorException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
+import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -54,6 +52,7 @@ import org.apache.activemq.artemis.core.exception.ActiveMQXAException;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.io.IOCallback;
+import org.apache.activemq.artemis.core.management.impl.view.ProducerField;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
@@ -61,6 +60,7 @@ import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.RoutingStatus;
@@ -94,6 +94,8 @@ import org.apache.activemq.artemis.core.transaction.Transaction.State;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.core.transaction.TransactionPropertyIndexes;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
+import org.apache.activemq.artemis.json.JsonArrayBuilder;
+import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.json.JsonValue;
 import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
@@ -105,7 +107,6 @@ import org.apache.activemq.artemis.utils.PrefixUtil;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Server side Session implementation
@@ -1746,49 +1747,83 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       return tx;
    }
 
-
    @Override
-   public boolean checkAutoCreate(SimpleString address, RoutingType routingType) throws Exception {
-      boolean result;
-      SimpleString unPrefixedAddress = removePrefix(address);
+   public AutoCreateResult checkAutoCreate(final QueueConfiguration queueConfig) throws Exception {
+      AutoCreateResult result;
+      SimpleString unPrefixedAddress = removePrefix(queueConfig.getAddress());
+      SimpleString unPrefixedQueue = removePrefix(queueConfig.getName());
       AddressSettings addressSettings =  server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
 
-      if (routingType == RoutingType.MULTICAST) {
-         if (server.getAddressInfo(unPrefixedAddress) == null) {
-            if (addressSettings.isAutoCreateAddresses()) {
-               try {
-                  createAddress(address, routingType, true);
-               } catch (ActiveMQAddressExistsException e) {
-                  // The address may have been created by another thread in the mean time.  Catch and do nothing.
-               }
-               result = true;
-            } else {
-               result = false;
+      /*
+       * This is only here to maintain backwards compatibility with the previous implementation.
+       *
+       * TODO: figure out how to get rid of this
+       */
+      if (queueConfig.getRoutingType() == null) {
+         return AutoCreateResult.EXISTED;
+      }
+
+      // No matter what routing-type is used the address must exist already or be automatically created.
+      AddressInfo addressInfo = server.getAddressInfo(unPrefixedAddress);
+      if (addressInfo == null) {
+         // The address doesn't exist.
+         if (addressSettings.isAutoCreateAddresses() || queueConfig.isTemporary()) {
+            // Try to create the address if possible.
+            try {
+               createAddress(queueConfig.getAddress(), queueConfig.getRoutingType(), true).setTemporary(queueConfig.isTemporary());
+            } catch (ActiveMQAddressExistsException e) {
+               // The address may have been created by another thread in the mean time. Catch and do nothing.
             }
+            result = AutoCreateResult.CREATED;
          } else {
-            result = true;
-         }
-      } else if (routingType == RoutingType.ANYCAST) {
-         if (server.locateQueue(unPrefixedAddress) == null) {
-            Bindings bindings = server.getPostOffice().lookupBindingsForAddress(address);
-            if (bindings != null) {
-               // this means the address has another queue with a different name, which is fine, we just ignore it on this case
-               result = true;
-            } else if (addressSettings.isAutoCreateQueues()) {
-               try {
-                  createQueue(new QueueConfiguration(address).setRoutingType(routingType).setAutoCreated(true));
-               } catch (ActiveMQQueueExistsException e) {
-                  // The queue may have been created by another thread in the mean time.  Catch and do nothing.
-               }
-               result = true;
-            } else {
-               result = false;
-            }
-         } else {
-            result = true;
+            // If the address doesn't exist and can't be autocreated then return that result immediately.
+            return AutoCreateResult.NOT_FOUND;
          }
       } else {
-         result = true;
+         // The address exists.
+         if (addressInfo.getRoutingTypes().contains(queueConfig.getRoutingType())) {
+            // The existing address supports the requested routing-type.
+            result = AutoCreateResult.EXISTED;
+         } else {
+            // The existing address doesn't support the requested routing-type.
+            if (addressSettings.isAutoCreateAddresses() || queueConfig.isTemporary()) {
+               // Try to update the address with the new routing-type if possible.
+               try {
+                  createAddress(addressInfo.addRoutingType(queueConfig.getRoutingType()), true);
+               } catch (ActiveMQAddressExistsException e) {
+                  // The address may have been created by another thread in the mean-time. Catch and do nothing.
+               }
+               result = AutoCreateResult.UPDATED;
+            } else {
+               // If the address exists but doesn't support the requested routing-type and can't be updated with the new routing-type then return that result immediately.
+               return AutoCreateResult.NOT_FOUND;
+            }
+         }
+      }
+
+      if (queueConfig.getRoutingType() == RoutingType.ANYCAST || queueConfig.isFqqn()) {
+         if (server.locateQueue(unPrefixedQueue) == null) {
+            // The queue doesn't exist.
+            Bindings bindings = server.getPostOffice().lookupBindingsForAddress(unPrefixedAddress);
+            if (bindings != null && !queueConfig.isFqqn()) {
+               // The address has another queue with a different name, which is fine. Just ignore it.
+               result = AutoCreateResult.EXISTED;
+            } else if (addressSettings.isAutoCreateQueues() || queueConfig.isTemporary()) {
+               // Try to create the queue.
+               try {
+                  createQueue(new QueueConfiguration(queueConfig).setAutoCreated(true));
+               } catch (ActiveMQQueueExistsException e) {
+                  // The queue may have been created by another thread in the mean-time. Catch and do nothing.
+               }
+               result = AutoCreateResult.CREATED;
+            } else {
+               // The queue doesn't exist, and we can't auto-create it so return that result immediately.
+               return AutoCreateResult.NOT_FOUND;
+            }
+         } else {
+            // The queue exists.
+            result = AutoCreateResult.EXISTED;
+         }
       }
 
       return result;

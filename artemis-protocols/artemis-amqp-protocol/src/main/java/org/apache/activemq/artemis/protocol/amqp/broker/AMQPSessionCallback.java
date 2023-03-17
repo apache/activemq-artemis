@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -329,7 +330,8 @@ public class AMQPSessionCallback implements SessionCallback {
 
 
    public boolean checkAddressAndAutocreateIfPossible(SimpleString address, RoutingType routingType) throws Exception {
-      return serverSession.checkAutoCreate(address, routingType);
+      AutoCreateResult autoCreateResult = serverSession.checkAutoCreate(new QueueConfiguration(address).setRoutingType(routingType));
+      return autoCreateResult != AutoCreateResult.NOT_FOUND;
    }
 
    public AddressQueryResult addressQuery(SimpleString addressName,
@@ -469,7 +471,7 @@ public class AMQPSessionCallback implements SessionCallback {
 
       //here check queue-autocreation
       if (!checkAddressAndAutocreateIfPossible(address, routingType)) {
-         ActiveMQException e = ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist();
+         ActiveMQException e = ActiveMQAMQPProtocolMessageBundle.BUNDLE.addressDoesntExist(address.toString());
          if (transaction != null) {
             transaction.markAsRollbackOnly(e);
          }
@@ -766,7 +768,6 @@ public class AMQPSessionCallback implements SessionCallback {
    public ProtonTransactionHandler getTransactionHandler() {
       return this.transactionHandler;
    }
-
 
    class AddressQueryCache<T> {
       SimpleString address;

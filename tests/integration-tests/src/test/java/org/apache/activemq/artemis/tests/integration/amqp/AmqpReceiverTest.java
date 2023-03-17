@@ -302,7 +302,7 @@ public class AmqpReceiverTest extends AmqpClientTestSupport {
 
          assertNotNull(expectedException);
          assertTrue(expectedException.getMessage().contains("amqp:not-found"));
-         assertTrue(expectedException.getMessage().contains("target address does not exist"));
+         assertTrue(expectedException.getMessage().contains("target address AnAddressThatDoesNotExist does not exist"));
       } finally {
          connection.close();
       }

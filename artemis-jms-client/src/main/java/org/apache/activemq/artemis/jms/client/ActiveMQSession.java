@@ -404,6 +404,10 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                      throw new InvalidDestinationException("Destination " + address + " does not exist, autoCreateAddresses=" + addressQuery.isAutoCreateAddresses());
                   }
                }
+            } else {
+               if ((!addressQuery.isSupportsMulticast() && !destination.isQueue()) || (!addressQuery.isSupportsAnycast() && destination.isQueue())) {
+                  throw new InvalidDestinationException("Destination " + address + " exists, but does not support " + (destination.isQueue() ? RoutingType.ANYCAST.name() : RoutingType.MULTICAST.name()) + " routing");
+               }
             }
 
             // Second we create the queue, the address would have existed or successfully created.

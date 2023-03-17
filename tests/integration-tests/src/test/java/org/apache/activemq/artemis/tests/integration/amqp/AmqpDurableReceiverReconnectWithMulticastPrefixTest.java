@@ -72,8 +72,8 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
 
    @Override
    protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
-      params.put("anycastPrefix", "anycast://");
-      params.put("multicastPrefix", "multicast://");
+      params.put("anycastPrefix", ANYCAST_PREFIX);
+      params.put("multicastPrefix", MULTICAST_PREFIX);
    }
 
    @Override
@@ -96,7 +96,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    @Test(timeout = 60000)
    public void testReattachToDurableNodeAndTryAndReceiveNewlySentMessage() throws Exception {
       final String addressName = "test-address";
-      final String prefixedName = "multicast://" + addressName;
+      final String prefixedName = MULTICAST_PREFIX + addressName;
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.createConnection());
@@ -143,7 +143,7 @@ public class AmqpDurableReceiverReconnectWithMulticastPrefixTest extends JMSClie
    @Test(timeout = 60000)
    public void testReattachToDurableNodeAndTryAndReceivePreviouslySentMessage() throws Exception {
       final String addressName = "test-address";
-      final String prefixedName = "multicast://" + addressName;
+      final String prefixedName = MULTICAST_PREFIX + addressName;
 
       AmqpClient client = createAmqpClient();
       AmqpConnection connection = addConnection(client.createConnection());

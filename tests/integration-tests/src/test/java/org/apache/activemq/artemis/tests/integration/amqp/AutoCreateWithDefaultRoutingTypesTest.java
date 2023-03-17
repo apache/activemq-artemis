@@ -74,8 +74,8 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
 
    @Override
    protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
-      params.put("anycastPrefix", "anycast://");
-      params.put("multicastPrefix", "multicast://");
+      params.put("anycastPrefix", ANYCAST_PREFIX);
+      params.put("multicastPrefix", MULTICAST_PREFIX);
    }
 
    @Override
@@ -272,9 +272,9 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
 
       final String prefixedName;
       if (routingType == RoutingType.ANYCAST) {
-         prefixedName = "anycast://" + addressName;
+         prefixedName = ANYCAST_PREFIX + addressName;
       } else {
-         prefixedName = "multicast://" + addressName;
+         prefixedName = MULTICAST_PREFIX + addressName;
       }
 
       AmqpSender sender = session.createSender(prefixedName);
@@ -320,9 +320,9 @@ public class AutoCreateWithDefaultRoutingTypesTest extends JMSClientTestSupport 
 
       final String prefixedName;
       if (routingType == RoutingType.ANYCAST) {
-         prefixedName = "anycast://" + addressName;
+         prefixedName = ANYCAST_PREFIX + addressName;
       } else {
-         prefixedName = "multicast://" + addressName;
+         prefixedName = MULTICAST_PREFIX + addressName;
       }
 
       final AmqpReceiver receiver = session.createReceiver(prefixedName);

@@ -16,7 +16,15 @@
  */
 package org.apache.activemq.artemis.core.protocol.openwire;
 
+import javax.jms.IllegalStateException;
+import javax.jms.InvalidClientIDException;
+import javax.jms.InvalidDestinationException;
+import javax.jms.JMSSecurityException;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,23 +37,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
-import javax.jms.IllegalStateException;
-import javax.jms.InvalidClientIDException;
-import javax.jms.InvalidDestinationException;
-import javax.jms.JMSSecurityException;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
 import org.apache.activemq.advisory.AdvisorySupport;
-import org.apache.activemq.artemis.api.core.ActiveMQAddressExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
-import org.apache.activemq.artemis.api.core.ActiveMQQueueExistsException;
 import org.apache.activemq.artemis.api.core.ActiveMQRemoteDisconnectException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -64,19 +63,14 @@ import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.SecurityAuth;
-import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.AddressQueryResult;
-import org.apache.activemq.artemis.core.server.QueueQueryResult;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.server.SlowConsumerDetectionListener;
 import org.apache.activemq.artemis.core.server.TempQueueObserver;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RefsOperation;
-import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.ResourceManager;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
@@ -136,7 +130,6 @@ import org.apache.activemq.transport.TransmitCallback;
 import org.apache.activemq.util.ByteSequence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /**
  * Represents an activemq connection.
@@ -906,29 +899,18 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
 
       SimpleString qName = SimpleString.toSimpleString(dest.getPhysicalName());
-      if (server.locateQueue(qName) == null) {
-         AddressSettings addressSettings = server.getAddressSettingsRepository().getMatch(dest.getPhysicalName());
-         if (dest.isQueue() && (addressSettings.isAutoCreateQueues() || dest.isTemporary())) {
-            try {
-               internalSession.createQueue(new QueueConfiguration(qName).setRoutingType(RoutingType.ANYCAST).setDurable(!dest.isTemporary()).setTemporary(dest.isTemporary()).setAutoCreated(!dest.isTemporary()));
-               created = true;
-            } catch (ActiveMQQueueExistsException exists) {
-               // The queue may have been created by another thread in the mean time.  Catch and do nothing.
-            }
-         } else if (dest.isTopic() && (addressSettings.isAutoCreateAddresses() || dest.isTemporary())) {
-            try {
-               AddressInfo addressInfo = new AddressInfo(qName, RoutingType.MULTICAST);
-               if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
-                  addressInfo.setInternal(true);
-               }
-               if (internalSession.getAddress(addressInfo.getName()) == null) {
-                  internalSession.createAddress(addressInfo, !dest.isTemporary());
-                  created = true;
-               }
-            } catch (ActiveMQAddressExistsException exists) {
-               // The address may have been created by another thread in the mean time.  Catch and do nothing.
-            }
+
+      AutoCreateResult autoCreateResult = internalSession.checkAutoCreate(new QueueConfiguration(qName)
+                                                                             .setRoutingType(dest.isQueue() ? RoutingType.ANYCAST : RoutingType.MULTICAST)
+                                                                             .setDurable(!dest.isTemporary())
+                                                                             .setTemporary(dest.isTemporary()));
+      if (autoCreateResult == AutoCreateResult.CREATED) {
+         created = true;
+         if (AdvisorySupport.isAdvisoryTopic(dest) && protocolManager.isSuppressInternalManagementObjects()) {
+            internalSession.getAddress(qName).setInternal(true);
          }
+      } else if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
+         throw new InvalidDestinationException(dest.getDestinationTypeAsString() + " " + dest.getPhysicalName() + " does not exist.");
       }
 
       if (dest.isTemporary()) {
@@ -1172,23 +1154,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       }
    }
 
-   /**
-    * Checks to see if this destination exists.  If it does not throw an invalid destination exception.
-    *
-    * @param destination
-    */
-   private void validateDestination(ActiveMQDestination destination) throws Exception {
-      if (destination.isQueue()) {
-         SimpleString physicalName = new SimpleString(destination.getPhysicalName());
-         QueueQueryResult queue = server.queueQuery(physicalName);
-         AddressQueryResult address = server.addressQuery(physicalName);
-
-         if (!address.isExists() && !queue.isAutoCreateQueues()) {
-            throw ActiveMQMessageBundle.BUNDLE.noSuchQueue(physicalName);
-         }
-      }
-   }
-
    private void propagateLastSequenceId(SessionState sessionState, long lastDeliveredSequenceId) {
       for (ConsumerState consumerState : sessionState.getConsumerStates()) {
          consumerState.getInfo().setLastDeliveredSequenceId(lastDeliveredSequenceId);
@@ -1270,11 +1235,7 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
             ActiveMQDestination destination = info.getDestination();
 
             if (destination != null && !AdvisorySupport.isAdvisoryTopic(destination)) {
-               if (destination.isQueue()) {
-                  OpenWireConnection.this.validateDestination(destination);
-               }
-               DestinationInfo destInfo = new DestinationInfo(getContext().getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, destination);
-               OpenWireConnection.this.addDestination(destInfo);
+               OpenWireConnection.this.addDestination(new DestinationInfo(getContext().getConnectionId(), DestinationInfo.ADD_OPERATION_TYPE, destination));
             }
 
             ss.addProducer(info);

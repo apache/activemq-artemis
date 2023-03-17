@@ -389,7 +389,7 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
       Connection connection = factory.createConnection();
       SimpleString addressName = UUIDGenerator.getInstance().generateSimpleStringUUID();
       logger.debug("Address is {}", addressName);
-      clientSession.createAddress(addressName, RoutingType.ANYCAST, false);
+      clientSession.createAddress(addressName, RoutingType.MULTICAST, false);
       Topic topic = new ActiveMQTopic(addressName.toString());
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       MessageProducer producer = session.createProducer(topic);

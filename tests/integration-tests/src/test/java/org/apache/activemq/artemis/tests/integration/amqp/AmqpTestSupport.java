@@ -44,6 +44,9 @@ public class AmqpTestSupport extends ActiveMQTestBase {
    protected static final String BROKER_NAME = "localhost";
    protected static final String NETTY_ACCEPTOR = "netty-acceptor";
 
+   protected static final String MULTICAST_PREFIX = "multicast://";
+   protected static final String ANYCAST_PREFIX = "anycast://";
+
    protected String noprivUser = "noprivs";
    protected String noprivPass = "noprivs";
 
