@@ -16,25 +16,25 @@
  */
 package org.apache.activemq.artemis.core.server.impl.jdbc;
 
-import java.sql.DriverManager;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class JdbcNodeManagerTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameter
    public boolean useAuthentication;
@@ -50,43 +50,18 @@ public class JdbcNodeManagerTest extends ActiveMQTestBase {
    public void configure() {
       if (useAuthentication) {
          System.setProperty("derby.connection.requireAuthentication", "true");
-         System.setProperty("derby.user." + getJdbcUser(), getJdbcPassword());
+         System.setProperty("derby.user." + getJDBCUser(), getJDBCPassword());
       }
       dbConf = createDefaultDatabaseStorageConfiguration();
-      dbConf.setJdbcUser(getJdbcUser());
-      dbConf.setJdbcPassword(getJdbcPassword());
+      dbConf.setJdbcUser(getJDBCUser());
+      dbConf.setJdbcPassword(getJDBCPassword());
       leaseLockExecutor = Executors.newSingleThreadScheduledExecutor();
+      runAfter(leaseLockExecutor::shutdownNow);
    }
 
-   @After
-   public void shutdownExecutors() throws InterruptedException {
-      try {
-         final CountDownLatch latch = new CountDownLatch(1);
-         leaseLockExecutor.execute(latch::countDown);
-         Assert.assertTrue("the scheduler of the lease lock has some pending task in ", latch.await(10, TimeUnit.SECONDS));
-      } finally {
-         leaseLockExecutor.shutdownNow();
-      }
-   }
 
-   @After
    @Override
-   public void shutdownDerby() {
-      try {
-         if (useAuthentication) {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true", getJdbcUser(), getJdbcPassword());
-         } else {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
-         }
-      } catch (Exception ignored) {
-      }
-      if (useAuthentication) {
-         System.clearProperty("derby.connection.requireAuthentication");
-         System.clearProperty("derby.user." + getJdbcUser());
-      }
-   }
-
-   protected String getJdbcUser() {
+   protected String getJDBCUser() {
       if (useAuthentication) {
          return System.getProperty("jdbc.user", "testuser");
       } else {
@@ -94,7 +69,8 @@ public class JdbcNodeManagerTest extends ActiveMQTestBase {
       }
    }
 
-   protected String getJdbcPassword() {
+   @Override
+   protected String getJDBCPassword() {
       if (useAuthentication) {
          return System.getProperty("jdbc.password", "testpassword");
       } else {

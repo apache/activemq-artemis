@@ -118,7 +118,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
-      mBeanServer2 = getMBeanServer();
+      mBeanServer2 = createMBeanServer();
       server2 = addServer(ActiveMQServers.newActiveMQServer(configuration, mBeanServer2, enablePersistence()));
       jmsServer2 = new JMSServerManagerImpl(server2, jmsconfig);
       context2 = new InVMNamingContext();
@@ -133,7 +133,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
 
       JMSConfigurationImpl jmsconfig = new JMSConfigurationImpl();
 
-      mBeanServer1 = getMBeanServer();
+      mBeanServer1 = createMBeanServer();
       server1 = addServer(ActiveMQServers.newActiveMQServer(configuration, mBeanServer1, enablePersistence()));
       jmsServer1 = new JMSServerManagerImpl(server1, jmsconfig);
       context1 = new InVMNamingContext();

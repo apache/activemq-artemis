@@ -70,7 +70,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
 
    protected ActiveMQServer server;
 
-   protected MBeanServer mBeanServer = getMBeanServer();
+   protected MBeanServer mBeanServer = createMBeanServer();
 
    protected ConnectionSupplier AMQPConnection = () -> createConnection();
    protected ConnectionSupplier CoreConnection = () -> createCoreConnection();

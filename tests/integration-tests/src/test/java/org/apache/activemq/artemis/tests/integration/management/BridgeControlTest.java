@@ -138,7 +138,7 @@ public class BridgeControlTest extends ManagementTestBase {
 
       Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addQueueConfiguration(sourceQueueConfig).addBridgeConfiguration(bridgeConfig);
 
-      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, getMBeanServer(), false));
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, createMBeanServer(), false));
       addServer(server_1);
       server_1.start();
 

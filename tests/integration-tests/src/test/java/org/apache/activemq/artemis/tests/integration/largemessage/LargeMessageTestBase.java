@@ -78,9 +78,6 @@ public abstract class LargeMessageTestBase extends ActiveMQTestBase {
    @Override
    public void tearDown() throws Exception {
       super.tearDown();
-      if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE", "NODE_MANAGER_STORE"));
-      }
    }
 
    @Parameterized.Parameters(name = "storeType={0}")

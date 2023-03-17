@@ -126,7 +126,7 @@ public class JMSTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      mbeanServer = getMBeanServer();
+      mbeanServer = createMBeanServer();
 
       Configuration config = createDefaultConfig(true).setSecurityEnabled(useSecurity()).
          addConnectorConfiguration("invm", new TransportConfiguration(INVM_CONNECTOR_FACTORY)).

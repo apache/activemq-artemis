@@ -38,12 +38,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.ref.WeakReference;
-import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -138,8 +134,6 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.settings.impl.PageFullMessagePolicy;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
-import org.apache.activemq.artemis.jdbc.store.drivers.JDBCUtils;
-import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
@@ -160,6 +154,7 @@ import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -177,12 +172,6 @@ import org.junit.runner.Description;
  * Base class with basic utilities on starting up a basic server
  */
 public abstract class ActiveMQTestBase extends Assert {
-
-   public MBeanServer getMBeanServer() {
-      MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
-      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
-      return mBeanServer;
-   }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -235,29 +224,64 @@ public abstract class ActiveMQTestBase extends Assert {
    // There is a verification about thread leakages. We only fail a single thread when this happens
    private static Set<Thread> alreadyFailedThread = new HashSet<>();
 
-   private LinkedList<RunnableEx> runAfter;
+   private List<RunnableEx> runAfter;
 
-   protected synchronized void runAfter(RunnableEx run) {
-      Assert.assertNotNull(run);
+   /**
+    * Use this method to cleanup your resources by passing lambdas.
+    * Exceptions thrown from your lambdas will just be logged and not passed as failures.
+    * @param lambda A RunnableEX instance that will be passed possibly from a lambda method
+    */
+   protected void runAfter(RunnableEx lambda) {
+      runAfterEx(() -> {
+         try {
+            lambda.run();
+         } catch (Throwable e) {
+            logger.warn("Lambda {} is throwing an exception", lambda.toString(), e);
+         }
+      });
+   }
+
+   /**
+    * Use this method to cleanup your resources and validating exceptional results by passing lambdas.
+    * Exceptions thrown from your lambdas will be sent straight to JUNIT.
+    * If more than one lambda threw an exception they will all be executed, however only the exception of the first one will
+    * sent to the junit runner.
+    * @param lambda A RunnableEX instance that will be passed possibly from a lambda method
+    */
+   protected synchronized void runAfterEx(RunnableEx lambda) {
+      Assert.assertNotNull(lambda);
       if (runAfter == null) {
-         runAfter = new LinkedList();
+         runAfter = new ArrayList<>();
       }
-      runAfter.add(run);
+      runAfter.add(lambda);
    }
 
    @After
-   public void runAfter() {
-      if (runAfter != null) {
-         runAfter.forEach((r) -> {
+   public synchronized void runAfter() throws Throwable {
+      ArrayList<Throwable> throwables = new ArrayList<>();
+      List<RunnableEx> localRunAfter = runAfter;
+      runAfter = null;
+      if (localRunAfter != null) {
+         localRunAfter.forEach((r) -> {
             try {
                r.run();
-            } catch (Exception e) {
+            } catch (Throwable e) {
                logger.warn(e.getMessage(), e);
+               throwables.add(e);
             }
          });
       }
+
+      if (!throwables.isEmpty()) {
+         throw throwables.get(0);
+      }
    }
 
+   public MBeanServer createMBeanServer() {
+      MBeanServer mBeanServer = MBeanServerFactory.createMBeanServer();
+      runAfter(() -> MBeanServerFactory.releaseMBeanServer(mBeanServer));
+      return mBeanServer;
+   }
 
    protected void clearServers() {
       servers.clear();
@@ -300,16 +324,50 @@ public abstract class ActiveMQTestBase extends Assert {
       }
    };
 
-   @After
-   public void shutdownDerby() {
+   // Static variable used by dropDerby
+   private static final String EXPECTED_DERBY_DROP_STATE = "08006";
+
+   // Static variable used by dropDerby
+   private static final String EXPECTED_DERBY_SHUTDOWN_STATE = "XJ015";
+
+   /** This method will be passed as a lambda into runAfter from createDefaultDatabaseStorageConfiguration */
+   protected final void dropDerby() throws Exception {
+      String user = getJDBCUser();
+      String password = getJDBCPassword();
       try {
-         DriverManager.getConnection("jdbc:derby:" + getEmbeddedDataBaseName() + ";destroy=true");
-      } catch (Exception ignored) {
+         if (user == null) {
+            DriverManager.getConnection("jdbc:derby:" + getEmbeddedDataBaseName() + ";drop=true");
+         } else {
+            DriverManager.getConnection("jdbc:derby:" + getEmbeddedDataBaseName() + ";drop=true", user, password);
+         }
+      } catch (SQLException sqlE) {
+         if (!sqlE.getSQLState().equals(EXPECTED_DERBY_DROP_STATE)) {
+            logger.warn("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
+            throw sqlE;
+         } else {
+            logger.info("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
+
+         }
       }
+   }
+
+   /** Some tests may be using file database as they share the database with a process.
+    *  these tests will call shutdown Derby only */
+   protected void shutdownDerby() throws SQLException {
+      String user = getJDBCUser();
+      String password = getJDBCPassword();
       try {
-         DriverManager.getConnection("jdbc:derby:;shutdown=true");
-      } catch (Exception ignored) {
-         // it always throws an exception on shutdown
+         if (user == null) {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true;deregister=false");
+         } else {
+            DriverManager.getConnection("jdbc:derby:;shutdown=true;deregister=false", user, password);
+         }
+      } catch (SQLException sqlE) {
+         Assert.assertEquals("XJ015", sqlE.getSQLState());
+         logger.debug("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
+         if (!sqlE.getSQLState().equals(EXPECTED_DERBY_SHUTDOWN_STATE)) {
+            throw sqlE;
+         }
       }
    }
 
@@ -560,9 +618,22 @@ public abstract class ActiveMQTestBase extends Assert {
       configuration.setStoreConfiguration(createDefaultDatabaseStorageConfiguration());
    }
 
+   private boolean derbyDropped = false;
+
    protected DatabaseStorageConfiguration createDefaultDatabaseStorageConfiguration() {
       DatabaseStorageConfiguration dbStorageConfiguration = new DatabaseStorageConfiguration();
-      dbStorageConfiguration.setJdbcConnectionUrl(getTestJDBCConnectionUrl());
+      String connectionURI = getTestJDBCConnectionUrl();
+
+      /** The connectionURI could be passed into the testsuite as a system property (say you are testing against Oracle).
+       *  So, we only schedule the drop on Derby if we are using a derby memory database */
+      if (connectionURI.contains("derby") && connectionURI.contains("memory") && !derbyDropped) {
+         // some tests will reinitialize the server and call this method more than one time
+         // and we should only schedule one task
+         derbyDropped = true;
+         runAfterEx(this::dropDerby);
+         runAfterEx(this::shutdownDerby);
+      }
+      dbStorageConfiguration.setJdbcConnectionUrl(connectionURI);
       dbStorageConfiguration.setBindingsTableName("BINDINGS");
       dbStorageConfiguration.setMessageTableName("MESSAGE");
       dbStorageConfiguration.setLargeMessageTableName("LARGE_MESSAGE");
@@ -588,55 +659,6 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected long getJdbcLockRenewPeriodMillis() {
       return Long.getLong("jdbc.lock.renew", 200);
-   }
-
-   public void destroyTables(List<String> tableNames) throws Exception {
-      Driver driver = getDriver(getJDBCClassName());
-      Connection connection = driver.connect(getTestJDBCConnectionUrl(), null);
-      Statement statement = connection.createStatement();
-      try {
-         for (String tableName : tableNames) {
-            connection.setAutoCommit(false);
-            SQLProvider sqlProvider = JDBCUtils.getSQLProvider(getJDBCClassName(), tableName, SQLProvider.DatabaseStoreType.LARGE_MESSAGE);
-            try (ResultSet rs = connection.getMetaData().getTables(null, null, sqlProvider.getTableName(), null)) {
-               if (rs.next()) {
-                  statement.execute("DROP TABLE " + sqlProvider.getTableName());
-               }
-               connection.commit();
-            } catch (SQLException e) {
-               connection.rollback();
-            }
-         }
-         connection.setAutoCommit(true);
-      } catch (Throwable e) {
-         e.printStackTrace();
-      } finally {
-         connection.close();
-      }
-   }
-
-   private Driver getDriver(String className) throws Exception {
-      try {
-         Driver driver = (Driver) Class.forName(className).newInstance();
-
-         // Shutdown the derby if using the derby embedded driver.
-         if (className.equals("org.apache.derby.jdbc.EmbeddedDriver")) {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-               @Override
-               public void run() {
-                  try {
-                     DriverManager.getConnection("jdbc:derby:;shutdown=true");
-                  } catch (Exception e) {
-                  }
-               }
-            });
-         }
-         return driver;
-      } catch (ClassNotFoundException cnfe) {
-         throw new RuntimeException("Could not find class: " + className);
-      } catch (Exception e) {
-         throw new RuntimeException("Unable to instantiate driver class: ", e);
-      }
    }
 
    protected Map<String, Object> generateInVMParams(final int node) {
@@ -672,7 +694,7 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected final OrderedExecutorFactory getOrderedExecutor() {
       final ExecutorService executor = Executors.newCachedThreadPool(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
-      executorSet.add(executor);
+      runAfter(executor::shutdownNow);
       return new OrderedExecutorFactory(executor);
    }
 
@@ -897,7 +919,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return "memory:" + getTestDir();
    }
 
-   protected final String getTestJDBCConnectionUrl() {
+   private String getTestJDBCConnectionUrl() {
       return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getEmbeddedDataBaseName() + ";create=true");
    }
 

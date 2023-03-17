@@ -205,7 +205,7 @@ public class ClusterConnectionControlTest extends ManagementTestBase {
 
       Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getName())).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addClusterConfiguration(clusterConnectionConfig1).addClusterConfiguration(clusterConnectionConfig2).addDiscoveryGroupConfiguration(discoveryGroupName, discoveryGroupConfig);
 
-      mbeanServer_1 = getMBeanServer();
+      mbeanServer_1 = createMBeanServer();
       server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, mbeanServer_1, false));
       server_1.start();
 

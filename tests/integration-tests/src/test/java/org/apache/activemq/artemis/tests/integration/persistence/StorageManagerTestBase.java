@@ -31,13 +31,10 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JDBCJournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
-import org.apache.activemq.artemis.jms.persistence.JMSStorageManager;
-import org.apache.activemq.artemis.jms.persistence.impl.journal.JMSJournalStorageManagerImpl;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakeJournalLoader;
 import org.apache.activemq.artemis.tests.unit.core.server.impl.fakes.FakePostOffice;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
-import org.apache.activemq.artemis.utils.TimeAndCounterIDGenerator;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
 import org.junit.After;
 import org.junit.Before;
@@ -55,8 +52,6 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
 
    protected StorageManager journal;
 
-   protected JMSStorageManager jmsJournal;
-
    protected StoreConfiguration.StoreType storeType;
 
    public StorageManagerTestBase(StoreConfiguration.StoreType storeType) {
@@ -73,10 +68,6 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
    @Before
    @SuppressWarnings("unused")
    public void setUp() throws Exception {
-      if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         Object unused = Class.forName("org.apache.derby.jdbc.EmbeddedDriver").newInstance();
-      }
-
       super.setUp();
 
       execFactory = getOrderedExecutor();
@@ -99,20 +90,8 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
          journal = null;
       }
 
-      if (jmsJournal != null) {
-         try {
-            jmsJournal.stop();
-         } catch (Exception e) {
-            if (exception != null)
-               exception = e;
-         }
-
-         jmsJournal = null;
-      }
-
       scheduledExecutorService.shutdown();
 
-      destroyTables(Arrays.asList(new String[]{"MESSAGE", "BINDINGS", "LARGE_MESSAGE", "NODE_MANAGER_STORE"}));
       super.tearDown();
       if (exception != null)
          throw exception;
@@ -152,16 +131,6 @@ public abstract class StorageManagerTestBase extends ActiveMQTestBase {
       JDBCJournalStorageManager jsm = new JDBCJournalStorageManager(configuration, EmptyCriticalAnalyzer.getInstance(), execFactory, execFactory, scheduledExecutorService);
       addActiveMQComponent(jsm);
       return jsm;
-   }
-
-   /**
-    * @throws Exception
-    */
-   protected void createJMSStorage() throws Exception {
-      jmsJournal = new JMSJournalStorageManagerImpl(null, new TimeAndCounterIDGenerator(), createDefaultInVMConfig(), null);
-      addActiveMQComponent(jmsJournal);
-      jmsJournal.start();
-      jmsJournal.load();
    }
 
 }

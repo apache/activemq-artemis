@@ -115,7 +115,7 @@ public class BridgeControlUsingCoreTest extends ManagementTestBase {
 
       Configuration conf_0 = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addConnectorConfiguration(connectorConfig.getName(), connectorConfig).addQueueConfiguration(sourceQueueConfig).addBridgeConfiguration(bridgeConfig);
 
-      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, getMBeanServer(), false));
+      server_1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, createMBeanServer(), false));
       server_1.start();
 
       server_0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));
