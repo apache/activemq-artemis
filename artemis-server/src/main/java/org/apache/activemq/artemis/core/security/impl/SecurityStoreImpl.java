@@ -211,7 +211,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             connection.setSubject(subject);
          }
          if (AuditLogger.isResourceLoggingEnabled()) {
-            AuditLogger.userSuccesfullyAuthenticatedInAudit(subject, connection.getRemoteAddress());
+            AuditLogger.userSuccesfullyAuthenticatedInAudit(subject, connection.getRemoteAddress(), connection.getID().toString());
          }
 
          return validatedUser;
@@ -380,7 +380,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       ActiveMQServerLogger.LOGGER.securityProblemWhileAuthenticating(e.getMessage());
 
       if (AuditLogger.isResourceLoggingEnabled()) {
-         AuditLogger.userFailedAuthenticationInAudit(null, e.getMessage());
+         AuditLogger.userFailedAuthenticationInAudit(null, e.getMessage(), connection.getID().toString());
       }
 
       throw e;
