@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
@@ -37,6 +38,14 @@ public class FederatedTestBase extends ActiveMQTestBase {
    protected List<MBeanServer> mBeanServers = new ArrayList<>();
    protected List<ActiveMQServer> servers = new ArrayList<>();
 
+   protected boolean isNetty() {
+      return false;
+   }
+
+   protected boolean isPersistenceEnabled() {
+      return false;
+   }
+
 
    @Override
    @Before
@@ -47,9 +56,19 @@ public class FederatedTestBase extends ActiveMQTestBase {
          mBeanServers.add(mBeanServer);
          Configuration config = createDefaultConfig(i, false).setSecurityEnabled(false);
          for (int j = 0; j < numberOfServers(); j++) {
-            config.addConnectorConfiguration("server" + j, "vm://" + j);
+            if (isNetty()) {
+               config.addConnectorConfiguration("server" + j, "tcp://localhost:" + (61616 + j) + "?ackBatchSize=1;consumerWindowSize=-1");
+            } else {
+               config.addConnectorConfiguration("server" + j, "vm://" + j);
+            }
          }
-         ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, mBeanServer, false));
+
+         if (isNetty()) {
+            TransportConfiguration acceptorConfig = createTransportConfiguration(true, true, generateParams(i, true));
+            config.addAcceptorConfiguration(acceptorConfig);
+         }
+
+         ActiveMQServer server = addServer(ActiveMQServers.newActiveMQServer(config, mBeanServer, isPersistenceEnabled()));
 
          servers.add(server);
          server.start();

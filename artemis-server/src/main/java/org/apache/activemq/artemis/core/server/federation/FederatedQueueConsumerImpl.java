@@ -202,6 +202,7 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
             }
          }
 
+         message = message.copy(server.getStorageManager().generateID());
          message = transformer == null ? message : transformer.transform(message);
          if (message != null) {
             server.getPostOffice().route(message, true);
