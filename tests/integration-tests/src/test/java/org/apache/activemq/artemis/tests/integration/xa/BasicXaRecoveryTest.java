@@ -43,7 +43,6 @@ import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.management.ManagementControlHelper;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,7 +107,7 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
          configuration = createDefaultInVMConfig().setJMXManagementEnabled(true);
       }
 
-      mbeanServer = getMBeanServer();
+      mbeanServer = createMBeanServer();
 
       server = createServer(true, configuration, -1, -1, addressSettings);
       server.setMBeanServer(mbeanServer);
@@ -118,15 +117,6 @@ public class BasicXaRecoveryTest extends ActiveMQTestBase {
 
       // then we create a client as normal
       createClients(true, false);
-   }
-
-   @Override
-   @After
-   public void tearDown() throws Exception {
-      super.tearDown();
-      if (storeType == StoreConfiguration.StoreType.DATABASE) {
-         destroyTables(Arrays.asList("BINDINGS", "LARGE_MESSAGE", "MESSAGE", "NODE_MANAGER_STORE"));
-      }
    }
 
    @Test

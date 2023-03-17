@@ -365,7 +365,7 @@ public class ElasticQueueTest extends ActiveMQTestBase {
       }
    }
 
-   MBeanServer mBeanServer = getMBeanServer();
+   MBeanServer mBeanServer = createMBeanServer();
 
    // hardwire authenticaton to map USER to EQ_USER etc
    final ActiveMQSecurityManager5 customSecurityManager = new ActiveMQSecurityManager5() {

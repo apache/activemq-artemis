@@ -52,7 +52,7 @@ public class FederatedTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
       for (int i = 0; i < numberOfServers(); i++) {
-         MBeanServer mBeanServer = getMBeanServer();
+         MBeanServer mBeanServer = createMBeanServer();
          mBeanServers.add(mBeanServer);
          Configuration config = createDefaultConfig(i, false).setSecurityEnabled(false);
          for (int j = 0; j < numberOfServers(); j++) {

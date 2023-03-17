@@ -113,7 +113,7 @@ public class OpenWireTestBase extends ActiveMQTestBase {
          securityManager.getConfiguration().addRole("openwireDestinationManager", "advisoryReceiver");
       }
 
-      mbeanServer = getMBeanServer();
+      mbeanServer = createMBeanServer();
       server.setMBeanServer(mbeanServer);
       addServer(server);
       server.start();

@@ -95,7 +95,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
 
    protected ActiveMQServer server;
 
-   protected MBeanServer mBeanServer = getMBeanServer();
+   protected MBeanServer mBeanServer = createMBeanServer();
 
    @Before
    @Override

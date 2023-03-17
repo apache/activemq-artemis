@@ -117,7 +117,7 @@ public class ClusterConnectionControl2Test extends ManagementTestBase {
 
       Configuration conf_0 = createBasicConfig(1).addClusterConfiguration(clusterConnectionConfig_0).addAcceptorConfiguration(acceptorConfig_0).addConnectorConfiguration("netty", connectorConfig_0).addDiscoveryGroupConfiguration(discoveryName, discoveryGroupConfig).addBroadcastGroupConfiguration(broadcastGroupConfig);
 
-      mbeanServer_1 = getMBeanServer();
+      mbeanServer_1 = createMBeanServer();
       server1 = addServer(ActiveMQServers.newActiveMQServer(conf_1, mbeanServer_1, false));
 
       server0 = addServer(ActiveMQServers.newActiveMQServer(conf_0, mbeanServer, false));

@@ -53,11 +53,20 @@ import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.core.IsInstanceOf;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 
 public class HAPolicyConfigurationTest extends ActiveMQTestBase {
+
+   @Override
+   @After
+   public void tearDown() throws Exception {
+      super.tearDown();
+
+      shutdownDerby();
+   }
 
    @Test
    public void shouldNotUseJdbcNodeManagerWithoutHAPolicy() throws Exception {

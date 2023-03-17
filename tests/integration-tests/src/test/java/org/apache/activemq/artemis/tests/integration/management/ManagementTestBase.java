@@ -34,7 +34,7 @@ import org.junit.Before;
 public abstract class ManagementTestBase extends ActiveMQTestBase {
 
 
-   protected MBeanServer mbeanServer = getMBeanServer();
+   protected MBeanServer mbeanServer = createMBeanServer();
 
 
 
@@ -70,7 +70,7 @@ public abstract class ManagementTestBase extends ActiveMQTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      getMBeanServer();
+      createMBeanServer();
    }
 
    @Override

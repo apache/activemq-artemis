@@ -42,7 +42,6 @@ public class JdbcNodeManagerTest extends NodeManagerTest {
          return th;
       };
       Thread[] threads = new Thread[actions.length];
-      List<ExecutorService> executors = new ArrayList<>(actions.length);
       List<NodeManager> nodeManagers = new ArrayList<>(actions.length * 2);
       AtomicBoolean failedRenew = new AtomicBoolean(false);
       for (NodeManagerAction action : actions) {
@@ -55,8 +54,8 @@ public class JdbcNodeManagerTest extends NodeManagerTest {
          NodeRunner nodeRunner = new NodeRunner(nodeManager, action);
          nodeRunners.add(nodeRunner);
          nodeManagers.add(nodeManager);
-         executors.add(scheduledExecutorService);
-         executors.add(executor);
+         runAfter(scheduledExecutorService::shutdownNow);
+         runAfter(executor::shutdownNow);
       }
       for (int i = 0, nodeRunnersSize = nodeRunners.size(); i < nodeRunnersSize; i++) {
          NodeRunner nodeRunner = nodeRunners.get(i);
@@ -89,8 +88,6 @@ public class JdbcNodeManagerTest extends NodeManagerTest {
          }
       });
 
-      // stop executors
-      executors.forEach(ExecutorService::shutdownNow);
 
       for (NodeRunner nodeRunner : nodeRunners) {
          if (nodeRunner.e != null) {

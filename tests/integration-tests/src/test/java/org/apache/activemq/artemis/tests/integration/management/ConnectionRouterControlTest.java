@@ -43,7 +43,7 @@ public class ConnectionRouterControlTest extends RoutingTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      mbeanServer = getMBeanServer();
+      mbeanServer = createMBeanServer();
    }
 
    @Override

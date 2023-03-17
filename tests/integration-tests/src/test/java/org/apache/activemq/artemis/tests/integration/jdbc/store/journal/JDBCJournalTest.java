@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.jdbc.store.journal;
 
-import java.sql.DriverManager;
+import java.lang.invoke.MethodHandles;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,9 +46,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class JDBCJournalTest extends ActiveMQTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Rule
    public ThreadLeakCheckRule threadLeakCheckRule = new ThreadLeakCheckRule();
@@ -74,27 +78,16 @@ public class JDBCJournalTest extends ActiveMQTestBase {
    @After
    @Override
    public void tearDown() throws Exception {
+      super.tearDown();
       journal.destroy();
-      try {
-         if (useAuthentication) {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true", getJdbcUser(), getJdbcPassword());
-         } else {
-            DriverManager.getConnection("jdbc:derby:;shutdown=true");
-         }
-      } catch (Exception ignored) {
-      }
-      if (useAuthentication) {
-         System.clearProperty("derby.connection.requireAuthentication");
-         System.clearProperty("derby.user." + getJdbcUser());
-      }
       scheduledExecutorService.shutdownNow();
-      scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
       scheduledExecutorService = null;
       executorService.shutdown();
       executorService = null;
    }
 
-   protected String getJdbcUser() {
+   @Override
+   protected String getJDBCUser() {
       if (useAuthentication) {
          return System.getProperty("jdbc.user", "testuser");
       } else {
@@ -102,7 +95,8 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       }
    }
 
-   protected String getJdbcPassword() {
+   @Override
+   protected String getJDBCPassword() {
       if (useAuthentication) {
          return System.getProperty("jdbc.password", "testpassword");
       } else {
@@ -115,9 +109,9 @@ public class JDBCJournalTest extends ActiveMQTestBase {
       dbConf = createDefaultDatabaseStorageConfiguration();
       if (useAuthentication) {
          System.setProperty("derby.connection.requireAuthentication", "true");
-         System.setProperty("derby.user." + getJdbcUser(), getJdbcPassword());
-         dbConf.setJdbcUser(getJdbcUser());
-         dbConf.setJdbcPassword(getJdbcPassword());
+         System.setProperty("derby.user." + getJDBCUser(), getJDBCPassword());
+         dbConf.setJdbcUser(getJDBCUser());
+         dbConf.setJdbcPassword(getJDBCPassword());
       }
       sqlProvider = JDBCUtils.getSQLProvider(
          dbConf.getJdbcDriverClassName(),

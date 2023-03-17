@@ -412,7 +412,7 @@ public class HeuristicXATest extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      mbeanServer = getMBeanServer();
+      mbeanServer = createMBeanServer();
       locator = createInVMNonHALocator();
    }
 
