@@ -378,6 +378,12 @@ public class SecurityTest extends ActiveMQTestBase {
       try (ActiveMQConnection connection = (ActiveMQConnection) factory.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
+         //Add the corresponding addresses to the server
+         SimpleString address = SimpleString.toSimpleString("test.queue");
+         server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+         SimpleString address2 = SimpleString.toSimpleString("test.topic");
+         server.addAddressInfo(new AddressInfo(address2, RoutingType.MULTICAST));
+
          //Test queue creation permission
          try {
             session.createConsumer(session.createQueue("test.queue"));
@@ -394,13 +400,8 @@ public class SecurityTest extends ActiveMQTestBase {
             assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_NON_DURABLE_QUEUE'"));
          }
 
-         //Add a test queue and topic to the server
-         SimpleString address = SimpleString.toSimpleString("test.queue");
-         server.addAddressInfo(new AddressInfo(address, RoutingType.ANYCAST));
+         //Add a test queue to the server
          server.createQueue(new QueueConfiguration(address).setRoutingType(RoutingType.ANYCAST));
-
-         SimpleString address2 = SimpleString.toSimpleString("test.topic");
-         server.addAddressInfo(new AddressInfo(address2, RoutingType.MULTICAST));
 
          //Test queue produce permission
          try {
@@ -441,7 +442,7 @@ public class SecurityTest extends ActiveMQTestBase {
             session.createTemporaryQueue();
             Assert.fail("should throw exception here");
          } catch (Exception e) {
-            assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_NON_DURABLE_QUEUE'"));
+            assertTrue(e.getMessage().contains("User: test-user does not have permission='CREATE_ADDRESS'"));
          }
 
          //Test temp topic

@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import org.apache.activemq.artemis.utils.CompositeAddress;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,5 +40,35 @@ public class QueueConfigurationTest {
 
       queueConfiguration.set(QueueConfiguration.GROUP_REBALANCE_PAUSE_DISPATCH, Boolean.toString(false));
       Assert.assertEquals(false, queueConfiguration.isGroupRebalancePauseDispatch());
+   }
+
+   @Test
+   public void testFqqn() {
+      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomSimpleString();
+      QueueConfiguration queueConfiguration = new QueueConfiguration(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      Assert.assertEquals(ADDRESS, queueConfiguration.getAddress());
+      Assert.assertEquals(QUEUE, queueConfiguration.getName());
+      Assert.assertTrue(queueConfiguration.isFqqn());
+   }
+
+   @Test
+   public void testFqqnNegative() {
+      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomSimpleString();
+      QueueConfiguration queueConfiguration = new QueueConfiguration(QUEUE).setAddress(ADDRESS);
+      Assert.assertEquals(ADDRESS, queueConfiguration.getAddress());
+      Assert.assertEquals(QUEUE, queueConfiguration.getName());
+      Assert.assertFalse(queueConfiguration.isFqqn());
+   }
+
+   @Test
+   public void testFqqnViaAddress() {
+      final SimpleString ADDRESS = RandomUtil.randomSimpleString();
+      final SimpleString QUEUE = RandomUtil.randomSimpleString();
+      QueueConfiguration queueConfiguration = new QueueConfiguration(RandomUtil.randomSimpleString()).setAddress(CompositeAddress.toFullyQualified(ADDRESS, QUEUE));
+      Assert.assertEquals(ADDRESS, queueConfiguration.getAddress());
+      Assert.assertEquals(QUEUE, queueConfiguration.getName());
+      Assert.assertTrue(queueConfiguration.isFqqn());
    }
 }

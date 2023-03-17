@@ -24,21 +24,21 @@ import org.apache.activemq.artemis.utils.BufferHelper;
 
 public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryResponseMessage_V3 {
 
-   private boolean defaultPurgeOnNoConsumers;
+   protected boolean defaultPurgeOnNoConsumers;
 
-   private int defaultMaxConsumers;
+   protected int defaultMaxConsumers;
 
-   private Boolean defaultExclusive;
+   protected Boolean defaultExclusive;
 
-   private Boolean defaultLastValue;
+   protected Boolean defaultLastValue;
 
-   private SimpleString defaultLastValueKey;
+   protected SimpleString defaultLastValueKey;
 
-   private Boolean defaultNonDestructive;
+   protected Boolean defaultNonDestructive;
 
-   private Integer defaultConsumersBeforeDispatch;
+   protected Integer defaultConsumersBeforeDispatch;
 
-   private Long defaultDelayBeforeDispatch;
+   protected Long defaultDelayBeforeDispatch;
 
    public SessionBindingQueryResponseMessage_V4(final boolean exists,
                                                 final List<SimpleString> queueNames,
@@ -81,6 +81,10 @@ public class SessionBindingQueryResponseMessage_V4 extends SessionBindingQueryRe
 
    public SessionBindingQueryResponseMessage_V4() {
       super(SESS_BINDINGQUERY_RESP_V4);
+   }
+
+   public SessionBindingQueryResponseMessage_V4(byte v) {
+      super(v);
    }
 
    public boolean isDefaultPurgeOnNoConsumers() {

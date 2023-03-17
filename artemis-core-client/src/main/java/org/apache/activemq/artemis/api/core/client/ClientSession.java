@@ -94,6 +94,10 @@ public interface ClientSession extends XAResource, AutoCloseable {
       Integer getDefaultConsumersBeforeDispatch();
 
       Long getDefaultDelayBeforeDispatch();
+
+      boolean isSupportsMulticast();
+
+      boolean isSupportsAnycast();
    }
 
    /**

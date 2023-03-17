@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQDuplicateIdException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.ActiveMQShutdownException;
+import org.apache.activemq.artemis.api.core.AutoCreateResult;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -1252,14 +1253,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    private AddressInfo checkAddress(RoutingContext context, SimpleString address) throws Exception {
       AddressInfo addressInfo = addressManager.getAddressInfo(address);
       if (addressInfo == null && context.getServerSession() != null) {
-         if (context.getServerSession().checkAutoCreate(address, context.getRoutingType())) {
-            addressInfo = addressManager.getAddressInfo(address);
-         } else {
+         AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(new QueueConfiguration(address).setRoutingType(context.getRoutingType()));
+         if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
             ActiveMQException ex = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
             if (context.getTransaction() != null) {
                context.getTransaction().markAsRollbackOnly(ex);
             }
             throw ex;
+         } else {
+            addressInfo = addressManager.getAddressInfo(address);
          }
       }
       return addressInfo;
@@ -1268,7 +1270,8 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    Bindings simpleRoute(SimpleString address, RoutingContext context, Message message, AddressInfo addressInfo) throws Exception {
       Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
       if (bindings == null && context.getServerSession() != null) {
-         if (!context.getServerSession().checkAutoCreate(address, context.getRoutingType())) {
+         AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(new QueueConfiguration(address).setRoutingType(context.getRoutingType()));
+         if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
             ActiveMQException e = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
             Transaction tx = context.getTransaction();
             if (tx != null) {

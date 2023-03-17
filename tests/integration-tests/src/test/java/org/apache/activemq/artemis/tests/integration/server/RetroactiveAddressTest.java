@@ -299,7 +299,7 @@ public class RetroactiveAddressTest extends ActiveMQTestBase {
       final int COUNT = 10;
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
       server.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(COUNT));
-      server.addAddressInfo(new AddressInfo(addressName));
+      server.addAddressInfo(new AddressInfo(addressName).addRoutingType(RoutingType.MULTICAST));
 
       ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
       Connection c = cf.createConnection();
