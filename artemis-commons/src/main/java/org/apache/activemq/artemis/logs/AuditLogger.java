@@ -37,17 +37,18 @@ public interface AuditLogger {
    AuditLogger BASE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.base");
    AuditLogger RESOURCE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.resource");
    AuditLogger MESSAGE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.message");
+   AuditLogger CONNECTION_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.connection");
 
    ThreadLocal<String> remoteAddress = new ThreadLocal<>();
 
    ThreadLocal<Subject> currentCaller = new ThreadLocal<>();
 
-   static boolean isAnyLoggingEnabled() {
-      return isBaseLoggingEnabled() || isMessageLoggingEnabled() || isResourceLoggingEnabled();
-   }
-
    @GetLogger
    Logger getLogger();
+
+   static boolean isAnyLoggingEnabled() {
+      return isBaseLoggingEnabled() || isMessageLoggingEnabled() || isResourceLoggingEnabled() || isConnectionLoggingEnabled();
+   }
 
    static boolean isBaseLoggingEnabled() {
       return BASE_LOGGER.getLogger().isInfoEnabled();
@@ -59,6 +60,10 @@ public interface AuditLogger {
 
    static boolean isMessageLoggingEnabled() {
       return MESSAGE_LOGGER.getLogger().isInfoEnabled();
+   }
+
+   static boolean isConnectionLoggingEnabled() {
+      return CONNECTION_LOGGER.getLogger().isInfoEnabled();
    }
 
    /**
@@ -2255,28 +2260,28 @@ public interface AuditLogger {
    @LogMessage(id = 601714, value = "User {} failed to remove messages from queue: {}", level = LogMessage.Level.INFO)
    void removeMessagesFailure(String user, String queue);
 
-   static void userSuccesfullyAuthenticatedInAudit(Subject subject, String remoteAddress) {
-      RESOURCE_LOGGER.userSuccesfullyAuthenticated(getCaller(subject, remoteAddress));
+   static void userSuccesfullyAuthenticatedInAudit(Subject subject, String remoteAddress, String connectionID) {
+      RESOURCE_LOGGER.userSuccesfullyAuthenticated(getCaller(subject, remoteAddress), connectionID);
    }
 
    static void userSuccesfullyAuthenticatedInAudit(Subject subject) {
-      userSuccesfullyAuthenticatedInAudit(subject, null);
+      userSuccesfullyAuthenticatedInAudit(subject, null, null);
    }
 
-   @LogMessage(id = 601715, value = "User {} successfully authenticated", level = LogMessage.Level.INFO)
-   void userSuccesfullyAuthenticated(String caller);
+   @LogMessage(id = 601715, value = "User {} successfully authenticated on connection {}", level = LogMessage.Level.INFO)
+   void userSuccesfullyAuthenticated(String caller, String connectionID);
 
 
    static void userFailedAuthenticationInAudit(String reason) {
-      RESOURCE_LOGGER.userFailedAuthentication(getCaller(), reason);
+      RESOURCE_LOGGER.userFailedAuthentication(getCaller(), null, reason);
    }
 
-   static void userFailedAuthenticationInAudit(Subject subject, String reason) {
-      RESOURCE_LOGGER.userFailedAuthentication(getCaller(subject, null), reason);
+   static void userFailedAuthenticationInAudit(Subject subject, String reason, String connectionID) {
+      RESOURCE_LOGGER.userFailedAuthentication(getCaller(subject, null), connectionID, reason);
    }
 
-   @LogMessage(id = 601716, value = "User {} failed authentication, reason: {}", level = LogMessage.Level.INFO)
-   void userFailedAuthentication(String user, String reason);
+   @LogMessage(id = 601716, value = "User {} failed authentication on connection {}, reason: {}", level = LogMessage.Level.INFO)
+   void userFailedAuthentication(String user, String connectionID, String reason);
 
    static void objectInvokedSuccessfully(ObjectName objectName, String operationName) {
       RESOURCE_LOGGER.objectInvokedSuccessfully(getCaller(), objectName, operationName);
@@ -2639,4 +2644,18 @@ public interface AuditLogger {
 
    @LogMessage(id = 601766, value = "User {} is getting auto-delete property on target resource: {}", level = LogMessage.Level.INFO)
    void isAutoDelete(String user, Object source);
+
+   static void createdConnection(String protocol, Object connectionID, String remoteAddress) {
+      CONNECTION_LOGGER.createdConnection(protocol, connectionID.toString(), String.format("unknown%s", formatRemoteAddress(remoteAddress)));
+   }
+
+   @LogMessage(id = 601767, value = "{} connection {} for user {} created", level = LogMessage.Level.INFO)
+   void createdConnection(String protocol, String connectionID, String user);
+
+   static void destroyedConnection(String protocol, Object connectionID, Subject subject, String remoteAddress) {
+      CONNECTION_LOGGER.destroyedConnection(protocol, connectionID.toString(), getCaller(subject, remoteAddress));
+   }
+
+   @LogMessage(id = 601768, value = "{} connection {} for user {} destroyed", level = LogMessage.Level.INFO)
+   void destroyedConnection(String protocol, String connectionID, String user);
 }

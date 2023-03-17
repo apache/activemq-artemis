@@ -121,6 +121,7 @@ different types of broker events, these are:
    The main purpose of this is to track console activity and access
    to the broker.
 3. **message**: This logs the production and consumption of messages.
+3. **connection**: This logs the creation and destruction of connections.
 
 > **Note:**
 >
@@ -144,6 +145,10 @@ logger.audit_resource.additivity = false
 logger.audit_message = OFF, audit_log_file
 logger.audit_message.name = org.apache.activemq.audit.message
 logger.audit_message.additivity = false
+
+logger.audit_connection = OFF, audit_log_file
+logger.audit_connection.name = org.apache.activemq.audit.connection
+logger.audit_connection.additivity = false
 ...
 ```
 
@@ -155,12 +160,14 @@ logger.audit_base = INFO, audit_log_file
 logger.audit_resource = INFO, audit_log_file
 ...
 logger.audit_message = INFO, audit_log_file
+...
+logger.audit_connection = INFO, audit_log_file
 ```
 
-The 3 audit loggers can be disable/enabled separately. 
+The 4 audit loggers can be disable/enabled separately. 
 
 Once enabled, all audit records are written into a separate log
-file (by default audit.log).
+file (by default `audit.log`).
 
 ## More on Log4J2 configuration:
 
