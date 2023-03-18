@@ -363,7 +363,6 @@ public abstract class ActiveMQTestBase extends Assert {
             DriverManager.getConnection("jdbc:derby:;shutdown=true;deregister=false", user, password);
          }
       } catch (SQLException sqlE) {
-         Assert.assertEquals("XJ015", sqlE.getSQLState());
          logger.debug("{} / {}", sqlE.getMessage(), sqlE.getSQLState());
          if (!sqlE.getSQLState().equals(EXPECTED_DERBY_SHUTDOWN_STATE)) {
             throw sqlE;
