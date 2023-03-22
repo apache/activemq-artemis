@@ -1974,7 +1974,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    void reapAddresses(boolean initialCheck) {
       getLocalQueues().forEach(queue -> {
          AddressSettings settings = addressSettingsRepository.getMatch(queue.getAddress().toString());
-         if (!queue.isInternalQueue() && queue.isAutoDelete() && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue, settings)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue, settings))) {
+         if (!queue.isInternalQueue() && queue.isAutoDelete() && QueueManagerImpl.consumerCountCheck(queue) && (initialCheck || QueueManagerImpl.delayCheck(queue, settings)) && QueueManagerImpl.messageCountCheck(queue) && (initialCheck || queueWasUsed(queue, settings)) && !queue.getPagingStore().isPaging()) {
             if (initialCheck || queue.isSwept()) {
                if (logger.isDebugEnabled()) {
                   if (initialCheck) {
