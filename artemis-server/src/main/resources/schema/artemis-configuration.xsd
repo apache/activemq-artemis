@@ -1426,6 +1426,11 @@
          <xsd:choice>
             <xsd:element name="static-connectors" maxOccurs="1" minOccurs="1">
                <xsd:complexType>
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        A list of connector references configured via connectors
+                     </xsd:documentation>
+                  </xsd:annotation>
                   <xsd:sequence>
                      <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
                   </xsd:sequence>
@@ -1434,6 +1439,11 @@
             </xsd:element>
             <xsd:element name="discovery-group-ref" maxOccurs="1" minOccurs="1">
                <xsd:complexType>
+                  <xsd:annotation>
+                     <xsd:documentation>
+                        A reference to a configured Discovery Group
+                     </xsd:documentation>
+                  </xsd:annotation>
                   <xsd:attribute name="discovery-group-name" type="xsd:IDREF" use="required">
                      <xsd:annotation>
                         <xsd:documentation>
@@ -1511,6 +1521,11 @@
    </xsd:complexType>
 
    <xsd:complexType name="streamType">
+      <xsd:annotation>
+         <xsd:documentation>
+            This is the streams connection configuration
+         </xsd:documentation>
+      </xsd:annotation>
       <xsd:sequence>
 
          <xsd:element name="ha" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
@@ -1613,6 +1628,11 @@
 
          <xsd:choice>
             <xsd:element name="static-connectors" maxOccurs="1" minOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     A list of connector references configured via connectors
+                  </xsd:documentation>
+               </xsd:annotation>
                <xsd:complexType>
                   <xsd:sequence>
                      <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
@@ -1675,18 +1695,60 @@
 
    <xsd:complexType name="queuePolicyType">
       <xsd:sequence>
-         <xsd:element name="include" type="queueMatchType" minOccurs="0" maxOccurs="unbounded"/>
-         <xsd:element name="exclude" type="queueMatchType" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="include" type="queueMatchType" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  A list of queue matches to include
+               </xsd:documentation>
+            </xsd:annotation></xsd:element>
+         <xsd:element name="exclude" type="queueMatchType" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  A list of Queue matches to exclude
+               </xsd:documentation>
+            </xsd:annotation></xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="transformer-ref" type="xsd:string" use="optional" />
-      <xsd:attribute name="priority-adjustment" type="xsd:int" use="optional" />
-      <xsd:attribute name="include-federated" type="xsd:boolean" use="optional" />
-      <xsd:attribute name="name" type="xsd:ID" use="required" />
+      <xsd:attribute name="transformer-ref" type="xsd:string" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               The ref name for a transformer (see transformer config) that you may wish to configure to transform the message on federation transfer.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="priority-adjustment" type="xsd:int" use="optional" >
+         <xsd:annotation>
+            <xsd:documentation>
+               when a consumer attaches its priority is used to make the upstream consumer, but with an adjustment by default -1,
+               so that local consumers get load balanced first over remote, this enables this to be configurable should it be wanted/needed.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="include-federated" type="xsd:boolean" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               by default this is false, we don't federate a federated consumer, this is to avoid issue, where in symmetric
+               or any closed loop setup you could end up when no "real" consumers attached with messages flowing round and round endlessly.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="name" type="xsd:ID" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               The name of the policy
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="queueMatchType">
-      <xsd:attribute name="queue-match" type="xsd:string" use="required" />
+      <xsd:attribute name="queue-match" type="xsd:string" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               A Queue match pattern to apply. If none are present all queues will be matched
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
       <xsd:attribute name="address-match" type="xsd:string" use="required" />
       <xsd:attributeGroup ref="xml:specialAttrs" />
    </xsd:complexType>
@@ -1696,14 +1758,60 @@
          <xsd:element name="include" type="addressMatchType" minOccurs="0" maxOccurs="unbounded"/>
          <xsd:element name="exclude" type="addressMatchType" minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
-      <xsd:attribute name="transformer-ref" type="xsd:string" use="optional" />
-      <xsd:attribute name="auto-delete" type="xsd:boolean" use="optional" />
-      <xsd:attribute name="auto-delete-delay" type="xsd:long" use="optional" />
-      <xsd:attribute name="auto-delete-message-count" type="xsd:long" use="optional" />
-      <xsd:attribute name="max-hops" type="xsd:int" use="optional" />
-      <xsd:attribute name="name" type="xsd:ID" use="required" />
-      <xsd:attribute name="enable-divert-bindings" type="xsd:boolean" use="optional" />
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
+      <xsd:attribute name="transformer-ref" type="xsd:string" use="optional" >
+         <xsd:annotation>
+            <xsd:documentation>
+               The ref name for a transformer (see transformer config) that you may wish to configure to transform the message on federation transfer.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="auto-delete" type="xsd:boolean" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               For address federation, the downstream dynamically creates a durable queue on the upstream address.
+               This is used to mark if the upstream queue should be deleted once downstream disconnects,
+               and the delay and message count params have been met. This is useful if you want to automate the clean up,
+               though you may wish to disable this if you want messages to queued for the downstream when disconnect no matter what.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="auto-delete-delay" type="xsd:long" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               The amount of time in milliseconds after the downstream broker has disconnected before the upstream queue can be eligable for auto-delete.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="auto-delete-message-count" type="xsd:long" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               The amount number messages in the upstream queue that the message count must be equal or below before the downstream broker has disconnected before the upstream queue can be eligable for auto-delete.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="max-hops" type="xsd:int" use="optional" >
+         <xsd:annotation>
+            <xsd:documentation>
+               The number of hops that a message can have made for it to be federated
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="name" type="xsd:ID" use="required">
+         <xsd:annotation>
+            <xsd:documentation>
+               All address-policies must have a unique name in the server.
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attribute name="enable-divert-bindings" type="xsd:boolean" use="optional">
+         <xsd:annotation>
+            <xsd:documentation>
+               Setting to true will enable divert bindings to be listened for demand. If there is a divert binding with
+               an address that matches the included addresses for the stream, any queue bindings that match the forward address of the divert will create demand. Default is false
+            </xsd:documentation>
+         </xsd:annotation>
+      </xsd:attribute>
+      <xsd:attributeGroup ref="xml:specialAttrs" />
    </xsd:complexType>
 
    <xsd:complexType name="addressMatchType">
@@ -1712,11 +1820,16 @@
    </xsd:complexType>
 
    <xsd:complexType name="federationTransformerType">
+      <xsd:annotation>
+         <xsd:documentation>
+            Allows adding a custom transformer to amend the message
+         </xsd:documentation>
+      </xsd:annotation>
       <xsd:sequence>
          <xsd:element name="class-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
-                  optional name of transformer class
+                  the class name of the Transformer implementation
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -1847,14 +1960,20 @@
          <xsd:element name="cache" type="connectionRouterCacheType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the time period for a cache entry to remain active
+                  This controls how often a cache removes its entries and if they are persisted.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="policy" type="connectionRouterPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  the policy configuration
+                  The policy defines how to select a broker from a pool and allows key values transformation. The included policies are:\n\n
+
+                  1. FIRST_ELEMENT to select the first target broker from the pool which is ready. It is useful to select the ready target brokers according to the priority defined with their sequence order, ie supposing there are 2 target brokers this policy selects the second target broker only when the first target broker isn't ready.\n
+                  2. ROUND_ROBIN to select a target sequentially from a pool, this policy is useful to evenly distribute;\n
+                  3. CONSISTENT_HASH to select a target by a key. This policy always selects the same target broker for the same key until it is removed from the pool.\n
+                  4. LEAST_CONNECTIONS to select the targets with the fewest active connections. This policy helps you maintain an equal distribution of active connections with the target brokers.\n
+                  5. CONSISTENT_HASH_MODULO to transform a key value to a number from 0 to N-1, it takes a single modulo property to configure the bound N. One use case is CLIENT_ID sharding across a cluster of N brokers. With a consistent hash % N transformation, each client id can map exclusively to just one of the brokers.\n
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2005,6 +2124,11 @@
                </xsd:annotation>
             </xsd:element>
             <xsd:element name="static-connectors" maxOccurs="1" minOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     A list of connector references configured via connectors
+                  </xsd:documentation>
+               </xsd:annotation>
                <xsd:complexType>
                   <xsd:sequence>
                      <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="1"/>
@@ -2030,6 +2154,16 @@
    </xsd:complexType>
 
    <xsd:complexType name="amqp-connectionUriType">
+      <xsd:annotation>
+         <xsd:documentation>
+            An AMQP Broker Connection that supports 4 types, these are:\n
+
+            1. Mirrors - The broker uses an AMQP connection to another broker and duplicates messages and sends acknowledgements over the wire.\n
+            2. Senders - Messages received on specific queues are transferred to another endpoint.\n
+            3. Receivers - The broker pulls messages from another endpoint.\n
+            4. Peers - The broker creates both senders and receivers on another endpoint that knows how to handle them. This is currently implemented by Apache Qpid Dispatch.\n
+         </xsd:documentation>
+      </xsd:annotation>
       <xsd:sequence>
          <xsd:choice maxOccurs="unbounded">
             <xsd:element name="sender" type="amqp-address-match-type"/>
@@ -2119,7 +2253,7 @@
       <xsd:attribute name="message-acknowledgements" type="xsd:boolean" use="optional" default="true">
          <xsd:annotation>
             <xsd:documentation>
-               Should mirror acknowledgements towards the other server
+               If true then message acknowledgements will be mirrored
             </xsd:documentation>
          </xsd:annotation>
       </xsd:attribute>
@@ -2368,6 +2502,11 @@
 
          <xsd:choice>
             <xsd:element name="static-connectors" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     A list of connectors references names
+                  </xsd:documentation>
+               </xsd:annotation>
                <xsd:complexType>
                   <xsd:sequence>
                      <xsd:element name="connector-ref" type="xsd:string" maxOccurs="unbounded" minOccurs="0"/>
@@ -3739,15 +3878,15 @@
             </xsd:annotation>
          </xsd:element>
 
-            <xsd:element name="max-size-bytes" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     the maximum size (in bytes) for an address (-1 means no limits). This is used in PAGING, BLOCK and
-                     FAIL policies.
-                     Supports byte notation like "K", "Mb", "MiB", "GB", etc.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="max-size-bytes" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  the maximum size (in bytes) for an address (-1 means no limits). This is used in PAGING, BLOCK and
+                  FAIL policies.
+                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
          <xsd:element name="max-size-messages" type="xsd:long" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -3785,14 +3924,14 @@
             </xsd:annotation>
          </xsd:element>
 
-            <xsd:element name="page-size-bytes" type="xsd:string" default="10485760" maxOccurs="1" minOccurs="0">
-               <xsd:annotation>
-                  <xsd:documentation>
-                     The page size (in bytes) to use for an address.
-                     Supports byte notation like "K", "Mb", "MiB", "GB", etc.
-                  </xsd:documentation>
-               </xsd:annotation>
-            </xsd:element>
+         <xsd:element name="page-size-bytes" type="xsd:string" default="10485760" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The page size (in bytes) to use for an address.
+                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
 
          <xsd:element name="page-max-cache-size" default="5" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -3851,7 +3990,7 @@
          </xsd:element>
 
          <xsd:element name="message-counter-history-day-limit" type="xsd:int" default="0" maxOccurs="1"
-                        minOccurs="0">
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   how many days to keep message counter history for this address
@@ -4101,7 +4240,7 @@
          <xsd:element name="config-delete-queues" default="OFF" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                     What to do when a queue is no longer in broker.xml.
+                  What to do when a queue is no longer in broker.xml.
                   OFF = will do nothing queues will remain,
                   FORCE = delete queues even if messages remaining.
                </xsd:documentation>
@@ -4197,7 +4336,7 @@
          </xsd:element>
 
          <xsd:element name="default-purge-on-no-consumers" type="xsd:boolean" default="false" maxOccurs="1"
-                        minOccurs="0">
+                      minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   purge the contents of the queue once there are no consumers
