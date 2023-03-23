@@ -465,20 +465,38 @@ public class TimedBufferTest extends ActiveMQTestBase {
          timedBuffer.setObserver(new TestObserver());
 
          int x = 0;
+         byte[] bytes;
+         ActiveMQBuffer buff;
 
-         byte[] bytes = new byte[10];
+         for (int i = 0; i < 3; i++) {
+            bytes = new byte[10];
+            for (int j = 0; j < 10; j++) {
+               bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
+            }
+
+            buff = ActiveMQBuffers.wrappedBuffer(bytes);
+
+            timedBuffer.checkSize(10);
+            timedBuffer.addBytes(buff, false, dummyCallback);
+         }
+
+         Thread.sleep(200);
+         int count = flushTimes.get();
+         Assert.assertTrue(count < 3);
+
+         bytes = new byte[10];
          for (int j = 0; j < 10; j++) {
             bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
          }
 
-         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
+         buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, false, dummyCallback);
 
          Thread.sleep(200);
 
-         Assert.assertEquals(0, flushTimes.get());
+         Assert.assertEquals(count + 1, flushTimes.get());
 
          bytes = new byte[10];
          for (int j = 0; j < 10; j++) {
@@ -492,17 +510,17 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          Thread.sleep(500);
 
-         Assert.assertEquals(1, flushTimes.get());
+         Assert.assertEquals(count + 2, flushTimes.get());
 
          ByteBuffer flushedBuffer = buffers.get(0);
 
-         Assert.assertEquals(20, flushedBuffer.limit());
+         Assert.assertEquals(30, flushedBuffer.limit());
 
-         Assert.assertEquals(20, flushedBuffer.capacity());
+         Assert.assertEquals(30, flushedBuffer.capacity());
 
          flushedBuffer.rewind();
 
-         for (int i = 0; i < 20; i++) {
+         for (int i = 0; i < 30; i++) {
             Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
       } finally {
