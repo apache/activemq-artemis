@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
@@ -997,6 +998,11 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             tx.markAsRollbackOnly(ils);
             throw ils;
          }
+
+         if (RefCountMessage.isRefTraceEnabled()) {
+            RefCountMessage.deferredDebug(ref.getMessage(), "Individually acked on tx={}", tx.getID());
+         }
+
          metrics.addAcknowledge(ref.getMessage().getEncodeSize(), tx);
          ref.acknowledge(tx, this);
 
@@ -1061,6 +1067,10 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
    @Override
    public synchronized void backToDelivering(MessageReference reference) {
       synchronized (lock) {
+         if (RefCountMessage.isRefTraceEnabled()) {
+            RefCountMessage.deferredDebug(reference.getMessage(), "Adding message back to delivering");
+         }
+         logger.trace("Message {} back to delivering", reference);
          deliveringRefs.addFirst(reference);
          metrics.addMessage(reference.getMessage().getEncodeSize());
       }
@@ -1078,21 +1088,28 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          // This is an optimization, if the reference is the first one, we just poll it.
          // But first we need to make sure deliveringRefs isn't empty
          if (deliveringRefs.isEmpty()) {
+            logger.trace("removeReferenceByID {} return null", messageID);
             return null;
          }
 
          if (deliveringRefs.peek().getMessage().getMessageID() == messageID) {
             MessageReference ref = deliveringRefs.poll();
+            if (logger.isTraceEnabled()) {
+               logger.trace("Remove Message By ID {} return ref {} after peek call", messageID, ref);
+            }
             return ref;
          }
          //slow path in a separate method
          MessageReference ref = removeDeliveringRefById(messageID);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Remove Message By ID {} return ref {} after scan call", messageID, ref);
+         }
          return ref;
       }
    }
 
    private MessageReference removeDeliveringRefById(long messageID) {
-      assert deliveringRefs.peek().getMessage().getMessageID() != messageID;
+      logger.trace("RemoveDeiveringRefByID {}", messageID);
 
       Iterator<MessageReference> iter = deliveringRefs.iterator();
 
@@ -1105,6 +1122,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             iter.remove();
 
             ref = theRef;
+
+            logger.trace("Returning {}", theRef);
 
             break;
          }
@@ -1134,7 +1153,19 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
 
    @Override
    public void disconnect() {
-      callback.disconnect(this, getQueue().getName());
+      callback.disconnect(this, "Queue deleted: " + getQueue().getName());
+   }
+
+   @Override
+   public void failed(Throwable t) {
+      try {
+         this.close(true);
+      } catch (Throwable e2) {
+         logger.warn(e2.getMessage(), e2);
+      }
+      if (callback != null) {
+         callback.disconnect(this, t.getMessage());
+      }
    }
 
    public float getRate() {

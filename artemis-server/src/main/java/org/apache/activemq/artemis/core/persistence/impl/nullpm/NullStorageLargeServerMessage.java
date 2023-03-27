@@ -104,6 +104,7 @@ class NullStorageLargeServerMessage extends CoreMessage implements CoreLargeServ
 
    @Override
    public void deleteFile() throws Exception {
+      released();
       // nothing to be done here.. we don really have a file on this Storage
    }
 

@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.Pair;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.core.filter.Filter;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -125,6 +126,10 @@ public class Redistributor implements Consumer {
 
       postOffice.processRoute(routingInfo.getB(), routingInfo.getA(), false);
 
+      if (RefCountMessage.isRefTraceEnabled()) {
+         RefCountMessage.deferredDebug(reference.getMessage(), "redistributing");
+      }
+
       ackRedistribution(reference, tx);
 
       return HandleStatus.HANDLED;
@@ -133,6 +138,12 @@ public class Redistributor implements Consumer {
    @Override
    public void proceedDeliver(MessageReference ref) {
       // no op
+   }
+
+
+   @Override
+   public void failed(Throwable t) {
+      // no op... there's no proceedDeliver on this class
    }
 
    private void ackRedistribution(final MessageReference reference, final Transaction tx) throws Exception {

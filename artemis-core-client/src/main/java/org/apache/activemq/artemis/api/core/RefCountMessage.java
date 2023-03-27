@@ -16,12 +16,114 @@
  */
 package org.apache.activemq.artemis.api.core;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.invoke.MethodHandles;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
-// import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet; -- #ifdef DEBUG
+import org.apache.activemq.artemis.core.client.ActiveMQClientLogger;
+import org.apache.activemq.artemis.utils.ObjectCleaner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
+/**
+ * RefCountMessage is a base-class for any message intending to do reference counting. Currently it is used for
+ * large message removal.
+ *
+ * Additional validation on reference counting will be done If you set a system property named "ARTEMIS_REF_DEBUG" and enable logging on this class.
+ * Additional logging output will be written when reference counting is broken and these debug options are applied.
+ * */
 public class RefCountMessage {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   private static final boolean REF_DEBUG = System.getProperty("ARTEMIS_REF_DEBUG") != null;
+
+   public static boolean isRefDebugEnabled() {
+      return REF_DEBUG && logger.isDebugEnabled();
+   }
+
+   public static boolean isRefTraceEnabled() {
+      return REF_DEBUG && logger.isTraceEnabled();
+   }
+
+   /** Sub classes constructors willing to debug reference counts,
+    *  can register the objectCleaner through this method. */
+   protected void registerDebug() {
+      if (debugStatus == null) {
+         debugStatus = new DebugState(this.toString());
+         ObjectCleaner.register(this, debugStatus);
+      }
+   }
+
+   private static class DebugState implements Runnable {
+      private final ArrayList<Exception> debugCrumbs = new ArrayList<>();
+
+      // this means the object is accounted for and it should not print any warnings
+      volatile boolean accounted;
+
+      volatile boolean referenced;
+
+      String description;
+
+      /**
+       *  Notice: This runnable cannot hold any reference back to message otherwise it won't ever happen and you will get a memory leak.
+       *  */
+      Runnable runWhenLeaked;
+
+      DebugState(String description) {
+         this.description = description;
+         addDebug("registered");
+      }
+
+      /** this marks the Status as accounted for
+       *  and no need to report an issue when DEBUG hits */
+      void accountedFor() {
+         accounted = true;
+      }
+
+      static String getTime() {
+         return Instant.now().toString();
+      }
+
+      void addDebug(String event) {
+         debugCrumbs.add(new Exception(event + " at " + getTime()));
+         if (accounted) {
+            logger.debug("Message Previously Released {}, {}, \n{}", description, event, debugLocations());
+         }
+      }
+
+      void up(String description) {
+         referenced = true;
+         debugCrumbs.add(new Exception("up:" + description + " at " + getTime()));
+      }
+
+      void down(String description) {
+         debugCrumbs.add(new Exception("down:" + description + " at " + getTime()));
+      }
+
+      @Override
+      public void run() {
+         if (!accounted && referenced) {
+            runWhenLeaked.run();
+            logger.debug("Message Leaked reference counting{}\n{}", description, debugLocations());
+         }
+      }
+
+      String debugLocations() {
+         StringWriter writer = new StringWriter();
+         PrintWriter outWriter = new PrintWriter(writer);
+         outWriter.println("Locations:");
+         debugCrumbs.forEach(e -> e.printStackTrace(outWriter));
+         return writer.toString();
+      }
+   }
+
+   private DebugState debugStatus;
 
    private static final AtomicIntegerFieldUpdater<RefCountMessage> DURABLE_REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "durableRefCount");
    private static final AtomicIntegerFieldUpdater<RefCountMessage> REF_COUNT_UPDATER = AtomicIntegerFieldUpdater.newUpdater(RefCountMessage.class, "refCount");
@@ -35,7 +137,41 @@ public class RefCountMessage {
 
    private volatile int usageCount = 0;
 
-   private volatile boolean fired = false;
+   private volatile boolean released = false;
+
+   /** has the refCount fired the action already? */
+   public boolean isReleased() {
+      return released;
+   }
+
+   public String debugLocations() {
+      if (debugStatus != null) {
+         return debugStatus.debugLocations();
+      } else {
+         return "";
+      }
+   }
+
+   public static void deferredDebug(Message message, String debugMessage, Object... args) {
+      if (message instanceof RefCountMessage && isRefDebugEnabled()) {
+         deferredDebug((RefCountMessage) message, debugMessage, args);
+      }
+   }
+
+   public static void deferredDebug(RefCountMessage message, String debugMessage, Object... args) {
+      String formattedDebug = MessageFormatter.arrayFormat(debugMessage, args).getMessage();
+      message.deferredDebug(formattedDebug);
+   }
+
+   /** Deferred debug, that will be used in case certain conditions apply to the RefCountMessage */
+   public void deferredDebug(String message) {
+      if (parentRef != null) {
+         parentRef.deferredDebug(message);
+      }
+      if (debugStatus != null) {
+         debugStatus.addDebug(message);
+      }
+   }
 
    public int getRefCount() {
       return REF_COUNT_UPDATER.get(this);
@@ -58,55 +194,44 @@ public class RefCountMessage {
    public RefCountMessage getParentRef() {
       return parentRef;
    }
-   // I am usually against keeping commented out code
-   // However this is very useful for me to debug referencing counting.
-   // Uncomment out anything between #ifdef DEBUG and #endif
 
-   // #ifdef DEBUG -- comment out anything before endif if you want to debug REFERENCE COUNTS
-   //final ConcurrentHashSet<Exception> upSet = new ConcurrentHashSet<>();
-   // #endif
-
-   private void onUp() {
-      // #ifdef DEBUG -- comment out anything before endif if you want to debug REFERENCE COUNTS
-      // upSet.add(new Exception("upEvent(" + debugString() + ")"));
-      // #endif
+   protected void onUp() {
+      if (debugStatus != null) {
+         debugStatus.up(counterString());
+      }
    }
 
-   private void onDown() {
-      // #ifdef DEBUG -- comment out anything before endif if you want to debug REFERENCE COUNTS
-      // upSet.add(new Exception("upEvent(" + debugString() + ")"));
-      // #endif
-      if (getRefCount() <= 0 && getUsage() <= 0 && getDurableCount() <= 0 && !fired) {
+   protected void released() {
+      released = true;
+      accountedFor();
+   }
 
-         debugRefs();
-         fired = true;
+   void runOnLeak(Runnable run) {
+      if (debugStatus != null) {
+         debugStatus.runWhenLeaked = run;
+      }
+   }
+
+   public void accountedFor() {
+      if (debugStatus != null) {
+         debugStatus.accountedFor();
+      }
+   }
+
+   protected void onDown() {
+      if (debugStatus != null) {
+         debugStatus.down(counterString());
+      }
+      if (getRefCount() <= 0 && getUsage() <= 0 && getDurableCount() <= 0 && !released) {
+         released();
          releaseComplete();
       }
    }
-   /**
-    *
-    * This method will be useful if you remove commented out code around #ifdef AND #endif COMMENTS
-    * */
-   public final void debugRefs() {
-      // #ifdef DEBUG -- comment out anything before endif if you want to debug REFERENCE COUNTS
-      //   try {
-      //      System.err.println("************************************************************************************************************************");
-      //      System.err.println("Printing refcounts for " + debugString() + " this = " + this);
-      //      for (Exception e : upSet) {
-      //         e.printStackTrace();
-      //      }
-      //      System.err.println("************************************************************************************************************************");
-      //   } catch (Throwable e) {
-      //      e.printStackTrace();
-      //   }
-      // #ifdef DEBUG -- comment out anything before endif if you want to debug REFERENCE COUNTS
-   }
 
-
-
-   public String debugString() {
+   protected String counterString() {
       return "refCount=" + getRefCount() + ", durableRefCount=" + getDurableCount() + ", usageCount=" + getUsage() + ", parentRef=" + this.parentRef;
    }
+
    public void setParentRef(RefCountMessage origin) {
       // if copy of a copy.. just go to the parent:
       if (origin.getParentRef() != null) {
@@ -127,6 +252,7 @@ public class RefCountMessage {
       onUp();
       return count;
    }
+
    public int usageDown() {
       if (parentRef != null) {
          return parentRef.usageDown();
@@ -150,8 +276,18 @@ public class RefCountMessage {
          return parentRef.durableDown();
       }
       int count = DURABLE_REF_COUNT_UPDATER.decrementAndGet(this);
+      if (count < 0) {
+         reportNegativeCount();
+      }
       onDown();
       return count;
+   }
+
+   private void reportNegativeCount() {
+      if (debugStatus != null) {
+         debugStatus.addDebug("Negative counter " + counterString());
+      }
+      ActiveMQClientLogger.LOGGER.negativeRefCount(String.valueOf(this), counterString(), debugLocations());
    }
 
    public int refDown() {
@@ -159,6 +295,9 @@ public class RefCountMessage {
          return parentRef.refDown();
       }
       int count = REF_COUNT_UPDATER.decrementAndGet(this);
+      if (count < 0) {
+         reportNegativeCount();
+      }
       onDown();
       return count;
    }
@@ -186,5 +325,4 @@ public class RefCountMessage {
       }
       userContext.put(key, value);
    }
-
 }

@@ -674,8 +674,8 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumer, SimpleString queueName) {
-      ErrorCondition ec = new ErrorCondition(AmqpSupport.RESOURCE_DELETED, "Queue was deleted: " + queueName);
+   public void disconnect(ServerConsumer consumer, String errorMessage) {
+      ErrorCondition ec = new ErrorCondition(AmqpSupport.RESOURCE_DELETED, errorMessage);
       connection.runNow(() -> {
          try {
             ((ProtonServerSenderContext) consumer.getProtocolContext()).close(ec);

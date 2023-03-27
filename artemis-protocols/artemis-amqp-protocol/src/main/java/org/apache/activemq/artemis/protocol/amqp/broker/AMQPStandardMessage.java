@@ -335,4 +335,3 @@ public class AMQPStandardMessage extends AMQPMessage {
       }
    }
 }
-

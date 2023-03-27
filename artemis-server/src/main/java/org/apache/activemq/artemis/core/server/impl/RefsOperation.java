@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -165,6 +166,9 @@ public class RefsOperation extends TransactionOperationAbstract {
    }
 
    protected void rollbackRedelivery(Transaction tx, MessageReference ref, long timeBase, Map<QueueImpl, LinkedList<MessageReference>> queueMap) throws Exception {
+      if (RefCountMessage.isRefTraceEnabled()) {
+         RefCountMessage.deferredDebug(ref.getMessage(), "RollbackDelivery");
+      }
       // if ignore redelivery check, we just perform redelivery straight
       if (ref.getQueue().checkRedelivery(ref, timeBase, ignoreRedeliveryCheck).getA()) {
          LinkedList<MessageReference> toCancel = queueMap.get(ref.getQueue());

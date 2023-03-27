@@ -37,6 +37,11 @@ public class DummyServerConsumer implements ServerConsumer {
    }
 
    @Override
+   public void failed(Throwable t) {
+
+   }
+
+   @Override
    public SlowConsumerDetectionListener getSlowConsumerDetecion() {
       return null;
    }

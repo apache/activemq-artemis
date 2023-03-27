@@ -183,13 +183,13 @@ public class SoakReplicatedPagingTest extends SoakTestBase {
          }
 
          logger.debug("Awaiting producers...");
-         if (!producersLatch.await(30000, TimeUnit.MILLISECONDS)) {
+         if (!producersLatch.await(60000, TimeUnit.MILLISECONDS)) {
             System.err.println("Awaiting producers timeout");
             System.exit(0);
          }
 
          logger.debug("Awaiting consumers...");
-         if (!consumersLatch.await(30000, TimeUnit.MILLISECONDS)) {
+         if (!consumersLatch.await(60000, TimeUnit.MILLISECONDS)) {
             System.err.println("Awaiting consumers timeout");
             System.exit(0);
          }

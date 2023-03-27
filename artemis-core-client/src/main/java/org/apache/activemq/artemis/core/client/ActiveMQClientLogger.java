@@ -344,4 +344,7 @@ public interface ActiveMQClientLogger {
 
    @LogMessage(id = 214033, value = "Cannot resolve host ", level = LogMessage.Level.ERROR)
    void unableToResolveHost(UnknownHostException e);
+
+   @LogMessage(id = 214034, value = "{} has negative counts {}\n{}", level = LogMessage.Level.ERROR)
+   void negativeRefCount(String message, String count, String debugString);
 }

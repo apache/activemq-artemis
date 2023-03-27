@@ -226,7 +226,7 @@ public class StompSession implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumerId, SimpleString queueName) {
+   public void disconnect(ServerConsumer consumerId, String errorDescription) {
       StompSubscription stompSubscription = subscriptions.remove(consumerId.getID());
       if (stompSubscription != null) {
          StompFrame frame = connection.getFrameHandler().createStompFrame(Stomp.Responses.ERROR);

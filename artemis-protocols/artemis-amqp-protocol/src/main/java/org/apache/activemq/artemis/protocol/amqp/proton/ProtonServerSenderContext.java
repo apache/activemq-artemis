@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.io.IOCallback;
@@ -313,12 +314,14 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
       protonSession.removeSender(sender);
 
-      connection.runLater(() -> {
+      connection.runNow(() -> {
          sender.close();
          try {
             sessionSPI.closeSender(brokerConsumer);
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
+         } finally {
+            lmUsageDown();
          }
          sender.close();
          connection.flush();
@@ -358,6 +361,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
          throw new ActiveMQAMQPInternalErrorException(e.getMessage());
+      } finally {
+         // check if there is a pending large message
+         // and ref count down its usage
+         lmUsageDown();
       }
    }
 
@@ -436,6 +443,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   // we have to individual ack as we can't guarantee we will get the delivery
                   // (including acks) in order from dealer, a performance hit but a must
                   try {
+                     if (RefCountMessage.isRefTraceEnabled()) {
+                        RefCountMessage.deferredDebug(message, "Adding ACK message to TX {}", (tx == null ? "no-tx" : tx.getID()));
+                     }
                      sessionSPI.ack(tx, brokerConsumer, message);
                      tx.addDelivery(delivery, this);
                   } catch (Exception e) {
@@ -808,7 +818,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       if (localRunnable != null) {
          localRunnable.run();
       }
-      pendingLargeMessage = null;
       hasLarge = false;
       brokerConsumer.promptDelivery();
    }
@@ -818,9 +827,10 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       AMQPLargeMessage lm = null;
       if (pendingLargeMessage != null) {
          lm = pendingLargeMessage.message;
+         pendingLargeMessage = null;
       }
       if (lm != null) {
-         lm.usageDown();
+         connection.runNow(lm::usageDown);
       }
    }
 

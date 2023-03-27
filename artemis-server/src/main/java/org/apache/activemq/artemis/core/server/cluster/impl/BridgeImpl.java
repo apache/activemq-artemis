@@ -491,6 +491,17 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
+   @Override
+   public void failed(Throwable t) {
+      if (t instanceof ActiveMQException) {
+         connectionFailed((ActiveMQException) t, false);
+      } else {
+         ActiveMQException exception = new ActiveMQException(t.getMessage());
+         exception.initCause(t);
+         connectionFailed(exception, false);
+      }
+   }
+
    /* Hook for processing message before forwarding */
    protected Message beforeForward(Message message, final SimpleString forwardingAddress) {
       message = message.copy();
@@ -549,6 +560,9 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public HandleStatus handle(final MessageReference ref) throws Exception {
+      if (RefCountMessage.isRefTraceEnabled() && ref.getMessage() instanceof RefCountMessage) {
+         RefCountMessage.deferredDebug(ref.getMessage(), "Going through the bridge");
+      }
       if (filter != null && !filter.match(ref.getMessage())) {
          logger.trace("message reference {} is no match for bridge {}", ref, configuration.getName());
          return HandleStatus.NO_MATCH;
