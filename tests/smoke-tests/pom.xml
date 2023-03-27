@@ -30,6 +30,7 @@
       <activemq.basedir>${project.basedir}/../../</activemq.basedir>
       <sts-surefire-extra-args />
       <artemis-distribuiton-lib-dir>-Ddistribution.lib="${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}/lib"</artemis-distribuiton-lib-dir>
+      <sts-http-host>localhost</sts-http-host>
    </properties>
 
    <dependencies>
@@ -265,7 +266,12 @@
                      <allowAnonymous>false</allowAnonymous>
                      <noWeb>false</noWeb>
                      <instance>${basedir}/target/console</instance>
-                     <configuration>${basedir}/target/classes/servers/console</configuration>
+                     <args>
+                        <arg>--http-host</arg>
+                        <arg>${sts-http-host}</arg>
+                        <arg>--http-port</arg>
+                        <arg>8161</arg>
+                     </args>
                   </configuration>
                </execution>
                <execution>
