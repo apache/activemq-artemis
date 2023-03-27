@@ -815,8 +815,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222168, value = "The '" + TransportConstants.PROTOCOL_PROP_NAME + "' property is deprecated. If you want this Acceptor to support multiple protocols, use the '" + TransportConstants.PROTOCOLS_PROP_NAME + "' property, e.g. with value 'CORE,AMQP,STOMP'", level = LogMessage.Level.WARN)
    void warnDeprecatedProtocol();
 
-   @LogMessage(id = 222169, value = "You have old legacy clients connected to the queue {} and we can't disconnect them, these clients may just hang", level = LogMessage.Level.WARN)
-   void warnDisconnectOldClient(String queueName);
+   @LogMessage(id = 222169, value = "Server needs to disconnect the consumer because of ( {} ) but you have a legacy client connected and it cannot do so, these consumers may just hang", level = LogMessage.Level.WARN)
+   void warnDisconnectOldClient(String message);
 
    @LogMessage(id = 222170, value = "Bridge {} forwarding address {} has confirmation-window-size ({}) greater than address' max-size-bytes' ({})", level = LogMessage.Level.WARN)
    void bridgeConfirmationWindowTooSmall(String bridgeName, String address, int windowConfirmation, long maxSizeBytes);

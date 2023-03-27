@@ -79,7 +79,7 @@ public class MQTTSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumer, SimpleString queueName) {
+   public void disconnect(ServerConsumer consumer, String errorMessage) {
       try {
          consumer.removeItself();
       } catch (Exception e) {

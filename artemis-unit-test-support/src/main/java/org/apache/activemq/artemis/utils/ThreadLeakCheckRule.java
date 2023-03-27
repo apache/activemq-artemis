@@ -284,8 +284,10 @@ public class ThreadLeakCheckRule extends TestWatcher {
       } else if (threadName.contains("GC Daemon")) {
          return true;
       } else {
+         // validating for known stack traces
          for (StackTraceElement element : thread.getStackTrace()) {
-            if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener")) {
+            if (element.getClassName().contains("org.jboss.byteman.agent.TransformListener") ||
+                element.getClassName().contains("jdk.internal.ref.CleanerImpl")) {
                return true;
             }
          }

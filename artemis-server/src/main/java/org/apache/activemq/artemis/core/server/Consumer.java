@@ -93,6 +93,8 @@ public interface Consumer extends PriorityAware {
     */
    void disconnect();
 
+   void failed(Throwable t);
+
    /** an unique sequential ID for this consumer */
    long sequentialID();
 

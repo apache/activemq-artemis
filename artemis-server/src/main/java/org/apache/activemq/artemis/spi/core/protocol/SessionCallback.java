@@ -90,7 +90,7 @@ public interface SessionCallback {
 
    void closed();
 
-   void disconnect(ServerConsumer consumerId, SimpleString queueName);
+   void disconnect(ServerConsumer consumerId, String errorMessage);
 
    boolean isWritable(ReadyListener callback, Object protocolContext);
 

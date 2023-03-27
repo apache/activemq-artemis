@@ -354,11 +354,11 @@ public class AMQSession implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer serverConsumer, SimpleString queueName) {
+   public void disconnect(ServerConsumer serverConsumer, String errorMessage) {
       // for an openwire consumer this is fatal because unlike with activemq5 sending
       // to the address will not auto create the consumer binding and it will be in limbo.
       // forcing disconnect allows it to failover and recreate its binding.
-      final IOException forcePossibleFailoverReconnect = new IOException("Destination : " + queueName + " has been deleted.");
+      final IOException forcePossibleFailoverReconnect = new IOException(errorMessage);
       try {
          connection.serviceException(forcePossibleFailoverReconnect);
       } catch (Exception ignored) {

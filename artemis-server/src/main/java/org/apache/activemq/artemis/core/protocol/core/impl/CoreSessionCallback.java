@@ -162,11 +162,11 @@ public final class CoreSessionCallback implements SessionCallback {
    }
 
    @Override
-   public void disconnect(ServerConsumer consumerId, SimpleString queueName) {
+   public void disconnect(ServerConsumer consumerId, String errorMessage) {
       if (channel.supports(PacketImpl.DISCONNECT_CONSUMER)) {
          channel.send(new DisconnectConsumerMessage(consumerId.getID()));
       } else {
-         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(queueName.toString());
+         ActiveMQServerLogger.LOGGER.warnDisconnectOldClient(errorMessage);
       }
    }
 

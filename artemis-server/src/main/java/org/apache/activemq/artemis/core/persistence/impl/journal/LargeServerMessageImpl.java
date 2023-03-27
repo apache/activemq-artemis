@@ -116,13 +116,19 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    private final StorageManager storageManager;
 
+   public long getBodySize() throws ActiveMQException {
+      return largeBody.getBodySize();
+   }
+
+   private void checkDebug() {
+      if (isRefDebugEnabled()) {
+         registerDebug();
+      }
+   }
+
    public LargeServerMessageImpl(final StorageManager storageManager) {
       largeBody = new LargeBody(this, storageManager);
       this.storageManager = storageManager;
-   }
-
-   public long getBodySize() throws ActiveMQException {
-      return largeBody.getBodySize();
    }
 
    /**
@@ -160,7 +166,13 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
       } else {
          return new java.util.Date(timestamp).toString();
       }
+   }
 
+   @Override
+   public LargeServerMessageImpl setMessageID(long messageID) {
+      super.setMessageID(messageID);
+      checkDebug();
+      return this;
    }
 
    @Override
@@ -251,6 +263,7 @@ public final class LargeServerMessageImpl extends CoreMessage implements CoreLar
 
    @Override
    public void deleteFile() throws Exception {
+      released();
       synchronized (largeBody) {
          largeBody.deleteFile();
       }

@@ -92,6 +92,12 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
    /** this is used to parse the initial packets from the buffer */
    private CompositeReadableBuffer parsingBuffer;
 
+   private void checkDebug() {
+      if (isRefDebugEnabled()) {
+         registerDebug();
+      }
+   }
+
    public AMQPLargeMessage(long id,
                            long messageFormat,
                            TypedProperties extraProperties,
@@ -101,6 +107,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       this.setMessageID(id);
       largeBody = new LargeBody(this, storageManager);
       this.storageManager = storageManager;
+      checkDebug();
    }
 
    public AMQPLargeMessage(long id,
@@ -113,6 +120,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       this.setMessageID(id);
       this.largeBody = largeBody;
       this.storageManager = storageManager;
+      checkDebug();
    }
 
    /**
@@ -127,6 +135,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
       this.storageManager = copy.largeBody.getStorageManager();
       this.reencoded = copy.reencoded;
       setMessageID(newID);
+      checkDebug();
    }
 
    public void releaseEncodedBuffer() {
@@ -436,6 +445,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public void deleteFile() throws Exception {
+      accountedFor(); // if LargeServerMessage.DEBUG this will make sure this message is not reported
       largeBody.deleteFile();
    }
 

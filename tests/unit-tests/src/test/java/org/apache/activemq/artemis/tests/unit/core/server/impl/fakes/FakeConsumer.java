@@ -41,6 +41,11 @@ public class FakeConsumer implements Consumer {
       filter = null;
    }
 
+   @Override
+   public void failed(Throwable t) {
+      // no op
+   }
+
    public FakeConsumer(final Filter filter) {
       this.filter = filter;
    }
