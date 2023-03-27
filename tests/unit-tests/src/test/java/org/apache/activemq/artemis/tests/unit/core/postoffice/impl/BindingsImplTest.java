@@ -45,6 +45,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.core.transaction.TransactionOperation;
 import org.apache.activemq.artemis.selector.filter.Filterable;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.Test;
 
 public class BindingsImplTest extends ActiveMQTestBase {
@@ -54,7 +55,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.ON_DEMAND;
-      final Bindings bind = new BindingsImpl(null, null);
+      final Bindings bind = new BindingsImpl(null, null, new SimpleIDGenerator(1000));
       bind.addBinding(fake);
       bind.route(new CoreMessage(0, 100), new RoutingContextImpl(new FakeTransaction()));
       assertEquals(1, fake.routedCount.get());
@@ -65,7 +66,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.OFF;
-      final Bindings bind = new BindingsImpl(null, null);
+      final Bindings bind = new BindingsImpl(null, null, new SimpleIDGenerator(1000));
       bind.addBinding(fake);
       bind.route(new CoreMessage(0, 100), new RoutingContextImpl(new FakeTransaction()));
       assertEquals(0, fake.routedCount.get());
@@ -76,7 +77,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
       final FakeRemoteBinding fake = new FakeRemoteBinding(new SimpleString("a"));
       fake.filter = null;  // such that it wil match all messages
       fake.messageLoadBalancingType = MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION;
-      final Bindings bind = new BindingsImpl(null, null);
+      final Bindings bind = new BindingsImpl(null, null, new SimpleIDGenerator(1000));
       bind.addBinding(fake);
       bind.route(new CoreMessage(0, 100), new RoutingContextImpl(new FakeTransaction()));
       assertEquals(0, fake.routedCount.get());
@@ -101,7 +102,7 @@ public class BindingsImplTest extends ActiveMQTestBase {
    private void internalTest(final boolean route) throws Exception {
       final FakeBinding fake = new FakeBinding(new SimpleString("a"));
 
-      final Bindings bind = new BindingsImpl(null, null);
+      final Bindings bind = new BindingsImpl(null, null, new SimpleIDGenerator(1000));
       bind.addBinding(fake);
       bind.addBinding(new FakeBinding(new SimpleString("a")));
       bind.addBinding(new FakeBinding(new SimpleString("a")));

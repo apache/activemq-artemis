@@ -62,4 +62,42 @@ public class LargeMessageRedistributionTest extends MessageRedistributionTest {
       Wait.assertEquals(0, () -> getServer(0).getConfiguration().getLargeMessagesLocation().listFiles().length);
       Wait.assertEquals(numMessages, () -> getServer(1).getConfiguration().getLargeMessagesLocation().listFiles().length);
    }
+
+   @Test
+   public void testRedistributionLargeMessageDirCleanup2() throws Exception {
+      final long delay = 0;
+      final int numMessages = 5;
+
+      setRedistributionDelay(delay);
+      setupCluster(MessageLoadBalancingType.ON_DEMAND);
+
+      startServers(0, 1);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      createQueue(0, "queues.testaddress", "queue0", null, false);
+      createQueue(1, "queues.testaddress", "queue0", null, false);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, true);
+      waitForBindings(1, "queues.testaddress", 1, 0, true);
+
+      waitForBindings(0, "queues.testaddress", 1, 0, false);
+      waitForBindings(1, "queues.testaddress", 1, 0, false);
+
+      send(0, "queues.testaddress", numMessages, true, null);
+      addConsumer(0, 0, "queue0", null);
+
+      verifyReceiveAll(numMessages, 0);
+      removeConsumer(0);
+
+      addConsumer(1, 1, "queue0", null);
+      verifyReceiveAll(numMessages, 1);
+      servers[1].stop();
+
+      send(0, "queues.testaddress", numMessages, true, null);
+
+      Wait.assertEquals(5, () -> getServer(0).getConfiguration().getLargeMessagesLocation().listFiles().length);
+      Wait.assertEquals(numMessages, () -> getServer(0).getConfiguration().getLargeMessagesLocation().listFiles().length);
+   }
 }

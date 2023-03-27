@@ -1392,35 +1392,13 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       Bindings bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
 
       if (bindings != null && bindings.allowRedistribute()) {
-         // We have to copy the message and store it separately, otherwise we may lose remote bindings in case of restart before the message
-         // arrived the target node
-         // as described on https://issues.jboss.org/browse/JBPAPP-6130
-         final Message copyRedistribute = message.copy(storageManager.generateID());
-         if (logger.isDebugEnabled()) {
-            logger.debug("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
-         }
-         copyRedistribute.setAddress(message.getAddress());
-
          RoutingContext context = new RoutingContextImpl(tx);
 
-         boolean routed = bindings.redistribute(copyRedistribute, originatingQueue, context);
+         // the redistributor will make a copy of the message if it can be redistributed
+         Message redistributedMessage = bindings.redistribute(message, originatingQueue, context);
 
-         if (routed) {
-            return new Pair<>(context, copyRedistribute);
-         } else {
-            // things have changed, we are not redistributing any more
-            if (copyRedistribute.isLargeMessage()) {
-               LargeServerMessage lsm = (LargeServerMessage) copyRedistribute;
-               postOfficeExecutor.execute(() -> {
-                  try {
-                     logger.debug("Removing large message {} since the routing tables have changed", lsm.getAppendFile());
-                     lsm.deleteFile();
-                  } catch (Exception e) {
-                     logger.warn("Error removing {}", copyRedistribute);
-                  }
-               });
-            }
-
+         if (redistributedMessage != null) {
+            return new Pair<>(context, redistributedMessage);
          }
       }
 
@@ -2101,7 +2079,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
    @Override
    public Bindings createBindings(final SimpleString address) {
       GroupingHandler groupingHandler = server.getGroupingHandler();
-      BindingsImpl bindings = new BindingsImpl(CompositeAddress.extractAddressName(address), groupingHandler);
+      BindingsImpl bindings = new BindingsImpl(CompositeAddress.extractAddressName(address), groupingHandler, storageManager);
       if (groupingHandler != null) {
          groupingHandler.addListener(bindings);
       }
