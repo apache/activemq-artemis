@@ -30,17 +30,17 @@ public class LoginTest extends ConsoleTest {
 
    @Test
    public void testLogin() {
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       loginPage.loginValidUser(SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
    }
 
    @Test
    public void testLoginBrand() {
-      String expectedBrandImage = serverUrl + System.getProperty(
+      String expectedBrandImage = webServerUrl + System.getProperty(
          "artemis.console.login.brand.image", DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE);
 
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       assertEquals(expectedBrandImage, loginPage.getBrandImage(DEFAULT_TIMEOUT));
    }

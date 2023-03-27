@@ -47,7 +47,7 @@ public class QueuesTest extends ConsoleTest {
 
    @Test
    public void testDefaultQueues() throws Exception {
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -66,7 +66,7 @@ public class QueuesTest extends ConsoleTest {
       final String queueName = "TEST";
       final String messageText = "TEST";
 
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -119,7 +119,7 @@ public class QueuesTest extends ConsoleTest {
       final ObjectNameBuilder objectNameBuilder = ObjectNameBuilder.create(null, "0.0.0.0", true);
       final ObjectName activeMQServerObjectName = objectNameBuilder.getActiveMQServerObjectName();
 
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -148,7 +148,7 @@ public class QueuesTest extends ConsoleTest {
          SimpleString.toSimpleString(queueName),
          RoutingType.ANYCAST);
 
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);
@@ -201,7 +201,7 @@ public class QueuesTest extends ConsoleTest {
       final String queueName = "TEST";
       final String messageText = "TEST";
 
-      driver.get(serverUrl + "/console");
+      driver.get(webServerUrl + "/console");
       LoginPage loginPage = new LoginPage(driver);
       StatusPage statusPage = loginPage.loginValidUser(
          SERVER_ADMIN_USERNAME, SERVER_ADMIN_PASSWORD, DEFAULT_TIMEOUT);

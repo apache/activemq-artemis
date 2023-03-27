@@ -28,7 +28,7 @@ public class RootTest extends ConsoleTest {
 
    @Test
    public void testRedirect() {
-      driver.get(serverUrl);
-      Assert.assertTrue(driver.getCurrentUrl().startsWith(serverUrl + "/console"));
+      driver.get(webServerUrl);
+      Assert.assertTrue(driver.getCurrentUrl().startsWith(webServerUrl + "/console"));
    }
 }

@@ -16,13 +16,17 @@
  */
 package org.apache.activemq.artemis.tests.smoke.console;
 
+import java.io.File;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.junit.After;
@@ -38,22 +42,26 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
+import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 @RunWith(Parameterized.class)
 public abstract class ConsoleTest extends SmokeTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    protected static final String SERVER_NAME = "console";
    protected static final String SERVER_ADMIN_USERNAME = "admin";
    protected static final String SERVER_ADMIN_PASSWORD = "admin";
 
    protected static final int DEFAULT_TIMEOUT = 10000;
-   protected static final String DEFAULT_SERVER_URL = "http://localhost:8161";
-   protected static final String DEFAULT_CONTAINER_SERVER_URL = "http://host.testcontainers.internal:8161";
 
    protected WebDriver driver;
    protected MutableCapabilities browserOptions;
-   protected String serverUrl = DEFAULT_SERVER_URL;
+   protected String webServerUrl;
    private BrowserWebDriverContainer browserWebDriverContainer;
 
    @Parameterized.Parameters(name = "browserOptions={0}")
@@ -63,10 +71,19 @@ public abstract class ConsoleTest extends SmokeTestBase {
 
    public ConsoleTest(MutableCapabilities browserOptions) {
       this.browserOptions = browserOptions;
+      this.webServerUrl = String.format("%s://%s:%d", "http", System.getProperty("sts-http-host", "localhost"), 8161);
    }
 
    @Before
    public void before() throws Exception {
+      File jolokiaAccessFile = Paths.get(getServerLocation(SERVER_NAME), "etc", Create.ETC_JOLOKIA_ACCESS_XML).toFile();
+      String jolokiaAccessContent = FileUtils.readFileToString(jolokiaAccessFile, "UTF-8");
+      if (!jolokiaAccessContent.contains("testcontainers")) {
+         jolokiaAccessContent = jolokiaAccessContent.replaceAll("<strict-checking/>",
+            "<allow-origin>*://host.testcontainers.internal*</allow-origin><strict-checking/>");
+         FileUtils.writeStringToFile(jolokiaAccessFile, jolokiaAccessContent, "UTF-8");
+      }
+
       cleanupData(SERVER_NAME);
       disableCheckThread();
       startServer(SERVER_NAME, 0, 0);
@@ -127,8 +144,8 @@ public abstract class ConsoleTest extends SmokeTestBase {
          } else if (webdriverLocation != null) {
             driver = webDriverConstructor.apply(browserOptions);
          } else {
-            serverUrl = DEFAULT_CONTAINER_SERVER_URL;
             Testcontainers.exposeHostPorts(8161);
+            webServerUrl = webServerUrl.replace("localhost", "host.testcontainers.internal");
             browserWebDriverContainer = new BrowserWebDriverContainer().withCapabilities(this.browserOptions);
             browserWebDriverContainer.start();
             driver = browserWebDriverContainer.getWebDriver();
@@ -141,9 +158,10 @@ public abstract class ConsoleTest extends SmokeTestBase {
       WebDriverWait loadWebDriverWait = new WebDriverWait(
          driver, Duration.ofMillis(30000).getSeconds());
 
+      logger.info("Loading " + webServerUrl);
       loadWebDriverWait.until((Function<WebDriver, Object>) webDriver -> {
          try {
-            webDriver.get(serverUrl);
+            webDriver.get(webServerUrl);
             return true;
          } catch (Exception ignore) {
             return false;
