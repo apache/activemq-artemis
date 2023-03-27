@@ -50,31 +50,25 @@ public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
       deleteDirectory(new File("./target/server"));
       ActiveMQServer server = createServer("./target/server");
 
+      server.start();
+
+      ConnectionFactory factory = new ActiveMQConnectionFactory();
+      Connection connection = factory.createConnection();
+
+      Session session = connection.createSession();
+
+      MessageProducer producer = session.createProducer(session.createQueue("queue"));
+
       try {
-         server.start();
-
-         ConnectionFactory factory = new ActiveMQConnectionFactory();
-         Connection connection = factory.createConnection();
-
-         Session session = connection.createSession();
-
-         MessageProducer producer = session.createProducer(session.createQueue("queue"));
-
-         try {
-            for (int i = 0; i < 500; i++) {
-               producer.send(session.createTextMessage("text"));
-            }
-         } catch (JMSException expected) {
+         for (int i = 0; i < 500; i++) {
+            producer.send(session.createTextMessage("text"));
          }
-
-         Wait.waitFor(() -> !server.isStarted());
-
-         Assert.assertFalse(server.isStarted());
-
-      } finally {
-         server.stop();
-
+      } catch (JMSException expected) {
       }
+
+      Wait.waitFor(() -> !server.isStarted());
+
+      Assert.assertFalse(server.isStarted());
 
    }
 
@@ -121,7 +115,7 @@ public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
 
       };
 
-      return server;
+      return addServer(server);
    }
 
    Configuration createConfig(String folder) throws Exception {
