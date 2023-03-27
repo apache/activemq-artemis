@@ -130,7 +130,7 @@
                      <configuration>${basedir}/target/classes/servers/horizontalPaging</configuration>
                      <args>
                         <arg>--java-memory</arg>
-                        <arg>10G</arg>
+                        <arg>2G</arg>
                      </args>
                   </configuration>
                </execution>
