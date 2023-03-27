@@ -329,6 +329,29 @@
                      </args>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-mqtt</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <configuration>${basedir}/target/classes/servers/mqtt</configuration>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>artemis</user>
+                     <password>artemis</password>
+                     <instance>${basedir}/target/mqtt</instance>
+                     <noWeb>false</noWeb>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-Djava.rmi.server.hostname=localhost</arg>
+                        <arg>--name</arg>
+                        <arg>mqtt</arg>
+                     </args>
+                  </configuration>
+               </execution>
+
             </executions>
          </plugin>
 

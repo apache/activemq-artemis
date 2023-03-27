@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.mqtt5;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
 import javax.jms.Message;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -48,7 +47,6 @@ import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
-import org.junit.Assume;
 import org.junit.Test;
 
 /*
@@ -110,48 +108,6 @@ public class MQTT5Test extends MQTT5TestSupport {
       producer.close();
 
       assertTrue(server.getAddressInfo(SimpleString.toSimpleString(DESTINATION)) == null);
-   }
-
-   /*
-    * Trying to reproduce error from https://issues.apache.org/jira/browse/ARTEMIS-1184
-    */
-   @Test(timeout = DEFAULT_TIMEOUT)
-   public void testMaxMessageSize() throws Exception {
-      // this doesn't work with websockets because the websocket frame size is too low
-      Assume.assumeTrue(protocol.equals(TCP));
-
-      final String TOPIC = RandomUtil.randomString();
-      // subtract a little to leave room for the header
-      final int SIZE = MQTTUtil.MAX_PACKET_SIZE - 48;
-      StringBuilder builder = new StringBuilder(SIZE);
-
-      for (int i = 0; i < SIZE; i++) {
-         builder.append("=");
-      }
-      byte[] bytes = builder.toString().getBytes(StandardCharsets.UTF_8);
-
-      final CountDownLatch latch = new CountDownLatch(1);
-      MqttClient consumer = createPahoClient("consumer");
-      consumer.setCallback(new DefaultMqttCallback() {
-         @Override
-         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            assertEqualsByteArrays(bytes.length, bytes, message.getPayload());
-            latch.countDown();
-         }
-      });
-      consumer.connect();
-      consumer.subscribe(TOPIC, 1);
-
-      MqttClient producer = createPahoClient(RandomUtil.randomString());
-      producer.connect();
-      producer.publish(TOPIC, bytes, 1, false);
-      producer.disconnect();
-      producer.close();
-      Wait.assertEquals(1L, () -> getSubscriptionQueue(TOPIC).getMessagesAdded(), 2000, 100);
-
-      assertTrue(latch.await(30, TimeUnit.SECONDS));
-      consumer.disconnect();
-      consumer.close();
    }
 
    /*
