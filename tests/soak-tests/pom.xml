@@ -213,10 +213,6 @@
                      <noWeb>false</noWeb>
                      <instance>${basedir}/target/openwire-leaktest</instance>
                      <configuration>${basedir}/target/classes/servers/openwire-leaktest</configuration>
-                     <args>
-                        <arg>--java-memory</arg>
-                        <arg>3G</arg>
-                     </args>
                   </configuration>
                </execution>
                <!-- Used on TestRetention -->
