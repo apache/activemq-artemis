@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -132,7 +133,7 @@ public class WildcardAddressManagerPerfTest {
 
       @Override
       public Bindings createBindings(SimpleString address) throws Exception {
-         return new BindingsImpl(address, null);
+         return new BindingsImpl(address, null, new SimpleIDGenerator(1000));
       }
    }
 

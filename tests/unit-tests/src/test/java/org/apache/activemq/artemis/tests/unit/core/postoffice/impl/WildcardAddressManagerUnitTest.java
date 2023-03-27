@@ -478,10 +478,10 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean redistribute(Message message,
+      public Message redistribute(Message message,
                                   Queue originatingQueue,
                                   RoutingContext context) throws Exception {
-         return false;
+         return null;
       }
 
       @Override
