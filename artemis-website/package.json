@@ -8,6 +8,6 @@
     "url": "https://github.com/apache/activemq-artemis"
   },
   "devDependencies": {
-    "honkit": "~4.0.4"
+    "honkit": "~4.0.7"
   }
 }

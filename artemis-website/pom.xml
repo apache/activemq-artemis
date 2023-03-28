@@ -40,8 +40,8 @@
       <skipPlaceholderJavadocGeneration>false</skipPlaceholderJavadocGeneration>
 
       <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
-      <nodeVersion>v18.14.0</nodeVersion>
-      <npmVersion>9.3.1</npmVersion>
+      <nodeVersion>v18.15.0</nodeVersion>
+      <npmVersion>9.6.2</npmVersion>
       <skipWebsiteDocGeneration>false</skipWebsiteDocGeneration>
       <skipWebsiteJavadocGeneration>false</skipWebsiteJavadocGeneration>
    </properties>
