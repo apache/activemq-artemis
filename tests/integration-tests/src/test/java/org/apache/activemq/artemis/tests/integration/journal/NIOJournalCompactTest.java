@@ -57,6 +57,8 @@ import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEnco
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.IDGenerator;
+import org.apache.activemq.artemis.utils.TokenBucketLimiter;
+import org.apache.activemq.artemis.utils.TokenBucketLimiterImpl;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
@@ -2017,8 +2019,10 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          Runnable producerRunnable = new Runnable() {
             @Override
             public void run() {
+               TokenBucketLimiter limiter = new TokenBucketLimiterImpl(5000, true);
                try {
                   while (running.get()) {
+                     limiter.limit();
                      final long[] values = new long[100];
                      long tx = seqGenerator.incrementAndGet();
 
@@ -2104,7 +2108,7 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
          Thread compactorThread = new Thread(compressRunnable);
          compactorThread.start();
 
-         Thread.sleep(1000);
+         Thread.sleep(500);
 
          running.set(false);
 
