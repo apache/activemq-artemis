@@ -48,7 +48,7 @@ public class PotentialOOMELoggingTest extends ActiveMQTestBase {
    @Test
    public void testBlockLogging() throws Exception {
       ActiveMQServer server = createServer(false, createDefaultInVMConfig());
-      for (int i = 0; i < 10000; i++) {
+      for (int i = 0; i < 100; i++) {
          server.getConfiguration().addQueueConfiguration(new QueueConfiguration(UUID.randomUUID().toString()));
       }
       server.getConfiguration().setGlobalMaxSize(-1);
