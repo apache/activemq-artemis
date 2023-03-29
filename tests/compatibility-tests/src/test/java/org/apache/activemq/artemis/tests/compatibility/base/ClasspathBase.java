@@ -109,6 +109,11 @@ public class ClasspathBase {
          if (dot != -1) {
             version = version.substring(0, dot);
          }
+
+         int dashIndex = version.indexOf("-");
+         if (dashIndex != -1) {
+            version = version.substring(0, dashIndex);
+         }
       }
       javaVersion = Integer.parseInt(version);
    }
