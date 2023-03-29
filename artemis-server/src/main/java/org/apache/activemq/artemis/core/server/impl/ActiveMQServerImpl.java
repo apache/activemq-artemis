@@ -96,6 +96,7 @@ import org.apache.activemq.artemis.core.persistence.QueueBindingInfo;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.persistence.impl.PageCountPending;
@@ -3480,6 +3481,8 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          postOffice.startAddressQueueScanner();
 
+         recoverStoredConnectors();
+
          recoverStoredBridges();
       }
 
@@ -4296,6 +4299,14 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
    }
 
+   private void recoverStoredConnectors() throws Exception {
+      if (storageManager.recoverConnectors() != null) {
+         for (PersistedConnector persistedConnector : storageManager.recoverConnectors()) {
+            getConfiguration().addConnectorConfiguration(persistedConnector.getName(), persistedConnector.getUrl());
+         }
+      }
+   }
+
    private void deployGroupingHandlerConfiguration(final GroupingHandlerConfiguration config) throws Exception {
       if (config != null) {
          GroupingHandler groupingHandler1;
@@ -4627,6 +4638,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
                destroyBridge(existingBridge.getConfiguration().getParentName());
             }
          }
+         recoverStoredConnectors();
          recoverStoredBridges();
       }
    }

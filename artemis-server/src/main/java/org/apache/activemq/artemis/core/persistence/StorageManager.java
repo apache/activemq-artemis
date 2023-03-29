@@ -40,6 +40,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
@@ -368,6 +369,12 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    void deleteBridgeConfiguration(String bridgeName) throws Exception;
 
    List<PersistedBridgeConfiguration> recoverBridgeConfigurations();
+
+   void storeConnector(PersistedConnector persistedConnector) throws Exception;
+
+   void deleteConnector(String connectorName) throws Exception;
+
+   List<PersistedConnector> recoverConnectors();
 
    void storeUser(PersistedUser persistedUser) throws Exception;
 

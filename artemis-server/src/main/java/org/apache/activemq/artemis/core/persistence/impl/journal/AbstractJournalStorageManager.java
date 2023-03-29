@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.core.persistence.AddressQueueStatus;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
 import org.apache.activemq.artemis.core.persistence.config.PersistedBridgeConfiguration;
+import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedDivertConfiguration;
 import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.apache.activemq.artemis.core.persistence.config.PersistedRole;
@@ -224,6 +225,8 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    protected final Map<String, PersistedDivertConfiguration> mapPersistedDivertConfigurations = new ConcurrentHashMap<>();
 
    protected final Map<String, PersistedBridgeConfiguration> mapPersistedBridgeConfigurations = new ConcurrentHashMap<>();
+
+   protected final Map<String, PersistedConnector> mapPersistedConnectors = new ConcurrentHashMap<>();
 
    protected final Map<String, PersistedUser> mapPersistedUsers = new ConcurrentHashMap<>();
 
@@ -794,6 +797,32 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
    @Override
    public List<PersistedBridgeConfiguration> recoverBridgeConfigurations() {
       return new ArrayList<>(mapPersistedBridgeConfigurations.values());
+   }
+
+   @Override
+   public void storeConnector(PersistedConnector persistedConnector) throws Exception {
+      deleteConnector(persistedConnector.getName());
+      try (ArtemisCloseable lock = closeableReadLock()) {
+         final long id = idGenerator.generateID();
+         persistedConnector.setStoreId(id);
+         bindingsJournal.appendAddRecord(id, JournalRecordIds.CONNECTOR_RECORD, persistedConnector, true);
+         mapPersistedConnectors.put(persistedConnector.getName(), persistedConnector);
+      }
+   }
+
+   @Override
+   public void deleteConnector(String connectorName) throws Exception {
+      PersistedConnector oldConnector = mapPersistedConnectors.remove(connectorName);
+      if (oldConnector != null) {
+         try (ArtemisCloseable lock = closeableReadLock()) {
+            bindingsJournal.tryAppendDeleteRecord(oldConnector.getStoreId(), this::recordNotFoundCallback, false);
+         }
+      }
+   }
+
+   @Override
+   public List<PersistedConnector> recoverConnectors() {
+      return new ArrayList<>(mapPersistedConnectors.values());
    }
 
    @Override
@@ -1628,6 +1657,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                   mapPersistedKeyValuePairs.put(keyValuePair.getMapId(), persistedKeyValuePairs);
                }
                persistedKeyValuePairs.put(keyValuePair.getKey(), keyValuePair);
+            } else if (rec == JournalRecordIds.CONNECTOR_RECORD) {
+               PersistedConnector connector = newConnectorEncoding(id, buffer);
+               mapPersistedConnectors.put(connector.getName(), connector);
             } else {
                // unlikely to happen
                ActiveMQServerLogger.LOGGER.invalidRecordType(rec, new Exception("invalid record type " + rec));
@@ -2091,6 +2123,13 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    static PersistedBridgeConfiguration newBridgeEncoding(long id, ActiveMQBuffer buffer) {
       PersistedBridgeConfiguration persistedBridgeConfiguration = new PersistedBridgeConfiguration();
+      persistedBridgeConfiguration.decode(buffer);
+      persistedBridgeConfiguration.setStoreId(id);
+      return persistedBridgeConfiguration;
+   }
+
+   static PersistedConnector newConnectorEncoding(long id, ActiveMQBuffer buffer) {
+      PersistedConnector persistedBridgeConfiguration = new PersistedConnector();
       persistedBridgeConfiguration.decode(buffer);
       persistedBridgeConfiguration.setStoreId(id);
       return persistedBridgeConfiguration;
