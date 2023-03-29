@@ -88,6 +88,7 @@ import org.apache.activemq.artemis.core.messagecounter.MessageCounterManager;
 import org.apache.activemq.artemis.core.messagecounter.impl.MessageCounterManagerImpl;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedAddressSetting;
+import org.apache.activemq.artemis.core.persistence.config.PersistedConnector;
 import org.apache.activemq.artemis.core.persistence.config.PersistedSecuritySetting;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -3969,6 +3970,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       try {
          server.getConfiguration().addConnectorConfiguration(name, url);
+         storageManager.storeConnector(new PersistedConnector(name, url));
       } finally {
          blockOnIO();
       }
@@ -3985,6 +3987,7 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
       try {
          server.getConfiguration().getConnectorConfigurations().remove(name);
+         storageManager.deleteConnector(name);
       } finally {
          blockOnIO();
       }

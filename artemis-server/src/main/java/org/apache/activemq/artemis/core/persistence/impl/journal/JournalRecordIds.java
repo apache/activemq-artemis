@@ -102,4 +102,6 @@ public final class JournalRecordIds {
    public static final byte ADD_MESSAGE_BODY = 49;
 
    public static final byte KEY_VALUE_PAIR_RECORD = 50;
+
+   public static final byte CONNECTOR_RECORD = 51;
 }
