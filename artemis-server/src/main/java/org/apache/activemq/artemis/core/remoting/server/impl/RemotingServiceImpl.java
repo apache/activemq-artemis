@@ -487,8 +487,8 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
       ConnectionEntry entry = connections.remove(remotingConnectionID);
 
       if (entry != null) {
-         if (AuditLogger.isConnectionLoggingEnabled()) {
-            AuditLogger.destroyedConnection(entry.connection.getProtocolName(), entry.connection.getID().toString(), entry.connection.getSubject(), entry.connection.getRemoteAddress());
+         if (AuditLogger.isResourceLoggingEnabled()) {
+            AuditLogger.destroyedConnection(entry.connection.getProtocolName(), entry.connection.getID(), entry.connection.getSubject(), entry.connection.getRemoteAddress());
          }
          if (logger.isDebugEnabled()) {
             logger.debug("RemotingServiceImpl::removing succeeded connection ID {}, we now have {} connections", remotingConnectionID, connections.size());
@@ -581,7 +581,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    @Override
    public void addConnectionEntry(Connection connection, ConnectionEntry entry) {
       connections.put(connection.getID(), entry);
-      if (AuditLogger.isConnectionLoggingEnabled()) {
+      if (AuditLogger.isResourceLoggingEnabled()) {
          AuditLogger.createdConnection(connection.getProtocolConnection().getProtocolName(), connection.getID(), connection.getRemoteAddress());
       }
       if (logger.isDebugEnabled()) {

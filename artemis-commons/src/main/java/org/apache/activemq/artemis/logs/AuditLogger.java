@@ -37,7 +37,6 @@ public interface AuditLogger {
    AuditLogger BASE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.base");
    AuditLogger RESOURCE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.resource");
    AuditLogger MESSAGE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.message");
-   AuditLogger CONNECTION_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.connection");
 
    ThreadLocal<String> remoteAddress = new ThreadLocal<>();
 
@@ -47,7 +46,7 @@ public interface AuditLogger {
    Logger getLogger();
 
    static boolean isAnyLoggingEnabled() {
-      return isBaseLoggingEnabled() || isMessageLoggingEnabled() || isResourceLoggingEnabled() || isConnectionLoggingEnabled();
+      return isBaseLoggingEnabled() || isMessageLoggingEnabled() || isResourceLoggingEnabled();
    }
 
    static boolean isBaseLoggingEnabled() {
@@ -60,10 +59,6 @@ public interface AuditLogger {
 
    static boolean isMessageLoggingEnabled() {
       return MESSAGE_LOGGER.getLogger().isInfoEnabled();
-   }
-
-   static boolean isConnectionLoggingEnabled() {
-      return CONNECTION_LOGGER.getLogger().isInfoEnabled();
    }
 
    /**
@@ -2646,14 +2641,14 @@ public interface AuditLogger {
    void isAutoDelete(String user, Object source);
 
    static void createdConnection(String protocol, Object connectionID, String remoteAddress) {
-      CONNECTION_LOGGER.createdConnection(protocol, connectionID.toString(), String.format("unknown%s", formatRemoteAddress(remoteAddress)));
+      RESOURCE_LOGGER.createdConnection(protocol, String.valueOf(connectionID), String.format("unknown%s", formatRemoteAddress(remoteAddress)));
    }
 
    @LogMessage(id = 601767, value = "{} connection {} for user {} created", level = LogMessage.Level.INFO)
    void createdConnection(String protocol, String connectionID, String user);
 
    static void destroyedConnection(String protocol, Object connectionID, Subject subject, String remoteAddress) {
-      CONNECTION_LOGGER.destroyedConnection(protocol, connectionID.toString(), getCaller(subject, remoteAddress));
+      RESOURCE_LOGGER.destroyedConnection(protocol, String.valueOf(connectionID), getCaller(subject, remoteAddress));
    }
 
    @LogMessage(id = 601768, value = "{} connection {} for user {} destroyed", level = LogMessage.Level.INFO)

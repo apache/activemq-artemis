@@ -38,7 +38,7 @@ public class ManagementRemotingConnection implements RemotingConnection {
 
    @Override
    public Object getID() {
-      return null;
+      return "management";
    }
 
    @Override
@@ -48,7 +48,7 @@ public class ManagementRemotingConnection implements RemotingConnection {
 
    @Override
    public String getRemoteAddress() {
-      return "Management";
+      return "management";
    }
 
    @Override
