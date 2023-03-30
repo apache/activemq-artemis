@@ -336,7 +336,7 @@ public final class ActiveMQRAManagedConnection implements ManagedConnection, Exc
 
    public void checkTransactionActive() throws JMSException {
       // don't bother looking at the transaction if there's an active XID
-      if (!inManagedTx && tsr != null) {
+      if (!inManagedTx && tsr != null && tsr.getTransactionKey() != null) {
          int status = tsr.getTransactionStatus();
          // Only allow states that will actually succeed
          if (status == Status.STATUS_COMMITTED || status == Status.STATUS_MARKED_ROLLBACK || status == Status.STATUS_ROLLEDBACK || status == Status.STATUS_ROLLING_BACK) {
