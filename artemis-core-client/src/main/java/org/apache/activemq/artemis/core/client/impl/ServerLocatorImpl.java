@@ -101,7 +101,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private final boolean ha;
 
-   // this is not used... I'm only keeping it here because of Serialization compatibiity and Wildfly usage on JNDI.
+   // this is not used... I'm only keeping it here because of Serialization compatibility and Wildfly usage on JNDI.
    private boolean finalizeCheck;
 
    private boolean clusterConnection;
