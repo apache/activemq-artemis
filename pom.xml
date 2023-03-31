@@ -155,7 +155,7 @@
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <postgresql.version>42.4.3</postgresql.version>
-      <testcontainers.version>1.16.3</testcontainers.version>
+      <testcontainers.version>1.17.6</testcontainers.version>
       <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
       <apache.httpcore.version>4.4.13</apache.httpcore.version>
       <apache.httpclient.version>4.5.13</apache.httpclient.version>
