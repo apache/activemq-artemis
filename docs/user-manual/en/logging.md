@@ -157,7 +157,7 @@ logger.audit_resource = INFO, audit_log_file
 logger.audit_message = INFO, audit_log_file
 ```
 
-The 4 audit loggers can be disable/enabled separately. 
+The 3 audit loggers can be disable/enabled separately. 
 
 Once enabled, all audit records are written into a separate log
 file (by default `audit.log`).
