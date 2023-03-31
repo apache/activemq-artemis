@@ -55,14 +55,14 @@ public abstract class ConsolePage {
 
    public void waitForElementToBeVisible(final By elementLocator, int timeout) {
       WebDriverWait loadWebDriverWait = new WebDriverWait(
-         driver, Duration.ofMillis(timeout).getSeconds());
+         driver, Duration.ofMillis(timeout));
 
       loadWebDriverWait.until(ExpectedConditions.visibilityOfElementLocated(elementLocator));
    }
 
    public void waitForElementToBeClickable(final By elementLocator, int timeout) {
       WebDriverWait loadWebDriverWait = new WebDriverWait(
-         driver, Duration.ofMillis(timeout).getSeconds());
+         driver, Duration.ofMillis(timeout));
 
       loadWebDriverWait.until(ExpectedConditions.elementToBeClickable(elementLocator));
    }
