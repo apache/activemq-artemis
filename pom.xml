@@ -115,8 +115,8 @@
       <zookeeper.version>3.6.3</zookeeper.version>
 
       <!-- tracing -->
-      <opentelemetry.version>1.10.0</opentelemetry.version>
-      <opentelemetry-alpha.version>1.10.0-alpha</opentelemetry-alpha.version>
+      <opentelemetry.version>1.24.0</opentelemetry.version>
+      <opentelemetry-alpha.version>${opentelemetry.version}-alpha</opentelemetry-alpha.version>
 
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.54.Final</netty-tcnative-version>
