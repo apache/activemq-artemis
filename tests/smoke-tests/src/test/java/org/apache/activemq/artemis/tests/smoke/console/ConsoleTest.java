@@ -156,7 +156,7 @@ public abstract class ConsoleTest extends SmokeTestBase {
 
       // Wait for server console
       WebDriverWait loadWebDriverWait = new WebDriverWait(
-         driver, Duration.ofMillis(30000).getSeconds());
+         driver, Duration.ofMillis(30000));
 
       logger.info("Loading " + webServerUrl);
       loadWebDriverWait.until((Function<WebDriver, Object>) webDriver -> {
