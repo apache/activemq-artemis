@@ -3093,9 +3093,21 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                break;
             }
 
-            ConsumerHolder<? extends Consumer> holder;
+            final ConsumerHolder<? extends Consumer> holder;
+            final LinkedListIterator<MessageReference> holderIterator;
             if (consumers.hasNext()) {
                holder = consumers.next();
+               if (holder == null) {
+                  // this shouldn't happen, however I'm adding this check just in case
+                  logger.debug("consumers.next() returned null.");
+                  consumers.remove();
+                  deliverAsync(true);
+                  return false;
+               }
+               if (holder.iter == null) {
+                  holder.iter = messageReferences.iterator();
+               }
+               holderIterator = holder.iter;
             } else {
                pruneLastValues();
                break;
@@ -3112,12 +3124,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return false;
             }
 
-            if (holder.iter == null) {
-               holder.iter = messageReferences.iterator();
-            }
-
-            if (holder.iter.hasNext()) {
-               ref = holder.iter.next();
+            if (holderIterator.hasNext()) {
+               ref = holderIterator.next();
             } else {
                ref = null;
             }
@@ -3167,7 +3175,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                   consumers.reset();
                } else if (status == HandleStatus.BUSY) {
                   try {
-                     holder.iter.repeat();
+                     holderIterator.repeat();
                   } catch (NoSuchElementException e) {
                      // this could happen if there was an exception on the queue handling
                      // and it returned BUSY because of that exception
