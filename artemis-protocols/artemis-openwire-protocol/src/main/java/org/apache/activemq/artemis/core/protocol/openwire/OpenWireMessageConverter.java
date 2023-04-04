@@ -111,9 +111,13 @@ public final class OpenWireMessageConverter {
       final ActiveMQBuffer body = coreMessage.getBodyBuffer();
 
       final ByteSequence contents = messageSend.getContent();
-      if (contents == null && coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
-         body.writeNullableString(null);
-      } else if (contents != null) {
+      if (contents == null) {
+         if (coreType == org.apache.activemq.artemis.api.core.Message.TEXT_TYPE) {
+            body.writeNullableString(null);
+         } else if (coreType == org.apache.activemq.artemis.api.core.Message.MAP_TYPE) {
+            body.writeByte(DataConstants.NULL);
+         }
+      } else {
          final boolean messageCompressed = messageSend.isCompressed();
          if (messageCompressed) {
             coreMessage.putBooleanProperty(OpenWireConstants.AMQ_MSG_COMPRESSED, true);

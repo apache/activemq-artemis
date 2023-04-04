@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.protocol.openwire;
 
 import org.apache.activemq.ActiveMQMessageAuditNoSync;
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -28,7 +29,9 @@ import org.apache.activemq.artemis.reader.MessageUtil;
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
+import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.apache.activemq.command.ActiveMQDestination;
+import org.apache.activemq.command.ActiveMQMapMessage;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.MessageDispatch;
@@ -133,6 +136,16 @@ public class OpenWireMessageConverterTest {
       for (int i = 0; i < 5; i++) {
          assertTrue(converted.containsProperty(i + ""));
       }
+   }
+
+   @Test
+   public void testEmptyMapMessage() throws Exception {
+      CoreMessage artemisMessage = (CoreMessage) OpenWireMessageConverter.inbound(new ActiveMQMapMessage().getMessage(), openWireFormat, null);
+      assertEquals(Message.MAP_TYPE, artemisMessage.getType());
+      ActiveMQBuffer buffer = artemisMessage.getDataBuffer();
+      TypedProperties map = new TypedProperties();
+      buffer.resetReaderIndex();
+      map.decode(buffer.byteBuf());
    }
 
    @Test
