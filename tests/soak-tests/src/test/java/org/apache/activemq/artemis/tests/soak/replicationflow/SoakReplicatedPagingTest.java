@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.replicationflow;
+package org.apache.activemq.artemis.tests.soak.replicationflow;
 
 import javax.jms.BytesMessage;
 import javax.jms.CompletionListener;
@@ -44,6 +44,7 @@ import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -51,7 +52,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.utils.ExecuteUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.jms.JmsConnectionFactory;
@@ -65,10 +66,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 @RunWith(Parameterized.class)
-public class SoakPagingTest extends SmokeTestBase {
+public class SoakReplicatedPagingTest extends SoakTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -81,7 +81,7 @@ public class SoakPagingTest extends SmokeTestBase {
    boolean transaction;
    final String destination;
 
-   public SoakPagingTest(String protocol, String consumerType, boolean transaction) {
+   public SoakReplicatedPagingTest(String protocol, String consumerType, boolean transaction) {
       this.protocol = protocol;
       this.consumerType = consumerType;
       this.transaction = transaction;
@@ -162,7 +162,7 @@ public class SoakPagingTest extends SmokeTestBase {
             Thread t = new Thread(new Runnable() {
                @Override
                public void run() {
-                  SoakPagingTest app = new SoakPagingTest(protocol, consumerType, tx);
+                  SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
                   app.produce(factory, producer_count.incrementAndGet(), producersLatch);
                }
             });
@@ -175,7 +175,7 @@ public class SoakPagingTest extends SmokeTestBase {
             Thread t = new Thread(new Runnable() {
                @Override
                public void run() {
-                  SoakPagingTest app = new SoakPagingTest(protocol, consumerType, tx);
+                  SoakReplicatedPagingTest app = new SoakReplicatedPagingTest(protocol, consumerType, tx);
                   app.consume(factory, consumer_count.getAndIncrement(), consumersLatch);
                }
             });
@@ -214,7 +214,14 @@ public class SoakPagingTest extends SmokeTestBase {
       server1 = startServer(SERVER_NAME_1, 0, 30000);
 
       for (int i = 0; i < CLIENT_KILLS; i++) {
-         Process process = SpawnedVMSupport.spawnVM(SoakPagingTest.class.getName(), protocol, consumerType, "" + TIME_RUNNING, "" + transaction);
+         Process process = SpawnedVMSupport.spawnVM(SpawnedVMSupport.getClassPath(),
+                                                    null,
+                                                    null,
+                                                    SoakReplicatedPagingTest.class.getName(),
+                                                    null,
+                                                    "-Xmx1G",
+                                                    null, true, true, -1L, protocol, String.valueOf(consumerType), String.valueOf(TIME_RUNNING), String.valueOf(transaction));
+
 
          int result = process.waitFor();
          if (result <= 0) {

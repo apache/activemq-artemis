@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.smoke.replicationflow;
+package org.apache.activemq.artemis.tests.soak.replicationflow;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.apache.qpid.jms.JmsConnectionFactory;
@@ -39,7 +39,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ReplicationFlowControlTest extends SmokeTestBase {
+public class ReplicationFlowControlTest extends SoakTestBase {
 
 
    public static final String SERVER_NAME_0 = "replicated-static0";
@@ -47,7 +47,6 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
 
    ArrayList<Consumer> consumers = new ArrayList<>();
    private static Process server0;
-
    private static Process server1;
 
    static final int NUM_MESSAGES = 50_000;
@@ -58,7 +57,6 @@ public class ReplicationFlowControlTest extends SmokeTestBase {
 
    static AtomicBoolean running = new AtomicBoolean(true);
    static AtomicInteger totalConsumed = new AtomicInteger(0);
-
 
 
    @Before
