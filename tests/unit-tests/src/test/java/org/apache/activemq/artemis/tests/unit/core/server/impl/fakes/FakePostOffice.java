@@ -251,8 +251,7 @@ public class FakePostOffice implements PostOffice {
 
    @Override
    public Pair<RoutingContext, Message> redistribute(final Message message,
-                                                     final Queue originatingQueue,
-                                                     final Transaction tx) throws Exception {
+                                                     final Queue originatingQueue) throws Exception {
       return null;
    }
 

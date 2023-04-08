@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.BindingType;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
@@ -31,7 +32,6 @@ import org.apache.activemq.artemis.core.postoffice.impl.BindingsImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.WildcardAddressManager;
 import org.apache.activemq.artemis.core.server.Bindable;
 import org.apache.activemq.artemis.core.server.RoutingContext;
-import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Fork;
 import org.openjdk.jmh.annotations.Measurement;
@@ -52,7 +52,7 @@ public class WildcardAddressManagerHeirarchyPerfTest {
 
       @Override
       public Bindings createBindings(SimpleString address) {
-         return new BindingsImpl(address, null, new SimpleIDGenerator(1000));
+         return new BindingsImpl(address, null, new NullStorageManager(1000));
       }
    }
 
