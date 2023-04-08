@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -656,7 +655,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
             } else if (type.equals(String.class)) {
                byte[] array = new byte[7]; // length is bounded by 7
                new Random().nextBytes(array);
-               String generatedString = new String(array, Charset.forName("UTF-8"));
+               String generatedString = new String(array, StandardCharsets.UTF_8);
 
                properties.put(prop, generatedString);
             }

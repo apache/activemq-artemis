@@ -20,13 +20,13 @@ import javax.net.ssl.SSLContext;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -99,29 +99,24 @@ public class PropertyUtil {
     *
     * @param options The Mapping that will create the new Query string.
     * @return a URI formatted query string.
-    * @throws URISyntaxException if the given URI is invalid.
     */
-   public static String createQueryString(Map<String, ?> options) throws URISyntaxException {
-      try {
-         if (options.size() > 0) {
-            StringBuffer rc = new StringBuffer();
-            boolean first = true;
-            for (Entry<String, ?> entry : options.entrySet()) {
-               if (first) {
-                  first = false;
-               } else {
-                  rc.append("&");
-               }
-               rc.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-               rc.append("=");
-               rc.append(URLEncoder.encode((String) entry.getValue(), "UTF-8"));
+   public static String createQueryString(Map<String, ?> options) {
+      if (options.size() > 0) {
+         StringBuffer rc = new StringBuffer();
+         boolean first = true;
+         for (Entry<String, ?> entry : options.entrySet()) {
+            if (first) {
+               first = false;
+            } else {
+               rc.append("&");
             }
-            return rc.toString();
-         } else {
-            return "";
+            rc.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8));
+            rc.append("=");
+            rc.append(URLEncoder.encode((String) entry.getValue(), StandardCharsets.UTF_8));
          }
-      } catch (UnsupportedEncodingException e) {
-         throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
+         return rc.toString();
+      } else {
+         return "";
       }
    }
 
@@ -163,17 +158,15 @@ public class PropertyUtil {
     *
     * @param queryString the string value returned from a call to the URI class getQuery method.
     * @return <Code>Map</Code> of properties from the parsed string.
-    * @throws Exception if an error occurs while parsing the query options.
     */
-   public static Map<String, String> parseQuery(String queryString) throws Exception {
+   public static Map<String, String> parseQuery(String queryString) {
       if (queryString != null && !queryString.isEmpty()) {
          Map<String, String> rc = new HashMap<>();
-         String[] parameters = queryString.split("&");
-         for (String parameter : parameters) {
+         for (String parameter : queryString.split("&")) {
             int p = parameter.indexOf("=");
             if (p >= 0) {
-               String name = URLDecoder.decode(parameter.substring(0, p), "UTF-8");
-               String value = URLDecoder.decode(parameter.substring(p + 1), "UTF-8");
+               String name = URLDecoder.decode(parameter.substring(0, p), StandardCharsets.UTF_8);
+               String value = URLDecoder.decode(parameter.substring(p + 1), StandardCharsets.UTF_8);
                rc.put(name, value);
             } else {
                rc.put(parameter, null);

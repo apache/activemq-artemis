@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.api.core;
 import static org.apache.activemq.artemis.utils.uri.URISupport.appendParameters;
 import static org.apache.activemq.artemis.utils.uri.URISupport.parseQuery;
 
-import java.net.URISyntaxException;
 import java.util.Map;
 
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
 public class ParameterisedAddress {
 
-   public static SimpleString toParameterisedAddress(SimpleString address, Map<String, String> parameters) throws URISyntaxException {
+   public static SimpleString toParameterisedAddress(SimpleString address, Map<String, String> parameters) {
       if (parameters != null && !parameters.isEmpty()) {
          return SimpleString.toSimpleString(toParameterisedAddress(address.toString(), parameters));
       } else {
@@ -34,7 +33,7 @@ public class ParameterisedAddress {
       }
    }
 
-   public static String toParameterisedAddress(String address, Map<String, String> parameters) throws URISyntaxException {
+   public static String toParameterisedAddress(String address, Map<String, String> parameters) {
       if (parameters != null && !parameters.isEmpty()) {
          return appendParameters(new StringBuilder(address), parameters).toString();
       } else {
@@ -90,11 +89,7 @@ public class ParameterisedAddress {
       } else {
          this.address = SimpleString.toSimpleString(address.substring(0, index));
          QueueConfiguration queueConfiguration = new QueueConfiguration(address);
-         try {
-            parseQuery(address).forEach(queueConfiguration::set);
-         } catch (URISyntaxException use) {
-            throw new IllegalArgumentException("Malformed parameters in address " + address);
-         }
+         parseQuery(address).forEach(queueConfiguration::set);
          this.queueConfiguration = queueConfiguration;
       }
    }

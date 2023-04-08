@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.protocol.amqp.util;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
@@ -33,8 +33,6 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
  * allow use of Netty buffers to be used when decoding AMQP messages.
  */
 public class NettyReadable implements ReadableBuffer {
-
-   private static final Charset Charset_UTF8 = Charset.forName("UTF-8");
 
    private final ByteBuf buffer;
 
@@ -145,7 +143,7 @@ public class NettyReadable implements ReadableBuffer {
 
    @Override
    public String readUTF8() {
-      return buffer.readCharSequence(buffer.readableBytes(), Charset_UTF8).toString();
+      return buffer.readCharSequence(buffer.readableBytes(), StandardCharsets.UTF_8).toString();
    }
 
    @Override
