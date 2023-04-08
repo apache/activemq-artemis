@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.filter.Filter;
+import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -45,8 +46,8 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.group.impl.Proposal;
 import org.apache.activemq.artemis.core.server.group.impl.Response;
+import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.CompositeAddress;
-import org.apache.activemq.artemis.utils.IDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -76,7 +77,7 @@ public final class BindingsImpl implements Bindings {
 
    private final SimpleString name;
 
-   private final IDGenerator idGenerator;
+   private final StorageManager storageManager;
 
    private static final AtomicInteger sequenceVersion = new AtomicInteger(Integer.MIN_VALUE);
 
@@ -85,9 +86,9 @@ public final class BindingsImpl implements Bindings {
     */
    private final AtomicInteger version = new AtomicInteger(sequenceVersion.incrementAndGet());
 
-   public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler, IDGenerator idGenerator) {
+   public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler, StorageManager storageManager) {
       this.groupingHandler = groupingHandler;
-      this.idGenerator = idGenerator;
+      this.storageManager = storageManager;
       this.name = name;
    }
 
@@ -235,11 +236,15 @@ public final class BindingsImpl implements Bindings {
       // The message needs a new ID during the redistribution
       // We have to create the new ID only after we can guarantee it will be routed
       // otherwise we may leave large messages stranded in the folder
-      final Message copyRedistribute = message.copy(idGenerator.generateID());
+      final Message copyRedistribute = message.copy(storageManager.generateID());
       if (logger.isDebugEnabled()) {
          logger.debug("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
       }
       copyRedistribute.setAddress(message.getAddress());
+
+      if (context.getTransaction() == null) {
+         context.setTransaction(new TransactionImpl(storageManager));
+      }
 
       bindingIndex.setIndex(nextPosition);
       nextBinding.route(copyRedistribute, context);

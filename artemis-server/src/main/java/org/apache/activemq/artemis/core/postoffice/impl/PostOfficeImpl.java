@@ -1387,12 +1387,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
     */
    @Override
    public Pair<RoutingContext, Message> redistribute(final Message message,
-                                                     final Queue originatingQueue,
-                                                     final Transaction tx) throws Exception {
+                                                     final Queue originatingQueue) throws Exception {
       Bindings bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
 
       if (bindings != null && bindings.allowRedistribute()) {
-         RoutingContext context = new RoutingContextImpl(tx);
+         RoutingContext context = new RoutingContextImpl(null);
 
          // the redistributor will make a copy of the message if it can be redistributed
          Message redistributedMessage = bindings.redistribute(message, originatingQueue, context);

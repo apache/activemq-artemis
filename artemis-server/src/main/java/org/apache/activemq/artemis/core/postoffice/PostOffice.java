@@ -190,8 +190,7 @@ public interface PostOffice extends ActiveMQComponent {
    MessageReference reload(Message message, Queue queue, Transaction tx) throws Exception;
 
    Pair<RoutingContext, Message> redistribute(Message message,
-                                                    Queue originatingQueue,
-                                                    Transaction tx) throws Exception;
+                                                    Queue originatingQueue) throws Exception;
 
    void processRoute(Message message, RoutingContext context, boolean direct) throws Exception;
 

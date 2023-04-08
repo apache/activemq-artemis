@@ -101,6 +101,11 @@ public class NullStorageManager implements StorageManager {
       });
    }
 
+   public NullStorageManager(int nextId) {
+      this();
+      this.setNextId(nextId);
+   }
+
    @Override
    public void criticalError(Throwable error) {
       ioCriticalErrorListener.onIOException(error, error.getMessage(), null);

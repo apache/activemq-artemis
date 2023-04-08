@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.transaction.Transaction;
-import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,23 +113,23 @@ public class Redistributor implements Consumer {
          return HandleStatus.NO_MATCH;
       }
 
-      final Transaction tx = new TransactionImpl(storageManager);
-
-      final Pair<RoutingContext, Message> routingInfo = postOffice.redistribute(reference.getMessage(), queue, tx);
+      final Pair<RoutingContext, Message> routingInfo = postOffice.redistribute(reference.getMessage(), queue);
 
       if (routingInfo == null) {
          logger.debug("postOffice.redistribute return null for message {}", reference);
-         tx.rollback();
          return HandleStatus.BUSY;
       }
 
-      postOffice.processRoute(routingInfo.getB(), routingInfo.getA(), false);
+      RoutingContext context = routingInfo.getA();
+      Message message = routingInfo.getB();
+
+      postOffice.processRoute(message, context, false);
 
       if (RefCountMessage.isRefTraceEnabled()) {
          RefCountMessage.deferredDebug(reference.getMessage(), "redistributing");
       }
 
-      ackRedistribution(reference, tx);
+      ackRedistribution(reference, context.getTransaction());
 
       return HandleStatus.HANDLED;
    }
