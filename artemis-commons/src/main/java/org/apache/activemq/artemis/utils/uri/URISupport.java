@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.utils.uri;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -109,7 +109,7 @@ public class URISupport {
       }
    }
 
-   public static StringBuilder appendParameters(StringBuilder sb, Map<String, String> parameters) throws URISyntaxException {
+   public static StringBuilder appendParameters(StringBuilder sb, Map<String, String> parameters) {
       if (!parameters.isEmpty()) {
          sb.append('?');
          sb.append(createQueryString(parameters));
@@ -122,19 +122,14 @@ public class URISupport {
     *
     * @param uri The URI whose query should be extracted and processed.
     * @return A Mapping of the URI options.
-    * @throws java.net.URISyntaxException
     */
-   public static Map<String, String> parseQuery(String uri) throws URISyntaxException {
-      try {
-         uri = uri.substring(uri.lastIndexOf("?") + 1); // get only the relevant part of the query
-         Map<String, String> rc = new HashMap<>();
-         if (uri != null && !uri.isEmpty()) {
-            parseParameters(rc, uri.split("[&;]"));
-         }
-         return rc;
-      } catch (UnsupportedEncodingException e) {
-         throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
+   public static Map<String, String> parseQuery(String uri) {
+      uri = uri.substring(uri.lastIndexOf("?") + 1); // get only the relevant part of the query
+      Map<String, String> rc = new HashMap<>();
+      if (uri != null && !uri.isEmpty()) {
+         parseParameters(rc, uri.split("[&;]"));
       }
+      return rc;
    }
 
    public static boolean containsQuery(String uri) {
@@ -145,13 +140,12 @@ public class URISupport {
       return uri.contains('?');
    }
 
-   private static void parseParameters(Map<String, String> rc,
-                                       String[] parameters) throws UnsupportedEncodingException {
+   private static void parseParameters(Map<String, String> rc, String[] parameters) {
       for (String parameter : parameters) {
          int p = parameter.indexOf("=");
          if (p >= 0) {
-            String name = URLDecoder.decode(parameter.substring(0, p), "UTF-8");
-            String value = URLDecoder.decode(parameter.substring(p + 1), "UTF-8");
+            String name = URLDecoder.decode(parameter.substring(0, p), StandardCharsets.UTF_8);
+            String value = URLDecoder.decode(parameter.substring(p + 1), StandardCharsets.UTF_8);
             rc.put(name, value);
          } else {
             rc.put(parameter, null);
@@ -473,33 +467,28 @@ public class URISupport {
     *
     * @param options The Mapping that will create the new Query string.
     * @return a URI formatted query string.
-    * @throws java.net.URISyntaxException
     */
-   public static String createQueryString(Map<String, ? extends Object> options) throws URISyntaxException {
-      try {
-         if (options.size() > 0) {
-            StringBuilder rc = new StringBuilder();
-            boolean first = true;
-            List<String> keys = new ArrayList<>();
-            keys.addAll(options.keySet());
-            Collections.sort(keys);
-            for (String key : keys) {
-               if (first) {
-                  first = false;
-               } else {
-                  rc.append("&");
-               }
-               String value = (String) options.get(key);
-               rc.append(URLEncoder.encode(key, "UTF-8"));
-               rc.append("=");
-               rc.append(URLEncoder.encode(value, "UTF-8"));
+   public static String createQueryString(Map<String, ? extends Object> options) {
+      if (options.size() > 0) {
+         StringBuilder rc = new StringBuilder();
+         boolean first = true;
+         List<String> keys = new ArrayList<>();
+         keys.addAll(options.keySet());
+         Collections.sort(keys);
+         for (String key : keys) {
+            if (first) {
+               first = false;
+            } else {
+               rc.append("&");
             }
-            return rc.toString();
-         } else {
-            return "";
+            String value = (String) options.get(key);
+            rc.append(URLEncoder.encode(key, StandardCharsets.UTF_8));
+            rc.append("=");
+            rc.append(URLEncoder.encode(value, StandardCharsets.UTF_8));
          }
-      } catch (UnsupportedEncodingException e) {
-         throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
+         return rc.toString();
+      } else {
+         return "";
       }
    }
 

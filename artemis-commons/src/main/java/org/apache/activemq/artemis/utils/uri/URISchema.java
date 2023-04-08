@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.utils.uri;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -104,34 +102,30 @@ public abstract class URISchema<T, P> {
    }
 
    public static Map<String, String> parseQuery(String uri,
-                                                Map<String, String> propertyOverrides) throws URISyntaxException {
-      try {
-         Map<String, String> rc = new HashMap<>();
-         if (uri != null && !uri.isEmpty()) {
-            String[] parameters = uri.split("&");
-            for (String parameter : parameters) {
-               int p = parameter.indexOf("=");
-               if (p >= 0) {
-                  String name = BeanSupport.decodeURI(parameter.substring(0, p));
-                  String value = BeanSupport.decodeURI(parameter.substring(p + 1));
-                  rc.put(name, value);
-               } else {
-                  if (!parameter.trim().isEmpty()) {
-                     rc.put(parameter, null);
-                  }
+                                                Map<String, String> propertyOverrides) {
+      Map<String, String> rc = new HashMap<>();
+      if (uri != null && !uri.isEmpty()) {
+         String[] parameters = uri.split("&");
+         for (String parameter : parameters) {
+            int p = parameter.indexOf("=");
+            if (p >= 0) {
+               String name = BeanSupport.decodeURI(parameter.substring(0, p));
+               String value = BeanSupport.decodeURI(parameter.substring(p + 1));
+               rc.put(name, value);
+            } else {
+               if (!parameter.trim().isEmpty()) {
+                  rc.put(parameter, null);
                }
             }
          }
-
-         if (propertyOverrides != null) {
-            for (Map.Entry<String, String> entry : propertyOverrides.entrySet()) {
-               rc.put(entry.getKey(), entry.getValue());
-            }
-         }
-         return rc;
-      } catch (UnsupportedEncodingException e) {
-         throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
       }
+
+      if (propertyOverrides != null) {
+         for (Map.Entry<String, String> entry : propertyOverrides.entrySet()) {
+            rc.put(entry.getKey(), entry.getValue());
+         }
+      }
+      return rc;
    }
 
    protected String printQuery(Map<String, String> query) {

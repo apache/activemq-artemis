@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.mqtt.example;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import io.netty.handler.codec.mqtt.MqttConnectMessage;
 import io.netty.handler.codec.mqtt.MqttMessage;
@@ -39,7 +39,7 @@ public class SimpleMQTTInterceptor implements MQTTInterceptor {
          MqttPublishMessage message = (MqttPublishMessage) mqttMessage;
 
 
-         String originalMessage = message.payload().toString(Charset.forName("UTF-8"));
+         String originalMessage = message.payload().toString(StandardCharsets.UTF_8);
          System.out.println("Original message: " + originalMessage);
 
          // The new message content must not be bigger that the original content.
