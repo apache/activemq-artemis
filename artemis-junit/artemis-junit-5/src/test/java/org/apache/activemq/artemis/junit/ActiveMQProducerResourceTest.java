@@ -19,15 +19,18 @@ package org.apache.activemq.artemis.junit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 
 @TestInstance(Lifecycle.PER_CLASS)
@@ -55,34 +58,59 @@ public class ActiveMQProducerResourceTest {
    @Order(2)
    public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL(), TEST_ADDRESS);
 
-   ClientMessage sent = null;
-
-   @AfterAll
-   public void checkResults() {
-      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
-
-      ClientMessage received = server.receiveMessage(TEST_QUEUE);
-      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE));
-   }
-
    @Test
    public void testSendBytes() {
-      sent = producer.sendMessage(TEST_BODY.getBytes());
+      final ClientMessage sent = producer.sendMessage(TEST_BODY.getBytes());
+      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE));
+      final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+      final byte[] receivedBody = new byte[body.readableBytes()];
+      body.readBytes(receivedBody);
+      assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
    }
 
    @Test
    public void testSendString() {
-      sent = producer.sendMessage(TEST_BODY);
+      final ClientMessage sent = producer.sendMessage(TEST_BODY);
+      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE));
+      assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
    }
 
    @Test
    public void testSendBytesAndProperties() {
-      sent = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
+      final ClientMessage sent = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
+      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE));
+      final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+      final byte[] receivedBody = new byte[body.readableBytes()];
+      body.readBytes(receivedBody);
+      assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
+
+      TEST_PROPERTIES.forEach((k, v) -> {
+         assertTrue(received.containsProperty(k));
+         assertEquals(v, received.getStringProperty(k));
+      });
    }
 
    @Test
    public void testSendStringAndProperties() {
-      sent = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
-   }
+      final ClientMessage sent = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
+      assertNotNull(sent, String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS));
 
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(received, String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE));
+      assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
+
+      TEST_PROPERTIES.forEach((k, v) -> {
+         assertTrue(received.containsProperty(k));
+         assertEquals(v, received.getStringProperty(k));
+      });
+   }
 }

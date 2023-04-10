@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.junit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.After;
@@ -28,6 +29,9 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EmbeddedActiveMQResourceTest {
 
@@ -51,8 +55,6 @@ public class EmbeddedActiveMQResourceTest {
    @Rule
    public RuleChain rulechain = RuleChain.outerRule(server);
 
-   ClientMessage sent = null;
-
    @Before
    public void setUp() throws Exception {
       server.createQueue(TEST_ADDRESS, TEST_QUEUE);
@@ -60,32 +62,66 @@ public class EmbeddedActiveMQResourceTest {
 
    @After
    public void tearDown() throws Exception {
-      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
-
-      ClientMessage received = server.receiveMessage(TEST_QUEUE);
-      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
-
       server.stop();
    }
 
    @Test
    public void testSendBytes() throws Exception {
-      sent = server.sendMessage(TEST_ADDRESS, TEST_BODY.getBytes());
+      final ClientMessage sent = server.sendMessage(TEST_ADDRESS, TEST_BODY.getBytes());
+
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+      final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+      final byte[] receivedBody = new byte[body.readableBytes()];
+      body.readBytes(receivedBody);
+      assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
    }
 
    @Test
    public void testSendString() throws Exception {
-      sent = server.sendMessage(TEST_ADDRESS, TEST_BODY);
+      final ClientMessage sent = server.sendMessage(TEST_ADDRESS, TEST_BODY);
+
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+      assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
    }
 
    @Test
    public void testSendBytesAndProperties() throws Exception {
-      sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY.getBytes(), TEST_PROPERTIES);
+      final ClientMessage sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY.getBytes(), TEST_PROPERTIES);
+
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+      final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+      final byte[] receivedBody = new byte[body.readableBytes()];
+      body.readBytes(receivedBody);
+      assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
+
+      TEST_PROPERTIES.forEach((k, v) -> {
+         assertTrue(received.containsProperty(k));
+         assertEquals(v, received.getStringProperty(k));
+      });
    }
 
    @Test
    public void testSendStringAndProperties() throws Exception {
-      sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY, TEST_PROPERTIES);
-   }
+      final ClientMessage sent = server.sendMessageWithProperties(TEST_ADDRESS, TEST_BODY, TEST_PROPERTIES);
 
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_ADDRESS), sent);
+
+      final ClientMessage received = server.receiveMessage(TEST_QUEUE);
+      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_ADDRESS), received);
+      assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
+
+      TEST_PROPERTIES.forEach((k, v) -> {
+         assertTrue(received.containsProperty(k));
+         assertEquals(v, received.getStringProperty(k));
+      });
+   }
 }

@@ -471,7 +471,6 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
 
    @Override
    public ClientMessage sendMessageWithProperties(SimpleString address, String body, Map<String, Object> properties) {
-
       ClientMessage message = createMessageWithProperties(body, properties);
       sendMessage(address, message);
       return message;
@@ -626,43 +625,55 @@ public class EmbeddedActiveMQDelegate implements EmbeddedActiveMQOperations {
       public ClientMessage receiveMessage(SimpleString address, long timeout, boolean browseOnly) {
          checkSession();
 
-         ClientConsumer consumer = null;
-         try {
-            consumer = session.createConsumer(address, browseOnly);
+         EmbeddedActiveMQResourceException failureCause = null;
+
+         try (ClientConsumer consumer = session.createConsumer(address, browseOnly)) {
+            ClientMessage message = null;
+            if (timeout > 0) {
+               try {
+                  message = consumer.receive(timeout);
+               } catch (ActiveMQException amqEx) {
+                  failureCause =  new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed",
+                                                                        timeout, address.toString()), amqEx);
+                  throw failureCause;
+               }
+            } else if (timeout == 0) {
+               try {
+                  message = consumer.receiveImmediate();
+               } catch (ActiveMQException amqEx) {
+                  failureCause = new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receiveImmediate() for %s failed",
+                                                                       address.toString()), amqEx);
+                  throw failureCause;
+               }
+            } else {
+               try {
+                  message = consumer.receive();
+               } catch (ActiveMQException amqEx) {
+                  failureCause = new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive() for %s failed",
+                                                                       address.toString()), amqEx);
+                  throw failureCause;
+               }
+            }
+
+            if (message != null) {
+               try {
+                  message.acknowledge();
+               } catch (ActiveMQException amqEx) {
+                  failureCause = new EmbeddedActiveMQResourceException(String.format("ClientMessage.acknowledge() for %s from %s failed",
+                                                                       message, address.toString()), amqEx);
+                  throw failureCause;
+               }
+            }
+
+            return message;
          } catch (ActiveMQException amqEx) {
-            throw new EmbeddedActiveMQResourceException(String.format("Failed to create consumer for %s",
-                                                                      address.toString()),
-                                                        amqEx);
-         }
+            if (failureCause == null) {
+               failureCause = new EmbeddedActiveMQResourceException(String.format("Failed to create consumer for %s",
+                                                                    address.toString()), amqEx);
+            }
 
-         ClientMessage message = null;
-         if (timeout > 0) {
-            try {
-               message = consumer.receive(timeout);
-            } catch (ActiveMQException amqEx) {
-               throw new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive( timeout = %d ) for %s failed",
-                                                                         timeout, address.toString()),
-                                                           amqEx);
-            }
-         } else if (timeout == 0) {
-            try {
-               message = consumer.receiveImmediate();
-            } catch (ActiveMQException amqEx) {
-               throw new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receiveImmediate() for %s failed",
-                                                                         address.toString()),
-                                                           amqEx);
-            }
-         } else {
-            try {
-               message = consumer.receive();
-            } catch (ActiveMQException amqEx) {
-               throw new EmbeddedActiveMQResourceException(String.format("ClientConsumer.receive() for %s failed",
-                                                                         address.toString()),
-                                                           amqEx);
-            }
+            throw failureCause;
          }
-
-         return message;
       }
 
       void checkSession() {

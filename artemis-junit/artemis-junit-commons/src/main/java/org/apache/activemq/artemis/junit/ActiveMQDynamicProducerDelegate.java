@@ -137,16 +137,15 @@ public class ActiveMQDynamicProducerDelegate extends ActiveMQProducerDelegate
 
    @Override
    public ClientMessage sendMessage(SimpleString targetAddress, byte[] body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
+      ClientMessage message = createMessage(body, properties);
       sendMessage(targetAddress, message);
       return message;
    }
 
    @Override
    public ClientMessage sendMessage(SimpleString targetAddress, String body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
+      ClientMessage message = createMessage(body, properties);
       sendMessage(targetAddress, message);
       return message;
    }
-
 }

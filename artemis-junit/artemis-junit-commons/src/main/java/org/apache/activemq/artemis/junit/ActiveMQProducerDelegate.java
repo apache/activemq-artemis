@@ -223,16 +223,15 @@ public class ActiveMQProducerDelegate extends AbstractActiveMQClientDelegate imp
 
    @Override
    public ClientMessage sendMessage(byte[] body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
+      ClientMessage message = createMessage(body, properties);
       sendMessage(message);
       return message;
    }
 
    @Override
    public ClientMessage sendMessage(String body, Map<String, Object> properties) {
-      ClientMessage message = createMessage(body);
+      ClientMessage message = createMessage(body, properties);
       sendMessage(message);
       return message;
    }
-
 }

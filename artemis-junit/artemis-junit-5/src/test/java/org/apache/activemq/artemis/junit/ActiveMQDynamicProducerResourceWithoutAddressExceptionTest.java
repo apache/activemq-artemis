@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -51,8 +50,6 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
    @Order(2)
    public ActiveMQDynamicProducerExtension producer = new ActiveMQDynamicProducerExtension(server.getVmURL());
 
-   ClientMessage sentOne = null;
-
    @BeforeAll
    public void setUp() throws Exception {
       producer.setAutoCreateQueue(false);
@@ -62,29 +59,28 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
    @Test
    public void testSendBytesToDefaultAddress() {
       assertThrows(IllegalArgumentException.class, () -> {
-         sentOne = producer.sendMessage(TEST_BODY.getBytes());
+         producer.sendMessage(TEST_BODY.getBytes());
       });
    }
 
    @Test
    public void testSendStringToDefaultAddress() {
       assertThrows(IllegalArgumentException.class, () -> {
-         sentOne = producer.sendMessage(TEST_BODY);
+         producer.sendMessage(TEST_BODY);
       });
    }
 
    @Test
    public void testSendBytesAndPropertiesToDefaultAddress() {
       assertThrows(IllegalArgumentException.class, () -> {
-         sentOne = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
+         producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
       });
-
    }
 
    @Test
    public void testSendStringAndPropertiesToDefaultAddress() {
       assertThrows(IllegalArgumentException.class, () -> {
-         sentOne = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
+         producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
       });
    }
 }
