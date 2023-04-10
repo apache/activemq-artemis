@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,8 +50,6 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
    @Rule
    public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
 
-   ClientMessage sentOne = null;
-
    @Before
    public void setUp() throws Exception {
       producer.setAutoCreateQueue(false);
@@ -61,21 +58,21 @@ public class ActiveMQDynamicProducerResourceWithoutAddressExceptionTest {
 
    @Test(expected = IllegalArgumentException.class)
    public void testSendBytesToDefaultAddress() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY.getBytes());
+      producer.sendMessage(TEST_BODY.getBytes());
    }
 
    @Test(expected = IllegalArgumentException.class)
    public void testSendStringToDefaultAddress() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY);
+      producer.sendMessage(TEST_BODY);
    }
 
    @Test(expected = IllegalArgumentException.class)
    public void testSendBytesAndPropertiesToDefaultAddress() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
+      producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
    }
 
    @Test(expected = IllegalArgumentException.class)
    public void testSendStringAndPropertiesToDefaultAddress() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
+      producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
    }
 }

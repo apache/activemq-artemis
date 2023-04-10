@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.junit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.junit.After;
@@ -27,6 +28,9 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ActiveMQDynamicProducerResourceTest {
 
@@ -52,45 +56,108 @@ public class ActiveMQDynamicProducerResourceTest {
    @Rule
    public RuleChain ruleChain = RuleChain.outerRule(server).around(producer);
 
-   ClientMessage sentOne = null;
-   ClientMessage sentTwo = null;
-
    @After
    public void tearDown() throws Exception {
-      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
-      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
-
-      ClientMessage receivedOne = server.receiveMessage(TEST_QUEUE_ONE);
-      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), receivedOne);
-
-      ClientMessage receivedTwo = server.receiveMessage(TEST_QUEUE_TWO);
-      assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), receivedTwo);
-
       server.stop();
    }
 
    @Test
    public void testSendBytes() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY.getBytes());
-      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes());
+      final ClientMessage sentOne = producer.sendMessage(TEST_BODY.getBytes());
+      final ClientMessage sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes());
+
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
+
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_ONE);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), received);
+         final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+         final byte[] receivedBody = new byte[body.readableBytes()];
+         body.readBytes(receivedBody);
+         assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
+      }
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_TWO);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), received);
+         final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+         final byte[] receivedBody = new byte[body.readableBytes()];
+         body.readBytes(receivedBody);
+         assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
+      }
    }
 
    @Test
    public void testSendString() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY);
-      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY);
+      final ClientMessage sentOne = producer.sendMessage(TEST_BODY);
+      final ClientMessage sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY);
+
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
+
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_ONE);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), received);
+         assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
+      }
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_TWO);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), received);
+         assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
+      }
    }
 
    @Test
    public void testSendBytesAndProperties() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
-      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes(), TEST_PROPERTIES);
+      final ClientMessage sentOne = producer.sendMessage(TEST_BODY.getBytes(), TEST_PROPERTIES);
+      final ClientMessage sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY.getBytes(), TEST_PROPERTIES);
+
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
+
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_ONE);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), received);
+         final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+         final byte[] receivedBody = new byte[body.readableBytes()];
+         body.readBytes(receivedBody);
+         assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
+         TEST_PROPERTIES.forEach((k, v) -> {
+            assertTrue(received.containsProperty(k));
+            assertEquals(v, received.getStringProperty(k));
+         });
+      }
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_TWO);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), received);
+         final ActiveMQBuffer body = received.getReadOnlyBodyBuffer();
+         final byte[] receivedBody = new byte[body.readableBytes()];
+         body.readBytes(receivedBody);
+         assertArrayEquals(TEST_BODY.getBytes(), receivedBody);
+         TEST_PROPERTIES.forEach((k, v) -> {
+            assertTrue(received.containsProperty(k));
+            assertEquals(v, received.getStringProperty(k));
+         });
+      }
    }
 
    @Test
    public void testSendStringAndProperties() throws Exception {
-      sentOne = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
-      sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY, TEST_PROPERTIES);
-   }
+      final ClientMessage sentOne = producer.sendMessage(TEST_BODY, TEST_PROPERTIES);
+      final ClientMessage sentTwo = producer.sendMessage(TEST_QUEUE_TWO, TEST_BODY, TEST_PROPERTIES);
 
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_ONE), sentOne);
+      assertNotNull(String.format(ASSERT_SENT_FORMAT, TEST_QUEUE_TWO), sentTwo);
+
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_ONE);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_ONE), received);
+         assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
+      }
+      {
+         final ClientMessage received = server.receiveMessage(TEST_QUEUE_TWO);
+         assertNotNull(String.format(ASSERT_RECEIVED_FORMAT, TEST_QUEUE_TWO), received);
+         assertEquals(TEST_BODY, received.getReadOnlyBodyBuffer().readString());
+      }
+   }
 }
