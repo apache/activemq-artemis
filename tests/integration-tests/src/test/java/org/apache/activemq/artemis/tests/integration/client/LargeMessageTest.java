@@ -2086,6 +2086,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
    // JBPAPP-6237
    @Test
    public void testPageOnLargeMessageMultipleQueues() throws Exception {
+
+      AssertionLoggerHandler.startCapture();
+      runAfter(AssertionLoggerHandler::stopCapture);
+
       Configuration config = createDefaultConfig(isNetty());
 
       final int PAGE_MAX = 20 * 1024;
@@ -2208,6 +2212,9 @@ public class LargeMessageTest extends LargeMessageTestBase {
 
          session.close();
       }
+
+      // Reference Counting negative errrors
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ214034"));
    }
 
    // JBPAPP-6237

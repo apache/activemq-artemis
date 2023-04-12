@@ -23,6 +23,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
+import org.apache.activemq.artemis.api.core.RefCountMessage;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PagePositionImpl;
@@ -107,6 +108,7 @@ public class PagedMessageImpl implements PagedMessage {
       this.queueIDs = queueIDs;
       this.message = message;
       this.storedSize = 0;
+      checkLargeMessage();
    }
 
    public PagedMessageImpl(int storedSize, StorageManager storageManager) {
@@ -170,6 +172,7 @@ public class PagedMessageImpl implements PagedMessage {
          lgMessage.setPaged();
          this.message = lgMessage.toMessage();
          largeMessageLazyData = null;
+         checkLargeMessage();
       } else {
          if (message != null && message instanceof LargeServerMessage) {
             ((LargeServerMessage)message).setStorageManager(storageManager);
@@ -222,6 +225,7 @@ public class PagedMessageImpl implements PagedMessage {
          }
       }
 
+      checkLargeMessage();
 
       int queueIDsSize = buffer.readInt();
 
@@ -229,6 +233,14 @@ public class PagedMessageImpl implements PagedMessage {
 
       for (int i = 0; i < queueIDsSize; i++) {
          queueIDs[i] = buffer.readLong();
+      }
+   }
+
+   private void checkLargeMessage() {
+      if (message != null && message.isLargeMessage()) {
+         // large messages will be read and released multiple times, we have to disable their checks
+         // also we will ack them without refUp, so they will be reported negative
+         ((RefCountMessage) message).disableErrorCheck();
       }
    }
 
