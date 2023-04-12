@@ -55,6 +55,7 @@ import org.apache.activemq.artemis.utils.VersionLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import javax.transaction.TransactionManager;
 
 /**
  * The message handler
@@ -298,6 +299,12 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
       boolean beforeDelivery = false;
 
       try {
+         if (activation.getActivationSpec().getTransactionTimeout() > 0) {
+            TransactionManager tm = ServiceUtils.getTransactionManager();
+            if (tm != null) {
+               tm.setTransactionTimeout(activation.getActivationSpec().getTransactionTimeout());
+            }
+         }
          logger.trace("ActiveMQMessageHandler::calling beforeDelivery on message {}", message);
 
          endpoint.beforeDelivery(ActiveMQActivation.ONMESSAGE);
