@@ -139,6 +139,8 @@ public class RefCountMessage {
 
    private volatile boolean released = false;
 
+   private volatile boolean errorCheck = true;
+
    /** has the refCount fired the action already? */
    public boolean isReleased() {
       return released;
@@ -203,7 +205,7 @@ public class RefCountMessage {
 
    protected void released() {
       released = true;
-      accountedFor();
+      disableErrorCheck();
    }
 
    void runOnLeak(Runnable run) {
@@ -212,7 +214,8 @@ public class RefCountMessage {
       }
    }
 
-   public void accountedFor() {
+   public void disableErrorCheck() {
+      this.errorCheck = false;
       if (debugStatus != null) {
          debugStatus.accountedFor();
       }
@@ -276,7 +279,7 @@ public class RefCountMessage {
          return parentRef.durableDown();
       }
       int count = DURABLE_REF_COUNT_UPDATER.decrementAndGet(this);
-      if (count < 0) {
+      if (errorCheck && count < 0) {
          reportNegativeCount();
       }
       onDown();
@@ -295,7 +298,7 @@ public class RefCountMessage {
          return parentRef.refDown();
       }
       int count = REF_COUNT_UPDATER.decrementAndGet(this);
-      if (count < 0) {
+      if (errorCheck && count < 0) {
          reportNegativeCount();
       }
       onDown();

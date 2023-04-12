@@ -445,7 +445,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
 
    @Override
    public void deleteFile() throws Exception {
-      accountedFor(); // if LargeServerMessage.DEBUG this will make sure this message is not reported
+      disableErrorCheck(); // if LargeServerMessage.DEBUG this will make sure this message is not reported
       largeBody.deleteFile();
    }
 
