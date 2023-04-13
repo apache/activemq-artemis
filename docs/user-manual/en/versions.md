@@ -58,6 +58,10 @@ Highlights:
         at org.apache.activemq.artemis.boot.Artemis.execute(Artemis.java:144)
         at org.apache.activemq.artemis.boot.Artemis.main(Artemis.java:61)
   ```
+* Due to [ARTEMIS-3707](https://issues.apache.org/jira/browse/ARTEMIS-3707) all use of `javax.transaction.TransactionManager`
+  was removed from the JCA Resource Adapter. However, this rendered the `transactionTimeout` activation configuration
+  property useless. Some existing users rely on this behavior so it has been restored and properly deprecated for future
+  removal.
 
 ## 2.28.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352523&projectId=12315920)
