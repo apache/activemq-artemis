@@ -120,6 +120,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
    /**
     * Transaction timeout
     */
+   @Deprecated(forRemoval = true)
    private Integer transactionTimeout;
 
    private Boolean useJNDI = true;
@@ -620,6 +621,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     *
     * @return The value
     */
+   @Deprecated(forRemoval = true)
    public Integer getTransactionTimeout() {
       logger.trace("getTransactionTimeout()");
 
@@ -631,6 +633,7 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
     *
     * @param value The value
     */
+   @Deprecated(forRemoval = true)
    public void setTransactionTimeout(final Integer value) {
       logger.trace("setTransactionTimeout({})", value);
 
