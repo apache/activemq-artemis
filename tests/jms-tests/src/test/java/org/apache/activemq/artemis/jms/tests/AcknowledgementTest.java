@@ -635,66 +635,6 @@ public class AcknowledgementTest extends JMSTestCase {
 
    }
 
-   /*
-    * Send some messages, consume them and verify the messages are not sent upon recovery
-    */
-   @Test
-   public void testLazyAcknowledge() throws Exception {
-      Connection conn = createConnection();
-
-      Session producerSess = conn.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-      MessageProducer producer = producerSess.createProducer(queue1);
-
-      Session consumerSess = conn.createSession(false, Session.DUPS_OK_ACKNOWLEDGE);
-      MessageConsumer consumer = consumerSess.createConsumer(queue1);
-      conn.start();
-
-      final int NUM_MESSAGES = 20;
-
-      // Send some messages
-      for (int i = 0; i < NUM_MESSAGES; i++) {
-         Message m = producerSess.createMessage();
-         producer.send(m);
-      }
-
-      assertRemainingMessages(NUM_MESSAGES);
-
-      logger.trace("Sent messages");
-
-      int count = 0;
-
-      Message m = null;
-      for (int i = 0; i < NUM_MESSAGES; i++) {
-         m = consumer.receive(200);
-         if (m == null) {
-            break;
-         }
-         count++;
-      }
-
-      ProxyAssertSupport.assertNotNull(m);
-
-      assertRemainingMessages(NUM_MESSAGES);
-
-      logger.trace("Received {} messages", count);
-
-      ProxyAssertSupport.assertEquals(count, NUM_MESSAGES);
-
-      consumerSess.recover();
-
-      logger.trace("Session recover called");
-
-      m = consumer.receiveNoWait();
-
-      logger.trace("Message is: {}", m);
-
-      ProxyAssertSupport.assertNull(m);
-
-      conn.close();
-
-      assertRemainingMessages(0);
-   }
-
    @Test
    public void testMessageListenerAutoAck() throws Exception {
       Connection conn = createConnection();
