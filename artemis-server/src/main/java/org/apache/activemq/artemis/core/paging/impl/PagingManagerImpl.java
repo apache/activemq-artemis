@@ -41,6 +41,7 @@ import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.LongHashSet;
@@ -393,7 +394,7 @@ public final class PagingManagerImpl implements PagingManager {
    public void deletePageStore(final SimpleString storeName) throws Exception {
       syncLock.readLock().lock();
       try {
-         PagingStore store = stores.remove(storeName);
+         PagingStore store = stores.remove(CompositeAddress.extractAddressName(storeName));
          if (store != null) {
             store.stop();
             store.destroy();
@@ -407,7 +408,8 @@ public final class PagingManagerImpl implements PagingManager {
     * This method creates a new store if not exist.
     */
    @Override
-   public PagingStore getPageStore(final SimpleString storeName) throws Exception {
+   public PagingStore getPageStore(final SimpleString rawStoreName) throws Exception {
+      final SimpleString storeName = CompositeAddress.extractAddressName(rawStoreName);
       if (managementAddress != null && storeName.startsWith(managementAddress)) {
          return null;
       }
