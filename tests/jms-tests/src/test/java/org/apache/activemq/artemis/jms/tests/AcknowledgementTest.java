@@ -1307,11 +1307,11 @@ public class AcknowledgementTest extends JMSTestCase {
 
       int messageCount = 100;
 
-      long sendT1 = send(cf1, queue1, messageCount);
-      long sendT2 = send(cf2, queue2, messageCount);
+      long sendT1 = send(cf1, queue3, messageCount);
+      long sendT2 = send(cf2, queue4, messageCount);
 
-      long time1 = consume(cf1, queue1, messageCount);
-      long time2 = consume(cf2, queue2, messageCount);
+      long time1 = consume(cf1, queue3, messageCount);
+      long time2 = consume(cf2, queue4, messageCount);
 
       logger.debug("BlockOnAcknowledge=false MessageCount={} TimeToConsume={}", messageCount, time1);
       logger.debug("BlockOnAcknowledge=true MessageCount={} TimeToConsume={}", messageCount, time2);
