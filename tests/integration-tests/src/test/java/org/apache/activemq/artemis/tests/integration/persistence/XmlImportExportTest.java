@@ -1165,6 +1165,42 @@ public class XmlImportExportTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testEmptyRoutingTypes() throws Exception {
+      SimpleString myAddress = SimpleString.toSimpleString("myAddress");
+      ClientSession session = basicSetUp();
+
+      EnumSet<RoutingType> routingTypes = EnumSet.noneOf(RoutingType.class);
+
+      session.createAddress(myAddress, routingTypes, false);
+
+      locator.close();
+      server.stop();
+
+      ByteArrayOutputStream xmlOutputStream = new ByteArrayOutputStream();
+      XmlDataExporter xmlDataExporter = new XmlDataExporter();
+      xmlDataExporter.process(xmlOutputStream, server.getConfiguration().getBindingsDirectory(), server.getConfiguration().getJournalDirectory(), server.getConfiguration().getPagingDirectory(), server.getConfiguration().getLargeMessagesDirectory());
+      if (logger.isDebugEnabled()) {
+         logger.debug(new String(xmlOutputStream.toByteArray()));
+      }
+
+      clearDataRecreateServerDirs();
+      server.start();
+      checkForLongs();
+      locator = createInVMNonHALocator();
+      factory = locator.createSessionFactory();
+      session = factory.createSession(false, false, true);
+      ClientSession managementSession = factory.createSession(false, true, true);
+
+      ByteArrayInputStream xmlInputStream = new ByteArrayInputStream(xmlOutputStream.toByteArray());
+      XmlDataImporter xmlDataImporter = new XmlDataImporter();
+      xmlDataImporter.validate(xmlInputStream);
+      xmlInputStream.reset();
+      xmlDataImporter.process(xmlInputStream, session, managementSession);
+
+      assertEquals(0, server.getAddressInfo(myAddress).getRoutingTypes().size());
+   }
+
+   @Test
    public void testImportWrongRoutingType() throws Exception {
       SimpleString myAddress = SimpleString.toSimpleString("myAddress");
       SimpleString myQueue = SimpleString.toSimpleString("myQueue");
