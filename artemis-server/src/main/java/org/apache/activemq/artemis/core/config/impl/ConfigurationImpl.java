@@ -526,7 +526,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                              BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
                            brokerProperties.clear();
                            brokerProperties.load(reader);
-                           parsePrefixedProperties(fileName, brokerProperties, null);
+                           parsePrefixedProperties(this, fileName, brokerProperties, null);
                         }
                      }
                   }
@@ -536,7 +536,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
                try (FileInputStream fileInputStream = new FileInputStream(file);
                     BufferedInputStream reader = new BufferedInputStream(fileInputStream)) {
                   brokerProperties.load(reader);
-                  parsePrefixedProperties(file.getName(), brokerProperties, null);
+                  parsePrefixedProperties(this, file.getName(), brokerProperties, null);
                }
             }
          }
@@ -546,10 +546,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    public void parsePrefixedProperties(Properties properties, String prefix) throws Exception {
-      parsePrefixedProperties("system", properties, prefix);
+      parsePrefixedProperties(this, "system-" + prefix, properties, prefix);
    }
 
-   public void parsePrefixedProperties(String name, Properties properties, String prefix) throws Exception {
+   @Override
+   public void parsePrefixedProperties(Object target, String name, Properties properties, String prefix) throws Exception {
       Map<String, Object> beanProperties = new LinkedHashMap<>();
       long alder32Hash = 0;
       synchronized (properties) {
@@ -582,11 +583,11 @@ public class ConfigurationImpl implements Configuration, Serializable {
       updateReadPropertiesStatus(name, alder32Hash);
 
       if (!beanProperties.isEmpty()) {
-         populateWithProperties(name, beanProperties);
+         populateWithProperties(target, name, beanProperties);
       }
    }
 
-   public void populateWithProperties(final String propsId, Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
+   public void populateWithProperties(final Object target, final String propsId, Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
       CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil();
       BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections) {
          // override to treat missing properties as errors, not skip as the default impl does
@@ -770,7 +771,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
          final String name = entry.getKey();
          try {
             // Perform the assignment for this property
-            beanUtils.setProperty(this, name, entry.getValue());
+            beanUtils.setProperty(target, name, entry.getValue());
          } catch (InvocationTargetException invocationTargetException) {
             logger.trace("failed to populate property with key: {}", name, invocationTargetException);
             Throwable toLog = invocationTargetException;

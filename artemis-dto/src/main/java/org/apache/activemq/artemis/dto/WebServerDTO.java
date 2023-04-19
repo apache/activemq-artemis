@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,11 +95,61 @@ public class WebServerDTO extends ComponentDTO {
    @XmlAttribute
    public Boolean webContentEnabled;
 
-   public WebServerDTO() {
-      componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
+   public String getPath() {
+      return path;
+   }
+
+   public void setPath(String path) {
+      this.path = path;
+   }
+
+   public String getCustomizer() {
+      return customizer;
+   }
+
+   public void setCustomizer(String customizer) {
+      this.customizer = customizer;
+   }
+
+   public RequestLogDTO getRequestLog() {
+      return requestLog;
+   }
+
+   public void setRequestLog(RequestLogDTO requestLog) {
+      this.requestLog = requestLog;
+   }
+
+   public String getRootRedirectLocation() {
+      return rootRedirectLocation;
+   }
+
+   public void setRootRedirectLocation(String rootRedirectLocation) {
+      this.rootRedirectLocation = rootRedirectLocation;
+   }
+
+   public Boolean getWebContentEnabled() {
+      return webContentEnabled;
+   }
+
+   public void setWebContentEnabled(Boolean webContentEnabled) {
+      this.webContentEnabled = webContentEnabled;
    }
 
    public List<BindingDTO> getBindings() {
+      return bindings;
+   }
+
+   public void addBinding(BindingDTO binding) {
+      bindings.add(binding);
+   }
+
+
+   public WebServerDTO() {
+      componentClassName = "org.apache.activemq.artemis.component.WebServerComponent";
+      bindings = new ArrayList<>();
+   }
+
+   public List<BindingDTO> getAllBindings() {
       if (bindings == null || bindings.isEmpty()) {
          return Collections.singletonList(convertToBindingDTO());
       }
@@ -127,6 +178,6 @@ public class WebServerDTO extends ComponentDTO {
    }
 
    public BindingDTO getDefaultBinding() {
-      return getBindings().get(0);
+      return getAllBindings().get(0);
    }
 }

@@ -563,6 +563,8 @@ public final class ActiveMQDefaultConfiguration {
 
    public static final String DEFAULT_SYSTEM_PROPERTY_PREFIX = "brokerconfig.";
 
+   public static final String DEFAULT_SYSTEM_WEB_PROPERTY_PREFIX = "webconfig.";
+
    public static final String BROKER_PROPERTIES_SYSTEM_PROPERTY_NAME = "broker.properties";
 
    public static final String BROKER_PROPERTIES_KEY_SURROUND = "\"";
@@ -1613,6 +1615,10 @@ public final class ActiveMQDefaultConfiguration {
 
    public static String getDefaultSystemPropertyPrefix() {
       return DEFAULT_SYSTEM_PROPERTY_PREFIX;
+   }
+
+   public static String getDefaultSystemWebPropertyPrefix() {
+      return DEFAULT_SYSTEM_WEB_PROPERTY_PREFIX;
    }
 
    public static String getDefaultBrokerPropertiesKeySurround() {

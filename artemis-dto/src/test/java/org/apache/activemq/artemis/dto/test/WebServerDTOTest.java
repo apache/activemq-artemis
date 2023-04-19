@@ -30,8 +30,8 @@ public class WebServerDTOTest {
    public void testDefault() throws Exception {
       WebServerDTO webServer = new WebServerDTO();
 
-      Assert.assertNotNull(webServer.getBindings());
-      Assert.assertEquals(1, webServer.getBindings().size());
+      Assert.assertNotNull(webServer.getAllBindings());
+      Assert.assertEquals(1, webServer.getAllBindings().size());
       Assert.assertNotNull(webServer.getDefaultBinding());
 
       BindingDTO defaultBinding = webServer.getDefaultBinding();
@@ -54,8 +54,8 @@ public class WebServerDTOTest {
       WebServerDTO webServer = new WebServerDTO();
       webServer.bind = "http://localhost:0";
 
-      Assert.assertNotNull(webServer.getBindings());
-      Assert.assertEquals(1, webServer.getBindings().size());
+      Assert.assertNotNull(webServer.getAllBindings());
+      Assert.assertEquals(1, webServer.getAllBindings().size());
       Assert.assertNotNull(webServer.getDefaultBinding());
       Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
    }
@@ -68,8 +68,8 @@ public class WebServerDTOTest {
       WebServerDTO webServer = new WebServerDTO();
       webServer.setBindings(Collections.singletonList(binding));
 
-      Assert.assertNotNull(webServer.getBindings());
-      Assert.assertEquals(1, webServer.getBindings().size());
+      Assert.assertNotNull(webServer.getAllBindings());
+      Assert.assertEquals(1, webServer.getAllBindings().size());
       Assert.assertNotNull(webServer.getDefaultBinding());
       Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
    }
@@ -84,12 +84,12 @@ public class WebServerDTOTest {
       WebServerDTO webServer = new WebServerDTO();
       webServer.setBindings(List.of(binding1, binding2));
 
-      Assert.assertNotNull(webServer.getBindings());
-      Assert.assertEquals(2, webServer.getBindings().size());
+      Assert.assertNotNull(webServer.getAllBindings());
+      Assert.assertEquals(2, webServer.getAllBindings().size());
       Assert.assertNotNull(webServer.getDefaultBinding());
       Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
-      Assert.assertEquals("http://localhost:0", webServer.getBindings().get(0).uri);
-      Assert.assertEquals("http://localhost:1", webServer.getBindings().get(1).uri);
+      Assert.assertEquals("http://localhost:0", webServer.getAllBindings().get(0).uri);
+      Assert.assertEquals("http://localhost:1", webServer.getAllBindings().get(1).uri);
    }
 
    @Test
@@ -101,8 +101,8 @@ public class WebServerDTOTest {
       webServer.bind = "http://localhost:1";
       webServer.setBindings(Collections.singletonList(binding));
 
-      Assert.assertNotNull(webServer.getBindings());
-      Assert.assertEquals(1, webServer.getBindings().size());
+      Assert.assertNotNull(webServer.getAllBindings());
+      Assert.assertEquals(1, webServer.getAllBindings().size());
       Assert.assertNotNull(webServer.getDefaultBinding());
       Assert.assertEquals("http://localhost:0", webServer.getDefaultBinding().uri);
    }

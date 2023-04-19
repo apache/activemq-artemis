@@ -108,7 +108,7 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
          }
       }
 
-      List<BindingDTO> bindings = this.webServerConfig.getBindings();
+      List<BindingDTO> bindings = this.webServerConfig.getAllBindings();
       connectors = new ServerConnector[bindings.size()];
       String[] virtualHosts = new String[bindings.size()];
 

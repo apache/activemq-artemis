@@ -109,6 +109,44 @@ Here is an example configuration:
 </web>
 ```
 
+### System properties
+
+It is possible to use system properties to add or update web configuration items.
+If you define a system property starting with "webconfig." it will be parsed at the startup
+to update the web configuration.
+
+To enable the client authentication for an existing binding with the name `artemis`,
+set the system property `webconfig.bindings.artemis.clientAuth` to `true`, i.e.
+
+```
+java -Dwebconfig.bindings.artemis.clientAuth=true
+```
+
+To add a new binding or app set the new binding or app attributes using their new names, i.e.
+
+```
+java -Dwebconfig.bindings.my-binding.uri=http://localhost:8162
+java -Dwebconfig.bindings.my-binding.apps.my-app.uri=my-app
+java -Dwebconfig.bindings.my-binding.apps.my-app.war=my-app.war
+```
+
+To update a binding without a name use its uri and to update an app without a name use its url , i.e.
+
+```xml
+<web path="web">
+  <binding uri="http://localhost:8161">
+    <app url="activemq-branding" war="activemq-branding.war"/>
+...
+```
+
+```
+java -Dwebconfig.bindings."http://localhost:8161".clientAuth=true
+```
+
+```
+java -Dwebconfig.bindings."http://localhost:8161".apps."activemq-branding".war=my-branding.war
+```
+
 ## Proxy Forwarding
 
 The proxies and load balancers usually support `X-Forwarded` headers

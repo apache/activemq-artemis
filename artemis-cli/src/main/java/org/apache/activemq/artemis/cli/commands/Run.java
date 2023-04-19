@@ -133,6 +133,10 @@ public class Run extends LockAbstract {
             broker.components.add(broker.web);
          }
 
+         String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
+         server.getServer().getConfiguration().parsePrefixedProperties(broker.web,
+            "system-" + systemWebPropertyPrefix, System.getProperties(), systemWebPropertyPrefix);
+
          for (ComponentDTO componentDTO : broker.components) {
             Class clazz = this.getClass().getClassLoader().loadClass(componentDTO.componentClassName);
             ExternalComponent component = (ExternalComponent) clazz.getDeclaredConstructor(null).newInstance();
