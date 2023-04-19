@@ -23,11 +23,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement(name = "binding")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BindingDTO {
+
+   @XmlAttribute
+   public String name;
 
    @XmlAttribute
    public String uri;
@@ -115,6 +119,70 @@ public class BindingDTO {
 
    public void setExcludedCipherSuites(String... cipherSuites) {
       excludedCipherSuites = marshalArray(cipherSuites);
+   }
+
+   public String getName() {
+      if (name == null) {
+         return uri;
+      }
+
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public String getUri() {
+      return uri;
+   }
+
+   public void setUri(String uri) {
+      this.uri = uri;
+   }
+
+   public Boolean getClientAuth() {
+      return clientAuth;
+   }
+
+   public void setClientAuth(Boolean clientAuth) {
+      this.clientAuth = clientAuth;
+   }
+
+   public String getPasswordCodec() {
+      return passwordCodec;
+   }
+
+   public void setPasswordCodec(String passwordCodec) {
+      this.passwordCodec = passwordCodec;
+   }
+
+   public String getKeyStorePath() {
+      return keyStorePath;
+   }
+
+   public void setKeyStorePath(String keyStorePath) {
+      this.keyStorePath = keyStorePath;
+   }
+
+   public String getTrustStorePath() {
+      return trustStorePath;
+   }
+
+   public void setTrustStorePath(String trustStorePath) {
+      this.trustStorePath = trustStorePath;
+   }
+
+   public List<AppDTO> getApps() {
+      return apps;
+   }
+
+   public void addApp(AppDTO app) {
+      apps.add(app);
+   }
+
+   public BindingDTO() {
+      apps = new ArrayList<>();
    }
 
    private String[] unmarshalArray(String text) {

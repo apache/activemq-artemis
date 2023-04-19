@@ -182,7 +182,12 @@ public class Upgrade extends InstallAbstract {
       final File bootstrapXmlBkp = new File(etcBkp, Create.ETC_BOOTSTRAP_XML);
 
       Files.copy(bootstrapXml.toPath(), bootstrapXmlTmp.toPath());
-      replaceLines(context, bootstrapXmlTmp, bootstrapXml, bootstrapXmlBkp, "<web path", "   <web path=\"web\" rootRedirectLocation=\"console\">");
+      replaceLines(context, bootstrapXmlTmp, bootstrapXml, bootstrapXmlBkp,
+         "^(.*)<web path.*$", "$1<web path=\"web\" rootRedirectLocation=\"console\">",
+         "^(.*)<binding uri=\"http://localhost:8161\"(.*)$", "$1<binding name=\"artemis\" uri=\"http://localhost:8161\"$2",
+         "^(.*)<app(.*branding.*)$", "$1<app name=\"branding\"$2",
+         "^(.*)<app(.*plugin.*)$", "$1<app name=\"plugin\"$2",
+         "^(.*)<app url=\"([^\"]+)\"(.*)$", "$1<app name=\"$2\" url=\"$2\"$3");
 
       upgradeLogging(context, etcFolder, etcBkp);
 
@@ -258,8 +263,8 @@ public class Upgrade extends InstallAbstract {
                 null,
                 newLine -> {
                    for (int i = 0; i < replacePairs.length; i += 2) {
-                      if (newLine.trim().startsWith(replacePairs[i])) {
-                         return replacePairs[i + 1];
+                      if (newLine.matches(replacePairs[i])) {
+                         return newLine.replaceAll(replacePairs[i], replacePairs[i + 1]);
                       }
                    }
                    return newLine;

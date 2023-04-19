@@ -26,8 +26,39 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class AppDTO {
 
    @XmlAttribute
+   public String name;
+
+   @XmlAttribute
    public String url;
 
    @XmlAttribute
    public String war;
+
+   public String getName() {
+      if (name == null) {
+         return url;
+      }
+
+      return name;
+   }
+
+   public void setName(String name) {
+      this.name = name;
+   }
+
+   public String getUrl() {
+      return url;
+   }
+
+   public void setUrl(String url) {
+      this.url = url;
+   }
+
+   public String getWar() {
+      return war;
+   }
+
+   public void setWar(String war) {
+      this.war = war;
+   }
 }
