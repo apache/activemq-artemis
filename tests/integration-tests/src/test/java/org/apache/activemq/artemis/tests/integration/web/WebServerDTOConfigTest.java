@@ -20,6 +20,7 @@ import java.util.Properties;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
+import org.apache.activemq.artemis.component.WebServerComponent;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.dto.AppDTO;
@@ -97,6 +98,8 @@ public class WebServerDTOConfigTest {
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".excludedCipherSuites", "test-excludedCipherSuites,3");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".keyStorePassword", "test-keyStorePassword");
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".trustStorePassword", "test-trustStorePassword");
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sniHostCheck", !WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE);
+      properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + ".sniRequired", !WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE);
       properties.put(ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix() + "bindings." + bindingName + "." + INVALID_ATTRIBUTE_NAME, "true");
       Configuration configuration = new ConfigurationImpl();
       String systemWebPropertyPrefix = ActiveMQDefaultConfiguration.getDefaultSystemWebPropertyPrefix();
@@ -114,6 +117,8 @@ public class WebServerDTOConfigTest {
       Assert.assertEquals("test-excludedCipherSuites,3", String.join(",", testBinding.getExcludedCipherSuites()));
       Assert.assertEquals("test-keyStorePassword", testBinding.getKeyStorePassword());
       Assert.assertEquals("test-trustStorePassword", testBinding.getTrustStorePassword());
+      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE, testBinding.getSniRequired());
+      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE, testBinding.getSniHostCheck());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "bindings." + bindingName + ".");
    }

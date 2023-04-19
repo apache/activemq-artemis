@@ -16,8 +16,11 @@
  */
 package org.apache.activemq.cli.test;
 
+import javax.net.ssl.SNIHostName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,6 +75,19 @@ import org.apache.activemq.artemis.dto.BindingDTO;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 import org.apache.activemq.artemis.dto.WebServerDTO;
 import org.apache.activemq.artemis.utils.ThreadLeakCheckRule;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.routing.HttpRoutePlanner;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.DefaultRoutePlanner;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
@@ -88,6 +104,10 @@ public class WebServerComponentTest extends Assert {
 
    static final String URL = System.getProperty("url", "http://localhost:8161/WebServerComponentTest.txt");
    static final String SECURE_URL = System.getProperty("url", "https://localhost:8448/WebServerComponentTest.txt");
+
+   static final String KEY_STORE_PATH = WebServerComponentTest.class.getClassLoader().getResource("server-keystore.p12").getFile();
+   static final String KEY_STORE_PASSWORD = "securepass";
+
    private List<ActiveMQComponent> testedComponents;
 
    @Before
@@ -215,12 +235,17 @@ public class WebServerComponentTest extends Assert {
       Assert.assertFalse(webServerComponent.isStarted());
    }
 
-   @Test
-   public void simpleSecureServer() throws Exception {
+   private WebServerComponent startSimpleSecureServer(Boolean sniHostCheck, Boolean sniRequired) throws Exception {
       BindingDTO bindingDTO = new BindingDTO();
-      bindingDTO.uri = "https://localhost:0";
-      bindingDTO.keyStorePath = "./src/test/resources/server.keystore";
-      bindingDTO.setKeyStorePassword("password");
+      bindingDTO.setUri("https://localhost:0");
+      bindingDTO.setKeyStorePath(KEY_STORE_PATH);
+      bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
+      if (sniHostCheck != null) {
+         bindingDTO.setSniHostCheck(sniHostCheck);
+      }
+      if (sniRequired != null) {
+         bindingDTO.setSniRequired(sniRequired);
+      }
       if (System.getProperty("java.vendor").contains("IBM")) {
          //By default on IBM Java 8 JVM, org.eclipse.jetty.util.ssl.SslContextFactory doesn't include TLSv1.2
          // while it excludes all TLSv1 and TLSv1.1 cipher suites.
@@ -240,14 +265,21 @@ public class WebServerComponentTest extends Assert {
       webServerComponent.configure(webServerDTO, "./src/test/resources/", "./src/test/resources/");
       testedComponents.add(webServerComponent);
       webServerComponent.start();
+
+      return webServerComponent;
+   }
+
+   @Test
+   public void simpleSecureServer() throws Exception {
+      WebServerComponent webServerComponent = startSimpleSecureServer(null, null);
       final int port = webServerComponent.getPort();
       // Make the connection attempt.
 
       SSLContext context = new SSLSupport()
-         .setKeystorePath(bindingDTO.keyStorePath)
-         .setKeystorePassword(bindingDTO.getKeyStorePassword())
-         .setTruststorePath(bindingDTO.keyStorePath)
-         .setTruststorePassword(bindingDTO.getKeyStorePassword())
+         .setKeystorePath(KEY_STORE_PATH)
+         .setKeystorePassword(KEY_STORE_PASSWORD)
+         .setTruststorePath(KEY_STORE_PATH)
+         .setTruststorePassword(KEY_STORE_PASSWORD)
          .createContext();
 
       SSLEngine engine = context.createSSLEngine();
@@ -283,15 +315,107 @@ public class WebServerComponentTest extends Assert {
       Assert.assertFalse(webServerComponent.isStarted());
    }
 
+
+   @Test
+   public void testSimpleSecureServerWithSniHostCheckEnabled() throws Exception {
+      testSimpleSecureServerWithSniHostCheck(true);
+   }
+
+   @Test
+   public void testSimpleSecureServerWithSniHostCheckDisabled() throws Exception {
+      testSimpleSecureServerWithSniHostCheck(false);
+   }
+
+   @Test
+   public void testSimpleSecureServerWithSniHostCheckDefault() throws Exception {
+      testSimpleSecureServerWithSniHostCheck(null);
+   }
+
+   private void testSimpleSecureServerWithSniHostCheck(Boolean enabled) throws Exception {
+      WebServerComponent webServerComponent = startSimpleSecureServer(enabled, null);
+      try {
+         int port = webServerComponent.getPort(0);
+         Assert.assertEquals(200, testSimpleSecureServer("localhost", port, "localhost", null));
+         Assert.assertEquals(200, testSimpleSecureServer("localhost", port, "127.0.0.1", null));
+         Assert.assertEquals(enabled == null || enabled ? 400 : 200, testSimpleSecureServer("localhost", port, "artemis", null));
+      } finally {
+         webServerComponent.stop(true);
+      }
+   }
+
+   @Test
+   public void testSimpleSecureServerWithSniRequiredEnabled() throws Exception {
+      testSimpleSecureServerWithSniRequired(true);
+   }
+
+   @Test
+   public void testSimpleSecureServerWithSniRequiredDisabled() throws Exception {
+      testSimpleSecureServerWithSniRequired(false);
+   }
+
+   @Test
+   public void testSimpleSecureServerWithSniRequiredDefault() throws Exception {
+      testSimpleSecureServerWithSniRequired(null);
+   }
+
+   private void testSimpleSecureServerWithSniRequired(Boolean enabled) throws Exception {
+      WebServerComponent webServerComponent = startSimpleSecureServer(null, enabled);
+      try {
+         int port = webServerComponent.getPort(0);
+         Assert.assertEquals(200, testSimpleSecureServer("localhost", port, null, "localhost"));
+         Assert.assertEquals(200, testSimpleSecureServer("localhost", port, null, "127.0.0.1"));
+         Assert.assertEquals(enabled != null && enabled ? 400 : 200, testSimpleSecureServer("localhost", port, null, null));
+         Assert.assertEquals(enabled != null && enabled ? 400 : 200, testSimpleSecureServer("localhost", port, null, "artemis"));
+      } finally {
+         webServerComponent.stop(true);
+      }
+   }
+
+   private int testSimpleSecureServer(String webServerHostname, int webServerPort, String requestHostname, String sniHostname) throws Exception {
+      HttpGet request = new HttpGet("https://" + (requestHostname != null ? requestHostname : webServerHostname) + ":" + webServerPort + "/WebServerComponentTest.txt");
+
+      HttpHost webServerHost = HttpHost.create("https://" + webServerHostname + ":" + webServerPort);
+      SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, (certificate, authType) -> true).build();
+      SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, new NoopHostnameVerifier()) {
+         @Override
+         protected void prepareSocket(SSLSocket socket) throws IOException {
+            super.prepareSocket(socket);
+
+            if (sniHostname != null) {
+               SSLParameters sslParameters = socket.getSSLParameters();
+               sslParameters.setServerNames(Collections.singletonList(new SNIHostName(sniHostname)));
+               socket.setSSLParameters(sslParameters);
+            }
+         }
+      };
+
+      HttpRoutePlanner httpRoutePlanner = new DefaultRoutePlanner(null) {
+         @Override
+         public HttpRoute determineRoute(HttpHost host,
+            org.apache.http.HttpRequest request,
+            HttpContext context) throws HttpException {
+            HttpRoute baseHttpRoute = super.determineRoute(host, request, context);
+            return new HttpRoute(webServerHost, baseHttpRoute.getLocalAddress(), baseHttpRoute.isSecure());
+         }
+      };
+
+      try (CloseableHttpClient client = HttpClientBuilder.create().setRoutePlanner(httpRoutePlanner).
+         setSSLSocketFactory(sslConnectionSocketFactory).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()) {
+         try (CloseableHttpResponse response = client.execute(request)) {
+            return response.getStatusLine().getStatusCode();
+         }
+      }
+   }
+
    @Test
    public void simpleSecureServerWithClientAuth() throws Exception {
       BindingDTO bindingDTO = new BindingDTO();
       bindingDTO.uri = "https://localhost:0";
-      bindingDTO.keyStorePath = "./src/test/resources/server.keystore";
-      bindingDTO.setKeyStorePassword("password");
-      bindingDTO.clientAuth = true;
-      bindingDTO.trustStorePath = "./src/test/resources/server.keystore";
-      bindingDTO.setTrustStorePassword("password");
+      bindingDTO.setKeyStorePath(KEY_STORE_PATH);
+      bindingDTO.setKeyStorePassword(KEY_STORE_PASSWORD);
+      bindingDTO.setClientAuth(true);
+      bindingDTO.setTrustStorePath(KEY_STORE_PATH);
+      bindingDTO.setTrustStorePassword(KEY_STORE_PASSWORD);
       if (System.getProperty("java.vendor").contains("IBM")) {
          //By default on IBM Java 8 JVM, org.eclipse.jetty.util.ssl.SslContextFactory doesn't include TLSv1.2
          // while it excludes all TLSv1 and TLSv1.1 cipher suites.
