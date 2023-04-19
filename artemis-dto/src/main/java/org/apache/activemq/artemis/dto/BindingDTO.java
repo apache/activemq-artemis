@@ -69,6 +69,12 @@ public class BindingDTO {
    @XmlAttribute
    private String trustStorePassword;
 
+   @XmlAttribute
+   private Boolean sniHostCheck;
+
+   @XmlAttribute
+   private Boolean sniRequired;
+
    public String getKeyStorePassword() throws Exception {
       return getPassword(this.keyStorePassword);
    }
@@ -179,6 +185,22 @@ public class BindingDTO {
 
    public void addApp(AppDTO app) {
       apps.add(app);
+   }
+
+   public Boolean getSniHostCheck() {
+      return sniHostCheck;
+   }
+
+   public void setSniHostCheck(Boolean sniHostCheck) {
+      this.sniHostCheck = sniHostCheck;
+   }
+
+   public Boolean getSniRequired() {
+      return sniRequired;
+   }
+
+   public void setSniRequired(Boolean sniRequired) {
+      this.sniRequired = sniRequired;
    }
 
    public BindingDTO() {

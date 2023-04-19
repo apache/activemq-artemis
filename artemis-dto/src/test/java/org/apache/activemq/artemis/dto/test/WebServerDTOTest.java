@@ -47,6 +47,8 @@ public class WebServerDTOTest {
       Assert.assertNull(defaultBinding.getExcludedCipherSuites());
       Assert.assertNull(defaultBinding.getKeyStorePassword());
       Assert.assertNull(defaultBinding.getTrustStorePassword());
+      Assert.assertNull(defaultBinding.getSniHostCheck());
+      Assert.assertNull(defaultBinding.getSniRequired());
    }
 
    @Test

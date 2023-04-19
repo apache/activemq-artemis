@@ -64,6 +64,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
    // this should match the value of <display-name> in the console war's WEB-INF/web.xml
    public static final String WEB_CONSOLE_DISPLAY_NAME = System.getProperty("org.apache.activemq.artemis.webConsoleDisplayName", "hawtio");
 
+   public static final boolean DEFAULT_SNI_HOST_CHECK_VALUE = true;
+
+   public static final boolean DEFAULT_SNI_REQUIRED_VALUE = false;
+
    private Server server;
    private HandlerList handlers;
    private WebServerDTO webServerConfig;
@@ -245,7 +249,10 @@ public class WebServerComponent implements ExternalComponent, WebServerComponent
 
          SslConnectionFactory sslConnectionFactory = new SslConnectionFactory(sslFactory, "HTTP/1.1");
 
-         httpConfiguration.addCustomizer(new SecureRequestCustomizer());
+         SecureRequestCustomizer secureRequestCustomizer = new SecureRequestCustomizer();
+         secureRequestCustomizer.setSniHostCheck(binding.getSniHostCheck() != null ? binding.getSniHostCheck() : DEFAULT_SNI_HOST_CHECK_VALUE);
+         secureRequestCustomizer.setSniRequired(binding.getSniRequired() != null ? binding.getSniRequired() : DEFAULT_SNI_REQUIRED_VALUE);
+         httpConfiguration.addCustomizer(secureRequestCustomizer);
          httpConfiguration.setSendServerVersion(false);
          HttpConnectionFactory httpFactory = new HttpConnectionFactory(httpConfiguration);
 
