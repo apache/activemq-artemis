@@ -725,6 +725,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
          AuditLogger.createQueue(this, remotingConnection.getSubject(), remotingConnection.getRemoteAddress(), queueConfiguration);
       }
 
+      if (queueConfiguration.getAddress().equals(server.getConfiguration().getManagementNotificationAddress())) {
+         queueConfiguration.setInternal(true);
+      }
+
       queueConfiguration
          .setRoutingType(getRoutingTypeFromPrefix(queueConfiguration.getAddress(), queueConfiguration.getRoutingType()))
          .setAddress(removePrefix(queueConfiguration.getAddress()))

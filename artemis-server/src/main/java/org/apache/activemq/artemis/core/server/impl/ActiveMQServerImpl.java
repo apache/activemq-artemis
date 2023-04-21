@@ -3986,7 +3986,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
             callBrokerQueuePlugins(plugin -> plugin.beforeCreateQueue(queueConfiguration));
          }
 
-         if (mirrorControllerService != null) {
+         if (mirrorControllerService != null && !queueConfiguration.isInternal()) {
             mirrorControllerService.createQueue(queueConfiguration);
          }
 

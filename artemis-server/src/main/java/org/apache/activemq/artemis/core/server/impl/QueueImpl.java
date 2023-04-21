@@ -82,6 +82,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.Consumer;
 import org.apache.activemq.artemis.core.server.HandleStatus;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -706,6 +707,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       this.scheduledExecutor = scheduledExecutor;
 
       this.server = server;
+
+      if (queueConfiguration.isInternal()) {
+         this.internalQueue = queueConfiguration.isInternal();
+      }
 
       scheduledDeliveryHandler = new ScheduledDeliveryHandlerImpl(scheduledExecutor, this);
 
@@ -3540,7 +3545,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
             // we Disable mirror on expiration as the target might be also expiring it
             // and this could cause races
             // we will only send the ACK for the expiration with the reason=EXPIRE and the expire will be played on the mirror side
-            context.setMirrorDisabled(true);
+            context.setMirrorOption(MirrorOption.disabled);
          }
 
          routingStatus = postOffice.route(copyMessage, context, false, rejectDuplicate, binding);

@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.postoffice;
 
 import java.util.Collection;
+import java.util.function.BiConsumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -31,6 +32,8 @@ public interface Bindings extends UnproposalListener {
    void updated(QueueBinding binding);
 
    Collection<Binding> getBindings();
+
+   Binding getBinding(String name);
 
    void addBinding(Binding binding);
 
@@ -55,4 +58,8 @@ public interface Bindings extends UnproposalListener {
    void route(Message message, RoutingContext context) throws Exception;
 
    boolean allowRedistribute();
+
+   void forEach(BiConsumer<SimpleString, Binding> bindingConsumer);
+
+   int size();
 }

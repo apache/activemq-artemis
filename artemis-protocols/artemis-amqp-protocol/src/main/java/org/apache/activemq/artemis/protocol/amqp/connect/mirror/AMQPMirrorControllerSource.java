@@ -32,6 +32,7 @@ import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
+import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
@@ -76,6 +77,12 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol INTERNAL_ID = Symbol.getSymbol("x-opt-amq-mr-id");
    public static final Symbol INTERNAL_DESTINATION = Symbol.getSymbol("x-opt-amq-mr-dst");
 
+   /** When a clustered node (from regular cluster connections) receives a message
+       it will have target queues associated with it
+      this could be from message redistribution or simply load balancing.
+      an that case this will have the queue associated with it */
+   public static final Symbol TARGET_QUEUES = Symbol.getSymbol("x-opt-amq-trg-q");
+
    // Capabilities
    public static final Symbol MIRROR_CAPABILITY = Symbol.getSymbol("amq.mirror");
    public static final Symbol QPID_DISPATCH_WAYPOINT_CAPABILITY = Symbol.valueOf("qd.waypoint");
@@ -83,7 +90,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(INTERNAL_ID.toString());
    public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(BROKER_ID.toString());
 
-   private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null).setMirrorDisabled(true));
+   private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null).setMirrorOption(MirrorOption.disabled));
 
    final Queue snfQueue;
    final ActiveMQServer server;
@@ -228,13 +235,13 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public void sendMessage(Transaction tx, Message message, RoutingContext context) {
       SimpleString address = context.getAddress(message);
 
-      if (invalidTarget(context.getMirrorSource())) {
-         logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
+      if (context.isInternal()) {
+         logger.trace("sendMessage::server {} is discarding send to avoid sending to internal queue", server);
          return;
       }
 
-      if (context.isInternal()) {
-         logger.trace("sendMessage::server {} is discarding send to avoid sending to internal queue", server);
+      if (invalidTarget(context.getMirrorSource())) {
+         logger.trace("sendMessage::server {} is discarding send to avoid infinite loop (reflection with the mirror)", server);
          return;
       }
 
@@ -256,7 +263,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
          }
 
          MessageReference ref = MessageReference.Factory.createReference(message, snfQueue);
-         setProtocolData(ref, nodeID, idSupplier.getID(ref));
+         setProtocolData(ref, nodeID, idSupplier.getID(ref), context);
 
          snfQueue.refUp(ref);
 
@@ -330,12 +337,12 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       String brokerID = referenceIDSupplier.getServerID(ref);
       long id = referenceIDSupplier.getID(ref);
 
-      setProtocolData(ref, brokerID, id);
+      setProtocolData(ref, brokerID, id, null);
 
       return brokerID;
    }
 
-   private static void setProtocolData(MessageReference ref, String brokerID, long id) {
+   private static void setProtocolData(MessageReference ref, String brokerID, long id, RoutingContext routingContext) {
       Map<Symbol, Object> daMap = new HashMap<>();
       DeliveryAnnotations deliveryAnnotations = new DeliveryAnnotations(daMap);
 
@@ -357,6 +364,13 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
             daMap.put(INTERNAL_DESTINATION, ref.getMessage().getAddress());
          }
       }
+
+      if (routingContext != null && routingContext.isMirrorIndividualRoute()) {
+         ArrayList<String> queues = new ArrayList<>();
+         routingContext.forEachDurable(q -> queues.add(String.valueOf(q.getName())));
+         daMap.put(TARGET_QUEUES, queues);
+      }
+
       ref.setProtocolData(DeliveryAnnotations.class, deliveryAnnotations);
    }
 
