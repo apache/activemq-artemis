@@ -108,26 +108,31 @@ public class MQTTSubscriptionManager {
 
       Queue q = createQueueForSubscription(coreAddress, getQueueNameForTopic(rawTopicName));
 
-      if (initialStart) {
-         createConsumerForSubscriptionQueue(q, parsedTopicName, qos, subscription.option().isNoLocal(), null);
-      } else {
-         MqttTopicSubscription existingSubscription = session.getState().getSubscription(parsedTopicName);
-         if (existingSubscription == null) {
+      try {
+         if (initialStart) {
             createConsumerForSubscriptionQueue(q, parsedTopicName, qos, subscription.option().isNoLocal(), null);
          } else {
-            Long existingConsumerId = consumers.get(parsedTopicName).getID();
-            consumerQoSLevels.put(existingConsumerId, qos);
-            if (existingSubscription.option().isNoLocal() != subscription.option().isNoLocal()) {
-               createConsumerForSubscriptionQueue(q, parsedTopicName, qos, subscription.option().isNoLocal(), existingConsumerId);
+            MqttTopicSubscription existingSubscription = session.getState().getSubscription(parsedTopicName);
+            if (existingSubscription == null) {
+               createConsumerForSubscriptionQueue(q, parsedTopicName, qos, subscription.option().isNoLocal(), null);
+            } else {
+               Long existingConsumerId = consumers.get(parsedTopicName).getID();
+               consumerQoSLevels.put(existingConsumerId, qos);
+               if (existingSubscription.option().isNoLocal() != subscription.option().isNoLocal()) {
+                  createConsumerForSubscriptionQueue(q, parsedTopicName, qos, subscription.option().isNoLocal(), existingConsumerId);
+               }
             }
-         }
 
-         if (subscription.option().retainHandling() == MqttSubscriptionOption.RetainedHandlingPolicy.SEND_AT_SUBSCRIBE ||
-            (subscription.option().retainHandling() == MqttSubscriptionOption.RetainedHandlingPolicy.SEND_AT_SUBSCRIBE_IF_NOT_YET_EXISTS && existingSubscription == null)) {
-            session.getRetainMessageManager().addRetainedMessagesToQueue(q, parsedTopicName);
-         }
+            if (subscription.option().retainHandling() == MqttSubscriptionOption.RetainedHandlingPolicy.SEND_AT_SUBSCRIBE || (subscription.option().retainHandling() == MqttSubscriptionOption.RetainedHandlingPolicy.SEND_AT_SUBSCRIBE_IF_NOT_YET_EXISTS && existingSubscription == null)) {
+               session.getRetainMessageManager().addRetainedMessagesToQueue(q, parsedTopicName);
+            }
 
-         session.getState().addSubscription(subscription, session.getWildcardConfiguration(), subscriptionIdentifier);
+            session.getState().addSubscription(subscription, session.getWildcardConfiguration(), subscriptionIdentifier);
+         }
+      } catch (Exception e) {
+         // if anything broke during the creation of the consumer (or otherwise) then ensure the subscription queue is removed
+         q.deleteQueue();
+         throw e;
       }
    }
 
