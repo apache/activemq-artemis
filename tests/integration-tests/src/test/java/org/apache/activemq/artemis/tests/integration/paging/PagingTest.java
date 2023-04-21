@@ -1192,6 +1192,9 @@ public class PagingTest extends ActiveMQTestBase {
          for (int i = 0; i < numberOfMessages; i++) {
             if (i % 10 == 0 && i > 0) {
                queue.getPagingStore().forceAnotherPage();
+               // forceAnotherPage could be called concurrently with cleanup on this case
+               // so we have to call startPaging to make sure we are still paging on this test
+               queue.getPagingStore().startPaging();
                page++;
             }
             message = session.createMessage(true);
