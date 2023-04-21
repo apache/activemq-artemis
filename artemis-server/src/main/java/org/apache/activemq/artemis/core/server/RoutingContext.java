@@ -39,8 +39,6 @@ public interface RoutingContext {
    */
    boolean isReusable();
 
-   /** If the routing is from MirrorController, we don't redo mirrorController
-    *  to avoid*/
    MirrorOption getMirrorOption();
 
    void forEachDurable(Consumer<Queue> consumer);
@@ -113,6 +111,12 @@ public interface RoutingContext {
    RoutingContext setServerSession(ServerSession session);
 
    ServerSession getServerSession();
+
+   enum MirrorOption {
+      enabled,
+      disabled,
+      individualRoute
+   }
 
 
 }

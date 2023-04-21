@@ -434,7 +434,7 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
    static class BindingsFake implements Bindings {
 
       SimpleString name;
-      ConcurrentHashMap<SimpleString, Binding> bindings = new ConcurrentHashMap<>();
+      ConcurrentHashMap<String, Binding> bindings = new ConcurrentHashMap<>();
 
       BindingsFake(SimpleString address) {
          this.name = address;
@@ -447,12 +447,12 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       @Override
       public void addBinding(Binding binding) {
-         bindings.put(binding.getUniqueName(), binding);
+         bindings.put(String.valueOf(binding.getUniqueName()), binding);
       }
 
       @Override
       public Binding removeBindingByUniqueName(SimpleString uniqueName) {
-         return bindings.remove(uniqueName);
+         return bindings.remove(String.valueOf(uniqueName));
       }
 
       @Override
@@ -467,11 +467,11 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
       @Override
       public Binding getBinding(String name) {
-         return null;
+         return bindings.get(name);
       }
 
       @Override
-      public void forEach(BiConsumer<SimpleString, Binding> bindingConsumer) {
+      public void forEach(BiConsumer<String, Binding> bindingConsumer) {
          bindings.forEach(bindingConsumer);
       }
 

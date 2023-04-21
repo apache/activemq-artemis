@@ -59,7 +59,7 @@ public interface Bindings extends UnproposalListener {
 
    boolean allowRedistribute();
 
-   void forEach(BiConsumer<SimpleString, Binding> bindingConsumer);
+   void forEach(BiConsumer<String, Binding> bindingConsumer);
 
    int size();
 }

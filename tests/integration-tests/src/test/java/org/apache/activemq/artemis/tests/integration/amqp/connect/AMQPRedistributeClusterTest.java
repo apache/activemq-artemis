@@ -24,11 +24,13 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -42,9 +44,9 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
-import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingContext.MirrorOption;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.cluster.impl.RemoteQueueBindingImpl;
@@ -52,9 +54,14 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.TransactionImpl;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.tests.integration.amqp.AmqpTestSupport;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.transport.amqp.client.AmqpConnection;
+import org.apache.activemq.transport.amqp.client.AmqpMessage;
+import org.apache.activemq.transport.amqp.client.AmqpSender;
+import org.apache.activemq.transport.amqp.client.AmqpSession;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,16 +112,20 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
 
       server.setIdentity(name);
-      server.getConfiguration().setName("node_1").setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration()).addConnectorConfiguration("thisNode", "tcp://localhost:" + thisPort).addConnectorConfiguration("otherNode", "tcp://localhost:" + clusterPort);
+      server.getConfiguration().setName("node").setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration()).addConnectorConfiguration("thisNode", "tcp://localhost:" + thisPort).addConnectorConfiguration("otherNode", "tcp://localhost:" + clusterPort);
 
       ClusterConnectionConfiguration clusterConfiguration = new ClusterConnectionConfiguration().setName("cluster").setConnectorName("thisNode").setMessageLoadBalancingType(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION).setStaticConnectors(Collections.singletonList("otherNode"));
       server.getConfiguration().addClusterConfiguration(clusterConfiguration);
 
       if (mirrorPort > 0) {
-         server.getConfiguration().addAMQPConnection(new AMQPBrokerConnectConfiguration("myMirror" + mirrorPort, "tcp://localhost:" + mirrorPort).setReconnectAttempts(-1).setRetryInterval(100).addConnectionElement(new AMQPMirrorBrokerConnectionElement().setDurable(true).setMirrorSNF(new SimpleString("$ACTIVEMQ_ARTEMIS_MIRROR_MirrorTowards_" + mirrorPort))));
+         server.getConfiguration().addAMQPConnection(new AMQPBrokerConnectConfiguration("myMirror" + mirrorPort, "tcp://localhost:" + mirrorPort).setReconnectAttempts(-1).setRetryInterval(100).addConnectionElement(new AMQPMirrorBrokerConnectionElement().setDurable(true).setMirrorSNF(new SimpleString(mirrorName(mirrorPort)))));
       }
 
       return server;
+   }
+
+   private String mirrorName(int mirrorPort) {
+      return "$ACTIVEMQ_ARTEMIS_MIRROR_MirrorTowards_" + mirrorPort;
    }
 
    @Test
@@ -158,7 +169,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
                consumer = sessionA1.createConsumer(sessionA1.createQueue(QUEUE_NAME));
             } else {
                place = "A2";
-               consumer = sessionA2.createConsumer(sessionA1.createQueue(QUEUE_NAME));
+               consumer = sessionA2.createConsumer(sessionA2.createQueue(QUEUE_NAME));
             }
             TextMessage message = (TextMessage) consumer.receive(5000);
             Assert.assertNotNull(message);
@@ -225,7 +236,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
       {
          HashSet<String> subscriptionSet = new HashSet<>();
-         // making sure the queues created on a1 are propaged into b1
+         // making sure the queues created on a1 are propagated into b1
          a1.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((n, b) -> {
             logger.debug("{} = {}", n, b);
             if (b instanceof LocalQueueBinding) {
@@ -238,7 +249,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
          subscriptionQueueName = subscriptionSet.iterator().next();
       }
 
-      // making sure the queues created on a2 are propaged into b2
+      // making sure the queues created on a2 are propagated into b2
       a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((n, b) -> {
          logger.debug("{} = {}", n, b);
          if (b instanceof LocalQueueBinding) {
@@ -346,7 +357,7 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       Wait.assertTrue(() -> b2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).size() == 20);
 
       List<RemoteQueueBinding> remoteQueueBindings_a2 = new ArrayList<>();
-      // making sure the queues created on a2 are propaged into b2
+      // making sure the queues created on a2 are propagated into b2
       a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((a, b) -> {
          if (b instanceof RemoteQueueBindingImpl && b.getClusterName().toString().startsWith(subscriptionName + "_0")) {
             logger.debug("{} = {}", a, b);
@@ -361,22 +372,137 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       Message directMessage = new CoreMessage(a2.getStorageManager().generateID(), 512);
       directMessage.setAddress(TOPIC_NAME);
       directMessage.putStringProperty("Test", "t1");
+
+      // we will route a single message to subscription-0. a previous search found the RemoteBinding into remoteQueueBindins_a2;
       remoteQueueBindings_a2.get(0).route(directMessage, routingContext);
       a2.getPostOffice().processRoute(directMessage, routingContext, false);
       routingContext.getTransaction().commit();
 
       for (int i = 0; i < 10; i++) {
          String name = "my-topic-shared-subscription_" + i + ":global";
+
+         if (logger.isDebugEnabled()) {
+            logger.debug("a1 queue {} with {} messages", name, a1.locateQueue(name).getMessageCount());
+            logger.debug("b1 queue {} with {} messages", name, b1.locateQueue(name).getMessageCount());
+            logger.debug("a2 queue {} with {} messages", name, a2.locateQueue(name).getMessageCount());
+            logger.debug("b2 queue {} with {} messages", name, b2.locateQueue(name).getMessageCount());
+         }
+
+         // Since we routed to subscription-0 only, the outcome mirroring should only receive the output on subscription-0 on b1;
+         // When the routing happens after a clustered operation, mirror should be done individually to each routed queue.
+         // this test is validating that only subscription-0 got the message on both a1 and b1;
+         // notice that the initial route happened on a2, which then transfered the message towards a1.
+         // a1 made the copy to b1 through mirroring, and only subscription-0 should receive a message.
+         // which is exactly what should happen through message-redistribution in clustering
+
          Wait.assertEquals(i == 0 ? 1 : 0, a1.locateQueue(name)::getMessageCount);
-         logger.debug("a1 queue {} with {} messages", name, a1.locateQueue(name).getMessageCount());
-         logger.debug("b1 queue {} with {} messages", name, b1.locateQueue(name).getMessageCount());
-         logger.debug("a2 queue {} with {} messages", name, a2.locateQueue(name).getMessageCount());
-         logger.debug("b2 queue {} with {} messages", name, b2.locateQueue(name).getMessageCount());
          Wait.assertEquals(i == 0 ? 1 : 0, b1.locateQueue(name)::getMessageCount);
          Wait.assertEquals(0, a2.locateQueue(name)::getMessageCount);
          Wait.assertEquals(0, b2.locateQueue(name)::getMessageCount);
       }
    }
+
+
+
+   // This test is faking a MirrorSend.
+   // First it will send with an empty collection, then to a single queue
+   @Test
+   public void testFakeMirrorSend() throws Exception {
+      final String protocol = "AMQP";
+      String subscriptionName = "my-topic-shared-subscription";
+
+      ConnectionFactory cfA1 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + A_1_PORT);
+      ConnectionFactory cfA2 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + A_2_PORT);
+
+      Topic topic;
+
+      try (Connection conn = cfA1.createConnection()) {
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         topic = session.createTopic(TOPIC_NAME);
+         for (int i = 0; i < 10; i++) {
+            session.createSharedDurableConsumer(topic, subscriptionName + "_" + i);
+         }
+      }
+
+      try (Connection conn = cfA2.createConnection()) {
+         Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         topic = session.createTopic(TOPIC_NAME);
+         for (int i = 0; i < 10; i++) {
+            session.createSharedDurableConsumer(topic, subscriptionName + "_" + i);
+         }
+      }
+
+      Wait.assertTrue(() -> a1.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).size() == 20);
+      Wait.assertTrue(() -> a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).size() == 20);
+      Wait.assertTrue(() -> b1.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).size() == 20);
+      Wait.assertTrue(() -> b2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).size() == 20);
+
+      List<RemoteQueueBinding> remoteQueueBindings_a2 = new ArrayList<>();
+      // making sure the queues created on a2 are propagated into b2
+      a2.getPostOffice().getBindingsForAddress(TOPIC_NAME_SIMPLE_STRING).forEach((a, b) -> {
+         if (b instanceof RemoteQueueBindingImpl && b.getClusterName().toString().startsWith(subscriptionName + "_0")) {
+            logger.debug("{} = {}", a, b);
+            remoteQueueBindings_a2.add((RemoteQueueBinding) b);
+         }
+      });
+
+      Assert.assertEquals(1, remoteQueueBindings_a2.size());
+      AmqpConnection connection = createAmqpConnection(new URI("tcp://localhost:" + A_1_PORT));
+      runAfter(connection::close);
+      AmqpSession session = connection.createSession();
+
+      AmqpMessage message = new AmqpMessage();
+      message.setAddress(TOPIC_NAME);
+      // this is sending an empty ArrayList for the TARGET_QUEUES.
+      // no queues should be altered when there's an empty TARGET_QUEUES
+      message.setDeliveryAnnotation(AMQPMirrorControllerSource.TARGET_QUEUES.toString(), new ArrayList<>());
+      message.setDeliveryAnnotation(AMQPMirrorControllerSource.INTERNAL_ID.toString(), a1.getStorageManager().generateID());
+      message.setDeliveryAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString(), String.valueOf(b1.getNodeID()));
+
+      AmqpSender sender = session.createSender(mirrorName(A_1_PORT), new Symbol[]{Symbol.getSymbol("amq.mirror")});
+      sender.send(message);
+
+
+      for (int i = 0; i < 10; i++) {
+         String name = "my-topic-shared-subscription_" + i + ":global";
+
+         // all queues should be empty
+         // because the send to the mirror had an empty TARGET_QUEUES
+         Wait.assertEquals(0, a1.locateQueue(name)::getMessageCount);
+         Wait.assertEquals(0, b1.locateQueue(name)::getMessageCount);
+         Wait.assertEquals(0, a2.locateQueue(name)::getMessageCount);
+         Wait.assertEquals(0, b2.locateQueue(name)::getMessageCount);
+      }
+
+      message = new AmqpMessage();
+      message.setAddress(TOPIC_NAME);
+      ArrayList<String> singleQueue = new ArrayList<>();
+      singleQueue.add("my-topic-shared-subscription_3:global");
+      singleQueue.add("IDONTEXIST");
+      message.setDeliveryAnnotation(AMQPMirrorControllerSource.TARGET_QUEUES.toString(), singleQueue);
+      message.setDeliveryAnnotation(AMQPMirrorControllerSource.INTERNAL_ID.toString(), a1.getStorageManager().generateID());
+      message.setDeliveryAnnotation(AMQPMirrorControllerSource.BROKER_ID.toString(), String.valueOf(b1.getNodeID())); // simulating a node from b1, so it is not sent back to b1
+
+      sender.send(message);
+
+      for (int i = 0; i < 10; i++) {
+         String name = "my-topic-shared-subscription_" + i + ":global";
+
+         if (i == 3) {
+            // only this queue, on this server should have received a message
+            // it shouldn't also be mirrored to its replica
+            Wait.assertEquals(1, a1.locateQueue(name)::getMessageCount);
+         } else {
+            Wait.assertEquals(0, a1.locateQueue(name)::getMessageCount);
+         }
+         Wait.assertEquals(0, b1.locateQueue(name)::getMessageCount);
+         Wait.assertEquals(0, a2.locateQueue(name)::getMessageCount);
+         Wait.assertEquals(0, b2.locateQueue(name)::getMessageCount);
+      }
+
+   }
+
+
 
    // This test has distinct subscriptions on each node and it is making sure the Mirror Routing is working accurately
    @Test

@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -168,9 +167,7 @@ public class RoutingContextImpl implements RoutingContext {
 
       this.internalOnly = null;
 
-      if (mirrorOption == MirrorOption.individualRoute) {
-         mirrorOption = MirrorOption.enabled;
-      }
+      mirrorOption = MirrorOption.enabled;
 
       return this;
    }
