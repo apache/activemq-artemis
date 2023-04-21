@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.connect.mirror;
 
+import java.util.Collection;
 import java.util.function.BooleanSupplier;
 import java.util.function.ToIntFunction;
 
@@ -29,6 +30,8 @@ import org.apache.activemq.artemis.core.io.RunnableCallback;
 import org.apache.activemq.artemis.core.paging.cursor.PagedReference;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
+import org.apache.activemq.artemis.core.postoffice.Binding;
+import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.DuplicateIDCache;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -73,6 +76,7 @@ import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirro
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.POST_ACK;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.QUEUE;
 import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
+import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.TARGET_QUEUES;
 
 public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implements MirrorController {
 
@@ -436,6 +440,8 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       Long internalIDLong = (Long) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, INTERNAL_ID);
       String internalAddress = (String) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, INTERNAL_DESTINATION);
 
+      Collection<String> targetQueues = (Collection) AMQPMessageBrokerAccessor.getDeliveryAnnotationProperty(message, TARGET_QUEUES);
+
       long internalID = 0;
 
       if (internalIDLong != null) {
@@ -479,8 +485,13 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       routingContext.setTransaction(transaction);
       duplicateIDCache.addToCache(duplicateIDBytes, transaction);
 
-      routingContext.clear().setMirrorSource(this).setLoadBalancingType(MessageLoadBalancingType.OFF);
-      server.getPostOffice().route(message, routingContext, false);
+      routingContext.clear().setMirrorSource(this).setLoadBalancingType(MessageLoadBalancingType.LOCAL_ONLY);
+      if (targetQueues != null) {
+         targetQueuesRouting(message, routingContext, targetQueues);
+         server.getPostOffice().processRoute(message, routingContext, false);
+      } else {
+         server.getPostOffice().route(message, routingContext, false);
+      }
       // We use this as part of a transaction because of the duplicate detection cache that needs to be done atomically
       transaction.commit();
       flow();
@@ -488,6 +499,24 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       // return true here will instruct the caller to ignore any references to messageCompletionAck
       return true;
    }
+
+   /** When the source mirror receives messages from a cluster member of his own, it should then fill targetQueues so we could play the same semantic the source applied on its routing */
+   private void targetQueuesRouting( final Message message,
+                               final RoutingContext context,
+                               final Collection<String> queueNames) throws Exception {
+      Bindings bindings = server.getPostOffice().getBindingsForAddress(message.getAddressSimpleString());
+      queueNames.forEach(name -> {
+         Binding binding = bindings.getBinding(name);
+         if (binding != null) {
+            try {
+               binding.route(message, context);
+            } catch (Exception e) {
+               logger.warn(e.getMessage(), e);
+            }
+         }
+      });
+   }
+
 
    @Override
    public void postAcknowledge(MessageReference ref, AckReason reason) {

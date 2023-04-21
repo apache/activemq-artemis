@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RouteContextList;
 import org.apache.activemq.artemis.core.server.RoutingContext;
@@ -36,7 +38,6 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 
 public class RoutingContextImpl implements RoutingContext {
 
-   // The pair here is Durable and NonDurable
    private final Map<SimpleString, RouteContextList> map = new HashMap<>();
 
    private Transaction transaction;
@@ -63,7 +64,7 @@ public class RoutingContextImpl implements RoutingContext {
 
    volatile int version;
 
-   boolean mirrorDisabled = false;
+   MirrorOption mirrorOption = MirrorOption.enabled;
 
    private boolean duplicateDetection = true;
 
@@ -85,13 +86,30 @@ public class RoutingContextImpl implements RoutingContext {
    }
 
    @Override
-   public boolean isMirrorDisabled() {
-      return mirrorDisabled;
+   public MirrorOption getMirrorOption() {
+      return mirrorOption;
    }
 
    @Override
-   public RoutingContextImpl setMirrorDisabled(boolean mirrorDisabled) {
-      this.mirrorDisabled = mirrorDisabled;
+   public boolean isMirrorDisabled() {
+      return mirrorOption == MirrorOption.disabled;
+   }
+
+   @Override
+   public void forEachDurable(Consumer<Queue> queueConsumer) {
+      map.forEach((a, b) -> {
+         b.getDurableQueues().forEach(queueConsumer);
+      });
+   }
+
+   @Override
+   public boolean isMirrorIndividualRoute() {
+      return mirrorOption == MirrorOption.individualRoute;
+   }
+
+   @Override
+   public RoutingContextImpl setMirrorOption(MirrorOption mirrorOption) {
+      this.mirrorOption = mirrorOption;
       return this;
    }
 
@@ -149,6 +167,10 @@ public class RoutingContextImpl implements RoutingContext {
       this.reusable = null;
 
       this.internalOnly = null;
+
+      if (mirrorOption == MirrorOption.individualRoute) {
+         mirrorOption = MirrorOption.enabled;
+      }
 
       return this;
    }

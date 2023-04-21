@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
@@ -51,6 +52,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.BiConsumer;
 
 public final class BindingsImpl implements Bindings {
 
@@ -120,6 +122,11 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
+   public Binding getBinding(String name) {
+      return bindingsNameMap.get(SimpleString.toSimpleString(name));
+   }
+
+   @Override
    public void addBinding(final Binding binding) {
       try {
          logger.trace("addBinding({}) being called", binding);
@@ -182,6 +189,17 @@ public final class BindingsImpl implements Bindings {
    public boolean allowRedistribute() {
       return messageLoadBalancingType.equals(MessageLoadBalancingType.ON_DEMAND) || messageLoadBalancingType.equals(MessageLoadBalancingType.OFF_WITH_REDISTRIBUTION);
    }
+
+   @Override
+   public void forEach(BiConsumer<SimpleString, Binding> bindingConsumer) {
+      bindingsNameMap.forEach(bindingConsumer);
+   }
+
+   @Override
+   public int size() {
+      return bindingsNameMap.size();
+   }
+
 
    @Override
    public Message redistribute(final Message message,
@@ -439,6 +457,10 @@ public final class BindingsImpl implements Bindings {
          }
       }
 
+      if (loadBalancingType.equals(MessageLoadBalancingType.LOCAL_ONLY) && binding instanceof RemoteQueueBinding) {
+         return false;
+      }
+
       final Filter filter = binding.getFilter();
 
       if (filter == null || filter.match(message)) {
@@ -577,6 +599,9 @@ public final class BindingsImpl implements Bindings {
    private void routeFromCluster(final Message message,
                                  final RoutingContext context,
                                  final byte[] ids) throws Exception {
+      if (!context.isMirrorDisabled()) {
+         context.setMirrorOption(MirrorOption.individualRoute);
+      }
       byte[] idsToAck = (byte[]) message.removeProperty(Message.HDR_ROUTE_TO_ACK_IDS);
 
       List<Long> idsToAckList = new ArrayList<>();

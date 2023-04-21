@@ -46,6 +46,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.BiConsumer;
 
 /**
  * This test is replicating the behaviour from https://issues.jboss.org/browse/HORNETQ-988.
@@ -462,6 +463,21 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
       @Override
       public void setMessageLoadBalancingType(MessageLoadBalancingType messageLoadBalancingType) {
 
+      }
+
+      @Override
+      public Binding getBinding(String name) {
+         return null;
+      }
+
+      @Override
+      public void forEach(BiConsumer<SimpleString, Binding> bindingConsumer) {
+         bindings.forEach(bindingConsumer);
+      }
+
+      @Override
+      public int size() {
+         return bindings.size();
       }
 
       @Override

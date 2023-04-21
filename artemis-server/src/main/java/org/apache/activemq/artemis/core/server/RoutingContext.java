@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.server;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -40,9 +41,15 @@ public interface RoutingContext {
 
    /** If the routing is from MirrorController, we don't redo mirrorController
     *  to avoid*/
+   MirrorOption getMirrorOption();
+
+   void forEachDurable(Consumer<Queue> consumer);
+
+   RoutingContext setMirrorOption(MirrorOption option);
+
    boolean isMirrorDisabled();
 
-   RoutingContext setMirrorDisabled(boolean mirrorDisabled);
+   boolean isMirrorIndividualRoute();
 
    /** return true if every queue routed is internal */
    boolean isInternal();

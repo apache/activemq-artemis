@@ -22,7 +22,6 @@ import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.management.MBeanServer;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,7 +40,6 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -78,24 +76,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
    protected static final Symbol SHARED = Symbol.getSymbol("shared");
    protected static final Symbol GLOBAL = Symbol.getSymbol("global");
 
-   protected static final String BROKER_NAME = "localhost";
-   protected static final String NETTY_ACCEPTOR = "netty-acceptor";
-
-   protected String noprivUser = "noprivs";
-   protected String noprivPass = "noprivs";
-
-   protected String browseUser = "browser";
-   protected String browsePass = "browser";
-
-   protected String guestUser = "guest";
-   protected String guestPass = "guest";
-
-   protected String fullUser = "user";
-   protected String fullPass = "pass";
-
    protected ActiveMQServer server;
-
-   protected MBeanServer mBeanServer = createMBeanServer();
 
    @Before
    @Override
@@ -170,68 +151,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       return createServer(port, true);
    }
 
-   protected ActiveMQServer createServer(int port, boolean start) throws Exception {
-
-      final ActiveMQServer server = this.createServer(true, true);
-
-      server.getConfiguration().getAcceptorConfigurations().clear();
-      server.getConfiguration().getAcceptorConfigurations().add(addAcceptorConfiguration(server, port));
-      server.getConfiguration().setName(BROKER_NAME);
-      server.getConfiguration().setJournalDirectory(server.getConfiguration().getJournalDirectory() + port);
-      server.getConfiguration().setBindingsDirectory(server.getConfiguration().getBindingsDirectory() + port);
-      server.getConfiguration().setPagingDirectory(server.getConfiguration().getPagingDirectory() + port);
-      if (port == AMQP_PORT) {
-         // we use the default large directory if the default port
-         // as some tests will assert number of files
-         server.getConfiguration().setLargeMessagesDirectory(server.getConfiguration().getLargeMessagesDirectory());
-      } else {
-         server.getConfiguration().setLargeMessagesDirectory(server.getConfiguration().getLargeMessagesDirectory() + port);
-      }
-      server.getConfiguration().setJMXManagementEnabled(true);
-      server.getConfiguration().setMessageExpiryScanPeriod(100);
-      server.setMBeanServer(mBeanServer);
-
-      // Add any additional Acceptors needed for tests
-      addAdditionalAcceptors(server);
-
-      // Address configuration
-      configureAddressPolicy(server);
-
-      // Add optional security for tests that need it
-      configureBrokerSecurity(server);
-
-      // Add extra configuration
-      addConfiguration(server);
-
-      if (start) {
-         server.start();
-
-         // Prepare all addresses and queues for client tests.
-         createAddressAndQueues(server);
-      }
-
-      return server;
-   }
-
-   protected void addConfiguration(ActiveMQServer server) {
-
-   }
-
-   protected TransportConfiguration addAcceptorConfiguration(ActiveMQServer server, int port) {
-      HashMap<String, Object> params = new HashMap<>();
-      params.put(TransportConstants.PORT_PROP_NAME, String.valueOf(port));
-      params.put(TransportConstants.PROTOCOLS_PROP_NAME, getConfiguredProtocols());
-      HashMap<String, Object> amqpParams = new HashMap<>();
-      configureAMQPAcceptorParameters(amqpParams);
-      TransportConfiguration tc = new TransportConfiguration(NETTY_ACCEPTOR_FACTORY, params, NETTY_ACCEPTOR, amqpParams);
-      configureAMQPAcceptorParameters(tc);
-      return tc;
-   }
-
-   protected String getConfiguredProtocols() {
-      return "AMQP,OPENWIRE";
-   }
-
+   @Override
    protected void configureAddressPolicy(ActiveMQServer server) {
       // Address configuration
       AddressSettings addressSettings = new AddressSettings();
@@ -252,6 +172,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       }
    }
 
+   @Override
    protected void createAddressAndQueues(ActiveMQServer server) throws Exception {
       // Default Queue
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString(getQueueName()), RoutingType.ANYCAST));
@@ -272,10 +193,7 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       }
    }
 
-   protected void addAdditionalAcceptors(ActiveMQServer server) throws Exception {
-      // None by default
-   }
-
+   @Override
    protected void configureBrokerSecurity(ActiveMQServer server) {
       if (isSecurityEnabled()) {
          enableSecurity(server);
@@ -311,14 +229,6 @@ public class AmqpClientTestSupport extends AmqpTestSupport {
       }
 
       server.getConfiguration().setSecurityEnabled(true);
-   }
-
-   protected void configureAMQPAcceptorParameters(Map<String, Object> params) {
-      // None by default
-   }
-
-   protected void configureAMQPAcceptorParameters(TransportConfiguration tc) {
-      // None by default
    }
 
    public Queue getProxyToQueue(String queueName) {
