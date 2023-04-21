@@ -32,9 +32,9 @@ import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
-import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingContext.MirrorOption;
 import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -77,11 +77,9 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final Symbol INTERNAL_ID = Symbol.getSymbol("x-opt-amq-mr-id");
    public static final Symbol INTERNAL_DESTINATION = Symbol.getSymbol("x-opt-amq-mr-dst");
 
-   /** When a clustered node (from regular cluster connections) receives a message
-       it will have target queues associated with it
-      this could be from message redistribution or simply load balancing.
-      an that case this will have the queue associated with it */
-   public static final Symbol TARGET_QUEUES = Symbol.getSymbol("x-opt-amq-trg-q");
+   /* In a Multi-cast address (or JMS Topics) we may in certain cases (clustered-routing for instance)
+      select which particular queues will receive the routing output */
+   public static final Symbol TARGET_QUEUES = Symbol.getSymbol("x-opt-amq-mr-trg-q");
 
    // Capabilities
    public static final Symbol MIRROR_CAPABILITY = Symbol.getSymbol("amq.mirror");
@@ -90,7 +88,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static final SimpleString INTERNAL_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(INTERNAL_ID.toString());
    public static final SimpleString INTERNAL_BROKER_ID_EXTRA_PROPERTY = SimpleString.toSimpleString(BROKER_ID.toString());
 
-   private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null).setMirrorOption(MirrorOption.disabled));
+   private static final ThreadLocal<RoutingContext> mirrorControlRouting = ThreadLocal.withInitial(() -> new RoutingContextImpl(null));
 
    final Queue snfQueue;
    final ActiveMQServer server;
@@ -614,7 +612,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
    public static void route(ActiveMQServer server, Message message) throws Exception {
       message.setMessageID(server.getStorageManager().generateID());
       RoutingContext ctx = mirrorControlRouting.get();
-      ctx.clear();
+      ctx.clear().setMirrorOption(MirrorOption.disabled);
       server.getPostOffice().route(message, ctx, false);
    }
 

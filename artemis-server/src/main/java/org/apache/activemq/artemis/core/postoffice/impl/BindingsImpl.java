@@ -39,9 +39,9 @@ import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.MirrorOption;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.RoutingContext;
+import org.apache.activemq.artemis.core.server.RoutingContext.MirrorOption;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
@@ -69,7 +69,7 @@ public final class BindingsImpl implements Bindings {
     * This is the same as bindingsIdMap but indexed on the binding's uniqueName rather than ID. Two maps are
     * maintained to speed routing, otherwise we'd have to loop through the bindingsIdMap when routing to an FQQN.
     */
-   private final Map<SimpleString, Binding> bindingsNameMap = new ConcurrentHashMap<>();
+   private final Map<String, Binding> bindingsNameMap = new ConcurrentHashMap<>();
 
    private final Set<Binding> exclusiveBindings = new CopyOnWriteArraySet<>();
 
@@ -123,7 +123,7 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public Binding getBinding(String name) {
-      return bindingsNameMap.get(SimpleString.toSimpleString(name));
+      return bindingsNameMap.get(name);
    }
 
    @Override
@@ -138,7 +138,7 @@ public final class BindingsImpl implements Bindings {
          }
 
          bindingsIdMap.put(binding.getID(), binding);
-         bindingsNameMap.put(binding.getUniqueName(), binding);
+         bindingsNameMap.put(String.valueOf(binding.getUniqueName()), binding);
 
          if (binding instanceof RemoteQueueBinding) {
             setMessageLoadBalancingType(((RemoteQueueBinding) binding).getMessageLoadBalancingType());
@@ -162,7 +162,7 @@ public final class BindingsImpl implements Bindings {
 
    @Override
    public Binding removeBindingByUniqueName(final SimpleString bindingUniqueName) {
-      final Binding binding = bindingsNameMap.remove(bindingUniqueName);
+      final Binding binding = bindingsNameMap.remove(String.valueOf(bindingUniqueName));
       if (binding == null) {
          return null;
       }
@@ -174,7 +174,7 @@ public final class BindingsImpl implements Bindings {
          }
 
          bindingsIdMap.remove(binding.getID());
-         assert !bindingsNameMap.containsKey(binding.getUniqueName());
+         assert !bindingsNameMap.containsKey(String.valueOf(binding.getUniqueName()));
 
          if (logger.isTraceEnabled()) {
             logger.trace("Removing binding {} from {} bindingTable: {}", binding, this, debugBindings());
@@ -191,7 +191,7 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
-   public void forEach(BiConsumer<SimpleString, Binding> bindingConsumer) {
+   public void forEach(BiConsumer<String, Binding> bindingConsumer) {
       bindingsNameMap.forEach(bindingConsumer);
    }
 
@@ -313,7 +313,7 @@ public final class BindingsImpl implements Bindings {
             routeUsingStrictOrdering(message, context, groupingHandler, groupId, 0);
          } else if (CompositeAddress.isFullyQualified(message.getAddress())) {
             context.clear().setReusable(false);
-            final Binding theBinding = bindingsNameMap.get(CompositeAddress.extractQueueName(message.getAddressSimpleString()));
+            final Binding theBinding = bindingsNameMap.get(String.valueOf(CompositeAddress.extractQueueName(message.getAddressSimpleString())));
             if (theBinding != null) {
                theBinding.route(message, context);
             }
@@ -601,6 +601,7 @@ public final class BindingsImpl implements Bindings {
                                  final byte[] ids) throws Exception {
       if (!context.isMirrorDisabled()) {
          context.setMirrorOption(MirrorOption.individualRoute);
+         context.setReusable(false);
       }
       byte[] idsToAck = (byte[]) message.removeProperty(Message.HDR_ROUTE_TO_ACK_IDS);
 
