@@ -66,6 +66,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       startServers(3, 4, 5);
 
       for (int i : liveServerIDs) {
+         waitForBridges(servers[i], 2);
          waitForTopology(servers[i], 3, 3);
       }
 
@@ -122,6 +123,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       }
 
       for (int i : liveServerIDs) {
+         waitForBridges(servers[i], 2);
          waitForTopology(servers[i], 3, 3);
       }
 

@@ -89,6 +89,8 @@ public interface ClusterConnection extends ActiveMQComponent, ClusterTopologyLis
 
    long getCallTimeout();
 
+   Bridge[] getBridges();
+
    /**
     * The metric for this cluster connection
     *

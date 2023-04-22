@@ -631,6 +631,11 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    }
 
    @Override
+   public Bridge[] getBridges() {
+      return records.values().stream().map(MessageFlowRecord::getBridge).toArray(Bridge[]::new);
+   }
+
+   @Override
    public Map<String, String> getNodes() {
       synchronized (recordsGuard) {
          Map<String, String> nodes = new HashMap<>();
