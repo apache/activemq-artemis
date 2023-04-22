@@ -41,6 +41,7 @@ import java.lang.ref.WeakReference;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -120,6 +121,7 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
+import org.apache.activemq.artemis.core.server.cluster.Bridge;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.RemoteQueueBinding;
@@ -1326,6 +1328,17 @@ public abstract class ActiveMQTestBase extends Assert {
             fail("component did not start within timeout of " + seconds);
          }
       }
+   }
+
+   protected static final void waitForBridges(final ActiveMQServer server, int connectedBridges) throws Exception {
+      waitForBridges(server.getClusterManager().getDefaultConnection(null), connectedBridges);
+   }
+
+   protected static final void waitForBridges(ClusterConnection clusterConnection, int connectedBridges) throws Exception {
+      Bridge[] bridges = clusterConnection.getBridges();
+
+      Wait.assertTrue(() -> Arrays.stream(clusterConnection.getBridges())
+         .filter(bridge -> bridge.isConnected()).count() >= connectedBridges);
    }
 
    protected static final Map<String, Object> generateParams(final int node, final boolean netty) {
