@@ -440,6 +440,15 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       clusterTransportConfiguration = locator.clusterTransportConfiguration;
    }
 
+   private boolean useInitConnector() {
+      return !config.useTopologyForLoadBalancing || !receivedTopology || topologyArray == null || topologyArray.length == 0;
+   }
+
+   @Override
+   public Pair<TransportConfiguration, TransportConfiguration> selectNextConnectorPair() {
+      return selectConnector(useInitConnector());
+   }
+
    private synchronized Pair<TransportConfiguration, TransportConfiguration> selectConnector(boolean useInitConnector) {
       Pair<TransportConfiguration, TransportConfiguration>[] usedTopology;
 
@@ -470,7 +479,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       }
    }
 
-   private int getConnectorsSize() {
+   @Override
+   public int getConnectorsSize() {
       Pair<TransportConfiguration, TransportConfiguration>[] usedTopology;
 
       flushTopology();
@@ -673,7 +683,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          int attempts = 0;
          boolean topologyArrayTried = !config.useTopologyForLoadBalancing || topologyArray == null || topologyArray.length == 0;
          boolean staticTried = false;
-         boolean shouldTryStatic = !config.useTopologyForLoadBalancing || !receivedTopology || topologyArray == null || topologyArray.length == 0;
+         boolean shouldTryStatic = useInitConnector();
 
          while (retry && !isClosed()) {
             retry = false;
@@ -1175,6 +1185,18 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    @Override
    public int getInitialConnectAttempts() {
       return config.initialConnectAttempts;
+   }
+
+   @Override
+   public ServerLocatorImpl setFailoverAttempts(int attempts) {
+      checkWrite();
+      this.config.failoverAttempts = attempts;
+      return this;
+   }
+
+   @Override
+   public int getFailoverAttempts() {
+      return config.failoverAttempts;
    }
 
    @Deprecated

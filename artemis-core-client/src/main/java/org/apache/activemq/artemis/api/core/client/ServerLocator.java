@@ -654,6 +654,21 @@ public interface ServerLocator extends AutoCloseable {
    int getInitialConnectAttempts();
 
    /**
+    * Sets the maximum number of failover attempts to establish a connection to other live servers after a connection failure.
+    * <p>
+    * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
+    *
+    * @param attempts maximum number of failover attempts after a connection failure
+    * @return this ServerLocator
+    */
+   ServerLocator setFailoverAttempts(int attempts);
+
+   /**
+    * @return the number of failover attempts after a connection failure.
+    */
+   int getFailoverAttempts();
+
+   /**
     * Returns true if the client will automatically attempt to connect to the backup server if the initial
     * connection to the live server fails
     * <p>

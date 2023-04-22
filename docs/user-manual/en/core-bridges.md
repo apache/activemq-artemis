@@ -151,8 +151,8 @@ Let's take a look at all the parameters in turn:
 
 - `confirmation-window-size`. This optional parameter determines the
   `confirmation-window-size` to use for the connection used to forward messages
-  to the target node. This attribute is described in section [Reconnection and
-  Session Reattachment](client-reconnection.md)
+  to the target node. This attribute is described in section
+  [Client failover attributes](client-failover.md#client-failover-attributes)
 
   > **Warning**
   >

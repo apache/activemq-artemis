@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.function.BiPredicate;
 
 public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, ClientConnectionLifeCycleListener {
 
@@ -131,6 +132,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    private final long maxRetryInterval;
 
    private int reconnectAttempts;
+
+   private int failoverAttempts;
 
    private final Set<SessionFailureListener> listeners = new ConcurrentHashSet<>();
 
@@ -238,6 +241,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       this.maxRetryInterval = locatorConfig.maxRetryInterval;
 
       this.reconnectAttempts = reconnectAttempts;
+
+      this.failoverAttempts = locatorConfig.failoverAttempts;
 
       this.scheduledThreadPool = scheduledThreadPool;
 
@@ -640,7 +645,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          // failoverLock
          // until failover is complete
 
-         if (reconnectAttempts != 0) {
+         if (reconnectAttempts != 0 || failoverAttempts != 0) {
 
             if (clientProtocolManager.cleanupBeforeFailover(me)) {
 
@@ -673,33 +678,96 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                   sessionsToFailover = new HashSet<>(sessions);
                }
 
+               // Notify sessions before failover.
                for (ClientSessionInternal session : sessionsToFailover) {
                   session.preHandleFailover(connection);
                }
 
-               boolean allSessionReconnected = false;
-               int failedReconnectSessionsCounter = 0;
-               do {
-                  allSessionReconnected = reconnectSessions(sessionsToFailover, oldConnection, reconnectAttempts, me);
-                  if (oldConnection != null) {
-                     oldConnection.destroy();
+
+               // Try to reconnect to the current connector pair.
+               // Before ARTEMIS-4251 ClientSessionFactoryImpl only tries to reconnect to the current connector pair.
+               int reconnectRetries = 0;
+               boolean sessionsReconnected = false;
+               BiPredicate<Boolean, Integer> reconnectRetryPredicate =
+                  (reconnected, retries) -> clientProtocolManager.isAlive() &&
+                     !reconnected && (reconnectAttempts == -1 || retries < reconnectAttempts);
+               while (reconnectRetryPredicate.test(sessionsReconnected, reconnectRetries)) {
+
+                  int remainingReconnectRetries = reconnectAttempts == -1 ? -1 : reconnectAttempts - reconnectRetries;
+                  reconnectRetries += getConnectionWithRetry(remainingReconnectRetries, oldConnection);
+
+                  if (connection != null) {
+                     sessionsReconnected = reconnectSessions(sessionsToFailover, oldConnection, me);
+
+                     if (!sessionsReconnected) {
+                        if (oldConnection != null) {
+                           oldConnection.destroy();
+                        }
+
+                        oldConnection = connection;
+                        connection = null;
+                     }
                   }
 
-                  if (!allSessionReconnected) {
-                     failedReconnectSessionsCounter++;
-                     oldConnection = connection;
-                     connection = null;
+                  reconnectRetries++;
+                  if (reconnectRetryPredicate.test(sessionsReconnected, reconnectRetries)) {
+                     waitForRetry(retryInterval);
+                  }
+               }
 
-                     // Wait for retry when the connection is established but not all session are reconnected.
-                     if ((reconnectAttempts == -1 || failedReconnectSessionsCounter < reconnectAttempts) && oldConnection != null) {
-                        waitForRetry(retryInterval);
+
+               // Try to connect to other connector pairs.
+               // After ARTEMIS-4251 ClientSessionFactoryImpl tries to connect to
+               // other connector pairs when reconnection to the current connector pair fails.
+               int connectorsCount = 0;
+               int failoverRetries = 0;
+               long failoverRetryInterval = retryInterval;
+               Pair<TransportConfiguration, TransportConfiguration> connectorPair;
+               BiPredicate<Boolean, Integer> failoverRetryPredicate =
+                  (reconnected, retries) -> clientProtocolManager.isAlive() &&
+                     !reconnected && (failoverAttempts == -1 || retries < failoverAttempts);
+               while (failoverRetryPredicate.test(sessionsReconnected, failoverRetries)) {
+
+                  connectorsCount++;
+                  connectorPair = serverLocator.selectNextConnectorPair();
+
+                  if (connectorPair != null) {
+                     connectorConfig = connectorPair.getA();
+                     currentConnectorConfig = connectorPair.getA();
+                     if (connectorPair.getB() != null) {
+                        backupConnectorConfig = connectorPair.getB();
+                     }
+
+                     getConnection();
+                  }
+
+                  if (connection != null) {
+                     sessionsReconnected = reconnectSessions(sessionsToFailover, oldConnection, me);
+
+                     if (!sessionsReconnected) {
+                        if (oldConnection != null) {
+                           oldConnection.destroy();
+                        }
+
+                        oldConnection = connection;
+                        connection = null;
+                     }
+                  }
+
+                  if (connectorsCount >= serverLocator.getConnectorsSize()) {
+                     connectorsCount = 0;
+                     failoverRetries++;
+                     if (failoverRetryPredicate.test(false, failoverRetries)) {
+                        waitForRetry(failoverRetryInterval);
+                        failoverRetryInterval = getNextRetryInterval(failoverRetryInterval);
                      }
                   }
                }
-               while ((reconnectAttempts == -1 || failedReconnectSessionsCounter < reconnectAttempts) && !allSessionReconnected);
 
+
+               // Notify sessions after failover.
                for (ClientSessionInternal session : sessionsToFailover) {
-                  session.postHandleFailover(connection, allSessionReconnected);
+                  session.postHandleFailover(connection, sessionsReconnected);
                }
 
                if (oldConnection != null) {
@@ -830,15 +898,12 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
     */
    private boolean reconnectSessions(final Set<ClientSessionInternal> sessionsToFailover,
                                      final RemotingConnection oldConnection,
-                                     final int reconnectAttempts,
                                      final ActiveMQException cause) {
-      getConnectionWithRetry(reconnectAttempts, oldConnection);
-
       if (connection == null) {
          if (!clientProtocolManager.isAlive())
             ActiveMQClientLogger.LOGGER.failedToConnectToServer();
 
-         return true;
+         return false;
       }
 
       List<FailureListener> oldListeners = oldConnection.getFailureListeners();
@@ -874,9 +939,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       return !sessionFailoverError;
    }
 
-   private void getConnectionWithRetry(final int reconnectAttempts, RemotingConnection oldConnection) {
+   private int getConnectionWithRetry(final int reconnectAttempts, RemotingConnection oldConnection) {
       if (!clientProtocolManager.isAlive())
-         return;
+         return 0;
       if (logger.isTraceEnabled()) {
          logger.trace("getConnectionWithRetry::{} with retryInterval = {} multiplier = {}",
                       reconnectAttempts, retryInterval, retryIntervalMultiplier, new Exception("trace"));
@@ -897,7 +962,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                ((CoreRemotingConnection)connection).setChannelVersion(((CoreRemotingConnection)oldConnection).getChannelVersion());
             }
             logger.debug("Reconnection successful");
-            return;
+            return count;
          } else {
             // Failed to get connection
 
@@ -909,7 +974,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                      ActiveMQClientLogger.LOGGER.failedToConnectToServer(reconnectAttempts);
                   }
 
-                  return;
+                  return count;
                }
 
                if (logger.isTraceEnabled()) {
@@ -917,22 +982,28 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                }
 
                if (waitForRetry(interval))
-                  return;
+                  return count;
 
-               // Exponential back-off
-               long newInterval = (long) (interval * retryIntervalMultiplier);
-
-               if (newInterval > maxRetryInterval) {
-                  newInterval = maxRetryInterval;
-               }
-
-               interval = newInterval;
+               interval = getNextRetryInterval(interval);
             } else {
                logger.debug("Could not connect to any server. Didn't have reconnection configured on the ClientSessionFactory");
-               return;
+               return count;
             }
          }
       }
+
+      return count;
+   }
+
+   private long getNextRetryInterval(long retryInterval) {
+      // Exponential back-off
+      long nextRetryInterval = (long) (retryInterval * retryIntervalMultiplier);
+
+      if (nextRetryInterval > maxRetryInterval) {
+         nextRetryInterval = maxRetryInterval;
+      }
+
+      return nextRetryInterval;
    }
 
    @Override

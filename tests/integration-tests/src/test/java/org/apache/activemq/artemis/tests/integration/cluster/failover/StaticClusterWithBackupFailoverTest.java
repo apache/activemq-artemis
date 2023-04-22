@@ -28,8 +28,26 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
       return new int[]{0, 1, 2};
    }
 
+   protected boolean isLiveServerID(int id) {
+      for (int i : getLiveServerIDs()) {
+         if (i == id) {
+            return true;
+         }
+      }
+      return false;
+   }
+
    protected int[] getBackupServerIDs() {
       return new int[]{3, 4, 5};
+   }
+
+   protected boolean isBackupServerID(int id) {
+      for (int i : getBackupServerIDs()) {
+         if (i == id) {
+            return true;
+         }
+      }
+      return false;
    }
 
    @Override

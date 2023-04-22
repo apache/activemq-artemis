@@ -59,7 +59,7 @@
 * [Broker Plugins](broker-plugins.md)
 * [Resource Limits](resource-limits.md)
 * [The JMS Bridge](jms-bridge.md)
-* [Client Reconnection and Session Reattachment](client-reconnection.md)
+* [Client Failover](client-failover.md)
 * [Diverting and Splitting Message Flows](diverts.md)
 * [Core Bridges](core-bridges.md)
 * [Transformers](transformers.md)
