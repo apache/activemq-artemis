@@ -92,6 +92,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FailoverTest extends FailoverTestBase {
 
@@ -1991,36 +1992,32 @@ public class FailoverTest extends FailoverTestBase {
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
-      final AtomicBoolean channelLockedDuringFailover = new AtomicBoolean(false);
+      final int reconnectFailures = 3;
+      final AtomicInteger reconnectRetries = new AtomicInteger(0);
+      final AtomicBoolean channelLockedDuringFailover = new AtomicBoolean(true);
 
       ClientSession session = createSession(sf, true, true, 0);
 
-      backupServer.addInterceptor(
-         new Interceptor() {
-            private int index = 0;
-
-            @Override
-            public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
-               if (index < 1 && packet.getType() == PacketImpl.CREATESESSION) {
-                  sf.getConnection().addCloseListener(() -> {
-                     index++;
-                     ActiveMQSessionContext sessionContext = (ActiveMQSessionContext)((ClientSessionInternal)session).getSessionContext();
-                     channelLockedDuringFailover.set(sessionContext.getSessionChannel().isLocked());
-                  });
-
-                  Channel sessionChannel = ((RemotingConnectionImpl)connection).getChannel(ChannelImpl.CHANNEL_ID.SESSION.id, -1);
-                  sessionChannel.send(new ActiveMQExceptionMessage(new ActiveMQInternalErrorException()));
-                  return false;
-               }
-               return true;
+      backupServer.addInterceptor((packet, connection) -> {
+         if (packet.getType() == PacketImpl.CREATESESSION) {
+            if (reconnectRetries.getAndIncrement() < reconnectFailures) {
+               Channel sessionChannel = ((RemotingConnectionImpl)connection).getChannel(ChannelImpl.CHANNEL_ID.SESSION.id, -1);
+               sessionChannel.send(new ActiveMQExceptionMessage(new ActiveMQInternalErrorException()));
+               return false;
             }
-         });
+
+            ActiveMQSessionContext sessionContext = (ActiveMQSessionContext)((ClientSessionInternal)session).getSessionContext();
+            channelLockedDuringFailover.compareAndSet(true, sessionContext.getSessionChannel().isLocked());
+         }
+         return true;
+      });
 
       session.start();
 
       crash(session);
 
       Assert.assertTrue(channelLockedDuringFailover.get());
+      Assert.assertEquals(reconnectFailures + 1, reconnectRetries.get());
    }
 
    @Test(timeout = 120000)

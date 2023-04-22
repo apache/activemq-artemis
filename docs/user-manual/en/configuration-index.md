@@ -362,7 +362,7 @@ Name | Description | Default
 [use-duplicate-detection](clusters.md)| should duplicate detection headers be inserted in forwarded messages? | `true`
 [message-load-balancing](clusters.md) | how should messages be load balanced? | `OFF`
 [max-hops](clusters.md)| maximum number of hops cluster topology is propagated. | 1
-[confirmation-window-size](client-reconnection.md#client-reconnection-and-session-reattachment)| The size (in bytes) of the window used for confirming data from the server connected to. | 1048576
+[confirmation-window-size](client-failover.md#reconnect-to-the-same-server)| The size (in bytes) of the window used for confirming data from the server connected to. | 1048576
 [producer-window-size](clusters.md)| Flow Control for the Cluster connection bridge. | -1 (disabled)
 [call-failover-timeout](clusters.md#configuring-cluster-connections)| How long to wait for a reply if in the middle of a fail-over. -1 means wait forever. | -1
 [notification-interval](clusters.md) | how often the cluster connection will notify the cluster of its existence right after joining the cluster. | 1000

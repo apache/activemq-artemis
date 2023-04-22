@@ -112,7 +112,7 @@ successfully reached the server.
 
 The window size for send acknowledgements is determined by the
 confirmation-window-size parameter on the connection factory or client
-session factory. Please see [Client Reconnection and Session Reattachment](client-reconnection.md) for more info on this.
+session factory. Please see [Client Failover](client-failover.md) for more info on this.
 
 To use the feature using the core API, you implement the interface
 `org.apache.activemq.artemis.api.core.client.SendAcknowledgementHandler` and set

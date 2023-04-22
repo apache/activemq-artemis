@@ -957,24 +957,7 @@ transactions are there for the client when it reconnects. The normal
 reconnect settings apply when the client is reconnecting so these should
 be high enough to deal with the time needed to scale down.
 
-## Failover Modes
-
-Apache ActiveMQ Artemis defines two types of client failover:
-
-- Automatic client failover
-
-- Application-level client failover
-
-Apache ActiveMQ Artemis also provides 100% transparent automatic reattachment of
-connections to the same server (e.g. in case of transient network
-problems). This is similar to failover, except it is reconnecting to the
-same server and is discussed in [Client Reconnection and Session Reattachment](client-reconnection.md)
-
-During failover, if the client has consumers on any non persistent or
-temporary queues, those queues will be automatically recreated on the backup node, 
-since the backup node will not have any knowledge of non persistent queues.
-
-### Automatic Client Failover
+## Client Failover
 
 Apache ActiveMQ Artemis clients can be configured to receive knowledge of all live and
 backup servers, so that in event of connection failure at the client -
@@ -982,45 +965,7 @@ live server connection, the client will detect this and reconnect to the
 backup server. The backup server will then automatically recreate any
 sessions and consumers that existed on each connection before failover,
 thus saving the user from having to hand-code manual reconnection logic.
-
-Apache ActiveMQ Artemis clients detect connection failure when it has not received
-packets from the server within the time given by
-`client-failure-check-period` as explained in section [Detecting Dead Connections](connection-ttl.md). If the client
-does not receive data in good time, it will assume the connection has
-failed and attempt failover. Also if the socket is closed by the OS,
-usually if the server process is killed rather than the machine itself
-crashing, then the client will failover straight away.
-
-Apache ActiveMQ Artemis clients can be configured to discover the list of live-backup
-server groups in a number of different ways. They can be configured
-explicitly or probably the most common way of doing this is to use
-*server discovery* for the client to automatically discover the list.
-For full details on how to configure server discovery, please see [Clusters](clusters.md).
-Alternatively, the clients can explicitly connect to a specific server
-and download the current servers and backups see [Clusters](clusters.md).
-
-To enable automatic client failover, the client must be configured to
-allow non-zero reconnection attempts (as explained in [Client Reconnection and Session Reattachment](client-reconnection.md)).
-
-By default failover will only occur after at least one connection has
-been made to the live server. In other words, by default, failover will
-not occur if the client fails to make an initial connection to the live
-server - in this case it will simply retry connecting to the live server
-according to the reconnect-attempts property and fail after this number
-of attempts.
-
-#### Failing over on the Initial Connection
-
-Since the client does not learn about the full topology until after the
-first connection is made there is a window where it does not know about
-the backup. If a failure happens at this point the client can only try
-reconnecting to the original live server. To configure how many attempts
-the client will make you can set the URL parameter `initialConnectAttempts`.
-The default for this is `0`, that is try only once. Once the number of
-attempts has been made an exception will be thrown.
-
-For examples of automatic failover with transacted and non-transacted
-JMS sessions, please see [the examples](examples.md) chapter.
+For further details see [Client Failover](client-failover.md)
 
 #### A Note on Server Replication
 
