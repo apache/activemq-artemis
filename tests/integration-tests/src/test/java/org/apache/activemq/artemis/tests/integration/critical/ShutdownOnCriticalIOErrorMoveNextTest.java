@@ -22,6 +22,7 @@ import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.Message;
@@ -40,35 +41,57 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
+import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ShutdownOnCriticalIOErrorMoveNextTest extends ActiveMQTestBase {
 
+   private static final int OK = 3;
+
+   public static void main(String[] arg) {
+      ShutdownOnCriticalIOErrorMoveNextTest testInst = new ShutdownOnCriticalIOErrorMoveNextTest();
+      // some methods are not static, so we need an instance
+      testInst.testSimplyDownAfterErrorSpawned();
+   }
+
    @Test
    public void testSimplyDownAfterError() throws Exception {
-      deleteDirectory(new File("./target/server"));
-      ActiveMQServer server = createServer("./target/server");
+      Process process = SpawnedVMSupport.spawnVM(ShutdownOnCriticalIOErrorMoveNextTest.class.getName());
+      runAfter(process::destroyForcibly);
+      Assert.assertTrue(process.waitFor(10, TimeUnit.SECONDS));
+      Assert.assertEquals(OK, process.exitValue());
+   }
 
-      server.start();
-
-      ConnectionFactory factory = new ActiveMQConnectionFactory();
-      Connection connection = factory.createConnection();
-
-      Session session = connection.createSession();
-
-      MessageProducer producer = session.createProducer(session.createQueue("queue"));
-
+   public void testSimplyDownAfterErrorSpawned() {
       try {
-         for (int i = 0; i < 500; i++) {
-            producer.send(session.createTextMessage("text"));
+         deleteDirectory(new File("./target/server"));
+         ActiveMQServer server = createServer("./target/server");
+
+         server.start();
+
+         ConnectionFactory factory = new ActiveMQConnectionFactory();
+         Connection connection = factory.createConnection();
+
+         Session session = connection.createSession();
+
+         MessageProducer producer = session.createProducer(session.createQueue("queue"));
+
+         try {
+            for (int i = 0; i < 500; i++) {
+               producer.send(session.createTextMessage("text"));
+            }
+         } catch (JMSException expected) {
          }
-      } catch (JMSException expected) {
+
+         Wait.waitFor(() -> !server.isStarted());
+
+         Assert.assertFalse(server.isStarted());
+         System.exit(OK);
+      } catch (Throwable e) {
+         e.printStackTrace(System.out);
+         System.exit(-1);
       }
-
-      Wait.waitFor(() -> !server.isStarted());
-
-      Assert.assertFalse(server.isStarted());
 
    }
 
