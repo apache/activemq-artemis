@@ -22,8 +22,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQAddressDoesNotExistException
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.Parameter;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -37,32 +36,48 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
    }
 
    @Override
-   @Test
+   @Ignore
    public void testListProducersAgainstServer() throws Exception {
-      // have to disable this test, as it's dealing with producers objects.
-      // the test itself will be using a producer to manage the server.
-      // so the test will include noise and it might fail occasionally
-      Assume.assumeTrue(false);
+      // testListProducersAgainstServer is measuring the number of producers in the server
+      // however the management controller itself will include producers
+      // what will introduce noise to the test
+      // hence this test needs to be ignored when using the core protocol for management
    }
-   // ActiveMQServerControlTest overrides --------------------------
 
-   // the core messaging proxy doesn't work when the server is stopped so we cant run these 2 tests
+
+   @Ignore
+   @Override
+   public void testListSessions() throws Exception {
+      // similarly to testListProducersAgainstServer test,
+      // this test will have different objects created when running over core,
+      // what may introduce noise to the test
+      // for that reason this test is ignored on the UsingCoreTest
+   }
+
+   @Ignore
    @Override
    public void testScaleDownWithOutConnector() throws Exception {
+      // test would be invalid over core protocol
    }
 
    @Override
+   @Ignore
    public void testScaleDownWithConnector() throws Exception {
+      // test would be invalid over core protocol
    }
 
-   // the proxy will not work on these tests, ignoring the tests
+   @Ignore
    @Override
    public void testRestartEmbeddedWebServerException() throws Exception {
+      // test would be invalid over core protocol
    }
 
+   @Ignore
    @Override
    public void testRestartEmbeddedWebServerTimeout() throws Exception {
+      // test would be invalid over core protocol
    }
+
 
 
 
