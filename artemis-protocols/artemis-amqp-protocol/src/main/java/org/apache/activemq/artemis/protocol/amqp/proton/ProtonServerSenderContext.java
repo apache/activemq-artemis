@@ -1169,8 +1169,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   supportedFilters.put(filter.getKey(), filter.getValue());
                }
 
-               queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST);
                SimpleString simpleStringSelector = SimpleString.toSimpleString(selector);
+               queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST, simpleStringSelector);
 
                //if the address specifies a broker configured queue then we always use this, treat it as a queue
                if (queue != null) {
@@ -1234,10 +1234,13 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                }
             } else {
                if (queueNameToUse != null) {
-                  //a queue consumer can receive from a multicast queue if it uses a fully qualified name
-                  //setting routingType to null means do not check the routingType against the Queue's routing type.
-                  routingTypeToUse = null;
-                  SimpleString matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, null);
+                  SimpleString matchingAnycastQueue;
+                  QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(addressToUse, queueNameToUse), null, false, null);
+                  if (result.isExists()) {
+                     // if the queue exists and we're using FQQN then just ignore the routing-type
+                     routingTypeToUse = null;
+                  }
+                  matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, routingTypeToUse, null);
                   if (matchingAnycastQueue != null) {
                      queue = matchingAnycastQueue;
                   } else {
@@ -1284,9 +1287,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
 
 
-      private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType) throws Exception {
+      private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType, SimpleString filter) throws Exception {
          if (queueName != null) {
-            QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(address, queueName), routingType, true);
+            QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(address, queueName), routingType, true, filter);
             if (!result.isExists()) {
                throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist");
             } else {

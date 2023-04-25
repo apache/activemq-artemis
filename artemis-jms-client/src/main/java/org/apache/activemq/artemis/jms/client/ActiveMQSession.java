@@ -848,7 +848,7 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   if (!response.isExists() || !response.getQueueNames().contains(AutoCreateUtil.getCoreQueueName(session, dest.getSimpleAddress()))) {
                      if (response.isAutoCreateQueues()) {
                         try {
-                           createQueue(dest, RoutingType.MULTICAST, dest.getSimpleAddress(), null, true, true, response);
+                           createQueue(dest, RoutingType.MULTICAST, dest.getSimpleAddress(), coreFilterString, true, true, response);
                         } catch (ActiveMQQueueExistsException e) {
                            // The queue was created by another client/admin between the query check and send create queue packet
                         }
