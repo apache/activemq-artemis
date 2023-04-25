@@ -80,6 +80,7 @@ public class AMQConsumer {
    //it's address/queue to management service
    private boolean internalAddress = false;
    private volatile Set<MessageReference> rolledbackMessageRefs;
+   private ScheduledFuture<?> delayedDispatchPrompter;
 
    public AMQConsumer(AMQSession amqSession,
                       org.apache.activemq.command.ActiveMQDestination d,
@@ -176,6 +177,14 @@ public class AMQConsumer {
                cc.setPrefetch(0);
                session.getConnection().dispatch(cc);
             }
+         }
+      }
+
+      if (serverConsumer != null && serverConsumer.getQueue() != null && serverConsumer.getQueue().getQueueConfiguration() != null) {
+         Long delayBeforeDispatch = serverConsumer.getQueue().getQueueConfiguration().getDelayBeforeDispatch();
+         if (delayBeforeDispatch != null && delayBeforeDispatch > 0) {
+            Long schedule = delayBeforeDispatch / 2;
+            delayedDispatchPrompter = scheduledPool.scheduleAtFixedRate(() -> serverConsumer.promptDelivery(), schedule, schedule, TimeUnit.MILLISECONDS);
          }
       }
 
@@ -404,6 +413,9 @@ public class AMQConsumer {
 
    public void removeConsumer() throws Exception {
       serverConsumer.close(false);
+      if (delayedDispatchPrompter != null) {
+         delayedDispatchPrompter.cancel(false);
+      }
    }
 
 
