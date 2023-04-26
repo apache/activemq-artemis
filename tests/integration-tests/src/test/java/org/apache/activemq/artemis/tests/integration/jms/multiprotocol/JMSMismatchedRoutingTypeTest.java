@@ -19,8 +19,11 @@ package org.apache.activemq.artemis.tests.integration.jms.multiprotocol;
 import javax.jms.Connection;
 import javax.jms.InvalidDestinationException;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
+import javax.jms.QueueRequestor;
+import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.jms.Topic;
 
@@ -129,6 +132,39 @@ public class JMSMismatchedRoutingTypeTest extends MultiprotocolJMSClientTestSupp
          } catch (InvalidDestinationException e) {
             // expected
          }
+      } finally {
+         if (connection != null) {
+            connection.close();
+         }
+      }
+   }
+
+   @Test
+   public void testManagementQueueRequestorAMQP() throws Exception {
+      internalTestManagementQueueRequestor(AMQPConnection);
+   }
+
+   @Test
+   public void testManagementQueueRequestorCore() throws Exception {
+      internalTestManagementQueueRequestor(CoreConnection);
+   }
+
+   @Test
+   public void testManagementQueueRequestorOpenWire() throws Exception {
+      internalTestManagementQueueRequestor(OpenWireConnection);
+   }
+
+   private void internalTestManagementQueueRequestor(ConnectionSupplier connectionSupplier) throws Exception {
+      Connection connection = null;
+      try {
+         connection = connectionSupplier.createConnection();
+         Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         Queue managementQueue = session.createQueue(server.getConfiguration().getManagementAddress().toString());
+         QueueRequestor requestor = new QueueRequestor(((QueueSession)session), managementQueue);
+         connection.start();
+         Message m = session.createMessage();
+         Message response = requestor.request(m);
+         assertNotNull(response);
       } finally {
          if (connection != null) {
             connection.close();

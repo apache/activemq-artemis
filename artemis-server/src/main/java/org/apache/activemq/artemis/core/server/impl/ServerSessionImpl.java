@@ -1754,6 +1754,10 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
       SimpleString unPrefixedQueue = removePrefix(queueConfig.getName());
       AddressSettings addressSettings =  server.getAddressSettingsRepository().getMatch(unPrefixedAddress.toString());
 
+      if (unPrefixedAddress.equals(server.getManagementService().getManagementAddress())) {
+         return AutoCreateResult.EXISTED;
+      }
+
       /*
        * This is only here to maintain backwards compatibility with the previous implementation.
        *
