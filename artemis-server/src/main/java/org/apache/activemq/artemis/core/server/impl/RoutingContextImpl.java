@@ -167,7 +167,12 @@ public class RoutingContextImpl implements RoutingContext {
 
       this.internalOnly = null;
 
-      mirrorOption = MirrorOption.enabled;
+      // once we set to disabled, we keep it always disabled.
+      // This is because the routing object used to route commands will disable this
+      // and it should stay that way no matter what
+      if (mirrorOption != MirrorOption.disabled) {
+         mirrorOption = MirrorOption.enabled;
+      }
 
       return this;
    }
