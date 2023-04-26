@@ -37,27 +37,40 @@ under the License.
       <ha-policy>
          <replication>
             <master>
-               <!--we need this for auto failback-->
-               <check-for-live-server>true</check-for-live-server>
+               <group-name>test-pair-zero</group-name>
+               <check-for-live-server>false</check-for-live-server>
+               <vote-on-replication-failure>false</vote-on-replication-failure>
+               <quorum-size>2</quorum-size>
             </master>
          </replication>
       </ha-policy>
 
+      <!-- Connectors -->
       <connectors>
-         <connector name="netty-connector">tcp://localhost:61616</connector>
-         <connector name="netty-backup-connector">tcp://localhost:61617</connector>
+         <connector name="zero-live-connector">tcp://localhost:61000</connector>
+         <connector name="zero-backup-connector">tcp://localhost:61100</connector>
+         <connector name="one-live-connector">tcp://localhost:61001</connector>
+         <connector name="one-backup-connector">tcp://localhost:61101</connector>
+         <connector name="two-live-connector">tcp://localhost:61002</connector>
+         <connector name="two-backup-connector">tcp://localhost:61102</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61616</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61000</acceptor>
       </acceptors>
 
       <cluster-connections>
          <cluster-connection name="my-cluster">
-            <connector-ref>netty-connector</connector-ref>
+            <connector-ref>zero-live-connector</connector-ref>
+            <message-load-balancing>OFF</message-load-balancing>
+            <max-hops>1</max-hops>
             <static-connectors>
-               <connector-ref>netty-backup-connector</connector-ref>
+               <connector-ref>zero-live-connector</connector-ref>
+               <connector-ref>one-live-connector</connector-ref>
+               <connector-ref>one-backup-connector</connector-ref>
+               <connector-ref>two-live-connector</connector-ref>
+               <connector-ref>two-backup-connector</connector-ref>
             </static-connectors>
          </cluster-connection>
       </cluster-connections>

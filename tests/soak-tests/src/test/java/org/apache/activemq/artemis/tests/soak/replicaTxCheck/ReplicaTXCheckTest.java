@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.soak.replicationflow;
+package org.apache.activemq.artemis.tests.soak.replicaTxCheck;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -26,11 +26,11 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.HashSet;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
+import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -43,16 +43,21 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   public static final String SERVER_NAME_0 = "replica-tx-check/replicated-static0";
-   public static final String SERVER_NAME_1 = "replica-tx-check/replicated-static1";
-   public static final String SERVER_NAME_2 = "replica-tx-check/standalone";
+   public static final String SERVER_NAME_0 = "replica-tx-check/backup-zero";
+   public static final String SERVER_NAME_1 = "replica-tx-check/live-zero";
+   public static final String SERVER_NAME_2 = "replica-tx-check/backup-one";
+   public static final String SERVER_NAME_3 = "replica-tx-check/live-one";
+   public static final String SERVER_NAME_4 = "replica-tx-check/backup-two";
+   public static final String SERVER_NAME_5 = "replica-tx-check/live-two";
 
-   ArrayList<ReplicationFlowControlTest.Consumer> consumers = new ArrayList<>();
    private static Process server0;
    private static Process server1;
    private static Process server2;
+   private static Process server3;
+   private static Process server4;
+   private static Process server5;
 
-   int NUMBER_OF_MESSAGES = 300;
+   int NUMBER_OF_MESSAGES = 1000;
    int KILL_AT = 100;
 
    @Before
@@ -60,11 +65,22 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
       cleanupData(SERVER_NAME_0);
       cleanupData(SERVER_NAME_1);
       cleanupData(SERVER_NAME_2);
+      cleanupData(SERVER_NAME_3);
+      cleanupData(SERVER_NAME_4);
+      cleanupData(SERVER_NAME_5);
       disableCheckThread();
 
-      server0 = startServer(SERVER_NAME_0, 0, 30000);
-      server1 = startServer(SERVER_NAME_1, 1, 0);
-      server2 = startServer(SERVER_NAME_2, -1, 30000);
+      server0 = startServer(SERVER_NAME_0, 0, 0);
+      server1 = startServer(SERVER_NAME_1, 0, 0);
+      Assert.assertTrue(ServerUtil.waitForServerToStartOnPort(61000, null, null, 15000));
+
+      server2 = startServer(SERVER_NAME_2, 0, 0);
+      server3 = startServer(SERVER_NAME_3, 0, 0);
+      Assert.assertTrue(ServerUtil.waitForServerToStartOnPort(61001, null, null, 15000));
+
+      server4 = startServer(SERVER_NAME_4, 0, 0);
+      server4 = startServer(SERVER_NAME_5, 0, 0);
+      Assert.assertTrue(ServerUtil.waitForServerToStartOnPort(61002, null, null, 15000));
    }
 
    @After
@@ -75,43 +91,75 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
 
    @Test
    public void testTXCheckAMQP() throws Exception {
-      testTXCheck("AMQP");
+      testTXCheck("AMQP", true, true);
    }
 
    @Test
    public void testTXCheckCORE() throws Exception {
-      testTXCheck("CORE");
+      testTXCheck("CORE", true, true);
    }
 
-   void testTXCheck(String protocol) throws Exception {
+   // a second variation of the test will invert the servers used and use a hard kill (halt) instead of stop
+   @Test
+   public void testTXCheckAMQP_2() throws Exception {
+      testTXCheck("AMQP", false, false);
+   }
 
-      ConnectionFactory replicaPairCF;
-      ConnectionFactory standaloneSource;
+   // a second variation of the test will invert the servers used and use a hard kill (halt) instead of stop
+   @Test
+   public void testTXCheckCORE_2() throws Exception {
+      testTXCheck("CORE", false, false);
+   }
+
+   /**
+    * this test is using three pairs of servers.
+    * It will send messages to one pair, then it consumes from that pair and sends to a second pair
+    * if killTarget==true the target pair is the one that's being killed, otherwise is the one with the consumers
+    * if useStop==true then the server is stopped with a regular stop call, otherwise it's halted
+    */
+   void testTXCheck(String protocol, boolean killTarget, boolean useStop) throws Exception {
+
+      ConnectionFactory pair0;
+      ConnectionFactory pair1;
 
       switch(protocol) {
          case "AMQP":
-            replicaPairCF = new JmsConnectionFactory("failover:(amqp://localhost:61616,amqp://localhost:61617)");
-            standaloneSource = new JmsConnectionFactory("amqp://localhost:61615");
+            pair0 = new JmsConnectionFactory("failover:(amqp://localhost:61000,amqp://localhost:61100)");
+            pair1 = new JmsConnectionFactory("amqp://localhost:61001");
             break;
          case "CORE":
          default:
-            replicaPairCF = new ActiveMQConnectionFactory("tcp://localhost:61616?ha=true&reconnectAttempts=-1");
-            standaloneSource = new ActiveMQConnectionFactory("tcp://localhost:61615");
+            pair0 = new ActiveMQConnectionFactory("tcp://localhost:61000?ha=true&reconnectAttempts=-1");
+            pair1 = new ActiveMQConnectionFactory("tcp://localhost:61001");
       }
 
-      try (Connection sourceConnetion = standaloneSource.createConnection()) {
+      ConnectionFactory sourceCF;
+      ConnectionFactory targetCF;
+
+
+      if (killTarget) {
+         sourceCF = pair1;
+         targetCF = pair0;
+      } else {
+         sourceCF = pair0;
+         targetCF = pair1;
+      }
+
+      try (Connection sourceConnetion = sourceCF.createConnection()) {
          Session session = sourceConnetion.createSession(true, Session.SESSION_TRANSACTED);
          Queue queue = session.createQueue("exampleQueue");
          MessageProducer producer = session.createProducer(queue);
          for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
-            producer.send(session.createTextMessage("hello " + i));
+            TextMessage message = session.createTextMessage("hello " + i);
+            message.setIntProperty("i", i);
+            producer.send(message);
          }
          session.commit();
       }
 
-      try (Connection sourceConnection = standaloneSource.createConnection();
+      try (Connection sourceConnection = sourceCF.createConnection();
            Session sourceSession = sourceConnection.createSession(true, Session.SESSION_TRANSACTED);
-           Connection targetConnection = replicaPairCF.createConnection();
+           Connection targetConnection = targetCF.createConnection();
            Session targetSession = targetConnection.createSession(true, Session.SESSION_TRANSACTED)) {
 
          sourceConnection.start();
@@ -139,8 +187,11 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
                   sourceSession.commit();
                }
                if (i == KILL_AT) {
-                  server0.destroyForcibly();
-                  server0.waitFor(10, TimeUnit.SECONDS);
+                  if (useStop) {
+                     stopServerWithFile(getServerLocation(SERVER_NAME_1));
+                  } else {
+                     server1.destroyForcibly();
+                  }
                }
                if (message.getText().equals("hello " + (NUMBER_OF_MESSAGES - 1))) {
                   logger.info("got to the end");
@@ -153,6 +204,7 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
             }
          }
 
+         HashSet<Integer> received = new HashSet<>();
          int rec = 0;
          while (true) {
             TextMessage message = (TextMessage) subscription.receive(100);
@@ -160,9 +212,14 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
                logger.info("Received {} messages", rec);
                break;
             }
+            received.add(message.getIntProperty("i"));
             rec++;
          }
          targetSession.commit();
+
+         for (i = 0; i < NUMBER_OF_MESSAGES; i++) {
+            Assert.assertTrue(received.contains(i));
+         }
          // we could receive duplicates, but not lose messages
          Assert.assertTrue(rec >= NUMBER_OF_MESSAGES);
       }
