@@ -124,7 +124,11 @@ public class ServerUtil {
    }
 
    public static boolean waitForServerToStart(int id, String username, String password, int timeout) throws InterruptedException {
-      return waitForServerToStart("tcp://localhost:" + (61616 + id), username, password, timeout);
+      return waitForServerToStartOnPort(61616 + id, username, password, timeout);
+   }
+
+   public static boolean waitForServerToStartOnPort(int port, String username, String password, int timeout) throws InterruptedException {
+      return waitForServerToStart("tcp://localhost:" + port, username, password, timeout);
    }
 
    public static boolean waitForServerToStart(String uri, long timeout) throws InterruptedException {

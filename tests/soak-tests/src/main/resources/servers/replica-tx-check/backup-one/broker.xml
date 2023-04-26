@@ -30,15 +30,50 @@ under the License.
 
       <paging-directory>./data/paging</paging-directory>
 
+      <cluster-user>exampleUser</cluster-user>
+
+      <cluster-password>secret</cluster-password>
+
+      <ha-policy>
+         <replication>
+            <slave>
+               <group-name>test-pair-one</group-name>
+               <allow-failback>false</allow-failback>
+               <quorum-size>2</quorum-size>
+            </slave>
+         </replication>
+      </ha-policy>
+
       <!-- Connectors -->
       <connectors>
-         <connector name="netty-connector">tcp://localhost:61615</connector>
+         <connector name="zero-live-connector">tcp://localhost:61000</connector>
+         <connector name="zero-backup-connector">tcp://localhost:61100</connector>
+         <connector name="one-live-connector">tcp://localhost:61001</connector>
+         <connector name="one-backup-connector">tcp://localhost:61101</connector>
+         <connector name="two-live-connector">tcp://localhost:61002</connector>
+         <connector name="two-backup-connector">tcp://localhost:61102</connector>
       </connectors>
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61615</acceptor>
+         <acceptor name="netty-acceptor">tcp://localhost:61101</acceptor>
       </acceptors>
+
+      <cluster-connections>
+         <cluster-connection name="my-cluster">
+            <connector-ref>one-backup-connector</connector-ref>
+            <message-load-balancing>OFF</message-load-balancing>
+            <max-hops>1</max-hops>
+            <static-connectors>
+               <connector-ref>zero-live-connector</connector-ref>
+               <connector-ref>zero-backup-connector</connector-ref>
+               <connector-ref>one-live-connector</connector-ref>
+               <connector-ref>two-live-connector</connector-ref>
+               <connector-ref>two-backup-connector</connector-ref>
+            </static-connectors>
+         </cluster-connection>
+      </cluster-connections>
+      <!-- Other config -->
 
       <security-settings>
          <!--security for example queue-->

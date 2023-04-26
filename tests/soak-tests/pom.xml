@@ -387,15 +387,15 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
-                  <id>created-tx-check-replica0</id>
+                  <id>create-tx-check-backup-zero</id>
                   <goals>
                      <goal>create</goal>
                   </goals>
                   <configuration>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
-                     <instance>${basedir}/target/replica-tx-check/replicated-static0</instance>
-                     <configuration>${basedir}/target/classes/servers/replica-tx-check/replicated-static0</configuration>
+                     <instance>${basedir}/target/replica-tx-check/backup-zero</instance>
+                     <configuration>${basedir}/target/classes/servers/replica-tx-check/backup-zero</configuration>
                      <args>
                         <arg>--java-options</arg>
                         <arg>-ea</arg>
@@ -404,15 +404,15 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
-                  <id>create-tx-check-replica1</id>
+                  <id>create-tx-check-live-zero</id>
                   <goals>
                      <goal>create</goal>
                   </goals>
                   <configuration>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
-                     <instance>${basedir}/target/replica-tx-check/replicated-static1</instance>
-                     <configuration>${basedir}/target/classes/servers/replica-tx-check/replicated-static1</configuration>
+                     <instance>${basedir}/target/replica-tx-check/live-zero</instance>
+                     <configuration>${basedir}/target/classes/servers/replica-tx-check/live-zero</configuration>
                      <args>
                         <arg>--java-options</arg>
                         <arg>-ea</arg>
@@ -421,15 +421,66 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
-                  <id>create-tx-check-standalone</id>
+                  <id>create-tx-check-backup-one</id>
                   <goals>
                      <goal>create</goal>
                   </goals>
                   <configuration>
                      <!-- this makes it easier in certain envs -->
                      <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
-                     <instance>${basedir}/target/replica-tx-check/standalone</instance>
-                     <configuration>${basedir}/target/classes/servers/replica-tx-check/standalone</configuration>
+                     <instance>${basedir}/target/replica-tx-check/backup-one</instance>
+                     <configuration>${basedir}/target/classes/servers/replica-tx-check/backup-one</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-tx-check-live-one</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <instance>${basedir}/target/replica-tx-check/live-one</instance>
+                     <configuration>${basedir}/target/classes/servers/replica-tx-check/live-one</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-tx-check-backup-two</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <instance>${basedir}/target/replica-tx-check/backup-two</instance>
+                     <configuration>${basedir}/target/classes/servers/replica-tx-check/backup-two</configuration>
+                     <args>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-tx-check-live-two</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <instance>${basedir}/target/replica-tx-check/live-two</instance>
+                     <configuration>${basedir}/target/classes/servers/replica-tx-check/live-two</configuration>
                      <args>
                         <arg>--java-options</arg>
                         <arg>-ea</arg>
