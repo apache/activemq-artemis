@@ -37,14 +37,6 @@ $ ./prepare-docker.sh --from-local-dist --local-dist-path ../artemis-distributio
 
 Using ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
 Cleaning up ../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
-Docker file support files at:
-../artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT/docker
-├── Dockerfile-centos7-11
-├── Dockerfile-ubuntu-11
-├── Dockerfile-ubuntu-11-jre
-└── docker-run.sh
-
-0 directories, 4 files
 
 Well done! Now you can continue with building the Docker image:
 
@@ -93,14 +85,6 @@ Downloading apache-artemis-2.16.0-bin.tar.gz from https://downloads.apache.org/a
 ################################################################################################################################################################################################################################ 100,0%
 Expanding _TMP_/artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz...
 Removing _TMP_/artemis/2.16.0/apache-artemis-2.16.0-bin.tar.gz...
-Docker file support files at:
-_TMP_/artemis/2.16.0/docker
-├── Dockerfile-centos7-11
-├── Dockerfile-ubuntu-11
-├── Dockerfile-ubuntu-11-jre
-└── docker-run.sh
-
-0 directories, 4 files
 
 Well done! Now you can continue with building the Docker image:
 

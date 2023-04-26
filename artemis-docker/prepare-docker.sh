@@ -190,7 +190,4 @@ fi
 cp ./Dockerfile-* "$ARTEMIS_DIST_DIR/docker"
 cp ./docker-run.sh "$ARTEMIS_DIST_DIR/docker"
 
-echo "Docker file support files at:"
-tree "$ARTEMIS_DIST_DIR/docker"
-
 next_step
