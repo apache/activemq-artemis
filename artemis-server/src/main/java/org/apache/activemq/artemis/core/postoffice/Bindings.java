@@ -62,4 +62,8 @@ public interface Bindings extends UnproposalListener {
    void forEach(BiConsumer<String, Binding> bindingConsumer);
 
    int size();
+
+   default boolean contains(Class clazz) {
+      return false;
+   }
 }
