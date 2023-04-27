@@ -200,6 +200,17 @@ public final class BindingsImpl implements Bindings {
       return bindingsNameMap.size();
    }
 
+   @Override
+   public boolean contains(Class clazz) {
+      for (Binding binding : getBindings()) {
+         if (clazz.isInstance(binding)) {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
 
    @Override
    public Message redistribute(final Message message,
