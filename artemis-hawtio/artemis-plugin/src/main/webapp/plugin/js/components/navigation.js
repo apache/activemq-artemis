@@ -128,6 +128,12 @@ var Artemis;
         ctrl.showDeleteAddress = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'deleteAddress');
         ctrl.showCreateQueue = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'createQueue');
         ctrl.showDeleteQueue = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'destroyQueue');
+        ctrl.showConnections = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'listConnections');
+        ctrl.showSessions = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'listSessions');
+        ctrl.showConsumers = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'listConsumers');
+        ctrl.showProducers = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'listProducers');
+        ctrl.showAddresses = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'listAddresses');
+        ctrl.showQueues = hasInvokeRights(jolokia, Artemis.getBrokerMBean(workspace, jolokia), 'listQueues');
 
         function getTabs() {
 
@@ -137,12 +143,24 @@ var Artemis;
                 .filter(function (route) { return _.startsWith(route, '/artemis'); });
             if (enabledRoutes.length > 0) {
                 tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisStatus.title, TAB_CONFIG.artemisStatus.route));
-                tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisConnections.title, TAB_CONFIG.artemisConnections.route));
-                tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisSessions.title, TAB_CONFIG.artemisSessions.route));
-                tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisConsumers.title, TAB_CONFIG.artemisConsumers.route));
-                tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisProducers.title, TAB_CONFIG.artemisProducers.route));
-                tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisAddresses.title, TAB_CONFIG.artemisAddresses.route));
-                tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisQueues.title, TAB_CONFIG.artemisQueues.route));
+                if (ctrl.showConnections) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisConnections.title, TAB_CONFIG.artemisConnections.route));
+                }
+                if (ctrl.showSessions) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisSessions.title, TAB_CONFIG.artemisSessions.route));
+                }
+                if (ctrl.showConsumers) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisConsumers.title, TAB_CONFIG.artemisConsumers.route));
+                }
+                if (ctrl.showProducers) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisProducers.title, TAB_CONFIG.artemisProducers.route));
+                }
+                if (ctrl.showAddresses) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisAddresses.title, TAB_CONFIG.artemisAddresses.route));
+                }
+                if (ctrl.showQueues) {
+                    tabs.push(new Nav.HawtioTab(TAB_CONFIG.artemisQueues.title, TAB_CONFIG.artemisQueues.route));
+                }
                 tabs.push(new Nav.HawtioTab(TAB_CONFIG.attributes.title, TAB_CONFIG.attributes.route));
                 tabs.push(new Nav.HawtioTab(TAB_CONFIG.operations.title, TAB_CONFIG.operations.route));
                 tabs.push(new Nav.HawtioTab(TAB_CONFIG.chart.title, TAB_CONFIG.chart.route));

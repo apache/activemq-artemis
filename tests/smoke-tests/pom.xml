@@ -260,12 +260,13 @@
                      <goal>create</goal>
                   </goals>
                   <configuration>
-                     <role>amq</role>
+                     <role>amq,connections,sessions,consumers,producers,addresses,queues</role>
                      <user>admin</user>
                      <password>admin</password>
                      <allowAnonymous>false</allowAnonymous>
                      <noWeb>false</noWeb>
                      <instance>${basedir}/target/console</instance>
+                     <configuration>${basedir}/target/classes/servers/console</configuration>
                      <args>
                         <arg>--http-host</arg>
                         <arg>${sts-http-host}</arg>
