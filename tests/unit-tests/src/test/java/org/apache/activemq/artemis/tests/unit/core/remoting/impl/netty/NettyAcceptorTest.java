@@ -144,4 +144,33 @@ public class NettyAcceptorTest extends ActiveMQTestBase {
       Wait.assertEquals(61616, () -> server.getRemotingService().getAcceptor(normal).getActualPort());
       Wait.assertEquals(-1, () -> server.getRemotingService().getAcceptor(invm).getActualPort());
    }
+
+   @Test
+   public void testInvalidSSLConfig() {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+
+      try {
+         new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+         fail("This should have failed with an IllegalArgumentException");
+      } catch (IllegalArgumentException e) {
+         // expected
+      }
+   }
+
+   @Test
+   public void testValidSSLConfig1() {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+      params.put(TransportConstants.KEYSTORE_PROVIDER_PROP_NAME, RandomUtil.randomString());
+      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+   }
+
+   @Test
+   public void testValidSSLConfig2() {
+      Map<String, Object> params = new HashMap<>();
+      params.put(TransportConstants.SSL_ENABLED_PROP_NAME, "true");
+      params.put(TransportConstants.SSL_CONTEXT_PROP_NAME, RandomUtil.randomString());
+      new NettyAcceptor("netty", null, params, null, null, null, null, Map.of());
+   }
 }
