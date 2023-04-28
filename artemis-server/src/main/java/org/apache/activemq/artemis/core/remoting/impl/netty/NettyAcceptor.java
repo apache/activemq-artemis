@@ -697,7 +697,7 @@ public class NettyAcceptor extends AbstractAcceptor {
       if (configuration.containsKey(TransportConstants.SSL_CONTEXT_PROP_NAME)) {
          return;
       }
-      if (keyStorePath == null && TransportConstants.DEFAULT_KEYSTORE_PROVIDER.equals(keyStoreProvider)) {
+      if (keyStorePath == null && keyStoreProvider == null) {
          throw new IllegalArgumentException("If \"" + TransportConstants.SSL_ENABLED_PROP_NAME + "\" is true then \"" + TransportConstants.KEYSTORE_PATH_PROP_NAME + "\" must be non-null unless an alternative \"" + TransportConstants.KEYSTORE_PROVIDER_PROP_NAME + "\" has been specified.");
       }
    }
