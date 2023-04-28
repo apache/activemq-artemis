@@ -29,6 +29,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.jaas.InVMLoginModule;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
 import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
 import org.junit.Test;
@@ -52,7 +53,7 @@ public class StompWithClientIdValidationTest extends StompTestBase {
 
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration()) {
          @Override
-         public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
+         public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) throws NoCacheLoginException {
 
             Subject validatedUser = super.authenticate(user, password, remotingConnection, securityDomain);
             if (validatedUser == null) {

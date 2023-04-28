@@ -17,11 +17,13 @@
 
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
-public class NoCacheLoginException extends RuntimeException {
+import javax.security.auth.login.LoginException;
+
+public class NoCacheLoginException extends LoginException {
    public NoCacheLoginException() {
       super();
    }
-   public NoCacheLoginException(Exception e) {
-      super(e);
+   public NoCacheLoginException(String message) {
+      super(message);
    }
 }

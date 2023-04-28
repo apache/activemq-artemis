@@ -16,43 +16,19 @@
  */
 package org.apache.activemq.artemis.core.security.jaas;
 
-import javax.security.auth.Subject;
-
-import org.apache.activemq.artemis.core.security.CheckType;
-import org.apache.activemq.artemis.core.security.Role;
-import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
-import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-@RunWith(Parameterized.class)
 public class JAASSecurityManagerTest {
-   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @Parameterized.Parameters(name = "newLoader=({0})")
-   public static Collection<Object[]> data() {
-      return Arrays.asList(new Object[][] {{true}, {false}});
-   }
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
@@ -69,38 +45,14 @@ public class JAASSecurityManagerTest {
       }
    }
 
-   @Parameterized.Parameter
-   public boolean usingNewLoader;
-
-   @Rule
-   public TemporaryFolder tmpDir = new TemporaryFolder();
-
    @Test
-   public void testLoginClassloading() throws Exception {
-      ClassLoader existingLoader = Thread.currentThread().getContextClassLoader();
-      logger.debug("loader: {}", existingLoader);
+   public void testNoCacheLoginException() {
+      ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("testNoCacheLoginException");
       try {
-         if (usingNewLoader) {
-            URLClassLoader simulatedLoader = new URLClassLoader(new URL[]{tmpDir.getRoot().toURI().toURL()}, null);
-            Thread.currentThread().setContextClassLoader(simulatedLoader);
-         }
-         ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("PropertiesLogin");
-
-         Subject result = securityManager.authenticate("first", "secret", null, null);
-
-         assertNotNull(result);
-         assertEquals("first", SecurityStoreImpl.getUserFromSubject(result));
-
-         Role role = new Role("programmers", true, true, true, true, true, true, true, true, true, true);
-         Set<Role> roles = new HashSet<>();
-         roles.add(role);
-         boolean authorizationResult = securityManager.authorize(result, roles, CheckType.SEND, "someaddress");
-
-         assertTrue(authorizationResult);
-
-      } finally {
-         Thread.currentThread().setContextClassLoader(existingLoader);
+         securityManager.authenticate(null, null, null, null);
+         fail();
+      } catch (NoCacheLoginException ncle) {
+         assertEquals(NoCacheLoginModule.MESSAGE, ncle.getMessage());
       }
    }
-
 }

@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.spi.core.security;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import java.lang.invoke.MethodHandles;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.config.impl.SecurityConfiguration;
@@ -28,11 +29,9 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.jaas.JaasCallbackHandler;
 import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 import org.apache.activemq.artemis.spi.core.security.jaas.RolePrincipal;
-import org.apache.activemq.artemis.utils.ExceptionUtil;
 import org.apache.activemq.artemis.utils.SecurityManagerUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.core.remoting.CertificateUtil.getCertsFromConnection;
 
@@ -90,11 +89,14 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
    }
 
    @Override
-   public Subject authenticate(final String user, final String password, RemotingConnection remotingConnection, final String securityDomain) {
+   public Subject authenticate(final String user, final String password, RemotingConnection remotingConnection, final String securityDomain) throws NoCacheLoginException {
       try {
          return getAuthenticatedSubject(user, password, remotingConnection, securityDomain);
       } catch (LoginException e) {
          logger.debug("Couldn't validate user", e);
+         if (e instanceof NoCacheLoginException) {
+            throw (NoCacheLoginException) e;
+         }
          return null;
       }
    }
@@ -138,16 +140,7 @@ public class ActiveMQJAASSecurityManager implements ActiveMQSecurityManager5 {
          } else {
             lc = new LoginContext(configurationName, null, new JaasCallbackHandler(user, password, remotingConnection), configuration);
          }
-         try {
-            lc.login();
-         } catch (LoginException e) {
-            Throwable rootCause = ExceptionUtil.getRootCause(e);
-            if (rootCause instanceof NoCacheLoginException) {
-               throw (NoCacheLoginException) rootCause;
-            } else {
-               throw e;
-            }
-         }
+         lc.login();
          return lc.getSubject();
       } finally {
          if (thisLoader != currentLoader) {

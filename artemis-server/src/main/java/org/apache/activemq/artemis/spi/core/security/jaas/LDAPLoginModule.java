@@ -41,6 +41,7 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
@@ -59,11 +60,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.utils.ExceptionUtil;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class LDAPLoginModule implements AuditLoginModule {
 
@@ -262,9 +262,9 @@ public class LDAPLoginModule implements AuditLoginModule {
    }
 
    private LoginException handleException(LoginException e) {
-      Throwable t = ExceptionUtil.getRootCause(e);
-      if (noCacheExceptions.contains(t.getClass().getName())) {
-         t.initCause(new NoCacheLoginException());
+      Throwable rootCause = ExceptionUtils.getRootCause(e);
+      if (noCacheExceptions.contains(rootCause.getClass().getName())) {
+         return (NoCacheLoginException) new NoCacheLoginException(rootCause.getClass().getName() + (rootCause.getMessage() == null ? "" : ": " + rootCause.getMessage())).initCause(e);
       }
       return e;
    }

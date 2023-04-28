@@ -142,7 +142,7 @@ public class SecurityTest extends ActiveMQTestBase {
          public Subject authenticate(String user,
                                      String password,
                                      RemotingConnection remotingConnection,
-                                     String securityDomain) {
+                                     String securityDomain) throws NoCacheLoginException {
             flipper = !flipper;
             if (flipper) {
                return new Subject();
