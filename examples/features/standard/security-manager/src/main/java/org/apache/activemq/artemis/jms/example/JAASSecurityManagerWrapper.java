@@ -26,12 +26,13 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager5;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 
 public class JAASSecurityManagerWrapper implements ActiveMQSecurityManager5 {
    ActiveMQJAASSecurityManager activeMQJAASSecurityManager;
 
    @Override
-   public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) {
+   public Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) throws NoCacheLoginException {
       System.out.println("authenticate(" + user + ", " + password + ", " + remotingConnection.getRemoteAddress() + ", " + securityDomain + ")");
       return activeMQJAASSecurityManager.authenticate(user, password, remotingConnection, securityDomain);
    }

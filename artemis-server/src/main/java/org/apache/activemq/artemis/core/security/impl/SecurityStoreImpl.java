@@ -189,7 +189,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                   authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
                   validatedUser = getUserFromSubject(subject);
                } catch (NoCacheLoginException e) {
-                  logger.debug("Skipping authentication cache due to exception", e);
+                  handleNoCacheLoginException(e);
                }
             } else if (securityManager instanceof ActiveMQSecurityManager4) {
                validatedUser = ((ActiveMQSecurityManager4) securityManager).validateUser(user, password, connection, securityDomain);
@@ -413,10 +413,15 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             authenticationCache.put(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()), new Pair<>(subject != null, subject));
             return subject;
          } catch (NoCacheLoginException e) {
+            handleNoCacheLoginException(e);
             return null;
          }
       }
       return cached.getB();
+   }
+
+   private void handleNoCacheLoginException(NoCacheLoginException e) {
+      logger.debug("Skipping authentication cache due to exception: {}", e.getMessage());
    }
 
    // public for testing purposes

@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
+import org.apache.activemq.artemis.spi.core.security.jaas.NoCacheLoginException;
 
 /**
  * Used to validate whether a user is authorized to connect to the
@@ -44,7 +45,7 @@ public interface ActiveMQSecurityManager5 extends ActiveMQSecurityManager {
     * @param securityDomain the name of the JAAS security domain to use (can be null)
     * @return the Subject of the authenticated user, else null
     */
-   Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain);
+   Subject authenticate(String user, String password, RemotingConnection remotingConnection, String securityDomain) throws NoCacheLoginException;
 
    /**
     * Determine whether the given user has the correct role for the given check type.

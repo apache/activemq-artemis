@@ -835,13 +835,18 @@ system. It is implemented by
   because it has no default value. Example value: `(member={0})`.
 
 - `noCacheExceptions` - comma separated list of class names of exceptions which 
-  may thrown during communication with the LDAP server; default is empty.
+  may be thrown during communication with the LDAP server; default is empty.
   Typically any failure to authenticate will be stored in the authentication cache
   so that the underlying security data store (e.g. LDAP) is spared any unnecessary
-  traffic. However, in cases where the failure is, for example, due to a temporary
-  network outage and the `security-invalidation-interval` is relatively high this
-  can be problematic. Users can enumerate any relevant exceptions which the cache 
-  should ignore (e.g. `java.net.ConnectException`) to avoid any such problems.
+  traffic. For example, an application with the wrong password attempting to login
+  multiple times in short order might adversely impact the LDAP server. However, in
+  cases where the failure is, for example, due to a temporary network outage and
+  the `security-invalidation-interval` is relatively high then _not_ caching such
+  failures would be better. Users can enumerate any relevant exceptions which the
+  cache should ignore (e.g. `java.net.ConnectException`). The name of the exception
+  should be the **root cause** from the relevant stack-trace. Users can confirm
+  the configured exceptions are being skipped by enabling debug logging for
+  `org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl`.
 
 - `debug` - boolean flag; if `true`, enable debugging; this is used only for
   testing or debugging; normally, it should be set to `false`, or omitted;
