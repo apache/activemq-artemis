@@ -78,8 +78,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // test would be invalid over core protocol
    }
 
-
-
+   @Ignore
+   @Override
+   public void testListProducersMessageCountsJMSCore() throws Exception {
+      // test would be invalid over core protocol
+   }
 
    @Override
    protected ActiveMQServerControl createManagementControl() throws Exception {
