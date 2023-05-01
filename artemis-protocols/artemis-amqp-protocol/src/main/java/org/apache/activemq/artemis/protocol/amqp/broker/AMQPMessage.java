@@ -252,13 +252,27 @@ public abstract class AMQPMessage extends RefCountMessage implements org.apache.
       this.encodedDeliveryAnnotationsSize = copy.encodedDeliveryAnnotationsSize;
       this.deliveryAnnotations = copy.deliveryAnnotations == null ? null : new DeliveryAnnotations(copy.deliveryAnnotations.getValue());
       this.messageAnnotationsPosition = copy.messageAnnotationsPosition;
-      this.messageAnnotations = copy.messageAnnotations == null ? null : new MessageAnnotations(copy.messageAnnotations.getValue());
+      this.messageAnnotations = copyAnnotations(copy.messageAnnotations);
       this.propertiesPosition = copy.propertiesPosition;
       this.properties = copy.properties == null ? null : new Properties(copy.properties);
       this.applicationPropertiesPosition = copy.applicationPropertiesPosition;
       this.applicationProperties = copy.applicationProperties == null ? null : new ApplicationProperties(copy.applicationProperties.getValue());
       this.remainingBodyPosition = copy.remainingBodyPosition;
       this.messageDataScanned = copy.messageDataScanned;
+   }
+
+   private static MessageAnnotations copyAnnotations(MessageAnnotations messageAnnotations) {
+      if (messageAnnotations == null) {
+         return null;
+      }
+      HashMap newAnnotation = new HashMap();
+      messageAnnotations.getValue().forEach((a, b) -> {
+         // These properties should not be copied when re-routing the messages
+         if (!a.toString().startsWith("x-opt-ORIG") && !a.toString().equals("x-opt-routing-type")) {
+            newAnnotation.put(a, b);
+         }
+      });
+      return new MessageAnnotations(newAnnotation);
    }
 
    protected AMQPMessage(long messageFormat) {
