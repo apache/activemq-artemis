@@ -85,6 +85,7 @@ import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfigurat
 import org.apache.activemq.artemis.core.config.storage.FileStorageConfiguration;
 import org.apache.activemq.artemis.core.io.aio.AIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.security.Role;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ComponentConfigurationRoutingType;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -1575,6 +1576,9 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       List<QueueConfiguration> queueConfigurations = new ArrayList<>();
       NodeList children = node.getChildNodes();
+      if (children.getLength() == 0) {
+         throw ActiveMQMessageBundle.BUNDLE.addressWithNoRoutingType(name);
+      }
       for (int j = 0; j < children.getLength(); j++) {
          Node child = children.item(j);
          if (child.getNodeName().equals("multicast")) {

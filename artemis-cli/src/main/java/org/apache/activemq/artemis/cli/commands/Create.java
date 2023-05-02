@@ -218,10 +218,10 @@ public class Create extends InstallAbstract {
    @Option(name = "--no-web", description = "Whether to omit the web-server definition from bootstrap.xml.")
    private boolean noWeb;
 
-   @Option(name = "--queues", description = "A comma separated list of queues with the option to specify a routing type, e.g. --queues myqueue,mytopic:multicast.")
+   @Option(name = "--queues", description = "A comma separated list of queues with the option to specify a routing type, e.g. --queues myQueue1,myQueue2:multicast. Routing-type default: anycast.")
    private String queues;
 
-   @Option(name = "--addresses", description = "A comma separated list of addresses.")
+   @Option(name = "--addresses", description = "A comma separated list of addresses with the option to specify a routing type, e.g. --addresses myAddress1,myAddress2:anycast. Routing-type default: multicast.")
    private String addresses;
 
    @Option(name = "--aio", description = "Set the journal as asyncio.")
@@ -1001,7 +1001,19 @@ public class Create extends InstallAbstract {
          printWriter.println("         </address>");
       }
       for (String str : getAddressList()) {
-         printWriter.println("         <address name=\"" + str + "\"/>");
+         String[] seg = str.split(":");
+         String name = seg[0].trim();
+         // default routing type to multicast if not specified
+         String routingType = (seg.length == 2 ? seg[1].trim() : "multicast");
+         try {
+            RoutingType.valueOf(routingType.toUpperCase());
+         } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Invalid routing type: " + routingType);
+         }
+         printWriter.println("         <address name=\"" + name + "\">");
+         printWriter.println("            <" + routingType + "/>");
+         printWriter.println("         </address>");
       }
       filters.put("${address-queue.settings}", writer.toString());
    }

@@ -48,10 +48,18 @@ under the License.
       </acceptors>
 
       <addresses>
-         <address name="a"/>
-         <address name="b"/>
-         <address name="c"/>
-         <address name="target"/>
+         <address name="a">
+            <multicast/>
+         </address>
+         <address name="b">
+            <multicast/>
+         </address>
+         <address name="c">
+            <multicast/>
+         </address>
+         <address name="target">
+            <multicast/>
+         </address>
       </addresses>
 
       <diverts>

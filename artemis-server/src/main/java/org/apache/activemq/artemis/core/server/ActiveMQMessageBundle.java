@@ -530,4 +530,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229246, value = "Invalid page full message policy type {}")
    IllegalArgumentException invalidPageFullPolicyType(String val);
+
+   @Message(id = 229247, value = "Invalid address configuration for '{}'. Address must support multicast and/or anycast.")
+   IllegalArgumentException addressWithNoRoutingType(String address);
 }
