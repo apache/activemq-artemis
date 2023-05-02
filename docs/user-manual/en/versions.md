@@ -22,6 +22,42 @@ Highlights:
   operational access to these MBeans will now have to be manually enabled in `management.xml` either by changing the
   `default-access` (not recommended) or specifically configuring a `role-access` for the particular MBean in question.
   Note: this applies to all MBean access including directly via JMX and via the Jolokia JMX-HTTP bridge.
+* Due to [ARTEMIS-4212](https://issues.apache.org/jira/browse/ARTEMIS-4212) the broker will reject address definitions
+  in `broker.xml` which don't specify a routing type, e.g.:
+  ```xml
+  <address name="myAddress"/>
+  ```
+  Such configurations will need to be changed to specify a routing-type, e.g.:
+  ```xml
+  <address name="myAddress">
+     <anycast/>
+  </address>
+  ```
+  Or
+  ```xml
+  <address name="myAddress">
+     <multicast/>
+  </address>
+  ```
+  If an address without a routing type is configured the broker will throw an exception like this and fail to start:
+  ```
+  java.lang.IllegalArgumentException: AMQ229247: Invalid address configuration for 'myAddress'. Address must support multicast and/or anycast.
+        at org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser.parseAddressConfiguration(FileConfigurationParser.java:1580)
+        at org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser.parseAddresses(FileConfigurationParser.java:1038)
+        at org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser.parseMainConfig(FileConfigurationParser.java:804)
+        at org.apache.activemq.artemis.core.config.impl.FileConfiguration.parse(FileConfiguration.java:56)
+        at org.apache.activemq.artemis.core.config.FileDeploymentManager.readConfiguration(FileDeploymentManager.java:81)
+        at org.apache.activemq.artemis.integration.FileBroker.createComponents(FileBroker.java:120)
+        at org.apache.activemq.artemis.cli.commands.Run.execute(Run.java:119)
+        at org.apache.activemq.artemis.cli.Artemis.internalExecute(Artemis.java:212)
+        at org.apache.activemq.artemis.cli.Artemis.execute(Artemis.java:162)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+        at org.apache.activemq.artemis.boot.Artemis.execute(Artemis.java:144)
+        at org.apache.activemq.artemis.boot.Artemis.main(Artemis.java:61)
+  ```
 
 ## 2.28.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352523&projectId=12315920)

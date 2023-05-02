@@ -97,6 +97,20 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testAddressWithNoRoutingType() throws Exception {
+      String filename = "FileConfigurationParser-addressWithNoRoutingType.xml";
+      FileConfiguration fc = new FileConfiguration();
+      FileDeploymentManager deploymentManager = new FileDeploymentManager(filename);
+      deploymentManager.addDeployable(fc);
+      try {
+         deploymentManager.readConfiguration();
+         fail();
+      } catch (IllegalArgumentException e) {
+         // expected exception when address has no routing type configured
+      }
+   }
+
+   @Test
    public void testDuplicateAddressSettings() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
       Configuration config = parser.parseMainConfig(ClassloadingUtil.findResource("FileConfigurationParser-duplicateAddressSettings.xml").openStream());

@@ -1369,7 +1369,7 @@ public class ArtemisTest extends CliTestBase {
 
       setupAuth(instanceFolder);
       String queues = "q1,q2:multicast";
-      String addresses = "a1,a2";
+      String addresses = "a1,a2:anycast";
 
 
       // This is usually set when run from the command line via artemis.profile
@@ -1393,8 +1393,11 @@ public class ArtemisTest extends CliTestBase {
                assertEquals(routingType, queryResult.getRoutingType());
             }
             for (String str : addresses.split(",")) {
-               ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.toSimpleString(str));
+               String[] seg = str.split(":");
+               RoutingType routingType = RoutingType.valueOf((seg.length == 2 ? seg[1] : "multicast").toUpperCase());
+               ClientSession.AddressQuery queryResult = coreSession.addressQuery(SimpleString.toSimpleString(seg[0]));
                assertTrue("Couldn't find address " + str, queryResult.isExists());
+               assertTrue(routingType == RoutingType.ANYCAST ? queryResult.isSupportsAnycast() : queryResult.isSupportsMulticast());
             }
          }
 
