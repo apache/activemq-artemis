@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "honkit": "~4.0.7"
+  },
+  "overrides": {
+    "nunjucks": "^3.2.4"
   }
 }
