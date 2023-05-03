@@ -117,8 +117,8 @@ public class WebServerDTOConfigTest {
       Assert.assertEquals("test-excludedCipherSuites,3", String.join(",", testBinding.getExcludedCipherSuites()));
       Assert.assertEquals("test-keyStorePassword", testBinding.getKeyStorePassword());
       Assert.assertEquals("test-trustStorePassword", testBinding.getTrustStorePassword());
-      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE, testBinding.getSniRequired());
-      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE, testBinding.getSniHostCheck());
+      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_HOST_CHECK_VALUE, testBinding.getSniHostCheck());
+      Assert.assertEquals(!WebServerComponent.DEFAULT_SNI_REQUIRED_VALUE, testBinding.getSniRequired());
 
       testStatus(configuration.getStatus(), "system-" + systemWebPropertyPrefix, "bindings." + bindingName + ".");
    }
