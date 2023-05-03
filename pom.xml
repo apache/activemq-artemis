@@ -99,7 +99,7 @@
       <guava.version>31.1-jre</guava.version>
       <hawtio.version>2.15.0</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
-      <jetty.version>10.0.11</jetty.version>
+      <jetty.version>10.0.15</jetty.version>
       <tomcat.servlet-api.version>8.5.78</tomcat.servlet-api.version>
       <jgroups.version>5.2.0.Final</jgroups.version>
       <errorprone.version>2.10.0</errorprone.version>
