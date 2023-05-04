@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -379,6 +380,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private String brokerPropertiesKeySurround = ActiveMQDefaultConfiguration.getDefaultBrokerPropertiesKeySurround();
 
+   private String brokerPropertiesRemoveValue = ActiveMQDefaultConfiguration.getDefaultBrokerPropertiesRemoveValue();
+
    private String networkCheckList = ActiveMQDefaultConfiguration.getDefaultNetworkCheckList();
 
    private String networkURLList = ActiveMQDefaultConfiguration.getDefaultNetworkCheckURLList();
@@ -502,6 +505,14 @@ public class ConfigurationImpl implements Configuration, Serializable {
       this.brokerPropertiesKeySurround = brokerPropertiesKeySurround;
    }
 
+   public String getBrokerPropertiesRemoveValue() {
+      return brokerPropertiesRemoveValue;
+   }
+
+   public void setBrokerPropertiesRemoveValue(String brokerPropertiesRemoveValue) {
+      this.brokerPropertiesRemoveValue = brokerPropertiesRemoveValue;
+   }
+
    @Override
    public Configuration parseProperties(String fileUrlToProperties) throws Exception {
       // system property overrides location of file(s)
@@ -588,7 +599,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
    }
 
    public void populateWithProperties(final Object target, final String propsId, Map<String, Object> beanProperties) throws InvocationTargetException, IllegalAccessException {
-      CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil();
+      CollectionAutoFillPropertiesUtil autoFillCollections = new CollectionAutoFillPropertiesUtil(getBrokerPropertiesRemoveValue(beanProperties));
       BeanUtilsBean beanUtils = new BeanUtilsBean(new ConvertUtilsBean(), autoFillCollections) {
          // override to treat missing properties as errors, not skip as the default impl does
          @Override
@@ -613,8 +624,38 @@ public class ConfigurationImpl implements Configuration, Serializable {
                }
                logger.trace("resolved target, bean: {}, name: {}", target.getClass(), name);
 
-               // Declare local variables we will require
                final String propName = resolver.getProperty(name); // Simple name of target property
+               if (autoFillCollections.isRemoveValue(value)) {
+                  logger.trace("removing from target, bean: {}, name: {}", target.getClass(), name);
+
+                  // we may do a further get but no longer want to reference our nested collection stack
+                  if (!autoFillCollections.collections.isEmpty()) {
+                     autoFillCollections.collections.pop();
+                  }
+                  if (target instanceof Map) {
+                     Map targetMap = (Map) target;
+                     Iterator<Map.Entry<String, Object>> i = targetMap.entrySet().iterator();
+                     while (i.hasNext()) {
+                        String key = i.next().getKey();
+                        if (propName.equals(key)) {
+                           i.remove();
+                           break;
+                        }
+                     }
+                  } else if (target instanceof Collection) {
+                     try {
+                        autoFillCollections.removeByNameProperty(propName, (Collection) target);
+                     } catch (NoSuchMethodException e) {
+                        throw new InvocationTargetException(e, "Can only remove named entries from collections or maps" + name + ", on: " + target);
+                     }
+                  } else {
+                     throw new InvocationTargetException(null, "Can only remove entries from collections or maps" + name + ", on: " + target);
+                  }
+
+                  logger.trace("removed from target, bean: {}, name: {}", target.getClass(), name);
+                  return;
+               }
+
                Class<?> type = null;                         // Java type of target property
                final int index = resolver.getIndex(name);         // Indexed subscript value (if any)
                final String key = resolver.getKey(name);           // Mapped key value (if any)
@@ -814,9 +855,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private String getBrokerPropertiesKeySurround(Map<String, Object> propertiesToApply) {
       if (propertiesToApply.containsKey(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY)) {
-         return String.valueOf(propertiesToApply.get(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY));
+         return String.valueOf(propertiesToApply.remove(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY));
       } else {
          return System.getProperty(getSystemPropertyPrefix() + ActiveMQDefaultConfiguration.BROKER_PROPERTIES_KEY_SURROUND_PROPERTY, getBrokerPropertiesKeySurround());
+      }
+   }
+
+   private String getBrokerPropertiesRemoveValue(Map<String, Object> propertiesToApply) {
+      if (propertiesToApply.containsKey(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_REMOVE_VALUE_PROPERTY)) {
+         return String.valueOf(propertiesToApply.remove(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_REMOVE_VALUE_PROPERTY));
+      } else {
+         return System.getProperty(getSystemPropertyPrefix() + ActiveMQDefaultConfiguration.BROKER_PROPERTIES_REMOVE_VALUE_PROPERTY, getBrokerPropertiesRemoveValue());
       }
    }
 
@@ -3077,7 +3126,12 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
       private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
       final Stack<Pair<String, Object>> collections = new Stack<>();
+      final String removeValue;
       private BeanUtilsBean beanUtilsBean;
+
+      CollectionAutoFillPropertiesUtil(String brokerPropertiesRemoveValue) {
+         this.removeValue = brokerPropertiesRemoveValue;
+      }
 
       @Override
       public void setProperty(final Object bean, final String name, final Object value) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
@@ -3139,6 +3193,18 @@ public class ConfigurationImpl implements Configuration, Serializable {
             Object candidateName = getProperty(candidate, "name");
             if (candidateName != null && key.equals(candidateName.toString())) {
                return candidate;
+            }
+         }
+         return null;
+      }
+
+      private Object removeByNameProperty(String key, Collection collection) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+         // locate on name property, may be a SimpleString
+         for (Object candidate : collection) {
+            Object candidateName = getProperty(candidate, "name");
+            if (candidateName != null && key.equals(candidateName.toString())) {
+               collection.remove(candidate);
+               break;
             }
          }
          return null;
@@ -3256,6 +3322,10 @@ public class ConfigurationImpl implements Configuration, Serializable {
       public void setBeanUtilsBean(BeanUtilsBean beanUtilsBean) {
          // we want type conversion
          this.beanUtilsBean = beanUtilsBean;
+      }
+
+      public boolean isRemoveValue(Object value) {
+         return removeValue != null && removeValue.equals(value);
       }
    }
 
