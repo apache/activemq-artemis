@@ -968,6 +968,46 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testAddressRemovalViaProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("addressConfigurations.\"LB.TEST\".queueConfigs.\"LB.TEST\".routingType", "ANYCAST");
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressConfigurations().size());
+      Assert.assertEquals(1, configuration.getAddressConfigurations().get(0).getQueueConfigs().size());
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      properties.clear();
+      properties.put("addressConfigurations.\"LB.TEST\"", "-");
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(0, configuration.getAddressConfigurations().size());
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+   }
+
+   @Test
+   public void testRoleRemovalViaCustomRemoveProperties() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      properties.put("securityRoles.TEST.users.send", "true");
+      configuration.parsePrefixedProperties(properties, null);
+      Assert.assertEquals(1, configuration.getSecurityRoles().size());
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      properties.clear();
+      properties.put(ActiveMQDefaultConfiguration.BROKER_PROPERTIES_REMOVE_VALUE_PROPERTY, "^");
+      properties.put("securityRoles.TEST", "^");
+      configuration.parsePrefixedProperties(properties, null);
+      Assert.assertEquals(0, configuration.getSecurityRoles().size());
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+   }
+
+   @Test
    public void testIDCacheSizeViaProperties() throws Throwable {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
@@ -1639,6 +1679,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(SimpleString.toSimpleString("sharedExpiry"), configuration.getAddressSettings().get("#").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("important"), configuration.getAddressSettings().get("NeedToTrackExpired").getExpiryAddress());
       Assert.assertEquals(SimpleString.toSimpleString("moreImportant"), configuration.getAddressSettings().get("Name.With.Dots").getExpiryAddress());
+
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
    }
 
    @Test

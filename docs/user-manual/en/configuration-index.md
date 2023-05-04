@@ -91,6 +91,7 @@ reflect the camelCase java naming convention.
 
 Collections need some special treatment to allow additions and reference. We utilise the name attribute of configuration
 entities to find existing entries and when populating new entities, we set the name to match the requested key.
+Removal of configuration from named collections is supported by setting a key value to "-". The remove match value can be configured with a property key "remove.value".
 
 For example, a properties file containing:
 
