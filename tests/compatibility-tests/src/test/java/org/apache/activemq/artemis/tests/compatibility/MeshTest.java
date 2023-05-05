@@ -36,6 +36,7 @@ import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FIVE
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.ONE_FOUR;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.SNAPSHOT;
 import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_FOUR;
+import static org.apache.activemq.artemis.tests.compatibility.GroovyRun.TWO_TWENTYEIGHT_ZERO;
 
 @RunWith(Parameterized.class)
 public class MeshTest extends ServerBase {
@@ -60,6 +61,8 @@ public class MeshTest extends ServerBase {
       combinations.addAll(combinatory(SNAPSHOT, new Object[]{HORNETQ_235}, new Object[]{ONE_FIVE, SNAPSHOT, HORNETQ_235}, new Object[]{ONE_FIVE, SNAPSHOT, HORNETQ_235}));
       combinations.addAll(combinatory(SNAPSHOT, new Object[]{HORNETQ_247}, new Object[]{SNAPSHOT, HORNETQ_247}, new Object[]{SNAPSHOT, HORNETQ_247}));
       combinations.add(new Object[]{SNAPSHOT, ONE_FOUR, ONE_FOUR});
+      combinations.add(new Object[]{SNAPSHOT, TWO_TWENTYEIGHT_ZERO, TWO_TWENTYEIGHT_ZERO});
+      combinations.add(new Object[]{TWO_TWENTYEIGHT_ZERO, SNAPSHOT, SNAPSHOT});
       return combinations;
    }
 
