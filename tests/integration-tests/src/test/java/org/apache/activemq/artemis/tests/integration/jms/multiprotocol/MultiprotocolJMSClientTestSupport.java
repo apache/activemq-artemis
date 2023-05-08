@@ -173,7 +173,7 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return server;
    }
 
-   protected void addConfiguration(ActiveMQServer server) {
+   protected void addConfiguration(ActiveMQServer server) throws Exception {
 
    }
 
@@ -368,11 +368,11 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, null, start);
    }
 
-   private Connection createCoreConnection(String connectionString,
-                                                  String username,
-                                                  String password,
-                                                  String clientId,
-                                                  boolean start) throws JMSException {
+   protected Connection createCoreConnection(String connectionString,
+                                             String username,
+                                             String password,
+                                             String clientId,
+                                             boolean start) throws JMSException {
       ActiveMQJMSConnectionFactory factory = new ActiveMQJMSConnectionFactory(connectionString);
 
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
@@ -414,11 +414,11 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
       return createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, null, start);
    }
 
-   private Connection createOpenWireConnection(String connectionString,
-                                                      String username,
-                                                      String password,
-                                                      String clientId,
-                                                      boolean start) throws JMSException {
+   protected Connection createOpenWireConnection(String connectionString,
+                                                 String username,
+                                                 String password,
+                                                 String clientId,
+                                                 boolean start) throws JMSException {
       ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(connectionString);
 
       Connection connection = trackJMSConnection(factory.createConnection(username, password));
