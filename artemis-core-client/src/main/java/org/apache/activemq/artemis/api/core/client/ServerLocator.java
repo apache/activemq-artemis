@@ -824,4 +824,8 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocatorConfig getLocatorConfig();
 
    void setLocatorConfig(ServerLocatorConfig serverLocatorConfig);
+
+   ServerLocator setPasswordCodec(String passwordCodec);
+
+   String getPasswordCodec();
 }

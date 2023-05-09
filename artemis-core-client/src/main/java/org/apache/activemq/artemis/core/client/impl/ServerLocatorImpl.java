@@ -182,6 +182,8 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
    private ServerLocatorConfig config = new ServerLocatorConfig();
 
+   private String passwordCodec;
+
    public static synchronized void clearThreadPools() {
       ActiveMQClient.clearThreadPools();
    }
@@ -299,6 +301,17 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    @Override
    public void setLocatorConfig(ServerLocatorConfig config) {
       this.config = config;
+   }
+
+   @Override
+   public ServerLocator setPasswordCodec(String passwordCodec) {
+      this.passwordCodec = passwordCodec;
+      return this;
+   }
+
+   @Override
+   public String getPasswordCodec() {
+      return this.passwordCodec;
    }
 
    private static DiscoveryGroup createDiscoveryGroup(String nodeID,

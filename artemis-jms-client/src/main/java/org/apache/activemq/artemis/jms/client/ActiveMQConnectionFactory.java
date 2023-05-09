@@ -59,7 +59,6 @@ import org.apache.activemq.artemis.spi.core.remoting.ClientProtocolManagerFactor
 import org.apache.activemq.artemis.uri.ConnectionFactoryParser;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
-import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.uri.BeanSupport;
 import org.apache.activemq.artemis.utils.uri.URISupport;
 
@@ -830,12 +829,12 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    }
 
    public String getPasswordCodec() {
-      return passwordCodec;
+      return serverLocator.getPasswordCodec();
    }
 
    public ActiveMQConnectionFactory setPasswordCodec(String passwordCodec) {
       checkWrite();
-      this.passwordCodec = passwordCodec;
+      serverLocator.setPasswordCodec(passwordCodec);
       return this;
    }
 
@@ -870,21 +869,8 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       return JMSFactoryType.CF.intValue();
    }
 
-   private String unmaskSensitiveString(String secret) throws JMSException {
-      try {
-         return PasswordMaskingUtil.resolveMask(secret, passwordCodec);
-      } catch (Exception e) {
-         JMSException jmse = new JMSException("Failed to resolve masked sensitive string");
-
-         jmse.initCause(e);
-         jmse.setLinkedException(e);
-
-         throw jmse;
-      }
-   }
-
-   protected synchronized ActiveMQConnection createConnectionInternal(final String rawUsername,
-                                                                      final String rawPassword,
+   protected synchronized ActiveMQConnection createConnectionInternal(final String username,
+                                                                      final String password,
                                                                       final boolean isXA,
                                                                       final int type) throws JMSException {
       makeReadOnly();
@@ -903,8 +889,6 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
       }
 
       ActiveMQConnection connection = null;
-      final String username = unmaskSensitiveString(rawUsername);
-      final String password = unmaskSensitiveString(rawPassword);
 
       if (isXA) {
          if (type == ActiveMQConnection.TYPE_GENERIC_CONNECTION) {
