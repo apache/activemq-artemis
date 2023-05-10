@@ -615,6 +615,8 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
             props.putSimpleStringProperty(ManagementHelper.HDR_CLIENT_ID, SimpleString.toSimpleString(session.getRemotingConnection().getClientID()));
          }
 
+         props.putLongProperty(ManagementHelper.HDR_CONSUMER_NAME, getID());
+
          Notification notification = new Notification(null, CoreNotificationType.CONSUMER_CLOSED, props);
 
          managementService.sendNotification(notification);
