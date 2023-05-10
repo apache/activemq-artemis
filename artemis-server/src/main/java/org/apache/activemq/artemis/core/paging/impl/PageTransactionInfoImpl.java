@@ -51,6 +51,8 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
 
    private long transactionID;
 
+   private volatile Transaction preparedTX;
+
    private volatile long recordID = -1;
 
    private volatile boolean committed = false;
@@ -73,6 +75,10 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    public PageTransactionInfoImpl() {
    }
 
+   @Override
+   public Transaction getPreparedTransaction() {
+      return preparedTX;
+   }
 
    @Override
    public long getRecordID() {
@@ -161,6 +167,7 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
       }
       committed = true;
       lateDeliveries = null;
+      preparedTX = null;
    }
 
    @Override
@@ -226,12 +233,19 @@ public final class PageTransactionInfoImpl implements PageTransactionInfo {
    }
 
    @Override
+   public void reloadPrepared(final Transaction tx) {
+      this.preparedTX = tx;
+      this.committed = false;
+   }
+
+   @Override
    public boolean isRollback() {
       return rolledback;
    }
 
    @Override
    public synchronized void rollback() {
+      preparedTX = null;
       rolledback = true;
       committed = false;
 

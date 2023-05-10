@@ -208,6 +208,113 @@ public class TransactionImplTest extends ActiveMQTestBase {
 
    }
 
+   @Test
+   public void testAlreadyCommitted() throws Exception {
+      TransactionImpl tx = new TransactionImpl(newXID(), new FakeSM(), 10);
+
+      final AtomicInteger commit = new AtomicInteger(0);
+      final AtomicInteger rollback = new AtomicInteger(0);
+      tx.commit();
+
+      // simulating a race, the addOperation happened after the commit
+      tx.addOperation(new TransactionOperation() {
+         @Override
+         public void beforePrepare(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void afterPrepare(Transaction tx) {
+
+         }
+
+         @Override
+         public void beforeCommit(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void afterCommit(Transaction tx) {
+            commit.incrementAndGet();
+         }
+
+         @Override
+         public void beforeRollback(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void afterRollback(Transaction tx) {
+            rollback.incrementAndGet();
+         }
+
+         @Override
+         public List<MessageReference> getRelatedMessageReferences() {
+            return null;
+         }
+
+         @Override
+         public List<MessageReference> getListOnConsumer(long consumerID) {
+            return null;
+         }
+      });
+      Assert.assertEquals(1, commit.get());
+      Assert.assertEquals(0, rollback.get());
+   }
+
+   @Test
+   public void testAlreadyRolledBack() throws Exception {
+      TransactionImpl tx = new TransactionImpl(newXID(), new FakeSM(), 10);
+
+      final AtomicInteger rollback = new AtomicInteger(0);
+      final AtomicInteger commit = new AtomicInteger(0);
+      tx.rollback();
+
+      tx.addOperation(new TransactionOperation() {
+         @Override
+         public void beforePrepare(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void afterPrepare(Transaction tx) {
+
+         }
+
+         @Override
+         public void beforeCommit(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void afterCommit(Transaction tx) {
+            commit.incrementAndGet();
+         }
+
+         @Override
+         public void beforeRollback(Transaction tx) throws Exception {
+
+         }
+
+         @Override
+         public void afterRollback(Transaction tx) {
+            rollback.incrementAndGet();
+         }
+
+         @Override
+         public List<MessageReference> getRelatedMessageReferences() {
+            return null;
+         }
+
+         @Override
+         public List<MessageReference> getListOnConsumer(long consumerID) {
+            return null;
+         }
+      });
+      Assert.assertEquals(0, commit.get());
+      Assert.assertEquals(1, rollback.get());
+   }
+
    class FakeSM implements StorageManager {
 
       @Override

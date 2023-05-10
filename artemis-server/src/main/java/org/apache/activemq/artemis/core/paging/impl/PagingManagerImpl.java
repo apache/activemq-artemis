@@ -29,6 +29,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -44,7 +45,6 @@ import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.apache.activemq.artemis.utils.SizeAwareMetric;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
-import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.apache.activemq.artemis.utils.runnables.AtomicRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -577,12 +577,12 @@ public final class PagingManagerImpl implements PagingManager {
 
    @Override
    public Future<Object> rebuildCounters(Set<Long> storedLargeMessages) {
-      LongHashSet transactionsSet = new LongHashSet();
-      transactions.forEach((txId, tx) -> {
-         transactionsSet.add(txId);
-      });
+      Map<Long, PageTransactionInfo> transactionsSet = new LongObjectHashMap();
+      // making a copy
+      transactions.forEach(transactionsSet::put);
+      transactionsSet.forEach((a, b) -> System.out.println(a + " = " + b));
       stores.forEach((address, pgStore) -> {
-         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(pgStore, transactionsSet, storedLargeMessages);
+         PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(this, pgStore, transactionsSet, storedLargeMessages);
          logger.debug("Setting destination {} to rebuild counters", address);
          managerExecutor.execute(rebuildManager);
       });

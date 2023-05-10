@@ -19,7 +19,9 @@ package org.apache.activemq.artemis.core.paging.cursor.impl;
 
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.LongObjectHashMap;
+import org.apache.activemq.artemis.core.paging.PageTransactionInfo;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.paging.cursor.ConsumedPage;
 import org.apache.activemq.artemis.core.paging.cursor.PagePosition;
@@ -27,13 +29,15 @@ import org.apache.activemq.artemis.core.paging.cursor.PageSubscription;
 import org.apache.activemq.artemis.core.paging.cursor.PageSubscriptionCounter;
 import org.apache.activemq.artemis.core.paging.impl.Page;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.transaction.Transaction;
+import org.apache.activemq.artemis.core.transaction.TransactionOperationAbstract;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
-import org.apache.activemq.artemis.utils.collections.LongHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -44,8 +48,9 @@ public class PageCounterRebuildManager implements Runnable {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private final PagingStore pgStore;
+   private final PagingManager pagingManager;
    private final StorageManager sm;
-   private final LongHashSet transactions;
+   private final Map<Long, PageTransactionInfo> transactions;
    private boolean paging;
    private long limitPageId;
    private int limitMessageNr;
@@ -53,9 +58,10 @@ public class PageCounterRebuildManager implements Runnable {
    private final Set<Long> storedLargeMessages;
 
 
-   public PageCounterRebuildManager(PagingStore store, LongHashSet transactions, Set<Long> storedLargeMessages) {
+   public PageCounterRebuildManager(PagingManager pagingManager, PagingStore store, Map<Long, PageTransactionInfo> transactions, Set<Long> storedLargeMessages) {
       // we make a copy of the data because we are allowing data to influx. We will consolidate the values at the end
       initialize(store);
+      this.pagingManager = pagingManager;
       this.pgStore = store;
       this.sm = store.getStorageManager();
       this.transactions = transactions;
@@ -241,28 +247,64 @@ public class PageCounterRebuildManager implements Runnable {
                if (logger.isTraceEnabled()) {
                   logger.trace("reading message for rebuild cursor on address={}, pg={}, messageNR={}, routedQueues={}, message={}, queueLIst={}", pgStore.getAddress(), msg.getPageNumber(), msg.getMessageNumber(), routedQueues, msg, routedQueues);
                }
+
+               PageTransactionInfo txInfo = null;
+
+               if (msg.getTransactionID() > 0) {
+                  txInfo = transactions.get(msg.getTransactionID());
+               }
+
+               Transaction preparedTX = txInfo == null ? null : txInfo.getPreparedTransaction();
+
+               if (logger.isTraceEnabled()) {
+                  if (logger.isTraceEnabled()) {
+                     logger.trace("lookup on {}, tx={}, preparedTX={}", msg.getTransactionID(), txInfo, preparedTX);
+                  }
+               }
+
                for (long queueID : routedQueues) {
                   boolean ok = !isACK(queueID, msg.getPageNumber(), msg.getMessageNumber());
 
-                  boolean txOK = msg.getTransactionID() <= 0 || transactions == null || transactions.contains(msg.getTransactionID());
+                  // if the pageTransaction is in prepare state, we have to increment the counter after the commit
+                  // notice that there is a check if the commit is done in afterCommit
+                  if (preparedTX != null) {
+                     PageSubscription subscription = pgStore.getCursorProvider().getSubscription(queueID);
+                     preparedTX.addOperation(new TransactionOperationAbstract() {
+                        @Override
+                        public void afterCommit(Transaction tx) {
+                           // We use the pagingManager executor here, in case the commit happened while the rebuild manager is working
+                           // on that case the increment will wait any pending tasks on that executor to finish before this executor takes effect
+                           pagingManager.execute(() -> {
+                              try {
+                                 subscription.getCounter().increment(null, 1, msg.getStoredSize());
+                              } catch (Exception e) {
+                                 logger.warn(e.getMessage(), e);
+                              }
+                           });
+                        }
+                     });
 
-                  if (!txOK) {
-                     logger.debug("TX is not ok for {}", msg);
-                  }
-
-                  if (ok && txOK) { // not acked and TX is ok
-                     if (logger.isTraceEnabled()) {
-                        logger.trace("Message pageNumber={}/{} NOT acked on queue {}", msg.getPageNumber(), msg.getMessageNumber(), queueID);
-                     }
-                     CopiedSubscription copiedSubscription = copiedSubscriptionMap.get(queueID);
-                     if (copiedSubscription != null) {
-                        copiedSubscription.empty = false;
-                        copiedSubscription.addUp++;
-                        copiedSubscription.sizeUp += msg.getPersistentSize();
-                     }
                   } else {
-                     if (logger.isTraceEnabled()) {
-                        logger.trace("Message pageNumber={}/{} IS acked on queue {}", msg.getPageNumber(), msg.getMessageNumber(), queueID);
+                     boolean txOK = msg.getTransactionID() <= 0 || transactions == null || txInfo != null;
+
+                     if (!txOK) {
+                        logger.debug("TX is not ok for {}", msg);
+                     }
+
+                     if (ok && txOK) { // not acked and TX is ok
+                        if (logger.isTraceEnabled()) {
+                           logger.trace("Message pageNumber={}/{} NOT acked on queue {}", msg.getPageNumber(), msg.getMessageNumber(), queueID);
+                        }
+                        CopiedSubscription copiedSubscription = copiedSubscriptionMap.get(queueID);
+                        if (copiedSubscription != null) {
+                           copiedSubscription.empty = false;
+                           copiedSubscription.addUp++;
+                           copiedSubscription.sizeUp += msg.getPersistentSize();
+                        }
+                     } else {
+                        if (logger.isTraceEnabled()) {
+                           logger.trace("Message pageNumber={}/{} IS acked on queue {}", msg.getPageNumber(), msg.getMessageNumber(), queueID);
+                        }
                      }
                   }
                }
