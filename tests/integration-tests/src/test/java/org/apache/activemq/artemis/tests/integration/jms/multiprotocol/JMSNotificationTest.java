@@ -39,8 +39,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.api.core.management.ManagementHelper.HDR_CLIENT_ID;
+import static org.apache.activemq.artemis.api.core.management.ManagementHelper.HDR_CONSUMER_NAME;
 
-public class JMSClientIdNotificationTest extends MultiprotocolJMSClientTestSupport {
+public class JMSNotificationTest extends MultiprotocolJMSClientTestSupport {
 
    private ClientConsumer notificationConsumer;
    private String clientID;
@@ -76,20 +77,20 @@ public class JMSClientIdNotificationTest extends MultiprotocolJMSClientTestSuppo
 
    @Test(timeout = 30000)
    public void testConsumerNotificationAMQP() throws Exception {
-      testConsumerNotification(createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientID, true));
+      testConsumerNotifications(createConnection(getBrokerQpidJMSConnectionURI(), null, null, clientID, true));
    }
 
    @Test(timeout = 30000)
    public void testConsumerNotificationCore() throws Exception {
-      testConsumerNotification(createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, clientID, true));
+      testConsumerNotifications(createCoreConnection(getBrokerCoreJMSConnectionString(), null, null, clientID, true));
    }
 
    @Test(timeout = 30000)
    public void testConsumerNotificationOpenWire() throws Exception {
-      testConsumerNotification(createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, clientID, true));
+      testConsumerNotifications(createOpenWireConnection(getBrokerOpenWireJMSConnectionString(), null, null, clientID, true));
    }
 
-   private void testConsumerNotification(Connection connection) throws Exception {
+   private void testConsumerNotifications(Connection connection) throws Exception {
       final String subscriptionName = "mySub";
       try {
          flush();
@@ -97,13 +98,29 @@ public class JMSClientIdNotificationTest extends MultiprotocolJMSClientTestSuppo
          Topic topic = session.createTopic(getTopicName());
          flush();
          MessageConsumer consumer = session.createDurableSubscriber(topic, subscriptionName);
-         notificationConsumer.receiveImmediate(); // clear the BINDING_ADDED notification for the subscription queue
-         validateClientIdOnNotification(CoreNotificationType.CONSUMER_CREATED);
+         Message m = receiveNotification(CoreNotificationType.CONSUMER_CREATED, notificationConsumer);
+         validateClientIdOnNotification(m, CoreNotificationType.CONSUMER_CREATED);
+         String consumerID = validatePropertyOnNotification(m, CoreNotificationType.CONSUMER_CREATED, HDR_CONSUMER_NAME, null, false);
          consumer.close();
-         validateClientIdOnNotification(CoreNotificationType.CONSUMER_CLOSED);
+         m = receiveNotification(CoreNotificationType.CONSUMER_CLOSED, notificationConsumer);
+         validateClientIdOnNotification(m, CoreNotificationType.CONSUMER_CLOSED);
+         validatePropertyOnNotification(m, CoreNotificationType.CONSUMER_CLOSED, HDR_CONSUMER_NAME, consumerID, true);
          session.unsubscribe(subscriptionName);
       } finally {
          connection.close();
+      }
+   }
+
+   ClientMessage receiveNotification(CoreNotificationType notificationType, ClientConsumer consumer) throws Exception {
+      for (;;) {
+         ClientMessage message = consumer.receive(1000);
+         if (message == null) {
+            return null;
+         }
+         String receivedType = message.getStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE);
+         if (String.valueOf(receivedType).equals(notificationType.toString())) {
+            return message;
+         }
       }
    }
 
@@ -126,19 +143,25 @@ public class JMSClientIdNotificationTest extends MultiprotocolJMSClientTestSuppo
       try {
          flush();
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-         validateClientIdOnNotification(CoreNotificationType.SESSION_CREATED);
+         validateClientIdOnNotification(notificationConsumer.receive(1000), CoreNotificationType.SESSION_CREATED);
          session.close();
-         validateClientIdOnNotification(CoreNotificationType.SESSION_CLOSED);
+         validateClientIdOnNotification(notificationConsumer.receive(1000), CoreNotificationType.SESSION_CLOSED);
       } finally {
          connection.close();
       }
    }
 
-   private void validateClientIdOnNotification(CoreNotificationType notificationType) throws ActiveMQException {
-      Message m = notificationConsumer.receive(1000);
+   private void validateClientIdOnNotification(Message m, CoreNotificationType notificationType) {
+      validatePropertyOnNotification(m, notificationType, HDR_CLIENT_ID, clientID, true);
+   }
+
+   private String validatePropertyOnNotification(Message m, CoreNotificationType notificationType, SimpleString propertyName, String propertyValue, boolean checkValue) {
       assertNotNull(m);
       assertEquals(notificationType.toString(), m.getStringProperty(ManagementHelper.HDR_NOTIFICATION_TYPE));
-      assertTrue(m.getPropertyNames().contains(HDR_CLIENT_ID));
-      assertEquals(clientID, m.getStringProperty(HDR_CLIENT_ID));
+      assertTrue(m.getPropertyNames().contains(propertyName));
+      if (checkValue) {
+         assertEquals(propertyValue, m.getStringProperty(propertyName));
+      }
+      return m.getStringProperty(propertyName);
    }
 }
