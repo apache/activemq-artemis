@@ -175,7 +175,7 @@ public interface Stomp {
           */
          String ACTIVEMQ_NO_LOCAL = "activemq.noLocal";
 
-         public interface AckModeValues {
+         interface AckModeValues {
 
             String AUTO = "auto";
 
