@@ -106,10 +106,10 @@
       <jgroups.version>5.2.0.Final</jgroups.version>
       <errorprone.version>2.10.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
-      <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
+      <maven.checkstyle.plugin.version>3.2.2</maven.checkstyle.plugin.version>
       <jib.maven.plugin.version>3.3.2</jib.maven.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
-      <checkstyle.version>9.2.1</checkstyle.version>
+      <checkstyle.version>10.11.0</checkstyle.version>
       <mockito.version>5.2.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.93.Final</netty.version>
