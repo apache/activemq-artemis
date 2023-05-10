@@ -482,9 +482,21 @@ public class TransactionImpl implements Transaction {
 
    @Override
    public synchronized void addOperation(final TransactionOperation operation) {
-      checkCreateOperations();
-
-      operations.add(operation);
+      // We do this check, because in the case of XA Transactions and paging,
+      // the commit could happen while the counters are being rebuilt.
+      // if the state is commited we should execute it right away.
+      // this is just to avoid a race.
+      switch (state) {
+         case COMMITTED:
+            operation.afterCommit(this);
+            return;
+         case ROLLEDBACK:
+            operation.afterRollback(this);
+            return;
+         default:
+            checkCreateOperations();
+            operations.add(operation);
+      }
    }
 
    @Override

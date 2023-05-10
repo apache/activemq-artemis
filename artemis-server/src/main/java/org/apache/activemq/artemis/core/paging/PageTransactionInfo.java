@@ -31,6 +31,12 @@ public interface PageTransactionInfo extends EncodingSupport {
 
    void setCommitted(boolean committed);
 
+   void reloadPrepared(Transaction transaction);
+
+   /* When we reload a transaction,
+    * We may have to add the counters after commit. */
+   Transaction getPreparedTransaction();
+
    void commit();
 
    void rollback();

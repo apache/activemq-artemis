@@ -739,6 +739,13 @@ public final class PageSubscriptionImpl implements PageSubscription {
    public void reloadPreparedACK(final Transaction tx, final PagePosition position) {
       deliveredCount.incrementAndGet();
       installTXCallback(tx, position);
+
+      try {
+         counter.increment(tx, -1, -position.getPersistentSize());
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+      }
+
    }
 
    @Override
