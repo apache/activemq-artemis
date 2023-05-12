@@ -689,7 +689,13 @@ public class ActiveMQServerImpl implements ActiveMQServer {
 
          nodeManager = createNodeManager(configuration.getNodeManagerLockLocation(), false);
 
-         nodeManager.start();
+         try {
+            nodeManager.start();
+         } catch (Exception e) {
+            //if there's an error here, ensure remaining threads shut down
+            stopTheServer(true);
+            throw e;
+         }
 
          ActiveMQServerLogger.LOGGER.serverStarting((haPolicy.isBackup() ? "backup" : "live"), configuration);
 

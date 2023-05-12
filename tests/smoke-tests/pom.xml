@@ -1281,7 +1281,33 @@
                      </args>
                   </configuration>
                </execution>
-
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-jdbc-bad-driver</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/jdbc-bad-driver</instance>
+                     <args>
+                        <arg>--http-host</arg>
+                        <arg>${sts-http-host}</arg>
+                        <arg>--http-port</arg>
+                        <arg>8161</arg>
+                        <arg>--shared-store</arg>
+                        <arg>--jdbc</arg>
+                        <arg>--jdbc-connection-url</arg>
+                        <arg>tcp://noexist</arg>
+                        <arg>--jdbc-driver-class-name</arg>
+                        <arg>badDriver</arg>
+                     </args>
+                  </configuration>
+               </execution>
             </executions>
             <dependencies>
                <dependency>

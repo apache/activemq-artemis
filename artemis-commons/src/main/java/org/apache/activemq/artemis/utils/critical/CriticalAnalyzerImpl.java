@@ -16,12 +16,15 @@
  */
 package org.apache.activemq.artemis.utils.critical;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.core.server.ActiveMQScheduledComponent;
+import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,11 +51,28 @@ public class CriticalAnalyzerImpl implements CriticalAnalyzer {
        *  issues and won't be able to shutdown the server or halt the VM
        */
       this.scheduledComponent = new ActiveMQScheduledComponent(null, null, checkTimeNanoSeconds, TimeUnit.NANOSECONDS, false) {
+
          @Override
          public void run() {
             logger.trace("Checking critical analyzer");
             check();
          }
+
+         @Override
+         protected ActiveMQThreadFactory getThreadFactory() {
+            return new ActiveMQThreadFactory("CriticalAnalyzer", "Critical-Analyzer-", true, getThisClassLoader());
+         }
+
+         private ClassLoader getThisClassLoader() {
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+               @Override
+               public ClassLoader run() {
+                  return CriticalAnalyzerImpl.this.getClass().getClassLoader();
+               }
+            });
+
+         }
+
       };
 
    }
