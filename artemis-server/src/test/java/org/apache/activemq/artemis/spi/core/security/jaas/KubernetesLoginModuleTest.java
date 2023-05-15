@@ -59,6 +59,13 @@ public class KubernetesLoginModuleTest {
          + "  \"username\": \"" + USERNAME + "\""
          + "}}}";
 
+   public static final String AUTH_JSON_WITH_GROUPS = "{\"status\": {"
+      + "\"authenticated\": true, "
+      + "\"user\": {"
+      + "  \"username\": \"" + USERNAME + "\","
+      + "  \"groups\": [\"developers\", \"qa\"]"
+      + "}}}";
+
    public static final String UNAUTH_JSON = "{\"status\": {"
          + "\"authenticated\": false "
          + "}}";
@@ -137,6 +144,62 @@ public class KubernetesLoginModuleTest {
       assertThat(subject.getPrincipals(), empty());
       verify(client, times(1)).getTokenReview(TOKEN);
    }
+
+   @Test
+   public void testRolesFromReview() throws LoginException {
+      CallbackHandler handler = new TokenCallbackHandler(TOKEN);
+      Subject subject = new Subject();
+      loginModule.initialize(subject, handler, Collections.emptyMap(), Map.of());
+
+      TokenReview tr = TokenReview.fromJsonString(AUTH_JSON_WITH_GROUPS);
+      when(client.getTokenReview(TOKEN)).thenReturn(tr);
+
+      assertTrue(loginModule.login());
+      assertTrue(loginModule.commit());
+
+      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
+      subject.getPrincipals(ServiceAccountPrincipal.class).forEach(p -> {
+         assertThat(p.getName(), is(USERNAME));
+         assertThat(p.getSaName(), is("kermit"));
+         assertThat(p.getNamespace(), is("some-ns"));
+      });
+      Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
+      assertThat(roles, hasSize(2));
+      assertThat(roles, containsInAnyOrder(new RolePrincipal("developers"), new RolePrincipal("qa")));
+
+      assertTrue(loginModule.logout());
+      assertFalse(loginModule.commit());
+      assertThat(subject.getPrincipals(), empty());
+      verify(client, times(1)).getTokenReview(TOKEN);
+   }
+
+   @Test
+   public void testIgnoreRolesFromReview() throws LoginException {
+      CallbackHandler handler = new TokenCallbackHandler(TOKEN);
+      Subject subject = new Subject();
+      loginModule.initialize(subject, handler, Collections.emptyMap(), Map.of("ignoreTokenReviewRoles", "true"));
+
+      TokenReview tr = TokenReview.fromJsonString(AUTH_JSON_WITH_GROUPS);
+      when(client.getTokenReview(TOKEN)).thenReturn(tr);
+
+      assertTrue(loginModule.login());
+      assertTrue(loginModule.commit());
+
+      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
+      subject.getPrincipals(ServiceAccountPrincipal.class).forEach(p -> {
+         assertThat(p.getName(), is(USERNAME));
+         assertThat(p.getSaName(), is("kermit"));
+         assertThat(p.getNamespace(), is("some-ns"));
+      });
+      Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
+      assertThat(roles, hasSize(0));
+
+      assertTrue(loginModule.logout());
+      assertFalse(loginModule.commit());
+      assertThat(subject.getPrincipals(), empty());
+      verify(client, times(1)).getTokenReview(TOKEN);
+   }
+
 
    private Map<String, ?> getDefaultOptions() {
       String baseDirValue = new File(KubernetesLoginModuleTest.class.getClassLoader().getResource("k8s-roles.properties").getPath()).getParentFile().getAbsolutePath();

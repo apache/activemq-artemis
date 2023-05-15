@@ -46,6 +46,7 @@ public class KubernetesLoginModule extends PropertiesLoader implements AuditLogi
    private CallbackHandler handler;
    private Subject subject;
    private TokenReview tokenReview = new TokenReview();
+   private boolean ignoreTokenReviewRoles = false;
    private Map<String, Set<String>> roles;
    private final Set<Principal> principals = new HashSet<>();
    private final KubernetesClient client;
@@ -68,10 +69,17 @@ public class KubernetesLoginModule extends PropertiesLoader implements AuditLogi
       if (debug) {
          logger.debug("Initialized debug");
       }
-      roles = load(K8S_ROLE_FILE_PROP_NAME, "k8s-roles.properties", options).invertedPropertiesValuesMap();
-      if (debug) {
-         logger.debug("loaded roles: {}", roles);
+      // role mapping file is optional
+      if (options.containsKey(K8S_ROLE_FILE_PROP_NAME)) {
+         roles = load(K8S_ROLE_FILE_PROP_NAME, null, options).invertedPropertiesValuesMap();
+         if (debug) {
+            logger.debug("loaded roles: {}", roles);
+         }
+      } else {
+         roles = Map.of();
       }
+
+      ignoreTokenReviewRoles = booleanOption("ignoreTokenReviewRoles", options);
    }
 
    @Override
@@ -109,9 +117,11 @@ public class KubernetesLoginModule extends PropertiesLoader implements AuditLogi
          UserPrincipal userPrincipal = new ServiceAccountPrincipal(tokenReview.getUsername());
          principals.add(userPrincipal);
          authenticatedUsers.add(userPrincipal);
-      }
-      // populate roles for UserPrincipal from other login modules too
-      for (UserPrincipal userPrincipal : authenticatedUsers) {
+         if (!ignoreTokenReviewRoles) {
+            for (String role : tokenReview.getUser().getGroups()) {
+               principals.add(new RolePrincipal(role));
+            }
+         }
          Set<String> matchedRoles = roles.get(userPrincipal.getName());
          if (matchedRoles != null) {
             for (String entry : matchedRoles) {
