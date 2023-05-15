@@ -226,7 +226,7 @@ public class PageSubscriptionCounterImpl extends BasePagingCounter {
       tx.commit();
    }
 
-   private void reset() throws Exception {
+   void reset() throws Exception {
       Transaction tx = new TransactionImpl(storage);
 
       delete(tx, true);
