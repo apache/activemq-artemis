@@ -257,9 +257,7 @@ public class PageCounterRebuildManager implements Runnable {
                Transaction preparedTX = txInfo == null ? null : txInfo.getPreparedTransaction();
 
                if (logger.isTraceEnabled()) {
-                  if (logger.isTraceEnabled()) {
-                     logger.trace("lookup on {}, tx={}, preparedTX={}", msg.getTransactionID(), txInfo, preparedTX);
-                  }
+                  logger.trace("lookup on {}, tx={}, preparedTX={}", msg.getTransactionID(), txInfo, preparedTX);
                }
 
                for (long queueID : routedQueues) {
@@ -273,7 +271,7 @@ public class PageCounterRebuildManager implements Runnable {
                         @Override
                         public void afterCommit(Transaction tx) {
                            // We use the pagingManager executor here, in case the commit happened while the rebuild manager is working
-                           // on that case the increment will wait any pending tasks on that executor to finish before this executor takes effect
+                           // in that case the increment will wait any pending tasks on that executor to finish before this executor takes effect
                            pagingManager.execute(() -> {
                               try {
                                  subscription.getCounter().increment(null, 1, msg.getStoredSize());
@@ -285,13 +283,13 @@ public class PageCounterRebuildManager implements Runnable {
                      });
 
                   } else {
-                     boolean txOK = msg.getTransactionID() <= 0 || transactions == null || txInfo != null;
+                     boolean txIncluded = msg.getTransactionID() <= 0 || transactions == null || txInfo != null;
 
-                     if (!txOK) {
-                        logger.debug("TX is not ok for {}", msg);
+                     if (!txIncluded) {
+                        logger.debug("TX is not included for {}", msg);
                      }
 
-                     if (ok && txOK) { // not acked and TX is ok
+                     if (ok && txIncluded) { // not acked and TX is ok
                         if (logger.isTraceEnabled()) {
                            logger.trace("Message pageNumber={}/{} NOT acked on queue {}", msg.getPageNumber(), msg.getMessageNumber(), queueID);
                         }
