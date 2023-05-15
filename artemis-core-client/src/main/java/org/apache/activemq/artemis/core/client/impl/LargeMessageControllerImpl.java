@@ -303,6 +303,8 @@ public class LargeMessageControllerImpl implements LargeMessageController {
                throw ActiveMQClientMessageBundle.BUNDLE.timeoutOnLargeMessage();
             }
          }
+
+         packetAdded = false;
       }
 
       checkException();
