@@ -47,7 +47,7 @@ These jars are available at Maven Central:
 Whether you are using JMS or just the Core API simply add the `artemis-jms-client-all` jar to your client classpath.
 For Jakarta Messaging add the `artemis-jakarta-client-all` jar instead.
 
-**Warning:**These repackaged jars include all the [client's dependencies](client-classpath-jms.md). Be careful with mixing other components jars in your application as they may clash with each other.
+**Warning:**These repackaged jars include all the [client's dependencies](client-classpath-jms.md). Be careful with mixing other components jars in your application as they may clash with each other. Note also that the -all clients cant be embedded in the same JVM as the broker, for that you must use `artemis-jms-client` or `artemis-jakarta-client` as appropriate.
 
 
 
