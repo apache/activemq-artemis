@@ -30,10 +30,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImpl;
+import org.apache.activemq.artemis.core.paging.cursor.impl.PageSubscriptionCounterImplAccessor;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -46,6 +48,8 @@ import org.apache.activemq.artemis.utils.ReusableLatch;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,6 +122,37 @@ public class PageCounterRebuildTest extends ActiveMQTestBase {
       Assert.assertEquals(0L, nonPersistentPagingCounter.getValue());
       Assert.assertEquals(0L, nonPersistentPagingCounter.getPersistentSize());
       Assert.assertEquals(0, errors.get());
+   }
+
+   @Test
+   public void testResetSubscriptionCounter() throws Exception {
+      StorageManager mockStorage = Mockito.mock(StorageManager.class);
+
+      PageSubscriptionCounterImpl nonPersistentPagingCounter = new PageSubscriptionCounterImpl(mockStorage, 33);
+
+      AtomicInteger called = new AtomicInteger(0);
+
+      AtomicLong generate = new AtomicLong(1);
+
+      Mockito.doAnswer(new Answer<Long>() {
+         @Override
+         public Long answer(InvocationOnMock invocationOnMock) throws Throwable {
+            return generate.incrementAndGet();
+         }
+      }).when(mockStorage).generateID();
+
+      Mockito.doAnswer(new Answer<Void>() {
+         @Override
+         public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
+            called.incrementAndGet();
+
+            return null;
+         }
+      }).when(mockStorage).commit(Mockito.anyLong());
+
+      PageSubscriptionCounterImplAccessor.reset(nonPersistentPagingCounter);
+
+      Assert.assertEquals(1, called.get());
    }
 
    @Test
