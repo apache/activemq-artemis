@@ -2518,25 +2518,33 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
       return name.substring(filesRepository.getFilePrefix().length() + 1, name.indexOf("-", filesRepository.getFilePrefix().length() + 1));
    }
 
-   /**
-    * @return true if cleanup was called
-    */
    @Override
-   public final boolean checkReclaimStatus() throws Exception {
+   public final void checkReclaimStatus() throws Exception {
 
+      logger.trace("JournalImpl::checkReclaimStatus");
       if (compactorRunning.get()) {
-         return false;
+         logger.trace("Giving up checkReclaimStatus as compactor is running");
+         return;
       }
 
       // We can't start reclaim while compacting is working
       while (true) {
-         if (state != JournalImpl.JournalState.LOADED)
-            return false;
-         if (!isAutoReclaim())
-            return false;
-         if (journalLock.readLock().tryLock(250, TimeUnit.MILLISECONDS))
+         logger.trace("JournalImpl::checkReclaimStatus Trying to get a read lock on reclaming");
+         if (state != JournalImpl.JournalState.LOADED) {
+            return;
+         }
+         if (!isAutoReclaim()) {
+            logger.trace("JournalImpl::checkReclaimStatus has no autoReclaim, giving up loop");
+            return;
+         }
+         if (journalLock.readLock().tryLock(250, TimeUnit.MILLISECONDS)) {
+            logger.trace("JournalImpl checkReclaimStatus readLock acquired");
             break;
+         }
+         logger.trace("Could not acquire readLock on checkReclaimStatus, retrying loop");
       }
+
+      logger.debug("JournalImpl::checkReclaimStatus() starting");
       try {
          scan(getDataFiles());
 
@@ -2554,7 +2562,9 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          journalLock.readLock().unlock();
       }
 
-      return false;
+      logger.debug("JournalImpl::checkReclaimStatus() finishing");
+
+      return;
    }
 
    private boolean needsCompact() throws Exception {
@@ -2625,18 +2635,20 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          return;
       }
 
+      logger.debug("JournalImpl::scheduleCompact() starting");
+
       // We can't use the executor for the compacting... or we would dead lock because of file open and creation
       // operations (that will use the executor)
       compactorExecutor.execute(new Runnable() {
          @Override
          public void run() {
-
             try {
                JournalImpl.this.compact();
             } catch (Throwable e) {
                ActiveMQJournalLogger.LOGGER.errorCompacting(e);
             } finally {
                compactorRunning.set(false);
+               logger.debug("JournalImpl::scheduleCompact() done");
             }
          }
       });
@@ -3267,20 +3279,30 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
          return;
       }
 
+      if (logger.isDebugEnabled()) {
+         logger.debug("JournalImpl::scheduleReclaim, autoReclaim={}, compactorRunning={}", isAutoReclaim(), compactorRunning.get());
+      }
+
       if (isAutoReclaim() && !compactorRunning.get()) {
+         logger.trace("Scheduling reclaim and compactor checks");
          compactorExecutor.execute(new Runnable() {
             @Override
             public void run() {
                try {
                   processBackup();
-                  if (!checkReclaimStatus()) {
-                     checkCompact();
-                  }
+                  checkReclaimStatus();
+                  checkCompact();
                } catch (Exception e) {
                   ActiveMQJournalLogger.LOGGER.errorSchedulingCompacting(e);
+               } finally {
+                  logger.debug("JournalImpl::scheduleReclaim finished");
                }
             }
          });
+      } else {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Ignoring scheduleReclaim call because of autoReclaim={} and compactorRunning={}", isAutoReclaim(), compactorRunning.get());
+         }
       }
    }
 
@@ -3565,6 +3587,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
       if (scheduleReclaim) {
          scheduleReclaim();
+      } else {
+         logger.trace("JournalImpl::moveNextFile scheduleReclaim is false, not calling scheduleReclaim");
       }
 
       logger.trace("Moving next file {}", currentFile);

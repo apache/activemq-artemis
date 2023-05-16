@@ -54,16 +54,7 @@ public interface TestableJournal extends Journal {
 
    JournalFile getCurrentFile();
 
-   /**
-    * This method is called automatically when a new file is opened.
-    * <p>
-    * It will among other things, remove stale files and make them available for reuse.
-    * <p>
-    * This method locks the journal.
-    *
-    * @return true if it needs to re-check due to cleanup or other factors
-    */
-   boolean checkReclaimStatus() throws Exception;
+   void checkReclaimStatus() throws Exception;
 
    @Override
    JournalFile[] getDataFiles();
