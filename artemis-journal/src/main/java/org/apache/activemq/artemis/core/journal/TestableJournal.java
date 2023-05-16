@@ -63,7 +63,7 @@ public interface TestableJournal extends Journal {
     *
     * @return true if it needs to re-check due to cleanup or other factors
     */
-   boolean checkReclaimStatus() throws Exception;
+   void checkReclaimStatus() throws Exception;
 
    @Override
    JournalFile[] getDataFiles();
