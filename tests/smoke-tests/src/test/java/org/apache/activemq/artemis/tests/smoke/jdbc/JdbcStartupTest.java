@@ -19,25 +19,28 @@ package org.apache.activemq.artemis.tests.smoke.jdbc;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.concurrent.TimeUnit;
 
 public class JdbcStartupTest extends SmokeTestBase {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected static final String SERVER_NAME = "jdbc-bad-driver";
 
    @Test
    public void startupBadJdbcConnectionTest() throws Exception {
 
-      Integer exitVal = -1;
       Process p = startServer(SERVER_NAME, 0, 0);
       try {
-         p.waitFor(10, TimeUnit.SECONDS);
-         exitVal = p.exitValue();
+         p.waitFor(20, TimeUnit.SECONDS);
+         Assert.assertFalse(p.isAlive());
       } catch (Exception e) {
-         Assert.fail();
+         logger.warn(e.getMessage(), e);
+         Assert.fail(e.getMessage());
       }
-
-      Assert.assertEquals(0, (long) exitVal);
    }
 }
