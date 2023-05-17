@@ -77,6 +77,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.AddressQueryResult;
 import org.apache.activemq.artemis.core.server.BindingQueryResult;
+import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.QueueQueryResult;
@@ -1914,7 +1915,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
             result = handleManagementMessage(tx, message, direct);
          } else {
-            result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
+            try {
+               result = doSend(tx, message, address, direct, senderName, noAutoCreateQueue, routingContext);
+            } catch (ActiveMQIOErrorException e) {
+               if (tx != null) {
+                  tx.markAsRollbackOnly(e);
+               }
+               if (message.isLargeMessage()) {
+                  ((LargeServerMessage)message).deleteFile();
+               }
+               throw e;
+            }
          }
 
          if (AuditLogger.isMessageLoggingEnabled()) {

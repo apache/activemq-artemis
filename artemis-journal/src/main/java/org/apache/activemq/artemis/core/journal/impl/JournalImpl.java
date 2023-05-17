@@ -1263,6 +1263,13 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                       txID, id, recordType, record);
       }
 
+      JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
+      int encodeSize = addRecord.getEncodeSize();
+
+      if (encodeSize > getMaxRecordSize()) {
+         //The record size should be larger than max record size only on the large messages case.
+         throw ActiveMQJournalBundle.BUNDLE.recordLargerThanStoreMax(encodeSize, getMaxRecordSize());
+      }
 
       appendExecutor.execute(new Runnable() {
 
@@ -1276,9 +1283,7 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
                if (tx != null) {
                   tx.checkErrorCondition();
                }
-               JournalInternalRecord addRecord = new JournalAddRecordTX(true, txID, id, recordType, persister, record);
                // we need to calculate the encodeSize here, as it may use caches that are eliminated once the record is written
-               int encodeSize = addRecord.getEncodeSize();
                JournalFile usedFile = appendRecord(addRecord, false, false, tx, null);
 
                if (logger.isTraceEnabled()) {
