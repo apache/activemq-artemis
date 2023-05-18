@@ -237,4 +237,7 @@ public interface ActiveMQClientMessageBundle {
 
    @Message(id = 219067, value = "Keystore alias {} not found in {}")
    IllegalArgumentException keystoreAliasNotFound(String keystoreAlias, String keystorePath);
+
+   @Message(id = 219068, value = "Connection closed while receiving cluster topology. Group:{}")
+   ActiveMQObjectClosedException connectionClosedOnReceiveTopology(DiscoveryGroup discoveryGroup);
 }

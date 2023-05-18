@@ -19,18 +19,23 @@ package org.apache.activemq.artemis.tests.integration.client;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNotConnectedException;
+import org.apache.activemq.artemis.api.core.ActiveMQObjectClosedException;
+import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
+import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -45,6 +50,47 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       Configuration configuration = createDefaultConfig(isNetty());
       server = createServer(false, configuration);
       server.start();
+   }
+
+   @Test
+   public void testFailFastConnectOnClosing() throws Exception {
+      CountDownLatch connectLatch = new CountDownLatch(1);
+      CountDownLatch subscribeLatch = new CountDownLatch(1);
+      AtomicBoolean connectTimedOut = new AtomicBoolean(false);
+
+      ServerLocator locator = createNonHALocator(isNetty()).setCallTimeout(30000);
+      try (ClientSessionFactory csf = locator.createSessionFactory()) {
+         Assert.assertFalse(csf.isClosed());
+      }
+
+      server.getRemotingService().addIncomingInterceptor((Interceptor) (packet, connection) -> {
+         if (packet.getType() == PacketImpl.SUBSCRIBE_TOPOLOGY_V2) {
+            subscribeLatch.countDown();
+            return false;
+         }
+         return true;
+      });
+
+      new Thread(() -> {
+         try {
+            locator.createSessionFactory();
+         } catch (Exception e) {
+            connectTimedOut.set(e.getClass() == ActiveMQObjectClosedException.class);
+         }
+         connectLatch.countDown();
+      }).start();
+
+      //wait for locator subscribing
+      subscribeLatch.await();
+
+      //close locator while it is waiting for topology
+      locator.close();
+
+      //check connect fails fast
+      Assert.assertTrue(connectLatch.await(3000, TimeUnit.MILLISECONDS));
+
+      //check connect timed out
+      Assert.assertTrue(connectTimedOut.get());
    }
 
    @Test
