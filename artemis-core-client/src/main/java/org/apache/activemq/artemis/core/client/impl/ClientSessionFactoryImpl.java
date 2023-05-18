@@ -124,6 +124,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final double retryIntervalMultiplier; // For exponential backoff
 
+   private volatile boolean topologyReady = false;
+
    private final CountDownLatch latchFinalTopology = new CountDownLatch(1);
 
    private final long maxRetryInterval;
@@ -474,6 +476,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          closeCleanSessions(close);
          closed = true;
       }
+
+      //release all threads waiting for topology
+      latchFinalTopology.countDown();
    }
 
    /**
@@ -521,7 +526,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    @Override
    public boolean waitForTopology(long timeout, TimeUnit unit) {
       try {
-         return latchFinalTopology.await(timeout, unit);
+         //latchFinalTopology is decremented on last topology message or on close
+         //topologyReady is set to true only on last topology message
+         return latchFinalTopology.await(timeout, unit) && topologyReady;
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
          ActiveMQClientLogger.LOGGER.unableToReceiveClusterTopology(e);
@@ -1502,6 +1509,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);
          } finally {
             if (isLast) {
+               topologyReady = true;
                latchFinalTopology.countDown();
             }
          }
