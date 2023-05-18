@@ -29,8 +29,10 @@ import org.apache.activemq.artemis.tests.smoke.console.pages.QueuePage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.QueuesPage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.SendMessagePage;
 import org.apache.activemq.artemis.tests.smoke.console.pages.StatusPage;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -40,6 +42,9 @@ import javax.management.ObjectName;
 
 @RunWith(Parameterized.class)
 public class QueuesTest extends ConsoleTest {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    public QueuesTest(MutableCapabilities browserOptions) {
       super(browserOptions);

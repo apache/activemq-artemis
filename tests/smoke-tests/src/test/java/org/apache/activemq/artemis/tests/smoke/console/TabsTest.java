@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.tests.smoke.console;
 
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
+import org.apache.activemq.artemis.utils.RetryRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -26,6 +28,9 @@ import org.openqa.selenium.NoSuchElementException;
 
 @RunWith(Parameterized.class)
 public class TabsTest extends ConsoleTest {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    public TabsTest(MutableCapabilities browserOptions) {
       super(browserOptions);

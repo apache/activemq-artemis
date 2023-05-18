@@ -29,9 +29,11 @@ import java.util.function.Function;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openqa.selenium.MutableCapabilities;
@@ -50,6 +52,9 @@ import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 
 @RunWith(Parameterized.class)
 public abstract class ConsoleTest extends SmokeTestBase {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

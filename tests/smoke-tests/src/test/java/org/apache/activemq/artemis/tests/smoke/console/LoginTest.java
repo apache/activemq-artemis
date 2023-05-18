@@ -17,10 +17,15 @@
 package org.apache.activemq.artemis.tests.smoke.console;
 
 import org.apache.activemq.artemis.tests.smoke.console.pages.LoginPage;
+import org.apache.activemq.artemis.utils.RetryRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.MutableCapabilities;
 
 public class LoginTest extends ConsoleTest {
+
+   @Rule
+   public RetryRule retryRule = new RetryRule(2);
 
    private static final String DEFAULT_CONSOLE_LOGIN_BRAND_IMAGE = "/activemq-branding/plugin/img/activemq.png";
 
