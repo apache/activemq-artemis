@@ -536,6 +536,22 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testConfigurationPersistRedelivery() throws Exception {
+      StringPrintStream stringPrintStream = new StringPrintStream();
+      PrintStream stream = stringPrintStream.newStream();
+
+      stream.println("<configuration><core>");
+      stream.println("<max-redelivery-records>0</max-redelivery-records>");
+      stream.println("</core></configuration>");
+
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(stringPrintStream.getBytes());
+      FileConfigurationParser parser = new FileConfigurationParser();
+      Configuration configuration = parser.parseMainConfig(inputStream);
+
+      Assert.assertEquals(0, configuration.getMaxRedeliveryRecords());
+   }
+
+   @Test
    public void testExceptionMaxSize() throws Exception {
       StringPrintStream stringPrintStream = new StringPrintStream();
       PrintStream stream = stringPrintStream.newStream();

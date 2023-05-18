@@ -919,7 +919,7 @@ public abstract class ActiveMQTestBase extends Assert {
       return "memory:" + getTestDir();
    }
 
-   private String getTestJDBCConnectionUrl() {
+   protected final String getTestJDBCConnectionUrl() {
       return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getEmbeddedDataBaseName() + ";create=true");
    }
 

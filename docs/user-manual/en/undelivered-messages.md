@@ -31,6 +31,12 @@ fail or rollback. Without a delayed redelivery, the system can get into a
 and delivery being re-attempted ad infinitum in quick succession,
 consuming valuable CPU and network resources.
 
+#Persist Redelivery
+
+Two Journal update records are stored every time a redelivery happens. One for the number of deliveries that happened, and one in case a scheduled redelivery is being used. 
+
+It is recommended to keep max-redelivery-records=1 in situations where you are operating with very short redelivery delays as you will be creating unecessary records on the journal.
+
 ### Configuring Delayed Redelivery
 
 Delayed redelivery is defined in the address-setting configuration:

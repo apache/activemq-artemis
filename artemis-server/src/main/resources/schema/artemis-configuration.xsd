@@ -412,6 +412,17 @@
             </xsd:annotation>
          </xsd:element>
 
+         <xsd:element name="max-redelivery-records" type="xsd:long" default="10" maxOccurs="1"
+                      minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The default for this value is 10, however the recommended set for this is 1.
+                  The system will add a store update for every redelivery happening on the system.
+                  It is recommended to keep max-redelivery-records=1 in situations where you are operating with very short redelivery delays as you will be creating unecessary records on the journal.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
          <xsd:element name="populate-validated-user" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
