@@ -148,6 +148,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    private boolean persistenceEnabled = ActiveMQDefaultConfiguration.isDefaultPersistenceEnabled();
 
+   private int maxRedeliveryRecords = ActiveMQDefaultConfiguration.getDefaultMaxRedeliveryRecords();
+
    private boolean journalDatasync = ActiveMQDefaultConfiguration.isDefaultJournalDatasync();
 
    protected long fileDeploymentScanPeriod = ActiveMQDefaultConfiguration.getDefaultFileDeployerScanPeriod();
@@ -926,6 +928,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
    public ConfigurationImpl setPersistenceEnabled(final boolean enable) {
       persistenceEnabled = enable;
       return this;
+   }
+
+   @Override
+   public Configuration setMaxRedeliveryRecords(int max) {
+      maxRedeliveryRecords = max;
+      return this;
+   }
+
+   @Override
+   public int getMaxRedeliveryRecords() {
+      return maxRedeliveryRecords;
    }
 
    @Override

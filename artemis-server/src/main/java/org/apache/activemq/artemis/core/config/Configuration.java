@@ -139,6 +139,13 @@ public interface Configuration {
    Configuration setPersistenceEnabled(boolean enable);
 
    /**
+    * Maximum number of redelivery records stored on the journal per message reference.
+    */
+   Configuration setMaxRedeliveryRecords(int maxPersistRedelivery);
+
+   int getMaxRedeliveryRecords();
+
+   /**
     * Should use fdatasync on journal files.
     *
     * @see <a href="http://man7.org/linux/man-pages/man2/fdatasync.2.html">fdatasync</a>

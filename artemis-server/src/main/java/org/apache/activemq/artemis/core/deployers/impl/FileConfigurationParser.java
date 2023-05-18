@@ -397,6 +397,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       config.setPersistDeliveryCountBeforeDelivery(getBoolean(e, "persist-delivery-count-before-delivery", config.isPersistDeliveryCountBeforeDelivery()));
 
+      config.setMaxRedeliveryRecords(getInteger(e, "max-redelivery-records", config.getMaxRedeliveryRecords(), Validators.MINUS_ONE_OR_GE_ZERO));
+
       config.setScheduledThreadPoolMaxSize(getInteger(e, "scheduled-thread-pool-max-size", config.getScheduledThreadPoolMaxSize(), Validators.GT_ZERO));
 
       config.setThreadPoolMaxSize(getInteger(e, "thread-pool-max-size", config.getThreadPoolMaxSize(), Validators.MINUS_ONE_OR_GT_ZERO));

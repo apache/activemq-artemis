@@ -77,6 +77,7 @@
          <class-name>org.apache.activemq.artemis.tests.unit.core.config.impl.TestInterceptor2</class-name>
       </remoting-outgoing-interceptors>
       <persist-delivery-count-before-delivery>true</persist-delivery-count-before-delivery>
+      <max-redelivery-records>7</max-redelivery-records>
       <connectors>
          <connector name="connector1">
             tcp://localhost1:5678?

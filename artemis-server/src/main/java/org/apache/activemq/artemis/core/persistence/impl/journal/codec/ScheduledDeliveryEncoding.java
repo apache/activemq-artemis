@@ -24,7 +24,7 @@ public class ScheduledDeliveryEncoding extends QueueEncoding {
 
    @Override
    public String toString() {
-      return "ScheduledDeliveryEncoding [scheduledDeliveryTime=" + scheduledDeliveryTime + "]";
+      return "ScheduledDeliveryEncoding [scheduledDeliveryTime=" + scheduledDeliveryTime + ", queueID=" + queueID + "]";
    }
 
    public ScheduledDeliveryEncoding(final long scheduledDeliveryTime, final long queueID) {

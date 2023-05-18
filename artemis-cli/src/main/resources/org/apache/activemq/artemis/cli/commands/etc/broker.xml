@@ -31,6 +31,10 @@ under the License.
 ${jdbc}
       <persistence-enabled>${persistence-enabled}</persistence-enabled>
 
+      <!-- It is recommended to keep this value as 1, maximizing the number of records stored about redeliveries.
+           However if you must preserve state of individual redeliveries, you may increase this value or set it to -1 (infinite). -->
+      <max-redelivery-records>1</max-redelivery-records>
+
       <!-- this could be ASYNCIO, MAPPED, NIO
            ASYNCIO: Linux Libaio
            MAPPED: mmap files
