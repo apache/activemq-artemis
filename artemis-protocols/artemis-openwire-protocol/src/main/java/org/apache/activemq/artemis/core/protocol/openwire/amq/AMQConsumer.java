@@ -416,6 +416,11 @@ public class AMQConsumer {
       if (delayedDispatchPrompter != null) {
          delayedDispatchPrompter.cancel(false);
       }
+      if (info.getPrefetchSize() > 1) {
+         // because response required is false on a RemoveConsumerCommand, a new consumer could miss canceled prefetched messages
+         // we await the operation context completion before handling a subsequent command
+         session.getCoreSession().getSessionContext().waitCompletion();
+      }
    }
 
 
