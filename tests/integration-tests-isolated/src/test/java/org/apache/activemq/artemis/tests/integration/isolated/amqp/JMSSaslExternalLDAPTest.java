@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.amqp;
+package org.apache.activemq.artemis.tests.integration.isolated.amqp;
 
 import javax.jms.Connection;
 import javax.jms.MessageConsumer;
@@ -69,7 +69,7 @@ public class JMSSaslExternalLDAPTest extends AbstractLdapTestUnit {
    static {
       String path = System.getProperty("java.security.auth.login.config");
       if (path == null) {
-         URL resource = JMSSaslExternalTest.class.getClassLoader().getResource("login.config");
+         URL resource = JMSSaslExternalLDAPTest.class.getClassLoader().getResource("login.config");
          if (resource != null) {
             path = resource.getFile();
             System.setProperty("java.security.auth.login.config", path);

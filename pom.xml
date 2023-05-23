@@ -190,6 +190,7 @@
       <skipJmsTests>true</skipJmsTests>
       <skipExtraTests>true</skipExtraTests>
       <skipIntegrationTests>true</skipIntegrationTests>
+      <skipIsolatedIntegrationTests>true</skipIsolatedIntegrationTests>
       <skipLeakTests>true</skipLeakTests>
       <skipCompatibilityTests>true</skipCompatibilityTests>
       <skipSmokeTests>true</skipSmokeTests>
@@ -1270,6 +1271,7 @@
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
             <skipIntegrationTests>false</skipIntegrationTests>
+            <skipIsolatedIntegrationTests>false</skipIsolatedIntegrationTests>
             <skipCompatibilityTests>false</skipCompatibilityTests>
             <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>

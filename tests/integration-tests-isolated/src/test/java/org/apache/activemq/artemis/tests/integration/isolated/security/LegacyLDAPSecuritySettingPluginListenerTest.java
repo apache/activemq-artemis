@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.security;
+package org.apache.activemq.artemis.tests.integration.isolated.security;
 
 import javax.naming.Context;
 import javax.naming.NameClassPair;

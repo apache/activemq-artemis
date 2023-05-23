@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.activemq.artemis.tests.integration.security;
+package org.apache.activemq.artemis.tests.integration.isolated.security;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.Topic;
 import javax.naming.Context;
 import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
@@ -31,6 +26,7 @@ import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Set;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -46,12 +42,9 @@ import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMAcceptorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
+import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.impl.LegacyLDAPSecuritySettingPlugin;
-import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.directory.server.annotations.CreateLdapServer;
@@ -69,13 +62,13 @@ import org.junit.runner.RunWith;
 
 @RunWith(FrameworkRunner.class)
 @CreateLdapServer(transports = {@CreateTransport(protocol = "LDAP", port = 1024)})
-@ApplyLdifFiles("AMQauth.ldif")
-public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
+@ApplyLdifFiles("test.ldif")
+public class LDAPSecurityTest extends AbstractLdapTestUnit {
 
    static {
       String path = System.getProperty("java.security.auth.login.config");
       if (path == null) {
-         URL resource = LegacyLDAPSecuritySettingPluginTest.class.getClassLoader().getResource("login.config");
+         URL resource = LDAPSecurityTest.class.getClassLoader().getResource("login.config");
          if (resource != null) {
             path = resource.getFile();
             System.setProperty("java.security.auth.login.config", path);
@@ -90,7 +83,7 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
    private static final String PRINCIPAL = "uid=admin,ou=system";
    private static final String CREDENTIALS = "secret";
 
-   public LegacyLDAPSecuritySettingPluginTest() {
+   public LDAPSecurityTest() {
       File parent = new File(TARGET_TMP);
       parent.mkdirs();
       temporaryFolder = new TemporaryFolder(parent);
@@ -105,11 +98,8 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
       locator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(InVMConnectorFactory.class.getCanonicalName()));
       testDir = temporaryFolder.getRoot().getAbsolutePath();
 
-      LegacyLDAPSecuritySettingPlugin legacyLDAPSecuritySettingPlugin = new LegacyLDAPSecuritySettingPlugin().setInitialContextFactory("com.sun.jndi.ldap.LdapCtxFactory").setConnectionURL("ldap://localhost:1024").setConnectionUsername("uid=admin,ou=system").setConnectionPassword("secret").setConnectionProtocol("s").setAuthentication("simple");
-
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager("LDAPLogin");
-      Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false)).setPersistenceEnabled(false).addSecuritySettingPlugin(legacyLDAPSecuritySettingPlugin);
-
+      Configuration configuration = new ConfigurationImpl().setSecurityEnabled(true).addAcceptorConfiguration(new TransportConfiguration(InVMAcceptorFactory.class.getCanonicalName())).setJournalDirectory(ActiveMQTestBase.getJournalDir(testDir, 0, false)).setBindingsDirectory(ActiveMQTestBase.getBindingsDir(testDir, 0, false)).setPagingDirectory(ActiveMQTestBase.getPageDir(testDir, 0, false)).setLargeMessagesDirectory(ActiveMQTestBase.getLargeMessagesDir(testDir, 0, false));
       server = ActiveMQServers.newActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, false);
    }
 
@@ -143,19 +133,17 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
       Assert.assertTrue(set.contains("ou=groups"));
       Assert.assertTrue(set.contains("ou=configuration"));
       Assert.assertTrue(set.contains("prefNodeName=sysPrefRoot"));
+
+      ctx.close();
    }
 
    @Test
-   public void testBasicPluginAuthorization() throws Exception {
+   public void testJAASSecurityManagerAuthentication() throws Exception {
       server.start();
       ClientSessionFactory cf = locator.createSessionFactory();
-      String name = "queue1";
 
       try {
          ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-         session.createQueue(new QueueConfiguration(name));
-         ClientProducer producer = session.createProducer();
-         producer.send(name, session.createMessage(false));
          session.close();
       } catch (ActiveMQException e) {
          e.printStackTrace();
@@ -166,199 +154,183 @@ public class LegacyLDAPSecuritySettingPluginTest extends AbstractLdapTestUnit {
    }
 
    @Test
-   public void testPluginAuthorizationNegative() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("queue2");
-      final SimpleString QUEUE = new SimpleString("queue2");
-
+   public void testJAASSecurityManagerAuthenticationBadPassword() throws Exception {
       server.start();
-      server.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setRoutingType(RoutingType.ANYCAST));
-
       ClientSessionFactory cf = locator.createSessionFactory();
-      ClientSession session = cf.createSession("second", "secret", false, true, true, false, 0);
 
-      // CREATE_DURABLE_QUEUE
       try {
-         session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
+         cf.createSession("first", "badpassword", false, true, true, false, 0);
          Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         // ignore
-      }
-
-      // DELETE_DURABLE_QUEUE
-      try {
-         session.deleteQueue(QUEUE);
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         // ignore
-      }
-
-      // CREATE_NON_DURABLE_QUEUE
-      try {
-         session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         // ignore
-      }
-
-      // DELETE_NON_DURABLE_QUEUE
-      try {
-         session.deleteQueue(QUEUE);
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         // ignore
-      }
-
-      // PRODUCE
-      try {
-         ClientProducer producer = session.createProducer(ADDRESS);
-         producer.send(session.createMessage(true));
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         // ignore
-      }
-
-      // CONSUME
-      try {
-         ClientConsumer consumer = session.createConsumer(QUEUE);
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-         // ignore
-      }
-
-      // MANAGE
-      try {
-         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
-         producer.send(session.createMessage(true));
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-      }
-
-      session.close();
-      cf.close();
-   }
-
-   @Test
-   public void testPluginAuthorizationPositive() throws Exception {
-      final SimpleString ADDRESS = new SimpleString("queue1");
-      final SimpleString QUEUE = new SimpleString("queue1");
-
-      server.start();
-
-      ClientSessionFactory cf = locator.createSessionFactory();
-      ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-
-      // CREATE_DURABLE_QUEUE
-      try {
-         session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
-      } catch (ActiveMQException e) {
-         e.printStackTrace();
-         Assert.fail("should not throw exception here");
-      }
-
-      // DELETE_DURABLE_QUEUE
-      try {
-         session.deleteQueue(QUEUE);
-      } catch (ActiveMQException e) {
-         e.printStackTrace();
-         Assert.fail("should not throw exception here");
-      }
-
-      // CREATE_NON_DURABLE_QUEUE
-      try {
-         session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS).setDurable(false));
-      } catch (ActiveMQException e) {
-         Assert.fail("should not throw exception here");
-      }
-
-      // DELETE_NON_DURABLE_QUEUE
-      try {
-         session.deleteQueue(QUEUE);
-      } catch (ActiveMQException e) {
-         Assert.fail("should not throw exception here");
-      }
-
-      session.createQueue(new QueueConfiguration(QUEUE).setAddress(ADDRESS));
-
-      // PRODUCE
-      try {
-         ClientProducer producer = session.createProducer(ADDRESS);
-         producer.send(session.createMessage(true));
-      } catch (ActiveMQException e) {
-         Assert.fail("should not throw exception here");
-      }
-
-      // CONSUME
-      try {
-         session.createConsumer(QUEUE);
-      } catch (ActiveMQException e) {
-         Assert.fail("should not throw exception here");
-      }
-
-      // MANAGE
-      try {
-         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
-         producer.send(session.createMessage(true));
-         // don't enable manage permission by default; must set mapAdminToManage=true in plugin config
-         Assert.fail("should throw exception here");
-      } catch (ActiveMQException e) {
-      }
-
-      session.close();
-      cf.close();
-   }
-
-   @Test
-   public void testPluginAuthorizationPositiveMappingAdminToManage() throws Exception {
-      ((LegacyLDAPSecuritySettingPlugin)server.getConfiguration().getSecuritySettingPlugins().get(0)).setMapAdminToManage(true);
-
-      server.start();
-
-      ClientSessionFactory cf = locator.createSessionFactory();
-      ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
-
-      // MANAGE
-      try {
-         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
-         producer.send(session.createMessage(true));
-      } catch (ActiveMQException e) {
-         Assert.fail("should not throw exception here");
-      }
-
-      session.close();
-      cf.close();
-   }
-
-   @Test
-   public void testJmsTopicSubscriberReadPermissionOnly() throws Exception {
-      internalJmsTopicSubscriberReadPermissionOnly(false);
-   }
-
-   @Test
-   public void testJmsTopicDurableSubscriberReadPermissionOnly() throws Exception {
-      internalJmsTopicSubscriberReadPermissionOnly(true);
-   }
-
-   private void internalJmsTopicSubscriberReadPermissionOnly(boolean durable) throws Exception {
-      ((LegacyLDAPSecuritySettingPlugin)server.getConfiguration().getSecuritySettingPlugins().get(0)).setAllowQueueAdminOnRead(true);
-      server.start();
-
-      // The address needs to exist already otherwise the "admin" permission is required to create it
-      server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("topic1"), RoutingType.MULTICAST));
-
-      ConnectionFactory cf = new ActiveMQConnectionFactory("vm://0");
-      try (Connection connection = cf.createConnection("third", "secret")) {
-         Session session = connection.createSession();
-         Topic topic = session.createTopic("topic1");
-         if (durable) {
-            MessageConsumer consumer = session.createSharedDurableConsumer(topic, "foo");
-            consumer.close();
-            session.unsubscribe("foo");
-         } else {
-            session.createConsumer(topic);
-         }
       } catch (Exception e) {
+         // ignore
+      }
+
+      cf.close();
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationNegative() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("programmers", false, false, false, false, false, false, false, false, false, false));
+      server.getConfiguration().putSecurityRoles("#", roles);
+      server.start();
+      server.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+      server.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
+
+      ClientSessionFactory cf = locator.createSessionFactory();
+      ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
+
+      // CREATE_DURABLE_QUEUE
+      try {
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // DELETE_DURABLE_QUEUE
+      try {
+         session.deleteQueue(DURABLE_QUEUE);
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // CREATE_NON_DURABLE_QUEUE
+      try {
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // DELETE_NON_DURABLE_QUEUE
+      try {
+         session.deleteQueue(NON_DURABLE_QUEUE);
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // PRODUCE
+      try {
+         ClientProducer producer = session.createProducer(ADDRESS);
+         producer.send(session.createMessage(true));
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // CONSUME
+      try {
+         ClientConsumer consumer = session.createConsumer(DURABLE_QUEUE);
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      // BROWSE
+      try {
+         ClientConsumer browser = session.createConsumer(DURABLE_QUEUE, true);
+         Assert.fail("should throw exception here");
+      } catch (ActiveMQException e) {
+         // ignore
+      }
+
+      session.close();
+      cf.close();
+   }
+
+   @Test
+   public void testJAASSecurityManagerAuthorizationPositive() throws Exception {
+      final SimpleString ADDRESS = new SimpleString("address");
+      final SimpleString DURABLE_QUEUE = new SimpleString("durableQueue");
+      final SimpleString NON_DURABLE_QUEUE = new SimpleString("nonDurableQueue");
+
+      Set<Role> roles = new HashSet<>();
+      roles.add(new Role("admins", true, true, true, true, true, true, true, true, true, true));
+      server.getConfiguration().putSecurityRoles("#", roles);
+      server.start();
+
+      ClientSessionFactory cf = locator.createSessionFactory();
+      ClientSession session = cf.createSession("first", "secret", false, true, true, false, 0);
+
+      // CREATE_DURABLE_QUEUE
+      try {
+         session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+      } catch (ActiveMQException e) {
          e.printStackTrace();
          Assert.fail("should not throw exception here");
       }
+
+      // DELETE_DURABLE_QUEUE
+      try {
+         session.deleteQueue(DURABLE_QUEUE);
+      } catch (ActiveMQException e) {
+         e.printStackTrace();
+         Assert.fail("should not throw exception here");
+      }
+
+      // CREATE_NON_DURABLE_QUEUE
+      try {
+         session.createQueue(new QueueConfiguration(NON_DURABLE_QUEUE).setAddress(ADDRESS).setDurable(false));
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // DELETE_NON_DURABLE_QUEUE
+      try {
+         session.deleteQueue(NON_DURABLE_QUEUE);
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      session.createQueue(new QueueConfiguration(DURABLE_QUEUE).setAddress(ADDRESS));
+
+      // PRODUCE
+      try {
+         ClientProducer producer = session.createProducer(ADDRESS);
+         producer.send(session.createMessage(true));
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // CONSUME
+      try {
+         session.createConsumer(DURABLE_QUEUE);
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // MANAGE
+      try {
+         ClientProducer producer = session.createProducer(server.getConfiguration().getManagementAddress());
+         producer.send(session.createMessage(true));
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      // CONSUME
+      try {
+         session.createConsumer(DURABLE_QUEUE, true);
+      } catch (ActiveMQException e) {
+         Assert.fail("should not throw exception here");
+      }
+
+      session.close();
+      cf.close();
    }
 }
