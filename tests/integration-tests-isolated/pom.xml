@@ -442,7 +442,8 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
-               <forkMode>always</forkMode>
+               <forkCount>1</forkCount>
+               <reuseForks>false</reuseForks>
                <skipTests>${skipIsolatedIntegrationTests}</skipTests>
                <argLine>-Djgroups.bind_addr=::1 ${activemq-surefire-argline} ${its-surefire-extra-args} -Dorg.apache.activemq.SERIALIZABLE_PACKAGES="java.lang,javax.security,java.util,org.apache.activemq,org.fusesource.hawtbuf"</argLine>
             </configuration>
