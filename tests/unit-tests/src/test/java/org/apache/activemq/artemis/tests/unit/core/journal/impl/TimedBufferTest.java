@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -180,7 +181,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          // simulating a low load period
          timedBuffer.addBytes(buff, true, callback);
-         Thread.sleep(1000);
+         Thread.sleep(100);
          timedBuffer.addBytes(buff, true, callback);
          Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
          latchFlushed.setCount(5);
@@ -494,9 +495,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, false, dummyCallback);
 
-         Thread.sleep(200);
-
-         Assert.assertEquals(count + 1, flushTimes.get());
+         Wait.assertEquals(count + 1, () -> flushTimes.get(), 2000);
 
          bytes = new byte[10];
          for (int j = 0; j < 10; j++) {
