@@ -81,10 +81,6 @@ public abstract class MultiprotocolJMSClientTestSupport extends ActiveMQTestBase
    public void setUp() throws Exception {
       super.setUp();
 
-      // Bug in Qpid JMS not shutting down a connection thread on certain errors
-      // TODO - Reevaluate after Qpid JMS 0.23.0 is released.
-      disableCheckThread();
-
       server = createServer();
    }
 

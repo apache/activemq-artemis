@@ -1321,6 +1321,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+               <forkMode>always</forkMode>
                <skipTests>${skipSmokeTests}</skipTests>
                <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline} ${artemis-distribuiton-lib-dir}</argLine>
             </configuration>
@@ -1349,6 +1350,7 @@
                      <groupId>org.apache.maven.plugins</groupId>
                      <artifactId>maven-surefire-plugin</artifactId>
                      <configuration>
+                        <forkMode>always</forkMode>
                         <includes combine.children="override">
                            <include>**/smoke/upgradeTest/*Test.java</include>
                         </includes>

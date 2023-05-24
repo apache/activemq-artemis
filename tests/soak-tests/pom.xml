@@ -494,6 +494,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+               <forkMode>always</forkMode>
                <skipTests>${skipSoakTests}</skipTests>
                <includes>
                   <include>**/*Test.java</include>

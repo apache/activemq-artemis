@@ -326,6 +326,7 @@
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
+               <forkMode>always</forkMode>
                <skipTests>${e2e-tests.skipTests}</skipTests>
                <argLine>${e2e-tests.surefire-extra-args} ${activemq-surefire-argline} ${container-service-argline}</argLine>
             </configuration>
