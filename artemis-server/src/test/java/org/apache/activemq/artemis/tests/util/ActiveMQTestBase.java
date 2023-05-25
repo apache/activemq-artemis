@@ -539,6 +539,13 @@ public abstract class ActiveMQTestBase extends Assert {
       return count;
    }
 
+   /*
+    ***********************************************************************************************************************************
+    * Behold, thou shalt never employ this method, unless thou dost isolate thine test on its own, separate and distinct house.       *
+    ***********************************************************************************************************************************
+    *
+    * i.e: DON'T USE IT UNLESS YOU HAVE A SEPARATE VM FOR YOUR TEST.
+    */
    protected void disableCheckThread() {
       leakCheckRule.disable();
    }
