@@ -82,9 +82,15 @@ message count). However, these metrics can be deduced by aggregating the
 lower level metrics (e.g. aggregate the message.count metrics from all queues
 to get the total).
 
-JVM memory metrics are also exported by default and GC, thread metrics, and 
-[Netty](https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocatorMetric.html)
-metrics can be configured
+Optional metrics include:
+
+- JVM memory metrics (exported by default)
+- JVM GC
+- JVM thread
+- [Netty](https://netty.io/4.1/api/io/netty/buffer/PooledByteBufAllocatorMetric.html)
+- File descriptors
+- Processor
+- Uptime
 
 ## Configuration
 
@@ -94,7 +100,7 @@ setting the `enable-metrics` `address-setting` to `false`.
 
 In `broker.xml` use the `metrics` element to configure which JVM metrics are
 reported and to configure the plugin itself. Here's a configuration with all
-JVM metrics:
+optional metrics:
 
 ```xml
 <metrics>
@@ -102,6 +108,9 @@ JVM metrics:
    <jvm-gc>true</jvm-gc> <!-- defaults to false -->
    <jvm-threads>true</jvm-threads> <!-- defaults to false -->
    <netty-pool>true</netty-pool> <!-- defaults to false -->
+   <file-descriptors>true</file-descriptors> <!-- defaults to false -->
+   <processor>true</processor> <!-- defaults to false -->
+   <uptime>true</uptime> <!-- defaults to false -->
    <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin"/>
 </metrics>
 ```

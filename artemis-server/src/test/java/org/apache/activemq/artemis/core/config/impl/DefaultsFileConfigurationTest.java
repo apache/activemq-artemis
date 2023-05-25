@@ -141,6 +141,12 @@ public class DefaultsFileConfigurationTest extends ConfigurationImplTest {
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultAmqpUseCoreSubscriptionNaming(), conf.isAmqpUseCoreSubscriptionNaming());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultJournalBufferTimeoutNio(), conf.getPageSyncTimeout());
+
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultFileDescriptorsMetrics(), conf.getMetricsConfiguration().isFileDescriptors());
+
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultProcessorMetrics(), conf.getMetricsConfiguration().isProcessor());
+
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultUptimeMetrics(), conf.getMetricsConfiguration().isUptime());
    }
 
    // Protected ---------------------------------------------------------------------------------------------

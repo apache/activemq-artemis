@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.core.server.metrics;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,9 @@ import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
+import io.micrometer.core.instrument.binder.system.FileDescriptorMetrics;
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
@@ -39,7 +43,6 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 public class MetricsManager {
 
@@ -73,6 +76,15 @@ public class MetricsManager {
          }
          if (metricsConfiguration.isNettyPool()) {
             new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric()).bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isFileDescriptors()) {
+            new FileDescriptorMetrics().bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isProcessor()) {
+            new ProcessorMetrics().bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isUptime()) {
+            new UptimeMetrics().bindTo(meterRegistry);
          }
       }
    }
