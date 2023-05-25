@@ -2006,5 +2006,11 @@ public interface ActiveMQServerControl {
 
    @Attribute(desc = "Scan all paged destinations to rebuild the page counters")
    void rebuildPageCounters() throws Exception;
+
+   @Operation(desc = "Clear the authentication cache", impact = MBeanOperationInfo.ACTION)
+   void clearAuthenticationCache() throws Exception;
+
+   @Operation(desc = "Clear the authorization cache", impact = MBeanOperationInfo.ACTION)
+   void clearAuthorizationCache() throws Exception;
 }
 

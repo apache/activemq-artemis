@@ -2653,4 +2653,18 @@ public interface AuditLogger {
 
    @LogMessage(id = 601768, value = "{} connection {} for user {} destroyed", level = LogMessage.Level.INFO)
    void destroyedConnection(String protocol, String connectionID, String user);
+
+   static void clearAuthenticationCache(Object source) {
+      BASE_LOGGER.clearAuthenticationCache(getCaller(), source);
+   }
+
+   @LogMessage(id = 601769, value = "User {} is clearing authentication cache on target resource: {}", level = LogMessage.Level.INFO)
+   void clearAuthenticationCache(String user, Object source);
+
+   static void clearAuthorizationCache(Object source) {
+      BASE_LOGGER.clearAuthorizationCache(getCaller(), source);
+   }
+
+   @LogMessage(id = 601770, value = "User {} is clearing authorization cache on target resource: {}", level = LogMessage.Level.INFO)
+   void clearAuthorizationCache(String user, Object source);
 }

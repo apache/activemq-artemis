@@ -4664,5 +4664,21 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       throw ActiveMQMessageBundle.BUNDLE.embeddedWebServerNotFound();
    }
+
+   @Override
+   public void clearAuthenticationCache() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.clearAuthenticationCache(this.server);
+      }
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthenticationCache();
+   }
+
+   @Override
+   public void clearAuthorizationCache() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.clearAuthorizationCache(this.server);
+      }
+      ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthorizationCache();
+   }
 }
 

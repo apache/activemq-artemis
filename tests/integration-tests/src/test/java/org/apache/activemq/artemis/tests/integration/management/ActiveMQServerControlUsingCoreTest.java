@@ -1754,6 +1754,16 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public void rebuildPageCounters() throws Exception {
             proxy.invokeOperation("rebuildPageCounters");
          }
+
+         @Override
+         public void clearAuthenticationCache() throws Exception {
+            proxy.invokeOperation("clearAuthenticationCache");
+         }
+
+         @Override
+         public void clearAuthorizationCache() throws Exception {
+            proxy.invokeOperation("clearAuthorizationCache");
+         }
       };
    }
 
