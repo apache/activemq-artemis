@@ -424,12 +424,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       logger.debug("Skipping authentication cache due to exception: {}", e.getMessage());
    }
 
-   // public for testing purposes
    public void invalidateAuthorizationCache() {
       authorizationCache.invalidateAll();
    }
 
-   // public for testing purposes
    public void invalidateAuthenticationCache() {
       authenticationCache.invalidateAll();
    }
