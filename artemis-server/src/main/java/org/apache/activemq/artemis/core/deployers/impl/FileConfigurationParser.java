@@ -964,6 +964,12 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
                metricsConfiguration.setJvmThread(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("netty-pool")) {
                metricsConfiguration.setNettyPool(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("file-descriptors")) {
+               metricsConfiguration.setFileDescriptors(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("processor")) {
+               metricsConfiguration.setProcessor(XMLUtil.parseBoolean(child));
+            } else if (child.getNodeName().equals("uptime")) {
+               metricsConfiguration.setUptime(XMLUtil.parseBoolean(child));
             } else if (child.getNodeName().equals("plugin")) {
                metricsConfiguration.setPlugin(parseMetricsPlugin(child, config));
             }

@@ -27,6 +27,9 @@ public class MetricsConfiguration implements Serializable {
    private boolean jvmGc = ActiveMQDefaultConfiguration.getDefaultJvmGcMetrics();
    private boolean jvmThread = ActiveMQDefaultConfiguration.getDefaultJvmThreadMetrics();
    private boolean nettyPool = ActiveMQDefaultConfiguration.getDefaultNettyPoolMetrics();
+   private boolean fileDescriptors = ActiveMQDefaultConfiguration.getDefaultFileDescriptorsMetrics();
+   private boolean processor = ActiveMQDefaultConfiguration.getDefaultProcessorMetrics();
+   private boolean uptime = ActiveMQDefaultConfiguration.getDefaultUptimeMetrics();
    private ActiveMQMetricsPlugin plugin;
 
    public boolean isJvmMemory() {
@@ -62,6 +65,33 @@ public class MetricsConfiguration implements Serializable {
 
    public MetricsConfiguration setNettyPool(boolean nettyPool) {
       this.nettyPool = nettyPool;
+      return this;
+   }
+
+   public boolean isFileDescriptors() {
+      return fileDescriptors;
+   }
+
+   public MetricsConfiguration setFileDescriptors(boolean fileDescriptors) {
+      this.fileDescriptors = fileDescriptors;
+      return this;
+   }
+
+   public boolean isProcessor() {
+      return processor;
+   }
+
+   public MetricsConfiguration setProcessor(boolean processor) {
+      this.processor = processor;
+      return this;
+   }
+
+   public boolean isUptime() {
+      return uptime;
+   }
+
+   public MetricsConfiguration setUptime(boolean uptime) {
+      this.uptime = uptime;
       return this;
    }
 

@@ -659,6 +659,15 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report Netty pool metrics
    private static final boolean DEFAULT_NETTY_POOL_METRICS = false;
 
+   // Whether or not to report file descriptor metrics
+   private static final boolean DEFAULT_FILE_DESCRIPTORS_METRICS = false;
+
+   // Whether or not to report processor metrics
+   private static final boolean DEFAULT_PROCESSOR_METRICS = false;
+
+   // Whether or not to report uptime metrics
+   private static final boolean DEFAULT_UPTIME_METRICS = false;
+
    // How often (in ms) to scan for expired MQTT sessions
    private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
 
@@ -1804,6 +1813,27 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static Boolean getDefaultNettyPoolMetrics() {
       return DEFAULT_NETTY_POOL_METRICS;
+   }
+
+   /**
+    * Whether or not to report file descriptor metrics
+    */
+   public static Boolean getDefaultFileDescriptorsMetrics() {
+      return DEFAULT_FILE_DESCRIPTORS_METRICS;
+   }
+
+   /**
+    * Whether or not to report processor metrics
+    */
+   public static Boolean getDefaultProcessorMetrics() {
+      return DEFAULT_PROCESSOR_METRICS;
+   }
+
+   /**
+    * Whether or not to report uptime metrics
+    */
+   public static Boolean getDefaultUptimeMetrics() {
+      return DEFAULT_UPTIME_METRICS;
    }
 
    /**
