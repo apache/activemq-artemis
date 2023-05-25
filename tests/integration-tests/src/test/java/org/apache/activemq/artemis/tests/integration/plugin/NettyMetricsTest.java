@@ -25,7 +25,7 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Before;
 import org.junit.Test;
 
-public class JvmMetricsTest extends ActiveMQTestBase {
+public class NettyMetricsTest extends ActiveMQTestBase {
 
    @Override
    @Before
@@ -34,42 +34,20 @@ public class JvmMetricsTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testJvmMemoryMetricsPositive() throws Exception {
-      internalTestMetrics(true, true, false, false, "jvm.memory");
+   public void testNettyPoolMetricsPositive() throws Exception {
+      internalTestMetrics(true, true, "netty.pooled");
    }
 
    @Test
-   public void testJvmMemoryMetricsNegative() throws Exception {
-      internalTestMetrics(false, false, false, false, "jvm.memory");
+   public void testNettyPoolMetricsNegative() throws Exception {
+      internalTestMetrics(false, false, "netty.pooled");
    }
 
-   @Test
-   public void testJvmGcMetricsPositive() throws Exception {
-      internalTestMetrics(true, false, true, false, "jvm.gc");
-   }
-
-   @Test
-   public void testJvmGcMetricsNegative() throws Exception {
-      internalTestMetrics(false, false, false, false, "jvm.gc");
-   }
-
-   @Test
-   public void testJvmThreadMetricsPositive() throws Exception {
-      internalTestMetrics(true, false, false, true, "jvm.thread");
-   }
-
-   @Test
-   public void testJvmThreadMetricsNegative() throws Exception {
-      internalTestMetrics(false, false, false, false, "jvm.thread");
-   }
-
-   private void internalTestMetrics(boolean found, boolean memory, boolean gc, boolean thread, String match) throws Exception {
+   private void internalTestMetrics(boolean found, boolean pool, String match) throws Exception {
       ActiveMQServer server = createServer(false, createDefaultInVMConfig()
          .setMetricsConfiguration(new MetricsConfiguration()
                                      .setPlugin(new SimpleMetricsPlugin().init(null))
-                                     .setJvmMemory(memory)
-                                     .setJvmGc(gc)
-                                     .setJvmThread(thread)));
+                                     .setNettyPool(pool)));
       server.start();
       boolean result = false;
       String brokerTagValue = "";

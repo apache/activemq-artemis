@@ -57,20 +57,23 @@ public class MetricsManager {
                          MetricsConfiguration metricsConfiguration,
                          HierarchicalRepository<AddressSettings> addressSettingsRepository) {
       this.brokerName = brokerName;
-      meterRegistry = metricsConfiguration.getPlugin().getRegistry();
-      Metrics.globalRegistry.add(meterRegistry);
+      this.meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       this.addressSettingsRepository = addressSettingsRepository;
-      if (metricsConfiguration.isJvmMemory()) {
-         new JvmMemoryMetrics().bindTo(meterRegistry);
-      }
-      if (metricsConfiguration.isJvmGc()) {
-         new JvmGcMetrics().bindTo(meterRegistry);
-      }
-      if (metricsConfiguration.isJvmThread()) {
-         new JvmThreadMetrics().bindTo(meterRegistry);
-      }
-      if (metricsConfiguration.isNettyPool()) {
-         new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric()).bindTo(meterRegistry);
+      if (meterRegistry != null) {
+         Metrics.globalRegistry.add(meterRegistry);
+         meterRegistry.config().commonTags("broker", brokerName);
+         if (metricsConfiguration.isJvmMemory()) {
+            new JvmMemoryMetrics().bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isJvmGc()) {
+            new JvmGcMetrics().bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isJvmThread()) {
+            new JvmThreadMetrics().bindTo(meterRegistry);
+         }
+         if (metricsConfiguration.isNettyPool()) {
+            new NettyPooledAllocatorMetrics(PooledByteBufAllocator.DEFAULT.metric()).bindTo(meterRegistry);
+         }
       }
    }
 
@@ -92,7 +95,6 @@ public class MetricsManager {
       builder.accept((metricName, state, f, description) -> {
          Gauge.Builder meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tag("broker", brokerName)
             .tag("address", address)
             .tag("queue", queue)
             .description(description);
@@ -109,7 +111,6 @@ public class MetricsManager {
       builder.accept((metricName, state, f, description) -> {
          Gauge.Builder meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tag("broker", brokerName)
             .tag("address", address)
             .description(description);
          gaugeBuilders.add(meter);
@@ -125,7 +126,6 @@ public class MetricsManager {
       builder.accept((metricName, state, f, description) -> {
          Gauge.Builder meter = Gauge
             .builder("artemis." + metricName, state, f)
-            .tag("broker", brokerName)
             .description(description);
          gaugeBuilders.add(meter);
       });
