@@ -34,6 +34,7 @@ import org.apache.activemq.artemis.core.journal.EncodingSupport;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Env;
 import org.apache.activemq.artemis.utils.ReusableLatch;
+import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -180,7 +181,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          // simulating a low load period
          timedBuffer.addBytes(buff, true, callback);
-         Thread.sleep(1000);
+         Thread.sleep(100);
          timedBuffer.addBytes(buff, true, callback);
          Assert.assertTrue(latchFlushed.await(5, TimeUnit.SECONDS));
          latchFlushed.setCount(5);
@@ -465,20 +466,36 @@ public class TimedBufferTest extends ActiveMQTestBase {
          timedBuffer.setObserver(new TestObserver());
 
          int x = 0;
+         byte[] bytes;
+         ActiveMQBuffer buff;
 
-         byte[] bytes = new byte[10];
+         for (int i = 0; i < 3; i++) {
+            bytes = new byte[10];
+            for (int j = 0; j < 10; j++) {
+               bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
+            }
+
+            buff = ActiveMQBuffers.wrappedBuffer(bytes);
+
+            timedBuffer.checkSize(10);
+            timedBuffer.addBytes(buff, false, dummyCallback);
+         }
+
+         Thread.sleep(200);
+         int count = flushTimes.get();
+         Assert.assertTrue(count < 3);
+
+         bytes = new byte[10];
          for (int j = 0; j < 10; j++) {
             bytes[j] = ActiveMQTestBase.getSamplebyte(x++);
          }
 
-         ActiveMQBuffer buff = ActiveMQBuffers.wrappedBuffer(bytes);
+         buff = ActiveMQBuffers.wrappedBuffer(bytes);
 
          timedBuffer.checkSize(10);
          timedBuffer.addBytes(buff, false, dummyCallback);
 
-         Thread.sleep(200);
-
-         Assert.assertEquals(0, flushTimes.get());
+         Wait.assertEquals(count + 1, () -> flushTimes.get(), 2000);
 
          bytes = new byte[10];
          for (int j = 0; j < 10; j++) {
@@ -492,17 +509,17 @@ public class TimedBufferTest extends ActiveMQTestBase {
 
          Thread.sleep(500);
 
-         Assert.assertEquals(1, flushTimes.get());
+         Assert.assertEquals(count + 2, flushTimes.get());
 
          ByteBuffer flushedBuffer = buffers.get(0);
 
-         Assert.assertEquals(20, flushedBuffer.limit());
+         Assert.assertEquals(30, flushedBuffer.limit());
 
-         Assert.assertEquals(20, flushedBuffer.capacity());
+         Assert.assertEquals(30, flushedBuffer.capacity());
 
          flushedBuffer.rewind();
 
-         for (int i = 0; i < 20; i++) {
+         for (int i = 0; i < 30; i++) {
             Assert.assertEquals(ActiveMQTestBase.getSamplebyte(i), flushedBuffer.get());
          }
       } finally {

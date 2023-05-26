@@ -271,9 +271,10 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
             if (sync) {
                pendingSync = true;
-
-               startSpin();
             }
+
+            startSpin();
+
          }
       }
    }
@@ -293,9 +294,10 @@ public final class TimedBuffer extends CriticalComponentImpl {
 
             if (sync) {
                pendingSync = true;
-
-               startSpin();
             }
+
+            startSpin();
+
          }
       }
    }
@@ -436,12 +438,12 @@ public final class TimedBuffer extends CriticalComponentImpl {
          boolean useSleep = true;
 
          while (!closed) {
-            // We flush on the timer if there are pending syncs there and we've waited at least one
+            // We flush on the timer if there are pending syncs there or we've waited at least one
             // timeout since the time of the last flush.
             // Effectively flushing "resets" the timer
             // On the timeout verification, notice that we ignore the timeout check if we are using sleep
 
-            if (pendingSync) {
+            if (pendingSync || System.nanoTime() - lastFlushTime > timeout) {
                if (useSleep) {
                   // if using sleep, we will always flush
                   lastFlushTime = System.nanoTime();
@@ -458,7 +460,7 @@ public final class TimedBuffer extends CriticalComponentImpl {
                         useSleep = sleepIfPossible(timeToSleep);
                      }
                   }
-               } else if (bufferObserver != null && System.nanoTime() - lastFlushTime > timeout) {
+               } else if (bufferObserver != null) {
                   lastFlushTime = System.nanoTime();
                   // if not using flush we will spin and do the time checks manually
                   flush();

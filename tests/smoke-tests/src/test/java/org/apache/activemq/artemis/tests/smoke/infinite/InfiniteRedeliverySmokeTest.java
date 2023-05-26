@@ -146,7 +146,6 @@ public class InfiniteRedeliverySmokeTest extends SmokeTestBase {
          // it should be max 10 actually, I'm just leaving some space for future changes,
          // as the real test I'm after here is the broker should clean itself up
          Wait.assertTrue(() -> fileFactory.listFiles("amq").size() <= 20);
-         Assert.assertTrue("there are too many files created", numberOfFiles <= 20);
       }
    }
 }
