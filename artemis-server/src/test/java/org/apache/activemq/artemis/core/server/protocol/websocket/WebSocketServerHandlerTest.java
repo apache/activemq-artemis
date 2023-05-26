@@ -50,7 +50,7 @@ public class WebSocketServerHandlerTest {
    public void setup() throws Exception {
       maxFramePayloadLength = 8192;
       supportedProtocols = Arrays.asList("STOMP");
-      spy = spy(new WebSocketServerHandler(supportedProtocols, maxFramePayloadLength));
+      spy = spy(new WebSocketServerHandler(supportedProtocols, maxFramePayloadLength, WebSocketFrameEncoderType.BINARY));
    }
 
    @Test

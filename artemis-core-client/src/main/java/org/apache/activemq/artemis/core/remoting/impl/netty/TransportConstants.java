@@ -337,6 +337,10 @@ public class TransportConstants {
 
    public static final int DEFAULT_WEB_SOCKET_MAX_FRAME_PAYLOAD_LENGTH = 65536;
 
+   public static final String WEB_SOCKET_ENCODER_TYPE = "webSocketEncoderType";
+
+   public static final String DEFAULT_WEB_SOCKET_ENCODER_TYPE = "binary";
+
    public static final String HANDSHAKE_TIMEOUT = "handshake-timeout";
 
    public static final int DEFAULT_HANDSHAKE_TIMEOUT = 10;
