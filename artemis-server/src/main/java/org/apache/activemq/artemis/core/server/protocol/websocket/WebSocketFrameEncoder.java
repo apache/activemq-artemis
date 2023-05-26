@@ -23,6 +23,7 @@ import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 
 /**
  * This class uses the maximum frame payload size to packetize/frame outbound websocket messages into
@@ -31,12 +32,14 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 public class WebSocketFrameEncoder extends ChannelOutboundHandlerAdapter {
 
    private int maxFramePayloadLength;
+   private WebSocketFrameEncoderType type;
 
    /**
     * @param maxFramePayloadLength
     */
-   public WebSocketFrameEncoder(int maxFramePayloadLength) {
+   public WebSocketFrameEncoder(int maxFramePayloadLength, WebSocketFrameEncoderType type) {
       this.maxFramePayloadLength = maxFramePayloadLength;
+      this.type = type;
    }
 
    @Override
@@ -54,7 +57,11 @@ public class WebSocketFrameEncoder extends ChannelOutboundHandlerAdapter {
       boolean finalFragment = length == count;
       ByteBuf fragment = Unpooled.buffer(length);
       byteBuf.readBytes(fragment, length);
-      ctx.writeAndFlush(new BinaryWebSocketFrame(finalFragment, 0, fragment), promise);
+      if (type == WebSocketFrameEncoderType.BINARY) {
+         ctx.writeAndFlush(new BinaryWebSocketFrame(finalFragment, 0, fragment), promise);
+      } else {
+         ctx.writeAndFlush(new TextWebSocketFrame(finalFragment, 0, fragment), promise);
+      }
 
       while ((count = byteBuf.readableBytes()) > 0) {
          length = Math.min(count, maxFramePayloadLength);

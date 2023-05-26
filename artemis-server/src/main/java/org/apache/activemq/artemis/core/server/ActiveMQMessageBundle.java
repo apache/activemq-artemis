@@ -533,4 +533,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229247, value = "Invalid address configuration for '{}'. Address must support multicast and/or anycast.")
    IllegalArgumentException addressWithNoRoutingType(String address);
+
+   @Message(id = 229248, value = "Invalid value for webSocketEncoderType: '{}'. Supported values: 'binary', 'text'.")
+   IllegalStateException invalidWebSocketEncoderType(String webSocketEncoderType);
 }

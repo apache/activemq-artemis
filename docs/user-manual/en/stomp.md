@@ -366,6 +366,11 @@ frame this length can be adjusted by using the `webSocketMaxFramePayloadLength` 
 parameter on the acceptor. In previous version this was configured via the
 similarly named `stompMaxFramePayloadLength` acceptor URL parameter.
 
+Web Socket frames can be encoded as either [binary or text](https://datatracker.ietf.org/doc/html/rfc6455#section-11.8).
+By default the broker encodes them as binary. However, this can be changed by
+using the `webSocketEncoderType` acceptor URL parameter. Valid values are
+`binary` and `text`.
+
 The `stomp-websockets` example shows how to configure an Apache ActiveMQ
 Artemis broker to have web browsers and Java applications exchanges messages.
 

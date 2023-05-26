@@ -51,10 +51,12 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
    private WebSocketServerHandshaker handshaker;
    private List<String> supportedProtocols;
    private int maxFramePayloadLength;
+   private WebSocketFrameEncoderType encoderType;
 
-   public WebSocketServerHandler(List<String> supportedProtocols, int maxFramePayloadLength) {
+   public WebSocketServerHandler(List<String> supportedProtocols, int maxFramePayloadLength, WebSocketFrameEncoderType encoderType) {
       this.supportedProtocols = supportedProtocols;
       this.maxFramePayloadLength = maxFramePayloadLength;
+      this.encoderType = encoderType;
    }
 
    @Override
@@ -86,19 +88,15 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
          WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
       } else {
          ChannelFuture handshake = this.handshaker.handshake(ctx.channel(), req);
-         handshake.addListener(new ChannelFutureListener() {
-
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-               if (future.isSuccess()) {
-                  // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
-                  // wrap it in a binary web socket frame before letting the wsencoder send it on the wire
-                  WebSocketFrameEncoder  encoder = new WebSocketFrameEncoder(maxFramePayloadLength);
-                  future.channel().pipeline().addAfter("wsencoder", "websocket-frame-encoder", encoder);
-               } else {
-                  // Handshake failed, fire an exceptionCaught event
-                  future.channel().pipeline().fireExceptionCaught(future.cause());
-               }
+         handshake.addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+               // we need to insert an encoder that takes the underlying ChannelBuffer of a StompFrame.toActiveMQBuffer and
+               // wrap it in a web socket frame before letting the wsencoder send it on the wire
+               WebSocketFrameEncoder  encoder = new WebSocketFrameEncoder(maxFramePayloadLength, encoderType);
+               future.channel().pipeline().addAfter("wsencoder", "websocket-frame-encoder", encoder);
+            } else {
+               // Handshake failed, fire an exceptionCaught event
+               future.channel().pipeline().fireExceptionCaught(future.cause());
             }
          });
       }

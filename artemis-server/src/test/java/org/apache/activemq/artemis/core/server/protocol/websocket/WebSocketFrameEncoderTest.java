@@ -16,6 +16,25 @@
  */
 package org.apache.activemq.artemis.core.server.protocol.websocket;
 
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,25 +44,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import io.netty.buffer.ByteBufUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
-
 /**
  * WebSocketContinuationFrameEncoderTest
  */
@@ -51,7 +51,8 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 public class WebSocketFrameEncoderTest {
 
    private int maxFramePayloadLength = 100;
-   private WebSocketFrameEncoder spy;
+   private WebSocketFrameEncoder binarySpy;
+   private WebSocketFrameEncoder textSpy;
 
    @Mock
    private ChannelHandlerContext ctx;
@@ -60,11 +61,21 @@ public class WebSocketFrameEncoderTest {
 
    @Before
    public void setUp() throws Exception {
-      spy = spy(new WebSocketFrameEncoder(maxFramePayloadLength));
+      binarySpy = spy(new WebSocketFrameEncoder(maxFramePayloadLength, WebSocketFrameEncoderType.BINARY));
+      textSpy = spy(new WebSocketFrameEncoder(maxFramePayloadLength, WebSocketFrameEncoderType.TEXT));
    }
 
    @Test
-   public void testWriteNonByteBuf() throws Exception {
+   public void testWriteNonByteBufBinary() throws Exception {
+      testWriteNonByteBuf(binarySpy);
+   }
+
+   @Test
+   public void testWriteNonByteBufText() throws Exception {
+      testWriteNonByteBuf(textSpy);
+   }
+
+   private void testWriteNonByteBuf(WebSocketFrameEncoder spy) throws Exception {
       Object msg = "Not a ByteBuf";
 
       spy.write(ctx, msg, promise); //test
@@ -76,7 +87,16 @@ public class WebSocketFrameEncoderTest {
    }
 
    @Test
-   public void testWriteReleaseBuffer() throws Exception {
+   public void testWriteReleaseBufferBinary() throws Exception {
+      testWriteReleaseBuffer(binarySpy, BinaryWebSocketFrame.class);
+   }
+
+   @Test
+   public void testWriteReleaseBufferText() throws Exception {
+      testWriteReleaseBuffer(textSpy, TextWebSocketFrame.class);
+   }
+
+   private void testWriteReleaseBuffer(WebSocketFrameEncoder spy, Class webSocketFrameClass) throws Exception {
       String content = "Buffer should be released";
 
       int utf8Bytes = ByteBufUtil.utf8Bytes(content);
@@ -91,14 +111,22 @@ public class WebSocketFrameEncoderTest {
       assertEquals(0, msg.readableBytes());
       verify(ctx).writeAndFlush(frameCaptor.capture(), eq(promise));
       WebSocketFrame frame = frameCaptor.getValue();
-      assertTrue(frame instanceof BinaryWebSocketFrame);
+      assertTrue(webSocketFrameClass.isInstance(frame));
       assertTrue(frame.isFinalFragment());
       assertEquals(content, frame.content().toString(StandardCharsets.UTF_8));
    }
 
+   @Test
+   public void testWriteSingleFrameBinary() throws Exception {
+      testWriteSingleFrame(binarySpy, BinaryWebSocketFrame.class);
+   }
 
    @Test
-   public void testWriteSingleFrame() throws Exception {
+   public void testWriteSingleFrameText() throws Exception {
+      testWriteSingleFrame(textSpy, TextWebSocketFrame.class);
+   }
+
+   private void testWriteSingleFrame(WebSocketFrameEncoder spy, Class webSocketFrameClass) throws Exception {
       String content = "Content MSG length less than max frame payload length: " + maxFramePayloadLength;
       ByteBuf msg = Unpooled.copiedBuffer(content, StandardCharsets.UTF_8);
       ArgumentCaptor<WebSocketFrame> frameCaptor = ArgumentCaptor.forClass(WebSocketFrame.class);
@@ -108,13 +136,22 @@ public class WebSocketFrameEncoderTest {
       assertEquals(0, msg.readableBytes());
       verify(ctx).writeAndFlush(frameCaptor.capture(), eq(promise));
       WebSocketFrame frame = frameCaptor.getValue();
-      assertTrue(frame instanceof BinaryWebSocketFrame);
+      assertTrue(webSocketFrameClass.isInstance(frame));
       assertTrue(frame.isFinalFragment());
       assertEquals(content, frame.content().toString(StandardCharsets.UTF_8));
    }
 
    @Test
-   public void testWriteContinuationFrames() throws Exception {
+   public void testWriteContinuationFramesBinary() throws Exception {
+      testWriteContinuationFrames(binarySpy, BinaryWebSocketFrame.class);
+   }
+
+   @Test
+   public void testWriteContinuationFramesText() throws Exception {
+      testWriteContinuationFrames(textSpy, TextWebSocketFrame.class);
+   }
+
+   private void testWriteContinuationFrames(WebSocketFrameEncoder spy, Class webSocketFrameClass) throws Exception {
       String contentPart = "Content MSG Length @ ";
       StringBuilder contentBuilder = new StringBuilder(3 * maxFramePayloadLength);
 
@@ -140,7 +177,7 @@ public class WebSocketFrameEncoderTest {
 
       int offset = 0;
       WebSocketFrame first = frames.get(0);
-      assertTrue(first instanceof BinaryWebSocketFrame);
+      assertTrue(webSocketFrameClass.isInstance(first));
       assertFalse(first.isFinalFragment());
       assertEquals(content.substring(offset, offset + maxFramePayloadLength),
                    first.content().toString(StandardCharsets.UTF_8));
