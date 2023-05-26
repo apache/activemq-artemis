@@ -44,6 +44,12 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
       // hence this test needs to be ignored when using the core protocol for management
    }
 
+   @Override
+   @Ignore
+   public void testListProducersMessageCounts() throws Exception {
+      // invalid test when using core protocol (noise from itself)
+   }
+
 
    @Ignore
    @Override
