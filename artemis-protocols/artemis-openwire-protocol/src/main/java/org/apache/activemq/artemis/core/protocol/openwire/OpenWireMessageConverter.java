@@ -267,7 +267,7 @@ public final class OpenWireMessageConverter {
          int n = ois.read(buf);
          while (n != -1) {
             decompressed.write(buf, 0, n);
-            n = ois.read();
+            n = ois.read(buf);
          }
          //read done
          return decompressed.toByteSequence();

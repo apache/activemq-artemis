@@ -38,6 +38,7 @@ import org.junit.Test;
 public class CompressedInteropTest extends BasicOpenWireTest {
 
    private static final String TEXT;
+   private static final String LARGE_TEXT;
 
    static {
       StringBuilder builder = new StringBuilder();
@@ -46,6 +47,7 @@ public class CompressedInteropTest extends BasicOpenWireTest {
          builder.append("The quick red fox jumped over the lazy brown dog. ");
       }
       TEXT = builder.toString();
+      LARGE_TEXT = TEXT + TEXT + TEXT + TEXT + TEXT;
    }
 
    @Before
@@ -90,6 +92,9 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       //ObjectMessage
       sendCompressedObjectMessageUsingOpenWire();
       receiveObjectMessage(useCore);
+      //Large ObjectMessage
+      sendCompressedLargeObjectMessageUsingOpenWire();
+      receiveLargeObjectMessage(useCore);
    }
 
    private void sendCompressedStreamMessageUsingOpenWire() throws Exception {
@@ -162,6 +167,24 @@ public class CompressedInteropTest extends BasicOpenWireTest {
       ObjectMessage objectMessage = (ObjectMessage) receiveMessage(useCore);
       Object objectVal = objectMessage.getObject();
       assertEquals(TEXT, objectVal);
+   }
+
+   private void sendCompressedLargeObjectMessageUsingOpenWire() throws Exception {
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      ActiveMQDestination destination = createDestination(session, ActiveMQDestination.QUEUE_TYPE);
+
+      final ActiveMQMessageProducer producer = (ActiveMQMessageProducer) session.createProducer(destination);
+
+      ObjectMessage objectMessage = session.createObjectMessage();
+      objectMessage.setObject(LARGE_TEXT);
+
+      producer.send(objectMessage);
+   }
+
+   private void receiveLargeObjectMessage(boolean useCore) throws Exception {
+      ObjectMessage objectMessage = (ObjectMessage) receiveMessage(useCore);
+      Object objectVal = objectMessage.getObject();
+      assertEquals(LARGE_TEXT, objectVal);
    }
 
    private void sendCompressedMapMessageUsingOpenWire() throws Exception {
