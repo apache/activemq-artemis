@@ -44,6 +44,7 @@ import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
 import org.eclipse.paho.mqttv5.client.MqttConnectionOptionsBuilder;
+import org.eclipse.paho.mqttv5.common.MqttException;
 import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.eclipse.paho.mqttv5.common.packet.UserProperty;
@@ -494,6 +495,60 @@ public class MQTT5Test extends MQTT5TestSupport {
       if (client.isConnected()) {
          client.disconnect();
       }
+      client.close();
+   }
+
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testRequestResponseMessages() throws Exception {
+      var start = System.currentTimeMillis();
+      var messageCount = 1000;
+
+      var server = createPahoClient("server");
+      var serverLatch = new CountDownLatch(messageCount);
+      server.connect();
+      server.subscribe("requests", 2);
+      server.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            serverLatch.countDown();
+            var responseTopic = message.getProperties().getResponseTopic();
+            System.out.println("Sending response to topic " + responseTopic);
+            try {
+               server.publish(responseTopic, new byte[0], 2, false);
+            } catch (MqttException ex) {
+               System.out.println("Failed to send response to topic " + responseTopic + ": " + ex.getMessage());
+            }
+         }
+      });
+
+      var client = createPahoClient("client");
+      var clientLatch = new CountDownLatch(messageCount);
+      client.connect();
+      client.subscribe("requests/responses/*", 2);
+      client.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) {
+            clientLatch.countDown();
+            System.out.println("Response received at topic " + topic);
+         }
+      });
+
+      for (int i = 0; i < messageCount; ++i) {
+         var properties = new MqttProperties();
+         properties.setResponseTopic("requests/responses/" + i);
+         client.publish("requests", new MqttMessage(new byte[0], 2, false, properties));
+      }
+
+      assertTrue(serverLatch.await(30, TimeUnit.SECONDS));
+      assertTrue(clientLatch.await(30, TimeUnit.SECONDS));
+
+      var end = System.currentTimeMillis();
+      System.out.println("Sent " + messageCount + " messages in " + (end - start) + " milliseconds.");
+
+      server.disconnect();
+      server.close();
+
+      client.disconnect();
       client.close();
    }
 }
