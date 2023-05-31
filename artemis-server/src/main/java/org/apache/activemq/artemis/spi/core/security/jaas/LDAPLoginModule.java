@@ -58,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
@@ -263,10 +264,24 @@ public class LDAPLoginModule implements AuditLoginModule {
 
    private LoginException handleException(LoginException e) {
       Throwable rootCause = ExceptionUtils.getRootCause(e);
-      if (noCacheExceptions.contains(rootCause.getClass().getName())) {
-         return (NoCacheLoginException) new NoCacheLoginException(rootCause.getClass().getName() + (rootCause.getMessage() == null ? "" : ": " + rootCause.getMessage())).initCause(e);
+      String rootCauseClass = rootCause.getClass().getName();
+
+      // try to match statically first
+      if (noCacheExceptions.contains(rootCauseClass)) {
+         return getNoCacheLoginException(e, rootCause);
+      } else {
+         // if no static matches are found try regex
+         for (String match : noCacheExceptions) {
+            if (Pattern.matches(match, rootCauseClass)) {
+               return getNoCacheLoginException(e, rootCause);
+            }
+         }
       }
       return e;
+   }
+
+   private NoCacheLoginException getNoCacheLoginException(LoginException e, Throwable rootCause) {
+      return (NoCacheLoginException) new NoCacheLoginException(rootCause.getClass().getName() + (rootCause.getMessage() == null ? "" : ": " + rootCause.getMessage())).initCause(e);
    }
 
    private void clear() {
