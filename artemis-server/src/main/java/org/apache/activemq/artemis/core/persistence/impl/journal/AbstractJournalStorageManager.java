@@ -1716,6 +1716,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
 
       if (config.getJournalRetentionLocation() != null) {
+         messageJournal.getFileFactory().start();
          messageJournal.setHistoryFolder(config.getJournalRetentionLocation(), config.getJournalRetentionMaxBytes(), config.getJournalRetentionPeriod());
       }
       messageJournal.start();
