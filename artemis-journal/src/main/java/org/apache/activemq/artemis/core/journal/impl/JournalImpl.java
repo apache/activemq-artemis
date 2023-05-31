@@ -2933,6 +2933,8 @@ public class JournalImpl extends JournalBase implements TestableJournal, Journal
 
          fileFactory.stop();
 
+         historyPendingFiles.clear();
+
          currentFile = null;
       } finally {
          journalLock.writeLock().unlock();
