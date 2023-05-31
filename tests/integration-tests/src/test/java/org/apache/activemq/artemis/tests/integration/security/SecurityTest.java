@@ -186,8 +186,18 @@ public class SecurityTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testNoCacheNamingExceptionRegex() throws Exception {
+      internalTestNoCacheException("BrokenLDAPLoginNamingExceptionRegex");
+   }
+
+   @Test
    public void testNoCacheConnectException() throws Exception {
       internalTestNoCacheException("BrokenLDAPLoginConnectException");
+   }
+
+   @Test
+   public void testNoCacheConnectExceptionRegex() throws Exception {
+      internalTestNoCacheException("BrokenLDAPLoginConnectExceptionRegex");
    }
 
    private void internalTestNoCacheException(String ldapConfigName) throws Exception {
