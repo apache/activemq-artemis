@@ -356,12 +356,13 @@ public class JournalTransaction {
     * Used by load, when the transaction was not loaded correctly
     */
    public void forget() {
-      // The transaction was not committed or rolled back in the file, so we
-      // reverse any pos counts we added
-      for (JournalFile jf : pendingFiles) {
-         jf.decPosCount();
+      if (pendingFiles != null) {
+         // The transaction was not committed or rolled back in the file, so we
+         // reverse any pos counts we added
+         for (JournalFile jf : pendingFiles) {
+            jf.decPosCount();
+         }
       }
-
    }
 
    @Override
