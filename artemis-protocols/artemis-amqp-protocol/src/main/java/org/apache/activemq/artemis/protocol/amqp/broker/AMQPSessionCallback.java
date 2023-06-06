@@ -306,11 +306,15 @@ public class AMQPSessionCallback implements SessionCallback {
    }
 
    public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate) throws Exception {
+      return queueQuery(queueName, routingType, autoCreate, null);
+   }
+
+   public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate, SimpleString filter) throws Exception {
       QueueQueryResult queueQueryResult = serverSession.executeQueueQuery(queueName);
 
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateQueues() && autoCreate) {
          try {
-            serverSession.createQueue(new QueueConfiguration(queueName).setRoutingType(routingType).setAutoCreated(true));
+            serverSession.createQueue(new QueueConfiguration(queueName).setRoutingType(routingType).setFilterString(filter).setAutoCreated(true));
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
@@ -321,7 +325,7 @@ public class AMQPSessionCallback implements SessionCallback {
       if (queueQueryResult.isExists() && !queueQueryResult.isAutoCreated()) {
          //if routingType is null we bypass the check
          if (routingType != null && queueQueryResult.getRoutingType() != routingType) {
-            throw new IllegalStateException("Incorrect Routing Type for queue, expecting: " + routingType);
+            throw new IllegalStateException("Incorrect Routing Type for queue " + queueName + ", expecting: " + routingType + " while it had " + queueQueryResult.getRoutingType());
          }
       }
 

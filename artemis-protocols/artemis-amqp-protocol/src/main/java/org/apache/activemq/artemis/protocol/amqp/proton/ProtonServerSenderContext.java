@@ -29,6 +29,7 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
+import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQQueueMaxConsumerLimitReached;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.Message;
@@ -1083,11 +1084,15 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             shared = hasCapabilities(SHARED, source);
             global = hasCapabilities(GLOBAL, source);
 
+            final boolean isFQQN;
+
             //find out if we have an address made up of the address and queue name, if yes then set queue name
             if (CompositeAddress.isFullyQualified(source.getAddress())) {
+               isFQQN = true;
                addressToUse = SimpleString.toSimpleString(CompositeAddress.extractAddressName(source.getAddress()));
                queueNameToUse = SimpleString.toSimpleString(CompositeAddress.extractQueueName(source.getAddress()));
             } else {
+               isFQQN = false;
                addressToUse = SimpleString.toSimpleString(source.getAddress());
             }
             //check to see if the client has defined how we act
@@ -1169,8 +1174,8 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                   supportedFilters.put(filter.getKey(), filter.getValue());
                }
 
-               queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST);
                SimpleString simpleStringSelector = SimpleString.toSimpleString(selector);
+               queue = getMatchingQueue(queueNameToUse, addressToUse, RoutingType.MULTICAST, simpleStringSelector, isFQQN);
 
                //if the address specifies a broker configured queue then we always use this, treat it as a queue
                if (queue != null) {
@@ -1234,10 +1239,13 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                }
             } else {
                if (queueNameToUse != null) {
-                  //a queue consumer can receive from a multicast queue if it uses a fully qualified name
-                  //setting routingType to null means do not check the routingType against the Queue's routing type.
-                  routingTypeToUse = null;
-                  SimpleString matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, null);
+                  SimpleString matchingAnycastQueue;
+                  QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(addressToUse, queueNameToUse), null, false, null);
+                  if (result.isExists()) {
+                     // if the queue exists and we're using FQQN then just ignore the routing-type
+                     routingTypeToUse = null;
+                  }
+                  matchingAnycastQueue = getMatchingQueue(queueNameToUse, addressToUse, routingTypeToUse, null, false);
                   if (matchingAnycastQueue != null) {
                      queue = matchingAnycastQueue;
                   } else {
@@ -1284,14 +1292,18 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
 
 
-      private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType) throws Exception {
+      private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType, SimpleString filter, boolean matchFilter) throws Exception {
          if (queueName != null) {
-            QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(address, queueName), routingType, true);
+            QueueQueryResult result = sessionSPI.queueQuery(CompositeAddress.toFullyQualified(address, queueName), routingType, true, filter);
             if (!result.isExists()) {
                throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist");
             } else {
                if (!result.getAddress().equals(address)) {
                   throw new ActiveMQAMQPNotFoundException("Queue: '" + queueName + "' does not exist for address '" + address + "'");
+               }
+               if (matchFilter && filter != null && result.getFilterString() != null && !filter.equals(result.getFilterString())) {
+                  throw new ActiveMQIllegalStateException("Queue: " + queueName + " filter mismatch [" + filter + "] is different than existing filter [" + result.getFilterString() + "]");
+
                }
                return sessionSPI.getMatchingQueue(address, queueName, routingType);
             }
