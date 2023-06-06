@@ -16,10 +16,11 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.activemq.artemis.core.security.Role;
 
@@ -65,15 +66,11 @@ public class SecurityFormatter {
       return roles;
    }
 
+   @SuppressWarnings("unchecked")
    private static List<String> toList(final String commaSeparatedString) {
-      List<String> list = new ArrayList<>();
-      if (commaSeparatedString == null || commaSeparatedString.trim().length() == 0) {
-         return list;
+      if (commaSeparatedString == null || commaSeparatedString.trim().isEmpty()) {
+         return Collections.emptyList();
       }
-      String[] values = commaSeparatedString.split(",");
-      for (String value : values) {
-         list.add(value.trim());
-      }
-      return list;
+      return List.class.cast(Collections.list(new StringTokenizer(commaSeparatedString, ", ")));
    }
 }
