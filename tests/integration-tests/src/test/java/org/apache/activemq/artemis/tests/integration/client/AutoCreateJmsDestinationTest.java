@@ -361,6 +361,8 @@ public class AutoCreateJmsDestinationTest extends JMSTestBase {
    @Test
    public void testAutoCreateOnReconnect() throws Exception {
       Connection connection = cf.createConnection();
+      runAfter(() -> ((ActiveMQConnectionFactory)cf).close());
+      runAfter(connection::close);
       connection.start();
       Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

@@ -1786,7 +1786,9 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    }
 
    private void clearupOperationContext() {
-      server.getStorageManager().clearContext();
+      if (server != null && server.getStorageManager() != null) {
+         server.getStorageManager().clearContext();
+      }
    }
 
    private Transaction lookupTX(TransactionId txID, AMQSession session) throws Exception {

@@ -840,26 +840,15 @@ public class ActiveMQSession implements QueueSession, TopicSession {
                   throw new RuntimeException("Subscription name cannot be null for durable topic consumer");
                // Non durable sub
 
-               queueName = new SimpleString(UUID.randomUUID().toString());
 
-               if (!CompositeAddress.isFullyQualified(dest.getAddress())) {
-                  createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
+               if (CompositeAddress.isFullyQualified(dest.getAddress())) {
+                  queueName = createFQQNSubscription(dest, coreFilterString, response);
                } else {
-                  if (!response.isExists() || !response.getQueueNames().contains(AutoCreateUtil.getCoreQueueName(session, dest.getSimpleAddress()))) {
-                     if (response.isAutoCreateQueues()) {
-                        try {
-                           createQueue(dest, RoutingType.MULTICAST, dest.getSimpleAddress(), null, true, true, response);
-                        } catch (ActiveMQQueueExistsException e) {
-                           // The queue was created by another client/admin between the query check and send create queue packet
-                        }
-                     } else {
-                        throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
-                     }
-                  }
-                  queueName = CompositeAddress.extractQueueName(dest.getSimpleAddress());
+                  queueName = new SimpleString(UUID.randomUUID().toString());
+                  createTemporaryQueue(dest, RoutingType.MULTICAST, queueName, coreFilterString, response);
                }
 
-               consumer = createClientConsumer(dest, queueName, null);
+               consumer = createClientConsumer(dest, queueName, coreFilterString);
                autoDeleteQueueName = queueName;
             } else {
                // Durable sub
@@ -926,6 +915,38 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       } catch (ActiveMQException e) {
          throw JMSExceptionHelper.convertFromActiveMQException(e);
       }
+   }
+
+   // This method is for the actual queue creation on the Multicast queue / subscription
+   private SimpleString createFQQNSubscription(ActiveMQDestination dest,
+                                        SimpleString coreFilterString,
+                                        AddressQuery response) throws ActiveMQException, JMSException {
+      SimpleString queueName;
+      queueName = CompositeAddress.extractQueueName(dest.getSimpleAddress());
+      if (!response.isExists() || !response.getQueueNames().contains(AutoCreateUtil.getCoreQueueName(session, dest.getSimpleAddress()))) {
+         if (response.isAutoCreateQueues()) {
+            try {
+               createQueue(dest, RoutingType.MULTICAST, dest.getSimpleAddress(), coreFilterString, true, true, response);
+               return queueName;
+            } catch (ActiveMQQueueExistsException e) {
+               // The queue was created by another client/admin between the query check and send create queue packet
+               // on this case we will switch to the regular verification to validate the coreFilterString
+            }
+         } else {
+            throw new InvalidDestinationException("Destination " + dest.getName() + " does not exist");
+         }
+      }
+
+      QueueQuery queueQuery = session.queueQuery(queueName);
+
+      if (!queueQuery.isExists()) {
+         throw new InvalidDestinationException("Destination " + queueName + " does not exist");
+      }
+
+      if (coreFilterString != null && queueQuery.getFilterString() != null && !coreFilterString.equals(queueQuery.getFilterString())) {
+         throw new JMSException(queueName + " filter mismatch [" + coreFilterString + "] is different than existing filter [" + queueQuery.getFilterString() + "]");
+      }
+      return queueName;
    }
 
    private ClientConsumer createClientConsumer(ActiveMQDestination destination, SimpleString queueName, SimpleString coreFilterString) throws ActiveMQException {
