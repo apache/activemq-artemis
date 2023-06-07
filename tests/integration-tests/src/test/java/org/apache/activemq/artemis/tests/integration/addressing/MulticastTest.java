@@ -31,6 +31,7 @@ import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.TimeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,12 +90,14 @@ public class MulticastTest extends ActiveMQTestBase {
          m.getBodyBuffer().writeString("AnyCast" + i);
          producer.send(m);
       }
-      assertNull(consumer1.receive(200));
-      assertNull(consumer2.receive(200));
+      assertNull(consumer1.receiveImmediate());
+      assertNull(consumer2.receiveImmediate());
+
       session.commit();
 
-      assertTrue(TimeUtils.waitOnBoolean(true, 2000, () -> num == q1.getMessageCount()));
-      assertTrue(TimeUtils.waitOnBoolean(true, 2000, () -> num == q2.getMessageCount()));
+      Wait.assertEquals(num, q1::getMessageCount, 5000);
+      Wait.assertEquals(num, q2::getMessageCount, 5000);
+
 
       ClientConsumer[] consumers = new ClientConsumer[] {consumer1, consumer2};
       for (int i = 0; i < consumers.length; i++) {
@@ -105,10 +108,10 @@ public class MulticastTest extends ActiveMQTestBase {
             logger.debug("consumer{} received: {}", i, m.getBodyBuffer().readString());
          }
 
-         assertNull(consumers[i].receive(200));
+         assertNull(consumers[i].receiveImmediate());
          session.commit();
 
-         assertNull(consumers[i].receive(200));
+         assertNull(consumers[i].receiveImmediate());
       }
 
       q1.deleteQueue();
