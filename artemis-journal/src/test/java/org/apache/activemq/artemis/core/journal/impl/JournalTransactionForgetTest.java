@@ -14,29 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.activemq.artemis.core.journal.impl;
 
-import org.apache.activemq.artemis.utils.SpawnedVMSupport;
-import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-public class VerifyUpdateFactorSystemProperty {
-
-   public static void main(String[] arg) {
-
-      try {
-         Assert.assertEquals(33.0, JournalImpl.UPDATE_FACTOR, 0);
-         System.exit(0);
-      } catch (Throwable e) {
-         e.printStackTrace();
-         System.exit(100);
-      }
-   }
-
+public class JournalTransactionForgetTest {
    @Test
-   public void testValidateUpdateRecordProperty() throws Exception {
-      Process process = SpawnedVMSupport.spawnVM(VerifyUpdateFactorSystemProperty.class.getName(), new String[]{"-D" + JournalImpl.class.getName() + ".UPDATE_FACTOR=33.0"}, new String[]{});
-      Assert.assertEquals(0, process.waitFor());
+   public void testForgetTX() {
+      JournalTransaction transaction = new JournalTransaction(1, Mockito.mock(JournalRecordProvider.class));
+      transaction.forget();
    }
-
 }
