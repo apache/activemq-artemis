@@ -135,10 +135,21 @@ public class ArtemisDependencyScanPlugin extends ArtemisAbstractPlugin {
 
          }
 
+         if (getLog().isDebugEnabled()) {
+            getLog().debug("targetFolder=" + targetFolder);
+         }
+
          if (targetFolder != null) {
+            if (getLog().isDebugEnabled()) {
+               getLog().debug("copying libraries into " + targetFolder);
+            }
             targetFolder.mkdirs();
             for (File file : filesSet) {
-               Files.copy(file.toPath(), targetFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
+               File targetFile = new File(targetFolder, file.getName());
+               if (getLog().isDebugEnabled()) {
+                  getLog().debug("copying " + file.toPath() + " into " + targetFile.toPath());
+               }
+               Files.copy(file.toPath(), targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
          }
       } catch (Throwable e) {
