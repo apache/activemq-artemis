@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
+import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.api.core.ActiveMQTimeoutException;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -316,6 +317,57 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       Assert.assertEquals(usingCore() ? 1 : 0, serverControl.getAuthenticationCacheSize());
       Assert.assertEquals(0, serverControl.getAuthorizationCacheSize());
+   }
+
+   @Test
+   public void testAuthCounts() throws Exception {
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      Assert.assertEquals(0, serverControl.getAuthenticationSuccessCount());
+      Assert.assertEquals(0, serverControl.getAuthenticationFailureCount());
+      Assert.assertEquals(0, serverControl.getAuthorizationSuccessCount());
+      Assert.assertEquals(0, serverControl.getAuthorizationFailureCount());
+
+      ServerLocator loc = createInVMNonHALocator();
+      ClientSessionFactory csf = createSessionFactory(loc);
+      ClientSession successSession = csf.createSession("myUser", "myPass", false, true, false, false, 0);
+      successSession.start();
+
+      final String address = "ADDRESS";
+      serverControl.createAddress(address, "MULTICAST");
+      ClientProducer producer = successSession.createProducer(address);
+      ClientMessage m = successSession.createMessage(true);
+      m.putStringProperty("hello", "world");
+      producer.send(m);
+
+      Assert.assertEquals(1, serverControl.getAuthenticationSuccessCount());
+      Assert.assertEquals(0, serverControl.getAuthenticationFailureCount());
+      Assert.assertEquals(1, serverControl.getAuthorizationSuccessCount());
+      Assert.assertEquals(0, serverControl.getAuthorizationFailureCount());
+
+      final String queue = "QUEUE";
+      server.createQueue(new QueueConfiguration(queue).setAddress(address).setRoutingType(RoutingType.MULTICAST));
+      ClientSession failedAuthzSession = csf.createSession("none", "none", false, true, false, false, 0);
+      try {
+         failedAuthzSession.createConsumer(queue);
+      } catch (ActiveMQSecurityException e) {
+         // expected
+      }
+
+      Assert.assertEquals(2, serverControl.getAuthenticationSuccessCount());
+      Assert.assertEquals(0, serverControl.getAuthenticationFailureCount());
+      Assert.assertEquals(1, serverControl.getAuthorizationSuccessCount());
+      Assert.assertEquals(1, serverControl.getAuthorizationFailureCount());
+
+      try {
+         csf.createSession("none", "badpassword", false, true, false, false, 0);
+      } catch (ActiveMQSecurityException e) {
+         // expected
+      }
+      Assert.assertEquals(2, serverControl.getAuthenticationSuccessCount());
+      Assert.assertEquals(1, serverControl.getAuthenticationFailureCount());
+      Assert.assertEquals(1, serverControl.getAuthorizationSuccessCount());
+      Assert.assertEquals(1, serverControl.getAuthorizationFailureCount());
    }
 
    @Test
@@ -6161,8 +6213,10 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
       SecurityConfiguration securityConfiguration = new SecurityConfiguration();
       securityConfiguration.addUser("guest", "guest");
       securityConfiguration.addUser("myUser", "myPass");
+      securityConfiguration.addUser("none", "none");
       securityConfiguration.addRole("guest", "guest");
       securityConfiguration.addRole("myUser", "guest");
+      securityConfiguration.addRole("none", "none");
       securityConfiguration.setDefaultUser("guest");
       ActiveMQJAASSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), securityConfiguration);
       conf.setJournalRetentionDirectory(conf.getJournalDirectory() + "_ret"); // needed for replay tests
@@ -6172,6 +6226,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
 
       HashSet<Role> role = new HashSet<>();
       role.add(new Role("guest", true, true, true, true, true, true, true, true, true, true, false, false));
+      role.add(new Role("none", false, false, false, false, false, false, false, false, false, false, false, false));
       server.getSecurityRepository().addMatch("#", role);
    }
 

@@ -4691,6 +4691,38 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       ((SecurityStoreImpl)server.getSecurityStore()).invalidateAuthorizationCache();
    }
 
+   @Override
+   public long getAuthenticationSuccessCount() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAuthenticationSuccessCount(this.server);
+      }
+      return server.getSecurityStore().getAuthenticationSuccessCount();
+   }
+
+   @Override
+   public long getAuthenticationFailureCount() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAuthenticationFailureCount(this.server);
+      }
+      return server.getSecurityStore().getAuthenticationFailureCount();
+   }
+
+   @Override
+   public long getAuthorizationSuccessCount() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAuthorizationSuccessCount(this.server);
+      }
+      return server.getSecurityStore().getAuthorizationSuccessCount();
+   }
+
+   @Override
+   public long getAuthorizationFailureCount() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getAuthorizationFailureCount(this.server);
+      }
+      return server.getSecurityStore().getAuthorizationFailureCount();
+   }
+
    public ActiveMQServer getServer() {
       return server;
    }

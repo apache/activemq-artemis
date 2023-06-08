@@ -25,4 +25,6 @@ public class BrokerMetricNames {
    public static final String DISK_STORE_USAGE = "disk.store.usage";
    public static final String REPLICA_SYNC = "replica.sync";
    public static final String ACTIVE = "active";
+   public static final String AUTHENTICATION_COUNT = "authentication.count";
+   public static final String AUTHORIZATION_COUNT = "authorization.count";
 }

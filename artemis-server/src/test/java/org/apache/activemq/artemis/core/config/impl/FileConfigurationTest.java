@@ -643,6 +643,7 @@ public class FileConfigurationTest extends AbstractConfigurationTestBase {
       assertTrue(metricsConfiguration.isProcessor());
       assertTrue(metricsConfiguration.isUptime());
       assertTrue(metricsConfiguration.isLogging());
+      assertTrue(metricsConfiguration.isSecurityCaches());
    }
 
    private void verifyAddresses() {

@@ -2716,4 +2716,32 @@ public interface AuditLogger {
 
    @LogMessage(id = 601777, value = "User {} is getting broker plugin class names on target resource: {}", level = LogMessage.Level.INFO)
    void getBrokerPluginClassNames(String user, Object source);
+
+   static void getAuthenticationSuccessCount(Object source) {
+      BASE_LOGGER.getAuthenticationSuccessCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601778, value = "User {} is getting authentication success count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthenticationSuccessCount(String user, Object source);
+
+   static void getAuthenticationFailureCount(Object source) {
+      BASE_LOGGER.getAuthenticationFailureCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601779, value = "User {} is getting authentication failure count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthenticationFailureCount(String user, Object source);
+
+   static void getAuthorizationSuccessCount(Object source) {
+      BASE_LOGGER.getAuthorizationSuccessCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601780, value = "User {} is getting authorization success count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthorizationSuccessCount(String user, Object source);
+
+   static void getAuthorizationFailureCount(Object source) {
+      BASE_LOGGER.getAuthorizationFailureCount(getCaller(), source);
+   }
+
+   @LogMessage(id = 601781, value = "User {} is getting authorization failure count on target resource: {}", level = LogMessage.Level.INFO)
+   void getAuthorizationFailureCount(String user, Object source);
 }

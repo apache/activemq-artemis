@@ -17,11 +17,15 @@
 package org.apache.activemq.artemis.core.security.impl;
 
 import javax.security.auth.Subject;
+import java.lang.invoke.MethodHandles;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLongFieldUpdater;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -52,11 +56,6 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
-import java.lang.invoke.MethodHandles;
-
 /**
  * The ActiveMQ Artemis SecurityStore implementation
  */
@@ -80,6 +79,15 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private final NotificationService notificationService;
 
+   private static final AtomicLongFieldUpdater<SecurityStoreImpl> AUTHENTICATION_SUCCESS_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(SecurityStoreImpl.class, "authenticationSuccessCount");
+   private volatile long authenticationSuccessCount;
+   private static final AtomicLongFieldUpdater<SecurityStoreImpl> AUTHENTICATION_FAILURE_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(SecurityStoreImpl.class, "authenticationFailureCount");
+   private volatile long authenticationFailureCount;
+   private static final AtomicLongFieldUpdater<SecurityStoreImpl> AUTHORIZATION_SUCCESS_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(SecurityStoreImpl.class, "authorizationSuccessCount");
+   private volatile long authorizationSuccessCount;
+   private static final AtomicLongFieldUpdater<SecurityStoreImpl> AUTHORIZATION_FAILURE_COUNT_UPDATER = AtomicLongFieldUpdater.newUpdater(SecurityStoreImpl.class, "authorizationFailureCount");
+   private volatile long authorizationFailureCount;
+
 
    /**
     * @param notificationService can be <code>null</code>
@@ -99,23 +107,30 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       this.managementClusterUser = managementClusterUser;
       this.managementClusterPassword = managementClusterPassword;
       this.notificationService = notificationService;
-      if (authenticationCacheSize == 0) {
+      if (securityEnabled) {
+         if (authenticationCacheSize == 0) {
+            authenticationCache = null;
+         } else {
+            authenticationCache = Caffeine.newBuilder()
+                                          .maximumSize(authenticationCacheSize)
+                                          .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                          .recordStats()
+                                          .build();
+         }
+         if (authorizationCacheSize == 0) {
+            authorizationCache = null;
+         } else {
+            authorizationCache = Caffeine.newBuilder()
+                                         .maximumSize(authorizationCacheSize)
+                                         .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                         .recordStats()
+                                         .build();
+         }
+         this.securityRepository.registerListener(this);
+      } else {
          authenticationCache = null;
-      } else {
-         authenticationCache = Caffeine.newBuilder()
-                                       .maximumSize(authenticationCacheSize)
-                                       .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
-                                       .build();
-      }
-      if (authorizationCacheSize == 0) {
          authorizationCache = null;
-      } else {
-         authorizationCache = Caffeine.newBuilder()
-                                      .maximumSize(authorizationCacheSize)
-                                      .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
-                                      .build();
       }
-      this.securityRepository.registerListener(this);
    }
 
    // SecurityManager implementation --------------------------------
@@ -157,8 +172,10 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
              * operation between nodes
              */
             if (!managementClusterPassword.equals(password)) {
+               AUTHENTICATION_FAILURE_COUNT_UPDATER.incrementAndGet(this);
                throw ActiveMQMessageBundle.BUNDLE.unableToValidateClusterUser(user);
             } else {
+               AUTHENTICATION_SUCCESS_COUNT_UPDATER.incrementAndGet(this);
                return managementClusterUser;
             }
          }
@@ -227,6 +244,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             }
          }
 
+         AUTHENTICATION_SUCCESS_COUNT_UPDATER.incrementAndGet(this);
          return validatedUser;
       }
 
@@ -254,6 +272,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          // bypass permission checks for management cluster user
          String user = session.getUsername();
          if (managementClusterUser.equals(user) && session.getPassword().equals(managementClusterPassword)) {
+            AUTHORIZATION_SUCCESS_COUNT_UPDATER.incrementAndGet(this);
             return;
          }
 
@@ -271,6 +290,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          }
 
          if (checkAuthorizationCache(fqqn != null  ? fqqn : bareAddress, user, checkType)) {
+            AUTHORIZATION_SUCCESS_COUNT_UPDATER.incrementAndGet(this);
             return;
          }
 
@@ -320,10 +340,13 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
                ex = ActiveMQMessageBundle.BUNDLE.userNoPermissionsQueue(getCaller(user, session.getRemotingConnection().getSubject()), checkType, bareQueue, bareAddress);
             }
             AuditLogger.securityFailure(session.getRemotingConnection().getSubject(), session.getRemotingConnection().getRemoteAddress(), ex.getMessage(), ex);
+            AUTHORIZATION_FAILURE_COUNT_UPDATER.incrementAndGet(this);
             throw ex;
          }
 
          // if we get here we're granted, add to the cache
+
+         AUTHORIZATION_SUCCESS_COUNT_UPDATER.incrementAndGet(this);
 
          if (user == null) {
             // should get all user/pass into a subject and only cache subjects
@@ -400,6 +423,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          AuditLogger.userFailedAuthenticationInAudit(null, e.getMessage(), connection == null ? "null" : connection.getID().toString());
       }
 
+      AUTHENTICATION_FAILURE_COUNT_UPDATER.incrementAndGet(this);
       throw e;
    }
 
@@ -521,13 +545,31 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       return user + "." + checkType.name();
    }
 
-   // for testing
-   protected Cache<String, Pair<Boolean, Subject>> getAuthenticationCache() {
+   public Cache<String, Pair<Boolean, Subject>> getAuthenticationCache() {
       return authenticationCache;
    }
 
-   // for testing
-   protected Cache<String, ConcurrentHashSet<SimpleString>> getAuthorizationCache() {
+   public Cache<String, ConcurrentHashSet<SimpleString>> getAuthorizationCache() {
       return authorizationCache;
+   }
+
+   @Override
+   public long getAuthenticationSuccessCount() {
+      return authenticationSuccessCount;
+   }
+
+   @Override
+   public long getAuthenticationFailureCount() {
+      return authenticationFailureCount;
+   }
+
+   @Override
+   public long getAuthorizationSuccessCount() {
+      return authorizationSuccessCount;
+   }
+
+   @Override
+   public long getAuthorizationFailureCount() {
+      return authorizationFailureCount;
    }
 }

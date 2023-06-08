@@ -25,7 +25,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.regex.Pattern;
 
+import io.micrometer.core.instrument.Tag;
 import org.apache.activemq.artemis.api.core.BroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.core.BroadcastGroupConfiguration;
 import org.apache.activemq.artemis.api.core.ChannelBroadcastEndpointFactory;
@@ -236,13 +239,17 @@ public class ManagementServiceImpl implements ManagementService {
       MetricsManager metricsManager = messagingServer.getMetricsManager();
       if (metricsManager != null) {
          metricsManager.registerBrokerGauge(builder -> {
-            builder.build(BrokerMetricNames.CONNECTION_COUNT, messagingServer, metrics -> (double) messagingServer.getConnectionCount(), ActiveMQServerControl.CONNECTION_COUNT_DESCRIPTION);
-            builder.build(BrokerMetricNames.TOTAL_CONNECTION_COUNT, messagingServer, metrics -> (double) messagingServer.getTotalConnectionCount(), ActiveMQServerControl.TOTAL_CONNECTION_COUNT_DESCRIPTION);
-            builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE, messagingServer, metrics -> (double) messagingServerControl.getAddressMemoryUsage(), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_DESCRIPTION);
-            builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE_PERCENTAGE, messagingServer, metrics -> (double) messagingServerControl.getAddressMemoryUsagePercentage(), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION);
-            builder.build(BrokerMetricNames.DISK_STORE_USAGE, messagingServer, metrics -> messagingServer.getDiskStoreUsage(), ActiveMQServerControl.DISK_STORE_USAGE_DESCRIPTION);
-            builder.build(BrokerMetricNames.REPLICA_SYNC, messagingServer, metrics -> messagingServer.isReplicaSync() ? 1D : 0D, ActiveMQServerControl.REPLICA_SYNC_DESCRIPTION);
-            builder.build(BrokerMetricNames.ACTIVE, messagingServer, metrics -> messagingServer.isActive() ? 1D : 0D, ActiveMQServerControl.IS_ACTIVE_DESCRIPTION);
+            builder.build(BrokerMetricNames.CONNECTION_COUNT, messagingServer, metrics -> (double) messagingServer.getConnectionCount(), ActiveMQServerControl.CONNECTION_COUNT_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.TOTAL_CONNECTION_COUNT, messagingServer, metrics -> (double) messagingServer.getTotalConnectionCount(), ActiveMQServerControl.TOTAL_CONNECTION_COUNT_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE, messagingServer, metrics -> (double) messagingServerControl.getAddressMemoryUsage(), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.ADDRESS_MEMORY_USAGE_PERCENTAGE, messagingServer, metrics -> (double) messagingServerControl.getAddressMemoryUsagePercentage(), ActiveMQServerControl.ADDRESS_MEMORY_USAGE_PERCENTAGE_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.DISK_STORE_USAGE, messagingServer, metrics -> messagingServer.getDiskStoreUsage(), ActiveMQServerControl.DISK_STORE_USAGE_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.REPLICA_SYNC, messagingServer, metrics -> messagingServer.isReplicaSync() ? 1D : 0D, ActiveMQServerControl.REPLICA_SYNC_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.ACTIVE, messagingServer, metrics -> messagingServer.isActive() ? 1D : 0D, ActiveMQServerControl.IS_ACTIVE_DESCRIPTION, Collections.emptyList());
+            builder.build(BrokerMetricNames.AUTHENTICATION_COUNT, securityStore, metrics -> (double) securityStore.getAuthenticationSuccessCount(), ActiveMQServerControl.AUTHENTICATION_SUCCESS_COUNT, Arrays.asList(Tag.of("result", "success")));
+            builder.build(BrokerMetricNames.AUTHENTICATION_COUNT, securityStore, metrics -> (double) securityStore.getAuthenticationFailureCount(), ActiveMQServerControl.AUTHENTICATION_FAILURE_COUNT, Arrays.asList(Tag.of("result", "failure")));
+            builder.build(BrokerMetricNames.AUTHORIZATION_COUNT, securityStore, metrics -> (double) securityStore.getAuthorizationSuccessCount(), ActiveMQServerControl.AUTHORIZATION_SUCCESS_COUNT, Arrays.asList(Tag.of("result", "success")));
+            builder.build(BrokerMetricNames.AUTHORIZATION_COUNT, securityStore, metrics -> (double) securityStore.getAuthorizationFailureCount(), ActiveMQServerControl.AUTHORIZATION_FAILURE_COUNT, Arrays.asList(Tag.of("result", "failure")));
          });
       }
    }
@@ -277,10 +284,10 @@ public class ManagementServiceImpl implements ManagementService {
          MetricsManager metricsManager = messagingServer.getMetricsManager();
          if (metricsManager != null) {
             metricsManager.registerAddressGauge(addressInfo.getName().toString(), builder -> {
-               builder.build(AddressMetricNames.ROUTED_MESSAGE_COUNT, addressInfo, metrics -> (double) addressInfo.getRoutedMessageCount(), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(AddressMetricNames.UNROUTED_MESSAGE_COUNT, addressInfo, metrics -> (double) addressInfo.getUnRoutedMessageCount(), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(AddressMetricNames.ADDRESS_SIZE, addressInfo, metrics -> (double) addressControl.getAddressSize(), AddressControl.ADDRESS_SIZE_DESCRIPTION);
-               builder.build(AddressMetricNames.PAGES_COUNT, addressInfo, metrics -> (double) addressControl.getNumberOfPages(), AddressControl.NUMBER_OF_PAGES_DESCRIPTION);
+               builder.build(AddressMetricNames.ROUTED_MESSAGE_COUNT, addressInfo, metrics -> (double) addressInfo.getRoutedMessageCount(), AddressControl.ROUTED_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(AddressMetricNames.UNROUTED_MESSAGE_COUNT, addressInfo, metrics -> (double) addressInfo.getUnRoutedMessageCount(), AddressControl.UNROUTED_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(AddressMetricNames.ADDRESS_SIZE, addressInfo, metrics -> (double) addressControl.getAddressSize(), AddressControl.ADDRESS_SIZE_DESCRIPTION, Collections.emptyList());
+               builder.build(AddressMetricNames.PAGES_COUNT, addressInfo, metrics -> (double) addressControl.getNumberOfPages(), AddressControl.NUMBER_OF_PAGES_DESCRIPTION, Collections.emptyList());
             });
          }
       }
@@ -336,26 +343,26 @@ public class ManagementServiceImpl implements ManagementService {
          MetricsManager metricsManager = messagingServer.getMetricsManager();
          if (metricsManager != null) {
             metricsManager.registerQueueGauge(queue.getAddress().toString(), queue.getName().toString(), (builder) -> {
-               builder.build(QueueMetricNames.MESSAGE_COUNT, queue, metrics -> (double) queue.getMessageCount(), QueueControl.MESSAGE_COUNT_DESCRIPTION);
-               builder.build(QueueMetricNames.DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableMessageCount(), QueueControl.DURABLE_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(QueueMetricNames.PERSISTENT_SIZE, queue, metrics -> (double) queue.getPersistentSize(), QueueControl.PERSISTENT_SIZE_DESCRIPTION);
-               builder.build(QueueMetricNames.DURABLE_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDurablePersistentSize(), QueueControl.DURABLE_PERSISTENT_SIZE_DESCRIPTION);
+               builder.build(QueueMetricNames.MESSAGE_COUNT, queue, metrics -> (double) queue.getMessageCount(), QueueControl.MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableMessageCount(), QueueControl.DURABLE_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.PERSISTENT_SIZE, queue, metrics -> (double) queue.getPersistentSize(), QueueControl.PERSISTENT_SIZE_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.DURABLE_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDurablePersistentSize(), QueueControl.DURABLE_PERSISTENT_SIZE_DESCRIPTION, Collections.emptyList());
 
-               builder.build(QueueMetricNames.DELIVERING_MESSAGE_COUNT, queue, metrics -> (double) queue.getDeliveringCount(), QueueControl.DELIVERING_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(QueueMetricNames.DELIVERING_DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableDeliveringCount(), QueueControl.DURABLE_DELIVERING_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(QueueMetricNames.DELIVERING_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDeliveringSize(), QueueControl.DELIVERING_SIZE_DESCRIPTION);
-               builder.build(QueueMetricNames.DELIVERING_DURABLE_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDurableDeliveringSize(), QueueControl.DURABLE_DELIVERING_SIZE_DESCRIPTION);
+               builder.build(QueueMetricNames.DELIVERING_MESSAGE_COUNT, queue, metrics -> (double) queue.getDeliveringCount(), QueueControl.DELIVERING_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.DELIVERING_DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableDeliveringCount(), QueueControl.DURABLE_DELIVERING_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.DELIVERING_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDeliveringSize(), QueueControl.DELIVERING_SIZE_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.DELIVERING_DURABLE_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDurableDeliveringSize(), QueueControl.DURABLE_DELIVERING_SIZE_DESCRIPTION, Collections.emptyList());
 
-               builder.build(QueueMetricNames.SCHEDULED_MESSAGE_COUNT, queue, metrics -> (double) queue.getScheduledCount(), QueueControl.SCHEDULED_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(QueueMetricNames.SCHEDULED_DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableScheduledCount(), QueueControl.DURABLE_SCHEDULED_MESSAGE_COUNT_DESCRIPTION);
-               builder.build(QueueMetricNames.SCHEDULED_PERSISTENT_SIZE, queue, metrics -> (double) queue.getScheduledSize(), QueueControl.SCHEDULED_SIZE_DESCRIPTION);
-               builder.build(QueueMetricNames.SCHEDULED_DURABLE_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDurableScheduledSize(), QueueControl.DURABLE_SCHEDULED_SIZE_DESCRIPTION);
+               builder.build(QueueMetricNames.SCHEDULED_MESSAGE_COUNT, queue, metrics -> (double) queue.getScheduledCount(), QueueControl.SCHEDULED_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.SCHEDULED_DURABLE_MESSAGE_COUNT, queue, metrics -> (double) queue.getDurableScheduledCount(), QueueControl.DURABLE_SCHEDULED_MESSAGE_COUNT_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.SCHEDULED_PERSISTENT_SIZE, queue, metrics -> (double) queue.getScheduledSize(), QueueControl.SCHEDULED_SIZE_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.SCHEDULED_DURABLE_PERSISTENT_SIZE, queue, metrics -> (double) queue.getDurableScheduledSize(), QueueControl.DURABLE_SCHEDULED_SIZE_DESCRIPTION, Collections.emptyList());
 
-               builder.build(QueueMetricNames.MESSAGES_ACKNOWLEDGED, queue, metrics -> (double) queue.getMessagesAcknowledged(), QueueControl.MESSAGES_ACKNOWLEDGED_DESCRIPTION);
-               builder.build(QueueMetricNames.MESSAGES_ADDED, queue, metrics -> (double) queue.getMessagesAdded(), QueueControl.MESSAGES_ADDED_DESCRIPTION);
-               builder.build(QueueMetricNames.MESSAGES_KILLED, queue, metrics -> (double) queue.getMessagesKilled(), QueueControl.MESSAGES_KILLED_DESCRIPTION);
-               builder.build(QueueMetricNames.MESSAGES_EXPIRED, queue, metrics -> (double) queue.getMessagesExpired(), QueueControl.MESSAGES_EXPIRED_DESCRIPTION);
-               builder.build(QueueMetricNames.CONSUMER_COUNT, queue, metrics -> (double) queue.getConsumerCount(), QueueControl.CONSUMER_COUNT_DESCRIPTION);
+               builder.build(QueueMetricNames.MESSAGES_ACKNOWLEDGED, queue, metrics -> (double) queue.getMessagesAcknowledged(), QueueControl.MESSAGES_ACKNOWLEDGED_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.MESSAGES_ADDED, queue, metrics -> (double) queue.getMessagesAdded(), QueueControl.MESSAGES_ADDED_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.MESSAGES_KILLED, queue, metrics -> (double) queue.getMessagesKilled(), QueueControl.MESSAGES_KILLED_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.MESSAGES_EXPIRED, queue, metrics -> (double) queue.getMessagesExpired(), QueueControl.MESSAGES_EXPIRED_DESCRIPTION, Collections.emptyList());
+               builder.build(QueueMetricNames.CONSUMER_COUNT, queue, metrics -> (double) queue.getConsumerCount(), QueueControl.CONSUMER_COUNT_DESCRIPTION, Collections.emptyList());
             });
          }
       }

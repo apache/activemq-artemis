@@ -37,4 +37,12 @@ public interface SecurityStore {
    void stop();
 
    Subject getSessionSubject(SecurityAuth session);
+
+   long getAuthenticationSuccessCount();
+
+   long getAuthenticationFailureCount();
+
+   long getAuthorizationSuccessCount();
+
+   long getAuthorizationFailureCount();
 }
