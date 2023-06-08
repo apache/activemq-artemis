@@ -26,9 +26,12 @@ import java.util.function.Consumer;
 import java.util.function.ToDoubleFunction;
 
 import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Gauge.Builder;
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.Tag;
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
@@ -39,6 +42,8 @@ import io.micrometer.core.instrument.binder.system.UptimeMetrics;
 import io.netty.buffer.PooledByteBufAllocator;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.config.MetricsConfiguration;
+import org.apache.activemq.artemis.core.security.SecurityStore;
+import org.apache.activemq.artemis.core.security.impl.SecurityStoreImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -59,7 +64,8 @@ public class MetricsManager {
 
    public MetricsManager(String brokerName,
                          MetricsConfiguration metricsConfiguration,
-                         HierarchicalRepository<AddressSettings> addressSettingsRepository) {
+                         HierarchicalRepository<AddressSettings> addressSettingsRepository,
+                         SecurityStore securityStore) {
       this.brokerName = brokerName;
       this.meterRegistry = metricsConfiguration.getPlugin().getRegistry();
       this.addressSettingsRepository = addressSettingsRepository;
@@ -90,6 +96,10 @@ public class MetricsManager {
          if (metricsConfiguration.isLogging()) {
             new Log4j2Metrics().bindTo(meterRegistry);
          }
+         if (metricsConfiguration.isSecurityCaches() && securityStore.isSecurityEnabled()) {
+            CaffeineCacheMetrics.monitor(meterRegistry, ((SecurityStoreImpl)securityStore).getAuthenticationCache(), "authentication");
+            CaffeineCacheMetrics.monitor(meterRegistry, ((SecurityStoreImpl)securityStore).getAuthorizationCache(), "authorization");
+         }
       }
    }
 
@@ -100,19 +110,20 @@ public class MetricsManager {
    @FunctionalInterface
    public interface MetricGaugeBuilder {
 
-      void build(String metricName, Object state, ToDoubleFunction f, String description);
+      void build(String metricName, Object state, ToDoubleFunction<Object> f, String description, List<Tag> tags);
    }
 
    public void registerQueueGauge(String address, String queue, Consumer<MetricGaugeBuilder> builder) {
       if (this.meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
-      final List<Gauge.Builder> gaugeBuilders = new ArrayList<>();
-      builder.accept((metricName, state, f, description) -> {
-         Gauge.Builder meter = Gauge
+      final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
+      builder.accept((metricName, state, f, description, tags) -> {
+         Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
             .tag("address", address)
             .tag("queue", queue)
+            .tags(tags)
             .description(description);
          gaugeBuilders.add(meter);
       });
@@ -123,11 +134,12 @@ public class MetricsManager {
       if (this.meterRegistry == null || !addressSettingsRepository.getMatch(address).isEnableMetrics()) {
          return;
       }
-      final List<Gauge.Builder> gaugeBuilders = new ArrayList<>();
-      builder.accept((metricName, state, f, description) -> {
-         Gauge.Builder meter = Gauge
+      final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
+      builder.accept((metricName, state, f, description, tags) -> {
+         Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
             .tag("address", address)
+            .tags(tags)
             .description(description);
          gaugeBuilders.add(meter);
       });
@@ -138,23 +150,24 @@ public class MetricsManager {
       if (this.meterRegistry == null) {
          return;
       }
-      final List<Gauge.Builder> gaugeBuilders = new ArrayList<>();
-      builder.accept((metricName, state, f, description) -> {
-         Gauge.Builder meter = Gauge
+      final List<Builder<Object>> gaugeBuilders = new ArrayList<>();
+      builder.accept((metricName, state, f, description, tags) -> {
+         Builder<Object> meter = Gauge
             .builder("artemis." + metricName, state, f)
+            .tags(tags)
             .description(description);
          gaugeBuilders.add(meter);
       });
       registerMeters(gaugeBuilders, ResourceNames.BROKER + "." + brokerName);
    }
 
-   private void registerMeters(List<Gauge.Builder> gaugeBuilders, String resource) {
+   private void registerMeters(List<Builder<Object>> gaugeBuilders, String resource) {
       if (meters.get(resource) != null) {
          throw ActiveMQMessageBundle.BUNDLE.metersAlreadyRegistered(resource);
       }
       logger.debug("Registering meters for {}", resource);
       List<Meter> newMeters = new ArrayList<>(gaugeBuilders.size());
-      for (Gauge.Builder gaugeBuilder : gaugeBuilders) {
+      for (Builder<Object> gaugeBuilder : gaugeBuilders) {
          Gauge gauge = gaugeBuilder.register(meterRegistry);
          newMeters.add(gauge);
          logger.debug("Registered meter: {}", gauge.getId());

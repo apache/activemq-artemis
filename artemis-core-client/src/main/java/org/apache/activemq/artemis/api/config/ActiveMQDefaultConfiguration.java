@@ -679,6 +679,9 @@ public final class ActiveMQDefaultConfiguration {
    // Whether or not to report logging metrics
    private static final boolean DEFAULT_LOGGING_METRICS = false;
 
+   // Whether or not to report security cache metrics
+   private static final boolean DEFAULT_SECURITY_CACHE_METRICS = false;
+
    // How often (in ms) to scan for expired MQTT sessions
    private static long DEFAULT_MQTT_SESSION_SCAN_INTERVAL = 500;
 
@@ -1890,6 +1893,13 @@ public final class ActiveMQDefaultConfiguration {
     */
    public static Boolean getDefaultLoggingMetrics() {
       return DEFAULT_LOGGING_METRICS;
+   }
+
+   /**
+    * Whether or not to report security cache metrics
+    */
+   public static Boolean getDefaultSecurityCacheMetrics() {
+      return DEFAULT_SECURITY_CACHE_METRICS;
    }
 
    /**

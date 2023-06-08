@@ -33,6 +33,10 @@ public interface ActiveMQServerControl {
    String DISK_STORE_USAGE_DESCRIPTION = "Fraction of total disk store used";
    String REPLICA_SYNC_DESCRIPTION = "If the initial replication synchronization process is complete";
    String IS_ACTIVE_DESCRIPTION = "If the server is active";
+   String AUTHENTICATION_SUCCESS_COUNT = "Number of successful authentication attempts";
+   String AUTHENTICATION_FAILURE_COUNT = "Number of failed authentication attempts";
+   String AUTHORIZATION_SUCCESS_COUNT = "Number of successful authorization attempts";
+   String AUTHORIZATION_FAILURE_COUNT = "Number of failed authorization attempts";
 
    /**
     * Returns this server's name.
@@ -2072,5 +2076,17 @@ public interface ActiveMQServerControl {
 
    @Operation(desc = "Clear the authorization cache", impact = MBeanOperationInfo.ACTION)
    void clearAuthorizationCache() throws Exception;
+
+   @Attribute(desc = AUTHENTICATION_SUCCESS_COUNT)
+   long getAuthenticationSuccessCount();
+
+   @Attribute(desc = AUTHENTICATION_FAILURE_COUNT)
+   long getAuthenticationFailureCount();
+
+   @Attribute(desc = AUTHORIZATION_SUCCESS_COUNT)
+   long getAuthorizationSuccessCount();
+
+   @Attribute(desc = AUTHORIZATION_FAILURE_COUNT)
+   long getAuthorizationFailureCount();
 }
 

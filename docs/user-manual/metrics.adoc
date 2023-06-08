@@ -45,40 +45,55 @@ It takes no key/value properties for configuration.
 The following metrics are exported, categorized by component.
 A description for each metric is exported along with the metric itself therefore the description will not be repeated here.
 
+*Every* metric is "tagged" with the `broker` tag (configured via `<name>` in `broker.xml`).
+A _tag_ is a piece of metadata that gives context to the metric.
+These tags are the foundation of what is sometimes referred to as "dimensional metrics."
+Metrics _may_ have additional tags, but at the very least they will all have the `broker` tag.
+
+Lastly, all metrics specifically for ActiveMQ Artemis are prefixed with `artemis.`.
+
 === Broker
 
-* connection.count
-* total.connection.count
-* address.memory.usage
-* address.memory.usage.percentage
-* disk.store.usage
+* `connection.count`
+* `total.connection.count`
+* `address.memory.usage`
+* `address.memory.usage.percentage`
+* `disk.store.usage`
+* `replica.sync`
+* `active`
+* `authentication.count` tagged by `result` - either `success` or `failure`
+* `authorization.count` tagged by `result` - either `success` or `failure`
 
 === Address
 
-* routed.message.count
-* unrouted.message.count
-* address.size
-* number.of.pages
+These metrics are tagged with the `address` tag which reflects the name of the corresponding address.
+
+* `routed.message.count`
+* `unrouted.message.count`
+* `address.size`
+* `number.of.pages`
 
 === Queue
 
-* message.count
-* durable.message.count
-* persistent.size
-* durable.persistent.size
-* delivering.message.count
-* delivering.durable.message.count
-* delivering.persistent.size
-* delivering.durable.persistent.size
-* scheduled.message.count
-* scheduled.durable.message.count
-* scheduled.persistent.size
-* scheduled.durable.persistent.size
-* messages.acknowledged
-* messages.added
-* messages.killed
-* messages.expired
-* consumer.count
+These metrics are tagged with the `address` & `queue` tags which reflects the name of the corresponding address & queue respectively.
+
+* `message.count`
+* `durable.message.count`
+* `persistent.size`
+* `durable.persistent.size`
+* `delivering.message.count`
+* `delivering.durable.message.count`
+* `delivering.persistent.size`
+* `delivering.durable.persistent.size`
+* `scheduled.message.count`
+* `scheduled.durable.message.count`
+* `scheduled.persistent.size`
+* `scheduled.durable.persistent.size`
+* `messages.acknowledged`
+* `messages.added`
+* `messages.killed`
+* `messages.expired`
+* `consumer.count`
 
 It may appear that some higher level broker metrics are missing (e.g. total message count).
 However, these metrics can be deduced by aggregating the lower level metrics (e.g. aggregate the message.count metrics from all queues to get the total).
@@ -86,6 +101,7 @@ However, these metrics can be deduced by aggregating the lower level metrics (e.
 === Optional metrics
 
 There are a handful of other useful metrics that are related to the JVM, the underlying operating system, etc.
+These metrics are provided specifically by Micrometer and therefore do not have the `artmemis.` prefix.
 
 JVM memory metrics::
 Gauges buffer and memory pool utilization.
@@ -128,6 +144,16 @@ Disabled by default.
 This works _exclusively_ with Log4j2 (i.e the default logging implementation shipped with the broker).
 If you're embedding the broker and using a different logging implementation (e.g. Log4j 1.x, JUL, Logback, etc.) and you enable these metrics then the broker will fail to start with a `java.lang.NoClassDefFoundError` as it attempts to locate Log4j2 classes that don't exist on the classpath.
 ====
+Security caches::
+The following authentication & authorization cache metrics are exported. They are all tagged by `cache` (either `authentication` or `authorization`). Additional tags are noted.
+* `cache.size`
+* `cache.puts`
+* `cache.gets` tagged by `result` - either `hit` or `miss`
+* `cache.evictions`
+* `cache.eviction.weight`
+
++
+Disabled by default.
 
 == Configuration
 
@@ -148,6 +174,7 @@ Here's a configuration with all optional metrics:
    <processor>true</processor> <!-- defaults to false -->
    <uptime>true</uptime> <!-- defaults to false -->
    <logging>true</logging> <!-- defaults to false -->
+   <security-caches>true</security-caches> <!-- defaults to false -->
    <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.LoggingMetricsPlugin"/>
 </metrics>
 ----

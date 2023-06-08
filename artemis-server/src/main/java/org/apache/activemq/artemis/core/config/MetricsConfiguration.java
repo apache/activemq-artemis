@@ -31,6 +31,7 @@ public class MetricsConfiguration implements Serializable {
    private boolean processor = ActiveMQDefaultConfiguration.getDefaultProcessorMetrics();
    private boolean uptime = ActiveMQDefaultConfiguration.getDefaultUptimeMetrics();
    private boolean logging = ActiveMQDefaultConfiguration.getDefaultLoggingMetrics();
+   private boolean securityCaches = ActiveMQDefaultConfiguration.getDefaultSecurityCacheMetrics();
    private ActiveMQMetricsPlugin plugin;
 
    public boolean isJvmMemory() {
@@ -111,6 +112,15 @@ public class MetricsConfiguration implements Serializable {
 
    public MetricsConfiguration setPlugin(ActiveMQMetricsPlugin plugin) {
       this.plugin = plugin;
+      return this;
+   }
+
+   public boolean isSecurityCaches() {
+      return securityCaches;
+   }
+
+   public MetricsConfiguration setSecurityCaches(boolean securityCaches) {
+      this.securityCaches = securityCaches;
       return this;
    }
 }

@@ -157,5 +157,7 @@ public class DefaultsFileConfigurationTest extends AbstractConfigurationTestBase
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultUptimeMetrics(), conf.getMetricsConfiguration().isUptime());
 
       Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultLoggingMetrics(), conf.getMetricsConfiguration().isLogging());
+
+      Assert.assertEquals(ActiveMQDefaultConfiguration.getDefaultSecurityCacheMetrics(), conf.getMetricsConfiguration().isSecurityCaches());
    }
 }

@@ -1800,6 +1800,26 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          public void clearAuthorizationCache() throws Exception {
             proxy.invokeOperation("clearAuthorizationCache");
          }
+
+         @Override
+         public long getAuthenticationSuccessCount() {
+            return (long) proxy.retrieveAttributeValue("authenticationSuccessCount");
+         }
+
+         @Override
+         public long getAuthenticationFailureCount() {
+            return (long) proxy.retrieveAttributeValue("authenticationFailureCount");
+         }
+
+         @Override
+         public long getAuthorizationSuccessCount() {
+            return (long) proxy.retrieveAttributeValue("authorizationSuccessCount");
+         }
+
+         @Override
+         public long getAuthorizationFailureCount() {
+            return (long) proxy.retrieveAttributeValue("authorizationFailureCount");
+         }
       };
    }
 
