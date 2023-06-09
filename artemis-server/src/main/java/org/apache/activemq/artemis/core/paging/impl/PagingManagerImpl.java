@@ -580,7 +580,12 @@ public final class PagingManagerImpl implements PagingManager {
       Map<Long, PageTransactionInfo> transactionsSet = new LongObjectHashMap();
       // making a copy
       transactions.forEach(transactionsSet::put);
-      transactionsSet.forEach((a, b) -> System.out.println(a + " = " + b));
+
+      if (logger.isDebugEnabled()) {
+         logger.debug("Page Transactions during rebuildCounters:");
+         transactionsSet.forEach((a, b) -> logger.debug("{} = {}", a, b));
+      }
+
       stores.forEach((address, pgStore) -> {
          PageCounterRebuildManager rebuildManager = new PageCounterRebuildManager(this, pgStore, transactionsSet, storedLargeMessages);
          logger.debug("Setting destination {} to rebuild counters", address);
