@@ -512,6 +512,56 @@
                      </args>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-database-paging</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <instance>${basedir}/target/database-paging/derby</instance>
+                     <configuration>${basedir}/target/classes/servers/database-paging/derby</configuration>
+                     <libList>
+                        <arg>org.apache.derby:derby:${apache.derby.version}</arg>
+                     </libList>
+                     <args>
+                        <arg>--jdbc</arg>
+                        <arg>--global-max-messages</arg>
+                        <arg>100</arg>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-database-paging-mysql</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <instance>${basedir}/target/database-paging/mysql</instance>
+                     <configuration>${basedir}/target/classes/servers/database-paging/mysql</configuration>
+                     <libListWithDeps>
+                        <arg>com.mysql:mysql-connector-j:8.0.33</arg>
+                     </libListWithDeps>
+                     <args>
+                        <arg>--jdbc</arg>
+                        <arg>--jdbc-connection-url</arg>
+                        <arg>jdbc:mysql://localhost/ARTEMIS-TEST?user=root&#38;#38;password=artemis</arg>
+                        <arg>--jdbc-driver-class-name</arg>
+                        <arg>com.mysql.cj.jdbc.Driver</arg>
+                        <arg>--global-max-messages</arg>
+                        <arg>100</arg>
+                        <arg>--java-options</arg>
+                        <arg>-ea</arg>
+                     </args>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
 
