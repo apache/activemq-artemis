@@ -18,5 +18,5 @@
 
 # This script shows a simple way to start a mysql with podman
 
-./stop-mysql-podman.sh
-podman run -d -p 3306:3306 --name mysql-artemis-test --rm -e MYSQL_ROOT_PASSWORD=artemis -e MYSQL_USER=artemis -e MYSQL_PASSWORD=artemis -e MYSQL_DATABASE=ARTEMIS-TEST mysql:8
+./stop-postgres-podman.sh
+podman run --name postgres-artemis-test --rm -d -e POSTGRES_USER=artemis -e POSTGRES_PASSWORD=artemis -e POSTGRES_DB=artemis -p 5432:5432 -p 9876:80 postgres
