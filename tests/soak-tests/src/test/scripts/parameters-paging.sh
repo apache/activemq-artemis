@@ -16,13 +16,11 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# this script contains a suggest set of variables to run the HorizontalPagingTest in a medium environment and hit some issues we used to have with paging
+# this script contains a suggest set of variables to run the soak tests.
 
 ## Generic variable:
-# It is possible to save the producer's time. If you set this variable the test will reuse previously sent data by zip and unzipping the data folder
+# Some tests will support saving the producer's state before consumption. If you set this variable these tests will hold a zip file and recover it approprieatedly.
 #export TEST_ZIP_LOCATION=~/zipTest/
-
-echo "parameters-paging has been deprecated, please use parameters.sh"
 
 #HorizontalPagingTest
 
@@ -101,7 +99,9 @@ export TEST_OW_LEAK_OPENWIRE_MESSAGE_SIZE=2000000
 export TEST_OW_LEAK_PRINT_INTERVAL=1
 
 #DatabasePagingTest
-export TEST_PGDB_USE_MYSQL=false
+export TEST_PGDB_DB_LIST=derby
+# use this to allow all the databases
+#export TEST_PGDB_DB_LIST=derby,postgres,mysql
 export TEST_PGDB_MAX_MESSAGES=500
 export TEST_PGDB_MESSAGE_SIZE=100
 export TEST_PGDB_COMMIT_INTERVAL=50
