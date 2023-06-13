@@ -270,6 +270,11 @@ public final class BindingsImpl implements Bindings {
          logger.debug("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
       }
       copyRedistribute.setAddress(message.getAddress());
+      for (SimpleString property : copyRedistribute.getPropertyNames()) {
+         if (property.startsWith(Message.HDR_ROUTE_TO_IDS)) {
+            copyRedistribute.removeProperty(property);
+         }
+      }
 
       if (context.getTransaction() == null) {
          context.setTransaction(new TransactionImpl(storageManager));
