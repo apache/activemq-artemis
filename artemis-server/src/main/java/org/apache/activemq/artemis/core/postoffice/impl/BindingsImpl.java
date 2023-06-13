@@ -269,7 +269,9 @@ public final class BindingsImpl implements Bindings {
       if (logger.isDebugEnabled()) {
          logger.debug("Message {} being copied as {}", message.getMessageID(), copyRedistribute.getMessageID());
       }
+
       copyRedistribute.setAddress(message.getAddress());
+      copyRedistribute.clearInternalProperties();
 
       if (context.getTransaction() == null) {
          context.setTransaction(new TransactionImpl(storageManager));
