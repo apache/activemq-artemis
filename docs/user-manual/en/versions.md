@@ -9,10 +9,10 @@ This chapter provides the following information for each release:
     chapter in addition to any version-specific upgrade instructions outlined here.
 
 ## 2.29.0
-[Full release notes](...)
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352880&projectId=12315920)
 
 Highlights:
-- ...
+- This version underwent extensive testing and fixes regarding Large Messages, with a few JIRAs dedicated to this topic. Look on the [release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352880&projectId=12315920) for more information.
 
 #### Upgrading from older versions
 * Due to [ARTEMIS-4151](https://issues.apache.org/jira/browse/ARTEMIS-4151) the default access for MBeans not defined in
