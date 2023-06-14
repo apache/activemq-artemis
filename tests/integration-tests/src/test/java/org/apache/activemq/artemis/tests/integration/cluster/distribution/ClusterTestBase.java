@@ -630,6 +630,17 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                               boolean autoCommitAcks,
                               final String user,
                               final String password) throws Exception {
+      addConsumer(consumerID, node, queueName, filterVal, autoCommitAcks, user, password, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE);
+   }
+
+   protected void addConsumer(final int consumerID,
+                              final int node,
+                              final String queueName,
+                              final String filterVal,
+                              boolean autoCommitAcks,
+                              final String user,
+                              final String password,
+                              final int ackBatchSize) throws Exception {
       try {
          if (consumers[consumerID] != null) {
             throw new IllegalArgumentException("Already a consumer at " + node);
@@ -641,7 +652,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
             throw new IllegalArgumentException("No sf at " + node);
          }
 
-         ClientSession session = addClientSession(sf.createSession(user, password, false, false, autoCommitAcks, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE));
+         ClientSession session = addClientSession(sf.createSession(user, password, false, false, autoCommitAcks, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ackBatchSize));
 
          String filterString = null;
 
