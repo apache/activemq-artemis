@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.activemq.artemis.api.core.ActiveMQAddressFullException;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
@@ -456,7 +457,13 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
       }
    }
 
-   // Consumer implementation ---------------------------------------
+   @Override
+   public void sendFailed(Message message, Exception e) {
+      if (e instanceof ActiveMQAddressFullException) {
+         logger.warn(e.getMessage(), e);
+         failed(e);
+      }
+   }
 
    @Override
    public void sendAcknowledged(final Message message) {
@@ -713,8 +720,6 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
 
    @Override
    public void beforeReconnect(final ActiveMQException exception) {
-      // log.warn("{}::Connection failed before reconnect ", name, exception);
-      // fail(false);
    }
 
    private void deliverLargeMessage(final SimpleString dest,
