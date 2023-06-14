@@ -21,7 +21,7 @@
    <parent>
       <groupId>org.apache.activemq.tests</groupId>
       <artifactId>artemis-tests-pom</artifactId>
-      <version>2.29.0-SNAPSHOT</version>
+      <version>2.29.0</version>
    </parent>
 
    <artifactId>soak-tests</artifactId>
@@ -552,7 +552,7 @@
                      <args>
                         <arg>--jdbc</arg>
                         <arg>--jdbc-connection-url</arg>
-                        <arg>jdbc:mysql://localhost/ARTEMIS-TEST?user=root&#38;#38;password=artemis</arg>
+                        <arg>jdbc:mysql://localhost/ARTEMIS-TEST?user=root&amp;#38;password=artemis</arg>
                         <arg>--jdbc-driver-class-name</arg>
                         <arg>com.mysql.cj.jdbc.Driver</arg>
                         <arg>--global-max-messages</arg>
@@ -579,7 +579,7 @@
                   <args>
                      <arg>--jdbc</arg>
                      <arg>--jdbc-connection-url</arg>
-                     <arg>jdbc:postgresql:artemis?user=artemis&#38;#38;password=artemis</arg>
+                     <arg>jdbc:postgresql:artemis?user=artemis&amp;#38;password=artemis</arg>
                      <arg>--jdbc-driver-class-name</arg>
                      <arg>org.postgresql.Driver</arg>
                      <arg>--global-max-messages</arg>

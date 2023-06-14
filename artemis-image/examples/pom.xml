@@ -15,14 +15,13 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.29.0-SNAPSHOT</version>
+      <version>2.29.0</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
 
@@ -39,7 +38,7 @@
       <example.user>A</example.user>
       <!-- a password must be provided to generate the user credential data.
          use: mvn exec:exec -Dexample.pwd=xyz on the command line to register your value in the example.user.file -->
-      <example.pwd></example.pwd>
+      <example.pwd />
       <example.user.file>amqp_sasl_scram_test__etc/user</example.user.file>
    </properties>
 
@@ -63,7 +62,7 @@
                <executable>java</executable>
                <arguments>
                   <argument>-classpath</argument>
-                  <classpath/>
+                  <classpath />
                   <argument>org.apache.activemq.artemis.spi.core.security.jaas.SCRAMPropertiesLoginModule</argument>
                   <argument>${example.user}</argument>
                   <argument>${example.pwd}</argument>
