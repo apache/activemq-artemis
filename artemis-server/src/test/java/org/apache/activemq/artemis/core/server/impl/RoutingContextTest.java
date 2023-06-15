@@ -743,6 +743,11 @@ public class RoutingContextTest {
       }
 
       @Override
+      public long getPendingMessageCount() {
+         return 0;
+      }
+
+      @Override
       public Collection<Consumer> getConsumers() {
          return null;
       }

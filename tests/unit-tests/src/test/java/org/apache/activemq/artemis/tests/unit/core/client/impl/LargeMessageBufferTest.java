@@ -33,6 +33,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.MessageHandler;
@@ -815,6 +816,15 @@ public class LargeMessageBufferTest extends ActiveMQTestBase {
       @Override
       public long getForceDeliveryCount() {
          return 0;
+      }
+
+      @Override
+      public ClientConsumer setManualFlowMessageHandler(MessageHandler handler) throws ActiveMQException {
+         return null;
+      }
+
+      @Override
+      public void resetIfSlowConsumer() {
       }
 
       /* (non-Javadoc)

@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQInterruptedException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
@@ -133,6 +134,7 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
    private volatile boolean ackIndividually;
 
    private final ClassLoader contextClassLoader;
+   private volatile boolean manualFlowManagement;
 
    public ClientConsumerImpl(final ClientSessionInternal session,
                              final ConsumerContext consumerContext,
@@ -406,6 +408,13 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       return receiverThread;
    }
 
+   @Override
+   public ClientConsumer setManualFlowMessageHandler(final MessageHandler theHandler) throws ActiveMQException {
+      checkClosed();
+      this.handler = theHandler;
+      this.manualFlowManagement = true;
+      return this;
+   }
 
    // Must be synchronized since messages may be arriving while handler is being set and might otherwise end
    // up not queueing enough executors - so messages get stranded
@@ -849,7 +858,8 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
       }
    }
 
-   private void resetIfSlowConsumer() {
+   @Override
+   public void resetIfSlowConsumer() {
       if (clientWindowSize == 0) {
          sendCredits(0);
 
@@ -1041,6 +1051,9 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
     * @throws ActiveMQException
     */
    private void flowControlBeforeConsumption(final ClientMessageInternal message) throws ActiveMQException {
+      if (manualFlowManagement) {
+         return;
+      }
       // Chunk messages will execute the flow control while receiving the chunks
       if (message.getFlowControlSize() != 0) {
          // on large messages we should discount 1 on the first packets as we need continuity until the last packet
