@@ -518,6 +518,7 @@ public class RedeployTest extends ActiveMQTestBase {
             MessageProducer producer = session.createProducer(queue);
             producer.send(session.createMessage());
             Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-to").getMessageCount());
+            Wait.assertEquals(3, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-from").getConsumerCount());
          }
 
          try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
@@ -543,6 +544,7 @@ public class RedeployTest extends ActiveMQTestBase {
             producer.send(session.createMessage());
             Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-new").getMessageCount());
             Wait.assertEquals(1, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-to").getMessageCount());
+            Wait.assertEquals(2, () -> embeddedActiveMQ.getActiveMQServer().locateQueue("a-from").getConsumerCount());
          }
 
          try (ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory();
