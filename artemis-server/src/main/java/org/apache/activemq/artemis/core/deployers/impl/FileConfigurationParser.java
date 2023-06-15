@@ -1301,11 +1301,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setPageCacheMaxSize(XMLUtil.parseInt(child));
          } else if (PAGE_LIMIT_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             long pageLimitBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
-            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(PAGE_LIMIT_BYTES_NODE_NAME, pageLimitBytes);
+            Validators.MINUS_ONE_OR_GT_ZERO.validate(PAGE_LIMIT_BYTES_NODE_NAME, pageLimitBytes);
             addressSettings.setPageLimitBytes(pageLimitBytes);
          } else if (PAGE_LIMIT_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
-            long pageLimitMessages = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
-            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(PAGE_LIMIT_MESSAGES_NODE_NAME, pageLimitMessages);
+            long pageLimitMessages = XMLUtil.parseLong(child);
+            Validators.MINUS_ONE_OR_GT_ZERO.validate(PAGE_LIMIT_MESSAGES_NODE_NAME, pageLimitMessages);
             addressSettings.setPageLimitMessages(pageLimitMessages);
          } else if (MESSAGE_COUNTER_HISTORY_DAY_LIMIT_NODE_NAME.equalsIgnoreCase(name)) {
             addressSettings.setMessageCounterHistoryDayLimit(XMLUtil.parseInt(child));
