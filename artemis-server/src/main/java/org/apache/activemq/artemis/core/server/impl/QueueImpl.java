@@ -1621,7 +1621,8 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
       return createdTimestamp;
    }
 
-   public long getMessageCountForRing() {
+   @Override
+   public long getPendingMessageCount() {
       return (long) pendingMetrics.getMessageCount();
    }
 
@@ -4610,7 +4611,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    private void enforceRing(MessageReference refToAck, boolean scheduling, boolean head) {
       int adjustment = head ? 1 : 0;
 
-      if (getMessageCountForRing() + adjustment > ringSize) {
+      if (getPendingMessageCount() + adjustment > ringSize) {
          refToAck = refToAck == null ? messageReferences.poll() : refToAck;
 
          if (refToAck != null) {

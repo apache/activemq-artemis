@@ -389,6 +389,8 @@ public interface Queue extends Bindable,CriticalComponent {
 
    boolean hasMatchingConsumer(Message message);
 
+   long getPendingMessageCount();
+
    Collection<Consumer> getConsumers();
 
    Map<SimpleString, Consumer> getGroups();

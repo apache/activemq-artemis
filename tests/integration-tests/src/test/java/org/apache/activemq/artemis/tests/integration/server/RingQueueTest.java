@@ -187,15 +187,15 @@ public class RingQueueTest extends ActiveMQTestBase {
       m0.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m0);
       Wait.assertTrue(() -> queue.getScheduledCount() == 1);
-      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0);
+      Wait.assertTrue(() -> ((QueueImpl) queue).getPendingMessageCount() == 0);
       time = System.currentTimeMillis();
       time += 500;
       m0.putLongProperty(Message.HDR_SCHEDULED_DELIVERY_TIME, time);
       producer.send(m0);
       Wait.assertTrue(() -> queue.getScheduledCount() == 2);
-      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 0);
+      Wait.assertTrue(() -> ((QueueImpl) queue).getPendingMessageCount() == 0);
       Wait.assertTrue(() -> queue.getMessagesReplaced() == 1);
-      Wait.assertTrue(() -> ((QueueImpl) queue).getMessageCountForRing() == 1);
+      Wait.assertTrue(() -> ((QueueImpl) queue).getPendingMessageCount() == 1);
    }
 
    @Test

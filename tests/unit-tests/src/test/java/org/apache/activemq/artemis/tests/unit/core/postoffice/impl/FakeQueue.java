@@ -882,6 +882,11 @@ public class FakeQueue extends CriticalComponentImpl implements Queue {
    }
 
    @Override
+   public long getPendingMessageCount() {
+      return 0;
+   }
+
+   @Override
    public Executor getExecutor() {
       // no-op
       return null;

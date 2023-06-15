@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.federation;
 
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -25,20 +26,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.api.core.client.ClientConsumer;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
+import org.apache.activemq.artemis.core.client.impl.ClientConsumerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientLargeMessageInternal;
+import org.apache.activemq.artemis.core.client.impl.ClientMessageInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
+import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.activemq.artemis.api.core.client.ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE;
 import static org.apache.activemq.artemis.core.client.impl.LargeMessageControllerImpl.LargeData;
 
 public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, SessionFailureListener {
@@ -60,7 +64,9 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
 
    private ClientSessionFactoryInternal clientSessionFactory;
    private ClientSession clientSession;
-   private ClientConsumer clientConsumer;
+   private ClientConsumerInternal clientConsumer;
+   private final AtomicInteger pendingPullCredit = new AtomicInteger();
+   private QueueHandle queueHandle;
 
    public FederatedQueueConsumerImpl(Federation federation, ActiveMQServer server, Transformer transformer, FederatedConsumerKey key, FederationUpstream upstream, ClientSessionCallback clientSessionCallback) {
       this.federation = federation;
@@ -135,9 +141,16 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
                if (clientSessionCallback != null) {
                   clientSessionCallback.callback(clientSession);
                }
-               if (clientSession.queueQuery(key.getQueueName()).isExists()) {
-                  this.clientConsumer = clientSession.createConsumer(key.getQueueName(), key.getFilterString(), key.getPriority(), false);
-                  this.clientConsumer.setMessageHandler(this);
+               ClientSession.QueueQuery queryResult = clientSession.queueQuery(key.getQueueName());
+               if (queryResult.isExists()) {
+                  this.clientConsumer = (ClientConsumerInternal) clientSession.createConsumer(key.getQueueName(), key.getFilterString(), key.getPriority(), false);
+                  if (this.clientConsumer.getClientWindowSize() == 0) {
+                     this.clientConsumer.setManualFlowMessageHandler(this);
+                     queueHandle = createQueueHandle(server, queryResult);
+                     scheduleCreditOnEmpty(0, queueHandle);
+                  } else {
+                     this.clientConsumer.setMessageHandler(this);
+                  }
                } else {
                   throw new ActiveMQNonExistentQueueException("Queue " + key.getQueueName() + " does not exist on remote");
                }
@@ -152,6 +165,75 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
             }
             throw e;
          }
+      }
+   }
+
+   interface QueueHandle {
+      long getMessageCount();
+      int getCreditWindow();
+
+      Executor getExecutor();
+   }
+
+   private QueueHandle createQueueHandle(ActiveMQServer server, ClientSession.QueueQuery queryResult) {
+      final Queue queue = server.locateQueue(queryResult.getName());
+      int creditWindow = DEFAULT_CONSUMER_WINDOW_SIZE;
+
+      final Integer defaultConsumerWindowSize = queryResult.getDefaultConsumerWindowSize();
+      if (defaultConsumerWindowSize != null) {
+         creditWindow = defaultConsumerWindowSize.intValue();
+         if (creditWindow <= 0) {
+            creditWindow = DEFAULT_CONSUMER_WINDOW_SIZE;
+            logger.trace("{} override non positive queue consumerWindowSize with {}.", this, creditWindow);
+         }
+      }
+
+      final int finalCreditWindow = creditWindow;
+      return new QueueHandle() {
+         @Override
+         public long getMessageCount() {
+            return queue.getPendingMessageCount();
+         }
+
+         @Override
+         public int getCreditWindow() {
+            return finalCreditWindow;
+         }
+
+         @Override
+         public Executor getExecutor() {
+            return queue.getExecutor();
+         }
+      };
+   }
+
+   private void scheduleCreditOnEmpty(final int delay, final QueueHandle handle) {
+      scheduledExecutorService.schedule(() -> {
+         // use queue executor to sync on message count metric
+         handle.getExecutor().execute(() -> {
+            if (clientConsumer != null) {
+               if (0L == handle.getMessageCount()) {
+                  flow(handle.getCreditWindow());
+                  pendingPullCredit.set(handle.getCreditWindow());
+               } else {
+                  if (0 == delay) {
+                     clientConsumer.resetIfSlowConsumer();
+                     pendingPullCredit.set(0);
+                  }
+                  scheduleCreditOnEmpty(FederatedQueueConsumer.getNextDelay(delay, intialConnectDelayMultiplier, intialConnectDelayMax), handle);
+               }
+            }
+         });
+      }, delay, TimeUnit.SECONDS);
+   }
+
+   private void flow(int creditWindow) {
+      try {
+         if (this.clientConsumer != null) {
+            this.clientConsumer.flowControl(creditWindow, false);
+         }
+      } catch (ActiveMQException ignored) {
+         logger.trace("{} failed to flowControl with credit {}.", this, creditWindow, ignored);
       }
    }
 
@@ -224,6 +306,13 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
             server.getPostOffice().route(message, true);
          }
          clientMessage.acknowledge();
+
+         if (pendingPullCredit.get() > 0) {
+            final int delta = ((ClientMessageInternal) clientMessage).getFlowControlSize();
+            if (pendingPullCredit.addAndGet(-delta) < 0) {
+               scheduleCreditOnEmpty(0, queueHandle);
+            }
+         }
 
          if (server.hasBrokerFederationPlugins()) {
             try {
