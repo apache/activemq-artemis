@@ -4619,34 +4619,49 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          deployQueuesFromListQueueConfiguration(configuration.getQueueConfigs());
 
          ActiveMQServerLogger.LOGGER.reloadingConfiguration("bridges");
+
          for (BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
-            newBridgeConfig.setParentName(newBridgeConfig.getName());
-            Bridge existingBridge = clusterManager.getBridges().get(newBridgeConfig.getParentName());
-            if (existingBridge != null && !existingBridge.getConfiguration().equals(newBridgeConfig) && existingBridge.getConfiguration().isConfigurationManaged()) {
+
+            String bridgeName = newBridgeConfig.getName();
+            newBridgeConfig.setParentName(bridgeName);
+
+            //Look for bridges with matching parentName. Only need first match in case of concurrent bridges
+            Bridge existingBridge = clusterManager.getBridges().values().stream()
+               .filter(bridge -> bridge.getConfiguration().getParentName().equals(bridgeName))
+               .findFirst()
+               .orElse(null);
+
+            if (existingBridge != null && existingBridge.getConfiguration().isConfigurationManaged() && !existingBridge.getConfiguration().equals(newBridgeConfig)) {
                // this is an existing bridge but the config changed so stop the current bridge and deploy the new one
-               destroyBridge(existingBridge.getName().toString());
+               destroyBridge(bridgeName);
                deployBridge(newBridgeConfig);
             } else if (existingBridge == null) {
                // this is a new bridge
                deployBridge(newBridgeConfig);
             }
+
          }
-         for (final Bridge existingBridge: clusterManager.getBridges().values()) {
+
+         //Look for already running bridges no longer in configuration, stop if found
+         for (final Bridge existingBridge : clusterManager.getBridges().values()) {
             BridgeConfiguration existingBridgeConfig = existingBridge.getConfiguration();
-            boolean destroy = true;
-            for (final BridgeConfiguration newBridgeConfig : configuration.getBridgeConfigurations()) {
-               if (existingBridgeConfig.isConfigurationManaged() && (existingBridgeConfig.getParentName().equals(newBridgeConfig.getName()) || existingBridgeConfig.getName().equals(newBridgeConfig.getName()) )) {
-                  destroy = false;
-                  break;
+
+            if (existingBridgeConfig.isConfigurationManaged()) {
+               String existingBridgeName = existingBridgeConfig.getParentName();
+
+               boolean noLongerConfigured = configuration.getBridgeConfigurations().stream()
+                  .noneMatch(bridge -> bridge.getParentName().equals(existingBridgeName));
+
+               if (noLongerConfigured) {
+                  destroyBridge(existingBridgeName);
                }
             }
-            if (destroy) {
-               // this bridge is running but it isn't in the new config which means it was removed so destroy it
-               destroyBridge(existingBridge.getConfiguration().getParentName());
-            }
+
          }
-         recoverStoredConnectors();
+
          recoverStoredBridges();
+         recoverStoredConnectors();
+
       }
    }
 

@@ -275,6 +275,9 @@ public final class BridgeConfiguration implements Serializable {
     */
    public BridgeConfiguration setName(final String name) {
       this.name = name;
+      if (this.parentName == null) {
+         this.parentName = name;
+      }
       return this;
    }
 
@@ -769,7 +772,7 @@ public final class BridgeConfiguration implements Serializable {
       if (name == null) {
          if (other.name != null)
             return false;
-      } else if (!name.equals(other.name))
+      } else if (!parentName.equals(other.parentName))
          return false;
       if (password == null) {
          if (other.password != null)
