@@ -51,7 +51,7 @@ e.g. as many messages as possible are consumed from the same broker as they were
 
 * Dual Federation - potential for messages to flip-flop between clusters.
   If the backlog on your queues exceeds the available local credit across consumers, any lower priority federation consumer becomes a candidate for dispatch and messages will be federated. Eventually all messages may migrate and the scenario can repeat on the other cluster. Applying a rate limit to the connector url can help mitigate but this could have an adverse effect on migration when there are no local consumers.
-  To better support this use case, it is possible to configure the consumerWindowSize to zero on the referenced connector URI: ```tcp://<host>:<port>?consumerWindowSize=0```. This will cause the federation consumer to pull messages in batches only when the local queue has excess capacity. This means that federation won't ever drain more messaces than it can handle, such that messages would flip-flop. The batch size is derived from the relevant address settings defaultConsumerWindowSize.
+  To better support this use case, it is possible to configure the consumerWindowSize to zero on the referenced connector URI: ```tcp://<host>:<port>?consumerWindowSize=0```. This will cause the federation consumer to pull messages in batches only when the local queue has excess capacity. This means that federation won't ever drain more messages than it can handle, such that messages would flip-flop. The batch size is derived from the relevant address settings defaultConsumerWindowSize.
 
 ## Configuring Queue Federation
 
