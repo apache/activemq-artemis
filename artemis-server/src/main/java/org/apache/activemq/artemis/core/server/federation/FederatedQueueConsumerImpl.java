@@ -208,23 +208,29 @@ public class FederatedQueueConsumerImpl implements FederatedQueueConsumer, Sessi
    }
 
    private void scheduleCreditOnEmpty(final int delay, final QueueHandle handle) {
-      scheduledExecutorService.schedule(() -> {
-         // use queue executor to sync on message count metric
-         handle.getExecutor().execute(() -> {
-            if (clientConsumer != null) {
-               if (0L == handle.getMessageCount()) {
-                  flow(handle.getCreditWindow());
-                  pendingPullCredit.set(handle.getCreditWindow());
-               } else {
-                  if (0 == delay) {
-                     clientConsumer.resetIfSlowConsumer();
-                     pendingPullCredit.set(0);
-                  }
-                  scheduleCreditOnEmpty(FederatedQueueConsumer.getNextDelay(delay, intialConnectDelayMultiplier, intialConnectDelayMax), handle);
+
+      Runnable runnable = () -> {
+         if (clientConsumer != null) {
+            if (0L == handle.getMessageCount()) {
+               flow(handle.getCreditWindow());
+               pendingPullCredit.set(handle.getCreditWindow());
+            } else {
+               if (0 == delay) {
+                  clientConsumer.resetIfSlowConsumer();
+                  pendingPullCredit.set(0);
                }
+               scheduleCreditOnEmpty(FederatedQueueConsumer.getNextDelay(delay, intialConnectDelayMultiplier, intialConnectDelayMax), handle);
             }
-         });
-      }, delay, TimeUnit.SECONDS);
+         }
+      };
+
+      if (delay == 0) { // if delay==0 just use the executor directly
+         handle.getExecutor().execute(runnable);
+      } else {
+         scheduledExecutorService.schedule(() -> {
+            handle.getExecutor().execute(runnable);
+         }, delay, TimeUnit.SECONDS);
+      }
    }
 
    private void flow(int creditWindow) {
