@@ -157,7 +157,7 @@ under the License.
          <!-- amqpDuplicateDetection: If you are not using duplicate detection, set this to false
                                       as duplicate detection requires applicationProperties to be parsed on the server. -->
          <!-- amqpMinLargeMessageSize: Determines how many bytes are considered large, so we start using files to hold their data.
-                                       default: 102400, -1 would mean to disable large mesasge control -->
+                                       default: 102400, -1 would mean to disable large message control -->
 
          <!-- Note: If an acceptor needs to be compatible with HornetQ and/or Artemis 1.x clients add
                     "anycastPrefix=jms.queue.;multicastPrefix=jms.topic." to the acceptor url.
