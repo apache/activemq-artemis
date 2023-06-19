@@ -609,17 +609,17 @@ public class TypedProperties {
             if (theValue == null) {
                sb.append("NULL-value");
             } else if (theValue instanceof byte[]) {
-               sb.append("[" + ByteUtil.maxString(ByteUtil.bytesToHex((byte[]) theValue, 2), 150) + ")");
+               sb.append("[" + ByteUtil.maxString(ByteUtil.bytesToHex((byte[]) theValue, 2), 150) + "]");
 
                if (iterItem.getKey().toString().startsWith("_AMQ_ROUTE_TO")) {
-                  sb.append(",bytesAsLongs(");
+                  sb.append(", bytesAsLongs[");
                   try {
                      ByteBuffer buff = ByteBuffer.wrap((byte[]) theValue);
                      while (buff.hasRemaining()) {
                         long bindingID = buff.getLong();
                         sb.append(bindingID);
                         if (buff.hasRemaining()) {
-                           sb.append(",");
+                           sb.append(", ");
                         }
                      }
                   } catch (Throwable e) {
@@ -632,7 +632,7 @@ public class TypedProperties {
             }
 
             if (iter.hasNext()) {
-               sb.append(",");
+               sb.append(", ");
             }
          }
       }
