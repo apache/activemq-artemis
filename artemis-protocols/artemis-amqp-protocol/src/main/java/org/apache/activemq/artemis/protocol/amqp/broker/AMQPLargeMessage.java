@@ -398,7 +398,7 @@ public class AMQPLargeMessage extends AMQPMessage implements LargeServerMessage 
          parsingBuffer = null;
       } catch (RuntimeException expected) {
          // this would mean the buffer is not complete yet, so we keep parsing it, until we can get enough bytes
-         logger.debug("The buffer for AMQP Large Mesasge was probably not complete, so an exception eventually would be expected", expected);
+         logger.debug("The buffer for AMQP Large Message was probably not complete, so an exception eventually would be expected", expected);
       }
    }
 

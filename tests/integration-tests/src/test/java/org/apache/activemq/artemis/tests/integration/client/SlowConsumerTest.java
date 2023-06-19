@@ -438,7 +438,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setSlowConsumerCheckPeriod(2);
       addressSettings.setSlowConsumerThresholdMeasurementUnit(MESSAGES_PER_DAY);
-      addressSettings.setSlowConsumerThreshold(TimeUnit.DAYS.toSeconds(1)); // one mesasge per second
+      addressSettings.setSlowConsumerThreshold(TimeUnit.DAYS.toSeconds(1)); // one message per second
       addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       server.getAddressSettingsRepository().removeMatch(QUEUE.toString());
@@ -480,7 +480,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setSlowConsumerCheckPeriod(2);
       addressSettings.setSlowConsumerThresholdMeasurementUnit(MESSAGES_PER_DAY);
-      addressSettings.setSlowConsumerThreshold(TimeUnit.DAYS.toSeconds(1)); // one mesasge per second
+      addressSettings.setSlowConsumerThreshold(TimeUnit.DAYS.toSeconds(1)); // one message per second
       addressSettings.setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE);
       addressSettings.setMaxSizeBytes(10 * 1024);
       addressSettings.setPageSizeBytes(1024);
@@ -531,7 +531,7 @@ public class SlowConsumerTest extends ActiveMQTestBase {
       AddressSettings addressSettings = new AddressSettings();
       addressSettings.setSlowConsumerCheckPeriod(2);
       addressSettings.setSlowConsumerThresholdMeasurementUnit(MESSAGES_PER_DAY);
-      addressSettings.setSlowConsumerThreshold(TimeUnit.DAYS.toSeconds(1)); // one mesasge per second
+      addressSettings.setSlowConsumerThreshold(TimeUnit.DAYS.toSeconds(1)); // one message per second
       addressSettings.setSlowConsumerPolicy(SlowConsumerPolicy.KILL);
 
       server.getAddressSettingsRepository().removeMatch(QUEUE.toString());

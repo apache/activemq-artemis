@@ -46,7 +46,7 @@ under the License.
 
       <large-messages-directory>./data/large-messages</large-messages-directory>
 
-      
+
       <!-- if you want to retain your journal uncomment this following configuration.
 
       This will allow your system to keep 7 days of your data, up to 10G. Tweak it accordingly to your use case and capacity.
@@ -118,7 +118,7 @@ under the License.
 
       <critical-analyzer-policy>HALT</critical-analyzer-policy>
 
-      
+
 
       <!-- the system will enter into page mode once you hit this limit. This is an estimate in bytes of how much the messages are using in memory
 
@@ -139,7 +139,7 @@ under the License.
          <!-- amqpDuplicateDetection: If you are not using duplicate detection, set this to false
                                       as duplicate detection requires applicationProperties to be parsed on the server. -->
          <!-- amqpMinLargeMessageSize: Determines how many bytes are considered large, so we start using files to hold their data.
-                                       default: 102400, -1 would mean to disable large mesasge control -->
+                                       default: 102400, -1 would mean to disable large message control -->
 
          <!-- Note: If an acceptor needs to be compatible with HornetQ and/or Artemis 1.x clients add
                     "anycastPrefix=jms.queue.;multicastPrefix=jms.topic." to the acceptor url.

@@ -89,7 +89,7 @@ However if you really do want to close a group you can add a negative sequence n
 
 Example:
 ```java
-Mesasge message = session.createTextMessage("<foo>hey</foo>");
+Message message = session.createTextMessage("<foo>hey</foo>");
 message.setStringProperty("JMSXGroupID", "Group-0");
 message.setIntProperty("JMSXGroupSeq", -1);
 ...
