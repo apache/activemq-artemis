@@ -30,13 +30,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Arguments;
+import com.github.rvesse.airline.annotations.Option;
+import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.cli.CLIException;
 
 public class InstallAbstract extends InputAbstract {
 
-   @Arguments(description = "The instance directory to hold the broker's configuration and data. Path must be writable.", required = true)
+   @Arguments(description = "The instance directory to hold the broker's configuration and data. Path must be writable.")
+   @Required
    protected File directory;
 
    @Option(name = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")

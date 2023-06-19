@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
 
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.Configurable;
 
 /**

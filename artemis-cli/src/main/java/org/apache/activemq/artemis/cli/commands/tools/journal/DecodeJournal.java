@@ -27,8 +27,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
+import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
@@ -51,7 +52,8 @@ public class DecodeJournal extends LockAbstract {
    @Option(name = "--file-size", description = "The journal size. Default: 10485760.")
    public int size = 10485760;
 
-   @Option(name = "--input", description = "The input file name. Default: exp.dmp.", required = true)
+   @Option(name = "--input", description = "The input file name. Default: exp.dmp.")
+   @Required
    public String input = "exp.dmp";
 
    @Override

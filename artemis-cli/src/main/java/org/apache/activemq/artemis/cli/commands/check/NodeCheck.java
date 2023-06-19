@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.cli.commands.check;
 
 import java.util.ArrayList;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.NodeInfo;
 
 @Command(name = "node", description = "Check a node.")

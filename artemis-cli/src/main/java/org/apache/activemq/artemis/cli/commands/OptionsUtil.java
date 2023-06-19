@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Option;
 
 public class OptionsUtil {
 

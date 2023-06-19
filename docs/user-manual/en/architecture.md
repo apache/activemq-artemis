@@ -60,14 +60,14 @@ Artemis server. User Application 1 is using the JMS API, while User Application
 You can see from the diagram that the JMS API is implemented by a thin facade
 layer on the client side.
 
-## Stand-alone Broker
+## Standalone Broker
 
 The normal stand-alone messaging broker configuration comprises a core
 messaging broker and a number of protocol managers that provide support for the
 various protocol mentioned earlier.
 
-The stand-alone broker configuration uses
-[Airline](https://github.com/airlift/airline) for bootstrapping the Broker.
+The standalone broker configuration uses
+[Airline](http://rvesse.github.io/airline/) for bootstrapping the Broker.
 
 The stand-alone broker architecture is shown in figure 3.3 below:
 

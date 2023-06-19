@@ -17,15 +17,15 @@
 
 package org.apache.activemq.artemis.cli.commands;
 
-import javax.inject.Inject;
 import java.io.File;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Help;
-import io.airlift.airline.Option;
-import io.airlift.airline.model.CommandGroupMetadata;
-import io.airlift.airline.model.CommandMetadata;
-import io.airlift.airline.model.GlobalMetadata;
+import com.github.rvesse.airline.annotations.AirlineModule;
+import com.github.rvesse.airline.annotations.Arguments;
+import com.github.rvesse.airline.annotations.Option;
+import com.github.rvesse.airline.help.Help;
+import com.github.rvesse.airline.model.CommandGroupMetadata;
+import com.github.rvesse.airline.model.CommandMetadata;
+import com.github.rvesse.airline.model.GlobalMetadata;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
@@ -36,6 +36,8 @@ import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -51,8 +53,8 @@ public abstract class Configurable extends ActionAbstract {
    @Option(name = "--broker", description = "Override the broker configuration from the bootstrap.xml.")
    String brokerConfig;
 
-   @Inject
-   public GlobalMetadata global;
+   @AirlineModule
+   public GlobalMetadata<Object> global;
 
    private BrokerDTO brokerDTO = null;
 
@@ -75,7 +77,11 @@ public abstract class Configurable extends ActionAbstract {
          if (group.getName().equals(groupName)) {
             for (CommandMetadata command : group.getCommands()) {
                if (command.getName().equals(commandName)) {
-                  Help.help(command);
+                  try {
+                     Help.help(command);
+                  } catch (IOException e) {
+                     throw new RuntimeException(e);
+                  }
                }
             }
             break;

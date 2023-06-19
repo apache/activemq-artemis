@@ -22,8 +22,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Session;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "browser", description = "Browse messages on a queue.")
