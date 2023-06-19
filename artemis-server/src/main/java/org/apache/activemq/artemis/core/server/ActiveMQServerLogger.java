@@ -1573,13 +1573,13 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224122, value = "Address {} number of messages is under page limit again, and it should be allowed to page again.", level = LogMessage.Level.INFO)
    void pageFree(SimpleString address);
 
-   @LogMessage(id = 224123, value = "Address {} has more pages than allowed. System currently has {} pages, while the estimated max number of pages is {}, based on the limitPageBytes ({}) / page-size ({})", level = LogMessage.Level.WARN)
-   void pageFullMaxBytes(SimpleString address, long pages, long maxPages, long limitBytes, long bytes);
+   @LogMessage(id = 224123, value = "Address {} has more pages than allowed. System currently has {} pages, while the estimated max number of pages is {} based on the page-limit-bytes ({}) / page-size ({})", level = LogMessage.Level.WARN)
+   void pageFullMaxBytes(SimpleString address, long pages, Long maxPages, Long limitBytes, int bytes);
 
-   @LogMessage(id = 224124, value = "Address {} has a pageFullPolicy set as {} but there are not page-limit-bytes or page-limit-messages set. Page full configuration being ignored on this address.", level = LogMessage.Level.WARN)
+   @LogMessage(id = 224124, value = "Address {} has page-full-policy={} but neither page-limit-bytes nor page-limit-messages are set. Page full configuration being ignored on this address.", level = LogMessage.Level.WARN)
    void noPageLimitsSet(Object address, Object policy);
 
-   @LogMessage(id = 224125, value = "Address {} has page-limit-bytes={}, page-limit-messages={} and no page-full-policy set. Page full configuration being ignored on this address", level = LogMessage.Level.WARN)
+   @LogMessage(id = 224125, value = "Address {} has page-limit-bytes={} and page-limit-messages={} but no page-full-policy set. Page full configuration being ignored on this address", level = LogMessage.Level.WARN)
    void noPagefullPolicySet(Object address, Object limitBytes, Object limitMessages);
 
 }
