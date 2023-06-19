@@ -209,9 +209,9 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>com.vladsch.flexmark</groupId>
+            <groupId>com.ruleoftech</groupId>
             <artifactId>markdown-page-generator-plugin</artifactId>
-            <version>0.27.0</version>
+            <version>2.4.0</version>
             <executions>
                <execution>
                   <phase>compile</phase>
@@ -226,6 +226,7 @@
                <inputDirectory>${activemq.basedir}/examples</inputDirectory>
                <outputDirectory>${project.build.directory}/markdown-pages/examples</outputDirectory>
                <recursiveInput>true</recursiveInput>
+               <pegdownExtensions>FENCED_CODE_BLOCKS</pegdownExtensions>
             </configuration>
          </plugin>
       </plugins>
