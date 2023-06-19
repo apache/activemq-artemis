@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.cli.test;
 
-import io.airlift.airline.ParseArgumentsUnexpectedException;
+import com.github.rvesse.airline.parser.errors.ParseArgumentsUnexpectedException;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;

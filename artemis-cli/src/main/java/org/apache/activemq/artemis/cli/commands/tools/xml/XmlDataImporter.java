@@ -34,8 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
+import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -106,7 +107,8 @@ public final class XmlDataImporter extends ActionAbstract {
    @Option(name = "--password", description = "User name used to import the data. Default: null.")
    public String password = null;
 
-   @Option(name = "--input", description = "The input file name. Default: exp.dmp.", required = true)
+   @Option(name = "--input", description = "The input file name. Default: exp.dmp.")
+   @Required
    public String input = "exp.dmp";
 
    @Option(name = "--sort", description = "Sort the messages from the input (used for older versions that won't sort messages).")

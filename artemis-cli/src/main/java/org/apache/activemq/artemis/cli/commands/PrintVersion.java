@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import io.airlift.airline.Command;
+import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.utils.VersionLoader;
 

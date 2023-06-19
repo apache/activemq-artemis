@@ -21,7 +21,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.util.Map;
 
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;

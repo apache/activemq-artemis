@@ -20,8 +20,9 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
+import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -48,7 +49,8 @@ public class RecoverMessages extends DBOption {
    @Option(name = "--reclaimed", description = "Try to recover as many records as possible from reclaimed files.")
    private boolean reclaimed = false;
 
-   @Option(name = "--target", description = "Output folder container the new journal with all the generated messages.", required = true)
+   @Option(name = "--target", description = "Output folder container the new journal with all the generated messages.")
+   @Required
    private String outputJournal;
 
 

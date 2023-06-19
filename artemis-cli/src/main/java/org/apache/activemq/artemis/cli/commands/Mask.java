@@ -19,9 +19,10 @@ package org.apache.activemq.artemis.cli.commands;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Arguments;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
+import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
@@ -30,7 +31,8 @@ import org.apache.activemq.artemis.utils.SensitiveDataCodec;
 @Command(name = "mask", description = "Mask a password and print it out.")
 public class Mask extends ActionAbstract {
 
-   @Arguments(description = "The password to be masked.", required = true)
+   @Arguments(description = "The password to be masked.")
+   @Required
    String password;
 
    @Option(name = "--hash", description = "Whether to use a hash (one-way). Default: false.")

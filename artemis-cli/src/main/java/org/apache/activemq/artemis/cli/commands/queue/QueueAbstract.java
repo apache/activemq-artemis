@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.cli.commands.queue;
 
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.AbstractAction;
 
 public class QueueAbstract extends AbstractAction {

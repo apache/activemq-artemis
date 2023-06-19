@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Option;
 
 public class PasswordAction extends UserAction {
 

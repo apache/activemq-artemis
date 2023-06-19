@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.text.DecimalFormat;
 
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Command;
+import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.OptionalLocking;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;

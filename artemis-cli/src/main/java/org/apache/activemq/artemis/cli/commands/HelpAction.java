@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.cli.commands;
 
 import java.io.File;
 
-import io.airlift.airline.Help;
+import com.github.rvesse.airline.help.Help;
 
 public class HelpAction extends Help implements Action {
 

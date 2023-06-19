@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.cli.commands;
 
 import java.io.File;
 
-import io.airlift.airline.Command;
+import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
 
 @Command(name = "kill", description = "Kill a broker started with --allow-kill.")

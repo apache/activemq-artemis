@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 
 import java.util.Scanner;
 
-import io.airlift.airline.Option;
+import com.github.rvesse.airline.annotations.Option;
 
 public class InputAbstract extends ActionAbstract {
 

@@ -125,4 +125,4 @@ Framework. See [Spring Integration](spring-integration.md) for more details on
 Spring and Apache ActiveMQ Artemis.
 
 Apache ActiveMQ Artemis standalone uses
-[Airline](https://github.com/airlift/airline) to bootstrap.
+[Airline](http://rvesse.github.io/airline/) to bootstrap.
