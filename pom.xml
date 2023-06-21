@@ -25,7 +25,7 @@
    <parent>
       <groupId>org.apache</groupId>
       <artifactId>apache</artifactId>
-      <version>27</version>
+      <version>30</version>
       <relativePath>org.apache:apache</relativePath>
    </parent>
 
@@ -154,7 +154,6 @@
       <hamcrest.version>2.1</hamcrest.version>
       <junit.version>4.13.2</junit.version>
       <junit5.version>5.8.2</junit5.version>
-      <surefire.version>2.22.2</surefire.version>
       <version.jaxb.runtime>2.3.3</version.jaxb.runtime>
       <paho.client.mqtt.version>1.2.5</paho.client.mqtt.version>
       <postgresql.version>42.4.3</postgresql.version>
@@ -1909,7 +1908,6 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>${maven.checkstyle.plugin.version}</version>
             <configuration>
                <configLocation>${activemq.basedir}/etc/checkstyle.xml</configLocation>
                <suppressionsLocation>${activemq.basedir}/etc/checkstyle-suppressions.xml</suppressionsLocation>
@@ -1943,12 +1941,10 @@
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-project-info-reports-plugin</artifactId>
-            <version>2.7</version>
          </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-report-plugin</artifactId>
-            <version>${surefire.version}</version>
          </plugin>
          <plugin>
             <groupId>org.owasp</groupId>
