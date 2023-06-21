@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.logs;
 
 import java.lang.reflect.Constructor;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,14 @@ public class BundleFactory {
    }
 
    public static <T> T newBundle(final Class<T> type, String category) {
+      if (System.getSecurityManager() == null) {
+         return doNewBundle(type, category);
+      } else {
+         return AccessController.doPrivileged((PrivilegedAction<T>) () -> doNewBundle(type, category));
+      }
+   }
+
+   private static <T> T doNewBundle(final Class<T> type, String category) {
       final String implClassName = type.getName() + "_impl";
 
       final Class<? extends T> implClass;
