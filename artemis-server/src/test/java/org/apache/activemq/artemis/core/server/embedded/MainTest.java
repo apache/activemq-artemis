@@ -23,7 +23,7 @@ import org.junit.Test;
 
 public class MainTest {
 
-   @Test(expected = IOException.class)
+   @Test(expected = IOException.class, timeout = 5000)
    public void testNull() throws Exception {
       Main.main(new String[]{});
    }
