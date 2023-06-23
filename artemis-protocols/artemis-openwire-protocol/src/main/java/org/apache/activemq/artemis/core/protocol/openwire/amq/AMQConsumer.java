@@ -288,9 +288,7 @@ public class AMQConsumer {
             return 0;
          }
 
-         if (session.getConnection().isNoLocal() || session.isInternal()) {
-            //internal session always delivers messages to noLocal advisory consumers
-            //so we need to remove this property too.
+         if (session.getConnection().isNoLocal() || (session.isInternal() && AdvisorySupport.isAdvisoryTopic(openwireDestination))) {
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
          //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
