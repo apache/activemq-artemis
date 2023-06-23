@@ -1684,7 +1684,6 @@
                <groupId>org.apache.rat</groupId>
                <artifactId>apache-rat-plugin</artifactId>
                <configuration>
-                  <reportFile>${activemq.basedir}/ratReport.txt</reportFile>
                   <excludes>
                      <exclude>**/src/main/webapp/hawtconfig.json</exclude>
                      <exclude>.repository/**</exclude>
