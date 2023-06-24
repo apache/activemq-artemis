@@ -1707,8 +1707,17 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
    @Override
    public void close(final boolean failed) {
+      close(failed, false);
+   }
+
+   @Override
+   public void close(final boolean failed, final boolean force) {
       if (closed)
          return;
+
+      if (force) {
+         context.clear();
+      }
 
       context.executeOnCompletion(new IOCallback() {
          @Override

@@ -160,6 +160,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public boolean closeSessionWithID(String connectionID, String ID, boolean force) throws Exception {
+            return (Boolean) proxy.invokeOperation("closeSessionWithID", connectionID, ID, force);
+         }
+
+         @Override
          public boolean closeConsumerWithID(String sessionID, String ID) throws Exception {
             return (Boolean) proxy.invokeOperation("closeConsumerWithID", sessionID, ID);
          }

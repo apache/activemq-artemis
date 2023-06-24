@@ -5806,6 +5806,60 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testForceCloseSession() throws Exception {
+      testForceCloseSession(false, false);
+   }
+
+   @Test
+   public void testForceCloseSessionWithError() throws Exception {
+      testForceCloseSession(true, false);
+   }
+
+   @Test
+   public void testForceCloseSessionWithPendingStoreOperation() throws Exception {
+      testForceCloseSession(false, true);
+   }
+
+   private void testForceCloseSession(boolean error, boolean pendingStoreOperation) throws Exception {
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString name = RandomUtil.randomSimpleString();
+      boolean durable = true;
+
+      ActiveMQServerControl serverControl = createManagementControl();
+
+      checkNoResource(ObjectNameBuilder.DEFAULT.getQueueObjectName(address, name, RoutingType.ANYCAST));
+      serverControl.createAddress(address.toString(), "ANYCAST");
+      if (legacyCreateQueue) {
+         serverControl.createQueue(address.toString(), "ANYCAST", name.toString(), null, durable, -1, false, false);
+      } else {
+         serverControl.createQueue(new QueueConfiguration(name).setAddress(address).setRoutingType(RoutingType.ANYCAST).setDurable(durable).setAutoCreateAddress(false).toJSON());
+      }
+
+      ServerLocator receiveLocator = createInVMNonHALocator().setCallTimeout(500);
+      ClientSessionFactory receiveCsf = createSessionFactory(receiveLocator);
+      ClientSession receiveClientSession = receiveCsf.createSession(true, false, false);
+      final ClientConsumer clientConsumer = receiveClientSession.createConsumer(name);
+
+      Assert.assertEquals(1, server.getSessions().size());
+
+      ServerSession serverSession = server.getSessions().iterator().next();
+      Assert.assertEquals(((ClientSessionImpl)receiveClientSession).getName(), serverSession.getName());
+
+      if (error) {
+         serverSession.getSessionContext().onError(0, "error");
+      }
+
+      if (pendingStoreOperation) {
+         serverSession.getSessionContext().storeLineUp();
+      }
+
+      serverControl.closeSessionWithID(serverSession.getConnectionID().toString(), serverSession.getName(), true);
+
+      Wait.assertTrue(() -> serverSession.getServerConsumers().size() == 0, 500);
+      Wait.assertTrue(() -> server.getSessions().size() == 0, 500);
+   }
+
+   @Test
    public void testAddUser() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
       try {

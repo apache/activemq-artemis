@@ -372,6 +372,8 @@ public interface ServerSession extends SecurityAuth {
 
    void close(boolean failed) throws Exception;
 
+   void close(boolean failed, boolean force) throws Exception;
+
    void setTransferring(boolean transferring);
 
    Set<ServerConsumer> getServerConsumers();

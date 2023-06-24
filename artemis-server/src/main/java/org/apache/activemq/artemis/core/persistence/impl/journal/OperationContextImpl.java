@@ -447,4 +447,27 @@ public class OperationContextImpl implements OperationContext {
          executorsPendingField +
          "]";
    }
+
+   @Override
+   public synchronized void clear() {
+      stored = 0;
+      storeLineUpField = 0;
+      minimalReplicated = 0;
+      replicated = 0;
+      replicationLineUpField = 0;
+      paged = 0;
+      minimalPage = 0;
+      pageLineUpField = 0;
+      errorCode = -1;
+      errorMessage = null;
+      executorsPendingField = 0;
+
+      if (tasks != null) {
+         tasks.clear();
+      }
+
+      if (storeOnlyTasks != null) {
+         storeOnlyTasks.clear();
+      }
+   }
 }
