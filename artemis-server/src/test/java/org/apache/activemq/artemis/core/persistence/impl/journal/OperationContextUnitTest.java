@@ -422,4 +422,45 @@ public class OperationContextUnitTest extends ActiveMQTestBase {
       Assert.assertEquals(0, operations.get());
    }
 
+   @Test
+   public void testContextWithoutDebugTrackers() {
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      runAfter(executor::shutdownNow);
+
+      Assert.assertEquals(0, OperationContextImpl.getMaxDebugTrackers());
+      OperationContextImpl context = new OperationContextImpl(executor);
+      Assert.assertNull(context.getDebugTrackers());
+
+      context.storeLineUp();
+      Assert.assertNull(context.getDebugTrackers());
+
+      context.done();
+      Assert.assertNull(context.getDebugTrackers());
+   }
+
+   @Test
+   public void testContextWithDebugTrackers() {
+      int maxStoreOperationTrackers = OperationContextImpl.getMaxDebugTrackers();
+      ExecutorService executor = Executors.newSingleThreadExecutor(ActiveMQThreadFactory.defaultThreadFactory(getClass().getName()));
+      runAfter(executor::shutdownNow);
+
+      OperationContextImpl.setMaxDebugTrackers(1);
+      try {
+         Assert.assertEquals(1, OperationContextImpl.getMaxDebugTrackers());
+         OperationContextImpl context = new OperationContextImpl(executor);
+         Assert.assertNotNull(context.getDebugTrackers());
+
+         context.storeLineUp();
+         Assert.assertEquals(1, context.getDebugTrackers().size());
+         Assert.assertEquals("storeLineUp", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
+         Assert.assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
+
+         context.done();
+         Assert.assertEquals(1, context.getDebugTrackers().size());
+         Assert.assertEquals("done", ((Exception)context.getDebugTrackers().get()).getStackTrace()[0].getMethodName());
+         Assert.assertEquals("testContextWithDebugTrackers", ((Exception)context.getDebugTrackers().get()).getStackTrace()[1].getMethodName());
+      } finally {
+         OperationContextImpl.setMaxDebugTrackers(maxStoreOperationTrackers);
+      }
+   }
 }

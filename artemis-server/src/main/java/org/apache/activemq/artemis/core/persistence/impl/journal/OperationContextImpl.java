@@ -28,6 +28,9 @@ import org.apache.activemq.artemis.core.journal.impl.SimpleWaitIOCallback;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
+import org.apache.commons.collections.Buffer;
+import org.apache.commons.collections.BufferUtils;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 
 /**
  * Each instance of OperationContextImpl is associated with an executor (usually an ordered Executor).
@@ -38,6 +41,9 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
  * If there are no pending IO operations, the tasks are just executed at the callers thread without any context switch.
  *
  * So, if you are doing operations that are not dependent on IO (e.g NonPersistentMessages) you wouldn't have any context switch.
+ *
+ * If you need to track store operations you can set the system property "ARTEMIS_OPCONTEXT_MAX_DEBUG_TRACKERS"
+ * with the max number of trackers that you want to keep in memory.
  */
 public class OperationContextImpl implements OperationContext {
 
@@ -104,6 +110,24 @@ public class OperationContextImpl implements OperationContext {
 
    private final Executor executor;
 
+   private static int maxDebugTrackers = Integer.parseInt(
+      System.getProperty("ARTEMIS_OPCONTEXT_MAX_DEBUG_TRACKERS", "0"));
+
+   private Buffer debugTrackers = OperationContextImpl.maxDebugTrackers > 0 ?
+      BufferUtils.synchronizedBuffer(new CircularFifoBuffer(OperationContextImpl.maxDebugTrackers)) : null;
+
+   protected static int getMaxDebugTrackers() {
+      return OperationContextImpl.maxDebugTrackers;
+   }
+
+   protected static void setMaxDebugTrackers(int maxDebugTrackers) {
+      OperationContextImpl.maxDebugTrackers = maxDebugTrackers;
+   }
+
+   protected Buffer getDebugTrackers() {
+      return debugTrackers;
+   }
+
    public OperationContextImpl(final Executor executor) {
       super();
       this.executor = executor;
@@ -122,7 +146,10 @@ public class OperationContextImpl implements OperationContext {
 
    @Override
    public void storeLineUp() {
-      STORE_LINEUP_UPDATER.incrementAndGet(this);
+      long storeLineUpValue = STORE_LINEUP_UPDATER.incrementAndGet(this);
+      if (debugTrackers != null) {
+         debugTrackers.add(new Exception(">" + storeLineUpValue));
+      }
    }
 
    @Override
@@ -216,7 +243,12 @@ public class OperationContextImpl implements OperationContext {
 
    @Override
    public synchronized void done() {
-      stored++;
+      this.stored++;
+
+      if (debugTrackers != null) {
+         debugTrackers.add(new Exception("<" + stored));
+      }
+
       checkTasks();
    }
 
