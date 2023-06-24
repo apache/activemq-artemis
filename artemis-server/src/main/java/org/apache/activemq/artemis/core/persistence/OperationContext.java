@@ -61,4 +61,8 @@ public interface OperationContext extends IOCompletion {
     * @throws Exception
     */
    boolean waitCompletion(long timeout) throws Exception;
+
+   default void clear() {
+
+   }
 }

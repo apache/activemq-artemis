@@ -1241,6 +1241,14 @@ public interface ActiveMQServerControl {
                               @Parameter(desc = "The session ID", name = "ID") String ID) throws Exception;
 
    /**
+    * Closes the session with the given id.
+    */
+   @Operation(desc = "Closes the session with the id", impact = MBeanOperationInfo.INFO)
+   boolean closeSessionWithID(@Parameter(desc = "The connection ID", name = "connectionID") String connectionID,
+      @Parameter(desc = "The session ID", name = "ID") String ID,
+      @Parameter(desc = "Force session close cancelling pending tasks", name = "force") boolean force) throws Exception;
+
+   /**
     * Closes the consumer with the given id.
     */
    @Operation(desc = "Closes the consumer with the id", impact = MBeanOperationInfo.INFO)
