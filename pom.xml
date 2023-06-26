@@ -171,7 +171,7 @@
       <groovy.version>4.0.10</groovy.version>
       <vertx.version>4.3.3</vertx.version>
       <hadoop.minikdc.version>3.3.1</hadoop.minikdc.version>
-      <mockserver.version>5.13.2</mockserver.version>
+      <mockserver.version>5.15.0</mockserver.version>
 
       <owasp.version>6.1.0</owasp.version>
       <spring.version>5.3.27</spring.version>
