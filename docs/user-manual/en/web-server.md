@@ -60,6 +60,11 @@ attributes:
   Only applicable when using `https`.
 - `excludedCipherSuites` A comma seperated list of excluded cipher suites.
   Only applicable when using `https`.
+- `sniHostCheck` Whether or not the SNI Host name in the client request must
+  match the common name or the subject alternative names in the server
+  certificate. Default is `true`. Only applicable when using `https`.
+- `sniRequired` Whether or not the client request must include an SNI Host
+  name. Default is `false`. Only applicable when using `https`.
 
 Each web application should be defined in an `app` element inside an `binding` element.
 The `app` element has the following attributes:
