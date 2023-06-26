@@ -283,7 +283,7 @@
             </exclusion>
          </exclusions>
       </dependency>
-      <!-- bcprov-jdk18on replaces bcprov-jdk15on excluded from apacheds-protocol-ldap and mockserver-netty -->
+      <!-- bcprov-jdk18on replaces bcprov-jdk15on excluded from apacheds-protocol-ldap -->
       <dependency>
          <groupId>org.bouncycastle</groupId>
          <artifactId>bcprov-jdk18on</artifactId>
