@@ -145,6 +145,8 @@
          </includes>
          <excludes>
             <exclude>**/target/**</exclude>
+            <exclude>artemis-website/node/</exclude>
+            <exclude>artemis-website/node_modules/</exclude>
          </excludes>
       </fileSet>
    </fileSets>
