@@ -36,7 +36,6 @@
       <module>artemis-cdi-client</module>
       <module>artemis-boot</module>
       <module>artemis-web</module>
-      <module>artemis-website</module>
       <module>artemis-cli</module>
       <module>artemis-commons</module>
       <module>artemis-selector</module>
@@ -1186,6 +1185,7 @@
       <profile>
          <id>release</id>
          <modules>
+            <module>artemis-website</module>
             <module>examples</module>
          </modules>
          <build>
