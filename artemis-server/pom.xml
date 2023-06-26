@@ -203,6 +203,19 @@
       </dependency>
       <dependency>
          <groupId>org.apache.directory.server</groupId>
+         <artifactId>apacheds-protocol-ldap</artifactId>
+         <version>${directory-version}</version>
+         <scope>test</scope>
+         <exclusions>
+            <!-- exclude bcprov-jdk15on to avoid conflicts with bcprov-jdk18on -->
+            <exclusion>
+               <groupId>org.bouncycastle</groupId>
+               <artifactId>bcprov-jdk15on</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.directory.server</groupId>
          <artifactId>apacheds-test-framework</artifactId>
          <version>${directory-version}</version>
          <scope>test</scope>
@@ -273,7 +286,29 @@
                <groupId>net.minidev</groupId>
                <artifactId>json-smart</artifactId>
             </exclusion>
+            <!-- exclude bcprov-jdk15on to avoid conflicts with bcprov-jdk18on -->
+            <exclusion>
+               <groupId>org.bouncycastle</groupId>
+               <artifactId>bcprov-jdk15on</artifactId>
+            </exclusion>
+            <!-- exclude bcpkix-jdk15on to avoid conflicts with bcpkix-jdk18on -->
+            <exclusion>
+               <groupId>org.bouncycastle</groupId>
+               <artifactId>bcpkix-jdk15on</artifactId>
+            </exclusion>
          </exclusions>
+      </dependency>
+      <!-- bcprov-jdk18on replaces bcprov-jdk15on excluded from apacheds-protocol-ldap and mockserver-netty -->
+      <dependency>
+         <groupId>org.bouncycastle</groupId>
+         <artifactId>bcprov-jdk18on</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <!-- bcprov-jdk18on replaces bcpkix-jdk15on excluded by mockserver-netty  -->
+      <dependency>
+         <groupId>org.bouncycastle</groupId>
+         <artifactId>bcpkix-jdk18on</artifactId>
+         <scope>test</scope>
       </dependency>
    </dependencies>
 
