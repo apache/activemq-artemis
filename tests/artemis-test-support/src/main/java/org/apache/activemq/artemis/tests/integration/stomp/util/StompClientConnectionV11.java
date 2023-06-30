@@ -106,7 +106,7 @@ public class StompClientConnectionV11 extends StompClientConnectionV10 {
       frame.addHeader(Stomp.Headers.RECEIPT_REQUESTED, uuid);
 
       try {
-         if (!transport.isConnected()) {
+         if (transport.isConnected()) {
             ClientStompFrame result = this.sendFrame(frame);
             if (result == null || (!Stomp.Responses.RECEIPT.equals(result.getCommand())) || (!uuid.equals(result.getHeader(Stomp.Headers.Response.RECEIPT_ID)))) {
                throw new IOException("Disconnect failed! " + result);
