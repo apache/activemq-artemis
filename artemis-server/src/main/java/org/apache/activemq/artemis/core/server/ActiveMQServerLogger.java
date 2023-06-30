@@ -1582,4 +1582,6 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224125, value = "Address {} has page-limit-bytes={} and page-limit-messages={} but no page-full-policy set. Page full configuration being ignored on this address", level = LogMessage.Level.WARN)
    void noPagefullPolicySet(Object address, Object limitBytes, Object limitMessages);
 
+   @LogMessage(id = 224126, value = "Failure during protocol handshake on connection to {} from {}", level = LogMessage.Level.ERROR)
+   void failureDuringProtocolHandshake(SocketAddress localAddress, SocketAddress remoteAddress, Throwable e);
 }

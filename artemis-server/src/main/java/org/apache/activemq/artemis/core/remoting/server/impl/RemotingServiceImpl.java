@@ -582,7 +582,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
    public void addConnectionEntry(Connection connection, ConnectionEntry entry) {
       connections.put(connection.getID(), entry);
       if (AuditLogger.isResourceLoggingEnabled()) {
-         AuditLogger.createdConnection(connection.getProtocolConnection().getProtocolName(), connection.getID(), connection.getRemoteAddress());
+         AuditLogger.createdConnection(connection.getProtocolConnection() == null ? null : connection.getProtocolConnection().getProtocolName(), connection.getID(), connection.getRemoteAddress());
       }
       if (logger.isDebugEnabled()) {
          logger.debug("Adding connection {}, we now have {}", connection.getID(), connections.size());

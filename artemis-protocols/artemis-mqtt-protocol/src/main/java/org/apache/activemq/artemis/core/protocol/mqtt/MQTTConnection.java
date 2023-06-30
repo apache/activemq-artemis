@@ -42,7 +42,6 @@ public class MQTTConnection extends AbstractRemotingConnection {
    public MQTTConnection(Connection transportConnection) throws Exception {
       super(transportConnection, null);
       this.destroyed = false;
-      transportConnection.setProtocolConnection(this);
    }
 
    @Override
