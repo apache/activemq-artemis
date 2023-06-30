@@ -47,6 +47,9 @@ public class SmokeTestBase extends ActiveMQTestBase {
 
    @After
    public void after() throws Exception {
+      // close ServerLocators before killing the server otherwise they'll hang and delay test termination
+      closeAllServerLocatorsFactories();
+
       for (Process process : processes) {
          try {
             ServerUtil.killServer(process, true);
