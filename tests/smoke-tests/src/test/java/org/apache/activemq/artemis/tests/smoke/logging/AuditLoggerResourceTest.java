@@ -16,10 +16,14 @@
  */
 package org.apache.activemq.artemis.tests.smoke.logging;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Session;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
+import java.net.URI;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -32,6 +36,12 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnection;
+import org.apache.activemq.artemis.tests.integration.stomp.util.StompClientConnectionFactory;
+import org.apache.activemq.artemis.tests.util.CFUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
+import org.fusesource.mqtt.client.BlockingConnection;
+import org.fusesource.mqtt.client.MQTT;
 import org.junit.Test;
 
 public class AuditLoggerResourceTest extends AuditLoggerTestBase {
@@ -84,5 +94,55 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
       } finally {
          jmxConnector.close();
       }
+   }
+
+   @Test
+   public void testCoreConnectionAuditLog() throws Exception {
+      testConnectionAuditLog("CORE");
+   }
+
+   @Test
+   public void testAMQPConnectionAuditLog() throws Exception {
+      testConnectionAuditLog("AMQP");
+   }
+
+   @Test
+   public void testOpenWireConnectionAuditLog() throws Exception {
+      testConnectionAuditLog("OPENWIRE");
+   }
+
+   private void testConnectionAuditLog(String protocol) throws Exception {
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+      Connection connection = factory.createConnection();
+      Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      checkAuditLogRecord(true, "AMQ601767: " + protocol + " connection");
+      s.close();
+      connection.close();
+      checkAuditLogRecord(true, "AMQ601768: " + protocol + " connection");
+   }
+
+   @Test
+   public void testMQTTConnectionAuditLog() throws Exception {
+      MQTT mqtt = new MQTT();
+      mqtt.setConnectAttemptsMax(1);
+      mqtt.setReconnectAttemptsMax(0);
+      mqtt.setVersion("3.1.1");
+      mqtt.setClientId(RandomUtil.randomString());
+      mqtt.setCleanSession(true);
+      mqtt.setHost("localhost", 1883);
+      final BlockingConnection connection = mqtt.blockingConnection();
+      connection.connect();
+      connection.disconnect();
+      checkAuditLogRecord(true, "AMQ601767: MQTT connection");
+      checkAuditLogRecord(true, "AMQ601768: MQTT connection");
+   }
+
+   @Test
+   public void testStompConnectionAuditLog() throws Exception {
+      StompClientConnection connection = StompClientConnectionFactory.createClientConnection(new URI("tcp://localhost:61613"));
+      connection.connect();
+      connection.disconnect();
+      checkAuditLogRecord(true, "AMQ601767: STOMP connection");
+      checkAuditLogRecord(true, "AMQ601768: STOMP connection");
    }
 }

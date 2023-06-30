@@ -130,8 +130,6 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
 
       this.nodeID = nodeID;
 
-      transportConnection.setProtocolConnection(this);
-
       logger.trace("RemotingConnectionImpl created: {}", this);
    }
 

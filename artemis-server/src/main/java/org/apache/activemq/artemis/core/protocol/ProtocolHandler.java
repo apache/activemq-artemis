@@ -243,6 +243,15 @@ public class ProtocolHandler {
          ctx.flush();
       }
 
+      @Override
+      public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+         try {
+            ActiveMQServerLogger.LOGGER.failureDuringProtocolHandshake(ctx.channel().localAddress(), ctx.channel().remoteAddress(), cause);
+         } finally {
+            ctx.close();
+         }
+      }
+
       private boolean isHttp(int magic1, int magic2) {
          return magic1 == 'G' && magic2 == 'E' || // GET
             magic1 == 'P' && magic2 == 'O' || // POST

@@ -55,6 +55,7 @@ public abstract class AbstractRemotingConnection implements RemotingConnection {
 
    public AbstractRemotingConnection(final Connection transportConnection, final Executor executor) {
       this.transportConnection = transportConnection;
+      this.transportConnection.setProtocolConnection(this);
       this.executor = executor;
       this.creationTime = System.currentTimeMillis();
    }

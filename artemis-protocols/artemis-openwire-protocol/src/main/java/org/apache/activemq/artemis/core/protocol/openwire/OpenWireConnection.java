@@ -232,7 +232,6 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       this.outWireFormat = wf.copy();
       this.useKeepAlive = openWireProtocolManager.isUseKeepAlive();
       this.maxInactivityDuration = openWireProtocolManager.getMaxInactivityDuration();
-      this.transportConnection.setProtocolConnection(this);
       this.actorThresholdBytes = actorThresholdBytes;
    }
 
