@@ -65,18 +65,15 @@
             </dependency>
             <dependency>
                <groupId>org.apache.activemq</groupId>
-               <artifactId>artemis-jms-server</artifactId>
+               <artifactId>artemis-commons</artifactId>
                <version>${project.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.apache.activemq</groupId>
-               <artifactId>artemis-journal</artifactId>
-               <version>${project.version}</version>
-            </dependency>
-            <dependency>
-               <groupId>org.apache.activemq</groupId>
-               <artifactId>artemis-selector</artifactId>
-               <version>${project.version}</version>
+               <groupId>jakarta.json</groupId>
+               <artifactId>jakarta.json-api</artifactId>
+               <scope>compile</scope>
+               <optional>true</optional>
+               <!-- License: EPL 2.0 -->
             </dependency>
 
             <!-- stuff needed to resolve various classes during javadoc processing -->
@@ -113,19 +110,23 @@
                            <skip>${skipWebsiteJavadocGeneration}</skip>
                            <!-- switch on dependency-driven aggregation -->
                            <includeDependencySources>true</includeDependencySources>
-
                            <dependencySourceIncludes>
                               <!-- include ONLY dependencies I control -->
                               <dependencySourceInclude>org.apache.activemq:artemis-core-client</dependencySourceInclude>
                               <dependencySourceInclude>org.apache.activemq:artemis-jms-client</dependencySourceInclude>
                               <dependencySourceInclude>org.apache.activemq:artemis-server</dependencySourceInclude>
-                              <dependencySourceInclude>org.apache.activemq:artemis-jms-server</dependencySourceInclude>
-                              <dependencySourceInclude>org.apache.activemq:artemis-journal</dependencySourceInclude>
-                              <dependencySourceInclude>org.apache.activemq:artemis-selector</dependencySourceInclude>
+                              <dependencySourceInclude>org.apache.activemq:artemis-commons</dependencySourceInclude>
                            </dependencySourceIncludes>
-                           <aggregate>true</aggregate>
-                           <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils
-                           </excludePackageNames>
+                           <sourceFileIncludes>
+                              <sourceFileInclude>**/org/apache/activemq/artemis/api/**/*.java</sourceFileInclude>
+                              <sourceFileInclude>**/org/apache/activemq/artemis/spi/**/*.java</sourceFileInclude>
+                              <sourceFileInclude>**/org/apache/activemq/artemis/core/config/**/*.java</sourceFileInclude>
+                              <sourceFileInclude>**/org/apache/activemq/artemis/core/server/plugin/**/*.java</sourceFileInclude>
+                           </sourceFileIncludes>
+                           <sourceFileExcludes>
+                              <sourceFileExclude>**/impl/**/*.java</sourceFileExclude>
+                              <sourceFileExclude>**/*Impl.java</sourceFileExclude>
+                           </sourceFileExcludes>
                         </configuration>
                      </execution>
                   </executions>
