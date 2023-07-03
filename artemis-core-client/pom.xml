@@ -153,10 +153,11 @@
                      <minmemory>128m</minmemory>
                      <maxmemory>512m</maxmemory>
                      <noindex>true</noindex>
-                     <quiet>false</quiet>
-                     <aggregate>true</aggregate>
-                     <excludePackageNames>org.apache.activemq.artemis.core:org.apache.activemq.artemis.utils,org.apache.activemq.artemis.commons
-                     </excludePackageNames>
+                     <sourceFileIncludes>
+                        <sourceFileInclude>**/org/apache/activemq/artemis/api/**/*.java</sourceFileInclude>
+                        <sourceFileInclude>**/org/apache/activemq/artemis/spi/**/*.java</sourceFileInclude>
+                        <sourceFileInclude>**/org/apache/activemq/artemis/core/config/**/*.java</sourceFileInclude>
+                     </sourceFileIncludes>
                   </configuration>
                   <executions>
                      <execution>
