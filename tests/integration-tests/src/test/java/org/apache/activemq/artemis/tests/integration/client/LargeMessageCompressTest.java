@@ -685,7 +685,8 @@ public class LargeMessageCompressTest extends LargeMessageTest {
       int compressed = deflater.deflate(output);
       deflater.end();
 
-      assert compressed > min && compressed < max;
+      Assert.assertTrue(compressed > min);
+      Assert.assertTrue(compressed < max);
    }
 
    /**

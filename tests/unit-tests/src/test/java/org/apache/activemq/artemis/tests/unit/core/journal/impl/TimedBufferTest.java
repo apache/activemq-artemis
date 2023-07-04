@@ -361,7 +361,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
    public void timeoutShouldMatchFlushIOPSWithNotBlockingFlush() {
       //use a large timeout in order to be reactive
       final long timeout = TimeUnit.MILLISECONDS.toNanos(100);
-      assert ((int) timeout) > 0;
+      assertTrue(timeout > 0);
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
       final int bufferSize = Env.osPageSize();
@@ -374,7 +374,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          //wait the first flush to happen
          observer.waitUntilFlushIsDone(1);
          //for a not-blocking flush I'm expecting the TimedBuffer has near to finished sleeping now
-         assert observer.flushesDone() == 1;
+         assertEquals(1, observer.flushesDone());
          //issue a new write
          timedBuffer.addBytes(LONG_ENCODER, true, DummyCallback.getInstance());
          //the countdown on the TimedBuffer is already started even before this addBytes
@@ -383,7 +383,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          observer.waitUntilFlushIsDone(2);
          final long flushDone = System.nanoTime();
          final long elapsedTime = flushDone - endOfWriteRequest;
-         assert observer.flushesDone() == 2;
+         assertEquals(2, observer.flushesDone());
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
          logger.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);
@@ -402,7 +402,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
    public void timeoutShouldMatchFlushIOPSWithBlockingFlush() {
       //use a large timeout in order to be reactive
       final long timeout = TimeUnit.MILLISECONDS.toNanos(100);
-      assert ((int) timeout) > 0;
+      assertTrue(timeout > 0);
       //it is optimistic: the timeout and the blockingDeviceFlushTime are a perfect match
       final long deviceTime = timeout;
       final int bufferSize = Env.osPageSize();
@@ -415,7 +415,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          //wait the first flush to happen
          observer.waitUntilFlushIsDone(1);
          //for a blocking flush I'm expecting the TimedBuffer has started sleeping now
-         assert observer.flushesDone() == 1;
+         assertEquals(1, observer.flushesDone());
          //issue a new write
          timedBuffer.addBytes(LONG_ENCODER, true, DummyCallback.getInstance());
          //the countdown on the TimedBuffer is already started even before this addBytes
@@ -424,7 +424,7 @@ public class TimedBufferTest extends ActiveMQTestBase {
          observer.waitUntilFlushIsDone(2);
          final long flushDone = System.nanoTime();
          final long elapsedTime = flushDone - endOfWriteRequest;
-         assert observer.flushesDone() == 2;
+         assertEquals(2, observer.flushesDone());
          //it is much more than what is expected!!if it will fail it means that the timed IOPS = 1/(timeout + blockingDeviceFlushTime)!!!!!!
          //while it has to be IOPS = 1/timeout
          logger.debug("elapsed time: {} with timeout: {}", elapsedTime, timeout);

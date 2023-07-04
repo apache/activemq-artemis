@@ -1410,9 +1410,18 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, configuration.getSecurityRoles().size());
       Assert.assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
-      Assert.assertTrue(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isConsume());
-      Assert.assertTrue(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isSend());
-      Assert.assertFalse(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isCreateAddress());
+
+      Role role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
+      Assert.assertNotNull(role);
+      Assert.assertTrue(role.isConsume());
+
+      role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
+      Assert.assertNotNull(role);
+      Assert.assertTrue(role.isSend());
+
+      role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
+      Assert.assertNotNull(role);
+      Assert.assertFalse(role.isCreateAddress());
    }
 
    @Test
@@ -1450,8 +1459,14 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       // verify new addition
       Assert.assertEquals(2, configuration.getSecurityRoles().size());
       Assert.assertEquals(1, configuration.getSecurityRoles().get("TEST").size());
-      Assert.assertFalse(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isConsume());
-      Assert.assertTrue(configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null).isSend());
+
+      Role role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
+      Assert.assertNotNull(role);
+      Assert.assertFalse(role.isConsume());
+
+      role = configuration.getSecurityRoles().get("TEST").stream().findFirst().orElse(null);
+      Assert.assertNotNull(role);
+      Assert.assertTrue(role.isSend());
 
       // verify augmentation
       Assert.assertEquals(2, configuration.getSecurityRoles().get("#").size());

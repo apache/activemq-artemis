@@ -828,9 +828,9 @@ public class ActiveMQActivationSpec extends ConnectionFactoryProperties implemen
 
       if (acknowledgeMode != null ? !acknowledgeMode.equals(that.acknowledgeMode) : that.acknowledgeMode != null)
          return false;
-      if (subscriptionDurability != that.subscriptionDurability)
+      if (subscriptionDurability != null ? !subscriptionDurability.equals(that.subscriptionDurability) : that.subscriptionDurability != null)
          return false;
-      if (shareSubscriptions != that.shareSubscriptions)
+      if (shareSubscriptions != null ? !shareSubscriptions.equals(that.shareSubscriptions) : that.shareSubscriptions != null)
          return false;
       if (strConnectorClassName != null ? !strConnectorClassName.equals(that.strConnectorClassName) : that.strConnectorClassName != null)
          return false;

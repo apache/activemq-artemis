@@ -48,9 +48,8 @@ public class FileBrokerTest {
    public void startWithoutJMS() throws Exception {
       ServerDTO serverDTO = new ServerDTO();
       serverDTO.configuration = "broker-nojms.xml";
-      FileBroker broker = null;
+      FileBroker broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager(), null);
       try {
-         broker = new FileBroker(serverDTO, new ActiveMQJAASSecurityManager(), null);
          broker.start();
          JMSServerManagerImpl jmsServerManager = (JMSServerManagerImpl) broker.getComponents().get("jms");
          Assert.assertNull(jmsServerManager);
@@ -59,7 +58,6 @@ public class FileBrokerTest {
          Assert.assertTrue(activeMQServer.isStarted());
          Assert.assertTrue(broker.isStarted());
       } finally {
-         assert broker != null;
          broker.stop();
       }
    }
@@ -145,7 +143,6 @@ public class FileBrokerTest {
 
          locator.close();
       } finally {
-         assert broker != null;
          broker.stop();
          if (path != null) {
             replacePatternInFile(path, "X", "guest");
@@ -194,7 +191,6 @@ public class FileBrokerTest {
 
          locator.close();
       } finally {
-         assert broker != null;
          broker.stop();
          if (path != null) {
             replacePatternInFile(path, "X", "guest");
