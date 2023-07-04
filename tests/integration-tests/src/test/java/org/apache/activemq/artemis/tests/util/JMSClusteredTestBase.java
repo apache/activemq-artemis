@@ -21,6 +21,7 @@ import javax.jms.Queue;
 import javax.jms.Topic;
 import javax.management.MBeanServer;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
@@ -162,11 +163,7 @@ public class JMSClusteredTestBase extends ActiveMQTestBase {
                                                                                                                                 .setMaxHops(MAX_HOPS)
                                                                                                                                 .setConfirmationWindowSize(1024)
                                                                                                                                 .setMessageLoadBalancingType(MessageLoadBalancingType.ON_DEMAND)
-                                                                                                                                .setStaticConnectors(new ArrayList<String>() {
-                                                                                                                                   {
-                                                                                                                                      add(destinationLabel);
-                                                                                                                                   }
-                                                                                                                                }));
+                                                                                                                                .setStaticConnectors(new ArrayList<String>(List.of(destinationLabel))));
 
       configuration.getAddressSettings().put("#", new AddressSettings().setRedistributionDelay(0));
 

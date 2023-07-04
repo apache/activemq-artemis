@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -213,11 +214,7 @@ public abstract class StompTestBase extends ActiveMQTestBase {
 
          final String role = "testRole";
          securityManager.getConfiguration().addRole(defUser, role);
-         config.getSecurityRoles().put("#", new HashSet<Role>() {
-            {
-               add(new Role(role, true, true, true, true, true, true, true, true, true, true));
-            }
-         });
+         config.getSecurityRoles().put("#", new HashSet<Role>(Set.of(new Role(role, true, true, true, true, true, true, true, true, true, true))));
       }
 
       return activeMQServer;

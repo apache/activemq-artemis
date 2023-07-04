@@ -106,7 +106,9 @@ public class ActiveMQScheduledComponentTest {
       local.start();
       final long newInitialDelay = 1000;
       //the parameters are valid?
-      assert initialDelay != newInitialDelay && newInitialDelay != period;
+      Assert.assertTrue(initialDelay != newInitialDelay);
+      Assert.assertTrue(newInitialDelay != period);
+
       local.setInitialDelay(newInitialDelay);
       local.stop();
       Assert.assertEquals("the initial dalay can't change", newInitialDelay, local.getInitialDelay());

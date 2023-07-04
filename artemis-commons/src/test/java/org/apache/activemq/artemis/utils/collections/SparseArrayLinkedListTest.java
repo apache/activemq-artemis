@@ -160,7 +160,7 @@ public class SparseArrayLinkedListTest {
       for (int i = 1; i < elements; i++) {
          list.add(i);
       }
-      Assert.assertEquals(elements - 1, list.remove(e -> e != zero));
+      Assert.assertEquals(elements - 1, list.remove(e -> !zero.equals(e)));
       final ArrayList<Integer> remaining = new ArrayList<>();
       Assert.assertEquals(1, list.clear(remaining::add));
       Assert.assertEquals(0, list.size());

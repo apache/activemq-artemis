@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.jgroups.JChannel;
@@ -51,20 +52,8 @@ public final class ActiveMQRaUtils {
     * @param you Second value
     * @return True if object equals else false.
     */
-   @SuppressWarnings("StringEquality")
    public static boolean compare(final String me, final String you) {
-      // If both null or intern equals
-      if (me == you) {
-         return true;
-      }
-
-      // if me null and you are not
-      if (me == null) {
-         return false;
-      }
-
-      // me will not be null, test for equality
-      return me.equals(you);
+      return Objects.equals(me, you);
    }
 
    /**
@@ -75,18 +64,7 @@ public final class ActiveMQRaUtils {
     * @return True if object equals else false.
     */
    public static boolean compare(final Integer me, final Integer you) {
-      // If both null or intern equals
-      if (me == you) {
-         return true;
-      }
-
-      // if me null and you are not
-      if (me == null) {
-         return false;
-      }
-
-      // me will not be null, test for equality
-      return me.equals(you);
+      return Objects.equals(me, you);
    }
 
    /**
@@ -97,18 +75,7 @@ public final class ActiveMQRaUtils {
     * @return True if object equals else false.
     */
    public static boolean compare(final Long me, final Long you) {
-      // If both null or intern equals
-      if (me == you) {
-         return true;
-      }
-
-      // if me null and you are not
-      if (me == null) {
-         return false;
-      }
-
-      // me will not be null, test for equality
-      return me.equals(you);
+      return Objects.equals(me, you);
    }
 
    /**
@@ -119,18 +86,7 @@ public final class ActiveMQRaUtils {
     * @return True if object equals else false.
     */
    public static boolean compare(final Double me, final Double you) {
-      // If both null or intern equals
-      if (me == you) {
-         return true;
-      }
-
-      // if me null and you are not
-      if (me == null) {
-         return false;
-      }
-
-      // me will not be null, test for equality
-      return me.equals(you);
+      return Objects.equals(me, you);
    }
 
    /**
@@ -141,18 +97,7 @@ public final class ActiveMQRaUtils {
     * @return True if object equals else false.
     */
    public static boolean compare(final Boolean me, final Boolean you) {
-      // If both null or intern equals
-      if (me == you) {
-         return true;
-      }
-
-      // if me null and you are not
-      if (me == null) {
-         return false;
-      }
-
-      // me will not be null, test for equality
-      return me.equals(you);
+      return Objects.equals(me, you);
    }
 
    /**
