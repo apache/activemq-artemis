@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ServerStatus;
 import org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoginModule;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -29,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.apache.activemq.artemis.core.server.impl.ServerStatus.JAAS_COMPONENT;
 import static org.apache.activemq.artemis.spi.core.security.jaas.PropertiesLoader.LOGIN_CONFIG_SYS_PROP_NAME;
 
 public class StatusTest extends ActiveMQTestBase {
@@ -82,6 +84,41 @@ public class StatusTest extends ActiveMQTestBase {
       parentDir.setLastModified(System.currentTimeMillis());
 
       Wait.assertFalse(() -> ServerStatus.getInstance().asJson().contains(UNKNOWN));
+   }
+
+   @Test
+   public void testStatusOfServerOrderServerFirst() throws Exception {
+      final String EARLY_BIRD = "early";
+      final String BIRD = "later";
+
+      ActiveMQServerImpl server = new ActiveMQServerImpl();
+      ServerStatus.getInstanceFor(server);
+
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD,  "{\"reloadTime\":\"2\"}");
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
+
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD,  "{\"reloadTime\":\"2\"}");
+
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains(BIRD));
+   }
+
+   @Test
+   public void testStatusOfServerOrderServerSecond() throws Exception {
+      final String EARLY_BIRD = "early";
+      final String BIRD = "later";
+
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + EARLY_BIRD,  "{\"reloadTime\":\"2\"}");
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
+
+      ServerStatus.getInstance().update(JAAS_COMPONENT + "/properties/" + BIRD,  "{\"reloadTime\":\"2\"}");
+
+      ActiveMQServerImpl server = new ActiveMQServerImpl();
+      ServerStatus.getInstanceFor(server);
+
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains(EARLY_BIRD));
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains(BIRD));
+      assertTrue("contains", ServerStatus.getInstance().asJson().contains("nodeId"));
    }
 
    private static void setOrClearLoginConfigSystemProperty(String path) throws Exception {
