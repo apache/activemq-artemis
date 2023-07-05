@@ -44,6 +44,7 @@ final class ThreadLocalByteBufferPool implements ByteBufferPool {
       } else {
          bytesPool.set(null);
          if (zeroed) {
+            byteBuffer.clear();
             ByteUtil.zeros(byteBuffer, 0, size);
          }
          byteBuffer.clear();

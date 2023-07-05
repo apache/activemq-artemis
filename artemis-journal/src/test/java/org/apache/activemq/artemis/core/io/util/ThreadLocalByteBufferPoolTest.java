@@ -16,6 +16,12 @@
  */
 package org.apache.activemq.artemis.core.io.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +34,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mockito;
 
 @RunWith(Parameterized.class)
 public class ThreadLocalByteBufferPoolTest {
@@ -171,4 +178,67 @@ public class ThreadLocalByteBufferPoolTest {
       }
    }
 
+   @Test
+   public void shouldResetReusedBufferLimitBeforeZeroing() throws Exception {
+      doResetReusedBufferLimitBeforeZeroingTestImpl(true);
+   }
+
+   @Test
+   public void shouldResetReusedBufferLimitBeforeZeroingWithoutArray() throws Exception {
+      doResetReusedBufferLimitBeforeZeroingTestImpl(false);
+   }
+
+   private void doResetReusedBufferLimitBeforeZeroingTestImpl(boolean withArray) {
+      // Testing zero'ing and non-direct behaviour, ignore others.
+      assumeTrue(zeroed);
+      assumeFalse(isDirect);
+
+      final int size = 32;
+      final ByteBuffer buffer = pool.borrow(size, true);
+
+      assertEquals("Unexpected buffer limit", size, buffer.limit());
+      assertFalse(buffer.isDirect());
+
+      // Put a non-zero value at the first byte, updating the position
+      buffer.put((byte) 4);
+      // Put a non-zero value at the last byte, not updating the position
+      buffer.put(size - 1, (byte) 5);
+
+      assertEquals("Unexpected buffer value at index 0", (byte) 4, buffer.get(0));
+      assertEquals("Unexpected buffer value at index " + (size - 1), (byte) 5, buffer.get(size - 1));
+      assertEquals("Unexpected buffer position", 1, buffer.position());
+
+      // Set the buffer limit to half its current size, making it less than we will
+      // ask for the next time we borrow, ensuring it then needs to be zeroed
+      // beyond this reduced limit.
+      buffer.limit(size / 2);
+
+      ByteBuffer spy = null;
+      if (withArray) {
+         pool.release(buffer);
+      } else {
+         // Fake out this being a non-direct buffer that does not have an array.
+         spy = Mockito.spy(buffer);
+         Mockito.doReturn(false).when(spy).hasArray();
+
+         assertEquals("Unexpected buffer limit", size / 2, spy.limit());
+
+         pool.release(spy);
+      }
+
+      // Borrow what should be the same underlying buffer again, ask for it to be
+      // zeroed; pool will need to handle the limit and position
+      final ByteBuffer buffer2 = pool.borrow(size, true);
+
+      if (withArray) {
+         assertSame(buffer, buffer2);
+      } else {
+         assertSame(spy, buffer2);
+      }
+
+      // Verify position + limit, and content is zeroed
+      assertEquals("Unexpected buffer limit", size, buffer2.limit());
+      assertEquals("Unexpected buffer position", 0, buffer2.position());
+      assertZeroed(buffer2);
+   }
 }
