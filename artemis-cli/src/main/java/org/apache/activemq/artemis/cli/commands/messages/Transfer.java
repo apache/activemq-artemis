@@ -43,7 +43,7 @@ public class Transfer extends InputAbstract {
    protected String sourceURL = DEFAULT_BROKER_URL;
 
    @Option(name = "--source-acceptor", description = "Acceptor used to build URL towards the broker. Default: 'artemis'.")
-   protected String sourceAcceptor;
+   protected String sourceAcceptor = DEFAULT_BROKER_ACCEPTOR;
 
    @Option(name = "--source-user", description = "User used to connect to source broker.")
    protected String sourceUser;

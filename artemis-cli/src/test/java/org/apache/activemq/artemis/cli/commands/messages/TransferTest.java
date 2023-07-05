@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import org.apache.activemq.artemis.cli.commands.ActionAbstractAccessor;
 import org.apache.activemq.cli.test.TestActionContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class TransferTest {
       Transfer transfer = new Transfer();
 
       File brokerInstanceEtc = new File(this.getClass().getClassLoader()
-         .getResource("broker.xml").getFile()).getParentFile();
+                                           .getResource("broker.xml").getFile()).getParentFile();
 
       System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
       try {
@@ -43,6 +44,33 @@ public class TransferTest {
          }
 
          Assert.assertEquals(ConnectionAbstract.DEFAULT_BROKER_URL, transfer.getSourceURL());
+      } finally {
+         System.clearProperty("artemis.instance.etc");
+      }
+   }
+
+
+   @Test
+   public void testDefaultSourceAcceptorNoArtemis() {
+      Transfer transfer = new Transfer();
+
+      File brokerInstanceEtc = new File(this.getClass().getClassLoader()
+                                           .getResource("broker-with-connector.xml").getFile()).getParentFile();
+
+
+      System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
+      try {
+         transfer.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
+         ActionAbstractAccessor.setBrokerConfig(transfer, "broker-with-connector.xml");
+
+         try {
+            transfer.execute(new TestActionContext());
+         } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertEquals(JMSException.class, e.getClass());
+         }
+
+         Assert.assertEquals("tcp://localhost:3344", transfer.getSourceURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }

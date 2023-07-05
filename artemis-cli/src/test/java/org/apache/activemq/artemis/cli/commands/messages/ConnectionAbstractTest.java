@@ -16,6 +16,9 @@
  */
 package org.apache.activemq.artemis.cli.commands.messages;
 
+import javax.jms.JMSException;
+
+import org.apache.activemq.artemis.cli.commands.ActionAbstractAccessor;
 import org.apache.activemq.cli.test.TestActionContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,6 +41,30 @@ public class ConnectionAbstractTest {
          connectionAbstract.execute(new TestActionContext());
 
          Assert.assertEquals(ConnectionAbstract.DEFAULT_BROKER_URL, connectionAbstract.getBrokerURL());
+      } finally {
+         System.clearProperty("artemis.instance.etc");
+      }
+   }
+
+   @Test
+   public void testDefaultSourceAcceptorNoArtemis() {
+      ConnectionAbstract connectionAbstract = new ConnectionAbstract();
+
+      File brokerInstanceEtc = new File(this.getClass().getClassLoader().getResource("broker.xml").getFile()).getParentFile();
+
+      System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
+      try {
+         connectionAbstract.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
+         ActionAbstractAccessor.setBrokerConfig(connectionAbstract, "broker-with-connector.xml");
+
+         try {
+            connectionAbstract.execute(new TestActionContext());
+         } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertEquals(JMSException.class, e.getClass());
+         }
+
+         Assert.assertEquals("tcp://localhost:3344", connectionAbstract.getBrokerURL());
       } finally {
          System.clearProperty("artemis.instance.etc");
       }

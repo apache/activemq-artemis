@@ -19,6 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import com.github.rvesse.airline.annotations.Option;
@@ -38,6 +39,9 @@ public abstract class ActionAbstract implements Action {
 
    @Option(name = "--verbose", description = "Print additional information.")
    public boolean verbose;
+
+   // this could be changed by a test accessor for testing purposes.
+   String brokerConfigurationFileName = "broker.xml";
 
    private String brokerInstance;
 
@@ -90,43 +94,58 @@ public abstract class ActionAbstract implements Action {
       return brokerInstance;
    }
 
-   public String getBrokerURLInstance(String acceptor) {
+   public String getBrokerURLInstance(String name) {
+      String uri = null;
       if (getBrokerInstance() != null) {
          try {
             Configuration brokerConfiguration = getBrokerConfiguration();
 
-            if (acceptor == null) {
-               acceptor = DEFAULT_BROKER_ACCEPTOR;
+            if (name == null) {
+               name = DEFAULT_BROKER_ACCEPTOR;
             }
 
-            for (TransportConfiguration acceptorConfiguration: brokerConfiguration.getAcceptorConfigurations()) {
-               if (acceptorConfiguration.getName().equals(acceptor)) {
-                  Map<String, Object> acceptorParams = acceptorConfiguration.getParams();
-                  String scheme = ConfigurationHelper.getStringProperty(TransportConstants.SCHEME_PROP_NAME, SchemaConstants.TCP, acceptorParams);
-                  String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", acceptorParams);
-                  int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 61616, acceptorParams);
-
-                  if (InetAddress.getByName(host).isAnyLocalAddress()) {
-                     host = "localhost";
-                  }
-
-                  return new URI(scheme, null, host, port, null, null, null).toString();
-               }
+            uri = findTransportURI(name, brokerConfiguration.getAcceptorConfigurations());
+            if (uri == null) {
+               uri = findTransportURI(name, brokerConfiguration.getConnectorConfigurations().values());
             }
+
+            return uri;
          } catch (Exception e) {
-            if (isVerbose()) {
-               getActionContext().out.print("Can not get the broker url instance: " + e.toString());
-            }
+            getActionContext().out.print("Can not get the broker url instance: " + e.getMessage());
+            e.printStackTrace(getActionContext().out);
          }
       }
 
+      if (uri == null) {
+         uri = DEFAULT_BROKER_URL;
+      }
+
+      return uri;
+   }
+
+   private String findTransportURI(String name, Collection<TransportConfiguration> configurationis) throws Exception {
+      for (TransportConfiguration acceptorConfiguration: configurationis) {
+         if (acceptorConfiguration.getName().equals(name)) {
+            Map<String, Object> acceptorParams = acceptorConfiguration.getParams();
+            String scheme = ConfigurationHelper.getStringProperty(TransportConstants.SCHEME_PROP_NAME, SchemaConstants.TCP, acceptorParams);
+            String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", acceptorParams);
+            int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 61616, acceptorParams);
+
+            if (InetAddress.getByName(host).isAnyLocalAddress()) {
+               host = "localhost";
+            }
+
+            return new URI(scheme, null, host, port, null, null, null).toString();
+         }
+      }
       return null;
    }
 
 
    protected Configuration getBrokerConfiguration() throws Exception {
       FileConfiguration fileConfiguration = new FileConfiguration();
-      String brokerConfiguration = new File(new File(getBrokerEtc()), "broker.xml").toURI().toASCIIString();
+
+      String brokerConfiguration = new File(new File(getBrokerEtc()), this.brokerConfigurationFileName).toURI().toASCIIString();
       FileDeploymentManager fileDeploymentManager = new FileDeploymentManager(brokerConfiguration);
       fileDeploymentManager.addDeployable(fileConfiguration);
       fileDeploymentManager.readConfiguration();

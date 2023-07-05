@@ -32,7 +32,7 @@ public class ConnectionAbstract extends InputAbstract {
    @Option(name = "--url", description = "Connection URL. Default: build URL from the 'artemis' acceptor defined in the broker.xml or tcp://localhost:61616 if the acceptor cannot be parsed.")
    protected String brokerURL = DEFAULT_BROKER_URL;
 
-   @Option(name = "--acceptor", description = "Acceptor used to build the connection URL.")
+   @Option(name = "--acceptor", description = "Name used to find the default connection URL on the acceptor list. If an acceptor with that name cannot be found the CLI will look for a connector with the same name.")
    protected String acceptor;
 
    @Option(name = "--user", description = "User used to connect.")
