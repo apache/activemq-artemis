@@ -33,7 +33,7 @@ under the License.
 
    <properties>
       <activemq.basedir>${project.basedir}/../../../..</activemq.basedir>
-      <version.org.keycloak>21.0.0</version.org.keycloak>
+      <version.org.keycloak>21.1.2</version.org.keycloak>
       <version.jboss.logging>3.5.0.Final</version.jboss.logging>
    </properties>
 
