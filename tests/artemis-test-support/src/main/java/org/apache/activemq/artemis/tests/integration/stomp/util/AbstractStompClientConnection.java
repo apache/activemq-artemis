@@ -30,7 +30,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import org.apache.activemq.artemis.core.protocol.stomp.Stomp;
-import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.transport.netty.NettyTransport;
 import org.apache.activemq.transport.netty.NettyTransportFactory;
@@ -91,8 +90,6 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
       transport.setTransportListener(new StompTransportListener());
       transport.connect();
 
-      Wait.waitFor(() -> transport.isConnected(), 1000);
-
       if (!transport.isConnected()) {
          throw new RuntimeException("Could not connect transport");
       }
@@ -111,8 +108,6 @@ public abstract class AbstractStompClientConnection implements StompClientConnec
 
       if (autoConnect) {
          transport.connect();
-
-         Wait.waitFor(() -> transport.isConnected(), 1000);
 
          if (!transport.isConnected()) {
             throw new RuntimeException("Could not connect transport");
