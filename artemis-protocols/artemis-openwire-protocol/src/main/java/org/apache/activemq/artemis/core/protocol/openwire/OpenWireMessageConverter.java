@@ -38,7 +38,6 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.util.zip.InflaterOutputStream;
 
-import com.google.common.io.BaseEncoding;
 import org.apache.activemq.ScheduledMessage;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQPropertyConversionException;
@@ -52,6 +51,7 @@ import org.apache.activemq.artemis.core.protocol.openwire.util.OpenWireUtil;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.reader.MessageUtil;
+import org.apache.activemq.artemis.utils.ByteUtil;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.UUID;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -949,7 +949,7 @@ public final class OpenWireMessageConverter {
             if (prop instanceof SimpleString) {
                amqMsg.setObjectProperty(keyStr, prop.toString());
             } else if (prop instanceof byte[]) {
-               amqMsg.setObjectProperty(keyStr,  BaseEncoding.base16().encode((byte[])prop));
+               amqMsg.setObjectProperty(keyStr, ByteUtil.bytesToHex((byte[])prop));
             } else if (keyStr.equals(MessageUtil.JMSXDELIVERYCOUNT) && prop instanceof Long) {
                Long l = (Long) prop;
                amqMsg.setObjectProperty(keyStr, l.intValue());

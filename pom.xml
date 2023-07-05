@@ -97,7 +97,7 @@
       <commons.io.version>2.10.0</commons.io.version>
       <commons.codec.version>1.15</commons.codec.version>
       <fuse.mqtt.client.version>1.16</fuse.mqtt.client.version>
-      <guava.version>32.0.1-jre</guava.version>
+      <caffeine.version>3.1.6</caffeine.version>
       <hawtio.version>2.15.0</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jetty.version>10.0.15</jetty.version>
@@ -110,6 +110,7 @@
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>10.11.0</checkstyle.version>
       <mockito.version>5.4.0</mockito.version>
+      <classgraph.version>4.8.161</classgraph.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.94.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
@@ -382,6 +383,14 @@
          </dependency>
 
          <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
+            <scope>test</scope>
+            <!-- License: MIT -->
+         </dependency>
+
+         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-minikdc</artifactId>
             <version>${hadoop.minikdc.version}</version>
@@ -410,12 +419,6 @@
          </dependency>
 
          <!-- ## End Test Dependencies ## -->
-         <dependency>
-             <groupId>com.google.errorprone</groupId>
-             <artifactId>error_prone_core</artifactId>
-             <version>${errorprone.version}</version>
-             <scope>provided</scope>
-         </dependency>
          <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -915,9 +918,9 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -1078,12 +1081,6 @@
                   <name>errorprone</name>
               </property>
           </activation>
-          <dependencies>
-              <dependency>
-                  <groupId>com.google.errorprone</groupId>
-                  <artifactId>error_prone_core</artifactId>
-              </dependency>
-          </dependencies>
           <build>
               <plugins>
                   <plugin>
@@ -1097,6 +1094,13 @@
                               <arg>-XDcompilePolicy=simple</arg>
                               <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                           </compilerArgs>
+                          <annotationProcessorPaths>
+                              <path>
+                                  <groupId>com.google.errorprone</groupId>
+                                  <artifactId>error_prone_core</artifactId>
+                                  <version>${errorprone.version}</version>
+                              </path>
+                          </annotationProcessorPaths>
                       </configuration>
                   </plugin>
               </plugins>
@@ -1111,12 +1115,6 @@
                   <name>errorprone</name>
               </property>
           </activation>
-          <dependencies>
-              <dependency>
-                  <groupId>com.google.errorprone</groupId>
-                  <artifactId>error_prone_core</artifactId>
-              </dependency>
-          </dependencies>
           <build>
               <plugins>
                   <plugin>
@@ -1141,6 +1139,13 @@
                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                           </compilerArgs>
+                          <annotationProcessorPaths>
+                              <path>
+                                  <groupId>com.google.errorprone</groupId>
+                                  <artifactId>error_prone_core</artifactId>
+                                  <version>${errorprone.version}</version>
+                              </path>
+                          </annotationProcessorPaths>
                       </configuration>
                   </plugin>
               </plugins>

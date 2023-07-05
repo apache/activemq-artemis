@@ -16,7 +16,8 @@
  */
 package org.apache.activemq.artemis.cli.commands.tools.xml;
 
-import com.google.common.base.Preconditions;
+import java.util.Objects;
+
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -89,7 +90,7 @@ public class XmlDataExporterUtil {
     * Base64 encode a ServerMessage body into the proper XML format
     */
    public static String encodeMessageBodyBase64(final Message message) throws Exception {
-      Preconditions.checkNotNull(message, "ServerMessage can not be null");
+      Objects.requireNonNull(message, "ServerMessage can not be null");
 
       ActiveMQBuffer byteBuffer = message.toCore().getReadOnlyBodyBuffer();
       byte[] buffer = new byte[byteBuffer.writerIndex()];

@@ -22,8 +22,6 @@ import java.security.AccessController;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -54,6 +52,10 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -98,11 +100,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       this.managementClusterUser = managementClusterUser;
       this.managementClusterPassword = managementClusterPassword;
       this.notificationService = notificationService;
-      authenticationCache = CacheBuilder.newBuilder()
+      authenticationCache = Caffeine.newBuilder()
                                         .maximumSize(authenticationCacheSize)
                                         .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                         .build();
-      authorizationCache = CacheBuilder.newBuilder()
+      authorizationCache = Caffeine.newBuilder()
                                        .maximumSize(authorizationCacheSize)
                                        .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                        .build();
@@ -433,11 +435,11 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
    }
 
    public long getAuthenticationCacheSize() {
-      return authenticationCache.size();
+      return authenticationCache.estimatedSize();
    }
 
    public long getAuthorizationCacheSize() {
-      return authorizationCache.size();
+      return authorizationCache.estimatedSize();
    }
 
    private boolean checkAuthorizationCache(final SimpleString dest, final String user, final CheckType checkType) {

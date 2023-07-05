@@ -27,9 +27,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Predicates;
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
@@ -351,7 +351,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    private void stopMajorityNotLeaderNodes(boolean fromLast) throws Exception {
-      List<TestingZooKeeperServer> followers = testingServer.getServers().stream().filter(Predicates.not(CuratorDistributedLockTest::isLeader)).collect(Collectors.toList());
+      List<TestingZooKeeperServer> followers = testingServer.getServers().stream().filter(Predicate.not(CuratorDistributedLockTest::isLeader)).collect(Collectors.toList());
       final int quorum = (zkNodes / 2) + 1;
       for (int i = 0; i < quorum; i++) {
          final int nodeIndex = fromLast ? (followers.size() - 1) - i : i;
