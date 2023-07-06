@@ -66,11 +66,14 @@ public class MQTTSubscriptionManager {
 
    private final char anyWords;
 
+   private final char delimiter;
+
    public MQTTSubscriptionManager(MQTTSession session) {
       this.session = session;
 
       singleWord = session.getServer().getConfiguration().getWildcardConfiguration().getSingleWord();
       anyWords = session.getServer().getConfiguration().getWildcardConfiguration().getAnyWords();
+      delimiter = session.getServer().getConfiguration().getWildcardConfiguration().getDelimiter();
 
       consumers = new ConcurrentHashMap<>();
       consumerQoSLevels = new ConcurrentHashMap<>();
@@ -301,9 +304,9 @@ public class MQTTSubscriptionManager {
          int slashIndex = topic.indexOf(SLASH) + 1;
          String sharedSubscriptionName = topic.substring(slashIndex, topic.indexOf(SLASH, slashIndex));
          String parsedTopicName = topic.substring(topic.indexOf(SLASH, slashIndex) + 1);
-         return new SimpleString(sharedSubscriptionName).concat(".").concat(parsedTopicName);
+         return new SimpleString(sharedSubscriptionName).concat(delimiter).concat(parsedTopicName);
       } else {
-         return new SimpleString(session.getState().getClientId()).concat(".").concat(topic);
+         return new SimpleString(session.getState().getClientId()).concat(delimiter).concat(topic);
       }
    }
 
