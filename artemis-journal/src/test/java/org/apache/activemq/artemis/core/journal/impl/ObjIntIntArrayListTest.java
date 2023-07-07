@@ -22,9 +22,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class ObjIntIntArrayListTest {
 
@@ -56,9 +54,9 @@ public class ObjIntIntArrayListTest {
          cList.add(c);
          Assert.assertSame(expectedArg, arg);
       }, expectedArg);
-      assertThat(aList, equalTo(expectedAList));
-      assertThat(bList, equalTo(expectedBList));
-      assertThat(cList, equalTo(expectedCList));
+      assertEquals(expectedAList, aList);
+      assertEquals(expectedBList, bList);
+      assertEquals(expectedCList, cList);
    }
 
    @Test(expected = NullPointerException.class)

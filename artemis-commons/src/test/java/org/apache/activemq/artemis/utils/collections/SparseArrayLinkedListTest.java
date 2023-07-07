@@ -22,8 +22,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
-
 public class SparseArrayLinkedListTest {
 
    private static final int SPARSE_ARRAY_CAPACITY = 4;
@@ -74,7 +72,7 @@ public class SparseArrayLinkedListTest {
       Assert.assertEquals(elements, list.clear(removed::add));
       Assert.assertEquals(1, list.sparseArraysCount());
       Assert.assertEquals(0, list.size());
-      Assert.assertThat(removed, is(expected));
+      Assert.assertEquals(expected, removed);
    }
 
    @Test

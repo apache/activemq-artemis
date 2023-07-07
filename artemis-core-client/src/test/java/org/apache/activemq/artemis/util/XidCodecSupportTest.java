@@ -23,12 +23,11 @@ import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 import org.apache.activemq.artemis.utils.XidCodecSupport;
 import org.apache.activemq.artemis.api.core.ActiveMQInvalidBufferException;
+import org.junit.Assert;
 import org.junit.Test;
 
 import javax.transaction.xa.Xid;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.fail;
 
 public class XidCodecSupportTest {
@@ -41,11 +40,11 @@ public class XidCodecSupportTest {
       final ActiveMQBuffer buffer = ActiveMQBuffers.dynamicBuffer(0);
       XidCodecSupport.encodeXid(VALID_XID, buffer);
 
-      assertThat(buffer.readableBytes(), equalTo(51)); // formatId(4) + branchQualLength(4) + branchQual(3) +
+      Assert.assertEquals(51, buffer.readableBytes()); // formatId(4) + branchQualLength(4) + branchQual(3) +
       // globalTxIdLength(4) + globalTx(36)
 
       final Xid readXid = XidCodecSupport.decodeXid(buffer);
-      assertThat(readXid, equalTo(VALID_XID));
+      Assert.assertEquals(VALID_XID, readXid);
    }
 
    @Test

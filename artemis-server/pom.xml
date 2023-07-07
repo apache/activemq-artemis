@@ -112,11 +112,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-artemis-native</artifactId>
-         <version>${activemq-artemis-native-version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.jctools</groupId>
          <artifactId>jctools-core</artifactId>
       </dependency>
@@ -147,8 +142,16 @@
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
+         <artifactId>netty-transport-classes-epoll</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
          <artifactId>netty-transport-native-kqueue</artifactId>
          <classifier>${netty-transport-native-kqueue-classifier}</classifier>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-transport-classes-kqueue</artifactId>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
@@ -160,11 +163,25 @@
       </dependency>
       <dependency>
          <groupId>org.apache.commons</groupId>
+         <artifactId>commons-lang3</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.commons</groupId>
          <artifactId>commons-configuration2</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>commons-collections</groupId>
+         <artifactId>commons-collections</artifactId>
       </dependency>
       <dependency>
          <groupId>io.micrometer</groupId>
          <artifactId>micrometer-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-artemis-native</artifactId>
+         <version>${activemq-artemis-native-version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>commons-io</groupId>
@@ -236,12 +253,6 @@
          <artifactId>mockito-core</artifactId>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>org.hamcrest</groupId>
-         <artifactId>hamcrest</artifactId>
-         <version>${hamcrest.version}</version>
-         <scope>test</scope>
-      </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,
            However maven can still need them during tests, which run against
@@ -268,6 +279,24 @@
                <artifactId>json-smart</artifactId>
             </exclusion>
          </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.mock-server</groupId>
+         <artifactId>mockserver-core</artifactId>
+         <version>${mockserver.version}</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>net.minidev</groupId>
+               <artifactId>json-smart</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.mock-server</groupId>
+         <artifactId>mockserver-client-java</artifactId>
+         <version>${mockserver.version}</version>
+         <scope>test</scope>
       </dependency>
       <!-- bcprov-jdk18on replaces bcprov-jdk15on excluded from apacheds-protocol-ldap -->
       <dependency>

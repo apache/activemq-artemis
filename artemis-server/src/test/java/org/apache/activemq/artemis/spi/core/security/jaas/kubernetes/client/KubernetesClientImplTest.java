@@ -21,8 +21,6 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.AUTH_JSON;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.UNAUTH_JSON;
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.USERNAME;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -148,8 +146,8 @@ public class KubernetesClientImplTest {
       tr = client.getTokenReview("kermit_token");
       assertNotNull(tr);
       assertNotNull(tr.getUser());
-      assertThat(tr.getUsername(), is(USERNAME));
-      assertThat(tr.getUser().getUsername(), is(USERNAME));
+      assertEquals(USERNAME, tr.getUsername());
+      assertEquals(USERNAME, tr.getUser().getUsername());
 
       tr = client.getTokenReview("other");
       assertNotNull(tr);

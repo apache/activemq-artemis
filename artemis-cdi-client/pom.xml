@@ -68,7 +68,7 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-jms-server</artifactId>
+         <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -99,16 +99,22 @@
          <groupId>org.jboss.shrinkwrap</groupId>
          <artifactId>shrinkwrap-api</artifactId>
          <version>1.2.6</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.arquillian.junit</groupId>
          <artifactId>arquillian-junit-container</artifactId>
       </dependency>
       <dependency>
+         <groupId>org.jboss.arquillian.container</groupId>
+         <artifactId>arquillian-container-test-api</artifactId>
+         <version>${arquillian.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
          <version>${project.version}</version>
-         <scope>test</scope>
       </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,

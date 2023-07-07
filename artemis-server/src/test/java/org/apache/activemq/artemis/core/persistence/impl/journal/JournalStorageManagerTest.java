@@ -42,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static java.util.stream.Collectors.toList;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -127,12 +126,12 @@ public class JournalStorageManagerTest extends ActiveMQTestBase {
          directBuffer.writerIndex(size);
          long fileSize = file.size();
          manager.addBytesToLargeMessage(file, 1, directBuffer);
-         Assert.assertThat(file.size(), is(fileSize + size));
+         Assert.assertEquals(fileSize + size, file.size());
          fileSize = file.size();
          final ActiveMQBuffer heapBuffer = ActiveMQBuffers.wrappedBuffer(new byte[size]);
          heapBuffer.writerIndex(size);
          manager.addBytesToLargeMessage(file, 1, heapBuffer);
-         Assert.assertThat(file.size(), is(fileSize + size));
+         Assert.assertEquals(fileSize + size, file.size());
       } finally {
          manager.stop();
          file.close();

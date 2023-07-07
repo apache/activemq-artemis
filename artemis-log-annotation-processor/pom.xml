@@ -41,6 +41,7 @@
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
+         <scope>test</scope>
          <!-- License: MIT -->
       </dependency>
       <dependency>

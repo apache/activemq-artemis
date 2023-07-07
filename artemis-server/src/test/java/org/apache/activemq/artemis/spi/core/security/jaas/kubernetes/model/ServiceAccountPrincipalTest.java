@@ -16,8 +16,7 @@
  */
 package org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import org.apache.activemq.artemis.spi.core.security.jaas.ServiceAccountPrincipal;
@@ -31,9 +30,9 @@ public class ServiceAccountPrincipalTest {
 
       ServiceAccountPrincipal principal = new ServiceAccountPrincipal(name);
 
-      assertThat(principal.getNamespace(), is("some-ns"));
-      assertThat(principal.getSaName(), is("some-sa"));
-      assertThat(principal.getName(), is(name));
+      assertEquals("some-ns", principal.getNamespace());
+      assertEquals("some-sa", principal.getSaName());
+      assertEquals(name, principal.getName());
    }
 
    @Test
@@ -42,7 +41,7 @@ public class ServiceAccountPrincipalTest {
 
       ServiceAccountPrincipal principal = new ServiceAccountPrincipal(name);
 
-      assertThat(principal.getName(), is("foo"));
+      assertEquals(name, principal.getName());
       assertNull(principal.getSaName());
       assertNull(principal.getNamespace());
    }

@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.sasl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +39,6 @@ import org.apache.activemq.artemis.spi.core.security.scram.ScramException;
 import org.apache.activemq.artemis.spi.core.security.scram.ScramUtils;
 import org.apache.activemq.artemis.spi.core.security.scram.UserData;
 import org.apache.qpid.proton.codec.DecodeException;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -115,7 +113,7 @@ public class SCRAMTest {
       assertNull(serverFinal);
       assertNotNull(serverSASL.result());
       assertFalse(serverSASL.result().isSuccess());
-      assertThat(serverSASL.exception, IsInstanceOf.instanceOf(ScramException.class));
+      assertTrue(serverSASL.exception + " is not an instance of ScramException", serverSASL.exception instanceof ScramException);
    }
 
    @Test(expected = DecodeException.class)

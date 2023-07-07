@@ -17,15 +17,12 @@
 package org.apache.activemq.artemis.spi.core.security.jaas.kubernetes.model;
 
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModuleTest.USERNAME;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 public class TokenReviewTest {
@@ -48,10 +45,10 @@ public class TokenReviewTest {
 
       assertNotNull(tr);
       assertTrue(tr.isAuthenticated());
-      assertThat(tr.getUsername(), is(USERNAME));
+      assertEquals(USERNAME, tr.getUsername());
       assertNotNull(tr.getUser());
-      assertThat(tr.getUser().getUsername(), is(USERNAME));
-      assertThat(tr.getAudiences(), Matchers.empty());
+      assertEquals(USERNAME, tr.getUser().getUsername());
+      assertEquals(0, tr.getAudiences().size());
       assertNull(tr.getUser().getExtra());
    }
 
@@ -86,17 +83,20 @@ public class TokenReviewTest {
 
       assertNotNull(tr);
       assertTrue(tr.isAuthenticated());
-      assertThat(tr.getUsername(), is(USERNAME));
+      assertEquals(USERNAME, tr.getUsername());
       assertNotNull(tr.getUser());
-      assertThat(tr.getUser().getUsername(), is(USERNAME));
-      assertThat(tr.getAudiences(), containsInAnyOrder("audience-1", "audience-2"));
-      assertThat(tr.getUser().getGroups(), containsInAnyOrder("group-1", "group-2"));
-      assertThat(tr.getUser().getUid(), is("kermit-uid"));
+      assertEquals(USERNAME, tr.getUser().getUsername());
+      assertTrue(tr.getAudiences().contains("audience-1"));
+      assertTrue(tr.getAudiences().contains("audience-2"));
+      assertTrue(tr.getUser().getGroups().contains("group-1"));
+      assertTrue(tr.getUser().getGroups().contains("group-2"));
+      assertEquals("kermit-uid", tr.getUser().getUid());
 
       assertNotNull(tr.getUser().getExtra());
-      assertThat(tr.getUser().getExtra().getPodNames(), containsInAnyOrder("pod-1", "pod-2"));
-      assertThat(tr.getUser().getExtra().getPodUids(), containsInAnyOrder("pod-uid-1", "pod-uid-2"));
-
+      assertTrue(tr.getUser().getExtra().getPodNames().contains("pod-1"));
+      assertTrue(tr.getUser().getExtra().getPodNames().contains("pod-2"));
+      assertTrue(tr.getUser().getExtra().getPodUids().contains("pod-uid-1"));
+      assertTrue(tr.getUser().getExtra().getPodUids().contains("pod-uid-2"));
    }
 
 }

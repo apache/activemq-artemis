@@ -35,6 +35,12 @@
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-quorum-api</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-quorum-ri</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
@@ -50,56 +56,61 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-server</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-ra</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-spring-integration</artifactId>
-         <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-journal</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jdbc-store</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-amqp-protocol</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-stomp-protocol</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-openwire-protocol</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
          <exclusions>
             <exclusion>
                <groupId>org.apache.geronimo.specs</groupId>
@@ -109,37 +120,37 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-hornetq-protocol</artifactId>
+         <artifactId>artemis-hqclient-protocol</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-artemis-native</artifactId>
          <version>${activemq-artemis-native-version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-service-extensions</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq.tests</groupId>
          <artifactId>artemis-test-support</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>artemis-junit</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
@@ -150,9 +161,27 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-selector</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-dto</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>org.hamcrest</groupId>
          <artifactId>hamcrest</artifactId>
          <version>${hamcrest.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.micrometer</groupId>
+         <artifactId>micrometer-core</artifactId>
+         <version>${version.micrometer}</version>
          <scope>test</scope>
       </dependency>
 
@@ -175,76 +204,109 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-mqtt-protocol</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.fusesource.mqtt-client</groupId>
          <artifactId>mqtt-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.eclipse.paho</groupId>
          <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.eclipse.paho</groupId>
          <artifactId>org.eclipse.paho.mqttv5.client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.resource</groupId>
          <artifactId>jakarta.resource-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.transaction</groupId>
          <artifactId>jakarta.transaction-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.jms</groupId>
          <artifactId>jakarta.jms-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.management.j2ee</groupId>
          <artifactId>jakarta.management.j2ee-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.annotation</groupId>
          <artifactId>jakarta.annotation-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-buffer</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-codec-http</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-codec-mqtt</artifactId>
          <version>${netty.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-handler</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-transport</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-common</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.fusesource.hawtbuf</groupId>
+         <artifactId>hawtbuf</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.fusesource.hawtdispatch</groupId>
+         <artifactId>hawtdispatch</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>proton-j</artifactId>
+         <scope>test</scope>
       </dependency>
       <!-- logging -->
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
@@ -271,26 +333,23 @@
       </dependency>
 
       <dependency>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-lang3</artifactId>
-          <scope>test</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>org.codehaus.woodstox</groupId>
-         <artifactId>woodstox-core-asl</artifactId>
-         <version>4.4.0</version>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-lang3</artifactId>
          <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>javax.xml.stream</groupId>
-               <artifactId>stax-api</artifactId>
-            </exclusion>
-         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>commons-beanutils</groupId>
+         <artifactId>commons-beanutils</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.hadoop</groupId>
          <artifactId>hadoop-minikdc</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-core</artifactId>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -304,12 +363,9 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>commons-io</groupId>
-         <artifactId>commons-io</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.jgroups</groupId>
          <artifactId>jgroups</artifactId>
+         <scope>test</scope>
       </dependency>
 
       <!-- openSSL test -->
@@ -325,6 +381,12 @@
          <version>${vertx.version}</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>io.vertx</groupId>
+         <artifactId>vertx-core</artifactId>
+         <version>${vertx.version}</version>
+         <scope>test</scope>
+      </dependency>
 
       <!-- need this for org.apache.activemq.filter.JAXPXPathEvaluator for Xpath selectors with OpenWire JMS clients-->
       <dependency>
@@ -336,6 +398,19 @@
             <exclusion>
                <groupId>com.fasterxml.jackson.core</groupId>
                <artifactId>jackson-databind</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+
+      <dependency>
+         <groupId>org.codehaus.woodstox</groupId>
+         <artifactId>woodstox-core-asl</artifactId>
+         <version>${woodstox.version}</version>
+         <scope>test</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>javax.xml.stream</groupId>
+               <artifactId>stax-api</artifactId>
             </exclusion>
          </exclusions>
       </dependency>

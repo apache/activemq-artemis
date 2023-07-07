@@ -58,6 +58,10 @@
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+         <groupId>commons-beanutils</groupId>
+         <artifactId>commons-beanutils</artifactId>
+      </dependency>
 
       <!-- Default DataSource for database -->
       <dependency>

@@ -20,6 +20,8 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -28,11 +30,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-
 import static org.apache.activemq.artemis.utils.collections.TypedProperties.searchProperty;
-import static org.hamcrest.Matchers.greaterThan;
 
 public class TypedPropertiesTest {
 
@@ -95,7 +93,7 @@ public class TypedPropertiesTest {
       Assert.assertTrue(props.containsProperty(key));
       Assert.assertNotNull(props.getProperty(key));
 
-      Assert.assertThat(props.getEncodeSize(), greaterThan(0));
+      Assert.assertTrue("encodeSize <= " + 0, props.getEncodeSize() > 0);
 
       props.clear();
 

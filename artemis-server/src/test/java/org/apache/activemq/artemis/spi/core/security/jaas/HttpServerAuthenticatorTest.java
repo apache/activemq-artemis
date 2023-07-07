@@ -34,9 +34,7 @@ import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthe
 import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.DEFAULT_SUBJECT_ATTRIBUTE;
 import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REALM_PROPERTY_NAME;
 import static org.apache.activemq.artemis.spi.core.security.jaas.HttpServerAuthenticator.REQUEST_SUBJECT_ATTRIBUTE_PROPERTY_NAME;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -87,14 +85,14 @@ public class HttpServerAuthenticatorTest {
       Authenticator.Result result = underTest.authenticate(httpsExchange);
 
       assertTrue(result instanceof Authenticator.Success);
-      assertThat(((Authenticator.Success) result).getPrincipal().getUsername(), is("foo"));
+      assertEquals("foo", ((Authenticator.Success) result).getPrincipal().getUsername());
 
       Subject subject = (Subject) httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE);
 
-      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
-      subject.getPrincipals(UserPrincipal.class).forEach(p -> assertThat(p.getName(), is("foo")));
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size());
+      subject.getPrincipals(UserPrincipal.class).forEach(p -> assertEquals("foo", p.getName()));
       Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
-      assertThat(roles, hasSize(1));
+      assertEquals(1, roles.size());
    }
 
    @Test
@@ -118,15 +116,15 @@ public class HttpServerAuthenticatorTest {
       Authenticator.Result result = underTest.authenticate(httpsExchange);
 
       assertTrue(result instanceof Authenticator.Success);
-      assertThat(((Authenticator.Success) result).getPrincipal().getUsername(), is("first"));
+      assertEquals("first", ((Authenticator.Success) result).getPrincipal().getUsername());
 
       Subject subject = (Subject) httpsExchange.getAttribute(DEFAULT_SUBJECT_ATTRIBUTE);
 
-      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
-      subject.getPrincipals(UserPrincipal.class).forEach(p -> assertThat(p.getName(), is("first")));
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size());
+      subject.getPrincipals(UserPrincipal.class).forEach(p -> assertEquals("first", p.getName()));
 
       Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
-      assertThat(roles, hasSize(2));
+      assertEquals(2, roles.size());
    }
 
 

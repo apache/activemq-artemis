@@ -26,10 +26,6 @@ import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
-
 public class TransportConfigurationTest {
 
    @Test
@@ -95,7 +91,7 @@ public class TransportConfigurationTest {
 
       TransportConfiguration configuration = new TransportConfiguration("SomeClass", params, null);
 
-      assertThat(configuration.toString(), not(containsString("secret_password")));
+      Assert.assertFalse("configuration contains secret_password", configuration.toString().contains("secret_password"));
    }
 
    @Test

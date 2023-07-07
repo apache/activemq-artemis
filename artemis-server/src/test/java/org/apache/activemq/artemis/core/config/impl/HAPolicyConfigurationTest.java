@@ -51,12 +51,8 @@ import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.MutableLong;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Test;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
 
 public class HAPolicyConfigurationTest extends ActiveMQTestBase {
 
@@ -76,7 +72,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
       assertEquals(HAPolicyConfiguration.TYPE.LIVE_ONLY, server.getConfiguration().getHAPolicyConfiguration().getType());
       try {
          server.start();
-         assertThat(server.getNodeManager(), instanceOf(FileLockNodeManager.class));
+         assertTrue(server.getNodeManager() + " is not an instance of FileLockNodeManager", server.getNodeManager() instanceof FileLockNodeManager);
       } finally {
          server.stop();
       }
@@ -340,7 +336,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          DistributedPrimitiveManager manager = ((ReplicationPrimaryActivation) activation).getDistributedManager();
          assertNotNull(manager);
          assertEquals(FakeDistributedPrimitiveManager.class.getName(), manager.getClass().getName());
-         MatcherAssert.assertThat(manager, IsInstanceOf.instanceOf(FakeDistributedPrimitiveManager.class));
+         assertTrue(manager + " is not an instance of FakeDistributedPrimitiveManager", manager instanceof FakeDistributedPrimitiveManager);
          FakeDistributedPrimitiveManager forwardingManager = (FakeDistributedPrimitiveManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());
@@ -396,7 +392,7 @@ public class HAPolicyConfigurationTest extends ActiveMQTestBase {
          DistributedPrimitiveManager manager = ((ReplicationBackupActivation) activation).getDistributedManager();
          assertNotNull(manager);
          assertEquals(FakeDistributedPrimitiveManager.class.getName(), manager.getClass().getName());
-         MatcherAssert.assertThat(manager, IsInstanceOf.instanceOf(FakeDistributedPrimitiveManager.class));
+         assertTrue(manager instanceof FakeDistributedPrimitiveManager);
          FakeDistributedPrimitiveManager forwardingManager = (FakeDistributedPrimitiveManager) manager;
          // validate manager config
          validateManagerConfig(forwardingManager.getConfig());

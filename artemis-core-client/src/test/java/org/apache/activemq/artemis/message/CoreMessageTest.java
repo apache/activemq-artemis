@@ -37,9 +37,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-
 public class CoreMessageTest {
 
    public static final SimpleString ADDRESS = new SimpleString("this.local.address");
@@ -371,8 +368,8 @@ public class CoreMessageTest {
       copy.putBytesProperty(Message.HDR_ROUTE_TO_IDS, new byte[Long.BYTES]);
       final int increasedMemoryFootprint = copy.getMemoryEstimate() - memoryEstimate;
       final int increasedPropertyFootprint = copy.getProperties().getMemoryOffset() - msg.getProperties().getMemoryOffset();
-      assertThat("memory estimation isn't accounting for the additional encoded property",
-                 increasedMemoryFootprint, greaterThan(increasedPropertyFootprint));
+      Assert.assertTrue("memory estimation isn't accounting for the additional encoded property",
+                 increasedMemoryFootprint > increasedPropertyFootprint);
    }
 
    @Test
