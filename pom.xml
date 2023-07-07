@@ -420,6 +420,12 @@
 
          <!-- ## End Test Dependencies ## -->
          <dependency>
+             <groupId>com.google.errorprone</groupId>
+             <artifactId>error_prone_core</artifactId>
+             <version>${errorprone.version}</version>
+             <scope>provided</scope>
+         </dependency>
+         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>
@@ -1081,6 +1087,12 @@
                   <name>errorprone</name>
               </property>
           </activation>
+          <dependencies>
+              <dependency>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_core</artifactId>
+              </dependency>
+          </dependencies>
           <build>
               <plugins>
                   <plugin>
@@ -1094,13 +1106,6 @@
                               <arg>-XDcompilePolicy=simple</arg>
                               <arg>-Xplugin:ErrorProne -Xep:ThreadLocalUsage:ERROR -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -Xep:BanJNDI:OFF -XepExcludedPaths:.*/generated-sources/.*</arg>
                           </compilerArgs>
-                          <annotationProcessorPaths>
-                              <path>
-                                  <groupId>com.google.errorprone</groupId>
-                                  <artifactId>error_prone_core</artifactId>
-                                  <version>${errorprone.version}</version>
-                              </path>
-                          </annotationProcessorPaths>
                       </configuration>
                   </plugin>
               </plugins>
@@ -1115,6 +1120,12 @@
                   <name>errorprone</name>
               </property>
           </activation>
+          <dependencies>
+              <dependency>
+                  <groupId>com.google.errorprone</groupId>
+                  <artifactId>error_prone_core</artifactId>
+              </dependency>
+          </dependencies>
           <build>
               <plugins>
                   <plugin>
@@ -1139,13 +1150,6 @@
                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
                               <arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
                           </compilerArgs>
-                          <annotationProcessorPaths>
-                              <path>
-                                  <groupId>com.google.errorprone</groupId>
-                                  <artifactId>error_prone_core</artifactId>
-                                  <version>${errorprone.version}</version>
-                              </path>
-                          </annotationProcessorPaths>
                       </configuration>
                   </plugin>
               </plugins>
