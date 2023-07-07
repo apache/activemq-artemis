@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.utils.collections;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,14 +26,6 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsEqual.equalTo;
 
 /**
  * These tests are based on <a href="https://github.com/real-logic/agrona/blob/master/agrona/src/test/java/org/agrona/collections/IntHashSetTest.java">Agrona IntHashSetTest</a>
@@ -297,8 +290,9 @@ public class LongHashSetTest {
 
       Assert.assertTrue("Failed to remove 8", requiredFields.remove(8L));
       Assert.assertTrue("Failed to remove 9", requiredFields.remove(9L));
-
-      assertThat(requiredFields, containsInAnyOrder(35L, 49L, 56L));
+      Assert.assertTrue("requiredFields does not contain " + 35, requiredFields.contains(35L));
+      Assert.assertTrue("requiredFields does not contain " + 49, requiredFields.contains(49L));
+      Assert.assertTrue("requiredFields does not contain " + 56, requiredFields.contains(56L));
    }
 
    @Test
@@ -543,8 +537,8 @@ public class LongHashSetTest {
          }
       }
 
-      assertThat(testSet, contains(1001L));
-      assertThat(testSet, hasSize(1));
+      Assert.assertTrue("testSet does not contain 1001", testSet.contains(1001L));
+      Assert.assertEquals(1, testSet.size());
    }
 
    @Test
@@ -588,7 +582,9 @@ public class LongHashSetTest {
 
       final Long[] result = testSet.toArray(new Long[testSet.size()]);
 
-      assertThat(result, arrayContainingInAnyOrder(1L, 1001L, LongHashSet.MISSING_VALUE));
+      Assert.assertTrue(Arrays.asList(result).contains(1L));
+      Assert.assertTrue(Arrays.asList(result).contains(1001L));
+      Assert.assertTrue(Arrays.asList(result).contains(LongHashSet.MISSING_VALUE));
    }
 
    @Test
@@ -599,7 +595,9 @@ public class LongHashSetTest {
 
       final Object[] result = testSet.toArray();
 
-      assertThat(result, arrayContainingInAnyOrder(1L, 1001L, LongHashSet.MISSING_VALUE));
+      Assert.assertTrue(Arrays.asList(result).contains(1L));
+      Assert.assertTrue(Arrays.asList(result).contains(1001L));
+      Assert.assertTrue(Arrays.asList(result).contains(LongHashSet.MISSING_VALUE));
    }
 
    @Test
@@ -626,14 +624,14 @@ public class LongHashSetTest {
          testSet.add(i);
       }
 
-      assertThat(testSet, hasSize(10_000));
+      Assert.assertEquals(10_000, testSet.size());
 
       int distinctElements = 0;
       for (final long ignore : testSet) {
          distinctElements++;
       }
 
-      assertThat(distinctElements, is(10_000));
+      Assert.assertEquals(10_000, distinctElements);
    }
 
    @Test
@@ -694,7 +692,7 @@ public class LongHashSetTest {
       }
 
       final String mapAsAString = "{1, 19, 11, 7, 3, 12, -2}";
-      assertThat(testSet.toString(), equalTo(mapAsAString));
+      Assert.assertEquals(testSet.toString(), mapAsAString);
    }
 
    @Test
@@ -763,11 +761,13 @@ public class LongHashSetTest {
    }
 
    private static void assertArrayContainingElements(final Long[] result) {
-      assertThat(result, arrayContainingInAnyOrder(1L, 1001L));
+      Assert.assertTrue(Arrays.asList(result).contains(1L));
+      Assert.assertTrue(Arrays.asList(result).contains(1001L));
    }
 
    private static void assertContainsElements(final Set<Long> other) {
-      assertThat(other, containsInAnyOrder(1L, 1001L));
+      Assert.assertTrue(other.contains(1L));
+      Assert.assertTrue(other.contains(1001L));
    }
 
    private void exhaustIterator() {

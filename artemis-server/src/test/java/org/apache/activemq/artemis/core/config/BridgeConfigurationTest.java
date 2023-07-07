@@ -26,8 +26,7 @@ import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonObjectBuilder;
 import org.apache.activemq.artemis.json.JsonValue;
 import java.io.StringReader;
-
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import java.util.Set;
 
 public class BridgeConfigurationTest {
 
@@ -47,7 +46,9 @@ public class BridgeConfigurationTest {
       Assert.assertEquals("dg", bridgeConfiguration.getDiscoveryGroupName());
       Assert.assertTrue(bridgeConfiguration.isHA());
       Assert.assertEquals("ClassName", bridgeConfiguration.getTransformerConfiguration().getClassName());
-      Assert.assertThat(bridgeConfiguration.getTransformerConfiguration().getProperties().keySet(), containsInAnyOrder("prop1", "prop2"));
+      Set keys = bridgeConfiguration.getTransformerConfiguration().getProperties().keySet();
+      Assert.assertTrue(keys + " doesn't contain prop1", keys.contains("prop1"));
+      Assert.assertTrue(keys + " doesn't contain prop2", keys.contains("prop2"));
       Assert.assertEquals("val1", bridgeConfiguration.getTransformerConfiguration().getProperties().get("prop1"));
       Assert.assertEquals("val2", bridgeConfiguration.getTransformerConfiguration().getProperties().get("prop2"));
       Assert.assertEquals(1, bridgeConfiguration.getRetryInterval());

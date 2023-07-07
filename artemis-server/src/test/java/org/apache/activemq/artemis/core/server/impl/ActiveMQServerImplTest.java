@@ -26,9 +26,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.hasItem;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-
 public class ActiveMQServerImplTest extends ActiveMQTestBase {
 
    @Test
@@ -38,7 +35,7 @@ public class ActiveMQServerImplTest extends ActiveMQTestBase {
       EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
       server.addExternalComponent(component, true);
       Assert.assertTrue(component.isStarted());
-      Assert.assertThat(server.getExternalComponents(), hasItem(component));
+      Assert.assertTrue(server.getExternalComponents() + " does not contain " + component, server.getExternalComponents().contains(component));
    }
 
    @Test
@@ -48,7 +45,7 @@ public class ActiveMQServerImplTest extends ActiveMQTestBase {
       EmbeddedServerTest.FakeExternalComponent component = new EmbeddedServerTest.FakeExternalComponent();
       server.addExternalComponent(component, false);
       Assert.assertFalse(component.isStarted());
-      Assert.assertThat(server.getExternalComponents(), hasItem(component));
+      Assert.assertTrue(server.getExternalComponents() + " does not contain " + component, server.getExternalComponents().contains(component));
    }
 
    @Test
@@ -60,7 +57,7 @@ public class ActiveMQServerImplTest extends ActiveMQTestBase {
          Assert.fail();
       } catch (IllegalStateException ex) {
          Assert.assertFalse(component.isStarted());
-         Assert.assertThat(server.getExternalComponents(), empty());
+         Assert.assertEquals(0, server.getExternalComponents().size());
       }
    }
 
@@ -75,7 +72,7 @@ public class ActiveMQServerImplTest extends ActiveMQTestBase {
          Assert.fail();
       } catch (IllegalStateException ex) {
          Assert.assertFalse(component.isStarted());
-         Assert.assertThat(server.getExternalComponents(), empty());
+         Assert.assertEquals(0, server.getExternalComponents().size());
       }
    }
 

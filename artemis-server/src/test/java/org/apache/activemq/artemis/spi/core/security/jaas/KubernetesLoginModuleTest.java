@@ -17,11 +17,7 @@
 package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import static org.apache.activemq.artemis.spi.core.security.jaas.KubernetesLoginModule.K8S_ROLE_FILE_PROP_NAME;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -82,19 +78,20 @@ public class KubernetesLoginModuleTest {
       assertTrue(loginModule.login());
       assertTrue(loginModule.commit());
 
-      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size());
       subject.getPrincipals(ServiceAccountPrincipal.class).forEach(p -> {
-         assertThat(p.getName(), is(USERNAME));
-         assertThat(p.getSaName(), is("kermit"));
-         assertThat(p.getNamespace(), is("some-ns"));
+         assertEquals(USERNAME, p.getName());
+         assertEquals("kermit", p.getSaName());
+         assertEquals("some-ns", p.getNamespace());
       });
       Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
-      assertThat(roles, hasSize(2));
-      assertThat(roles, containsInAnyOrder(new RolePrincipal("muppet"), new RolePrincipal("admin")));
+      assertEquals(2, roles.size());
+      assertTrue(roles.contains(new RolePrincipal("muppet")));
+      assertTrue(roles.contains(new RolePrincipal("admin")));
 
       assertTrue(loginModule.logout());
       assertFalse(loginModule.commit());
-      assertThat(subject.getPrincipals(), empty());
+      assertEquals(0, subject.getPrincipals().size());
       verify(client, times(1)).getTokenReview(TOKEN);
    }
 
@@ -109,7 +106,7 @@ public class KubernetesLoginModuleTest {
 
       assertFalse(loginModule.login());
       assertFalse(loginModule.commit());
-      assertThat(subject.getPrincipals(), empty());
+      assertEquals(0, subject.getPrincipals().size());
       verify(client, times(1)).getTokenReview(TOKEN);
    }
 
@@ -127,7 +124,7 @@ public class KubernetesLoginModuleTest {
       }
 
       assertFalse(loginModule.commit());
-      assertThat(subject.getPrincipals(), empty());
+      assertEquals(0, subject.getPrincipals().size());
       verifyNoInteractions(client);
    }
 
@@ -141,7 +138,7 @@ public class KubernetesLoginModuleTest {
 
       assertFalse(loginModule.login());
       assertFalse(loginModule.commit());
-      assertThat(subject.getPrincipals(), empty());
+      assertEquals(0, subject.getPrincipals().size());
       verify(client, times(1)).getTokenReview(TOKEN);
    }
 
@@ -157,19 +154,20 @@ public class KubernetesLoginModuleTest {
       assertTrue(loginModule.login());
       assertTrue(loginModule.commit());
 
-      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size());
       subject.getPrincipals(ServiceAccountPrincipal.class).forEach(p -> {
-         assertThat(p.getName(), is(USERNAME));
-         assertThat(p.getSaName(), is("kermit"));
-         assertThat(p.getNamespace(), is("some-ns"));
+         assertEquals(USERNAME, p.getName());
+         assertEquals("kermit", p.getSaName());
+         assertEquals("some-ns", p.getNamespace());
       });
       Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
-      assertThat(roles, hasSize(2));
-      assertThat(roles, containsInAnyOrder(new RolePrincipal("developers"), new RolePrincipal("qa")));
+      assertEquals(2, roles.size());
+      assertTrue(roles.contains(new RolePrincipal("developers")));
+      assertTrue(roles.contains(new RolePrincipal("qa")));
 
       assertTrue(loginModule.logout());
       assertFalse(loginModule.commit());
-      assertThat(subject.getPrincipals(), empty());
+      assertTrue(subject.getPrincipals().isEmpty());
       verify(client, times(1)).getTokenReview(TOKEN);
    }
 
@@ -185,18 +183,18 @@ public class KubernetesLoginModuleTest {
       assertTrue(loginModule.login());
       assertTrue(loginModule.commit());
 
-      assertThat(subject.getPrincipals(UserPrincipal.class), hasSize(1));
+      assertEquals(1, subject.getPrincipals(UserPrincipal.class).size());
       subject.getPrincipals(ServiceAccountPrincipal.class).forEach(p -> {
-         assertThat(p.getName(), is(USERNAME));
-         assertThat(p.getSaName(), is("kermit"));
-         assertThat(p.getNamespace(), is("some-ns"));
+         assertEquals(USERNAME, p.getName());
+         assertEquals("kermit", p.getSaName());
+         assertEquals("some-ns", p.getNamespace());
       });
       Set<RolePrincipal> roles = subject.getPrincipals(RolePrincipal.class);
-      assertThat(roles, hasSize(0));
+      assertEquals(0, roles.size());
 
       assertTrue(loginModule.logout());
       assertFalse(loginModule.commit());
-      assertThat(subject.getPrincipals(), empty());
+      assertTrue(subject.getPrincipals().isEmpty());
       verify(client, times(1)).getTokenReview(TOKEN);
    }
 

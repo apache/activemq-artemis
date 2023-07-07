@@ -35,6 +35,7 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -46,60 +47,100 @@
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-server</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-ra</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-journal</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>activemq-artemis-native</artifactId>
          <version>${activemq-artemis-native-version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-selector</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-service-extensions</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.jms</groupId>
          <artifactId>jakarta.jms-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.resource</groupId>
          <artifactId>jakarta.resource-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.transaction</groupId>
          <artifactId>jakarta.transaction-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-transport</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>io.netty</groupId>
          <artifactId>netty-buffer</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-resolver</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-handler-proxy</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-common</artifactId>
+         <scope>test</scope>
       </dependency>
       <!-- logging -->
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>

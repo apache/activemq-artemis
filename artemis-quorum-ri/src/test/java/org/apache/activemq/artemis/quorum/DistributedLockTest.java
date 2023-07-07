@@ -31,9 +31,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-
 public abstract class DistributedLockTest {
 
    private final ArrayList<AutoCloseable> closeables = new ArrayList<>();
@@ -222,7 +219,7 @@ public abstract class DistributedLockTest {
       final long timeoutSec = 1;
       Assert.assertFalse(manager.getDistributedLock("a").tryLock(timeoutSec, TimeUnit.SECONDS));
       final long elapsed = TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start);
-      assertThat(elapsed, greaterThanOrEqualTo(timeoutSec));
+      Assert.assertTrue(elapsed + " less than timeout of " + timeoutSec + " seconds", elapsed >= timeoutSec);
    }
 
    @Test

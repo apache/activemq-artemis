@@ -47,31 +47,71 @@
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-server</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq.tests</groupId>
+         <artifactId>artemis-test-support</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-commons</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-journal</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.netty</groupId>
+         <artifactId>netty-common</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.jctools</groupId>
+         <artifactId>jctools-core</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.qpid</groupId>
          <artifactId>qpid-jms-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <!-- logging -->
       <dependency>
          <groupId>org.slf4j</groupId>
          <artifactId>slf4j-api</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.apache.logging.log4j</groupId>
@@ -81,10 +121,12 @@
       <dependency>
          <groupId>org.fusesource.mqtt-client</groupId>
          <artifactId>mqtt-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.eclipse.paho</groupId>
          <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.jms</groupId>
@@ -97,30 +139,46 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>org.apache.activemq</groupId>
-         <artifactId>activemq-client</artifactId>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-api</artifactId>
          <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-jms_1.1_spec</artifactId>
-            </exclusion>
-            <exclusion>
-               <groupId>org.apache.geronimo.specs</groupId>
-               <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-            </exclusion>
-         </exclusions>
       </dependency>
       <dependency>
          <groupId>org.seleniumhq.selenium</groupId>
-         <artifactId>selenium-java</artifactId>
-         <version>4.8.3</version>
+         <artifactId>selenium-firefox-driver</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-chrome-driver</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-chromium-driver</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-remote-driver</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.seleniumhq.selenium</groupId>
+         <artifactId>selenium-support</artifactId>
          <scope>test</scope>
       </dependency>
 
       <dependency>
          <groupId>org.testcontainers</groupId>
          <artifactId>selenium</artifactId>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.testcontainers</groupId>
+         <artifactId>testcontainers</artifactId>
+         <scope>test</scope>
       </dependency>
 
       <!-- quorum tests -->
@@ -174,17 +232,17 @@
       <dependency>
          <groupId>org.apache.httpcomponents</groupId>
          <artifactId>httpclient</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpcore</artifactId>
+         <scope>test</scope>
       </dependency>
 
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-unit-test-support</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.activemq.tests</groupId>
-         <artifactId>artemis-test-support</artifactId>
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>

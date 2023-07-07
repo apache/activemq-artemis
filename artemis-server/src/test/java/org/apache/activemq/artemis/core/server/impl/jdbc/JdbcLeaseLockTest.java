@@ -40,7 +40,6 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.Wait;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
-import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -49,11 +48,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
-
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 @RunWith(Parameterized.class)
 public class JdbcLeaseLockTest extends ActiveMQTestBase {
@@ -366,7 +360,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       scheduledLeaseLock.lock().release();
       Assert.assertFalse(scheduledLeaseLock.lock().isHeldByCaller());
       TimeUnit.MILLISECONDS.sleep(3 * scheduledLeaseLock.renewPeriodMillis());
-      MatcherAssert.assertThat(lostLock.get(), is(greaterThanOrEqualTo(2L)));
+      Assert.assertTrue(lostLock.get() + " < 2", lostLock.get() >= 2L);
       scheduledLeaseLock.stop();
       executorService.shutdown();
       scheduledExecutorService.shutdown();
@@ -375,14 +369,14 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
    @Test
    public void shouldJdbcAndSystemTimeToBeAligned() throws InterruptedException {
       final LeaseLock lock = lock(TimeUnit.SECONDS.toMillis(10), TimeUnit.SECONDS.toMillis(10));
-      Assume.assumeThat(lock, instanceOf(JdbcLeaseLock.class));
+      Assume.assumeTrue(lock + " is not an instance of JdbcLeaseLock", lock instanceof JdbcLeaseLock);
       final JdbcLeaseLock jdbcLock = JdbcLeaseLock.class.cast(lock);
       final long utcSystemTime = System.currentTimeMillis();
       TimeUnit.SECONDS.sleep(1);
       final long utcJdbcTime = jdbcLock.dbCurrentTimeMillis();
       final long millisDiffJdbcSystem = utcJdbcTime - utcSystemTime;
-      MatcherAssert.assertThat(millisDiffJdbcSystem, greaterThanOrEqualTo(0L));
-      MatcherAssert.assertThat(millisDiffJdbcSystem, lessThan(TimeUnit.SECONDS.toMillis(10)));
+      Assert.assertTrue(millisDiffJdbcSystem + " < 0", millisDiffJdbcSystem >= 0L);
+      Assert.assertTrue(millisDiffJdbcSystem + " >= 10_000", millisDiffJdbcSystem < 10_000);
    }
 
    @Test

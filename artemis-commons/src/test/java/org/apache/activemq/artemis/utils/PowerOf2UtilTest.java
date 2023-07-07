@@ -16,9 +16,7 @@
  */
 package org.apache.activemq.artemis.utils;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.apache.activemq.artemis.utils.PowerOf2Util.align;
@@ -28,17 +26,17 @@ public class PowerOf2UtilTest {
    @Test
    public void shouldAlignToNextMultipleOfAlignment() {
       final int alignment = 512;
-      assertThat(align(0, alignment), is(0));
-      assertThat(align(1, alignment), is(alignment));
-      assertThat(align(alignment, alignment), is(alignment));
-      assertThat(align(alignment + 1, alignment), is(alignment * 2));
+      Assert.assertEquals(0, align(0, alignment));
+      Assert.assertEquals(alignment, align(1, alignment));
+      Assert.assertEquals(alignment, align(alignment, alignment));
+      Assert.assertEquals(alignment * 2, align(alignment + 1, alignment));
 
       final int remainder = Integer.MAX_VALUE % alignment;
       final int alignedMax = Integer.MAX_VALUE - remainder;
-      assertThat(align(alignedMax, alignment), is(alignedMax));
+      Assert.assertEquals(alignedMax, align(alignedMax, alignment));
       //given that Integer.MAX_VALUE is the max value that can be represented with int
       //the aligned value would be > 2^32, but (int)(2^32) = Integer.MIN_VALUE due to the sign bit
-      assertThat(align(Integer.MAX_VALUE, alignment), is(Integer.MIN_VALUE));
+      Assert.assertEquals(Integer.MIN_VALUE, align(Integer.MAX_VALUE, alignment));
    }
 
 }

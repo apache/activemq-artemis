@@ -33,6 +33,18 @@
    <dependencies>
       <dependency>
          <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-core-client</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-commons</artifactId>
+         <version>${project.version}</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-jms-client</artifactId>
          <version>${project.version}</version>
          <scope>provided</scope>

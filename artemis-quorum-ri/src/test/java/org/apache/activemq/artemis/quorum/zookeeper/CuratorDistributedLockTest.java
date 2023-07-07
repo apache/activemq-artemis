@@ -27,9 +27,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Predicates;
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.UnavailableStateException;
@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import static java.lang.Boolean.TRUE;
-import static org.hamcrest.Matchers.greaterThan;
 
 @RunWith(value = Parameterized.class)
 public class CuratorDistributedLockTest extends DistributedLockTest {
@@ -183,7 +182,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void canAcquireLockOnMajorityRestart() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       final DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       final DistributedLock lock = manager.getDistributedLock("a");
@@ -206,7 +205,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void cannotStartManagerWithoutQuorum() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       stopMajorityNotLeaderNodes(true);
       Assert.assertFalse(manager.start(2, TimeUnit.SECONDS));
@@ -215,7 +214,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test(expected = UnavailableStateException.class)
    public void cannotAcquireLockWithoutQuorum() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       stopMajorityNotLeaderNodes(true);
@@ -225,7 +224,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void cannotCheckLockWithoutQuorum() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       stopMajorityNotLeaderNodes(true);
@@ -241,7 +240,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void canGetLockWithoutQuorum() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       stopMajorityNotLeaderNodes(true);
@@ -251,7 +250,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void notifiedAsUnavailableWhileLoosingQuorum() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -263,7 +262,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void beNotifiedOnce() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -279,7 +278,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void beNotifiedOfUnavailabilityWhileBlockedOnTimedLock() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       DistributedLock lock = manager.getDistributedLock("a");
@@ -315,7 +314,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
 
    @Test
    public void beNotifiedOfAlreadyUnavailableManagerAfterAddingListener() throws Exception {
-      Assume.assumeThat(zkNodes, greaterThan(1));
+      Assume.assumeTrue(zkNodes + " <= 1", zkNodes > 1);
       DistributedPrimitiveManager manager = createManagedDistributeManager();
       manager.start();
       final AtomicBoolean unavailable = new AtomicBoolean(false);
@@ -351,7 +350,7 @@ public class CuratorDistributedLockTest extends DistributedLockTest {
    }
 
    private void stopMajorityNotLeaderNodes(boolean fromLast) throws Exception {
-      List<TestingZooKeeperServer> followers = testingServer.getServers().stream().filter(Predicates.not(CuratorDistributedLockTest::isLeader)).collect(Collectors.toList());
+      List<TestingZooKeeperServer> followers = testingServer.getServers().stream().filter(Predicate.not(CuratorDistributedLockTest::isLeader)).collect(Collectors.toList());
       final int quorum = (zkNodes / 2) + 1;
       for (int i = 0; i < quorum; i++) {
          final int nodeIndex = fromLast ? (followers.size() - 1) - i : i;
