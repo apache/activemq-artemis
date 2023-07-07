@@ -48,6 +48,7 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.logs.AuditLogger;
+import org.apache.activemq.artemis.utils.actors.Actor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
@@ -67,6 +68,8 @@ public class ActiveMQPacketHandler implements ChannelHandler {
 
    private final CoreProtocolManager protocolManager;
 
+   private final Actor<Packet> packetActor;
+
    public ActiveMQPacketHandler(final CoreProtocolManager protocolManager,
                                 final ActiveMQServer server,
                                 final Channel channel1,
@@ -78,10 +81,16 @@ public class ActiveMQPacketHandler implements ChannelHandler {
       this.channel1 = channel1;
 
       this.connection = connection;
+
+      packetActor = new Actor<>(server.getExecutorFactory().getExecutor(), this::internalHandler);
    }
 
    @Override
    public void handlePacket(final Packet packet) {
+      packetActor.act(packet);
+   }
+
+   private void internalHandler(final Packet packet) {
       byte type = packet.getType();
 
       if (AuditLogger.isAnyLoggingEnabled()) {
