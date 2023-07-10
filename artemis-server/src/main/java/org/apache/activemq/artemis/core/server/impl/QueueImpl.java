@@ -2780,7 +2780,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
                return true;
             }
 
-            ActiveMQServerLogger.LOGGER.unableToFindTargetQueue(originalMessageQueue);
+            if (logger.isDebugEnabled()) {
+               logger.debug("QueueImpl::retryMessages cannot find targetQueue for message {}", ref.getMessage());
+            }
             return false;
          }
       });
