@@ -1283,7 +1283,6 @@
             <skipJoramTests>false</skipJoramTests>
             <skipIntegrationTests>false</skipIntegrationTests>
             <skipIsolatedIntegrationTests>false</skipIsolatedIntegrationTests>
-            <skipCompatibilityTests>false</skipCompatibilityTests>
             <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>
             <skipRestTests>false</skipRestTests>
@@ -1292,6 +1291,12 @@
             <skipPerformanceTests>true</skipPerformanceTests>
             <skipExtraTests>false</skipExtraTests>
             <skipLeakTests>false</skipLeakTests>
+         </properties>
+      </profile>
+      <profile>
+         <id>compatibility-tests</id>
+         <properties>
+            <skipCompatibilityTests>false</skipCompatibilityTests>
          </properties>
       </profile>
       <profile>
