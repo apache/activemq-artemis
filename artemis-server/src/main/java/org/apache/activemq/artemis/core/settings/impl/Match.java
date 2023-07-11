@@ -77,7 +77,8 @@ public class Match<T> {
             actMatch = actMatch.replace(wildcardConfiguration.getAnyWordsString(), String.format(WILDCARD_CHILD_REPLACEMENT_FORMAT, Pattern.quote(wildcardConfiguration.getDelimiterString())));
          }
       }
-      return Pattern.compile(actMatch);
+      // we need to anchor with eot to ensure we have a full match
+      return Pattern.compile(actMatch + "$");
    }
 
    public final String getMatch() {
