@@ -641,7 +641,9 @@ public interface ActiveMQServerLogger {
    void timeoutLockingConsumer(String consumer, String remoteAddress);
 
    @LogMessage(id = 222110, value = "no queue IDs defined!,  originalMessage  = {}, copiedMessage = {}, props={}", level = LogMessage.Level.WARN)
-   void noQueueIdDefined(org.apache.activemq.artemis.api.core.Message message, org.apache.activemq.artemis.api.core.Message messageCopy, SimpleString idsHeaderName);
+   void noQueueIdDefined(org.apache.activemq.artemis.api.core.Message message,
+                         org.apache.activemq.artemis.api.core.Message messageCopy,
+                         SimpleString idsHeaderName);
 
    @LogMessage(id = 222111, value = "exception while invoking {} on {}", level = LogMessage.Level.TRACE)
    void managementOperationError(String op, String resourceName, Exception e);
@@ -905,10 +907,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222201, value = "Timed out waiting for activation to exit", level = LogMessage.Level.WARN)
    void activationTimeout();
 
-   @LogMessage(id = 222202, value = "{}: <{}> should not be set to the same value as <{}>.  " +
-         "If a system is under high load, or there is a minor network delay, " +
-         "there is a high probability of a cluster split/failure due to connection timeout.",
-         level = LogMessage.Level.WARN)
+   @LogMessage(id = 222202, value = "{}: <{}> should not be set to the same value as <{}>.  " + "If a system is under high load, or there is a minor network delay, " + "there is a high probability of a cluster split/failure due to connection timeout.", level = LogMessage.Level.WARN)
    void connectionTTLEqualsCheckPeriod(String connectionName, String ttl, String checkPeriod);
 
    @LogMessage(id = 222203, value = "Classpath lacks a protocol-manager for protocol {}, Protocol being ignored on acceptor {}", level = LogMessage.Level.WARN)
@@ -1118,7 +1117,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222702, value = "Message ack in prepared tx for queue {} which does not exist. This ack will be ignored.", level = LogMessage.Level.WARN)
    void journalMessageAckMissingQueueInPreparedTX(Long queueID);
 
-   @LogMessage(id = 222703,  value = "Address \"{}\" is full. Bridge {} will disconnect", level = LogMessage.Level.WARN)
+   @LogMessage(id = 222703, value = "Address \"{}\" is full. Bridge {} will disconnect", level = LogMessage.Level.WARN)
    void bridgeAddressFull(String addressName, String bridgeName);
 
    @LogMessage(id = 222274, value = "Failed to deploy address {}: {}", level = LogMessage.Level.WARN)
@@ -1179,7 +1178,6 @@ public interface ActiveMQServerLogger {
    // I really want emphasis on this logger, so adding the stars
    @LogMessage(id = 222295, value = "There is a possible split brain on nodeID {}. Topology update ignored", level = LogMessage.Level.WARN)
    void possibleSplitBrain(String nodeID);
-
 
    @LogMessage(id = 222296, value = "Unable to deploy Hawtio MBeam, console client side RBAC not available", level = LogMessage.Level.WARN)
    void unableToDeployHawtioMBean(Throwable e);
@@ -1584,4 +1582,6 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224126, value = "Failure during protocol handshake on connection to {} from {}", level = LogMessage.Level.ERROR)
    void failureDuringProtocolHandshake(SocketAddress localAddress, SocketAddress remoteAddress, Throwable e);
+
+   // notice loggerID=224127 is reserved as it's been used at ActiveMQQueueLogger
 }
