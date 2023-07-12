@@ -201,7 +201,6 @@
       <skipStressTests>true</skipStressTests>
       <skipSoakTests>true</skipSoakTests>
       <skipPerformanceTests>true</skipPerformanceTests>
-      <skipRestTests>true</skipRestTests>
       <skipActiveMQ5Tests>true</skipActiveMQ5Tests>
 
       <e2e-tests.skipTests>true</e2e-tests.skipTests>
@@ -1285,7 +1284,6 @@
             <skipIsolatedIntegrationTests>false</skipIsolatedIntegrationTests>
             <skipSmokeTests>false</skipSmokeTests>
             <skipTimingTests>true</skipTimingTests>
-            <skipRestTests>false</skipRestTests>
             <skipStressTests>true</skipStressTests>
             <skipSoakTests>true</skipSoakTests>
             <skipPerformanceTests>true</skipPerformanceTests>
