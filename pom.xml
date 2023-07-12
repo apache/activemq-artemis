@@ -1308,7 +1308,6 @@
             <skipUnitTests>false</skipUnitTests>
             <skipJmsTests>false</skipJmsTests>
             <skipJoramTests>false</skipJoramTests>
-            <skipCompatibilityTests>false</skipCompatibilityTests>
             <skipLeakTests>true</skipLeakTests>
             <testFailureIgnore>false</testFailureIgnore>
             <!-- This enables the karaf-<foo>-integration-tests and
