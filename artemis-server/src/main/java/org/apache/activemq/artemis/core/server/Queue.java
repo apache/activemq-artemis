@@ -37,6 +37,7 @@ import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ReferenceCounter;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.activemq.artemis.utils.collections.NodeStoreFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
 public interface Queue extends Bindable,CriticalComponent {
@@ -77,7 +78,7 @@ public interface Queue extends Bindable,CriticalComponent {
     *  If the idSupplier returns {@literal < 0} the ID is considered a non value (null) and it will be ignored.
     *
     *  @see org.apache.activemq.artemis.utils.collections.LinkedList#setNodeStore(NodeStore) */
-   MessageReference removeWithSuppliedID(String serverID, long id, NodeStore<MessageReference> nodeStore);
+   MessageReference removeWithSuppliedID(String serverID, long id, NodeStoreFactory<MessageReference> nodeStore);
 
    /**
     * The queue definition could be durable, but the messages could eventually be considered non durable.

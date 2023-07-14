@@ -116,6 +116,7 @@ import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import org.apache.activemq.artemis.utils.collections.NodeStoreFactory;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedList;
 import org.apache.activemq.artemis.utils.collections.PriorityLinkedListImpl;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
@@ -219,9 +220,9 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
 
    private NodeStore<MessageReference> nodeStore;
 
-   private void checkIDSupplier(NodeStore<MessageReference> nodeStore) {
-      if (this.nodeStore != nodeStore) {
-         this.nodeStore = nodeStore;
+   private void checkIDSupplier(NodeStoreFactory<MessageReference> nodeStoreFactory) {
+      if (this.nodeStore == null) {
+         this.nodeStore = nodeStoreFactory.newNodeStore();
          messageReferences.setNodeStore(nodeStore);
       }
    }
@@ -3457,7 +3458,7 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
    }
 
    @Override
-   public synchronized MessageReference removeWithSuppliedID(String serverID, long id, NodeStore<MessageReference> nodeStore) {
+   public synchronized MessageReference removeWithSuppliedID(String serverID, long id, NodeStoreFactory<MessageReference> nodeStore) {
       checkIDSupplier(nodeStore);
       MessageReference reference = messageReferences.removeWithID(serverID, id);
       if (reference != null) {

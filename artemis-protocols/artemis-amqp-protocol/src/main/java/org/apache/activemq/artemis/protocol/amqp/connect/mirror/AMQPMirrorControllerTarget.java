@@ -162,7 +162,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    DuplicateIDCache lruduplicateIDCache;
    String lruDuplicateIDKey;
 
-   private final ReferenceNodeStore referenceNodeStore;
+   private final ReferenceNodeStoreFactory referenceNodeStore;
 
    OperationContext mirrorContext;
 
@@ -367,15 +367,17 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    private void performAck(String nodeID, long messageID, Queue targetQueue, ACKMessageOperation ackMessageOperation, AckReason reason, final short retry) {
-      MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
 
       if (logger.isTraceEnabled()) {
-         logger.trace("performAck (nodeID={}, messageID={}), targetQueue={}). Ref={}", nodeID, messageID, targetQueue.getName(), reference);
+         logger.trace("performAck (nodeID={}, messageID={}), targetQueue={})", nodeID, messageID, targetQueue.getName());
       }
+
+      MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
+
 
       if (reference == null) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Retrying Reference not found on messageID={}, nodeID={}, currentRetry={}", messageID, nodeID, retry);
+            logger.debug("Retrying Reference not found on messageID={}, nodeID={}, queue={}. currentRetry={}", messageID, nodeID, targetQueue, retry);
          }
          switch (retry) {
             case 0:
@@ -404,7 +406,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
       if (reference != null) {
          if (logger.isTraceEnabled()) {
-            logger.trace("Post ack Server {} worked well for messageID={} nodeID={}", server, messageID, nodeID);
+            logger.trace("Post ack Server {} worked well for messageID={} nodeID={} queue={}, targetQueue={}", server, messageID, nodeID, reference.getQueue(), targetQueue);
          }
          try {
             switch (reason) {

@@ -16,6 +16,13 @@
  */
 package org.apache.activemq.artemis.api.core.management;
 
+import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientRequestor;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
+import org.apache.activemq.artemis.api.core.client.ServerLocator;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.json.JsonArray;
 
 import org.apache.activemq.artemis.api.core.ICoreMessage;
@@ -87,6 +94,36 @@ public final class ManagementHelper {
 
    public static final SimpleString HDR_CLIENT_ID = new SimpleString("_AMQ_Client_ID");
 
+   // Lambda declaration for management function. Pretty much same thing as java.util.function.Consumer but with an exception in the declaration that was needed.
+   public interface MessageAcceptor {
+      void accept(ClientMessage message) throws Exception;
+   }
+
+   /** Utility function to connect to a server and perform a management operation via core. */
+   public static void doManagement(String uri, String user, String password, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
+      try (ServerLocator locator = ServerLocatorImpl.newLocator(uri);
+           ClientSessionFactory sessionFactory = locator.createSessionFactory();
+           ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE)) {
+         doManagement(session, setup, ok, failed);
+      }
+   }
+
+   /** Utility function to reuse a ClientSessionConnection and perform a single management operation via core. */
+   public static void doManagement(ClientSession session, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
+      session.start();
+      ClientRequestor requestor = new ClientRequestor(session, "activemq.management");
+      ClientMessage message = session.createMessage(false);
+
+      setup.accept(message);
+
+      ClientMessage reply = requestor.request(message);
+
+      if (ManagementHelper.hasOperationSucceeded(reply)) {
+         ok.accept(reply);
+      } else {
+         failed.accept(reply);
+      }
+   }
 
    /**
     * Stores a resource attribute in a message to retrieve the value from the server resource.

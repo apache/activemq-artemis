@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.cli.commands;
 
 import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
-import org.apache.activemq.artemis.api.core.client.ClientRequestor;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
@@ -28,25 +27,13 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 public abstract class AbstractAction extends ConnectionAbstract {
 
+   // TODO: This call could be replaced by a direct call into ManagementHelpr.doManagement and their lambdas
    public void performCoreManagement(ManagementCallback<ClientMessage> cb) throws Exception {
-
       try (ActiveMQConnectionFactory factory = createCoreConnectionFactory();
            ServerLocator locator = factory.getServerLocator();
            ClientSessionFactory sessionFactory = locator.createSessionFactory();
            ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE)) {
-         session.start();
-         ClientRequestor requestor = new ClientRequestor(session, "activemq.management");
-         ClientMessage message = session.createMessage(false);
-
-         cb.setUpInvocation(message);
-
-         ClientMessage reply = requestor.request(message);
-
-         if (ManagementHelper.hasOperationSucceeded(reply)) {
-            cb.requestSuccessful(reply);
-         } else {
-            cb.requestFailed(reply);
-         }
+         ManagementHelper.doManagement(session, cb::setUpInvocation, cb::requestSuccessful, cb::requestFailed);
       }
    }
 
