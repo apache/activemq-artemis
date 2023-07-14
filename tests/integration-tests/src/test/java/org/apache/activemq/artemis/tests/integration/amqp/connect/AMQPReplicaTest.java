@@ -24,10 +24,16 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
+import javax.jms.Topic;
 
+import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -59,8 +65,12 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AMQPReplicaTest extends AmqpClientTestSupport {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    protected static final int AMQP_PORT_2 = 5673;
    protected static final int AMQP_PORT_3 = 5674;
@@ -834,6 +844,8 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
    }
 
    public Queue locateQueue(ActiveMQServer server, String queueName) throws Exception {
+      Assert.assertNotNull(queueName);
+      Assert.assertNotNull(server);
       Wait.waitFor(() -> server.locateQueue(queueName) != null);
       return server.locateQueue(queueName);
    }
@@ -1076,5 +1088,214 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Assert.assertTrue(idsReceived.isEmpty());
       conn.close();
    }
+
+   private void consumeSubscription(int START_ID,
+                                int LAST_ID,
+                                int port,
+                                String clientID,
+                                String queueName,
+                                String subscriptionName,
+                                boolean assertNull) throws JMSException {
+      ConnectionFactory cf = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + port);
+      Connection conn = cf.createConnection();
+      conn.setClientID(clientID);
+      Session sess = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      conn.start();
+
+      HashSet<Integer> idsReceived = new HashSet<>();
+
+      Topic topic = sess.createTopic(queueName);
+
+      MessageConsumer consumer = sess.createDurableConsumer(topic, subscriptionName);
+      for (int i = START_ID; i <= LAST_ID; i++) {
+         Message message = consumer.receive(3000);
+         Assert.assertNotNull(message);
+         Integer id = message.getIntProperty("i");
+         Assert.assertNotNull(id);
+         Assert.assertTrue(idsReceived.add(id));
+      }
+
+      if (assertNull) {
+         Assert.assertNull(consumer.receiveNoWait());
+      }
+
+      for (int i = START_ID; i <= LAST_ID; i++) {
+         Assert.assertTrue(idsReceived.remove(i));
+      }
+
+      Assert.assertTrue(idsReceived.isEmpty());
+      conn.close();
+   }
+
+   @Test
+   public void testMulticast() throws Exception {
+      multiCastReplicaTest(false, false, false, false, true);
+   }
+
+
+   @Test
+   public void testMulticastSerializeConsumption() throws Exception {
+      multiCastReplicaTest(false, false, false, false, false);
+   }
+
+   @Test
+   public void testMulticastTargetPaging() throws Exception {
+      multiCastReplicaTest(false, true, false, false, true);
+   }
+
+   @Test
+   public void testMulticastTargetSourcePaging() throws Exception {
+      multiCastReplicaTest(false, true, true, true, true);
+   }
+
+   @Test
+   public void testMulticastTargetLargeMessage() throws Exception {
+      multiCastReplicaTest(true, true, true, true, true);
+   }
+
+
+   private void multiCastReplicaTest(boolean largeMessage,
+                            boolean pagingTarget,
+                            boolean pagingSource,
+                            boolean restartBrokerConnection, boolean multiThreadConsumers) throws Exception {
+
+      String brokerConnectionName = "brokerConnectionName:" + UUIDGenerator.getInstance().generateStringUUID();
+      final ActiveMQServer server = this.server;
+      server.setIdentity("targetServer");
+
+      server_2 = createServer(AMQP_PORT_2, false);
+      server_2.setIdentity("server_2");
+      server_2.getConfiguration().setName("thisone");
+
+      AMQPBrokerConnectConfiguration amqpConnection = new AMQPBrokerConnectConfiguration(brokerConnectionName, "tcp://localhost:" + AMQP_PORT).setReconnectAttempts(-1).setRetryInterval(100);
+      AMQPMirrorBrokerConnectionElement replica = new AMQPMirrorBrokerConnectionElement().setMessageAcknowledgements(true).setDurable(true);
+      replica.setName("theReplica");
+      amqpConnection.addElement(replica);
+      server_2.getConfiguration().addAMQPConnection(amqpConnection);
+      server_2.getConfiguration().setName("server_2");
+
+      int NUMBER_OF_MESSAGES = 200;
+
+      server_2.start();
+      server.start();
+      Wait.assertTrue(server_2::isStarted);
+      Wait.assertTrue(server::isStarted);
+
+      // We create the address to avoid auto delete on the queue
+      server_2.addAddressInfo(new AddressInfo(getTopicName()).addRoutingType(RoutingType.MULTICAST).setAutoCreated(false));
+
+
+      ConnectionFactory factory = CFUtil.createConnectionFactory("AMQP", "tcp://localhost:" + AMQP_PORT_2);
+      Connection connection = factory.createConnection();
+      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Topic topic = session.createTopic(getTopicName());
+      MessageProducer producer = session.createProducer(topic);
+
+      for (int i = 0; i <= 1; i++) {
+         // just creating the subscription and not consuming anything
+         consumeSubscription(0, -1, AMQP_PORT_2, "client" + i, getTopicName(), "subscription" + i, false);
+      }
+
+      String subs0Name = "client0.subscription0";
+      String subs1Name = "client1.subscription1";
+
+
+      Queue subs0Server1 = locateQueue(server, subs0Name);
+      Queue subs1Server1 = locateQueue(server, subs1Name);
+      Assert.assertNotNull(subs0Server1);
+      Assert.assertNotNull(subs1Server1);
+
+      Queue subs0Server2 = locateQueue(server_2, subs0Name);
+      Queue subs1Server2 = locateQueue(server_2, subs1Name);
+      Assert.assertNotNull(subs0Server2);
+      Assert.assertNotNull(subs1Server2);
+
+      if (pagingTarget) {
+         subs0Server1.getPagingStore().startPaging();
+      }
+
+      if (pagingSource) {
+         subs0Server2.getPagingStore().startPaging();
+      }
+
+      for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
+         Message message = session.createTextMessage(getText(largeMessage, i));
+         message.setIntProperty("i", i);
+         producer.send(message);
+      }
+
+      if (pagingTarget) {
+         subs0Server1.getPagingStore().startPaging();
+      }
+
+      Queue snfreplica = server_2.locateQueue(replica.getMirrorSNF());
+
+      Assert.assertNotNull(snfreplica);
+
+      Wait.assertEquals(0, snfreplica::getMessageCount);
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES, subs0Server1::getMessageCount, 2000);
+      Wait.assertEquals(NUMBER_OF_MESSAGES, subs1Server1::getMessageCount, 2000);
+
+      Wait.assertEquals(NUMBER_OF_MESSAGES, subs0Server2::getMessageCount, 2000);
+      Wait.assertEquals(NUMBER_OF_MESSAGES, subs1Server2::getMessageCount, 2000);
+
+      if (restartBrokerConnection) {
+         // stop and start the broker connection, making sure we wouldn't duplicate the mirror
+         server_2.stopBrokerConnection(brokerConnectionName);
+         Thread.sleep(1000);
+         server_2.startBrokerConnection(brokerConnectionName);
+      }
+
+      Assert.assertSame(snfreplica, server_2.locateQueue(replica.getMirrorSNF()));
+
+      if (pagingTarget) {
+         assertTrue(subs0Server1.getPagingStore().isPaging());
+         assertTrue(subs1Server1.getPagingStore().isPaging());
+      }
+
+      ExecutorService executorService = Executors.newFixedThreadPool(2);
+      runAfter(executorService::shutdownNow);
+
+      CountDownLatch done = new CountDownLatch(2);
+      AtomicInteger errors = new AtomicInteger(0);
+
+      for (int i = 0; i <= 1; i++) {
+         CountDownLatch threadDone = new CountDownLatch(1);
+         int subscriptionID = i;
+         executorService.execute(() -> {
+            try {
+               consumeSubscription(0, NUMBER_OF_MESSAGES - 1, AMQP_PORT_2, "client" + subscriptionID, getTopicName(), "subscription" + subscriptionID, false);
+            } catch (Throwable e) {
+               logger.warn(e.getMessage(), e);
+               errors.incrementAndGet();
+            } finally {
+               done.countDown();
+               threadDone.countDown();
+            }
+         });
+         if (!multiThreadConsumers) {
+            threadDone.await(1, TimeUnit.MINUTES);
+         }
+      }
+
+      Assert.assertTrue(done.await(60, TimeUnit.SECONDS));
+      Assert.assertEquals(0, errors.get());
+
+      // Replica is async, so we need to wait acks to arrive before we finish consuming there
+      Wait.assertEquals(0, snfreplica::getMessageCount);
+      Wait.assertEquals(0L, subs0Server1::getMessageCount, 2000, 100);
+      Wait.assertEquals(0L, subs1Server1::getMessageCount, 2000, 100);
+      Wait.assertEquals(0L, subs0Server2::getMessageCount, 2000, 100);
+      Wait.assertEquals(0L, subs1Server2::getMessageCount, 2000, 100);
+
+
+      if (largeMessage) {
+         validateNoFilesOnLargeDir(server.getConfiguration().getLargeMessagesDirectory(), 0);
+         validateNoFilesOnLargeDir(server_2.getConfiguration().getLargeMessagesDirectory(), 0);
+      }
+   }
+
+
 
 }

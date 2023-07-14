@@ -20,20 +20,16 @@ import java.util.HashMap;
 
 import io.netty.util.collection.LongObjectHashMap;
 import org.apache.activemq.artemis.api.core.Message;
-import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.utils.collections.NodeStore;
 import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
-import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_BROKER_ID_EXTRA_PROPERTY;
-import static org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource.INTERNAL_ID_EXTRA_PROPERTY;
-
 public class ReferenceNodeStore implements NodeStore<MessageReference> {
 
-   private final String serverID;
+   private final ReferenceNodeStoreFactory factory;
 
-   public ReferenceNodeStore(ActiveMQServer server) {
-      this.serverID = server.getNodeID().toString();
+   public ReferenceNodeStore(ReferenceNodeStoreFactory factory) {
+      this.factory = factory;
    }
 
    // This is where the messages are stored by server id...
@@ -42,10 +38,6 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    String lruListID;
    LongObjectHashMap<LinkedListImpl.Node<MessageReference>> lruMap;
 
-
-   public String getDefaultNodeID() {
-      return serverID;
-   }
 
    @Override
    public void storeNode(MessageReference element, LinkedListImpl.Node<MessageReference> node) {
@@ -90,7 +82,7 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    /** notice getMap should always return an instance. It should never return null. */
    private synchronized LongObjectHashMap<LinkedListImpl.Node<MessageReference>> getMap(String serverID) {
       if (serverID == null) {
-         serverID = this.serverID; // returning for the localList in case it's null
+         serverID = factory.getDefaultNodeID();
       }
 
       if (lruListID != null && lruListID.equals(serverID)) {
@@ -113,34 +105,15 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    }
 
    public String getServerID(MessageReference element) {
-      return getServerID(element.getMessage());
+      return factory.getServerID(element);
    }
 
-
    public String getServerID(Message message) {
-      Object nodeID = message.getBrokerProperty(INTERNAL_BROKER_ID_EXTRA_PROPERTY);
-      if (nodeID != null) {
-         return nodeID.toString();
-      } else {
-         // it is important to return null here, as the MirrorSource is expecting it to be null
-         // in the case the nodeID being from the originating server.
-         // don't be tempted to return this.serverID here.
-         return null;
-      }
+      return factory.getServerID(message);
    }
 
    public long getID(MessageReference element) {
-      Message message = element.getMessage();
-      Long id = getID(message);
-      if (id == null) {
-         return element.getMessageID();
-      } else {
-         return id;
-      }
-   }
-
-   private Long getID(Message message) {
-      return (Long)message.getBrokerProperty(INTERNAL_ID_EXTRA_PROPERTY);
+      return factory.getID(element);
    }
 
    @Override
