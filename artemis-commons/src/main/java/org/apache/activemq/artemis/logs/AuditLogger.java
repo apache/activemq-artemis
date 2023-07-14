@@ -526,7 +526,7 @@ public interface AuditLogger {
       BASE_LOGGER.isAsyncConnectionExecutionEnabled(getCaller(), source);
    }
 
-   @LogMessage(id = 601054, value = "User {} is query is-async-connection-execution-enabled on target resource: {}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 601054, value = "User {} is querying is-async-connection-execution-enabled on target resource: {}", level = LogMessage.Level.INFO)
    void isAsyncConnectionExecutionEnabled(String user, Object source);
 
    static void getDiskScanPeriod(Object source) {
@@ -1912,7 +1912,7 @@ public interface AuditLogger {
       BASE_LOGGER.getStaticConnectorsAsJSON(getCaller(), source);
    }
 
-   @LogMessage(id = 601252, value = "User {} is geting static connectors as json on target resource: {}", level = LogMessage.Level.INFO)
+   @LogMessage(id = 601252, value = "User {} is getting static connectors as json on target resource: {}", level = LogMessage.Level.INFO)
    void getStaticConnectorsAsJSON(String user, Object source);
 
    static void isDuplicateDetection(Object source) {
