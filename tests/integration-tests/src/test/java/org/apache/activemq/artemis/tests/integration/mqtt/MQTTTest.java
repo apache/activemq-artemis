@@ -23,8 +23,10 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import java.io.EOFException;
+import java.lang.invoke.MethodHandles;
 import java.net.ProtocolException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -61,6 +63,8 @@ import org.apache.activemq.transport.amqp.client.AmqpConnection;
 import org.apache.activemq.transport.amqp.client.AmqpMessage;
 import org.apache.activemq.transport.amqp.client.AmqpSender;
 import org.apache.activemq.transport.amqp.client.AmqpSession;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
 import org.fusesource.mqtt.client.Message;
@@ -74,7 +78,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.utils.collections.IterableStream.iterableOf;
 
@@ -2218,5 +2221,72 @@ public class MQTTTest extends MQTTTestSupport {
 
       Wait.assertTrue(() -> server.locateQueue(RETAINED_QUEUE).getMessageCount() == 0, 3000, 50);
       Wait.assertTrue(() -> server.locateQueue(RETAINED_QUEUE) == null, 3000, 50);
+   }
+
+   /*
+    * [MQTT-3.3.1-9] When sending a PUBLISH Packet to a Client the Server...MUST set the RETAIN flag to 0 when a PUBLISH
+    * Packet is sent to a Client because it matches an *established* subscription regardless of how the flag was set in
+    * the message it received.
+    */
+   @Test(timeout = 60 * 1000)
+   public void testRetainFlagOnEstablishedSubscription() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+      final String topic = getTopicName();
+
+      MqttClient subscriber = createPaho3_1_1Client("subscriber");
+      subscriber.setCallback(new DefaultMqtt3Callback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            if (!message.isRetained()) {
+               latch.countDown();
+            }
+         }
+      });
+      subscriber.connect();
+      subscriber.subscribe(topic, 1);
+
+      MqttClient publisher = createPaho3_1_1Client("publisher");
+      publisher.connect();
+      publisher.publish(topic, "retained".getBytes(StandardCharsets.UTF_8), 1, true);
+      publisher.disconnect();
+      publisher.close();
+
+      assertTrue("Did not receive expected message within timeout", latch.await(1, TimeUnit.SECONDS));
+
+      subscriber.disconnect();
+      subscriber.close();
+   }
+
+   /*
+    * [MQTT-3.3.1-8] When sending a PUBLISH Packet to a Client the Server MUST set the RETAIN flag to 1 if a message is
+    * sent as a result of a new subscription being made by a Client.
+    */
+   @Test(timeout = 60 * 1000)
+   public void testRetainFlagOnNewSubscription() throws Exception {
+      CountDownLatch latch = new CountDownLatch(1);
+      final String topic = getTopicName();
+
+      MqttClient publisher = createPaho3_1_1Client("publisher");
+      publisher.connect();
+      publisher.publish(topic, "retained".getBytes(StandardCharsets.UTF_8), 1, true);
+      publisher.disconnect();
+      publisher.close();
+
+      MqttClient subscriber = createPaho3_1_1Client("subscriber");
+      subscriber.setCallback(new DefaultMqtt3Callback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            if (message.isRetained()) {
+               latch.countDown();
+            }
+         }
+      });
+      subscriber.connect();
+      subscriber.subscribe(topic, 1);
+
+      assertTrue("Did not receive expected message within timeout", latch.await(1, TimeUnit.SECONDS));
+
+      subscriber.disconnect();
+      subscriber.close();
    }
 }

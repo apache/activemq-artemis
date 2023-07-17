@@ -56,6 +56,10 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQJAASSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.fusesource.hawtdispatch.DispatchPriority;
 import org.fusesource.hawtdispatch.internal.DispatcherConfig;
 import org.fusesource.mqtt.client.MQTT;
@@ -374,6 +378,10 @@ public class MQTTTestSupport extends ActiveMQTestBase {
       return mqtt;
    }
 
+   protected MqttClient createPaho3_1_1Client(String clientId) throws org.eclipse.paho.client.mqttv3.MqttException {
+      return new MqttClient("tcp://localhost:" + port, clientId, new MemoryPersistence());
+   }
+
    public Map<String, MQTTSessionState> getSessions() {
       Acceptor acceptor = server.getRemotingService().getAcceptor("MQTT");
       if (acceptor instanceof AbstractAcceptor) {
@@ -479,6 +487,20 @@ public class MQTTTestSupport extends ActiveMQTestBase {
 
       public static int getMessageCount() {
          return messageCount;
+      }
+   }
+
+   protected interface DefaultMqtt3Callback extends MqttCallback {
+      @Override
+      default void connectionLost(Throwable cause) {
+      }
+
+      @Override
+      default void messageArrived(String topic, org.eclipse.paho.client.mqttv3.MqttMessage message) throws Exception {
+      }
+
+      @Override
+      default void deliveryComplete(IMqttDeliveryToken token) {
       }
    }
 }

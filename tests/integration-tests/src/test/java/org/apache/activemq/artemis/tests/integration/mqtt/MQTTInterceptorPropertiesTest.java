@@ -64,12 +64,6 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       expectedProperties.put(MESSAGE_TEXT, msgText);
       expectedProperties.put(RETAINED, retained);
 
-
-      final MQTTClientProvider subscribeProvider = getMQTTClientProvider();
-      initializeConnection(subscribeProvider);
-
-      subscribeProvider.subscribe(addressQueue, AT_MOST_ONCE);
-
       final CountDownLatch latch = new CountDownLatch(1);
       MQTTInterceptor incomingInterceptor = (packet, connection) -> {
          if (packet.fixedHeader().messageType() == MqttMessageType.PUBLISH) {
@@ -89,24 +83,24 @@ public class MQTTInterceptorPropertiesTest extends MQTTTestSupport {
       server.getRemotingService().addIncomingInterceptor(incomingInterceptor);
       server.getRemotingService().addOutgoingInterceptor(outgoingInterceptor);
 
-
-      Thread thread = new Thread(new Runnable() {
-         @Override
-         public void run() {
-            try {
-               byte[] payload = subscribeProvider.receive(10000);
-               assertNotNull("Should get a message", payload);
-               latch.countDown();
-            } catch (Exception e) {
-               e.printStackTrace();
-            }
-         }
-      });
-      thread.start();
-
       final MQTTClientProvider publishProvider = getMQTTClientProvider();
       initializeConnection(publishProvider);
       publishProvider.publish(addressQueue, msgText.getBytes(), AT_MOST_ONCE, retained);
+
+      final MQTTClientProvider subscribeProvider = getMQTTClientProvider();
+      initializeConnection(subscribeProvider);
+      subscribeProvider.subscribe(addressQueue, AT_MOST_ONCE);
+
+      Thread thread = new Thread(() -> {
+         try {
+            byte[] payload = subscribeProvider.receive(10000);
+            assertNotNull("Should get a message", payload);
+            latch.countDown();
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+      });
+      thread.start();
 
       latch.await(10, TimeUnit.SECONDS);
       subscribeProvider.disconnect();

@@ -28,6 +28,8 @@ import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY;
+
 public class MQTTRetainMessageManager {
 
    private MQTTSession session;
@@ -59,7 +61,6 @@ public class MQTTRetainMessageManager {
          Message message = LargeServerMessageImpl.checkLargeMessage(messageParameter, session.getServer().getStorageManager());
          sendToQueue(message.copy(session.getServer().getStorageManager().generateID()), queue, tx);
       }
-
    }
 
    void addRetainedMessagesToQueue(Queue queue, String address) throws Exception {
@@ -82,6 +83,7 @@ public class MQTTRetainMessageManager {
                      }
                   }
                   Message message = ref.getMessage().copy(session.getServer().getStorageManager().generateID());
+                  message.putStringProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY, (String) null);
                   sendToQueue(message, queue, tx);
                }
             }

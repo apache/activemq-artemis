@@ -339,6 +339,11 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
+    * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
+    * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
+    * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
+    * of the Subscription...
+    *
     * [MQTT-3.3.1-9] If Retain Handling is set to 0 the Server MUST send the retained messages matching the Topic Filter
     * of the subscription to the Client.
     *
@@ -350,6 +355,11 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
+    * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
+    * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
+    * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
+    * of the Subscription...
+    *
     * [MQTT-3.3.1-9] If Retain Handling is set to 0 the Server MUST send the retained messages matching the Topic Filter
     * of the subscription to the Client.
     *
@@ -361,6 +371,11 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
+    * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
+    * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
+    * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
+    * of the Subscription...
+    *
     * [MQTT-3.3.1-9] If Retain Handling is set to 0 the Server MUST send the retained messages matching the Topic Filter
     * of the subscription to the Client.
     *
@@ -408,6 +423,7 @@ public class PublishTests extends MQTT5TestSupport {
                }
             }
             assertTrue(payloadMatched);
+            assertTrue(message.isRetained());
             latch.countDown();
          }
       });
@@ -432,6 +448,11 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
+    * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
+    * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
+    * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
+    * of the Subscription...
+    *
     * [MQTT-3.3.1-10]  If Retain Handling is set to 1 then if the subscription did not already exist, the Server MUST
     * send all retained message matching the Topic Filter of the subscription to the Client, and if the subscription did
     * exist the Server MUST NOT send the retained messages.
@@ -462,8 +483,9 @@ public class PublishTests extends MQTT5TestSupport {
       final CountDownLatch latch = new CountDownLatch(1);
       consumer.setCallback(new DefaultMqttCallback() {
          @Override
-         public void messageArrived(String topic, MqttMessage message) throws Exception {
+         public void messageArrived(String topic, MqttMessage message) {
             assertEqualsByteArrays("retained".getBytes(StandardCharsets.UTF_8), message.getPayload());
+            assertTrue(message.isRetained());
             latch.countDown();
          }
       });
@@ -492,7 +514,12 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
-    * [MQTT-3.3.1-11] If Retain Handling is set to 2, the Server MUST NOT send the retained
+    * When a new Non‑shared Subscription is made, the last retained message, if any, on each matching topic name is sent
+    * to the Client as directed by the Retain Handling Subscription Option. These messages are sent with the RETAIN flag
+    * set to 1. Which retained messages are sent is controlled by the Retain Handling Subscription Option. At the time
+    * of the Subscription...
+    *
+    * [MQTT-3.3.1-11] If Retain Handling is set to 2, the Server MUST NOT send the retained messages
     */
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testRetainHandlingTwo() throws Exception {
@@ -527,22 +554,17 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
+    * The setting of the RETAIN flag in an Application Message forwarded by the Server from an *established* connection
+    * is controlled by the Retain As Published subscription option.
+    *
     * [MQTT-3.3.1-12] If the value of Retain As Published subscription option is set to 0, the Server MUST set the
     * RETAIN flag to 0 when forwarding an Application Message regardless of how the RETAIN flag was set in the received
     * PUBLISH packet.
     */
    @Test(timeout = DEFAULT_TIMEOUT)
-   public void testRetainAsPublishedZero() throws Exception {
+   public void testRetainAsPublishedZeroOnEstablishedSubscription() throws Exception {
       final String CONSUMER_ID = RandomUtil.randomString();
       final String TOPIC = this.getTopicName();
-
-      // send retained message
-      MqttClient producer = createPahoClient("producer");
-      producer.connect();
-      producer.publish(TOPIC, "retained".getBytes(), 2, true);
-      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
-      producer.disconnect();
-      producer.close();
 
       // create consumer
       final CountDownLatch latch = new CountDownLatch(1);
@@ -560,20 +582,6 @@ public class PublishTests extends MQTT5TestSupport {
       subscription.setRetainAsPublished(false);
       consumer.subscribe(new MqttSubscription[]{subscription});
 
-      assertTrue(latch.await(2, TimeUnit.SECONDS));
-      consumer.disconnect();
-      consumer.close();
-   }
-
-   /*
-    * [MQTT-3.3.1-13] If the value of Retain As Published subscription option is set to 1, the Server MUST set the
-    * RETAIN flag equal to the RETAIN flag in the received PUBLISH packet.
-    */
-   @Test(timeout = DEFAULT_TIMEOUT)
-   public void testRetainAsPublishedOne() throws Exception {
-      final String CONSUMER_ID = RandomUtil.randomString();
-      final String TOPIC = this.getTopicName();
-
       // send retained message
       MqttClient producer = createPahoClient("producer");
       producer.connect();
@@ -581,6 +589,23 @@ public class PublishTests extends MQTT5TestSupport {
       Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
       producer.disconnect();
       producer.close();
+
+      assertTrue(latch.await(2, TimeUnit.SECONDS));
+      consumer.disconnect();
+      consumer.close();
+   }
+
+   /*
+    * The setting of the RETAIN flag in an Application Message forwarded by the Server from an *established* connection
+    * is controlled by the Retain As Published subscription option.
+    *
+    * [MQTT-3.3.1-13] If the value of Retain As Published subscription option is set to 1, the Server MUST set the
+    * RETAIN flag equal to the RETAIN flag in the received PUBLISH packet.
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testRetainAsPublishedOneOnEstablishedSubscription() throws Exception {
+      final String CONSUMER_ID = RandomUtil.randomString();
+      final String TOPIC = this.getTopicName();
 
       // create consumer
       final CountDownLatch latchOne = new CountDownLatch(1);
@@ -605,6 +630,15 @@ public class PublishTests extends MQTT5TestSupport {
       MqttSubscription subscription = new MqttSubscription(TOPIC, 2);
       subscription.setRetainAsPublished(true);
       consumer.subscribe(new MqttSubscription[]{subscription});
+
+      // send retained message
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+      producer.publish(TOPIC, "retained".getBytes(), 2, true);
+      Wait.assertTrue(() -> server.locateQueue(MQTTUtil.convertMqttTopicFilterToCoreAddress(MQTTUtil.MQTT_RETAIN_ADDRESS_PREFIX, TOPIC, MQTTUtil.MQTT_WILDCARD)).getMessageCount() == 1, 2000, 100);
+      producer.disconnect();
+      producer.close();
+
       assertTrue(latchOne.await(2, TimeUnit.SECONDS));
 
       producer = createPahoClient("producer");
