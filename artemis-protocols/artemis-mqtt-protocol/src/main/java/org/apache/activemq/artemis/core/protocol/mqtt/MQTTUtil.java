@@ -96,6 +96,8 @@ public class MQTTUtil {
 
    public static final SimpleString MQTT_MESSAGE_RETAIN_KEY = SimpleString.toSimpleString("mqtt.message.retain");
 
+   public static final SimpleString MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY = SimpleString.toSimpleString("mqtt.message.retain.initial.distribution");
+
    public static final SimpleString MQTT_PAYLOAD_FORMAT_INDICATOR_KEY = SimpleString.toSimpleString("mqtt.payload.format.indicator");
 
    public static final SimpleString MQTT_RESPONSE_TOPIC_KEY = SimpleString.toSimpleString("mqtt.response.topic");

@@ -29,6 +29,7 @@ import io.netty.handler.codec.mqtt.MqttProperties;
 import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
+import io.netty.handler.codec.mqtt.MqttTopicSubscription;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
@@ -60,6 +61,7 @@ import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.SUBSCR
 import static io.netty.handler.codec.mqtt.MqttProperties.MqttPropertyType.TOPIC_ALIAS;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_CONTENT_TYPE_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_CORRELATION_DATA_KEY;
+import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_MESSAGE_RETAIN_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_PAYLOAD_FORMAT_INDICATOR_KEY;
 import static org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil.MQTT_RESPONSE_TOPIC_KEY;
@@ -404,12 +406,15 @@ public class MQTTPublishManager {
       // [MQTT-3.3.1-2] The DUP flag MUST be set to 0 for all QoS 0 messages.
       boolean redelivery = qos == 0 ? false : (deliveryCount > 1);
 
-      boolean isRetain = message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY);
+      boolean isRetain = message.containsProperty(MQTT_MESSAGE_RETAIN_INITIAL_DISTRIBUTION_KEY);
       MqttProperties mqttProperties = getPublishProperties(message);
 
       if (session.getVersion() == MQTTVersion.MQTT_5) {
-         if (session.getState().getSubscription(message.getAddress()) != null && !session.getState().getSubscription(message.getAddress()).option().isRetainAsPublished()) {
-            isRetain = false;
+         if (!isRetain && message.getBooleanProperty(MQTT_MESSAGE_RETAIN_KEY)) {
+            MqttTopicSubscription sub = session.getState().getSubscription(message.getAddress());
+            if (sub != null && sub.option().isRetainAsPublished()) {
+               isRetain = true;
+            }
          }
 
          if (session.getState().getClientTopicAliasMaximum() != null) {
