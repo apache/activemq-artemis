@@ -67,6 +67,13 @@ public class ActiveMQXAResourceWrapper implements XAResource, SessionFailureList
       }
    }
 
+   public void updateRecoveryConfig(XARecoveryConfig... xaRecoveryConfigs) {
+      synchronized (ActiveMQXAResourceWrapper.lock) {
+         close();
+         this.xaRecoveryConfigs = xaRecoveryConfigs;
+      }
+   }
+
    @Override
    public Xid[] recover(final int flag) throws XAException {
       XAResource xaResource = getDelegate(false);

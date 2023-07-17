@@ -17,6 +17,8 @@
 
 package org.apache.activemq.artemis.tests.unit.ra;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.ra.ActiveMQResourceAdapter;
@@ -26,6 +28,8 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
 
 import javax.transaction.xa.XAResource;
+import org.apache.activemq.artemis.api.core.TransportConfiguration;
+import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 
 public class ActiveMQXAResourceWrapperTest extends ActiveMQTestBase {
 
@@ -45,8 +49,8 @@ public class ActiveMQXAResourceWrapperTest extends ActiveMQTestBase {
          ra.setConnectionTTL(4000L);
          ra.start(new BootstrapContext());
 
-
-         TestActiveMQXAResourceWrapper wrapper = new TestActiveMQXAResourceWrapper(ra.getRecoveryManager().getResources().toArray(new XARecoveryConfig[]{}));
+         XARecoveryConfig[] configs = ra.getRecoveryManager().getResources().toArray(new XARecoveryConfig[]{});
+         TestActiveMQXAResourceWrapper wrapper = new TestActiveMQXAResourceWrapper(configs);
 
          XAResource res = wrapper.connect();
          if (!(res instanceof ClientSession)) {
@@ -54,7 +58,18 @@ public class ActiveMQXAResourceWrapperTest extends ActiveMQTestBase {
          }
          cs = (ClientSession) res;
          assertEquals(4000L, cs.getSessionFactory().getServerLocator().getConnectionTTL());
-
+         Map<String, Object> params = new HashMap<>();
+         params.put(TransportConstants.HOST_PROP_NAME, "localhost");
+         params.put(TransportConstants.PORT_PROP_NAME, 61616);
+         params.put(TransportConstants.CONNECTION_TTL, 60000L);
+         XARecoveryConfig backup = new XARecoveryConfig(true, new TransportConfiguration[] {new TransportConfiguration(NETTY_CONNECTOR_FACTORY, params)}, null, null, null, configs[0].getClientProtocolManager());
+         wrapper.updateRecoveryConfig(backup);
+         res = wrapper.connect();
+         if (!(res instanceof ClientSession)) {
+            fail("Unexpected XAResource type");
+         }
+         cs = (ClientSession) res;
+         assertEquals(60000L, cs.getSessionFactory().getServerLocator().getConnectionTTL());
       } finally {
          if (cs != null)
             cs.close();
