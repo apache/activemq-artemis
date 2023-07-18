@@ -26,10 +26,10 @@ import org.apache.activemq.artemis.utils.collections.LinkedListImpl;
 
 public class ReferenceNodeStore implements NodeStore<MessageReference> {
 
-   private final ReferenceNodeStoreFactory factory;
+   private final ReferenceIDSupplier idSupplier;
 
-   public ReferenceNodeStore(ReferenceNodeStoreFactory factory) {
-      this.factory = factory;
+   public ReferenceNodeStore(ReferenceIDSupplier idSupplier) {
+      this.idSupplier = idSupplier;
    }
 
    // This is where the messages are stored by server id...
@@ -67,7 +67,6 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
       }
    }
 
-
    @Override
    public LinkedListImpl.Node<MessageReference> getNode(String serverID, long id) {
       LongObjectHashMap<LinkedListImpl.Node<MessageReference>> nodeMap = getMap(serverID);
@@ -82,7 +81,7 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    /** notice getMap should always return an instance. It should never return null. */
    private synchronized LongObjectHashMap<LinkedListImpl.Node<MessageReference>> getMap(String serverID) {
       if (serverID == null) {
-         serverID = factory.getDefaultNodeID();
+         serverID = idSupplier.getDefaultNodeID();
       }
 
       if (lruListID != null && lruListID.equals(serverID)) {
@@ -105,15 +104,15 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
    }
 
    public String getServerID(MessageReference element) {
-      return factory.getServerID(element);
+      return idSupplier.getServerID(element);
    }
 
    public String getServerID(Message message) {
-      return factory.getServerID(message);
+      return idSupplier.getServerID(message);
    }
 
    public long getID(MessageReference element) {
-      return factory.getID(element);
+      return idSupplier.getID(element);
    }
 
    @Override
@@ -132,5 +131,4 @@ public class ReferenceNodeStore implements NodeStore<MessageReference> {
       }
       return size;
    }
-
 }
