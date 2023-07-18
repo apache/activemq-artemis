@@ -92,7 +92,7 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
 
    final Queue snfQueue;
    final ActiveMQServer server;
-   final ReferenceNodeStoreFactory idSupplier;
+   final ReferenceIDSupplier idSupplier;
    final boolean acks;
    final boolean addQueues;
    final boolean deleteQueues;
@@ -324,14 +324,14 @@ public class AMQPMirrorControllerSource extends BasicMirrorController<Sender> im
       }
    }
 
-   public static void validateProtocolData(ReferenceNodeStoreFactory referenceIDSupplier, MessageReference ref, SimpleString snfAddress) {
+   public static void validateProtocolData(ReferenceIDSupplier referenceIDSupplier, MessageReference ref, SimpleString snfAddress) {
       if (ref.getProtocolData(DeliveryAnnotations.class) == null && !ref.getMessage().getAddressSimpleString().equals(snfAddress)) {
          setProtocolData(referenceIDSupplier, ref);
       }
    }
 
    /** This method will return the brokerID used by the message */
-   private static String setProtocolData(ReferenceNodeStoreFactory referenceIDSupplier, MessageReference ref) {
+   private static String setProtocolData(ReferenceIDSupplier referenceIDSupplier, MessageReference ref) {
       String brokerID = referenceIDSupplier.getServerID(ref);
       long id = referenceIDSupplier.getID(ref);
 

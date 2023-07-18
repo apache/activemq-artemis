@@ -162,7 +162,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    DuplicateIDCache lruduplicateIDCache;
    String lruDuplicateIDKey;
 
-   private final ReferenceNodeStoreFactory referenceNodeStore;
+   private final ReferenceIDSupplier referenceNodeStore;
 
    OperationContext mirrorContext;
 
@@ -373,7 +373,6 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
       }
 
       MessageReference reference = targetQueue.removeWithSuppliedID(nodeID, messageID, referenceNodeStore);
-
 
       if (reference == null) {
          if (logger.isDebugEnabled()) {
