@@ -48,10 +48,6 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    public static final String SERVER_NAME_A = "mirrored-subscriptions/broker1";
    public static final String SERVER_NAME_B = "mirrored-subscriptions/broker2";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-   // Change this to true to generate a print-data in certain cases on this test
-   private static final boolean PRINT_DATA = false;
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_SERVER_PORT = 11099;
 
    Process processB;
    Process processA;
@@ -71,8 +67,8 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    public void testSend() throws Throwable {
 
       int COMMIT_INTERVAL = 100;
-      int NUMBER_OF_MESSAGES = 500;
-      int CLIENTS = 2;
+      int NUMBER_OF_MESSAGES = 1000;
+      int CLIENTS = 5;
       String mainURI = "tcp://localhost:61616";
       String secondURI = "tcp://localhost:61617";
 
@@ -103,7 +99,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
       }
 
       Map<String, Integer> result = SimpleManagement.listQueues(mainURI, null, null, 100);
-      result.entrySet().forEach(entry -> System.out.println("Queue " + entry.getKey() + "=" + entry.getValue()));
+      result.entrySet().forEach(entry -> logger.info("Queue {} = {}", entry.getKey(), entry.getValue()));
 
       checkMessages(NUMBER_OF_MESSAGES, CLIENTS, mainURI, secondURI);
 
@@ -127,6 +123,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
                   Assert.assertNotNull(message);
                   if (messageI % COMMIT_INTERVAL == 0) {
                      session.commit();
+                     logger.info("Received {} messages on receiver {}", messageI, clientID);
                   }
                }
                session.commit();
@@ -153,11 +150,23 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    }
 
    int getMessageCount(String uri, String queueName) throws Exception {
-      Map<String, Integer> result = SimpleManagement.listQueues(uri, null, null, 100);
-      Integer resultReturn = result.get(queueName);
+      try {
+         Map<String, Integer> result = SimpleManagement.listQueues(uri, null, null, 100);
 
-      logger.debug("Result = {}, queueName={}, returnValue = {}", result, queueName, resultReturn);
-      return resultReturn == null ? 0 : resultReturn;
+         if (result == null) {
+            return 0;
+         }
+
+         Integer resultReturn = result.get(queueName);
+
+         logger.debug("Result = {}, queueName={}, returnValue = {}", result, queueName, resultReturn);
+         return resultReturn == null ? 0 : resultReturn;
+      } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
+         // if an exception happened during a retry
+         // we just return -1, so the retries will keep coming
+         return -1;
+      }
 
    }
 
