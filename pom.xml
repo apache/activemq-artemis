@@ -114,8 +114,8 @@
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.96.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
-      <curator.version>5.2.0</curator.version>
-      <zookeeper.version>3.6.3</zookeeper.version>
+      <curator.version>5.5.0</curator.version>
+      <zookeeper.version>3.8.2</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
 
       <!-- docs -->
@@ -982,12 +982,8 @@
             <version>${zookeeper.version}</version>
             <exclusions>
                <exclusion>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-log4j12</artifactId>
-               </exclusion>
-               <exclusion>
-                  <groupId>log4j</groupId>
-                  <artifactId>log4j</artifactId>
+                  <groupId>ch.qos.logback</groupId>
+                  <artifactId>*</artifactId>
                </exclusion>
                <exclusion>
                   <groupId>io.netty</groupId>

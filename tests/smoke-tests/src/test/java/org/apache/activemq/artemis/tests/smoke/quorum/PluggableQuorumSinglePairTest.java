@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.smoke.quorum;
 import javax.management.remote.JMXServiceURL;
 import java.net.MalformedURLException;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -128,12 +128,12 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
 
    protected BrokerControl primary;
    protected BrokerControl backup;
-   protected LinkedList<BrokerControl> brokers;
+   protected List<BrokerControl> brokers;
 
    public PluggableQuorumSinglePairTest(String brokerFolderPrefix) {
       primary = new BrokerControl("primary", JMX_PORT_PRIMARY, brokerFolderPrefix + PRIMARY_DATA_FOLDER, PRIMARY_PORT_OFFSET);
       backup = new BrokerControl("backup", JMX_PORT_BACKUP, brokerFolderPrefix + BACKUP_DATA_FOLDER, BACKUP_PORT_OFFSET);
-      brokers = new LinkedList(Arrays.asList(primary, backup));
+      brokers = Arrays.asList(primary, backup);
    }
 
    protected abstract boolean awaitAsyncSetupCompleted(long timeout, TimeUnit unit) throws InterruptedException;
