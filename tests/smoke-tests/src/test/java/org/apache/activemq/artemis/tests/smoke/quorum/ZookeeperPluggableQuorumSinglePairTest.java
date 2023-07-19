@@ -78,16 +78,6 @@ public class ZookeeperPluggableQuorumSinglePairTest extends PluggableQuorumSingl
       return true;
    }
 
-   protected boolean ensembleHasLeader() {
-      return testingServer.getServers().stream().filter(ZookeeperPluggableQuorumSinglePairTest::isLeader).count() != 0;
-   }
-
-   private static boolean isLeader(TestingZooKeeperServer server) {
-      long leaderId = server.getQuorumPeer().getLeaderId();
-      long id = server.getQuorumPeer().getId();
-      return id == leaderId;
-   }
-
    @Override
    protected int[] stopMajority() throws Exception {
       List<TestingZooKeeperServer> followers = testingServer.getServers();
