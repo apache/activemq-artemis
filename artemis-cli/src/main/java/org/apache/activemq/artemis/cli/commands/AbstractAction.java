@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 
 public abstract class AbstractAction extends ConnectionAbstract {
 
-   // TODO: This call could be replaced by a direct call into ManagementHelpr.doManagement and their lambdas
+   // TODO: This call could be replaced by a direct call into ManagementHelper.doManagement and their lambdas
    public void performCoreManagement(ManagementCallback<ClientMessage> cb) throws Exception {
       try (ActiveMQConnectionFactory factory = createCoreConnectionFactory();
            ServerLocator locator = factory.getServerLocator();

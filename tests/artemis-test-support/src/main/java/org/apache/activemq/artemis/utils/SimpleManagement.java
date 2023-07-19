@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.smoke.common;
+package org.apache.activemq.artemis.utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,6 @@ public class SimpleManagement {
 
    private static final String SIMPLE_OPTIONS  = "{\"field\":\"\",\"value\":\"\",\"operation\":\"\"}";
 
-   /** Simple management function that will return a list of Pair<Name of Queue, Number of Messages> */
    public static Map<String, Integer> listQueues(String uri, String user, String password, int maxRows) throws Exception {
       Map<String, Integer> queues = new HashMap<>();
       ManagementHelper.doManagement(uri, user, password, t -> setupListQueue(t, maxRows), t -> listQueueResult(t, queues), SimpleManagement::failed);
@@ -45,7 +44,6 @@ public class SimpleManagement {
 
       final String result = (String) ManagementHelper.getResult(message, String.class);
 
-
       JsonObject queuesAsJsonObject = JsonUtil.readJsonObject(result);
       JsonArray array = queuesAsJsonObject.getJsonArray("data");
 
@@ -55,7 +53,6 @@ public class SimpleManagement {
          String messageCount = object.getString("messageCount");
          mapQueues.put(name, Integer.parseInt(messageCount));
       }
-
    }
 
    private static void failed(ClientMessage message) throws Exception {
@@ -64,5 +61,4 @@ public class SimpleManagement {
 
       throw new Exception("Failed " + result);
    }
-
 }
