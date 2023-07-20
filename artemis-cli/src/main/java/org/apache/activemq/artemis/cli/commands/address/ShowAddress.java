@@ -19,13 +19,11 @@ package org.apache.activemq.artemis.cli.commands.address;
 
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 @Command(name = "show", description = "Show the selected address.")
 public class ShowAddress extends AddressAbstract {
-
 
    @Option(name = "--bindings", description = "Show the bindings for this address.")
    boolean bindings;
@@ -38,30 +36,20 @@ public class ShowAddress extends AddressAbstract {
    }
 
    private void showAddress(final ActionContext context) throws Exception {
-      performCoreManagement(new ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-
-            if (getName(false) == null) {
-               ManagementHelper.putOperationInvocation(message, "broker", "listAddresses", "\n");
-            } else if (bindings) {
-               ManagementHelper.putOperationInvocation(message, "broker", "listBindingsForAddress", getName(false));
-            } else {
-               ManagementHelper.putOperationInvocation(message, "broker", "getAddressInfo", getName(false));
-            }
+      performCoreManagement(message -> {
+         if (getName(false) == null) {
+            ManagementHelper.putOperationInvocation(message, "broker", "listAddresses", "\n");
+         } else if (bindings) {
+            ManagementHelper.putOperationInvocation(message, "broker", "listBindingsForAddress", getName(false));
+         } else {
+            ManagementHelper.putOperationInvocation(message, "broker", "getAddressInfo", getName(false));
          }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            final String result = (String) ManagementHelper.getResult(reply, String.class);
-            context.out.println(result);
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to show address " + getName(false) + ". Reason: " + errMsg);
-         }
+      }, reply -> {
+         final String result = (String) ManagementHelper.getResult(reply, String.class);
+         context.out.println(result);
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         context.err.println("Failed to show address " + getName(false) + ". Reason: " + errMsg);
       });
    }
 

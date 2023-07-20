@@ -25,8 +25,8 @@ import java.util.UUID;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
 import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
 import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
@@ -382,13 +382,13 @@ public class QueueCommandTest extends JMSTestBase {
       assertFalse(server.queueQuery(queueName).isExists());
    }
 
-   private void checkExecutionPassed(AbstractAction command) throws Exception {
+   private void checkExecutionPassed(ConnectionAbstract command) throws Exception {
       String fullMessage = output.toString();
       logger.debug("output: {}", fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
-   private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
+   private void checkExecutionFailure(ConnectionAbstract command, String message) throws Exception {
       String fullMessage = error.toString();
       logger.debug("error: {}", fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));

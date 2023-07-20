@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.cli.commands.address;
 
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
@@ -37,22 +36,13 @@ public class DeleteAddress extends AddressAbstract {
    }
 
    private void deleteAddress(final ActionContext context) throws Exception {
-      performCoreManagement(new ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "deleteAddress", getName(true), force);
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Address " + getName(true) + " deleted successfully.");
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to delete address " + getName(true) + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "deleteAddress", getName(true), force);
+      }, reply -> {
+         context.out.println("Address " + getName(true) + " deleted successfully.");
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         context.err.println("Failed to delete address " + getName(true) + ". Reason: " + errMsg);
       });
    }
 

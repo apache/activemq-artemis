@@ -19,13 +19,12 @@ package org.apache.activemq.artemis.cli.commands.queue;
 
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 
 @Command(name = "delete", description = "Delete a queue.")
-public class DeleteQueue extends AbstractAction {
+public class DeleteQueue extends ConnectionAbstract {
 
    @Option(name = "--name", description = "The queue's name")
    String name;
@@ -44,22 +43,13 @@ public class DeleteQueue extends AbstractAction {
    }
 
    private void deleteQueue(final ActionContext context) throws Exception {
-      performCoreManagement(new ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "destroyQueue", getName(), removeConsumers, autoDeleteAddress);
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Queue " + getName() + " deleted successfully.");
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to delete queue " + getName() + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "destroyQueue", getName(), removeConsumers, autoDeleteAddress);
+      }, reply -> {
+         context.out.println("Queue " + getName() + " deleted successfully.");
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         context.err.println("Failed to delete queue " + getName() + ". Reason: " + errMsg);
       });
    }
 

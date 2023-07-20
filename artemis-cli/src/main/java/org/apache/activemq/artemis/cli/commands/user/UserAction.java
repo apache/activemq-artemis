@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.cli.commands.user;
 
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 
-public abstract class UserAction extends AbstractAction {
+public abstract class UserAction extends ConnectionAbstract {
 
    @Option(name = "--role", description = "The user's role(s). Separate multiple roles with comma.")
    String role;

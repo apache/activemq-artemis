@@ -18,9 +18,7 @@ package org.apache.activemq.artemis.cli.commands.user;
 
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 /**
@@ -43,22 +41,13 @@ public class ResetUser extends PasswordAction {
    }
 
    private void reset() throws Exception {
-      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "resetUser", userCommandUser, userCommandPassword, role, plaintext);
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            getActionContext().out.println(userCommandUser + " reset successfully.");
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            getActionContext().err.println("Failed to reset user " + userCommandUser + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "resetUser", userCommandUser, userCommandPassword, role, plaintext);
+      }, reply -> {
+         getActionContext().out.println(userCommandUser + " reset successfully.");
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         getActionContext().err.println("Failed to reset user " + userCommandUser + ". Reason: " + errMsg);
       });
    }
 }

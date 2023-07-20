@@ -21,9 +21,7 @@ import org.apache.activemq.artemis.json.JsonObject;
 
 import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.api.core.JsonUtil;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 /**
@@ -52,22 +50,13 @@ public class ListUser extends UserAction {
       int userCount = 0;
       final String[] result = new String[1];
 
-      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "listUser", userCommandUser);
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            result[0] = (String) ManagementHelper.getResult(reply, String.class);
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            getActionContext().err.println("Failed to list user " + userCommandUser + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "listUser", userCommandUser);
+      }, reply -> {
+         result[0] = (String) ManagementHelper.getResult(reply, String.class);
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         getActionContext().err.println("Failed to list user " + userCommandUser + ". Reason: " + errMsg);
       });
 
       // process the JSON results from the broker

@@ -22,6 +22,7 @@ import javax.jms.JMSException;
 import javax.jms.JMSSecurityException;
 
 import com.github.rvesse.airline.annotations.Option;
+import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -237,4 +238,11 @@ public class ConnectionAbstract extends InputAbstract {
       }
       return password;
    }
+
+   protected void performCoreManagement(ManagementHelper.MessageAcceptor setup, ManagementHelper.MessageAcceptor ok, ManagementHelper.MessageAcceptor failed) throws Exception {
+      try (ActiveMQConnectionFactory factory = createCoreConnectionFactory()) {
+         ManagementHelper.doManagement(factory.getServerLocator(), user, password, setup, ok, failed);
+      }
+   }
+
 }
