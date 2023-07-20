@@ -8,6 +8,14 @@ This chapter provides the following information for each release:
   - **Note:** Follow the general upgrade procedure outlined in the [Upgrading the Broker](upgrading.md) 
     chapter in addition to any version-specific upgrade instructions outlined here.
 
+## 2.30.0
+[Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353357)
+
+Highlights:
+- This is mainly a bug-fix release with a few small improvements and a handful of dependency upgrades. See the
+  [release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353357) for all 
+  the details.
+
 ## 2.29.0
 [Full release notes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?version=12352880&projectId=12315920)
 
