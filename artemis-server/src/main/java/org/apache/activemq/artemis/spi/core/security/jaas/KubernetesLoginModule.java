@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.spi.core.security.jaas;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,7 +48,7 @@ public class KubernetesLoginModule extends PropertiesLoader implements AuditLogi
    private TokenReview tokenReview = new TokenReview();
    private boolean ignoreTokenReviewRoles = false;
    private Map<String, Set<String>> roles;
-   private final Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new LinkedHashSet<>();
    private final KubernetesClient client;
 
    public KubernetesLoginModule(KubernetesClient client) {

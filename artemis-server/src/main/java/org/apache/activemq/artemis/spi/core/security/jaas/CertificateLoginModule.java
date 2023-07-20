@@ -25,7 +25,7 @@ import javax.security.auth.login.LoginException;
 import java.security.cert.X509Certificate;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,7 +47,7 @@ public abstract class CertificateLoginModule extends PropertiesLoader implements
 
    private X509Certificate[] certificates;
    private String username;
-   private final Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new LinkedHashSet<>();
 
    /**
     * Overriding to allow for proper initialization. Standard JAAS.

@@ -26,7 +26,7 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class InVMLoginModule implements AuditLoginModule {
    private SecurityConfiguration configuration;
    private Subject subject;
    private String user;
-   private final Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new LinkedHashSet<>();
    private CallbackHandler callbackHandler;
    private boolean loginSucceeded;
 

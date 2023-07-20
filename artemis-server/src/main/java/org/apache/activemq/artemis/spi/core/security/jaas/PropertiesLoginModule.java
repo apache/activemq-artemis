@@ -26,7 +26,7 @@ import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -53,7 +53,7 @@ public class PropertiesLoginModule extends PropertiesLoader implements AuditLogi
    private Properties users;
    private Map<String, Set<String>> roles;
    private String user;
-   private final Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new LinkedHashSet<>();
    private boolean loginSucceeded;
    private HashProcessor hashProcessor;
 
