@@ -17,7 +17,6 @@
 package org.apache.activemq.artemis.cli.commands.queue;
 
 import com.github.rvesse.airline.annotations.Command;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
@@ -32,23 +31,14 @@ public class UpdateQueue extends QueueAbstract {
    }
 
    private void updateQueue(final ActionContext context) throws Exception {
-      performCoreManagement(new ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", getName(), getRoutingType(), getMaxConsumers(null), isPurgeOnNoConsumers());
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            final String result = ManagementHelper.getResult(reply, String.class) + " updated successfully.";
-            context.out.println(result);
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to update " + getName() + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "updateQueue", getName(), getRoutingType(), getMaxConsumers(null), isPurgeOnNoConsumers());
+      }, reply -> {
+         final String result = ManagementHelper.getResult(reply, String.class) + " updated successfully.";
+         context.out.println(result);
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         context.err.println("Failed to update " + getName() + ". Reason: " + errMsg);
       });
    }
 }

@@ -26,12 +26,12 @@ import java.util.concurrent.TimeoutException;
 import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ActiveMQManagementProxy;
 import org.apache.activemq.artemis.cli.CLIException;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.commons.lang3.time.StopWatch;
 
-public abstract class CheckAbstract extends AbstractAction {
+public abstract class CheckAbstract extends ConnectionAbstract {
 
    @Option(name = "--name", description = "Name of the target to check.")
    protected String name;

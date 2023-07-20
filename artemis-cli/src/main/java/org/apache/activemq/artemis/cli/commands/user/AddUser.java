@@ -18,9 +18,7 @@ package org.apache.activemq.artemis.cli.commands.user;
 
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
 /**
@@ -49,22 +47,13 @@ public class AddUser extends PasswordAction {
     * @throws Exception if communication with the broker fails
     */
    private void add() throws Exception {
-      performCoreManagement(new AbstractAction.ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "addUser", userCommandUser, userCommandPassword, role, plaintext);
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            getActionContext().out.println(userCommandUser + " added successfully.");
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            getActionContext().err.println("Failed to add user " + userCommandUser + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "addUser", userCommandUser, userCommandPassword, role, plaintext);
+      }, reply -> {
+         getActionContext().out.println(userCommandUser + " added successfully.");
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         getActionContext().err.println("Failed to add user " + userCommandUser + ". Reason: " + errMsg);
       });
    }
 }

@@ -99,10 +99,14 @@ public final class ManagementHelper {
       void accept(ClientMessage message) throws Exception;
    }
 
-   /** Utility function to connect to a server and perform a management operation via core. */
    public static void doManagement(String uri, String user, String password, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
-      try (ServerLocator locator = ServerLocatorImpl.newLocator(uri);
-           ClientSessionFactory sessionFactory = locator.createSessionFactory();
+      try (ServerLocator locator = ServerLocatorImpl.newLocator(uri)) {
+         doManagement(locator, user, password, setup, ok, failed);
+      }
+   }
+
+   public static void doManagement(ServerLocator locator, String user, String password, MessageAcceptor setup, MessageAcceptor ok, MessageAcceptor failed) throws Exception {
+      try (ClientSessionFactory sessionFactory = locator.createSessionFactory();
            ClientSession session = sessionFactory.createSession(user, password, false, true, true, false, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE)) {
          doManagement(session, setup, ok, failed);
       }

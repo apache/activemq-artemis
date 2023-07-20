@@ -29,12 +29,12 @@ import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
 import org.apache.activemq.artemis.cli.commands.address.DeleteAddress;
 import org.apache.activemq.artemis.cli.commands.address.ShowAddress;
 import org.apache.activemq.artemis.cli.commands.address.UpdateAddress;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -241,13 +241,13 @@ public class AddressCommandTest extends JMSTestBase {
       checkExecutionFailure(updateAddress, expectedErrorMessage);
    }
 
-   private void checkExecutionPassed(AbstractAction command) throws Exception {
+   private void checkExecutionPassed(ConnectionAbstract command) throws Exception {
       String fullMessage = output.toString();
       logger.debug("output: {}", fullMessage);
       assertTrue(fullMessage, fullMessage.contains("successfully"));
    }
 
-   private void checkExecutionFailure(AbstractAction command, String message) throws Exception {
+   private void checkExecutionFailure(ConnectionAbstract command, String message) throws Exception {
       String fullMessage = error.toString();
       logger.debug("error: {}", fullMessage);
       assertTrue(fullMessage, fullMessage.contains(message));

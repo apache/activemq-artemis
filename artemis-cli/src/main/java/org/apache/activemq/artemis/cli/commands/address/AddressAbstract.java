@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.cli.commands.address;
 
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 
-public abstract class AddressAbstract extends AbstractAction {
+public abstract class AddressAbstract extends ConnectionAbstract {
 
    @Option(name = "--name", description = "The address's name.")
    private String name;
@@ -37,7 +37,7 @@ public abstract class AddressAbstract extends AbstractAction {
    private Boolean noMulticast;
 
 
-   public AbstractAction setName(String name) {
+   public AddressAbstract setName(String name) {
       this.name = name;
       return this;
    }

@@ -17,9 +17,9 @@
 package org.apache.activemq.artemis.cli.commands.queue;
 
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 
-public class QueueAbstract extends AbstractAction {
+public class QueueAbstract extends ConnectionAbstract {
 
    @Option(name = "--name", description = "The queue's name.")
    private String name;

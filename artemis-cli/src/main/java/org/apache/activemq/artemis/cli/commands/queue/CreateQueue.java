@@ -18,7 +18,6 @@
 package org.apache.activemq.artemis.cli.commands.queue;
 
 import com.github.rvesse.airline.annotations.Command;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 
@@ -33,23 +32,14 @@ public class CreateQueue extends QueueAbstract {
    }
 
    private void createQueue(final ActionContext context) throws Exception {
-      performCoreManagement(new ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, "broker", "createQueue", getAddress(true), getRoutingType(), getName(), getFilter(), isDurable(), getMaxConsumers(-1), isPurgeOnNoConsumers(true), isAutoCreateAddress());
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            final String result = ManagementHelper.getResult(reply, String.class) + " created successfully.";
-            context.out.println(result);
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to create queue " + getName() + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, "broker", "createQueue", getAddress(true), getRoutingType(), getName(), getFilter(), isDurable(), getMaxConsumers(-1), isPurgeOnNoConsumers(true), isAutoCreateAddress());
+      }, reply -> {
+         final String result = ManagementHelper.getResult(reply, String.class) + " created successfully.";
+         context.out.println(result);
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         context.err.println("Failed to create queue " + getName() + ". Reason: " + errMsg);
       });
    }
 }

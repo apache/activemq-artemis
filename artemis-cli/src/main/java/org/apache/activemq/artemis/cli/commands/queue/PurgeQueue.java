@@ -19,14 +19,13 @@ package org.apache.activemq.artemis.cli.commands.queue;
 
 import com.github.rvesse.airline.annotations.Command;
 import com.github.rvesse.airline.annotations.Option;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.AbstractAction;
+import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 
 @Command(name = "purge", description = "Delete all messages in a queue.")
-public class PurgeQueue extends AbstractAction {
+public class PurgeQueue extends ConnectionAbstract {
 
    @Option(name = "--name", description = "The queue's name.")
    String name;
@@ -39,22 +38,13 @@ public class PurgeQueue extends AbstractAction {
    }
 
    private void purgeQueue(final ActionContext context) throws Exception {
-      performCoreManagement(new ManagementCallback<ClientMessage>() {
-         @Override
-         public void setUpInvocation(ClientMessage message) throws Exception {
-            ManagementHelper.putOperationInvocation(message, ResourceNames.QUEUE + getName(), "removeAllMessages");
-         }
-
-         @Override
-         public void requestSuccessful(ClientMessage reply) throws Exception {
-            context.out.println("Queue " + getName() + " purged successfully.");
-         }
-
-         @Override
-         public void requestFailed(ClientMessage reply) throws Exception {
-            String errMsg = (String) ManagementHelper.getResult(reply, String.class);
-            context.err.println("Failed to purge queue " + getName() + ". Reason: " + errMsg);
-         }
+      performCoreManagement(message -> {
+         ManagementHelper.putOperationInvocation(message, ResourceNames.QUEUE + getName(), "removeAllMessages");
+      }, reply -> {
+         context.out.println("Queue " + getName() + " purged successfully.");
+      }, reply -> {
+         String errMsg = (String) ManagementHelper.getResult(reply, String.class);
+         context.err.println("Failed to purge queue " + getName() + ". Reason: " + errMsg);
       });
    }
 
