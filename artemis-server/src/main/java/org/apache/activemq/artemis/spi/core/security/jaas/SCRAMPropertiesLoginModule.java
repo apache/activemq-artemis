@@ -22,7 +22,7 @@ import java.security.MessageDigest;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -63,7 +63,7 @@ public class SCRAMPropertiesLoginModule extends PropertiesLoader implements Audi
    private Map<String, Set<String>> roles;
    private UserData userData;
    private String user;
-   private final Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new LinkedHashSet<>();
 
    @Override
    public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,

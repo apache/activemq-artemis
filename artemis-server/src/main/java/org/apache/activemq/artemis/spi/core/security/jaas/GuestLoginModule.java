@@ -24,7 +24,7 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,7 +50,7 @@ public class GuestLoginModule implements AuditLoginModule {
    private Subject subject;
    private boolean debug;
    private boolean credentialsInvalidate;
-   private final Set<Principal> principals = new HashSet<>();
+   private final Set<Principal> principals = new LinkedHashSet<>();
    private CallbackHandler callbackHandler;
    private boolean loginSucceeded;
 
