@@ -20,7 +20,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.30.0-SNAPSHOT</version>
+   <version>2.30.0</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -249,14 +249,14 @@
       <testFailureIgnore>true</testFailureIgnore>
       <fast-tests>false</fast-tests>
 
-      <project.build.outputTimestamp>2023-06-14T22:20:57Z</project.build.outputTimestamp>
+      <project.build.outputTimestamp>2023-07-20T19:30:28Z</project.build.outputTimestamp>
    </properties>
 
    <scm>
       <connection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</connection>
       <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/activemq-artemis.git</developerConnection>
       <url>https://github.com/apache/activemq-artemis</url>
-      <tag>HEAD</tag>
+      <tag>2.30.0</tag>
    </scm>
 
    <issueManagement>
