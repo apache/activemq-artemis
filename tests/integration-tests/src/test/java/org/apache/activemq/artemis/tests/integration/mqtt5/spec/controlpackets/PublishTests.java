@@ -1021,6 +1021,71 @@ public class PublishTests extends MQTT5TestSupport {
    }
 
    /*
+    * From section 3.3.2.3.4 of the MQTT 5 specification:
+    *
+    * A sender can modify the Topic Alias mapping by sending another PUBLISH in the same Network Connection with the
+    * same Topic Alias value and a different non-zero length Topic Name.
+    */
+   @Test(timeout = DEFAULT_TIMEOUT)
+   public void testModifiedTopicAlias() throws Exception {
+      final String TOPIC_1 = this.getTopicName() + "1";
+      final String TOPIC_2 = this.getTopicName() + "2";
+
+      MqttClient consumer1 = createPahoClient("consumer1");
+      CountDownLatch latch1 = new CountDownLatch(1);
+      consumer1.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            String payload = new String(message.getPayload());
+            if (payload.equals("first")) {
+               latch1.countDown();
+            }
+         }
+      });
+      consumer1.connect();
+      consumer1.subscribe(TOPIC_1, 1);
+
+      MqttClient consumer2 = createPahoClient("consumer2");
+      CountDownLatch latch2 = new CountDownLatch(1);
+      consumer2.setCallback(new DefaultMqttCallback() {
+         @Override
+         public void messageArrived(String topic, MqttMessage message) throws Exception {
+            String payload = new String(message.getPayload());
+            if (payload.equals("second")) {
+               latch2.countDown();
+            }
+         }
+      });
+      consumer2.connect();
+      consumer2.subscribe(TOPIC_2, 1);
+
+      MqttClient producer = createPahoClient("producer");
+      producer.connect();
+
+      MqttProperties properties = new MqttProperties();
+      properties.setTopicAlias(1);
+      MqttMessage m = new MqttMessage();
+      m.setProperties(properties);
+      m.setQos(1);
+      m.setRetained(false);
+      m.setPayload("first".getBytes(StandardCharsets.UTF_8));
+      producer.publish(TOPIC_1, m);
+      m.setPayload("second".getBytes(StandardCharsets.UTF_8));
+      producer.publish(TOPIC_2, m);
+
+      producer.disconnect();
+      producer.close();
+
+      assertTrue(latch1.await(2, TimeUnit.SECONDS));
+      assertTrue(latch2.await(2, TimeUnit.SECONDS));
+
+      consumer1.disconnect();
+      consumer1.close();
+      consumer2.disconnect();
+      consumer2.close();
+   }
+
+   /*
     * [MQTT-3.3.2-15] The Server MUST send the Response Topic unaltered to all subscribers receiving the Application
     * Message.
     */

@@ -189,27 +189,31 @@ public class MQTTPublishManager {
          String topic = message.variableHeader().topicName();
          if (session.getVersion() == MQTTVersion.MQTT_5) {
             Integer alias = MQTTUtil.getProperty(Integer.class, message.variableHeader().properties(), TOPIC_ALIAS);
-            Integer topicAliasMax = session.getProtocolManager().getTopicAliasMaximum();
             if (alias != null) {
+               Integer topicAliasMax = session.getProtocolManager().getTopicAliasMaximum();
                if (alias == 0) {
                   // [MQTT-3.3.2-8]
                   throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
                } else if (topicAliasMax != null && alias > topicAliasMax) {
                   // [MQTT-3.3.2-9]
                   throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
-               } else {
-                  topic = session.getState().getClientTopicAlias(alias);
-                  if (topic == null) {
-                     topic = message.variableHeader().topicName();
-                     if (topic == null || topic.length() == 0) {
-                        // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
-                        throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
-                     }
-                     session.getState().addClientTopicAlias(alias, topic);
-                  }
                }
-            } else {
-               topic = message.variableHeader().topicName();
+
+               String existingTopicMapping = session.getState().getClientTopicAlias(alias);
+               if (existingTopicMapping == null) {
+                  if (topic == null || topic.length() == 0) {
+                     // using a topic alias with no matching topic in the state; potentially [MQTT-3.3.2-7]
+                     throw new DisconnectException(MQTTReasonCodes.TOPIC_ALIAS_INVALID);
+                  }
+                  logger.debug("Adding new alias {} for topic {}", alias, topic);
+                  session.getState().putClientTopicAlias(alias, topic);
+               } else if (topic != null && topic.length() > 0) {
+                  logger.debug("Modifying existing alias {}. New value: {}; old value: {}", alias, topic, existingTopicMapping);
+                  session.getState().putClientTopicAlias(alias, topic);
+               } else {
+                  logger.debug("Applying topic {} for alias {}", existingTopicMapping, alias);
+                  topic = existingTopicMapping;
+               }
             }
          }
          String coreAddress = MQTTUtil.convertMqttTopicFilterToCoreAddress(topic, session.getWildcardConfiguration());

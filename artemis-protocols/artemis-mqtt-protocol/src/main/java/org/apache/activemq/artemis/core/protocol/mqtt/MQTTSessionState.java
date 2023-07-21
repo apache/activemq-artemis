@@ -307,7 +307,7 @@ public class MQTTSessionState {
       this.clientMaxPacketSize = clientMaxPacketSize;
    }
 
-   public void addClientTopicAlias(Integer alias, String topicName) {
+   public void putClientTopicAlias(Integer alias, String topicName) {
       if (clientTopicAliases == null) {
          clientTopicAliases = new HashMap<>();
       }
