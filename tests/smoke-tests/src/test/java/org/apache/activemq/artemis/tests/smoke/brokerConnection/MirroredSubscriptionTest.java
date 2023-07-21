@@ -56,6 +56,10 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    public void beforeClass() throws Exception {
       cleanupData(SERVER_NAME_A);
       cleanupData(SERVER_NAME_B);
+      startServers();
+   }
+
+   private void startServers() throws Exception {
       processB = startServer(SERVER_NAME_B, 1, 0);
       processA = startServer(SERVER_NAME_A, 0, 0);
 
@@ -64,10 +68,9 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    }
 
    @Test
-   public void testSend() throws Throwable {
-
+   public void testConsumeAll() throws Throwable {
       int COMMIT_INTERVAL = 100;
-      int NUMBER_OF_MESSAGES = 1000;
+      int NUMBER_OF_MESSAGES = 300;
       int CLIENTS = 5;
       String mainURI = "tcp://localhost:61616";
       String secondURI = "tcp://localhost:61617";
@@ -111,6 +114,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
 
       for (int i = 0; i < CLIENTS; i++) {
          final int clientID = i;
+         CountDownLatch threadDone = new CountDownLatch(1);
          executorService.execute(() -> {
             try (Connection connection = cf.createConnection()) {
                connection.setClientID("client" + clientID);
@@ -132,8 +136,27 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
                errors.incrementAndGet();
             } finally {
                done.countDown();
+               threadDone.countDown();
             }
          });
+
+         if (clientID == 0) {
+            // The first execution will block until finished, we will then kill all the servers and make sure
+            // all the counters are preserved.
+            Assert.assertTrue(threadDone.await(300, TimeUnit.SECONDS));
+            processA.destroyForcibly();
+            processB.destroyForcibly();
+            Wait.assertFalse(processA::isAlive);
+            Wait.assertFalse(processB::isAlive);
+            startServers();
+            Wait.assertEquals(0, () -> getMessageCount(mainURI, "client0.subscription0"));
+            Wait.assertEquals(0, () -> getMessageCount(secondURI, "client0.subscription0"));
+            for (int checkID = 1; checkID < CLIENTS; checkID++) {
+               int checkFinal = checkID;
+               Wait.assertEquals(NUMBER_OF_MESSAGES, () -> getMessageCount(mainURI, "client" + checkFinal + ".subscription" + checkFinal), 2000, 100);
+               Wait.assertEquals(NUMBER_OF_MESSAGES, () -> getMessageCount(secondURI, "client" + checkFinal + ".subscription" + checkFinal), 2000, 100);
+            }
+         }
       }
 
       Assert.assertTrue(done.await(300, TimeUnit.SECONDS));

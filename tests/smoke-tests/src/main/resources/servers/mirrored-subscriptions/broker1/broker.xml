@@ -110,7 +110,7 @@ under the License.
 
       <broker-connections>
          <amqp-connection uri="tcp://localhost:61617" name="mirror" retry-interval="100">
-            <mirror/>
+            <mirror sync="true"/>
          </amqp-connection>
       </broker-connections>
 
