@@ -26,13 +26,15 @@ To define an AMQP broker connection, add an `<amqp-connection>` element within t
 </broker-connections>
 ```
 
-- `uri`: tcp://host:myport (this is a required argument)
+- `uri`: tcp://host:myport[?options] (this is a required argument)
 - `name`: Name of the connection used for management purposes
 - `user`: User name with which to connect to the endpoint (this is an optional argument)
 - `password`: Password with which to connect to the endpoint (this is an optional argument)
 - `retry-interval`: Time, in milliseconds to wait before retrying a connection after an error. The default value is `5000`.
 - `reconnect-attempts`: default is -1 meaning infinite
 - `auto-start` : Should the broker connection start automatically with the broker. Default is `true`. If false it is necessary to call a management operation to start it.
+
+Note that the connection URI options for transport settings such as enabling and configuring TLS are common with other Artemis connector URIs. See [the transport doc](configuring-transports.md#configuring-netty-ssl) for more. An example configuration for a TLS AMQP broker-connection can be found in the broker examples at ./examples/features/broker-connection/amqp-sending-overssl.
 
 *Notice:* If auto-start is disabled on the broker connection, the start of the broker connection will only happen after the management method `startBrokerConnection(connectionName)` is called on the ServerController.
 
