@@ -28,17 +28,7 @@ import org.slf4j.LoggerFactory;
 @LogBundle(projectCode = "TST")
 public interface SimpleBundle {
 
-   static SimpleBundle init() {
-      try {
-         Logger logger = LoggerFactory.getLogger(SimpleBundle.class.getName());
-         return (SimpleBundle) Class.forName(SimpleBundle.class.getName() + "_impl").getConstructor(Logger.class).newInstance(logger);
-      } catch (Exception e) {
-         LoggerFactory.getLogger(SimpleBundle.class).error(e.getMessage(), e);
-      }
-      return null;
-   }
-
-   SimpleBundle MESSAGES = init();
+   SimpleBundle MESSAGES = new SimpleBundle_impl(LoggerFactory.getLogger(SimpleBundle.class.getName()));
 
    @Message(id = 1, value = "Test")
    String simpleTest();

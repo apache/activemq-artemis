@@ -74,6 +74,7 @@
                   <configuration>
                      <!-- Disable annotation processing for ourselves. -->
                      <compilerArgument>-proc:none</compilerArgument>
+                     <annotationProcessorPaths combine.self="override"/>
                   </configuration>
                </execution>
             </executions>

@@ -52,4 +52,18 @@
          <scope>provided</scope>
       </dependency>
    </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <!-- Disable annotation processing for ourselves. -->
+               <annotationProcessorPaths combine.self="override"/>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
 </project>
