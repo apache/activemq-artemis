@@ -14,6 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Test
+ */
 package org.apache.activemq.artemis.tests.integration.mqtt5;
 
 import javax.jms.JMSConsumer;
