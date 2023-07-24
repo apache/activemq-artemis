@@ -18,8 +18,8 @@ package org.apache.activemq.artemis.cli.commands;
 
 import java.io.File;
 
-import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.dto.BrokerDTO;
+import picocli.CommandLine.Command;
 
 @Command(name = "stop", description = "Stop the broker.")
 public class Stop extends Configurable {

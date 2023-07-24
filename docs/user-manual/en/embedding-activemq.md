@@ -123,6 +123,3 @@ server.start();
 You may also choose to use a dependency injection framework such as The Spring
 Framework. See [Spring Integration](spring-integration.md) for more details on
 Spring and Apache ActiveMQ Artemis.
-
-Apache ActiveMQ Artemis standalone uses
-[Airline](http://rvesse.github.io/airline/) to bootstrap.

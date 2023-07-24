@@ -26,9 +26,10 @@ public interface Action {
 
    Object execute(ActionContext context) throws Exception;
 
+   void done();
+
    String getBrokerInstance();
 
    String getBrokerHome();
 
-   void checkOptions(String[] options) throws InvalidOptionsError;
 }

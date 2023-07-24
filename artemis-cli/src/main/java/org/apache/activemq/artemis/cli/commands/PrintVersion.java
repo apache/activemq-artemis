@@ -16,9 +16,9 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.core.version.Version;
 import org.apache.activemq.artemis.utils.VersionLoader;
+import picocli.CommandLine.Command;
 
 @Command(name = "version", description = "Print version information.")
 public class PrintVersion extends ActionAbstract {

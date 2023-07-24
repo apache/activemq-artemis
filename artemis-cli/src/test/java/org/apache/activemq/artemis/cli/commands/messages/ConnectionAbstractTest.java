@@ -48,11 +48,12 @@ public class ConnectionAbstractTest {
 
    @Test
    public void testDefaultSourceAcceptorNoArtemis() {
-      ConnectionAbstract connectionAbstract = new ConnectionAbstract();
 
       File brokerInstanceEtc = new File(this.getClass().getClassLoader().getResource("broker.xml").getFile()).getParentFile();
 
       System.setProperty("artemis.instance.etc", brokerInstanceEtc.getAbsolutePath());
+
+      ConnectionAbstract connectionAbstract = new ConnectionAbstract();
       try {
          connectionAbstract.setHomeValues(null, brokerInstanceEtc.getParentFile(), null);
          ActionAbstractAccessor.setBrokerConfig(connectionAbstract, "broker-with-connector.xml");

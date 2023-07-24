@@ -16,15 +16,15 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
+import picocli.CommandLine.Option;
 
 public abstract class UserAction extends ConnectionAbstract {
 
-   @Option(name = "--role", description = "The user's role(s). Separate multiple roles with comma.")
+   @Option(names = "--role", description = "The user's role(s). Separate multiple roles with comma.")
    String role;
 
-   @Option(name = "--user-command-user", description = "The username to use for the chosen user command. Default: input.")
+   @Option(names = "--user-command-user", description = "The username to use for the chosen user command. Default: input.")
    String userCommandUser = null;
 
    void checkInputUser() {

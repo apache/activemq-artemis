@@ -21,29 +21,33 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-import com.github.rvesse.airline.annotations.Option;
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
 import org.apache.activemq.artemis.cli.factory.serialize.XMLMessageSerializer;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import picocli.CommandLine.Option;
 
 public class DestAbstract extends ConnectionAbstract {
 
-   @Option(name = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. Default: queue://TEST.")
+   @Option(names = "--destination", description = "Destination to be used. It can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. Default: queue://TEST.")
    String destination = "queue://TEST";
 
-   @Option(name = "--message-count", description = "Number of messages to act on. Default: 1000.")
-   int messageCount = 1000;
+   @Option(names = "--message-count", description = "Number of messages to act on. Default: 1000.")
+   long messageCount = 1000;
 
-   @Option(name = "--sleep", description = "Time wait between each message.")
+   @Option(names = "--sleep", description = "Time wait between each message.")
    int sleep = 0;
 
-   @Option(name = "--txt-size", description = "Transaction batch size.")
-   int txBatchSize;
+   @Option(names = {"--txt-size"}, description = "Transaction batch size. (deprecated)", hidden = true)
+   int oldBatchSize;
 
-   @Option(name = "--threads", description = "Number of threads to use. Default: 1.")
+   @Option(names = {"--commit-interval"}, description = "Transaction batch size.")
+   protected int txBatchSize;
+
+   @Option(names = "--threads", description = "Number of threads to use. Default: 1.")
    int threads = 1;
 
-   @Option(name = "--serializer", description = "The class name of the custom serializer implementation to use intead of the default.")
+   @Option(names = "--serializer", description = "The class name of the custom serializer implementation to use intead of the default.")
    String serializer;
 
    protected MessageSerializer getMessageSerializer() {
@@ -56,7 +60,7 @@ public class DestAbstract extends ConnectionAbstract {
          }
       }
 
-      if (!protocol.equalsIgnoreCase("CORE")) {
+      if (protocol != ConnectionProtocol.CORE) {
          System.err.println("Default Serializer does not support: " + protocol + " protocol");
          return null;
       }
@@ -93,7 +97,7 @@ public class DestAbstract extends ConnectionAbstract {
       return this;
    }
 
-   public int getMessageCount() {
+   public long getMessageCount() {
       return messageCount;
    }
 
@@ -136,5 +140,17 @@ public class DestAbstract extends ConnectionAbstract {
    public DestAbstract setSerializer(String serializer) {
       this.serializer = serializer;
       return this;
+   }
+
+   @Override
+   public Object execute(ActionContext context) throws Exception {
+      super.execute(context);
+
+      if (oldBatchSize > 0) {
+         context.out.println("--txt-size is deprecated, please use --commit-interval");
+         txBatchSize = oldBatchSize;
+      }
+
+      return null;
    }
 }

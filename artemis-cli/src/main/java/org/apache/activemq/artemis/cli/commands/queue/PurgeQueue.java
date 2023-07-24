@@ -17,17 +17,17 @@
 
 package org.apache.activemq.artemis.cli.commands.queue;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "purge", description = "Delete all messages in a queue.")
 public class PurgeQueue extends ConnectionAbstract {
 
-   @Option(name = "--name", description = "The queue's name.")
+   @Option(names = "--name", description = "The queue's name.")
    String name;
 
    @Override

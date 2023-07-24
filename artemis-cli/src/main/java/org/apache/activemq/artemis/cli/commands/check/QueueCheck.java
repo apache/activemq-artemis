@@ -23,27 +23,26 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "queue", description = "Check a queue.")
 public class QueueCheck extends CheckAbstract {
 
-   @Option(name = "--up", description = "Check that the queue exists and is not paused. This check is executed by default if there are no other checks.")
+   @Option(names = "--up", description = "Check that the queue exists and is not paused. This check is executed by default if there are no other checks.")
    private boolean up;
 
-   @Option(name = "--browse", description = "Number of the messages to browse or -1 to check that the queue is browsable.")
+   @Option(names = "--browse", description = "Number of the messages to browse or -1 to check that the queue is browsable.")
    private Integer browse;
 
-   @Option(name = "--consume", description = "Number of the messages to consume or -1 to check that the queue is consumable.")
+   @Option(names = "--consume", description = "Number of the messages to consume or -1 to check that the queue is consumable.")
    private Integer consume;
 
-   @Option(name = "--produce", description = "Number of the messages to produce.")
+   @Option(names = "--produce", description = "Number of the messages to produce.")
    private Integer produce;
 
    public boolean isUp() {

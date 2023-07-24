@@ -20,9 +20,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -38,6 +35,8 @@ import org.apache.activemq.artemis.core.message.impl.CoreMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
 import org.apache.activemq.artemis.spi.core.protocol.MessagePersister;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "recover", description = "Recover (undelete) every message on the journal by creating a new output journal. Rolled back and acked messages will be sent out to the output as much as possible.")
 public class RecoverMessages extends DBOption {
@@ -46,11 +45,10 @@ public class RecoverMessages extends DBOption {
       MessagePersister.registerPersister(CoreMessagePersister.getInstance());
    }
 
-   @Option(name = "--reclaimed", description = "Try to recover as many records as possible from reclaimed files.")
+   @Option(names = "--reclaimed", description = "Try to recover as many records as possible from reclaimed files.")
    private boolean reclaimed = false;
 
-   @Option(name = "--target", description = "Output folder container the new journal with all the generated messages.")
-   @Required
+   @Option(names = "--target", description = "Output folder container the new journal with all the generated messages.", required = true)
    private String outputJournal;
 
 
@@ -67,7 +65,7 @@ public class RecoverMessages extends DBOption {
          if (configuration.isJDBC()) {
             throw new IllegalAccessException("JDBC Not supported on recover");
          } else {
-            recover(configuration, getJournal(), journalOutput, new File(getLargeMessages()), reclaimed);
+            recover(context, configuration, getJournal(), journalOutput, new File(getLargeMessages()), reclaimed);
          }
       } catch (Exception e) {
          treatError(e, "data", "recover");
@@ -75,9 +73,7 @@ public class RecoverMessages extends DBOption {
       return null;
    }
 
-   public static void recover(Configuration configuration, String journallocation, File journalOutput, File largeMessage, boolean reclaimed) throws Exception {
-
-      final ActionContext context =  ActionContext.system();
+   public static void recover(ActionContext context, Configuration configuration, String journallocation, File journalOutput, File largeMessage, boolean reclaimed) throws Exception {
 
       File journal = new File(journallocation);
 

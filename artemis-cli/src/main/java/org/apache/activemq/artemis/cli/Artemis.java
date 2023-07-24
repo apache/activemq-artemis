@@ -16,65 +16,46 @@
  */
 package org.apache.activemq.artemis.cli;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
 
-import com.github.rvesse.airline.Cli;
-import com.github.rvesse.airline.builder.CliBuilder;
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.cli.commands.AutoCompletion;
 import org.apache.activemq.artemis.cli.commands.Create;
+import org.apache.activemq.artemis.cli.commands.Disconnect;
 import org.apache.activemq.artemis.cli.commands.HelpAction;
 import org.apache.activemq.artemis.cli.commands.InputAbstract;
 import org.apache.activemq.artemis.cli.commands.InvalidOptionsError;
 import org.apache.activemq.artemis.cli.commands.Kill;
 import org.apache.activemq.artemis.cli.commands.Mask;
 import org.apache.activemq.artemis.cli.commands.PrintVersion;
-import org.apache.activemq.artemis.cli.commands.Upgrade;
-import org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceSet;
-import org.apache.activemq.artemis.cli.commands.check.HelpCheck;
-import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
-import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
-import org.apache.activemq.artemis.cli.commands.messages.Transfer;
-import org.apache.activemq.artemis.cli.commands.messages.perf.PerfClientCommand;
-import org.apache.activemq.artemis.cli.commands.messages.perf.PerfConsumerCommand;
-import org.apache.activemq.artemis.cli.commands.messages.perf.PerfProducerCommand;
-import org.apache.activemq.artemis.cli.commands.queue.StatQueue;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.Stop;
-import org.apache.activemq.artemis.cli.commands.address.CreateAddress;
-import org.apache.activemq.artemis.cli.commands.address.DeleteAddress;
-import org.apache.activemq.artemis.cli.commands.address.HelpAddress;
-import org.apache.activemq.artemis.cli.commands.address.ShowAddress;
-import org.apache.activemq.artemis.cli.commands.address.UpdateAddress;
+import org.apache.activemq.artemis.cli.commands.Upgrade;
+import org.apache.activemq.artemis.cli.commands.activation.ActivationGroup;
+import org.apache.activemq.artemis.cli.commands.address.AddressGroup;
+import org.apache.activemq.artemis.cli.commands.check.CheckGroup;
 import org.apache.activemq.artemis.cli.commands.messages.Browse;
+import org.apache.activemq.artemis.cli.commands.Connect;
 import org.apache.activemq.artemis.cli.commands.messages.Consumer;
 import org.apache.activemq.artemis.cli.commands.messages.Producer;
-import org.apache.activemq.artemis.cli.commands.queue.CreateQueue;
-import org.apache.activemq.artemis.cli.commands.queue.DeleteQueue;
-import org.apache.activemq.artemis.cli.commands.queue.HelpQueue;
-import org.apache.activemq.artemis.cli.commands.queue.PurgeQueue;
-import org.apache.activemq.artemis.cli.commands.queue.UpdateQueue;
-import org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceList;
-import org.apache.activemq.artemis.cli.commands.tools.HelpData;
-import org.apache.activemq.artemis.cli.commands.tools.PrintData;
-import org.apache.activemq.artemis.cli.commands.tools.RecoverMessages;
-import org.apache.activemq.artemis.cli.commands.tools.journal.CompactJournal;
-import org.apache.activemq.artemis.cli.commands.tools.journal.DecodeJournal;
-import org.apache.activemq.artemis.cli.commands.tools.journal.EncodeJournal;
+import org.apache.activemq.artemis.cli.commands.messages.Transfer;
+import org.apache.activemq.artemis.cli.commands.messages.perf.PerfGroup;
+import org.apache.activemq.artemis.cli.commands.queue.QueueGroup;
+import org.apache.activemq.artemis.cli.commands.tools.DataGroup;
 import org.apache.activemq.artemis.cli.commands.tools.journal.PerfJournal;
-import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataExporter;
-import org.apache.activemq.artemis.cli.commands.tools.xml.XmlDataImporter;
-import org.apache.activemq.artemis.cli.commands.user.AddUser;
-import org.apache.activemq.artemis.cli.commands.user.HelpUser;
-import org.apache.activemq.artemis.cli.commands.user.ListUser;
-import org.apache.activemq.artemis.cli.commands.user.RemoveUser;
-import org.apache.activemq.artemis.cli.commands.user.ResetUser;
+import org.apache.activemq.artemis.cli.commands.user.UserGroup;
 import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.dto.XmlUtil;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
 /**
  * Artemis is the main CLI entry point for managing/running a broker.
@@ -87,7 +68,26 @@ import org.apache.activemq.artemis.dto.XmlUtil;
  * Notice that this class should not use any logging as it's part of the bootstrap and using logging here could
  *        disrupt the order of bootstrapping on certain components (e.g. JMX being started from log4j)
  */
-public class Artemis {
+@Command(name = "artemis", description = "ActiveMQ Artemis Command Line")
+public class Artemis implements Runnable {
+
+   CommandLine commandLine;
+
+   public CommandLine getCommandLine() {
+      return commandLine;
+   }
+
+   public Artemis setCommandLine(CommandLine commandLine) {
+      this.commandLine = commandLine;
+      return this;
+   }
+
+   @Override
+   public void run() {
+      // We are running the shell by default.
+      // if you type ./artemis we will go straight to the shell
+      Shell.runShell(true);
+   }
 
    public static void main(String... args) throws Exception {
       String home = System.getProperty("artemis.home");
@@ -179,10 +179,7 @@ public class Artemis {
       } catch (RuntimeException | InvalidOptionsError re) {
          context.err.println(re.getMessage());
          context.out.println();
-
-         Cli<Action> parser = builder(null).build();
-
-         parser.parse("help").execute(context);
+         HelpAction.help(buildCommand(true, true), "help");
          return re;
       } finally {
          ActionContext.setSystem(new ActionContext());
@@ -194,66 +191,138 @@ public class Artemis {
     * Useful on test cases
     */
    private static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args) throws Exception {
-      return internalExecute(artemisHome, artemisInstance, etcFolder, args, ActionContext.system());
+      return internalExecute(artemisHome, artemisInstance, etcFolder, args, new ActionContext());
    }
 
    public static Object internalExecute(File artemisHome, File artemisInstance, File etcFolder, String[] args, ActionContext context) throws Exception {
-      Action action = builder(artemisInstance).build().parse(args);
-      action.setHomeValues(artemisHome, artemisInstance, etcFolder);
+      boolean isInstance = artemisInstance != null || System.getProperty("artemis.instance") != null;
+      CommandLine commandLine = buildCommand(isInstance, !isInstance);
 
-      if (action.isVerbose()) {
-         context.out.print("Executing " + action.getClass().getName() + " ");
-         for (String arg : args) {
-            context.out.print(arg + " ");
+      Object userObject = parseAction(commandLine, args);
+
+      // Pico shouldn't allow generating a commandLine without an userObject.
+      // the following assert "should" never happen
+      assert userObject != null;
+
+      if (userObject instanceof Action) {
+         Action action = (Action) userObject;
+         action.setHomeValues(artemisHome, artemisInstance, etcFolder);
+         if (action.isVerbose()) {
+            context.out.print("Executing " + action.getClass().getName() + " ");
+            for (String arg : args) {
+               context.out.print(arg + " ");
+            }
+            context.out.println();
+            context.out.println("Home::" + action.getBrokerHome() + ", Instance::" + action.getBrokerInstance());
          }
-         context.out.println();
-         context.out.println("Home::" + action.getBrokerHome() + ", Instance::" + action.getBrokerInstance());
-      }
 
-      action.checkOptions(args);
-      return action.execute(context);
+         try {
+            return action.execute(context);
+         } finally {
+            action.done();
+         }
+      } else {
+         if (userObject instanceof Runnable) {
+            ((Runnable) userObject).run();
+         } else {
+            throw new IllegalArgumentException(userObject.getClass() + " should implement either " + Action.class.getName() + " or " + Runnable.class.getName());
+         }
+      }
+      return null;
    }
 
-   private static CliBuilder<Action> builder(File artemisInstance) {
-      String instance = artemisInstance != null ? artemisInstance.getAbsolutePath() : System.getProperty("artemis.instance");
-      CliBuilder<Action> builder = Cli.<Action>builder("artemis").withDescription("ActiveMQ Artemis Command Line").
-         withCommand(HelpAction.class).withCommand(Producer.class).withCommand(Transfer.class).withCommand(Consumer.class).
-         withCommand(Browse.class).withCommand(Mask.class).withCommand(PrintVersion.class).withDefaultCommand(HelpAction.class);
+   /*
+    Pico-cli traditionally would execute user objects that implement Runnable.
+    However as we used airline before, we needed parse for the proper action.
+    This method here is parsing the arg and find the proper user object in the hierarchy of sub-commands
+    and return it to the caller.
+    */
+   private static Object parseAction(CommandLine line, String[] args) {
+      CommandLine.ParseResult parseResult = line.parseArgs(args);
+      if (parseResult != null) {
+         while (parseResult.hasSubcommand()) {
+            parseResult = parseResult.subcommand();
+         }
+      }
+      if (parseResult == null) {
+         throw new RuntimeException("Cannot match arg::" + Arrays.toString(args));
+      }
+      return parseResult.commandSpec().userObject();
+   }
 
-      builder.withGroup("perf").withDescription("Perf tools group (example ./artemis perf client)")
-         .withDefaultCommand(PerfClientCommand.class)
-         .withCommands(PerfProducerCommand.class, PerfConsumerCommand.class, PerfClientCommand.class);
+   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands) {
+      return buildCommand(includeInstanceCommands, includeHomeCommands, false);
 
-      builder.withGroup("check").withDescription("Check tools group (node|queue) (example ./artemis check node)").
-         withDefaultCommand(HelpCheck.class).withCommands(NodeCheck.class, QueueCheck.class);
+   }
 
-      builder.withGroup("queue").withDescription("Queue tools group (create|delete|update|stat|purge) (example ./artemis queue create)").
-         withDefaultCommand(HelpQueue.class).withCommands(CreateQueue.class, DeleteQueue.class, UpdateQueue.class, StatQueue.class, PurgeQueue.class);
+   public static CommandLine buildCommand(boolean includeInstanceCommands, boolean includeHomeCommands, boolean fromShell) {
+      Artemis artemis = new Artemis();
 
-      builder.withGroup("address").withDescription("Address tools group (create|delete|update|show) (example ./artemis address create)").
-         withDefaultCommand(HelpAddress.class).withCommands(CreateAddress.class, DeleteAddress.class, UpdateAddress.class, ShowAddress.class);
+      CommandLine commandLine = new CommandLine(artemis);
+      artemis.setCommandLine(commandLine);
 
-      if (instance != null) {
-         builder.withGroup("activation")
-            .withDescription("activation tools group (sync) (example ./artemis activation list)")
-            .withDefaultCommand(ActivationSequenceList.class)
-            .withCommands(ActivationSequenceList.class, ActivationSequenceSet.class);
-         builder.withGroup("data").withDescription("data tools group (print|imp|exp|encode|decode|compact|recover) (example ./artemis data print)").
-            withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class, XmlDataExporter.class, XmlDataImporter.class, DecodeJournal.class, EncodeJournal.class, CompactJournal.class);
-         builder.withGroup("user").withDescription("default file-based user management (add|rm|list|reset) (example ./artemis user list)").
-                 withDefaultCommand(HelpUser.class).withCommands(ListUser.class, AddUser.class, RemoveUser.class, ResetUser.class);
-         builder = builder.withCommands(Run.class, Stop.class, Kill.class, PerfJournal.class);
-      } else {
-         builder.withGroup("data").withDescription("data tools group (print|recover) (example ./artemis data print)").
-            withDefaultCommand(HelpData.class).withCommands(RecoverMessages.class, PrintData.class);
-         builder = builder.withCommands(Create.class, Upgrade.class);
+      HelpAction help = new HelpAction();
+      help.setCommandLine(commandLine);
+      commandLine.addSubcommand(help);
+
+      commandLine.addSubcommand(new AutoCompletion());
+
+      // we don't include the shell in the shell
+      if (!fromShell) {
+         commandLine.addSubcommand(new Shell(commandLine));
       }
 
-      return builder;
+      commandLine.addSubcommand(new Producer()).addSubcommand(new Transfer()).addSubcommand(new Consumer()).addSubcommand(new Browse()).addSubcommand(new Mask()).addSubcommand(new PrintVersion());
+
+      commandLine.addSubcommand(new PerfGroup(commandLine));
+      commandLine.addSubcommand(new CheckGroup(commandLine));
+      commandLine.addSubcommand(new QueueGroup(commandLine));
+      commandLine.addSubcommand(new AddressGroup(commandLine));
+
+      if (fromShell) {
+         commandLine.addSubcommand(new Connect());
+         commandLine.addSubcommand(new Disconnect());
+      }
+
+      if (includeInstanceCommands) {
+         commandLine.addSubcommand(new ActivationGroup(commandLine));
+         commandLine.addSubcommand(new DataGroup(commandLine));
+         commandLine.addSubcommand(new UserGroup(commandLine));
+
+         commandLine.addSubcommand(new Run());
+         commandLine.addSubcommand(new Stop());
+         commandLine.addSubcommand(new Kill());
+         commandLine.addSubcommand(new PerfJournal());
+      }
+
+      if (includeHomeCommands) {
+         if (!includeInstanceCommands) {
+            // Data is already present in InstanceCommands
+            commandLine.addSubcommand(new DataGroup(commandLine));
+         }
+         commandLine.addSubcommand(new Create());
+         commandLine.addSubcommand(new Upgrade());
+      }
+
+      return commandLine;
    }
 
    public static void printBanner(PrintStream out) throws Exception {
       copy(Artemis.class.getResourceAsStream("banner.txt"), out);
+   }
+
+
+   public static String getNameFromBanner() throws Exception {
+      InputStream inputStream = Artemis.class.getResourceAsStream("banner.txt");
+      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+      String lastLine = "";
+      while (reader.ready()) {
+         String line = reader.readLine();
+         if (!line.trim().isEmpty()) {
+            lastLine = line;
+         }
+      }
+      return lastLine.trim();
    }
 
    private static long copy(InputStream in, OutputStream out) throws Exception {

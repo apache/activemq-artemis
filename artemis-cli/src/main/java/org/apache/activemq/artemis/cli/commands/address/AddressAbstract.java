@@ -16,24 +16,24 @@
  */
 package org.apache.activemq.artemis.cli.commands.address;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
+import picocli.CommandLine.Option;
 
 public abstract class AddressAbstract extends ConnectionAbstract {
 
-   @Option(name = "--name", description = "The address's name.")
+   @Option(names = "--name", description = "The address's name.")
    private String name;
 
-   @Option(name = "--anycast", description = "Whether the address supports anycast queues.")
+   @Option(names = "--anycast", description = "Whether the address supports anycast queues.")
    private Boolean anycast;
 
-   @Option(name = "--no-anycast", description = "Whether the address won't support anycast queues.")
+   @Option(names = "--no-anycast", description = "Whether the address won't support anycast queues.")
    private Boolean noAnycast;
 
-   @Option(name = "--multicast", description = "Whether the address supports multicast queues.")
+   @Option(names = "--multicast", description = "Whether the address supports multicast queues.")
    private Boolean multicast;
 
-   @Option(name = "--no-multicast", description = "Whether the address won't support multicast queues.")
+   @Option(names = "--no-multicast", description = "Whether the address won't support multicast queues.")
    private Boolean noMulticast;
 
 

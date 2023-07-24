@@ -16,10 +16,10 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * Reset a user's password or roles, example:
@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.cli.commands.ActionContext;
 @Command(name = "reset", description = "Reset user's password or roles.")
 public class ResetUser extends PasswordAction {
 
-   @Option(name = "--plaintext", description = "Store the password in plaintext. Default: false.")
+   @Option(names = "--plaintext", description = "Store the password in plaintext. Default: false.")
    boolean plaintext = false;
 
    @Override

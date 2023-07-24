@@ -20,9 +20,6 @@ import java.io.PrintStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -35,6 +32,8 @@ import org.apache.activemq.artemis.core.server.impl.FileLockNodeManager;
 import org.apache.activemq.artemis.quorum.DistributedLock;
 import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 import org.apache.activemq.artemis.quorum.MutableLong;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import static org.apache.activemq.artemis.cli.commands.activation.ActivationSequenceUtils.applyCoordinationId;
 
@@ -43,17 +42,16 @@ public class ActivationSequenceSet extends LockAbstract {
 
    private static final int MANAGER_START_TIMEOUT_SECONDS = 60;
 
-   @Option(name = "--node-id", description = "Target sequence for this UUID overwriting the NodeID of this broker too. If not set, broker NodeID is used instead.")
+   @Option(names = "--node-id", description = "Target sequence for this UUID overwriting the NodeID of this broker too. If not set, broker NodeID is used instead.")
    public String nodeId = null;
 
-   @Option(name = "--remote", description = "Set just remote (i.e. coordinated) activation sequence.")
+   @Option(names = "--remote", description = "Set just remote (i.e. coordinated) activation sequence.")
    public boolean remote = false;
 
-   @Option(name = "--local", description = "Set just local activation sequence.")
+   @Option(names = "--local", description = "Set just local activation sequence.")
    public boolean local = false;
 
-   @Option(name = "--to", description = "The new activation sequence.")
-   @Required
+   @Option(names = "--to", description = "The new activation sequence.", required = true)
    public long value;
 
    @Override

@@ -19,29 +19,29 @@ package org.apache.activemq.artemis.cli.commands.check;
 
 import java.util.ArrayList;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.NodeInfo;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "node", description = "Check a node.")
 public class NodeCheck extends CheckAbstract {
 
-   @Option(name = "--up", description = "Check that the node is started. This check is executed by default if there are no other checks.")
+   @Option(names = "--up", description = "Check that the node is started. This check is executed by default if there are no other checks.")
    private boolean up;
 
-   @Option(name = "--diskUsage", description = "Disk usage percentage to check or -1 to use the max-disk-usage.")
+   @Option(names = "--diskUsage", description = "Disk usage percentage to check or -1 to use the max-disk-usage.")
    private Integer diskUsage;
 
-   @Option(name = "--memoryUsage", description = "Memory usage percentage to check.")
+   @Option(names = "--memoryUsage", description = "Memory usage percentage to check.")
    private Integer memoryUsage;
 
-   @Option(name = "--live", description = "Check that the node has a connected live.")
+   @Option(names = "--live", description = "Check that the node has a connected live.")
    private boolean live;
 
-   @Option(name = "--backup", description = "Check that the node has a connected backup.")
+   @Option(names = "--backup", description = "Check that the node has a connected backup.")
    private boolean backup;
 
-   @Option(name = "--peers", description = "Number of peers to check.")
+   @Option(names = "--peers", description = "Number of peers to check.")
    private Integer peers;
 
    public boolean isUp() {

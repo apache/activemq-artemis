@@ -27,38 +27,38 @@ import javax.jms.Session;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "producer", description = "Send message(s) to a broker.")
 public class Producer extends DestAbstract {
 
    public static final String DEMO_TEXT = "demo.txt";
 
-   @Option(name = "--non-persistent", description = "Send messages non persistently.")
+   @Option(names = "--non-persistent", description = "Send messages non persistently.")
    boolean nonpersistent = false;
 
-   @Option(name = "--message-size", description = "Size of each bytesMessage. The producer will use JMS BytesMessage.")
+   @Option(names = "--message-size", description = "Size of each bytesMessage. The producer will use JMS BytesMessage.")
    int messageSize = 0;
 
-   @Option(name = "--message", description = "Content of each textMessage. The producer will use JMS TextMessage.")
+   @Option(names = "--message", description = "Content of each textMessage. The producer will use JMS TextMessage.")
    String message = null;
 
-   @Option(name = "--text-size", description = "Size of each textMessage. The producer will use JMS TextMessage.")
+   @Option(names = "--text-size", description = "Size of each textMessage. The producer will use JMS TextMessage.")
    int textMessageSize;
 
-   @Option(name = "--object-size", description = "Size of each ObjectMessage. The producer will use JMS ObjectMessage.")
+   @Option(names = "--object-size", description = "Size of each ObjectMessage. The producer will use JMS ObjectMessage.")
    int objectSize;
 
-   @Option(name = "--msgttl", description = "TTL for each message.")
+   @Option(names = "--msgttl", description = "TTL for each message.")
    long msgTTL = 0L;
 
-   @Option(name = "--group", description = "Message Group to be used.")
+   @Option(names = "--group", description = "Message Group to be used.")
    String msgGroupID = null;
 
-   @Option(name = "--data", description = "Messages will be read from the specified file. Other message options will be ignored.")
+   @Option(names = "--data", description = "Messages will be read from the specified file. Other message options will be ignored.")
    String file = null;
 
    public boolean isNonpersistent() {
@@ -216,7 +216,7 @@ public class Producer extends DestAbstract {
                thread.start();
             }
 
-            int messagesProduced = 0;
+            long messagesProduced = 0;
             for (ProducerThread thread : threadsArray) {
                thread.join();
                messagesProduced += thread.getSentCount();

@@ -26,7 +26,6 @@ import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.cli.Artemis;
 import org.apache.activemq.artemis.cli.CLIException;
-import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
@@ -148,9 +147,9 @@ public class CheckTest extends CliTestBase {
       setupAuth(masterInstance);
 
       Artemis.main("create", masterInstance.getAbsolutePath(), "--cluster-password", "artemis", "--cluster-user", "artemis", "--clustered",
-                   "--replicated", "--host", "127.0.0.1", "--default-port", "61616", "--silent", "--no-autotune", "--no-web", "--require-login");
+                   "--replicated", "--host", "127.0.0.1", "--default-port", "61616", "--silent", "--no-autotune", "--no-web", "--require-login", "--name=live");
       Artemis.main("create", slaveInstance.getAbsolutePath(), "--cluster-password", "artemis", "--cluster-user", "artemis", "--clustered",
-                   "--replicated", "--host", "127.0.0.1", "--default-port", "61626", "--silent", "--no-autotune", "--no-web", "--require-login", "--slave");
+                   "--replicated", "--host", "127.0.0.1", "--default-port", "61626", "--silent", "--no-autotune", "--no-web", "--require-login", "--slave", "--name=backup");
 
       System.setProperty("artemis.instance", masterInstance.getAbsolutePath());
       Object master = Artemis.execute(false, false, null, masterInstance, null, "run");
@@ -196,10 +195,12 @@ public class CheckTest extends CliTestBase {
             nodeCheck.setPeers(2);
             Assert.assertEquals(3, nodeCheck.execute(context));
          } finally {
-            Artemis.internalExecute(null, slaveInstance, null, new String[] {"stop"}, ActionContext.system());
+            Artemis.execute(false, false, null, slaveInstance, null, "stop");
+            Wait.assertFalse(slaveServer::isStarted);
          }
       } finally {
-         stopServer();
+         Artemis.execute(false, false, null, masterInstance, null, "stop");
+         Wait.assertFalse(masterServer::isStarted);
       }
    }
 

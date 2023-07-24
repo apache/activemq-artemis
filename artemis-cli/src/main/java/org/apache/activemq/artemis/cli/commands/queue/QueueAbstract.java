@@ -16,42 +16,42 @@
  */
 package org.apache.activemq.artemis.cli.commands.queue;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
+import picocli.CommandLine.Option;
 
 public class QueueAbstract extends ConnectionAbstract {
 
-   @Option(name = "--name", description = "The queue's name.")
+   @Option(names = "--name", description = "The queue's name.")
    private String name;
 
-   @Option(name = "--filter", description = "The queue's filter string. Default: null.")
+   @Option(names = "--filter", description = "The queue's filter string. Default: null.")
    private String filter = null;
 
-   @Option(name = "--address", description = "The queue's address. Default: queue's name.")
+   @Option(names = "--address", description = "The queue's address. Default: queue's name.")
    private String address;
 
-   @Option(name = "--durable", description = "The queue is durable. Default: input.")
+   @Option(names = "--durable", description = "The queue is durable. Default: input.")
    private Boolean durable;
 
-   @Option(name = "--no-durable", description = "The queue is not durable. Default: input.")
+   @Option(names = "--no-durable", description = "The queue is not durable. Default: input.")
    private Boolean noDurable;
 
-   @Option(name = "--purge-on-no-consumers", description = "Delete the contents of this queue when its last consumer disconnects. Default: input.")
+   @Option(names = "--purge-on-no-consumers", description = "Delete the contents of this queue when its last consumer disconnects. Default: input.")
    private Boolean purgeOnNoConsumers;
 
-   @Option(name = "--preserve-on-no-consumers", description = "Preserve the contents of this queue when its last consumer disconnects. Default: input.")
+   @Option(names = "--preserve-on-no-consumers", description = "Preserve the contents of this queue when its last consumer disconnects. Default: input.")
    private Boolean preserveOnNoConsumers;
 
-   @Option(name = "--max-consumers", description = "The maximum number of concurrent consumers allowed on this queue. Default: no limit.")
+   @Option(names = "--max-consumers", description = "The maximum number of concurrent consumers allowed on this queue. Default: no limit.")
    private Integer maxConsumers;
 
-   @Option(name = "--auto-create-address", description = "Automatically create the address (if it doesn't exist) with default values. Default: input.")
+   @Option(names = "--auto-create-address", description = "Automatically create the address (if it doesn't exist) with default values. Default: input.")
    private Boolean autoCreateAddress;
 
-   @Option(name = "--anycast", description = "Create an anycast queue. Default: input.")
+   @Option(names = "--anycast", description = "Create an anycast queue. Default: input.")
    private Boolean anycast;
 
-   @Option(name = "--multicast", description = "Create a multicast queue. Default: input.")
+   @Option(names = "--multicast", description = "Create a multicast queue. Default: input.")
    private Boolean multicast;
 
    public void setFilter(String filter) {

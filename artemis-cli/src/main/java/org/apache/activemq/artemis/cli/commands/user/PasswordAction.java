@@ -16,11 +16,11 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import com.github.rvesse.airline.annotations.Option;
+import picocli.CommandLine.Option;
 
 public class PasswordAction extends UserAction {
 
-   @Option(name = "--user-command-password", description = "The password to use for the chosen user command. Default: input.")
+   @Option(names = "--user-command-password", description = "The password to use for the chosen user command. Default: input.")
    String userCommandPassword;
 
    void checkInputPassword() {

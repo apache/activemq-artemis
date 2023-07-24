@@ -27,33 +27,31 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.RecordInfo;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.utils.Base64;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "decode", description = "Decode a journal's internal format into a new set of journal files.")
 public class DecodeJournal extends LockAbstract {
 
-   @Option(name = "--directory", description = "The journal folder. Default: read 'journal-directory' from broker.xml.")
+   @Option(names = "--directory", description = "The journal folder. Default: read 'journal-directory' from broker.xml.")
    public String directory;
 
-   @Option(name = "--prefix", description = "The journal prefix. Default: activemq-data.")
+   @Option(names = "--prefix", description = "The journal prefix. Default: activemq-data.")
    public String prefix = "activemq-data";
 
-   @Option(name = "--suffix", description = "The journal suffix. Default: amq.")
+   @Option(names = "--suffix", description = "The journal suffix. Default: amq.")
    public String suffix = "amq";
 
-   @Option(name = "--file-size", description = "The journal size. Default: 10485760.")
+   @Option(names = "--file-size", description = "The journal size. Default: 10485760.")
    public int size = 10485760;
 
-   @Option(name = "--input", description = "The input file name. Default: exp.dmp.")
-   @Required
+   @Option(names = "--input", description = "The input file name. Default: exp.dmp.", required = true)
    public String input = "exp.dmp";
 
    @Override

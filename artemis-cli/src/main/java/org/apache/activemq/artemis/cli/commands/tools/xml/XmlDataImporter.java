@@ -23,6 +23,7 @@ import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
@@ -34,9 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -63,7 +61,8 @@ import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * Read XML output from <code>org.apache.activemq.artemis.core.persistence.impl.journal.XmlDataExporter</code>, create a core session, and
@@ -92,29 +91,28 @@ public final class XmlDataImporter extends ActionAbstract {
 
    private ClientSession session;
 
-   @Option(name = "--host", description = "The host used to import the data. Default: localhost.")
+   @Option(names = "--host", description = "The host used to import the data. Default: localhost.")
    public String host = "localhost";
 
-   @Option(name = "--port", description = "The port used to import the data. Default: 61616.")
+   @Option(names = "--port", description = "The port used to import the data. Default: 61616.")
    public int port = 61616;
 
-   @Option(name = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.")
+   @Option(names = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.")
    public boolean transactional;
 
-   @Option(name = "--user", description = "User name used to import the data. Default: null.")
+   @Option(names = "--user", description = "User name used to import the data. Default: null.")
    public String user = null;
 
-   @Option(name = "--password", description = "User name used to import the data. Default: null.")
+   @Option(names = "--password", description = "User name used to import the data. Default: null.")
    public String password = null;
 
-   @Option(name = "--input", description = "The input file name. Default: exp.dmp.")
-   @Required
+   @Option(names = "--input", description = "The input file name. Default: exp.dmp.", required = true)
    public String input = "exp.dmp";
 
-   @Option(name = "--sort", description = "Sort the messages from the input (used for older versions that won't sort messages).")
+   @Option(names = "--sort", description = "Sort the messages from the input (used for older versions that won't sort messages).")
    public boolean sort = false;
 
-   @Option(name = "--legacy-prefixes", description = "Do not remove prefixes from legacy imports.")
+   @Option(names = "--legacy-prefixes", description = "Do not remove prefixes from legacy imports.")
    public boolean legacyPrefixes = false;
 
    TreeSet<XMLMessageImporter.MessageInfo> messages;

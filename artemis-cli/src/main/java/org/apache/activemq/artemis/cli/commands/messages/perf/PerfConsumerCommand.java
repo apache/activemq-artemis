@@ -21,26 +21,26 @@ import javax.jms.Destination;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "consumer", description = "Consume messages from a queue.")
 public class PerfConsumerCommand extends PerfCommand {
 
-   @Option(name = "--tx", description = "Individually acknowledge each message received. Default: disabled.")
+   @Option(names = "--tx", description = "Individually acknowledge each message received. Default: disabled.")
    protected boolean transaction;
 
-   @Option(name = "--shared", description = "Create shared subscription. Default: 0.")
+   @Option(names = "--shared", description = "Create shared subscription. Default: 0.")
    protected int sharedSubscription = 0;
 
-   @Option(name = "--durable", description = "Enabled durable subscription. Default: disabled.")
+   @Option(names = "--durable", description = "Enabled durable subscription. Default: disabled.")
    protected boolean durableSubscription = false;
 
-   @Option(name = "--num-connections", description = "Number of connections to be used. Default: same as the total number of consumers.")
+   @Option(names = "--num-connections", description = "Number of connections to be used. Default: same as the total number of consumers.")
    protected int connections = 0;
 
-   @Option(name = "--consumers", description = "Number of consumer to use for each generated destination. Default: 1.")
+   @Option(names = "--consumers", description = "Number of consumer to use for each generated destination. Default: 1.")
    protected int consumersPerDestination = 1;
 
    private BenchmarkService benchmark;

@@ -26,38 +26,44 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-import com.github.rvesse.airline.annotations.Arguments;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.cli.commands.messages.DestAbstract;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 import static java.util.Collections.singletonList;
 
 public abstract class PerfCommand extends ConnectionAbstract {
 
-   @Option(name = "--show-latency", description = "Show latencies at interval on output. Default: disabled.")
+   @Option(names = "--show-latency", description = "Show latencies at interval on output. Default: disabled.")
    protected boolean showLatency = false;
 
-   @Option(name = "--json", description = "Report file name. Default: none.")
+   @Option(names = "--json", description = "Report file name. Default: none.")
    protected String reportFileName = null;
 
-   @Option(name = "--hdr", description = "HDR Histogram Report file name. Default: none.")
+   @Option(names = "--hdr", description = "HDR Histogram Report file name. Default: none.")
    protected String hdrFileName = null;
 
-   @Option(name = "--duration", description = "Test duration (in seconds). Default: 0.")
+   @Option(names = "--duration", description = "Test duration (in seconds). Default: 0.")
    protected int duration = 0;
 
-   @Option(name = "--warmup", description = "Warmup time (in seconds). Default: 0.")
+   @Option(names = "--warmup", description = "Warmup time (in seconds). Default: 0.")
    protected int warmup = 0;
 
-   @Option(name = "--message-count", description = "Total number of messages. Default: 0.")
+   @Option(names = "--message-count", description = "Total number of messages. Default: 0.")
    protected long messageCount = 0;
 
-   @Option(name = "--num-destinations", description = "If present, generate --num-destinations for each destination name, using it as a prefix and adding a number [0,--num-destinations) as suffix. Default: none.")
+   @Option(names = "--num-destinations", description = "If present, generate --num-destinations for each destination name, using it as a prefix and adding a number [0,--num-destinations) as suffix. Default: none.")
    protected int numDestinations = 1;
 
-   @Arguments(description = "List of destination names. Each name can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. Default: queue://TEST.")
+   @Option(names = "--tx-size", description = "Transaction size.", hidden = true)
+   protected long txSize;
+
+   @Option(names = "--commit-interval", description = "Transaction size.")
+   protected long commitInterval;
+
+   @Parameters(description = "List of destination names. Each name can be prefixed with queue:// or topic:// and can be an FQQN in the form of <address>::<queue>. Default: queue://TEST.")
    protected List<String> destinations;
 
    private final CountDownLatch completed = new CountDownLatch(1);
@@ -65,7 +71,11 @@ public abstract class PerfCommand extends ConnectionAbstract {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-      final ConnectionFactory factory = createConnectionFactory(brokerURL, user, password, null, getProtocol());
+      if (txSize > 0) {
+         System.out.println("--tx-size is deprecated, please use --commit-interval");
+         commitInterval = txSize;
+      }
+      final ConnectionFactory factory = createConnectionFactory(brokerURL, user, password, null, protocol);
       final Destination[] jmsDestinations = lookupDestinations(factory, destinations, numDestinations);
       Runtime.getRuntime().addShutdownHook(new Thread(() -> {
          onInterruptBenchmark();

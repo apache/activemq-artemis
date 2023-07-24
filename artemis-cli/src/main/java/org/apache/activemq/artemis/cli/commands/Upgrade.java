@@ -30,8 +30,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.util.JVMArgumentParser;
+import picocli.CommandLine.Command;
 
 @Command(name = "upgrade", description = "Update a broker instance to the current artemis.home, keeping all the data and broker.xml. Warning: backup your instance before using this command and compare the files.")
 public class Upgrade extends InstallAbstract {
@@ -107,7 +107,7 @@ public class Upgrade extends InstallAbstract {
       }
 
       HashMap<String, String> filters = new HashMap<>();
-      Create.addScriptFilters(filters, getHome(), getInstance(), etcFolder, new File(getInstance(), "notUsed"), new File(getInstance(), "om-not-used.dmp"), javaMemory, javaOptions, "NA");
+      Create.addScriptFilters(filters, getHome(), getInstance(), etcFolder, new File(getInstance(), "notUsed"), new File(getInstance(), "om-not-used.dmp"), javaMemory, getJavaOptions(), "NA");
 
       if (IS_WINDOWS) {
          // recreating the service.exe and config in case we ever upgrade it

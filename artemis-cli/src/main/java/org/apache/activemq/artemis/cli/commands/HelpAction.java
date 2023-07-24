@@ -16,40 +16,48 @@
  */
 package org.apache.activemq.artemis.cli.commands;
 
-import java.io.File;
+import picocli.CommandLine;
+import picocli.CommandLine.Command;
 
-import com.github.rvesse.airline.help.Help;
+@Command(name = "help", description = "use 'help <command>' for more information")
+public class HelpAction implements Runnable {
 
-public class HelpAction extends Help implements Action {
+   CommandLine commandLine;
 
-   @Override
-   public boolean isVerbose() {
-      return false;
+   @CommandLine.Parameters
+   String[] args;
+
+   public static void help(CommandLine commandLine, String... args) {
+      if (args != null) {
+         CommandLine theLIn = commandLine;
+         for (String i : args) {
+            Object subCommand = theLIn.getSubcommands().get(i);
+            if (subCommand == null) {
+               commandLine.usage(System.out);
+            } else if (subCommand instanceof CommandLine) {
+               theLIn = (CommandLine) subCommand;
+            } else {
+               commandLine.usage(System.out);
+            }
+         }
+         theLIn.usage(System.out);
+      } else {
+         commandLine.usage(System.out);
+      }
+   }
+
+   public CommandLine getCommandLine() {
+      return commandLine;
+   }
+
+   public HelpAction setCommandLine(CommandLine commandLine) {
+      this.commandLine = commandLine;
+      return this;
    }
 
    @Override
-   public void setHomeValues(File brokerHome, File brokerInstance, File etcFolder) {
-
+   public void run() {
+      help(commandLine, args);
    }
 
-   @Override
-   public String getBrokerInstance() {
-      return null;
-   }
-
-   @Override
-   public String getBrokerHome() {
-      return null;
-   }
-
-   @Override
-   public void checkOptions(String[] options) throws InvalidOptionsError {
-      OptionsUtil.checkCommandOptions(this.getClass(), options);
-   }
-
-   @Override
-   public Object execute(ActionContext context) throws Exception {
-      super.run();
-      return null;
-   }
 }

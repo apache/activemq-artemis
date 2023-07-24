@@ -17,9 +17,9 @@
 
 package org.apache.activemq.artemis.cli.commands.address;
 
-import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import picocli.CommandLine.Command;
 
 @Command(name = "create", description = "Create an address.")
 public class CreateAddress extends AddressAbstract {

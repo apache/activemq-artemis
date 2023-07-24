@@ -26,27 +26,27 @@ import javax.jms.Session;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.factory.serialize.MessageSerializer;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "consumer", description = "Consume messages from a queue.")
 public class Consumer extends DestAbstract {
 
-   @Option(name = "--durable", description = "Whether the consumer's subscription will be durable.")
+   @Option(names = "--durable", description = "Whether the consumer's subscription will be durable.")
    boolean durable = false;
 
-   @Option(name = "--break-on-null", description = "Stop consuming when a null message is received.")
+   @Option(names = "--break-on-null", description = "Stop consuming when a null message is received.")
    boolean breakOnNull = false;
 
-   @Option(name = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds).")
+   @Option(names = "--receive-timeout", description = "Timeout for receiving messages (in milliseconds).")
    int receiveTimeout = 3000;
 
-   @Option(name = "--filter", description = "The message filter.")
+   @Option(names = "--filter", description = "The message filter.")
    String filter;
 
-   @Option(name = "--data", description = "Serialize the messages to the specified file as they are consumed.")
+   @Option(names = "--data", description = "Serialize the messages to the specified file as they are consumed.")
    String file;
 
    @Override
@@ -111,7 +111,7 @@ public class Consumer extends DestAbstract {
 
          connection.start();
 
-         int received = 0;
+         long received = 0;
 
          for (ConsumerThread thread : threadsArray) {
             thread.join();

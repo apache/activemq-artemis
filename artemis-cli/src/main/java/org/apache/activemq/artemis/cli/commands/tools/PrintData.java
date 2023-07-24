@@ -27,8 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
 import org.apache.activemq.artemis.api.core.SimpleString;
@@ -63,25 +61,25 @@ import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.ArtemisExecutor;
 import org.apache.activemq.artemis.utils.collections.LinkedList;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "print", description = "Print data records information. WARNING: don't use while a production server is running.")
 public class PrintData extends DBOption {
 
-
-   @Option(name = "--safe", description = "Print your data structure without showing your data.")
+   @Option(names = "--safe", description = "Print your data structure without showing your data.")
    private boolean safe = false;
 
-
-   @Option(name = "--reclaimed", description = "Try to print as many records as possible from reclaimed files.")
+   @Option(names = "--reclaimed", description = "Try to print as many records as possible from reclaimed files.")
    private boolean reclaimed = false;
 
-   @Option(name = "--max-pages", description = "Maximum number of pages to read. Default: unlimited (-1).")
+   @Option(names = "--max-pages", description = "Maximum number of pages to read. Default: unlimited (-1).")
    private int maxPages = -1;
 
-   @Option(name = "--skip-bindings", description = "Do not print data from the bindings journal.")
+   @Option(names = "--skip-bindings", description = "Do not print data from the bindings journal.")
    private boolean skipBindings = false;
 
-   @Option(name = "--skip-journal", description = "Do not print data from the messages journal.")
+   @Option(names = "--skip-journal", description = "Do not print data from the messages journal.")
    private boolean skipJournal = false;
 
    private static final String BINDINGS_BANNER = "B I N D I N G S  J O U R N A L";

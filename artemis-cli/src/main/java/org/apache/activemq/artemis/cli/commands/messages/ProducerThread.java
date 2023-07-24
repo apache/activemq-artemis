@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.activemq.artemis.utils.ReusableLatch;
 
@@ -37,7 +37,7 @@ public class ProducerThread extends Thread {
    protected final Session session;
 
    boolean verbose;
-   int messageCount = 1000;
+   long messageCount = 1000;
    boolean runIndefinitely = false;
    Destination destination;
    int sleep = 0;
@@ -50,7 +50,7 @@ public class ProducerThread extends Thread {
    int transactionBatchSize;
 
    int transactions = 0;
-   final AtomicInteger sentCount = new AtomicInteger(0);
+   final AtomicLong sentCount = new AtomicLong(0);
    String message = null;
    String messageText = null;
    String payloadUrl = null;
@@ -146,7 +146,7 @@ public class ProducerThread extends Thread {
       }
    }
 
-   protected Message createMessage(int i, String threadName) throws Exception {
+   protected Message createMessage(long i, String threadName) throws Exception {
       Message answer;
       if (payload != null) {
          answer = session.createBytesMessage();
@@ -188,12 +188,12 @@ public class ProducerThread extends Thread {
          answer.setStringProperty("JMSXGroupID", msgGroupID);
       }
 
-      answer.setIntProperty("count", i);
+      answer.setLongProperty("count", i);
       answer.setStringProperty("ThreadSent", threadName);
       return answer;
    }
 
-   private String readInputStream(InputStream is, int size, int messageNumber) throws IOException {
+   private String readInputStream(InputStream is, int size, long messageNumber) throws IOException {
       try (InputStreamReader reader = new InputStreamReader(is)) {
          char[] buffer;
          if (size > 0) {
@@ -214,11 +214,11 @@ public class ProducerThread extends Thread {
       }
    }
 
-   private String createDefaultMessage(int messageNumber) {
+   private String createDefaultMessage(long messageNumber) {
       return "test message: " + messageNumber;
    }
 
-   public ProducerThread setMessageCount(int messageCount) {
+   public ProducerThread setMessageCount(long messageCount) {
       this.messageCount = messageCount;
       return this;
    }
@@ -232,11 +232,11 @@ public class ProducerThread extends Thread {
       return this;
    }
 
-   public int getMessageCount() {
+   public long getMessageCount() {
       return messageCount;
    }
 
-   public int getSentCount() {
+   public long getSentCount() {
       return sentCount.get();
    }
 

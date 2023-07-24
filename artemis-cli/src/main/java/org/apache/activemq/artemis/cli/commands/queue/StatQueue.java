@@ -21,14 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "stat", description = "Print basic stats of a queue. Output includes CONSUMER_COUNT (number of consumers), MESSAGE_COUNT (current message count on the queue, including scheduled, paged and in-delivery messages), MESSAGES_ADDED (messages added to the queue), DELIVERING_COUNT (messages broker is currently delivering to consumer(s)), MESSAGES_ACKED (messages acknowledged from the consumer(s))." + " Queues can be filtered using EITHER '--queueName X' where X is contained in the queue name OR using a full filter '--field NAME --operation EQUALS --value X'.")
 public class StatQueue extends ConnectionAbstract {
@@ -67,22 +67,22 @@ public class StatQueue extends ConnectionAbstract {
 
    public static final int DEFAULT_MAX_COLUMN_SIZE = 25;
 
-   @Option(name = "--queueName", description = "Display queue stats for queue(s) with names containing this string.")
+   @Option(names = "--queueName", description = "Display queue stats for queue(s) with names containing this string.")
    private String queueName;
 
-   @Option(name = "--field", description = "The field to filter. Possible values: NAME, ADDRESS, MESSAGE_COUNT, MESSAGES_ADDED, DELIVERING_COUNT, MESSAGES_ACKED, SCHEDULED_COUNT, ROUTING_TYPE.")
+   @Option(names = "--field", description = "The field to filter. Possible values: NAME, ADDRESS, MESSAGE_COUNT, MESSAGES_ADDED, DELIVERING_COUNT, MESSAGES_ACKED, SCHEDULED_COUNT, ROUTING_TYPE.")
    private String fieldName;
 
-   @Option(name = "--operation", description = "The operation to filter. Possible values: CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN.")
+   @Option(names = "--operation", description = "The operation to filter. Possible values: CONTAINS, NOT_CONTAINS, EQUALS, GREATER_THAN, LESS_THAN.")
    private String operationName;
 
-   @Option(name = "--value", description = "The value to filter.")
+   @Option(names = "--value", description = "The value to filter.")
    private String value;
 
-   @Option(name = "--maxRows", description = "The max number of queues displayed. Default is 50.")
+   @Option(names = "--maxRows", description = "The max number of queues displayed. Default is 50.")
    private int maxRows = DEFAULT_MAX_ROWS;
 
-   @Option(name = "--maxColumnSize", description = "The max width of data column. Set to -1 for no limit. Default is 25.")
+   @Option(names = "--maxColumnSize", description = "The max width of data column. Set to -1 for no limit. Default is 25.")
    private int maxColumnSize = DEFAULT_MAX_COLUMN_SIZE;
 
    private int statCount = 0;

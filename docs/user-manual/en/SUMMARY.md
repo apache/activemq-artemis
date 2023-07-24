@@ -8,6 +8,7 @@
 * [Messaging Concepts](messaging-concepts.md)
 * [Architecture](architecture.md)
 * [Using the Server](using-server.md)
+* [Command Line Interface](using-cli.md)
 * [Upgrading](upgrading.md)
 * Address
     * [Model](address-model.md)

@@ -17,15 +17,15 @@
 
 package org.apache.activemq.artemis.cli.commands.address;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "show", description = "Show the selected address.")
 public class ShowAddress extends AddressAbstract {
 
-   @Option(name = "--bindings", description = "Show the bindings for this address.")
+   @Option(names = "--bindings", description = "Show the bindings for this address.")
    boolean bindings;
 
    @Override

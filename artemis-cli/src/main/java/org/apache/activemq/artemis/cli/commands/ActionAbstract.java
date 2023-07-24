@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.Map;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.FileDeploymentManager;
@@ -30,14 +29,15 @@ import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.utils.ConfigurationHelper;
 import org.apache.activemq.artemis.utils.uri.SchemaConstants;
+import picocli.CommandLine.Option;
 
-public abstract class ActionAbstract implements Action {
+public abstract class ActionAbstract implements Action, Runnable {
 
    public static final String DEFAULT_BROKER_URL = "tcp://localhost:61616";
 
    public static final String DEFAULT_BROKER_ACCEPTOR = "artemis";
 
-   @Option(name = "--verbose", description = "Print additional information.")
+   @Option(names = "--verbose", description = "Print additional information.")
    public boolean verbose;
 
    // this could be changed by a test accessor for testing purposes.
@@ -206,16 +206,28 @@ public abstract class ActionAbstract implements Action {
    }
 
    @Override
+   public void run() {
+      try {
+         // this is used only by the Shell
+         // When  using the CLI outside of the shell the execute(ActionContext) will be used instead.
+         execute(getActionContext());
+      } catch (Throwable e) {
+         e.printStackTrace();
+      } finally {
+         done();
+      }
+   }
+
+   @Override
+   public void done() {
+   }
+
+   @Override
    public Object execute(ActionContext context) throws Exception {
       this.actionContext = context;
       ActionContext.setSystem(context);
 
       return null;
-   }
-
-   @Override
-   public void checkOptions(String[] options) throws InvalidOptionsError {
-      OptionsUtil.checkCommandOptions(this.getClass(), options);
    }
 
 }

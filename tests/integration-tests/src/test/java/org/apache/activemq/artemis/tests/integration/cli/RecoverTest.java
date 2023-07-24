@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.RecoverMessages;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.server.JournalType;
@@ -173,7 +174,7 @@ public class RecoverTest extends JMSTestBase {
 
       File newJournalLocation = new File(server.getConfiguration().getJournalLocation().getParentFile(), "recovered");
 
-      RecoverMessages.recover(server.getConfiguration(), server.getConfiguration().getJournalRetentionDirectory(), newJournalLocation, server.getConfiguration().getLargeMessagesLocation(), false);
+      RecoverMessages.recover(new ActionContext(), server.getConfiguration(), server.getConfiguration().getJournalRetentionDirectory(), newJournalLocation, server.getConfiguration().getLargeMessagesLocation(), false);
 
       if (large) {
          File[] largeMessageFiles = server.getConfiguration().getLargeMessagesLocation().listFiles();

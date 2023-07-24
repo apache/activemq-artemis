@@ -22,14 +22,14 @@ import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.Session;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "browser", description = "Browse messages on a queue.")
 public class Browse extends DestAbstract {
 
-   @Option(name = "--filter", description = "The message filter.")
+   @Option(names = "--filter", description = "The message filter.")
    String filter;
 
    @Override
@@ -66,7 +66,7 @@ public class Browse extends DestAbstract {
 
          connection.start();
 
-         int received = 0;
+         long received = 0;
 
          for (ConsumerThread thread : threadsArray) {
             thread.join();
