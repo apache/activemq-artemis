@@ -26,42 +26,48 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.rvesse.airline.annotations.Arguments;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.cli.CLIException;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 public class InstallAbstract extends InputAbstract {
 
-   @Arguments(description = "The instance directory to hold the broker's configuration and data. Path must be writable.")
-   @Required
+   @Parameters(description = "The instance directory to hold the broker's configuration and data. Path must be writable.")
    protected File directory;
 
-   @Option(name = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")
+   @Option(names = "--etc", description = "Directory where ActiveMQ configuration is located. Paths can be absolute or relative to artemis.instance directory. Default: etc.")
    protected String etc = "etc";
 
-   @Option(name = "--home", description = "Directory where ActiveMQ Artemis is installed.")
+   @Option(names = "--home", description = "Directory where ActiveMQ Artemis is installed.")
    protected File home;
 
-   @Option(name = "--encoding", description = "The encoding that text files should use. Default: UTF-8.")
+   @Option(names = "--encoding", description = "The encoding that text files should use. Default: UTF-8.")
    protected String encoding = "UTF-8";
 
-   @Option(name = "--windows", description = "Force Windows script creation. Default: based on your actual system.")
+   @Option(names = "--windows", description = "Force Windows script creation. Default: based on your actual system.")
    protected boolean windows = false;
 
-   @Option(name = "--cygwin", description = "Force Cygwin script creation. Default: based on your actual system.")
+   @Option(names = "--cygwin", description = "Force Cygwin script creation. Default: based on your actual system.")
    protected boolean cygwin = false;
 
-   @Option(name = "--java-options", description = "Extra Java options to be passed to the profile.")
-   protected String javaOptions = "";
+   @Option(names = "--java-options", description = "Extra Java options to be passed to the profile.")
+   protected List<String> javaOptions;
 
-   @Option(name = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default: 2G.")
+   @Option(names = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default: 2G.")
    protected String javaMemory = "2G";
 
+   protected String getJavaOptions() {
+      StringBuilder builder = new StringBuilder();
+      if (javaOptions != null) {
+         javaOptions.forEach(s -> builder.append(s).append(" "));
+      }
+      return builder.toString();
+   }
 
    public String getEncoding() {
       return encoding;

@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.io.File;
 
-import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -26,6 +25,7 @@ import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.io.nio.NIOSequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalRecordIds;
+import picocli.CommandLine.Command;
 
 @Command(name = "compact", description = "Compact the journal of a non running server.")
 public final class CompactJournal extends LockAbstract {

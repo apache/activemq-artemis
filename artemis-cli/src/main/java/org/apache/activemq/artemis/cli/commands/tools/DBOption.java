@@ -17,6 +17,7 @@
 
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.core.config.Configuration;
@@ -46,6 +46,7 @@ import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.actors.OrderedExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.EmptyCriticalAnalyzer;
+import picocli.CommandLine.Option;
 
 public class DBOption extends OptionalLocking {
 
@@ -59,31 +60,35 @@ public class DBOption extends OptionalLocking {
 
    protected ScheduledExecutorService scheduledExecutorService;
 
-   @Option(name = "--output", description = "Output name for the file.")
-   private String output;
+   @Option(names = "--output", description = "Output name for the file.")
+   private File output;
 
-   @Option(name = "--jdbc", description = "Whether to store message data in JDBC instead of local files.")
+   private FileOutputStream fileOutputStream;
+
+   private PrintStream originalOut;
+
+   @Option(names = "--jdbc", description = "Whether to store message data in JDBC instead of local files.")
    Boolean jdbc;
 
-   @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
+   @Option(names = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
 
-   @Option(name = "--jdbc-message-table-name", description = "Name of the jdbc messages table.")
+   @Option(names = "--jdbc-message-table-name", description = "Name of the jdbc messages table.")
    private String jdbcMessages = ActiveMQDefaultConfiguration.getDefaultMessageTableName();
 
-   @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table.")
+   @Option(names = "--jdbc-large-message-table-name", description = "Name of the large messages table.")
    private String jdbcLargeMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
 
-   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page store messages table.")
+   @Option(names = "--jdbc-page-store-table-name", description = "Name of the page store messages table.")
    private String jdbcPageStore = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
 
-   @Option(name = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table.")
+   @Option(names = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table.")
    private String jdbcNodeManager = ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName();
 
-   @Option(name = "--jdbc-connection-url", description = "The URL used for the database connection.")
+   @Option(names = "--jdbc-connection-url", description = "The URL used for the database connection.")
    private String jdbcURL = null;
 
-   @Option(name = "--jdbc-driver-class-name", description = "JDBC driver classname.")
+   @Option(names = "--jdbc-driver-class-name", description = "JDBC driver classname.")
    private String jdbcClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
 
    public boolean isJDBC() throws Exception {
@@ -167,13 +172,27 @@ public class DBOption extends OptionalLocking {
       super.execute(context);
 
       if (output != null) {
-         FileOutputStream fileOutputStream = new FileOutputStream(output);
+         fileOutputStream = new FileOutputStream(output);
+         originalOut = context.out;
          PrintStream printStream = new PrintStream(fileOutputStream);
          context.out = printStream;
-
-         Runtime.getRuntime().addShutdownHook(new Thread(printStream::close));
       }
       return null;
+   }
+
+   @Override
+   public void done() {
+      super.done();
+      if (fileOutputStream != null) {
+         try {
+            fileOutputStream.close();
+         } catch (Throwable e) {
+            e.printStackTrace();
+         }
+         getActionContext().out = originalOut;
+         fileOutputStream = null;
+         originalOut = null;
+      }
    }
 
    private void parseDBConfig() throws Exception {

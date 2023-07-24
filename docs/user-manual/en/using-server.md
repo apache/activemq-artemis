@@ -63,6 +63,11 @@ On Unix systems, it is a common convention to store this kind of runtime data
 under the `/var/lib` directory.  For example, to create an instance at
 `/var/lib/mybroker`, run the following commands in your command line shell:
 
+Before the broker is used, a broker *instance* must be created.
+This process requires the use of the [Command Line Interface](using-cli.md) which is better explained in its own chapter.
+
+In the following example a broker instance named mybroker will be created.
+
 ```sh
 cd /var/lib
 ${ARTEMIS_HOME}/bin/artemis create mybroker

@@ -25,49 +25,46 @@ import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import io.netty.channel.DefaultEventLoop;
 import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoop;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "producer", description = "Send messages to a broker.")
 public class PerfProducerCommand extends PerfCommand {
-   @Option(name = "--persistent", description = "Send messages persistently. Default: non persistent.")
+   @Option(names = "--persistent", description = "Send messages persistently. Default: non persistent.")
    protected boolean persistent = false;
 
-   @Option(name = "--message-size", description = "Size of each bytesMessage. Default: 1024.")
+   @Option(names = "--message-size", description = "Size of each bytesMessage. Default: 1024.")
    protected int messageSize = 1024;
 
-   @Option(name = "--rate", description = "Expected total message rate. Default: unbounded.")
+   @Option(names = "--rate", description = "Expected total message rate. Default: unbounded.")
    protected Long rate = null;
 
-   @Option(name = "--ttl", description = "TTL for each message.")
+   @Option(names = "--ttl", description = "TTL for each message.")
    protected long ttl = 0L;
 
-   @Option(name = "--group", description = "Message Group to be used.")
+   @Option(names = "--group", description = "Message Group to be used.")
    protected String msgGroupID = null;
 
-   @Option(name = "--shared-connections", description = "Create --threads shared connections among producers. Default: not shared.")
+   @Option(names = "--shared-connections", description = "Create --threads shared connections among producers. Default: not shared.")
    protected boolean sharedConnections = false;
 
-   @Option(name = "--tx-size", description = "Transaction size.")
-   protected long txSize;
-
-   @Option(name = "--producers", description = "Number of producers to use for each generated destination. Default: 1.")
+   @Option(names = "--producers", description = "Number of producers to use for each generated destination. Default: 1.")
    protected int producersPerDestination = 1;
 
-   @Option(name = "--threads", description = "Number of worker threads to schedule producer load tasks. Default: 1.")
+   @Option(names = "--threads", description = "Number of worker threads to schedule producer load tasks. Default: 1.")
    protected int threads = 1;
 
-   @Option(name = "--max-pending", description = "How many not yet completed messages can exists. Default is 1.")
+   @Option(names = "--max-pending", description = "How many not yet completed messages can exists. Default is 1.")
    protected long maxPending = 1;
 
-   @Option(name = "--enable-msg-id", description = "Enable setting JMS messageID per-message. Default: disabled.")
+   @Option(names = "--enable-msg-id", description = "Enable setting JMS messageID per-message. Default: disabled.")
    protected boolean enableMessageID;
 
-   @Option(name = "--enable-timestamp", description = "Enable setting JMS timestamp per-message. Default: disabled.")
+   @Option(names = "--enable-timestamp", description = "Enable setting JMS timestamp per-message. Default: disabled.")
    protected boolean enableTimestamp;
 
    protected volatile BenchmarkService benchmark;
@@ -114,7 +111,7 @@ public class PerfProducerCommand extends PerfCommand {
          .setDestinations(jmsDestinations)
          .setFactory(factory)
          .setTtl(ttl)
-         .setTransactionCapacity(txSize)
+         .setTransactionCapacity(commitInterval)
          .setGroup(msgGroupID)
          .setProducers(producersPerDestination)
          .setMessageRate(rate)

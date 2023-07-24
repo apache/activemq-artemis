@@ -60,6 +60,12 @@ public abstract class LockAbstract extends DataAbstract {
       return null;
    }
 
+   @Override
+   public void done() {
+      super.done();
+      unlock();
+   }
+
    void lockCLI(File lockPlace) throws Exception {
       if (lockPlace != null) {
          lockPlace.mkdirs();

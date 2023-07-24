@@ -18,14 +18,8 @@
 package org.apache.activemq.artemis.cli.commands;
 
 import java.io.File;
+import java.lang.invoke.MethodHandles;
 
-import com.github.rvesse.airline.annotations.AirlineModule;
-import com.github.rvesse.airline.annotations.Arguments;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.help.Help;
-import com.github.rvesse.airline.model.CommandGroupMetadata;
-import com.github.rvesse.airline.model.CommandMetadata;
-import com.github.rvesse.airline.model.GlobalMetadata;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
@@ -36,9 +30,8 @@ import org.apache.activemq.artemis.dto.ManagementContextDTO;
 import org.apache.activemq.artemis.jms.server.config.impl.FileJMSConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 /**
  * Abstract class where we can replace the configuration in various places *
@@ -47,14 +40,11 @@ public abstract class Configurable extends ActionAbstract {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   @Arguments(description = "Broker Configuration URI. Default: xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml.")
+   @Parameters(description = "Broker Configuration URI. Default: xml:${ARTEMIS_INSTANCE}/etc/bootstrap.xml.", defaultValue = "")
    String configuration;
 
-   @Option(name = "--broker", description = "Override the broker configuration from the bootstrap.xml.")
+   @Option(names = "--broker", description = "Override the broker configuration from the bootstrap.xml.")
    String brokerConfig;
-
-   @AirlineModule
-   public GlobalMetadata<Object> global;
 
    private BrokerDTO brokerDTO = null;
 
@@ -68,24 +58,6 @@ public abstract class Configurable extends ActionAbstract {
 
       if (!(e instanceof ActiveMQException)) {
          e.printStackTrace();
-      }
-      helpGroup(group, command);
-   }
-
-   protected void helpGroup(String groupName, String commandName) {
-      for (CommandGroupMetadata group : global.getCommandGroups()) {
-         if (group.getName().equals(groupName)) {
-            for (CommandMetadata command : group.getCommands()) {
-               if (command.getName().equals(commandName)) {
-                  try {
-                     Help.help(command);
-                  } catch (IOException e) {
-                     throw new RuntimeException(e);
-                  }
-               }
-            }
-            break;
-         }
       }
    }
 
@@ -145,7 +117,7 @@ public abstract class Configurable extends ActionAbstract {
    }
 
    protected String getConfiguration() {
-      if (configuration == null) {
+      if (configuration == null || configuration.equals("")) {
          File xmlFile = new File(new File(getBrokerEtc()), "bootstrap.xml");
          configuration = "xml:" + xmlFile.toURI().toString().substring("file:".length());
 

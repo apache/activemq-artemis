@@ -124,10 +124,22 @@
          <artifactId>jakarta.xml.bind-api</artifactId>
          <version>${jakarta.xml.bind-api.version}</version>
       </dependency>
-
       <dependency>
-         <groupId>com.github.rvesse</groupId>
-         <artifactId>airline</artifactId>
+         <groupId>info.picocli</groupId>
+         <artifactId>picocli</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>info.picocli</groupId>
+         <artifactId>picocli-shell-jline3</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.jline</groupId>
+         <artifactId>jline</artifactId>
+      </dependency>
+      <!-- Jansi is an optional dependency for jline, to provide a proper ANSI Terminal -->
+      <dependency>
+         <groupId>org.fusesource.jansi</groupId>
+         <artifactId>jansi</artifactId>
       </dependency>
       <dependency>
          <groupId>org.apache.commons</groupId>

@@ -1220,6 +1220,7 @@
                      <password>artemis</password>
                      <allowAnonymous>true</allowAnonymous>
                      <noWeb>true</noWeb>
+                     <portOffset>100</portOffset>
                      <instance>${basedir}/target/clusteredLargeMessage/cluster2</instance>
                      <configuration>${basedir}/target/classes/servers/clusteredLargeMessage/cluster2</configuration>
                      <args>
@@ -1230,8 +1231,6 @@
                         <arg>tcp://localhost:61616</arg>
                         <arg>--max-hops</arg>
                         <arg>1</arg>
-                        <arg>--port-offset</arg>
-                        <arg>100</arg>
                         <arg>--queues</arg>
                         <arg>testQueue</arg>
                      </args>

@@ -23,23 +23,23 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ActiveMQManagementProxy;
 import org.apache.activemq.artemis.cli.CLIException;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.commons.lang3.time.StopWatch;
+import picocli.CommandLine.Option;
 
 public abstract class CheckAbstract extends ConnectionAbstract {
 
-   @Option(name = "--name", description = "Name of the target to check.")
+   @Option(names = "--name", description = "Name of the target to check.")
    protected String name;
 
-   @Option(name = "--timeout", description = "Time to wait for the check to complete (in milliseconds).")
+   @Option(names = "--timeout", description = "Time to wait for the check to complete (in milliseconds).")
    private int timeout = 30000;
 
-   @Option(name = "--fail-at-end", description = "Continue with the rest of the checks even if a particular module check fails.")
+   @Option(names = "--fail-at-end", description = "Continue with the rest of the checks even if a particular module check fails.")
    private boolean failAtEnd = false;
 
    public String getName() {

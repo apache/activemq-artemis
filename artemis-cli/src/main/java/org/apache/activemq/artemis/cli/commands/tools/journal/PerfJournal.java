@@ -18,43 +18,43 @@ package org.apache.activemq.artemis.cli.commands.tools.journal;
 
 import java.text.DecimalFormat;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.OptionalLocking;
 import org.apache.activemq.artemis.cli.commands.util.SyncCalculation;
 import org.apache.activemq.artemis.core.config.impl.FileConfiguration;
 import org.apache.activemq.artemis.core.server.JournalType;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "perf-journal", description = "Calculate the journal-buffer-timeout to use with the current data folder.")
 public class PerfJournal extends OptionalLocking {
 
 
-   @Option(name = "--block-size", description = "The block size for each write. Default 4096.")
+   @Option(names = "--block-size", description = "The block size for each write. Default 4096.")
    public int size = 4 * 1024;
 
-   @Option(name = "--writes", description = "The number of writes to be performed. Default: 250.")
+   @Option(names = "--writes", description = "The number of writes to be performed. Default: 250.")
    public int writes = 250;
 
-   @Option(name = "--tries", description = "The number of tries for the test. Default: 5.")
+   @Option(names = "--tries", description = "The number of tries for the test. Default: 5.")
    public int tries = 5;
 
-   @Option(name = "--no-sync", description = "Disable syncs.")
+   @Option(names = "--no-sync", description = "Disable syncs.")
    public boolean nosyncs = false;
 
-   @Option(name = "--sync", description = "Enable syncs.")
+   @Option(names = "--sync", description = "Enable syncs.")
    public boolean syncs = false;
 
-   @Option(name = "--journal-type", description = "Journal type to be used: Default: read from broker.xml.")
+   @Option(names = "--journal-type", description = "Journal type to be used: Default: read from broker.xml.")
    public String journalType = null;
 
-   @Option(name = "--sync-writes", description = "Perform each write synchronously, e.g. if there was a single producer.")
+   @Option(names = "--sync-writes", description = "Perform each write synchronously, e.g. if there was a single producer.")
    public boolean syncWrites = false;
 
-   @Option(name = "--file", description = "The file name to be used. Default: test.tmp.")
+   @Option(names = "--file", description = "The file name to be used. Default: test.tmp.")
    public String fileName = "test.tmp";
 
-   @Option(name = "--max-aio", description = "libaio.maxAIO to be used. Default: read from broker.xml.")
+   @Option(names = "--max-aio", description = "libaio.maxAIO to be used. Default: read from broker.xml.")
    public int maxAIO = 0;
 
 

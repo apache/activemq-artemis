@@ -22,8 +22,6 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -33,20 +31,22 @@ import org.apache.activemq.artemis.core.journal.impl.JournalFile;
 import org.apache.activemq.artemis.core.journal.impl.JournalImpl;
 import org.apache.activemq.artemis.core.journal.impl.JournalReaderCallback;
 import org.apache.activemq.artemis.utils.Base64;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "encode", description = "Encode a set of journal files into an internal encoded data format.")
 public class EncodeJournal extends LockAbstract {
 
-   @Option(name = "--directory", description = "The journal folder. Default: read 'journal-directory' from broker.xml.")
+   @Option(names = "--directory", description = "The journal folder. Default: read 'journal-directory' from broker.xml.")
    public String directory;
 
-   @Option(name = "--prefix", description = "The journal prefix. Default: activemq-data.")
+   @Option(names = "--prefix", description = "The journal prefix. Default: activemq-data.")
    public String prefix = "activemq-data";
 
-   @Option(name = "--suffix", description = "The journal suffix. Default: amq.")
+   @Option(names = "--suffix", description = "The journal suffix. Default: amq.")
    public String suffix = "amq";
 
-   @Option(name = "--file-size", description = "The journal size. Default: 10485760.")
+   @Option(names = "--file-size", description = "The journal size. Default: 10485760.")
    public int size = 10485760;
 
    @Override

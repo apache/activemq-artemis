@@ -17,22 +17,22 @@
 
 package org.apache.activemq.artemis.cli.commands.queue;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "delete", description = "Delete a queue.")
 public class DeleteQueue extends ConnectionAbstract {
 
-   @Option(name = "--name", description = "The queue's name")
+   @Option(names = "--name", description = "The queue's name")
    String name;
 
-   @Option(name = "--removeConsumers", description = "Whether to delete the queue even if it has active consumers. Default: false.")
+   @Option(names = "--removeConsumers", description = "Whether to delete the queue even if it has active consumers. Default: false.")
    boolean removeConsumers = false;
 
-   @Option(name = "--autoDeleteAddress", description = "Whether to delete the address if this is its only queue.")
+   @Option(names = "--autoDeleteAddress", description = "Whether to delete the address if this is its only queue.")
    boolean autoDeleteAddress = false;
 
    @Override

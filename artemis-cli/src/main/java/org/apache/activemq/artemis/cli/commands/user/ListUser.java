@@ -16,13 +16,12 @@
  */
 package org.apache.activemq.artemis.cli.commands.user;
 
-import org.apache.activemq.artemis.json.JsonArray;
-import org.apache.activemq.artemis.json.JsonObject;
-
-import com.github.rvesse.airline.annotations.Command;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
+import org.apache.activemq.artemis.json.JsonArray;
+import org.apache.activemq.artemis.json.JsonObject;
+import picocli.CommandLine.Command;
 
 /**
  * list existing users, example:

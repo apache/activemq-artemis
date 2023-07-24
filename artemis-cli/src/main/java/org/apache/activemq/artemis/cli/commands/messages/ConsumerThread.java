@@ -33,7 +33,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class ConsumerThread extends Thread {
 
-   int messageCount = 1000;
+   long messageCount = 1000;
    int receiveTimeOut = 3000;
    Destination destination;
    Session session;
@@ -259,7 +259,7 @@ public class ConsumerThread extends Thread {
       return this;
    }
 
-   public ConsumerThread setMessageCount(int messageCount) {
+   public ConsumerThread setMessageCount(long messageCount) {
       this.messageCount = messageCount;
       return this;
    }
@@ -278,7 +278,7 @@ public class ConsumerThread extends Thread {
       return this;
    }
 
-   public int getMessageCount() {
+   public long getMessageCount() {
       return messageCount;
    }
 

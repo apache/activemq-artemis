@@ -19,24 +19,24 @@ package org.apache.activemq.artemis.cli.commands.tools;
 
 import java.io.File;
 
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.cli.commands.Configurable;
+import picocli.CommandLine.Option;
 
 /**
  * Abstract class for places where you need bindings, journal paging and large messages configuration
  */
 public abstract class DataAbstract extends Configurable {
 
-   @Option(name = "--bindings", description = "The folder used for bindings. Default: read from broker.xml.")
+   @Option(names = "--bindings", description = "The folder used for bindings. Default: read from broker.xml.")
    public String binding;
 
-   @Option(name = "--journal", description = "The folder used for normal messages. Default: read from broker.xml.")
+   @Option(names = "--journal", description = "The folder used for normal messages. Default: read from broker.xml.")
    public String journal;
 
-   @Option(name = "--paging", description = "The folder used for paged messages. Default: read from broker.xml.")
+   @Option(names = "--paging", description = "The folder used for paged messages. Default: read from broker.xml.")
    public String paging;
 
-   @Option(name = "--large-messages", description = "The folder used for large-messages. Default: read from broker.xml.")
+   @Option(names = "--large-messages", description = "The folder used for large-messages. Default: read from broker.xml.")
    public String largeMessges;
 
    public String getLargeMessages() throws Exception {

@@ -287,6 +287,12 @@ This product bundles HdrHistogram, which is available under the
 "2-clause BSD" license. For details, see licences/LICENSE-hdrhistogram.txt.
 
 ==============================================================================
+For JLine:
+==============================================================================
+This product bundles JLine, which is available under the
+"3-clause BSD" license. For details, see licences/LICENSE-jline.txt.
+
+==============================================================================
 Apache ActiveMQ Artemis Subcomponents:
 
 The Apache ActiveMQ Artemis project contains subcomponents with separate copyright

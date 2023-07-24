@@ -19,29 +19,27 @@ package org.apache.activemq.artemis.cli.commands;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.github.rvesse.airline.annotations.Arguments;
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
-import com.github.rvesse.airline.annotations.restrictions.Required;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.utils.DefaultSensitiveStringCodec;
 import org.apache.activemq.artemis.utils.PasswordMaskingUtil;
 import org.apache.activemq.artemis.utils.SensitiveDataCodec;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 
 @Command(name = "mask", description = "Mask a password and print it out.")
 public class Mask extends ActionAbstract {
 
-   @Arguments(description = "The password to be masked.")
-   @Required
+   @Parameters(description = "The password to be masked.")
    String password;
 
-   @Option(name = "--hash", description = "Whether to use a hash (one-way). Default: false.")
+   @Option(names = "--hash", description = "Whether to use a hash (one-way). Default: false.")
    boolean hash = false;
 
-   @Option(name = "--key", description = "The key (Blowfish) to mask a password.")
+   @Option(names = "--key", description = "The key (Blowfish) to mask a password.")
    String key;
 
-   @Option(name = "--password-codec", description = "Whether to use the password codec defined in the configuration. Default: false")
+   @Option(names = "--password-codec", description = "Whether to use the password codec defined in the configuration. Default: false")
    boolean passwordCodec = false;
 
    private SensitiveDataCodec<String> codec;
@@ -98,11 +96,6 @@ public class Mask extends ActionAbstract {
 
    public SensitiveDataCodec<String> getCodec() {
       return codec;
-   }
-
-   @Override
-   public void checkOptions(String[] options) throws InvalidOptionsError {
-      OptionsUtil.checkCommandOptions(this.getClass(), options);
    }
 
 }

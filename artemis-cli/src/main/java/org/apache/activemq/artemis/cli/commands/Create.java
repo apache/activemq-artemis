@@ -25,8 +25,6 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-import com.github.rvesse.airline.annotations.Command;
-import com.github.rvesse.airline.annotations.Option;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.cli.commands.util.HashUtil;
@@ -36,6 +34,8 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioFile;
 import org.apache.activemq.artemis.utils.FileUtil;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 /**
  * CLI action that creates a broker instance directory.
@@ -110,175 +110,175 @@ public class Create extends InstallAbstract {
    public static final String ETC_PAGE_SYNC_SETTINGS = "etc/page-sync-settings.txt";
    public static final String ETC_JOLOKIA_ACCESS_XML = "jolokia-access.xml";
 
-   @Option(name = "--host", description = "Broker's host name. Default: 0.0.0.0 or input if clustered).")
+   @Option(names = "--host", description = "Broker's host name. Default: 0.0.0.0 or input if clustered).")
    private String host;
 
-   @Option(name = "--http-host", description = "Embedded web server's host name. Default: localhost.")
+   @Option(names = "--http-host", description = "Embedded web server's host name. Default: localhost.")
    private String httpHost = HTTP_HOST;
 
-   @Option(name = "--relax-jolokia", description = "Disable strict checking in jolokia-access.xml.")
+   @Option(names = "--relax-jolokia", description = "Disable strict checking in jolokia-access.xml.")
    private boolean relaxJolokia;
 
-   @Option(name = "--ping", description = "A comma separated string to be passed on to the broker config as network-check-list. The broker will shutdown when all these addresses are unreachable.")
+   @Option(names = "--ping", description = "A comma separated string to be passed on to the broker config as network-check-list. The broker will shutdown when all these addresses are unreachable.")
    private String ping;
 
-   @Option(name = "--default-port", description = "The port number to use for the main 'artemis' acceptor. Default: 61616.")
+   @Option(names = "--default-port", description = "The port number to use for the main 'artemis' acceptor. Default: 61616.")
    private int defaultPort = DEFAULT_PORT;
 
-   @Option(name = "--http-port", description = "Embedded web server's port. Default: 8161.")
+   @Option(names = "--http-port", description = "Embedded web server's port. Default: 8161.")
    private int httpPort = HTTP_PORT;
 
-   @Option(name = "--ssl-key", description = "Embedded web server's key store path.")
+   @Option(names = "--ssl-key", description = "Embedded web server's key store path.")
    private String sslKey;
 
-   @Option(name = "--ssl-key-password", description = "The key store's password.")
+   @Option(names = "--ssl-key-password", description = "The key store's password.")
    private String sslKeyPassword;
 
-   @Option(name = "--use-client-auth", description = "Require client certificate authentication when connecting to the embedded web server.")
+   @Option(names = "--use-client-auth", description = "Require client certificate authentication when connecting to the embedded web server.")
    private boolean useClientAuth;
 
-   @Option(name = "--ssl-trust", description = "The trust store path in case of client authentication.")
+   @Option(names = "--ssl-trust", description = "The trust store path in case of client authentication.")
    private String sslTrust;
 
-   @Option(name = "--ssl-trust-password", description = "The trust store's password.")
+   @Option(names = "--ssl-trust-password", description = "The trust store's password.")
    private String sslTrustPassword;
 
-   @Option(name = "--name", description = "The name of the broker. Default: same as host name.")
+   @Option(names = "--name", description = "The name of the broker. Default: same as host name.")
    private String name;
 
-   @Option(name = "--port-offset", description = "How much to off-set the ports of every acceptor.")
+   @Option(names = "--port-offset", description = "How much to off-set the ports of every acceptor.")
    private int portOffset;
 
-   @Option(name = "--force", description = "Overwrite configuration at destination directory.")
+   @Option(names = "--force", description = "Overwrite configuration at destination directory.")
    private boolean force;
 
-   @Option(name = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory. Default: data.")
+   @Option(names = "--data", description = "Directory where ActiveMQ data are stored. Paths can be absolute or relative to artemis.instance directory. Default: data.")
    private String data = "data";
 
-   @Option(name = "--clustered", description = "Enable clustering.")
+   @Option(names = "--clustered", description = "Enable clustering.")
    private boolean clustered = false;
 
-   @Option(name = "--max-hops", description = "Number of hops on the cluster configuration.")
+   @Option(names = "--max-hops", description = "Number of hops on the cluster configuration.")
    private int maxHops = 0;
 
-   @Option(name = "--message-load-balancing", description = "Message load balancing policy for cluster. Default: ON_DEMAND. Valid values: ON_DEMAND, STRICT, OFF, OFF_WITH_REDISTRIBUTION.")
+   @Option(names = "--message-load-balancing", description = "Message load balancing policy for cluster. Default: ON_DEMAND. Valid values: ON_DEMAND, STRICT, OFF, OFF_WITH_REDISTRIBUTION.")
    private MessageLoadBalancingType messageLoadBalancing = MessageLoadBalancingType.ON_DEMAND;
 
-   @Option(name = "--replicated", description = "Enable broker replication.")
+   @Option(names = "--replicated", description = "Enable broker replication.")
    private boolean replicated = false;
 
-   @Option(name = "--shared-store", description = "Enable broker shared store.")
+   @Option(names = "--shared-store", description = "Enable broker shared store.")
    private boolean sharedStore = false;
 
-   @Option(name = "--slave", description = "Be a slave broker. Valid for shared store or replication.")
+   @Option(names = "--slave", description = "Be a slave broker. Valid for shared store or replication.")
    private boolean slave;
 
-   @Option(name = "--failover-on-shutdown", description = "Whether broker shutdown will trigger failover for clients using the core protocol. Valid only for shared store. Default: false.")
+   @Option(names = "--failover-on-shutdown", description = "Whether broker shutdown will trigger failover for clients using the core protocol. Valid only for shared store. Default: false.")
    private boolean failoverOnShutodwn;
 
-   @Option(name = "--cluster-user", description = "The user to use for clustering. Default: input.")
+   @Option(names = "--cluster-user", description = "The user to use for clustering. Default: input.")
    private String clusterUser = null;
 
-   @Option(name = "--cluster-password", description = "The password to use for clustering. Default: input.")
+   @Option(names = "--cluster-password", description = "The password to use for clustering. Default: input.")
    private String clusterPassword = null;
 
-   @Option(name = "--allow-anonymous", description = "Allow connections from users with no security credentials. Opposite of --require-login. Default: input.")
+   @Option(names = "--allow-anonymous", description = "Allow connections from users with no security credentials. Opposite of --require-login. Default: input.")
    private Boolean allowAnonymous = null;
 
-   @Option(name = "--require-login", description = "Require security credentials from users for connection. Opposite of --allow-anonymous.")
+   @Option(names = "--require-login", description = "Require security credentials from users for connection. Opposite of --allow-anonymous.")
    private Boolean requireLogin = null;
 
-   @Option(name = "--paging", description = "Page messages to disk when address becomes full. Opposite of --blocking. Default: true.")
+   @Option(names = "--paging", description = "Page messages to disk when address becomes full. Opposite of --blocking. Default: true.")
    private Boolean paging;
 
-   @Option(name = "--blocking", description = "Block producers when address becomes full. Opposite of --paging. Default: false.")
+   @Option(names = "--blocking", description = "Block producers when address becomes full. Opposite of --paging. Default: false.")
    private Boolean blocking;
 
-   @Option(name = "--no-autotune", description = "Disable auto tuning of the journal-buffer-timeout in broker.xml.")
+   @Option(names = "--no-autotune", description = "Disable auto tuning of the journal-buffer-timeout in broker.xml.")
    private boolean noAutoTune;
 
-   @Option(name = "--no-autocreate", description = "Disable auto creation for addresses & queues.")
+   @Option(names = "--no-autocreate", description = "Disable auto creation for addresses & queues.")
    private Boolean noAutoCreate;
 
-   @Option(name = "--autocreate", description = "Allow automatic creation of addresses & queues. Default: true.")
+   @Option(names = "--autocreate", description = "Allow automatic creation of addresses & queues. Default: true.")
    private Boolean autoCreate;
 
-   @Option(name = "--autodelete", description = "Allow automatic deletion of addresses & queues. Default: false.")
+   @Option(names = "--autodelete", description = "Allow automatic deletion of addresses & queues. Default: false.")
    private boolean autoDelete;
 
-   @Option(name = "--user", description = "The username. Default: input.")
+   @Option(names = "--user", description = "The username. Default: input.")
    private String user;
 
-   @Option(name = "--password", description = "The user's password. Default: input.")
+   @Option(names = "--password", description = "The user's password. Default: input.")
    private String password;
 
-   @Option(name = "--role", description = "The name for the role created. Default: amq.")
+   @Option(names = "--role", description = "The name for the role created. Default: amq.")
    private String role = "amq";
 
-   @Option(name = "--no-web", description = "Whether to omit the web-server definition from bootstrap.xml.")
+   @Option(names = "--no-web", description = "Whether to omit the web-server definition from bootstrap.xml.")
    private boolean noWeb;
 
-   @Option(name = "--queues", description = "A comma separated list of queues with the option to specify a routing type, e.g. --queues myQueue1,myQueue2:multicast. Routing-type default: anycast.")
+   @Option(names = "--queues", description = "A comma separated list of queues with the option to specify a routing type, e.g. --queues myQueue1,myQueue2:multicast. Routing-type default: anycast.")
    private String queues;
 
-   @Option(name = "--addresses", description = "A comma separated list of addresses with the option to specify a routing type, e.g. --addresses myAddress1,myAddress2:anycast. Routing-type default: multicast.")
+   @Option(names = "--addresses", description = "A comma separated list of addresses with the option to specify a routing type, e.g. --addresses myAddress1,myAddress2:anycast. Routing-type default: multicast.")
    private String addresses;
 
-   @Option(name = "--aio", description = "Set the journal as asyncio.")
+   @Option(names = "--aio", description = "Set the journal as asyncio.")
    private boolean aio;
 
-   @Option(name = "--nio", description = "Set the journal as nio.")
+   @Option(names = "--nio", description = "Set the journal as nio.")
    private boolean nio;
 
-   @Option(name = "--mapped", description = "Set the journal as mapped.")
+   @Option(names = "--mapped", description = "Set the journal as mapped.")
    private boolean mapped;
 
    // this is used by the setupJournalType method
    private JournalType journalType;
 
-   @Option(name = "--disable-persistence", description = "Disable message persistence to the journal")
+   @Option(names = "--disable-persistence", description = "Disable message persistence to the journal")
    private boolean disablePersistence;
 
-   @Option(name = "--no-amqp-acceptor", description = "Disable the AMQP specific acceptor.")
+   @Option(names = "--no-amqp-acceptor", description = "Disable the AMQP specific acceptor.")
    private boolean noAmqpAcceptor;
 
-   @Option(name = "--no-mqtt-acceptor", description = "Disable the MQTT specific acceptor.")
+   @Option(names = "--no-mqtt-acceptor", description = "Disable the MQTT specific acceptor.")
    private boolean noMqttAcceptor;
 
-   @Option(name = "--no-stomp-acceptor", description = "Disable the STOMP specific acceptor.")
+   @Option(names = "--no-stomp-acceptor", description = "Disable the STOMP specific acceptor.")
    private boolean noStompAcceptor;
 
-   @Option(name = "--no-hornetq-acceptor", description = "Disable the HornetQ specific acceptor.")
+   @Option(names = "--no-hornetq-acceptor", description = "Disable the HornetQ specific acceptor.")
    private boolean noHornetQAcceptor;
 
-   @Option(name = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from Java NIO) on the journal.")
+   @Option(names = "--no-fsync", description = "Disable usage of fdatasync (channel.force(false) from Java NIO) on the journal.")
    private boolean noJournalSync;
 
-   @Option(name = "--journal-device-block-size", description = "The block size of the journal's storage device. Default: 4096.")
+   @Option(names = "--journal-device-block-size", description = "The block size of the journal's storage device. Default: 4096.")
    private int journalDeviceBlockSize = 4096;
 
-   @Option(name = "--journal-retention", description = "Configure journal retention in days. If > 0 then enable journal-retention-directory from broker.xml allowing replay options.")
+   @Option(names = "--journal-retention", description = "Configure journal retention in days. If > 0 then enable journal-retention-directory from broker.xml allowing replay options.")
    private int retentionDays;
 
-   @Option(name = "--journal-retention-max-bytes", description = "Maximum number of bytes to keep in the retention directory.")
+   @Option(names = "--journal-retention-max-bytes", description = "Maximum number of bytes to keep in the retention directory.")
    private String retentionMaxBytes;
 
-   @Option(name = "--global-max-size", description = "Maximum amount of memory which message data may consume. Default: half of the JVM's max memory.")
+   @Option(names = "--global-max-size", description = "Maximum amount of memory which message data may consume. Default: half of the JVM's max memory.")
    private String globalMaxSize;
 
-   @Option(name = "--global-max-messages", description = "Maximum number of messages that will be accepted in memory before using address full policy mode. Default: undefined.")
+   @Option(names = "--global-max-messages", description = "Maximum number of messages that will be accepted in memory before using address full policy mode. Default: undefined.")
    private long globalMaxMessages = -1;
 
-   @Option(name = "--jdbc", description = "Store message data in JDBC instead of local files.")
+   @Option(names = "--jdbc", description = "Store message data in JDBC instead of local files.")
    boolean jdbc;
 
-   @Option(name = "--staticCluster", description = "Cluster node connectors list separated by comma, e.g. \"tcp://server:61616,tcp://server2:61616,tcp://server3:61616\".")
+   @Option(names = "--staticCluster", description = "Cluster node connectors list separated by comma, e.g. \"tcp://server:61616,tcp://server2:61616,tcp://server3:61616\".")
    String staticNode;
 
-   @Option(name = "--support-advisory", description = "Support advisory messages for the OpenWire protocol.")
+   @Option(names = "--support-advisory", description = "Support advisory messages for the OpenWire protocol.")
    boolean supportAdvisory = false;
 
-   @Option(name = "--suppress-internal-management-objects", description = "Do not register any advisory addresses/queues for the OpenWire protocol with the broker's management service.")
+   @Option(names = "--suppress-internal-management-objects", description = "Do not register any advisory addresses/queues for the OpenWire protocol with the broker's management service.")
    boolean suppressInternalManagementObjects = false;
 
    public String[] getStaticNodes() {
@@ -289,37 +289,37 @@ public class Create extends InstallAbstract {
       }
    }
 
-   @Option(name = "--security-manager", description = "Which security manager to use - jaas or basic. Default: jaas.")
+   @Option(names = "--security-manager", description = "Which security manager to use - jaas or basic. Default: jaas.")
    private String securityManager = "jaas";
 
-   @Option(name = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
+   @Option(names = "--jdbc-bindings-table-name", description = "Name of the jdbc bindings table.")
    private String jdbcBindings = ActiveMQDefaultConfiguration.getDefaultBindingsTableName();
 
-   @Option(name = "--jdbc-message-table-name", description = "Name of the jdbc messages table.")
+   @Option(names = "--jdbc-message-table-name", description = "Name of the jdbc messages table.")
    private String jdbcMessages = ActiveMQDefaultConfiguration.getDefaultMessageTableName();
 
-   @Option(name = "--jdbc-large-message-table-name", description = "Name of the large messages table.")
+   @Option(names = "--jdbc-large-message-table-name", description = "Name of the large messages table.")
    private String jdbcLargeMessages = ActiveMQDefaultConfiguration.getDefaultLargeMessagesTableName();
 
-   @Option(name = "--jdbc-page-store-table-name", description = "Name of the page store messages table.")
+   @Option(names = "--jdbc-page-store-table-name", description = "Name of the page store messages table.")
    private String jdbcPageStore = ActiveMQDefaultConfiguration.getDefaultPageStoreTableName();
 
-   @Option(name = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table.")
+   @Option(names = "--jdbc-node-manager-table-name", description = "Name of the jdbc node manager table.")
    private String jdbcNodeManager = ActiveMQDefaultConfiguration.getDefaultNodeManagerStoreTableName();
 
-   @Option(name = "--jdbc-connection-url", description = "The URL used for the database connection.")
+   @Option(names = "--jdbc-connection-url", description = "The URL used for the database connection.")
    private String jdbcURL = null;
 
-   @Option(name = "--jdbc-driver-class-name", description = "JDBC driver classname.")
+   @Option(names = "--jdbc-driver-class-name", description = "JDBC driver classname.")
    private String jdbcClassName = ActiveMQDefaultConfiguration.getDefaultDriverClassName();
 
-   @Option(name = "--jdbc-network-timeout", description = "Network timeout (in milliseconds).")
+   @Option(names = "--jdbc-network-timeout", description = "Network timeout (in milliseconds).")
    long jdbcNetworkTimeout = ActiveMQDefaultConfiguration.getDefaultJdbcNetworkTimeout();
 
-   @Option(name = "--jdbc-lock-renew-period", description = "Lock Renew Period (in milliseconds).")
+   @Option(names = "--jdbc-lock-renew-period", description = "Lock Renew Period (in milliseconds).")
    long jdbcLockRenewPeriod = ActiveMQDefaultConfiguration.getDefaultJdbcLockRenewPeriodMillis();
 
-   @Option(name = "--jdbc-lock-expiration", description = "Lock expiration (in milliseconds).")
+   @Option(names = "--jdbc-lock-expiration", description = "Lock expiration (in milliseconds).")
    long jdbcLockExpiration = ActiveMQDefaultConfiguration.getDefaultJdbcLockExpirationMillis();
 
    private boolean isAutoCreate() {
@@ -712,11 +712,9 @@ public class Create extends InstallAbstract {
       File logFolder = createDirectory("log", directory);
       File oomeDumpFile = new File(logFolder, "oom_dump.hprof");
 
-      if (javaOptions == null || javaOptions.length() == 0) {
-         javaOptions = "";
-      }
+      String processedJavaOptions = getJavaOptions();
 
-      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, javaOptions, role);
+      addScriptFilters(filters, getHome(), getInstance(), etcFolder, dataFolder, oomeDumpFile, javaMemory, processedJavaOptions, role);
 
       boolean allowAnonymous = isAllowAnonymous();
 
@@ -739,7 +737,7 @@ public class Create extends InstallAbstract {
 
       filters.put("${journal-retention}", retentionTag);
 
-      filters.put("${java-opts}", javaOptions);
+      filters.put("${java-opts}", processedJavaOptions);
       filters.put("${java-memory}", javaMemory);
 
       if (allowAnonymous) {

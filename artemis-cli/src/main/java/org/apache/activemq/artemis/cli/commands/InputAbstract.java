@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.cli.commands;
 
 import java.util.Scanner;
 
-import com.github.rvesse.airline.annotations.Option;
+import picocli.CommandLine.Option;
 
 public class InputAbstract extends ActionAbstract {
 
@@ -34,7 +34,7 @@ public class InputAbstract extends ActionAbstract {
       inputEnabled = true;
    }
 
-   @Option(name = "--silent", description = "Disable all the inputs, and make a best guess for any required input.")
+   @Option(names = "--silent", description = "Disable all the inputs, and make a best guess for any required input.")
    private boolean silentInput = false;
 
    public boolean isSilentInput() {
