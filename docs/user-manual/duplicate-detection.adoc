@@ -82,6 +82,13 @@ If the cache has a maximum size of `n` elements, then the ``n + 1``th id stored 
 
 The maximum size of the cache is configured by the parameter `id-cache-size` in `broker.xml`, the default value is `20000` elements.
 
+To implement an address-specific `id-cache-size`, you can add to the
+corresponding address-settings section in `broker.xml`. Specify the
+desired `id-cache-size` value for the particular address. When a message
+is sent to an address with a specific `id-cache-size` configured, it
+will take precedence over the global `id-cache-size` value, allowing
+for greater flexibility and optimization of duplicate ID caching.
+
 The caches can also be configured to persist to disk or not.
 This is configured by the parameter `persist-id-cache`, also in `broker.xml`.
 If this is set to `true` then each id will be persisted to permanent storage as they are received.

@@ -74,6 +74,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       addressSettingsToMerge.setExpiryDelay(999L);
       addressSettingsToMerge.setMinExpiryDelay(888L);
       addressSettingsToMerge.setMaxExpiryDelay(777L);
+      addressSettingsToMerge.setIDCacheSize(5);
 
       addressSettings.merge(addressSettingsToMerge);
       Assert.assertEquals(addressSettings.getDeadLetterAddress(), DLQ);
@@ -90,6 +91,7 @@ public class AddressSettingsTest extends ActiveMQTestBase {
       Assert.assertEquals(Long.valueOf(999), addressSettings.getExpiryDelay());
       Assert.assertEquals(Long.valueOf(888), addressSettings.getMinExpiryDelay());
       Assert.assertEquals(Long.valueOf(777), addressSettings.getMaxExpiryDelay());
+      Assert.assertEquals(Integer.valueOf(5), addressSettings.getIDCacheSize());
    }
 
    @Test

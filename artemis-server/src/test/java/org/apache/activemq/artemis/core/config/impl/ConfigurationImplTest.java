@@ -1120,6 +1120,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       properties.put("addressSettings.NeedToSet.autoDeleteCreatedQueues", "true");
       properties.put("addressSettings.NeedToSet.defaultExclusiveQueue", "true");
       properties.put("addressSettings.NeedToSet.defaultMaxConsumers", 10);
+      properties.put("addressSettings.NeedToSet.iDCacheSize", 10);
 
       configuration.parsePrefixedProperties(properties, null);
 
@@ -1185,6 +1186,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isAutoDeleteCreatedQueues());
       Assert.assertTrue(configuration.getAddressSettings().get("NeedToSet").isDefaultExclusiveQueue());
       Assert.assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getDefaultMaxConsumers());
+      Assert.assertEquals(Integer.valueOf(10), configuration.getAddressSettings().get("NeedToSet").getIDCacheSize());
    }
 
    @Test

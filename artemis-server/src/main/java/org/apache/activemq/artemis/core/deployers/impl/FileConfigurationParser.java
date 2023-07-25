@@ -342,6 +342,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String ENABLE_INGRESS_TIMESTAMP = "enable-ingress-timestamp";
 
+   private static final String ID_CACHE_SIZE = "id-cache-size";
+
    private boolean validateAIO = false;
 
    private boolean printPageMaxSizeUsed = false;
@@ -1456,6 +1458,10 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             addressSettings.setEnableMetrics(XMLUtil.parseBoolean(child));
          } else if (ENABLE_INGRESS_TIMESTAMP.equalsIgnoreCase(name)) {
             addressSettings.setEnableIngressTimestamp(XMLUtil.parseBoolean(child));
+         } else if (ID_CACHE_SIZE.equalsIgnoreCase(name)) {
+            int idCacheSize = XMLUtil.parseInt(child);
+            Validators.GE_ZERO.validate(ID_CACHE_SIZE, idCacheSize);
+            addressSettings.setIDCacheSize(XMLUtil.parseInt(child));
          }
       }
       return setting;

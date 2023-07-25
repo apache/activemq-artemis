@@ -1407,9 +1407,15 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       return null;
    }
 
+   private int resolveIdCacheSize(SimpleString address) {
+      final AddressSettings addressSettings = addressSettingsRepository.getMatch(address.toString());
+      return addressSettings.getIDCacheSize() == null ? idCacheSize : addressSettings.getIDCacheSize();
+   }
+
    @Override
    public DuplicateIDCache getDuplicateIDCache(final SimpleString address) {
-      return getDuplicateIDCache(address, idCacheSize);
+      int resolvedIdCacheSize = resolveIdCacheSize(address);
+      return getDuplicateIDCache(address, resolvedIdCacheSize);
    }
 
    @Override

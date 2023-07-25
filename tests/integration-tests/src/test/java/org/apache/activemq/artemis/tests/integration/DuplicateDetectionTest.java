@@ -39,6 +39,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.postoffice.impl.PostOfficeImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.core.transaction.impl.XidImpl;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -576,6 +577,87 @@ public class DuplicateDetectionTest extends ActiveMQTestBase {
       }
    }
 
+   @Test
+   public void testDuplicateIDCacheSizeForAddressSpecificSetting() throws Exception {
+      server.stop();
+
+      final int addressIdCacheSize = 1;
+      final int globalIdCacheSize = 2;
+      final SimpleString dupIDOne = new SimpleString("1");
+      final SimpleString dupIDTwo = new SimpleString("2");
+      final SimpleString globalSettingsQueueName = new SimpleString("GlobalIdCacheSizeQueue");
+      final SimpleString addressSettingsQueueName = new SimpleString("AddressIdCacheSizeQueue");
+      AddressSettings testAddressSettings = new AddressSettings();
+      testAddressSettings.setIDCacheSize(addressIdCacheSize);
+
+      config = createDefaultInVMConfig().setIDCacheSize(globalIdCacheSize);
+      config.getAddressSettings().put(addressSettingsQueueName.toString(), testAddressSettings);
+
+      server = createServer(config);
+      server.start();
+      sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(false, true, true);
+      session.start();
+
+      session.createQueue(new QueueConfiguration(globalSettingsQueueName).setDurable(false));
+      session.createQueue(new QueueConfiguration(addressSettingsQueueName).setDurable(false));
+
+      ClientProducer addressSettingsProducer = session.createProducer(addressSettingsQueueName);
+      ClientConsumer addressSettingsConsumer = session.createConsumer(addressSettingsQueueName);
+      ClientProducer globalSettingsProducer = session.createProducer(globalSettingsQueueName);
+      ClientConsumer globalSettingsConsumer = session.createConsumer(globalSettingsQueueName);
+
+
+      ClientMessage globalSettingsMessage1 = createMessage(session, 1);
+      globalSettingsMessage1.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupIDOne.getData());
+      globalSettingsProducer.send(globalSettingsMessage1);
+
+      ClientMessage globalSettingsMessage2 = createMessage(session, 2);
+      globalSettingsMessage2.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupIDTwo.getData());
+      globalSettingsProducer.send(globalSettingsMessage2);
+
+      // globalSettingsMessage3 will be ignored by the server - dupIDOne was only 2 messages ago
+      ClientMessage globalSettingsMessage3 = createMessage(session, 3);
+      globalSettingsMessage3.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupIDOne.getData());
+      globalSettingsProducer.send(globalSettingsMessage3);
+
+      globalSettingsMessage1 = globalSettingsConsumer.receive(1000);
+      Assert.assertEquals(1, globalSettingsMessage1.getObjectProperty(propKey));
+
+      globalSettingsMessage2 = globalSettingsConsumer.receive(1000);
+      Assert.assertEquals(2, globalSettingsMessage2.getObjectProperty(propKey));
+
+      // globalSettingsMessage3 will be ignored by the server because dupIDOne is duplicate
+      globalSettingsMessage3 = globalSettingsConsumer.receiveImmediate();
+      Assert.assertNull(globalSettingsMessage3);
+
+      ClientMessage addressSettingsMessage1 = createMessage(session, 1);
+      addressSettingsMessage1.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupIDOne.getData());
+      addressSettingsProducer.send(addressSettingsMessage1);
+
+      ClientMessage addressSettingsMessage2 = createMessage(session, 2);
+      addressSettingsMessage2.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupIDTwo.getData());
+      addressSettingsProducer.send(addressSettingsMessage2);
+
+      // addressSettingsMessage3 will not be ignored because the id-cache-size is only 1
+      // and dupOne was 2 messages ago
+      ClientMessage addressSettingsMessage3 = createMessage(session, 3);
+      addressSettingsMessage3.putBytesProperty(Message.HDR_DUPLICATE_DETECTION_ID, dupIDOne.getData());
+      addressSettingsProducer.send(addressSettingsMessage3);
+
+      addressSettingsMessage1 = addressSettingsConsumer.receive(1000);
+      Assert.assertEquals(1, addressSettingsMessage1.getObjectProperty(propKey));
+
+      addressSettingsMessage2 = addressSettingsConsumer.receive(1000);
+      Assert.assertEquals(2, addressSettingsMessage2.getObjectProperty(propKey));
+
+      // addressSettingsMessage3 will be acked successfully by addressSettingsConsumer
+      // because the id-cache-size is only 1 (instead of the global size of 2)
+      addressSettingsMessage3 = addressSettingsConsumer.receive(1000);
+      Assert.assertEquals(3, addressSettingsMessage3.getObjectProperty(propKey));
+
+      session.commit();
+   }
    @Test
    public void testTransactedDuplicateDetection1() throws Exception {
       ClientSession session = sf.createSession(false, false, false);
