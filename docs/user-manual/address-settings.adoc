@@ -76,6 +76,7 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <retroactive-message-count>0</retroactive-message-count>
       <enable-metrics>true</enable-metrics>
       <enable-ingress-timestamp>false</enable-ingress-timestamp>
+      <id-cache-size>500</id-cache-size>
    </address-setting>
 </address-settings>
 ----
@@ -371,3 +372,9 @@ For core messages (used by the core and OpenWire protocols) the broker will add 
 For STOMP messages the broker will add a frame header  named `ingress-timestamp`.
 The value will be the number of milliseconds since the https://en.wikipedia.org/wiki/Unix_time[epoch].
 Default is `false`.
+
+id-cache-size::
+defines the maximum size of the duplicate ID cache for an address, as each address has it's own cache
+that helps to detect and prevent the processing of duplicate messages based on their unique identification.
+By default, the `id-cache-size` setting inherits from the global `id-cache-size`, with a default of `20000`
+elements if not explicitly configured. Read more about xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[duplicate id cache sizes].

@@ -293,6 +293,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Boolean enableIngressTimestamp = null;
 
+   private Integer idCacheSize = null;
+
    //from amq5
    //make it transient
    private transient Integer queuePrefetch = null;
@@ -370,6 +372,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       this.managementMessageAttributeSizeLimit = other.managementMessageAttributeSizeLimit;
       this.slowConsumerThresholdMeasurementUnit = other.slowConsumerThresholdMeasurementUnit;
       this.enableIngressTimestamp = other.enableIngressTimestamp;
+      this.idCacheSize = other.idCacheSize;
    }
 
    public AddressSettings() {
@@ -1073,6 +1076,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+   public Integer getIDCacheSize() {
+      return idCacheSize;
+   }
+
+   public AddressSettings setIDCacheSize(int idCacheSize) {
+      this.idCacheSize = idCacheSize;
+      return this;
+   }
+
    /**
     * merge 2 objects in to 1
     *
@@ -1301,6 +1313,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       }
       if (pageLimitMessages == null) {
          pageLimitMessages = merged.pageLimitMessages;
+      }
+      if (idCacheSize == null) {
+         idCacheSize = merged.idCacheSize;
       }
    }
 
@@ -1577,6 +1592,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          autoDeleteAddressesSkipUsageCheck = BufferHelper.readNullableBoolean(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         idCacheSize = BufferHelper.readNullableInteger(buffer);
+      }
    }
 
    @Override
@@ -1652,6 +1671,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableInteger(maxReadPageBytes) +
          BufferHelper.sizeOfNullableLong(pageLimitBytes) +
          BufferHelper.sizeOfNullableLong(pageLimitMessages) +
+         BufferHelper.sizeOfNullableInteger(idCacheSize) +
          BufferHelper.sizeOfNullableSimpleString(pageFullMessagePolicy != null ? pageFullMessagePolicy.toString() : null);
    }
 
@@ -1802,6 +1822,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, autoDeleteQueuesSkipUsageCheck);
 
       BufferHelper.writeNullableBoolean(buffer, autoDeleteAddressesSkipUsageCheck);
+
+      BufferHelper.writeNullableInteger(buffer, idCacheSize);
    }
 
    /* (non-Javadoc)
@@ -1883,6 +1905,7 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((pageLimitBytes == null) ? 0 : pageLimitBytes.hashCode());
       result = prime * result + ((pageLimitMessages == null) ? 0 : pageLimitMessages.hashCode());
       result = prime * result + ((pageFullMessagePolicy == null) ? 0 : pageFullMessagePolicy.hashCode());
+      result = prime * result + ((idCacheSize == null) ? 0 : idCacheSize.hashCode());
 
       return result;
    }
@@ -2290,6 +2313,13 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          return false;
       }
 
+      if (idCacheSize == null) {
+         if (other.idCacheSize != null) {
+            return false;
+         }
+      } else if (!idCacheSize.equals(other.idCacheSize)) {
+         return false;
+      }
 
       return true;
    }
@@ -2438,6 +2468,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          pageLimitMessages +
          ", pageFullMessagePolicy=" +
          pageFullMessagePolicy +
+         ", idCacheSize=" +
+         idCacheSize +
          "]";
    }
 }

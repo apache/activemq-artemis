@@ -808,6 +808,10 @@ see `auto-create-queues` & `auto-create-addresses`
 | xref:retroactive-addresses.adoc#retroactive-addresses[retroactive-message-count]
 | the number of messages to preserve for future queues created on the matching address
 | `0`
+
+| xref:duplicate-detection.adoc#configuring-the-duplicate-id-cache[id-cache-size]
+| The duplicate detection circular cache size
+| Inherits from global `id-cache-size`
 |===
 
 == bridge type

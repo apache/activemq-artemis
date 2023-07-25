@@ -572,6 +572,7 @@
             <enable-metrics>false</enable-metrics>
             <management-browse-page-size>400</management-browse-page-size>
             <management-message-attribute-size-limit>265</management-message-attribute-size-limit>
+            <id-cache-size>500</id-cache-size>
          </address-setting>
       </address-settings>
       <resource-limit-settings>
