@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -88,16 +90,22 @@ public class ThreadLeakCheckRule extends TestWatcher {
       }
       try {
          if (enabled) {
-            boolean failed = true;
+            String failedThread = null;
 
             boolean failedOnce = false;
 
-            // if the test failed.. there's no point on waiting a full minute.. we will report it once and go
-            long timeout = System.currentTimeMillis() + (testFailed ? 30000 : 60000);
-            while (failed && timeout > System.currentTimeMillis()) {
-               failed = checkThread();
+            int retryNr = 0;
 
-               if (failed) {
+            // if the test failed.. there's no point on waiting a full minute.. we will report it once and go
+            long timeout = System.currentTimeMillis() + (testFailed ? 0 : 60000);
+            do {
+               failedThread = checkThread();
+
+               if (failedThread != null) {
+                  retryNr++;
+                  if (!failedOnce) {
+                     logger.warn("There are threads failing. ThreadLeakCheckRule will retry for {} milliseconds", timeout);
+                  }
                   failedOnce = true;
                   forceGC();
                   try {
@@ -106,21 +114,20 @@ public class ThreadLeakCheckRule extends TestWatcher {
                   }
                }
             }
+            while (failedThread != null && timeout > System.currentTimeMillis());
 
-            if (failed) {
+            if (failedThread != null) {
+               logger.warn("There are leaked threads: \n{}", failedThread);
                if (!testFailed) {
                   //we only fail on thread leak if test passes.
                   Assert.fail("Thread leaked");
                } else {
-                  System.out.println("***********************************************************************");
-                  System.out.println("             The test failed and there is a leak");
-                  System.out.println("***********************************************************************");
+                  logger.warn("The test failed and there is a leak", failure);
                   failure.printStackTrace();
                   Assert.fail("Test " + testDescription + " Failed with a leak - " + failure.getMessage());
                }
             } else if (failedOnce) {
-               System.out.println("******************** Threads cleared after retries ********************");
-               System.out.println();
+               logger.info("Threads were cleared after {}", retryNr);
             }
 
          } else {
@@ -193,8 +200,12 @@ public class ThreadLeakCheckRule extends TestWatcher {
       knownThreads.add(name);
    }
 
-   private boolean checkThread() {
+   private String checkThread() {
       boolean failedThread = false;
+
+      StringWriter stringWriter = new StringWriter();
+      PrintWriter writer = new PrintWriter(stringWriter);
+
 
       Map<Thread, StackTraceElement[]> postThreads = Thread.getAllStackTraces();
 
@@ -203,26 +214,27 @@ public class ThreadLeakCheckRule extends TestWatcher {
          for (Thread aliveThread : postThreads.keySet()) {
             if (aliveThread.isAlive() && !isExpectedThread(aliveThread) && !previousThreads.containsKey(aliveThread)) {
                if (!failedThread) {
-                  System.out.println("*********************************************************************************");
-                  System.out.println("LEAKING THREADS");
+                  writer.println("*********************************************************************************");
+                  writer.println("LEAKING THREADS");
                }
                failedThread = true;
-               System.out.println("=============================================================================");
-               System.out.println("Thread " + aliveThread + " is still alive with the following stackTrace:");
+               writer.println("=============================================================================");
+               writer.println("Thread " + aliveThread + " is still alive with the following stackTrace:");
                StackTraceElement[] elements = postThreads.get(aliveThread);
                for (StackTraceElement el : elements) {
-                  System.out.println(el);
+                  writer.println(el);
                }
                aliveThread.interrupt();
             }
 
          }
          if (failedThread) {
-            System.out.println("*********************************************************************************");
+            writer.println("*********************************************************************************");
+            return stringWriter.toString();
          }
       }
 
-      return failedThread;
+      return null;
    }
 
    /**
