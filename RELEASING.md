@@ -324,6 +324,20 @@ Once the mirrors are up-to-date then update the following:
 Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
 Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
 
+## Upload Docker Images
+
+1. If you don't have an account on https://hub.docker.com/ then create one.
+2. [Install `docker`](https://docs.docker.com/engine/install/) in your environment.
+3. Ensure you have access to push images to `apache/activemq-artemis`. If you don't have access you can request it by
+   creating an INFRA Jira ticket (e.g. https://issues.apache.org/jira/browse/INFRA-24831).
+4. Go to the `scripts` directory and run `release-docker.sh` with the proper parameters, e.g.:
+   ```shell
+   $ ./release-docker.sh 2.30.0 apache
+   ```
+   You can easily perform a test run by using your personal account, e.g.:
+   ```shell
+   $ ./release-docker.sh 2.30.0 jbertram
+   ```
 
 ## Send announcement to user list
 
