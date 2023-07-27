@@ -53,14 +53,20 @@ Well done! Now you can continue with building the Docker image:
   # Go to $ARTEMIS_DIST_DIR
   $ cd $ARTEMIS_DIST_DIR
 
-  # For CentOS with full JDK
+  # For CentOS with full JDK 11
   $ docker build -f ./docker/Dockerfile-centos7-11 -t artemis-centos .
 
-  # For Ubuntu with full JDK
+  # For Ubuntu with full JDK 11
   $ docker build -f ./docker/Dockerfile-ubuntu-11 -t artemis-ubuntu .
 
-  # For Ubuntu with just JRE
-  $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
+  # For Ubuntu with just JRE 11
+  $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu-jre .
+
+  # For Alpine with full JDK 17
+  $ docker build -f ./docker/Dockerfile-alpine-17 -t artemis-alpine .
+
+  # For Alpine with just JRE 11
+  $ docker build -f ./docker/Dockerfile-alpine-11-jre -t artemis-alpine-jre .
 
   # For Ubuntu on Linux ARMv7/ARM64 with full JDK
   $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-ubuntu-11 .
