@@ -29,24 +29,16 @@
 
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
-      <webapp-dir>${project.artifactId}-${project.version}</webapp-dir>
-      <src-dir-user-manual>${basedir}/../docs/user-manual/en</src-dir-user-manual>
-      <scratch-dir-user-manual>${basedir}/target/scratch/user-manual</scratch-dir-user-manual>
-      <webapp-outdir-user-manual>${basedir}/target/classes/user-manual</webapp-outdir-user-manual>
-      <webapp-outdir-hacking-guide>${basedir}/target/classes/hacking-guide</webapp-outdir-hacking-guide>
-      <webapp-outdir-migration-guide>${basedir}/target/classes/migration-guide</webapp-outdir-migration-guide>
-
-      <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
-      <nodeVersion>v18.15.0</nodeVersion>
-      <npmVersion>9.6.2</npmVersion>
+      <!-- we need a "scratch" directory because we dynamically generate a few docs -->
+      <scratch-dir-user-manual>${project.build.directory}/scratch/user-manual</scratch-dir-user-manual>
       <skipWebsiteDocGeneration>false</skipWebsiteDocGeneration>
+      <skipWebsitePdfGeneration>${skipWebsiteDocGeneration}</skipWebsitePdfGeneration>
       <skipWebsiteJavadocGeneration>false</skipWebsiteJavadocGeneration>
    </properties>
 
    <profiles>
       <profile>
          <id>release</id>
-
          <dependencies>
             <dependency>
                <groupId>org.apache.activemq</groupId>
@@ -103,7 +95,7 @@
                         </goals>
                         <configuration>
                            <doctitle>ActiveMQ Artemis ${project.version} API</doctitle>
-                           <source>8</source>
+                           <source>11</source>
                            <minmemory>128m</minmemory>
                            <maxmemory>512m</maxmemory>
                            <noindex>true</noindex>
@@ -132,39 +124,6 @@
                   </executions>
                </plugin>
                <plugin>
-                  <groupId>com.github.eirslett</groupId>
-                  <artifactId>frontend-maven-plugin</artifactId>
-                  <version>${frontend-maven-plugin-version}</version>
-                  <executions>
-                     <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                           <goal>install-node-and-npm</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                           <nodeVersion>${nodeVersion}</nodeVersion>
-                           <npmVersion>${npmVersion}</npmVersion>
-                           <skip>${skipWebsiteDocGeneration}</skip>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>npm install</id>
-                        <goals>
-                           <goal>npm</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                           <arguments>install</arguments>
-                           <skip>${skipWebsiteDocGeneration}</skip>
-                        </configuration>
-                     </execution>
-                  </executions>
-                  <configuration>
-                    <skip>${skipWebsiteDocGeneration}</skip>
-                  </configuration>
-               </plugin>
-               <plugin>
                   <groupId>org.apache.activemq</groupId>
                   <artifactId>artemis-maven-plugin</artifactId>
                   <version>${project.version}</version>
@@ -176,17 +135,22 @@
                            <goal>dependency-doc</goal>
                         </goals>
                         <configuration>
-                           <file>${scratch-dir-user-manual}/client-classpath-jms.md</file>
+                           <file>${scratch-dir-user-manual}/client-classpath-jms.adoc</file>
                            <groupOrder>
                               <arg>org.apache.activemq</arg>
                               <arg>jakarta.jms</arg>
                               <arg>org.jgroups</arg>
                               <arg>io.netty</arg>
                            </groupOrder>
-                           <header>#Artemis JMS Client Dependencies
-File | package | observation
----|---|---</header>
-                           <line>X{fileMD} | X{package} | X{detail} </line>
+                           <header>= Artemis JMS Client Dependencies
+// generated content!
+
+|===
+|File | package | observation
+
+                           </header>
+                           <line>|X{fileMD} | X{package} | X{detail} </line>
+                           <footer>|===</footer>
                            <detailKey>
                               <arg>io.netty:netty-transport-native-epoll</arg>
                               <arg>io.netty:netty-transport-classes-epoll</arg>
@@ -211,17 +175,22 @@ File | package | observation
                            <goal>dependency-doc</goal>
                         </goals>
                         <configuration>
-                           <file>${scratch-dir-user-manual}/client-classpath-jakarta.md</file>
+                           <file>${scratch-dir-user-manual}/client-classpath-jakarta.adoc</file>
                            <groupOrder>
                               <arg>org.apache.activemq</arg>
                               <arg>jakarta.jms</arg>
                               <arg>org.jgroups</arg>
                               <arg>io.netty</arg>
                            </groupOrder>
-                           <header>#Artemis Jakarta Client Dependencies
-File | package | observation
----|---|---</header>
-                           <line>X{fileMD} | X{package} | X{detail} </line>
+                           <header>= Artemis Jakarta Client Dependencies
+// generated content!
+
+|===
+|File | package | observation
+
+                           </header>
+                           <line>|X{fileMD} | X{package} | X{detail} </line>
+                           <footer>|===</footer>
                            <detailKey>
                               <arg>io.netty:netty-transport-native-epoll</arg>
                               <arg>io.netty:netty-transport-classes-epoll</arg>
@@ -241,63 +210,177 @@ File | package | observation
                      </execution>
                   </executions>
                </plugin>
-
                <plugin>
-                  <artifactId>maven-antrun-plugin</artifactId>
+                  <artifactId>maven-resources-plugin</artifactId>
                   <executions>
                      <execution>
+                        <id>copy-user-manual-resources</id>
                         <phase>generate-sources</phase>
-                        <configuration>
-                           <skip>${skipWebsiteDocGeneration}</skip>
-                           <target>
-                              <!-- Make scratch copy of user manual, filter the version config -->
-                              <copy todir="${scratch-dir-user-manual}">
-                                 <fileset dir="${src-dir-user-manual}" />
-                              </copy>
-                              <copy todir="${scratch-dir-user-manual}" overwrite="true">
-                                 <fileset file="${src-dir-user-manual}/book.json" />
-                                 <fileset file="${src-dir-user-manual}/client-classpath.md" />
-                                 <fileset file="${src-dir-user-manual}/logging.md" />
-                                 <filterset>
-                                    <filter token="PROJECT_VERSION_FILTER_TOKEN" value="${project.version}" />
-                                 </filterset>
-                              </copy>
-
-                              <condition property="honkit.cmd" value="${basedir}/node_modules/.bin/honkit.cmd" else="${basedir}/node_modules/.bin/honkit">
-                                 <os family="windows" />
-                              </condition>
-                              <!-- lets generate the honkit -->
-                              <mkdir dir="${webapp-outdir-user-manual}" />
-                              <echo>executing ${honkit.cmd}</echo>
-                              <exec executable="${honkit.cmd}" failonerror="true">
-                                 <env key="PATH" path="${basedir}/node" />
-                                 <arg value="build" />
-                                 <arg value="${scratch-dir-user-manual}" />
-                                 <arg value="${webapp-outdir-user-manual}" />
-                              </exec>
-                              <mkdir dir="${webapp-outdir-hacking-guide}" />
-                              <echo>executing ${honkit.cmd}</echo>
-                              <exec executable="${honkit.cmd}" failonerror="true">
-                                 <env key="PATH" path="${basedir}/node" />
-                                 <arg value="build" />
-                                 <arg value="${basedir}/../docs/hacking-guide/en" />
-                                 <arg value="${webapp-outdir-hacking-guide}" />
-                              </exec>
-                              <mkdir dir="${webapp-outdir-migration-guide}" />
-                              <echo>executing ${honkit.cmd}</echo>
-                              <exec executable="${honkit.cmd}" failonerror="true">
-                                 <env key="PATH" path="${basedir}/node" />
-                                 <arg value="build" />
-                                 <arg value="${basedir}/../docs/migration-guide/en" />
-                                 <arg value="${webapp-outdir-migration-guide}" />
-                              </exec>
-                           </target>
-                        </configuration>
                         <goals>
-                           <goal>run</goal>
+                           <goal>copy-resources</goal>
                         </goals>
+                        <configuration>
+                           <outputDirectory>${scratch-dir-user-manual}</outputDirectory>
+                           <skip>${skipWebsiteDocGeneration}</skip>
+                           <resources>
+                              <resource>
+                                 <directory>${activemq.basedir}/docs/user-manual</directory>
+                                 <includes>
+                                    <include>**/*</include>
+                                 </includes>
+                              </resource>
+                              <resource>
+                                 <directory>${activemq.basedir}/docs/resources/font-awesome</directory>
+                                 <includes>
+                                    <include>**/*</include>
+                                 </includes>
+                              </resource>
+                           </resources>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>copy-migration-guide-resources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                           <outputDirectory>${project.build.outputDirectory}/migration-guide</outputDirectory>
+                           <skip>${skipWebsiteDocGeneration}</skip>
+                           <resources>
+                              <resource>
+                                 <directory>${activemq.basedir}/docs/resources/font-awesome</directory>
+                                 <includes>
+                                    <include>**/*</include>
+                                 </includes>
+                              </resource>
+                           </resources>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>copy-hacking-guide-resources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                           <outputDirectory>${project.build.outputDirectory}/hacking-guide</outputDirectory>
+                           <skip>${skipWebsiteDocGeneration}</skip>
+                           <resources>
+                              <resource>
+                                 <directory>${activemq.basedir}/docs/resources/font-awesome</directory>
+                                 <includes>
+                                    <include>**/*</include>
+                                 </includes>
+                              </resource>
+                           </resources>
+                        </configuration>
                      </execution>
                   </executions>
+               </plugin>
+               <plugin>
+                  <groupId>org.asciidoctor</groupId>
+                  <artifactId>asciidoctor-maven-plugin</artifactId>
+                  <version>${asciidoctor.maven.plugin.version}</version>
+                  <dependencies>
+                     <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj-pdf</artifactId>
+                        <version>${asciidoctorj.pdf.version}</version>
+                     </dependency>
+                  </dependencies>
+                  <executions>
+                     <execution>
+                        <id>generate-user-manual-html</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                           <sourceDirectory>${scratch-dir-user-manual}</sourceDirectory>
+                           <outputDirectory>${project.build.outputDirectory}/user-manual</outputDirectory>
+                           <backend>html5</backend>
+                           <attributes>
+                              <toc-title>&lt;a href="index.html">User Manual for ${project.version}&lt;/a></toc-title>
+                              <favicon>images/favicon.png</favicon>
+                           </attributes>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>generate-user-manual-pdf</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                           <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                           <sourceDirectory>${activemq.basedir}/docs/user-manual</sourceDirectory>
+                           <sourceDocumentName>_book.adoc</sourceDocumentName>
+                           <outputFile>book.pdf</outputFile>
+                           <outputDirectory>${project.build.outputDirectory}/user-manual</outputDirectory>
+                           <backend>pdf</backend>
+                           <skip>${skipWebsitePdfGeneration}</skip>
+                           <resources>
+                              <resource>
+                                 <directory>${activemq.basedir}/docs/user-manual</directory>
+                                 <includes>
+                                    <include>book.pdf</include>
+                                 </includes>
+                              </resource>
+                           </resources>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>generate-migration-guide-html</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                           <sourceDirectory>${activemq.basedir}/docs/migration-guide</sourceDirectory>
+                           <outputDirectory>${project.build.outputDirectory}/migration-guide</outputDirectory>
+                           <backend>html5</backend>
+                           <attributes>
+                              <favicon>images/favicon.png</favicon>
+                           </attributes>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>generate-hacking-guide-html</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                           <goal>process-asciidoc</goal>
+                        </goals>
+                        <configuration>
+                           <sourceDirectory>${activemq.basedir}/docs/hacking-guide</sourceDirectory>
+                           <outputDirectory>${project.build.outputDirectory}/hacking-guide</outputDirectory>
+                           <backend>html5</backend>
+                           <attributes>
+                              <favicon>images/favicon.png</favicon>
+                           </attributes>
+                        </configuration>
+                     </execution>
+                  </executions>
+                  <configuration>
+                     <doctype>book</doctype>
+                     <skip>${skipWebsiteDocGeneration}</skip>
+                     <attributes>
+                        <source-highlighter>rouge</source-highlighter>
+                        <toc>left</toc>
+                        <icons>font</icons>
+                        <toclevels>2</toclevels>
+                        <sectlinks/>
+                        <sectanchors/>
+                        <sectnumlevels>3</sectnumlevels>
+                        <sectnums/>
+                        <idprefix/>
+                        <idseparator>-</idseparator>
+                        <project-version>${project.version}</project-version>
+                        <nofooter>true</nofooter>
+                        <linkcss>true</linkcss>
+                        <iconfont-remote>false</iconfont-remote>
+                        <stylesdir>css</stylesdir>
+                     </attributes>
+                  </configuration>
                </plugin>
             </plugins>
          </build>

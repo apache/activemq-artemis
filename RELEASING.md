@@ -315,25 +315,14 @@ Once the mirrors are up-to-date then update the following:
    with the HTML from the bottom of the release notes url you sent out with your VOTE email (appending `&styleName=Text`).
 2. Copy `src/_artemis_releases/artemis-<old-version>-release.md` to `src/_artemis_releases/artemis-<new-version>-release.md`. Update the versions and dates.
 3. Update the _artemis_ list within the `src/_data/current_releases.yml` file if needed.
-4. Copy `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
+4. Rename `src/components/artemis/documentation/latest` to `src/components/artemis/documentation/<old-version>`.
 5. Build the `artemis-website` module from the new-version release sources with `mvn clean package -Prelease`.
-6. Create `src/components/artemis/documentation/latest` and copy these files into it:
-    1. the contents of user-manual from `apache-artemis-<new-version>/web/user-manual`
-    2. book.pdf version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook pdf`)
-    3. book.epub version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook epub`)
-    4. book.mobi version of user-manual (generated from the new-version sources at `artemis-website/target/scratch/user-manual/` with the command `gitbook mobi`)
-7. Create `src/components/artemis/documentation/hacking-guide` and copy these files into it:
-    1. the contents of hacking-guide from `apache-artemis-<new-version>/web/hacking-guide`
-    2. book.pdf version of hacking-guide (generated with `gitbook pdf`)
-8. Copy `src/components/artemis/documentation/javadocs/javadoc-latest` to `src/components/artemis/documentation/javadocs/javadoc-<old-version>`.
-9. Create `src/components/artemis/documentation/javadocs/javadoc-latest` and copy the contents of `apache-artemis-<new-version>/web/api` into it.
+6. Create `src/components/artemis/documentation/latest` and copy into it the contents of `target/classes/user-manual` from the `artemis-website` module which you just built.
+7. Delete `src/components/artemis/documentation/javadocs/javadoc-latest` to clear the old/existing content (in case any files are being moved/removed by the new version).
+8. Create `src/components/artemis/documentation/javadocs/javadoc-latest` again and copy into it the contents of `target/apidocs` from the `artemis-website` module which you just built.
    
 Run `git add` for all the added directories & files and then `git commit -m "updates for <version> release"`.
 Once pushed, the changes should be published automatically by the `jekyll_websites` builder of the [apache buildbot](https://ci2.apache.org/#/builders).
-
-Note: Generating PDFs, etc. with gitbook requires the installation of [Calibre](https://calibre-ebook.com).
-You can install this manually, but it is recommended you use your platform's package management to install
-(e.g. `sudo apt-get install calibre`).
 
 
 ## Send announcement to user list

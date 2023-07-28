@@ -210,7 +210,7 @@ public class ArtemisDependencyDocPlugin extends ArtemisAbstractPlugin {
                if (uri.equals("")) {
                   filter.put("X{fileMD}", result.getArtifact().getFile().getName());
                } else {
-                  filter.put("X{fileMD}", "[" + result.getArtifact().getFile().getName() + "](" + uri + ")");
+                  filter.put("X{fileMD}", "link:" + uri + "[" + result.getArtifact().getFile().getName() + "]");
                }
 
                String output = applyFilters(line, filter);

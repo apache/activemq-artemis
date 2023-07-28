@@ -1,61 +1,21 @@
-# ActiveMQ Artemis
+# Welcome to Apache ActiveMQ Artemis
 
-This file describes some minimum 'stuff one needs to know' to get started coding in this project.
+ActiveMQ Artemis is the next generation message broker from Apache ActiveMQ.
 
-## Source
+## Getting Started
 
-For details about the modifying the code, building the project, running tests, IDE integration, etc. see
-our [Hacking Guide](./docs/hacking-guide/en/SUMMARY.md).
+See the [User Manual](https://activemq.apache.org/components/artemis/documentation/latest/) for an in-depth explanation of all aspects of broker configuration and behavior.
 
-## Build Status
+The broker ships with many [examples](https://activemq.apache.org/components/artemis/documentation/latest/examples.html) which you can run, inspect, & modify.
 
-Build Status: [![Build Status](https://travis-ci.org/apache/activemq-artemis.svg?branch=main)](https://travis-ci.org/apache/activemq-artemis)
+## How to Build, etc.
 
-## Building the ASYNC IO library
+See the [Hacking Guide](https://activemq.apache.org/components/artemis/documentation/hacking-guide/) for details about modifying the code, building the project, running tests, IDE integration, etc.
 
-ActiveMQ Artemis provides two journal persistence types, NIO (which uses the Java NIO libraries), and ASYNCIO which interacts with the linux kernel libaio library.   The ASYNCIO journal type should be used where possible as it is far superior in terms of performance.
+## Migrate from ActiveMQ "Classic"
 
-ActiveMQ Artemis does not ship with the Artemis Native ASYNCIO library in the source distribution.  These need to be built prior to running "mvn install", to ensure that the ASYNCIO journal type is available in the resulting build.  Don't worry if you don't want to use ASYNCIO or your system does not support libaio, ActiveMQ Artemis will check at runtime to see if the required libraries and system dependencies are available, if not it will default to using NIO.
+See the [Migration Guide](https://activemq.apache.org/components/artemis/migration-documentation/) for information about the architectural and configuration differences between ActiveMQ "Classic" (i.e. 5.x) and ActiveMQ Artemis.
 
-To build the ActiveMQ Artemis ASYNCIO native libraries, please follow the instructions in the artemis-native/README.
+## Report an Issue
 
-## Documentation
-
-Our documentation is always in sync with our releases at the [Apache ActiveMQ Artemis](https://activemq.apache.org/artemis/docs.html) website.
-
-Or you can also look at the current main version on [github](https://github.com/apache/activemq-artemis/blob/main/docs/user-manual/en/SUMMARY.md).
-
-## Examples
-
-To run an example firstly make sure you have run
-
-    $ mvn -Prelease install
-
-If the project version has already been released then this is unnecessary.
-
-Each individual example can be run using this command from its corresponding directory:
-
-    $ mvn verify
-
-If you wish to run groups of examples then use this command from a parent directory (e.g. examples/features/standard):
-
-    $ mvn -Pexamples verify
-
-### Recreating the examples
-
-If you are trying to copy the examples somewhere else and modifying them. Consider asking Maven to explicitly list all the dependencies:
-
-    # if trying to modify the 'topic' example:
-    cd examples/jms/topic && mvn dependency:list
-
-### Open Web Application Security Project (OWASP) Report
-
-If you wish to generate the report for CCV dependencies, you may run it with the -Powasp profile
-
-    $ mvn -Powasp verify
-
-The output will be under ./target/dependency-check-report.html **for each** sub-module.
-
-## Bugs
-
-Issues are tracked at https://issues.apache.org/jira/projects/ARTEMIS/
+See [our website](https://activemq.apache.org/issues) for details on how to report an bug, request a feature, etc.
