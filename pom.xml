@@ -117,6 +117,10 @@
       <zookeeper.version>3.6.3</zookeeper.version>
       <woodstox.version>4.4.0</woodstox.version>
 
+      <!-- docs -->
+      <asciidoctor.maven.plugin.version>2.2.4</asciidoctor.maven.plugin.version>
+      <asciidoctorj.pdf.version>2.3.9</asciidoctorj.pdf.version>
+
       <!-- tracing -->
       <opentelemetry.version>1.24.0</opentelemetry.version>
       <opentelemetry-alpha.version>${opentelemetry.version}-alpha</opentelemetry-alpha.version>
@@ -1748,14 +1752,12 @@
                      <exclude>**/footer.html</exclude>
                      <exclude>**/*.txt</exclude>
                      <exclude>**/*.md</exclude>
+                     <exclude>**/*.adoc</exclude>
                      <exclude>etc/ide-settings/**</exclude>
                      <exclude>**/*.json</exclude>
-                     <exclude>docs/**/*.json</exclude>
-                     <exclude>docs/**/_book/</exclude>
-                     <exclude>docs/**/_layouts/</exclude>
-                     <exclude>docs/user-manual/en/diagrams/*.svg</exclude>
-                     <exclude>docs/user-manual/en/02-27-00-scripts-profiles.diff</exclude>
-                     <exclude>docs/user-manual/en/02-27-00-scripts-profiles-windows.diff</exclude>
+                     <exclude>docs/user-manual/_diagrams/*.svg</exclude>
+                     <exclude>docs/user-manual/02-27-00-scripts-profiles.diff</exclude>
+                     <exclude>docs/user-manual/02-27-00-scripts-profiles-windows.diff</exclude>
                      <exclude>**/target/</exclude>
                      <exclude>**/META-INF/services/*</exclude>
                      <exclude>**/META-INF/MANIFEST.MF</exclude>
