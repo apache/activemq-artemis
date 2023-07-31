@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.cli.Artemis;
+import org.apache.activemq.artemis.cli.Shell;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
 import org.apache.activemq.artemis.cli.factory.BrokerFactory;
 import org.apache.activemq.artemis.cli.factory.jmx.ManagementFactory;
@@ -153,6 +154,15 @@ public class Run extends LockAbstract {
       if (serverActivationFailed.get() != null) {
          stop();
          return serverActivationFailed.get();
+      }
+
+      if (Shell.inShell()) {
+         while (server.getServer().isStarted()) {
+            try {
+               Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
+         }
       }
 
       return new Pair<>(managementContext, server.getServer());

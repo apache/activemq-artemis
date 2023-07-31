@@ -216,11 +216,7 @@ public class Artemis implements Runnable {
             context.out.println("Home::" + action.getBrokerHome() + ", Instance::" + action.getBrokerInstance());
          }
 
-         try {
-            return action.execute(context);
-         } finally {
-            action.done();
-         }
+         return action.execute(context);
       } else {
          if (userObject instanceof Runnable) {
             ((Runnable) userObject).run();
