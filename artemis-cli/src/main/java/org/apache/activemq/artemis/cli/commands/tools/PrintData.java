@@ -102,6 +102,8 @@ public class PrintData extends DBOption {
          }
       } catch (Exception e) {
          treatError(e, "data", "print");
+      } finally {
+         done();
       }
       return null;
    }

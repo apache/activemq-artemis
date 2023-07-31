@@ -67,10 +67,14 @@ import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.utils.collections.LinkedListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 
 @Command(name = "exp", description = "Export all message-data using an XML that could be interpreted by any system.")
 public final class XmlDataExporter extends DBOption {
+
+   @Option(names = "log-interval", description = "How often to print progress in the console. Set to <= 0 to disable it.")
+   private int logInterval = 10_000;
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -103,6 +107,7 @@ public final class XmlDataExporter extends DBOption {
       try {
          config = getParameterConfiguration();
          process(context.out);
+         done();
       } catch (Exception e) {
          treatError(e, "data", "exp");
       }
@@ -368,10 +373,21 @@ public final class XmlDataExporter extends DBOption {
    private void printAllMessagesAsXML() throws Exception {
       xmlWriter.writeStartElement(XmlDataConstants.MESSAGES_PARENT);
 
+      if (logInterval > 0) {
+         System.err.println("Processing journal messages");
+      }
+
+      long msgs = 0;
       // Order here is important.  We must process the messages from the journal before we process those from the page
       // files in order to get the messages in the right order.
       for (Map.Entry<Long, Message> messageMapEntry : messages.entrySet()) {
          printSingleMessageAsXML(messageMapEntry.getValue().toCore(), extractQueueNames(messageRefs.get(messageMapEntry.getKey())));
+         msgs++;
+         if (logInterval > 0) {
+            if (msgs % logInterval == 0) {
+               System.err.println("exported " + msgs + " messages from journal");
+            }
+         }
       }
 
       printPagedMessagesAsXML();
@@ -392,6 +408,7 @@ public final class XmlDataExporter extends DBOption {
 
          pagingmanager.start();
 
+         long msgs = 0;
          SimpleString[] stores = pagingmanager.getStoreNames();
 
          for (SimpleString store : stores) {
@@ -414,6 +431,10 @@ public final class XmlDataExporter extends DBOption {
                   try (LinkedListIterator<PagedMessage> iter = messages.iterator()) {
 
                      while (iter.hasNext()) {
+                        msgs++;
+                        if (logInterval > 0 && msgs % logInterval == 0) {
+                           System.err.println("Exported " + msgs + " messages from paging");
+                        }
                         PagedMessage message = iter.next();
                         message.initMessage(storageManager);
                         long[] queueIDs = message.getQueueIDs();

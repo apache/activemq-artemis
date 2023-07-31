@@ -28,6 +28,15 @@ public class OptionalLocking extends LockAbstract {
    @Option(names = "--f", description = "This will allow certain tools like print-data to be performed ignoring any running servers. WARNING: Changing data concurrently with a running broker may damage your data. Be careful with this option.")
    boolean ignoreLock;
 
+   public boolean isIgnoreLock() {
+      return ignoreLock;
+   }
+
+   public OptionalLocking setIgnoreLock(boolean ignoreLock) {
+      this.ignoreLock = ignoreLock;
+      return this;
+   }
+
    @Override
    protected void lockCLI(File lockPlace) throws Exception {
       if (!ignoreLock) {

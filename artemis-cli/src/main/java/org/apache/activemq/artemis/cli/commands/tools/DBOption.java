@@ -17,8 +17,10 @@
 
 package org.apache.activemq.artemis.cli.commands.tools;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,7 +65,7 @@ public class DBOption extends OptionalLocking {
    @Option(names = "--output", description = "Output name for the file.")
    private File output;
 
-   private FileOutputStream fileOutputStream;
+   private OutputStream fileOutputStream;
 
    private PrintStream originalOut;
 
@@ -94,6 +96,15 @@ public class DBOption extends OptionalLocking {
    public boolean isJDBC() throws Exception {
       parseDBConfig();
       return jdbc;
+   }
+
+   public File getOutput() {
+      return output;
+   }
+
+   public DBOption setOutput(File output) {
+      this.output = output;
+      return this;
    }
 
    public String getJdbcBindings() throws Exception {
@@ -172,7 +183,7 @@ public class DBOption extends OptionalLocking {
       super.execute(context);
 
       if (output != null) {
-         fileOutputStream = new FileOutputStream(output);
+         fileOutputStream = new BufferedOutputStream(new FileOutputStream(output));
          originalOut = context.out;
          PrintStream printStream = new PrintStream(fileOutputStream);
          context.out = printStream;

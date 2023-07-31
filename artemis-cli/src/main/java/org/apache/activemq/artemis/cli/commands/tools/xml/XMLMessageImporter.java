@@ -19,13 +19,8 @@ package org.apache.activemq.artemis.cli.commands.tools.xml;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +31,6 @@ import io.netty.buffer.ByteBufAllocator;
 import org.apache.activemq.artemis.api.core.ICoreMessage;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.SimpleString;
-import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
@@ -117,7 +111,7 @@ public class XMLMessageImporter {
          switch (eventType) {
             case XMLStreamConstants.START_ELEMENT:
                if (XmlDataConstants.MESSAGE_BODY.equals(reader.getLocalName())) {
-                  largeMessageTemporaryFile = processMessageBody(message.toCore(), decodeUTF8);
+                  processMessageBody(message.toCore(), decodeUTF8);
                } else if (XmlDataConstants.PROPERTIES_CHILD.equals(reader.getLocalName())) {
                   processMessageProperties(message);
                } else if (XmlDataConstants.QUEUES_CHILD.equals(reader.getLocalName())) {
@@ -135,7 +129,7 @@ public class XMLMessageImporter {
          }
          reader.next();
       }
-      return new MessageInfo(id, queues, message, largeMessageTemporaryFile);
+      return new MessageInfo(id, queues, message);
    }
 
    private Byte getMessageType(String value) {
@@ -239,7 +233,7 @@ public class XMLMessageImporter {
       }
    }
 
-   private File processMessageBody(final ICoreMessage message, boolean decodeTextMessage) throws XMLStreamException, IOException {
+   private void processMessageBody(final ICoreMessage message, boolean decodeTextMessage) throws XMLStreamException, IOException {
       File tempFileName = null;
       boolean isLarge = false;
 
@@ -252,20 +246,7 @@ public class XMLMessageImporter {
       reader.next();
       logger.debug("XMLStreamReader impl: {}", reader);
 
-      if (isLarge) {
-         tempFileName = File.createTempFile("largeMessage", ".tmp");
-         logger.debug("Creating temp file {} for large message.", tempFileName);
-         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFileName))) {
-            getMessageBodyBytes(bytes -> out.write(bytes), (message.toCore().getType() == Message.TEXT_TYPE) && decodeTextMessage);
-         }
-         FileInputStream fileInputStream = new FileInputStream(tempFileName);
-         BufferedInputStream bufferedInput = new BufferedInputStream(fileInputStream);
-         ((ClientMessage) message).setBodyInputStream(bufferedInput);
-      } else {
-         getMessageBodyBytes(bytes -> message.getBodyBuffer().writeBytes(bytes), (message.toCore().getType() == Message.TEXT_TYPE) && decodeTextMessage);
-      }
-
-      return tempFileName;
+      getMessageBodyBytes(bytes -> message.getBodyBuffer().writeBytes(bytes), (message.toCore().getType() == Message.TEXT_TYPE) && decodeTextMessage);
    }
 
    /**
@@ -318,13 +299,11 @@ public class XMLMessageImporter {
       public long id;
       public List<String> queues;
       public Message message;
-      public File tempFile;
 
-      MessageInfo(long id, List<String> queues, Message message, File tempFile) {
+      MessageInfo(long id, List<String> queues, Message message) {
          this.message = message;
          this.queues = queues;
          this.id = id;
-         this.tempFile = tempFile;
       }
    }
 }
