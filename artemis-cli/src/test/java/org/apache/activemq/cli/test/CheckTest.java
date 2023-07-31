@@ -182,10 +182,10 @@ public class CheckTest extends CliTestBase {
          Object slave = Artemis.execute(false, false, null, slaveInstance, null, "run");
          ActiveMQServerImpl slaveServer = (ActiveMQServerImpl)((Pair)slave).getB();
 
-         Wait.assertTrue("Backup isn't announced", () -> slaveServer.getBackupManager() != null &&
-            slaveServer.getBackupManager().isStarted() && slaveServer.getBackupManager().isBackupAnnounced(), 30000);
-
          try {
+            Wait.assertTrue("Backup isn't announced", () -> slaveServer.getBackupManager() != null &&
+               slaveServer.getBackupManager().isStarted() && slaveServer.getBackupManager().isBackupAnnounced(), 30000);
+
             context = new TestActionContext();
             nodeCheck = new NodeCheck();
             nodeCheck.setUser("admin");

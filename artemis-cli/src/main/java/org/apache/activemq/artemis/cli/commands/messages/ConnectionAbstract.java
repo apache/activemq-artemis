@@ -188,7 +188,6 @@ public class ConnectionAbstract extends InputAbstract {
          try {
             tryConnect(brokerURL, user, password, cf);
          } catch (Exception e2) {
-            e.printStackTrace();
          }
          return cf;
       } catch (JMSException e) {
@@ -204,7 +203,6 @@ public class ConnectionAbstract extends InputAbstract {
          try {
             tryConnect(brokerURL, user, password, cf);
          } catch (Exception e2) {
-            e2.printStackTrace();
          }
          return cf;
       }

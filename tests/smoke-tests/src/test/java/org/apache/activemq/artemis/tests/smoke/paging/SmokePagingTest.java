@@ -50,13 +50,13 @@ public class SmokePagingTest extends SmokeTestBase {
    public void testCoreOnCLI() throws Exception {
 
       String protocol = "core";
-      int NUMBER_OF_MESSAGES = 5000;
+      long NUMBER_OF_MESSAGES = 5000;
 
       internalReceive(protocol, NUMBER_OF_MESSAGES);
 
    }
 
-   private void internalReceive(String protocol, int NUMBER_OF_MESSAGES) throws Exception {
+   private void internalReceive(String protocol, long NUMBER_OF_MESSAGES) throws Exception {
       Producer producer = (Producer)new Producer().setMessageSize(1000).setMessageCount(NUMBER_OF_MESSAGES).setTxBatchSize(1000);
       producer.setProtocol(protocol);
       producer.setSilentInput(true);
@@ -68,7 +68,7 @@ public class SmokePagingTest extends SmokeTestBase {
       consumer.setSilentInput(true);
       consumer.setReceiveTimeout(2000);
       consumer.setBreakOnNull(true);
-      int consumed = (int)consumer.execute(new ActionContext());
+      long consumed = (long)consumer.execute(new ActionContext());
 
       Assert.assertEquals(NUMBER_OF_MESSAGES, consumed);
    }

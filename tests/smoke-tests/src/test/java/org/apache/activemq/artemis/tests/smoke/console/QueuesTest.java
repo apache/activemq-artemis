@@ -67,7 +67,7 @@ public class QueuesTest extends ConsoleTest {
 
    @Test
    public void testAutoCreatedQueue() throws Exception {
-      final int messages = 1;
+      final long messages = 1;
       final String queueName = "TEST";
       final String messageText = "TEST";
 
@@ -105,7 +105,7 @@ public class QueuesTest extends ConsoleTest {
       consumer.setSilentInput(true);
       consumer.setReceiveTimeout(2000);
       consumer.setBreakOnNull(true);
-      int consumed = (int)consumer.execute(new ActionContext());
+      long consumed = (long)consumer.execute(new ActionContext());
 
       assertEquals(messages, consumed);
 
@@ -223,7 +223,7 @@ public class QueuesTest extends ConsoleTest {
       createQueueCommand.setAutoCreateAddress(true);
       createQueueCommand.execute(new ActionContext());
 
-      final int messages = 1;
+      final long messages = 1;
       beforeSendingQueuesPage.refresh(DEFAULT_TIMEOUT);
       Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue("DLQ"));
       Wait.assertEquals(1, () -> beforeSendingQueuesPage.countQueue(queueName));
@@ -250,7 +250,7 @@ public class QueuesTest extends ConsoleTest {
       consumer.setSilentInput(true);
       consumer.setReceiveTimeout(2000);
       consumer.setBreakOnNull(true);
-      int consumed = (int)consumer.execute(new ActionContext());
+      long consumed = (long)consumer.execute(new ActionContext());
 
       assertEquals(messages, consumed);
 

@@ -101,7 +101,7 @@ public class DestAbstract extends ConnectionAbstract {
       return messageCount;
    }
 
-   public DestAbstract setMessageCount(int messageCount) {
+   public DestAbstract setMessageCount(long messageCount) {
       this.messageCount = messageCount;
       return this;
    }
@@ -145,6 +145,10 @@ public class DestAbstract extends ConnectionAbstract {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
+
+      if (oldBatchSize > 0 && txBatchSize > 0) {
+         throw new IllegalArgumentException("Either select --txt-size or --commit-interval. Cannot use both!");
+      }
 
       if (oldBatchSize > 0) {
          context.out.println("--txt-size is deprecated, please use --commit-interval");
