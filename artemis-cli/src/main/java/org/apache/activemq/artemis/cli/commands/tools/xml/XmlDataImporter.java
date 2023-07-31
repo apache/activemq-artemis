@@ -20,7 +20,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.validation.Validator;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
@@ -55,7 +54,6 @@ import org.apache.activemq.artemis.core.filter.impl.FilterImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
-import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
 import org.apache.activemq.artemis.utils.ClassloadingUtil;
 import org.apache.activemq.artemis.utils.ListUtil;
 import org.apache.activemq.artemis.utils.XmlProvider;
@@ -90,6 +88,7 @@ public final class XmlDataImporter extends ActionAbstract {
    HashMap<String, String> oldPrefixTranslation = new HashMap<>();
 
    private ClientSession session;
+   private ClientProducer producer;
 
    @Option(names = "--host", description = "The host used to import the data. Default: localhost.")
    public String host = "localhost";
@@ -97,8 +96,11 @@ public final class XmlDataImporter extends ActionAbstract {
    @Option(names = "--port", description = "The port used to import the data. Default: 61616.")
    public int port = 61616;
 
-   @Option(names = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.")
+   @Option(names = "--transaction", description = "Import every message using a single transction. If anything goes wrong during the process the entire import will be aborted. Default: false.", hidden = true)
    public boolean transactional;
+
+   @Option(names = "--commit-interval", description = "How often to commit.", hidden = true)
+   public int commitInterval = 1000;
 
    @Option(names = "--user", description = "User name used to import the data. Default: null.")
    public String user = null;
@@ -135,13 +137,13 @@ public final class XmlDataImporter extends ActionAbstract {
 
    @Override
    public Object execute(ActionContext context) throws Exception {
-      process(input, host, port, transactional);
+      process(input, host, port);
       return null;
    }
 
-   public void process(String inputFileName, String host, int port, boolean transactional) throws Exception {
+   public void process(String inputFileName, String host, int port) throws Exception {
       try (FileInputStream inputFile = new FileInputStream(inputFileName)) {
-         this.process(inputFile, host, port, transactional);
+         this.process(inputFile, host, port);
       }
    }
 
@@ -177,6 +179,7 @@ public final class XmlDataImporter extends ActionAbstract {
       messageReader.setOldPrefixTranslation(oldPrefixTranslation);
 
       this.session = session;
+      this.producer = session.createProducer();
       if (managementSession != null) {
          this.managementSession = managementSession;
       } else {
@@ -184,29 +187,46 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       processXml();
-
    }
 
-   public void process(InputStream inputStream, String host, int port, boolean transactional) throws Exception {
+   public void process(InputStream inputStream, String host, int port) throws Exception {
       HashMap<String, Object> connectionParams = new HashMap<>();
       connectionParams.put(TransportConstants.HOST_PROP_NAME, host);
       connectionParams.put(TransportConstants.PORT_PROP_NAME, Integer.toString(port));
       ServerLocator serverLocator = ActiveMQClient.createServerLocatorWithoutHA(new TransportConfiguration(NettyConnectorFactory.class.getName(), connectionParams));
       ClientSessionFactory sf = serverLocator.createSessionFactory();
 
-      ClientSession session;
-      ClientSession managementSession;
+      ClientSession session = null;
+      ClientSession managementSession = null;
 
-      if (user != null || password != null) {
-         session = sf.createSession(user, password, false, !transactional, true, false, 0);
-         managementSession = sf.createSession(user, password, false, true, true, false, 0);
-      } else {
-         session = sf.createSession(false, !transactional, true);
-         managementSession = sf.createSession(false, true, true);
+      try {
+
+         if (user != null || password != null) {
+            session = sf.createSession(user, password, false, false, true, false, 0);
+            managementSession = sf.createSession(user, password, false, true, true, false, 0);
+         } else {
+            session = sf.createSession(false, false, true);
+            managementSession = sf.createSession(false, true, true);
+         }
+         localSession = true;
+
+         producer = session.createProducer();
+
+         process(inputStream, session, managementSession);
+      } finally {
+         try {
+            session.commit();
+            session.close();
+         } catch (Throwable ignored) {
+         }
+         try {
+            managementSession.commit();
+            managementSession.close();
+         } catch (Throwable ignored) {
+         }
+
+
       }
-      localSession = true;
-
-      process(inputStream, session, managementSession);
    }
 
    public void validate(String fileName) throws Exception {
@@ -240,54 +260,57 @@ public final class XmlDataImporter extends ActionAbstract {
             }
          });
       }
-      try {
-         while (reader.hasNext()) {
-            if (logger.isDebugEnabled()) {
-               logger.debug("EVENT:[{}][{}] ", reader.getLocation().getLineNumber(), reader.getLocation().getColumnNumber());
-            }
-
-            if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
-               if (XmlDataConstants.OLD_BINDING.equals(reader.getLocalName())) {
-                  oldBinding(); // export from 1.x
-               } else if (XmlDataConstants.QUEUE_BINDINGS_CHILD.equals(reader.getLocalName())) {
-                  bindQueue();
-               } else if (XmlDataConstants.ADDRESS_BINDINGS_CHILD.equals(reader.getLocalName())) {
-                  bindAddress();
-               } else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
-                  processMessage();
-               }
-            }
-            reader.next();
+      while (reader.hasNext()) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("EVENT:[{}][{}] ", reader.getLocation().getLineNumber(), reader.getLocation().getColumnNumber());
          }
 
-         if (sort) {
-            for (XMLMessageImporter.MessageInfo msgtmp : messages) {
-               sendMessage(msgtmp.queues, msgtmp.message, msgtmp.tempFile);
+         if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
+            if (XmlDataConstants.OLD_BINDING.equals(reader.getLocalName())) {
+               oldBinding(); // export from 1.x
+            } else if (XmlDataConstants.QUEUE_BINDINGS_CHILD.equals(reader.getLocalName())) {
+               bindQueue();
+            } else if (XmlDataConstants.ADDRESS_BINDINGS_CHILD.equals(reader.getLocalName())) {
+               bindAddress();
+            } else if (XmlDataConstants.MESSAGES_CHILD.equals(reader.getLocalName())) {
+               processMessage();
             }
          }
+         reader.next();
+      }
 
-         if (!session.isAutoCommitSends()) {
-            session.commit();
-         }
-      } finally {
-         // if the session was created in our constructor then close it (otherwise the caller will close it)
-         if (localSession) {
-            session.close();
-            managementSession.close();
+      if (sort) {
+         long messageNr = 0;
+         for (XMLMessageImporter.MessageInfo msgtmp : messages) {
+            sendMessage(msgtmp.queues, msgtmp.message);
+            messageNr++;
+            if (messageNr % commitInterval == 0) {
+               session.commit();
+            }
          }
       }
+
+      session.commit();
    }
 
+   long messageNr = 0;
+
    private void processMessage() throws Exception {
+      messageNr++;
+
+      if (messageNr % commitInterval == 0) {
+         System.err.println("Processed " + messageNr + " messages");
+         session.commit();
+      }
       XMLMessageImporter.MessageInfo info = messageReader.readMessage(false);
       if (sort) {
          messages.add(info);
       } else {
-         sendMessage(info.queues, info.message, info.tempFile);
+         sendMessage(info.queues, info.message);
       }
    }
 
-   private void sendMessage(List<String> queues, Message message, File tempFileName) throws Exception {
+   private void sendMessage(List<String> queues, Message message) throws Exception {
       final String destination = addressMap.get(queues.get(0));
       final ByteBuffer buffer = ByteBuffer.allocate(queues.size() * 8);
 
@@ -336,21 +359,7 @@ public final class XmlDataImporter extends ActionAbstract {
       }
 
       message.putBytesProperty(Message.HDR_ROUTE_TO_IDS, buffer.array());
-      try (ClientProducer producer = session.createProducer(destination)) {
-         producer.send(message);
-      }
-
-      if (tempFileName != null) {
-         try {
-            // this is to make sure the large message is sent before we delete it
-            // to avoid races
-            session.commit();
-         } catch (Throwable dontcare) {
-         }
-         if (!tempFileName.delete()) {
-            ActiveMQServerLogger.LOGGER.couldNotDeleteTempFile(tempFileName.getAbsolutePath());
-         }
-      }
+      producer.send(SimpleString.toSimpleString(destination), message);
    }
 
    private void oldBinding() throws Exception {

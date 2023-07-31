@@ -21,7 +21,6 @@ import javax.jms.Session;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Proxy;
@@ -59,9 +58,6 @@ public class XMLMessageSerializer implements MessageSerializer {
 
       // This is a large message
       ActiveMQMessage jmsMessage = new ActiveMQMessage((ClientMessage) messageInfo.message, clientSession);
-      if (messageInfo.tempFile != null) {
-         jmsMessage.setInputStream(new FileInputStream(messageInfo.tempFile));
-      }
       return jmsMessage;
    }
 
