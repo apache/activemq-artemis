@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.activemq.artemis.cli.commands.Action;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
@@ -200,8 +201,7 @@ public class Artemis implements Runnable {
 
       Object userObject = parseAction(commandLine, args);
 
-      // Pico shouldn't allow generating a commandLine without an userObject.
-      // the following assert "should" never happen
+      Objects.requireNonNull(userObject, "Picocli action command should never be null");
       assert userObject != null;
 
       if (userObject instanceof Action) {

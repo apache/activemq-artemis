@@ -22,6 +22,8 @@ import java.io.File;
 import org.apache.activemq.artemis.cli.Artemis;
 import picocli.AutoComplete;
 import picocli.CommandLine;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 
 @Command(name = "auto-complete", description = "Generates the auto complete script file to be used in bash or zsh.")
@@ -30,14 +32,18 @@ public class AutoCompletion implements Runnable {
    public AutoCompletion() {
    }
 
-   @CommandLine.Parameters (description = "The generated auto-complete script", defaultValue = "auto-complete-artemis.sh")
+   @Option(names = "--start-script", description = "the script used to start artemis. (default ./artemis)", defaultValue = "./artemis")
+   String startScript;
+
+   @Parameters (description = "The generated auto-complete script", defaultValue = "auto-complete-artemis.sh")
    File autoCompleteFile;
+
 
    @Override
    public void run() {
       try {
          CommandLine artemisCommand = Artemis.buildCommand(true, true);
-         AutoComplete.bash("artemis", autoCompleteFile, null, artemisCommand);
+         AutoComplete.bash(startScript, autoCompleteFile, null, artemisCommand);
          System.out.println("Type the following commands before you can use auto-complete:");
          System.out.println("*******************************************************************************************************************************");
          System.out.println("source " + autoCompleteFile.getAbsolutePath());
