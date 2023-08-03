@@ -1755,6 +1755,7 @@
                      <exclude>**/*.adoc</exclude>
                      <exclude>etc/ide-settings/**</exclude>
                      <exclude>**/*.json</exclude>
+                     <exclude>docs/resources/font-awesome/**/*</exclude>
                      <exclude>docs/user-manual/_diagrams/*.svg</exclude>
                      <exclude>docs/user-manual/02-27-00-scripts-profiles.diff</exclude>
                      <exclude>docs/user-manual/02-27-00-scripts-profiles-windows.diff</exclude>

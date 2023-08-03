@@ -208,3 +208,13 @@
 This file is in the public domain.  For more information see:
 
 activemq-commons/src/main/java/org/apache/activemq/utils/Base64.java
+
+==============================================================
+= For Font Awesome:  docs/resources/font-awesome/            =
+==============================================================
+
+Font files use the SIL Open Font License 1.1. For more information see:
+docs/resources/font-awesome/fonts/LICENSE-font-awesome-fonts.txt
+
+CSS file uses the MIT Licence. For more information see:
+docs/resources/font-awesome/css/LICENSE-font-awesome-css.txt
