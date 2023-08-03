@@ -32,6 +32,8 @@ under the License.
 
       <cluster-user>exampleUser</cluster-user>
 
+      <security-enabled>false</security-enabled>
+
       <cluster-password>secret</cluster-password>
 
       <ha-policy>
@@ -57,7 +59,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61000</acceptor>
+         <acceptor name="artemis">tcp://localhost:61000</acceptor>
       </acceptors>
 
       <cluster-connections>

@@ -38,6 +38,9 @@ public interface ActiveMQServerControl {
    @Attribute(desc = "Server's name")
    String getName();
 
+   @Attribute(desc = "Server's current timeMillis")
+   long getCurrentTimeMillis();
+
    /**
     * Returns this server's version.
     */

@@ -104,6 +104,11 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
          }
 
          @Override
+         public long getCurrentTimeMillis() {
+            return (long)proxy.retrieveAttributeValue("currentTimeMillis", long.class);
+         }
+
+         @Override
          public void startBrokerConnection(String name) throws Exception {
             proxy.invokeOperation("startBrokerConnection", name);
          }

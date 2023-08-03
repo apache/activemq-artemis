@@ -30,6 +30,8 @@ under the License.
 
       <paging-directory>./data/paging</paging-directory>
 
+      <security-enabled>false</security-enabled>
+
       <cluster-user>exampleUser</cluster-user>
 
       <cluster-password>secret</cluster-password>
@@ -56,7 +58,7 @@ under the License.
 
       <!-- Acceptors -->
       <acceptors>
-         <acceptor name="netty-acceptor">tcp://localhost:61100</acceptor>
+         <acceptor name="artemis">tcp://localhost:61100</acceptor>
       </acceptors>
 
       <cluster-connections>
