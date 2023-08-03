@@ -51,11 +51,6 @@ public class Shell implements Runnable {
    @CommandLine.Option(names = "--password", description = "It will be used for an initial connection if set.")
    protected String password;
 
-
-   private static String RED_UNICODE = "\u001B[31m";
-   private static String YELLOW_UNICODE = "\u001B[33m";
-   private static String CLEAR_UNICODE = "\u001B[0m";
-
    public Shell(CommandLine commandLine) {
    }
 
@@ -109,15 +104,15 @@ public class Shell implements Runnable {
                .build();
             factory.setTerminal(terminal);
 
-            String prompt = YELLOW_UNICODE + Artemis.getNameFromBanner() + " > " + CLEAR_UNICODE;
+            String prompt = org.apache.activemq.artemis.cli.Terminal.YELLOW_UNICODE + Artemis.getNameFromBanner() + " > " + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE;
             String rightPrompt = null;
 
             if (printBanner) {
                printBanner();
             }
 
-            System.out.println("For a list of commands, type " + RED_UNICODE + "help" + CLEAR_UNICODE + " or press " + RED_UNICODE + "<TAB>" + CLEAR_UNICODE + ":");
-            System.out.println("Type " + RED_UNICODE + "exit" + CLEAR_UNICODE + " or press " + RED_UNICODE + "<CTRL-D>" + CLEAR_UNICODE + " to leave the session:");
+            System.out.println("For a list of commands, type " + org.apache.activemq.artemis.cli.Terminal.RED_UNICODE + "help" + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE + " or press " + org.apache.activemq.artemis.cli.Terminal.RED_UNICODE + "<TAB>" + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE + ":");
+            System.out.println("Type " + org.apache.activemq.artemis.cli.Terminal.RED_UNICODE + "exit" + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE + " or press " + org.apache.activemq.artemis.cli.Terminal.RED_UNICODE + "<CTRL-D>" + org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE + " to leave the session:");
 
             // start the shell and process input until the user quits with Ctrl-D
             String line;
@@ -149,14 +144,14 @@ public class Shell implements Runnable {
    }
 
    private static void printBanner() {
-      System.out.print(YELLOW_UNICODE);
+      System.out.print(org.apache.activemq.artemis.cli.Terminal.YELLOW_UNICODE);
       try {
          Artemis.printBanner(System.out);
       } catch (Exception e) {
          System.out.println("Error recovering the banner:");
          e.printStackTrace();
       }
-      System.out.print(CLEAR_UNICODE);
+      System.out.print(org.apache.activemq.artemis.cli.Terminal.CLEAR_UNICODE);
    }
 
 }

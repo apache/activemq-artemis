@@ -228,6 +228,14 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
    }
 
    @Override
+   public long getCurrentTimeMillis() {
+      if (AuditLogger.isBaseLoggingEnabled()) {
+         AuditLogger.getCurrentTimeMillis();
+      }
+      return System.currentTimeMillis();
+   }
+
+   @Override
    public String getVersion() {
       if (AuditLogger.isBaseLoggingEnabled()) {
          AuditLogger.getVersion(this.server);

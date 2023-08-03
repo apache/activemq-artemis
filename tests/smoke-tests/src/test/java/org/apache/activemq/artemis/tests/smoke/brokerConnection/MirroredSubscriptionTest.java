@@ -32,10 +32,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
-import org.apache.activemq.artemis.utils.SimpleManagement;
 import org.apache.activemq.artemis.utils.Wait;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,10 +70,12 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    @Test
    public void testConsumeAll() throws Throwable {
       int COMMIT_INTERVAL = 100;
-      int NUMBER_OF_MESSAGES = 300;
+      long NUMBER_OF_MESSAGES = 300;
       int CLIENTS = 5;
       String mainURI = "tcp://localhost:61616";
       String secondURI = "tcp://localhost:61617";
+
+      SimpleManagement mainManagement = new SimpleManagement(mainURI, null, null);
 
       String topicName = "myTopic";
 
@@ -101,7 +103,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
          session.commit();
       }
 
-      Map<String, Integer> result = SimpleManagement.listQueues(mainURI, null, null, 100);
+      Map<String, Long> result = mainManagement.getQueueCounts(100);
       result.entrySet().forEach(entry -> logger.info("Queue {} = {}", entry.getKey(), entry.getValue()));
 
       checkMessages(NUMBER_OF_MESSAGES, CLIENTS, mainURI, secondURI);
@@ -164,7 +166,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
       checkMessages(0, CLIENTS, mainURI, secondURI);
    }
 
-   private void checkMessages(int NUMBER_OF_MESSAGES, int CLIENTS, String mainURI, String secondURI) throws Exception {
+   private void checkMessages(long NUMBER_OF_MESSAGES, int CLIENTS, String mainURI, String secondURI) throws Exception {
       for (int i = 0; i < CLIENTS; i++) {
          final int clientID = i;
          Wait.assertEquals(NUMBER_OF_MESSAGES, () -> getMessageCount(mainURI, "client" + clientID + ".subscription" + clientID));
@@ -172,18 +174,10 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
       }
    }
 
-   int getMessageCount(String uri, String queueName) throws Exception {
+   long getMessageCount(String uri, String queueName) throws Exception {
+      SimpleManagement management = new SimpleManagement(uri, null, null);
       try {
-         Map<String, Integer> result = SimpleManagement.listQueues(uri, null, null, 100);
-
-         if (result == null) {
-            return 0;
-         }
-
-         Integer resultReturn = result.get(queueName);
-
-         logger.debug("Result = {}, queueName={}, returnValue = {}", result, queueName, resultReturn);
-         return resultReturn == null ? 0 : resultReturn;
+         return management.getQueueCount(queueName);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
          // if an exception happened during a retry

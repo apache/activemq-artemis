@@ -121,6 +121,8 @@ public class ConnectionAbstract extends InputAbstract {
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
 
+      recoverConnectionInformation();
+
       // it is intentional to make a comparison on the String object here
       // this is to test if the original option was switched or not.
       // we don't care about being .equals at all.
@@ -213,7 +215,7 @@ public class ConnectionAbstract extends InputAbstract {
       return createCoreConnectionFactory(brokerURL, user, password, clientID);
    }
 
-   private void recoverConnectionInformation() {
+   protected void recoverConnectionInformation() {
       if (CONNECTION_INFORMATION.get() != null) {
          ConnectionInformation connectionInfo = CONNECTION_INFORMATION.get();
          if (this.user == null) {
@@ -222,7 +224,7 @@ public class ConnectionAbstract extends InputAbstract {
          if (this.password == null) {
             this.password  = connectionInfo.password;
          }
-         if (this.brokerURL == null) {
+         if (this.brokerURL == null || this.brokerURL == DEFAULT_BROKER_URL) {
             this.brokerURL  = connectionInfo.uri;
          }
 
@@ -233,6 +235,9 @@ public class ConnectionAbstract extends InputAbstract {
       if (Shell.inShell() && CONNECTION_INFORMATION.get() == null) {
          CONNECTION_INFORMATION.set(new ConnectionInformation(brokerURL, user, password));
          System.out.println("CLI connected to broker " + brokerURL + ", user:" + user);
+         this.brokerURL = brokerURL;
+         this.user = user;
+         this.password = password;
       }
    }
 
@@ -324,4 +329,9 @@ public class ConnectionAbstract extends InputAbstract {
       }
    }
 
+   protected void performCoreManagement(String uri, String user, String password, ManagementHelper.MessageAcceptor setup, ManagementHelper.MessageAcceptor ok, ManagementHelper.MessageAcceptor failed) throws Exception {
+      try (ActiveMQConnectionFactory factory = createCoreConnectionFactory(uri, user, password, null)) {
+         ManagementHelper.doManagement(factory.getServerLocator(), user, password, setup, ok, failed);
+      }
+   }
 }

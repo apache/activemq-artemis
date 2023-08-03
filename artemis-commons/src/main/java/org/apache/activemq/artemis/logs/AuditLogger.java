@@ -2667,4 +2667,12 @@ public interface AuditLogger {
 
    @LogMessage(id = 601770, value = "User {} is clearing authorization cache on target resource: {}", level = LogMessage.Level.INFO)
    void clearAuthorizationCache(String user, Object source);
+
+   static void getCurrentTimeMillis() {
+      BASE_LOGGER.getCurrentTimeMillis(getCaller());
+   }
+
+   @LogMessage(id = 601771, value = "User {} is getting name on target resource: {}", level = LogMessage.Level.INFO)
+   void getCurrentTimeMillis(Object source);
+
 }

@@ -88,6 +88,10 @@ public class SmokeTestBase extends ActiveMQTestBase {
       processes.add(process);
    }
 
+   public void removeProcess(Process process) {
+      processes.remove(process);
+   }
+
    public Process startServer(String serverName, int portID, int timeout) throws Exception {
       Process process = ServerUtil.startServer(getServerLocation(serverName), serverName, portID, timeout);
       addProcess(process);

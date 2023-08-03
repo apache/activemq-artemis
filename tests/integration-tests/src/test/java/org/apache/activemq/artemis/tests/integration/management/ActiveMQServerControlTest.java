@@ -258,6 +258,13 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
    }
 
    @Test
+   public void testCurrentTime() throws Exception {
+      long time = System.currentTimeMillis();
+      ActiveMQServerControl serverControl = createManagementControl();
+      Assert.assertTrue("serverControl returned an invalid time.", serverControl.getCurrentTimeMillis() >= time);
+   }
+
+   @Test
    public void testClearingSecurityCaches() throws Exception {
       ActiveMQServerControl serverControl = createManagementControl();
 

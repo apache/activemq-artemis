@@ -1397,6 +1397,77 @@
                      <configuration>${basedir}/target/classes/servers/mirrored-subscriptions/broker2</configuration>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-one</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker1</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker1</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-two</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>1</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker2</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker2</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-three</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>2</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker3</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker3</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-topology-check-four</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <user>admin</user>
+                     <password>admin</password>
+                     <portOffset>3</portOffset>
+                     <allowAnonymous>false</allowAnonymous>
+                     <noWeb>false</noWeb>
+                     <clustered>true</clustered>
+                     <instance>${basedir}/target/topology-check/broker4</instance>
+                     <configuration>${basedir}/target/classes/servers/topology-check/broker4</configuration>
+                  </configuration>
+               </execution>
             </executions>
             <dependencies>
                <dependency>

@@ -23,6 +23,8 @@ import java.util.TreeMap;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
+import org.apache.activemq.artemis.cli.Terminal;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import org.apache.activemq.artemis.json.JsonArray;
@@ -85,6 +87,9 @@ public class StatQueue extends ConnectionAbstract {
    @Option(names = "--maxColumnSize", description = "The max width of data column. Set to -1 for no limit. Default is 25.")
    private int maxColumnSize = DEFAULT_MAX_COLUMN_SIZE;
 
+   @Option(names = "--clustered", description = "Expands the report for all nodes on the topology")
+   private boolean clustered = false;
+
    private int statCount = 0;
 
    //easier for testing
@@ -146,12 +151,46 @@ public class StatQueue extends ConnectionAbstract {
          getActionContext().out.println("filter is '" + filter + "'");
          getActionContext().out.println("maxRows='" + maxRows + "'");
       }
-      printStats(getActionContext(), filter);
+      createConnectionFactory();
+
+      try (SimpleManagement simpleManagement = new SimpleManagement(brokerURL, user, password).open()) {
+         String nodeID = simpleManagement.getNodeID();
+         JsonArray topology = simpleManagement.listNetworkTopology();
+
+         if (clustered && topology.size() > 1) {
+            context.out.println(Terminal.YELLOW_UNICODE + "*******************************************************************************************************************************");
+            context.out.println(">>> Queue stats on node " + nodeID + ", url=" + brokerURL + Terminal.CLEAR_UNICODE);
+            printStats(brokerURL, filter);
+
+            for (int i = 0; i < topology.size(); i++) {
+               JsonObject node = topology.getJsonObject(i);
+               if (node.getString("nodeID").equals(nodeID) || node.getJsonString("live") == null) {
+                  continue;
+               }
+
+               String url = "tcp://" + node.getString("live");
+
+               context.out.println(Terminal.YELLOW_UNICODE + "*******************************************************************************************************************************");
+               context.out.println(">>> Queue stats on node " + node.getString("nodeID") + ", url=" + url + Terminal.CLEAR_UNICODE);
+
+               printStats(url, filter);
+            }
+         } else {
+            printStats(brokerURL, filter);
+            if (topology.size() > 1) {
+               context.out.println();
+               context.out.println("Note: Use " + Terminal.RED_UNICODE + "--clustered" + Terminal.CLEAR_UNICODE + " to expand the report to other nodes in the topology.");
+               context.out.println();
+            }
+         }
+      }
+
+
       return statCount;
    }
 
-   private void printStats(final ActionContext context, final String filter) throws Exception {
-      performCoreManagement(message -> {
+   private void printStats(String uri, final String filter) throws Exception {
+      performCoreManagement(uri, user, password, message -> {
          ManagementHelper.putOperationInvocation(message, "broker", "listQueues", filter, 1, maxRows);
       }, reply -> {
          final String result = (String) ManagementHelper.getResult(reply, String.class);
