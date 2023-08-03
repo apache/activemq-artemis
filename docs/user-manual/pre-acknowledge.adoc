@@ -30,7 +30,7 @@ Please note, that if you use pre-acknowledge mode, then you will lose transactio
 This may be stating the obvious but we like to be clear on these things to avoid confusion!
 ====
 
-== Using PRE_ACKNOWLe.g.
+== Using PRE_ACKNOWLEDGE
 This can be configured by setting the boolean URL parameter `preAcknowledge` to `true`.
 
 Alternatively, when using the JMS API, create a JMS Session with the `ActiveMQSession.PRE_ACKNOWLEDGE` constant.
@@ -41,7 +41,7 @@ Alternatively, when using the JMS API, create a JMS Session with the `ActiveMQSe
 Session session = connection.createSession(false, ActiveMQJMSConstants.PRE_ACKNOWLEDGE);
 ----
 
-== Individual Acknowle.g.
+== Individual Acknowledge
 A valid use-case for individual acknowledgement would be when you need to have your own scheduling and you don't know when your message processing will be finished.
 You should prefer having one consumer per thread worker but this is not possible in some circumstances depending on how complex is your processing.
 For that you can use the individual acknowledgement.
