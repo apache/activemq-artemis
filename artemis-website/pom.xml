@@ -379,6 +379,7 @@
                         <linkcss>true</linkcss>
                         <iconfont-remote>false</iconfont-remote>
                         <stylesdir>css</stylesdir>
+                        <webfonts>false</webfonts>
                      </attributes>
                   </configuration>
                </plugin>
