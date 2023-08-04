@@ -53,17 +53,19 @@ import java.lang.invoke.MethodHandles;
 
 public abstract class JournalImplTestBase extends ActiveMQTestBase {
 
+   protected AssertionLoggerHandler loggerHandler;
+
    @Before
    public void startLogger() {
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
    }
 
    @After
-   public void stopLogger() {
+   public void stopLogger() throws Exception {
       try {
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ144009"));
+         Assert.assertFalse(loggerHandler.findText("AMQ144009"));
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       }
    }
 

@@ -77,6 +77,8 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    private TransportConfiguration tc;
 
+   private AssertionLoggerHandler loggerHandler;
+
    @Parameterized.Parameters(name = "storeProvider={0}, storeType={1}, generateWarning={2}, useKeystoreAlias={3}")
    public static Collection getParameters() {
       return Arrays.asList(new Object[][]{
@@ -107,19 +109,19 @@ public class CoreClientOverOneWaySSLTest extends ActiveMQTestBase {
 
    @Before
    public void validateLogging() {
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
    }
 
    @After
-   public void afterValidateLogging() {
+   public void afterValidateLogging() throws Exception {
       try {
          if (this.generateWarning) {
-            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ212080"));
+            Assert.assertTrue(loggerHandler.findText("AMQ212080"));
          } else {
-            Assert.assertFalse(AssertionLoggerHandler.findText("AMQ212080"));
+            Assert.assertFalse(loggerHandler.findText("AMQ212080"));
          }
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       }
    }
 

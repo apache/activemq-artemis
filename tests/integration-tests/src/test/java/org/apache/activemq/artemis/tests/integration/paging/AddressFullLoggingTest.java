@@ -48,22 +48,16 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
 
    private static final String SERVER_LOGGER_NAME = ActiveMQServerLogger.class.getPackage().getName();
 
-   private static LogLevel previousLevel = null;
+   private static LogLevel previousLevel;
 
    @BeforeClass
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, LogLevel.INFO);
-
-      AssertionLoggerHandler.startCapture();
    }
 
    @AfterClass
-   public static void clearLogger() {
-      try {
-         AssertionLoggerHandler.stopCapture();
-      } finally {
-         AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, previousLevel);
-      }
+   public static void clearLogger() throws Exception {
+      AssertionLoggerHandler.setLevel(SERVER_LOGGER_NAME, previousLevel);
    }
 
    @Test
@@ -150,16 +144,18 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
             break;
          msg.acknowledge();
       }
-      //this is needed to allow to kick-in at least once disk scan
-      TimeUnit.MILLISECONDS.sleep(server.getConfiguration().getDiskScanPeriod() * 2);
-      session.close();
-      locator.close();
-      server.stop();
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         //this is needed to allow to kick-in at least once disk scan
+         TimeUnit.MILLISECONDS.sleep(server.getConfiguration().getDiskScanPeriod() * 2);
+         session.close();
+         locator.close();
+         server.stop();
 
-      // Using the code only so the test doesn't fail just because someone edits the log text
-      Assert.assertTrue("Expected to find AMQ222183", AssertionLoggerHandler.findText("AMQ222183", "myAddress"));
-      Assert.assertTrue("Expected to find AMQ221046", AssertionLoggerHandler.findText("AMQ221046", "myAddress"));
-      Assert.assertFalse("Expected to not find AMQ222211", AssertionLoggerHandler.findText("AMQ222211"));
+         // Using the code only so the test doesn't fail just because someone edits the log text
+         Assert.assertTrue("Expected to find AMQ222183", loggerHandler.findText("AMQ222183", MY_ADDRESS));
+         Assert.assertTrue("Expected to find AMQ221046", loggerHandler.findText("AMQ221046", MY_ADDRESS));
+         Assert.assertFalse("Expected to not find AMQ222211", loggerHandler.findText("AMQ222211"));
+      }
    }
 
 }

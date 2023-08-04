@@ -28,8 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffers;
@@ -88,8 +86,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
-import static org.apache.activemq.artemis.logs.AssertionLoggerHandler.findText;
-
 public class PagingStoreImplTest extends ActiveMQTestBase {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -99,7 +95,6 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
    }
 
    private static final SimpleString destinationTestName = new SimpleString("test");
-   private final ReadLock lock = new ReentrantReadWriteLock().readLock();
 
    protected ExecutorService executor;
 
@@ -1090,13 +1085,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                   getExecutorFactory().getExecutor(),  getExecutorFactory().getExecutor(), true);
 
       store.start();
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          store.startPaging();
          store.stopPaging();
-         Assert.assertTrue(findText("AMQ222038"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue(loggerHandler.findText("AMQ222038"));
       }
    }
 
@@ -1113,13 +1105,10 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
                                                      .setAddressFullMessagePolicy(AddressFullMessagePolicy.PAGE),
                                                   getExecutorFactory().getExecutor(),  getExecutorFactory().getExecutor(), true);
       store.start();
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          store.startPaging();
          store.stopPaging();
-         Assert.assertTrue(findText("AMQ224108"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue(loggerHandler.findText("AMQ224108"));
       }
    }
 

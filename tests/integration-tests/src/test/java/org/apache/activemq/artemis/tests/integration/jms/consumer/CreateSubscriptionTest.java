@@ -129,9 +129,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
 
    public void testCreateManyConsumers(String queueType) throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("myTopic")).addRoutingType(RoutingType.MULTICAST));
          ConnectionFactory cf = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
@@ -191,9 +189,7 @@ public class CreateSubscriptionTest extends JMSTestBase {
          }
 
          Assert.assertEquals(0, errors.get());
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ229018"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertFalse(loggerHandler.findText("AMQ229018"));
       }
 
    }

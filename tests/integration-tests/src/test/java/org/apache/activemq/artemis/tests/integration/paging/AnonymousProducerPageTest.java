@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.tests.integration.paging;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.DeliveryMode;
-import javax.jms.JMSException;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
@@ -141,18 +140,15 @@ public class AnonymousProducerPageTest extends ActiveMQTestBase {
       connection.close();
    }
 
-   private void validatePolicyMismatch(Session session, MessageProducer producer) throws JMSException {
-      AssertionLoggerHandler.startCapture();
-      try {
+   private void validatePolicyMismatch(Session session, MessageProducer producer) throws Exception {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          producer.send(session.createQueue("blockedQueue"), session.createMessage());
          session.commit();
-         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ111004"));
-         AssertionLoggerHandler.clear();
+         Assert.assertTrue(loggerHandler.findText("AMQ111004"));
+
          producer.send(session.createQueue(getName()), session.createMessage());
          session.commit();
-         Assert.assertFalse("The warning should be printed only once", AssertionLoggerHandler.findText("AMQ111004"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertEquals("The warning should be printed only once", 1, loggerHandler.countText("AMQ111004"));
       }
    }
 

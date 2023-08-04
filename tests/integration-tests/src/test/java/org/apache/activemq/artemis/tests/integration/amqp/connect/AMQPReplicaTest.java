@@ -78,18 +78,19 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
 
    ActiveMQServer server_2;
 
+   private AssertionLoggerHandler loggerHandler;
 
    @Before
    public void startLogging() {
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
    }
 
    @After
-   public void stopLogging() {
+   public void stopLogging() throws Exception {
       try {
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222214"));
+         Assert.assertFalse(loggerHandler.findText("AMQ222214"));
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       }
    }
 
@@ -155,22 +156,21 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       Assert.assertNotNull(mirrorQueue);
 
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(() -> AssertionLoggerHandler.stopCapture());
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
-      // Adding some PostAck event that will never be found on the target for an expiry
-      org.apache.activemq.artemis.api.core.Message message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.toSimpleString("sometest"), SimpleString.toSimpleString("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3333L, AckReason.EXPIRED).setDurable(true);
-      message.setMessageID(server_2.getStorageManager().generateID());
-      server_2.getPostOffice().route(message, false);
+         // Adding some PostAck event that will never be found on the target for an expiry
+         org.apache.activemq.artemis.api.core.Message message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.toSimpleString("sometest"), SimpleString.toSimpleString("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3333L, AckReason.EXPIRED).setDurable(true);
+         message.setMessageID(server_2.getStorageManager().generateID());
+         server_2.getPostOffice().route(message, false);
 
-      // Adding some PostAck event that will never be found on the target for a regular ack
-      message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.toSimpleString("sometest"), SimpleString.toSimpleString("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3334L, AckReason.NORMAL).setDurable(true);
-      message.setMessageID(server_2.getStorageManager().generateID());
-      server_2.getPostOffice().route(message, false);
+         // Adding some PostAck event that will never be found on the target for a regular ack
+         message = AMQPMirrorMessageFactory.createMessage(mirrorQueue.getAddress().toString(), SimpleString.toSimpleString("sometest"), SimpleString.toSimpleString("sometest"), AMQPMirrorControllerSource.POST_ACK, "0000", 3334L, AckReason.NORMAL).setDurable(true);
+         message.setMessageID(server_2.getStorageManager().generateID());
+         server_2.getPostOffice().route(message, false);
 
-      Wait.assertEquals(0L, mirrorQueue::getMessageCount, 2000, 100);
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224041"));
-      AssertionLoggerHandler.stopCapture();
+         Wait.assertEquals(0L, mirrorQueue::getMessageCount, 2000, 100);
+         Assert.assertFalse(loggerHandler.findText("AMQ224041"));
+      }
 
       server_2.stop();
       server.stop();
@@ -424,7 +424,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222214"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
 
       // Get the Queue View early to avoid racing the delivery.
       final Queue queueView = locateQueue(server_2, getQueueName());
@@ -494,7 +494,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
       server_2.addAddressInfo(new AddressInfo(getQueueName()).addRoutingType(RoutingType.ANYCAST).setAutoCreated(false));
       server_2.createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST).setAddress(getQueueName()).setAutoCreated(false));
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222214"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
 
       { // sender
          AmqpClient client = new AmqpClient(new URI("tcp://localhost:" + AMQP_PORT_2), null, null);
@@ -724,7 +724,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          queueOnServer2.getPagingStore().startPaging();
       }
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222214"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
 
 
       for (int i = 0; i < NUMBER_OF_MESSAGES; i++) {
@@ -733,7 +733,7 @@ public class AMQPReplicaTest extends AmqpClientTestSupport {
          producer.send(message);
       }
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222214"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222214"));
 
       Queue queueOnServer1;
       if (deferredStart) {

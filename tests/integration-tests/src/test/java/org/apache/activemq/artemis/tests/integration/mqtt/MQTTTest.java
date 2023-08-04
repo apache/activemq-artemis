@@ -507,8 +507,7 @@ public class MQTTTest extends MQTTTestSupport {
 
    @Test(timeout = 60 * 1000)
    public void testSendAndReceiveRetainedLargeMessage() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          byte[] payload = new byte[ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE * 2];
          for (int i = 0; i < payload.length; i++) {
             payload[i] = '2';
@@ -554,9 +553,7 @@ public class MQTTTest extends MQTTTestSupport {
          subscriber3.disconnect();
          publisher.disconnect();
 
-         Assert.assertFalse(AssertionLoggerHandler.findText("Exception"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertFalse(loggerHandler.findText("Exception"));
       }
 
    }

@@ -101,8 +101,7 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
          compactDone.countDown();
       });
       CountDownLatch latchDone = new CountDownLatch(THREADS);
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          String space1k = new String(new char[5]).replace('\0', ' ');
          for (int i = 0; i < THREADS; i++) {
@@ -153,11 +152,10 @@ public class CompactingOpenWireTest extends BasicOpenWireTest {
          compactDone.await(10, TimeUnit.MINUTES);
          executorService.shutdownNow();
          Assert.assertEquals(0, errors.get());
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ144003")); // error compacting
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222055")); // records not found
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222302")); // string conversion issue
+         Assert.assertFalse(loggerHandler.findText("AMQ144003")); // error compacting
+         Assert.assertFalse(loggerHandler.findText("AMQ222055")); // records not found
+         Assert.assertFalse(loggerHandler.findText("AMQ222302")); // string conversion issue
       } finally {
-         AssertionLoggerHandler.stopCapture();
          running.set(false);
          executorService.shutdownNow();
       }

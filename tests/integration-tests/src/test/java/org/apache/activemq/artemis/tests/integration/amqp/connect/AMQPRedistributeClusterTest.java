@@ -139,8 +139,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
    }
 
    public void internalQueueRedistribution(String protocol) throws Exception {
-      AssertionLoggerHandler.startCapture();
-      runAfter((AssertionLoggerHandler::stopCapture));
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       ConnectionFactory cfA1 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + A_1_PORT);
       ConnectionFactory cfA2 = CFUtil.createConnectionFactory(protocol, "tcp://localhost:" + A_2_PORT);
@@ -184,8 +184,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       assertEmptyQueue(b2.locateQueue(QUEUE_NAME));
 
       // if you see this message, most likely the notifications are being copied to the mirror
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224037"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
+      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
    }
 
    @Test
@@ -200,8 +200,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
 
    public void internalTopicRedistribution(String protocol) throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-      runAfter((AssertionLoggerHandler::stopCapture));
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       final int numMessages = 100;
 
@@ -276,8 +276,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
          }
       }
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224037"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
+      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
 
       Assert.assertEquals(0, a1TopicSubscription.getConsumerCount());
       Wait.assertEquals(numMessages / 2, a1TopicSubscription::getMessageCount);
@@ -315,8 +315,8 @@ public class AMQPRedistributeClusterTest extends AmqpTestSupport {
       }
 
       // if you see this message, most likely the notifications are being copied to the mirror
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222196"));
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224037"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222196"));
+      Assert.assertFalse(loggerHandler.findText("AMQ224037"));
 
       assertEmptyQueue(a1TopicSubscription);
       assertEmptyQueue(a2TopicSubscription);

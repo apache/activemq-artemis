@@ -217,8 +217,7 @@ public class MQTT5Test extends MQTT5TestSupport {
 
    @Test(timeout = DEFAULT_TIMEOUT)
    public void testRecursiveWill() throws Exception {
-      AssertionLoggerHandler.startCapture(true);
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          final String WILL_QUEUE = "will";
          server.createQueue(new QueueConfiguration(WILL_QUEUE).setRoutingType(RoutingType.ANYCAST));
          PagingManagerImplAccessor.setDiskFull((PagingManagerImpl) server.getPagingManager(), true);
@@ -226,9 +225,7 @@ public class MQTT5Test extends MQTT5TestSupport {
          MqttConnectionOptions options = new MqttConnectionOptionsBuilder().will(WILL_QUEUE, new MqttMessage(RandomUtil.randomBytes())).build();
          client.connect(options);
          client.disconnectForcibly(0, 0, false);
-         Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ229119"), 2000, 100);
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Wait.assertTrue(() -> loggerHandler.findText("AMQ229119"), 2000, 100);
       }
    }
 

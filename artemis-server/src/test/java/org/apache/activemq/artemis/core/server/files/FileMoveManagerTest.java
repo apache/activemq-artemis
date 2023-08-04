@@ -293,10 +293,9 @@ public class FileMoveManagerTest {
 
    @Test
    public void testMoveOverPaging() throws Exception {
-      AssertionLoggerHandler.startCapture();
 
       ExecutorService threadPool = Executors.newCachedThreadPool();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          manager.setMaxFolders(3);
          for (int i = 1; i <= 10; i++) {
             HierarchicalRepository<AddressSettings> addressSettings = new HierarchicalObjectRepository<>();
@@ -325,9 +324,8 @@ public class FileMoveManagerTest {
             Assert.assertEquals(Math.min(i, manager.getMaxFolders()), manager.getNumberOfFolders());
          }
 
-         Assert.assertFalse("The loggers are complaining about address.txt", AssertionLoggerHandler.findText("address.txt"));
+         Assert.assertFalse("The loggers are complaining about address.txt", loggerHandler.findText("address.txt"));
       } finally {
-         AssertionLoggerHandler.stopCapture();
          threadPool.shutdown();
       }
 

@@ -380,9 +380,6 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
       Queue queue = server.locateQueue(ADDRESS);
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(() -> AssertionLoggerHandler.stopCapture());
-
       for (int repeat = 0; repeat < 5; repeat++) {
          boolean durable = repeat % 2 == 0;
 
@@ -397,15 +394,13 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
 
          Wait.assertEquals(MESSAGE_COUNT, queue::getMessageCount);
 
-         AssertionLoggerHandler.clear();
-
-         try {
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
             producer.send(session.createTextMessage("should fail"));
             if (durable) {
                Assert.fail(("supposed to fail"));
             } else {
                // in case of async send, the exception will not propagate to the client, and we should still check the logger on that case
-               Wait.assertTrue(() -> AssertionLoggerHandler.findText("is full")); // my intention was to assert for "AMQ229102" howerver openwire is not using the code here
+               Wait.assertTrue(() -> loggerHandler.findTrace("is full")); // my intention was to assert for "AMQ229102" howerver openwire is not using the code here
             }
          } catch (Exception expected) {
          }
@@ -492,46 +487,45 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       runAfter(connSend::close); // not using closeable because OPENWIRE might not support it depending on the version
       runAfter(connReceive::close); // not using closeable because OPENWIRE might not support it depending on the version
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(() -> AssertionLoggerHandler.stopCapture());
-
       ExecutorService executorService = Executors.newSingleThreadExecutor();
       runAfter(executorService::shutdownNow);
 
-      CountDownLatch done = new CountDownLatch(1);
-      executorService.execute(() -> {
-         try {
-            Session session = connSend.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer producer = session.createProducer(session.createQueue(ADDRESS));
-            producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-            for (int i = 0; i < MESSAGES; i++) {
-               producer.send(session.createTextMessage("OK!" + i));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         CountDownLatch done = new CountDownLatch(1);
+         executorService.execute(() -> {
+            try {
+               Session session = connSend.createSession(false, Session.AUTO_ACKNOWLEDGE);
+               MessageProducer producer = session.createProducer(session.createQueue(ADDRESS));
+               producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+               for (int i = 0; i < MESSAGES; i++) {
+                  producer.send(session.createTextMessage("OK!" + i));
+               }
+               session.close();
+            } catch (Exception e) {
+               // e.printStackTrace();
             }
-            session.close();
-         } catch (Exception e) {
-            e.printStackTrace();
-         }
 
-         done.countDown();
-      });
+            done.countDown();
+         });
 
-      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ222183"), 5000, 10); //unblock
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ221046")); // should not been unblocked
+         Wait.assertTrue(() -> loggerHandler.findText("AMQ222183"), 5000, 10); //unblock
+         Assert.assertFalse(loggerHandler.findText("AMQ221046")); // should not been unblocked
 
-      AssertionLoggerHandler.clear();
-
-      Assert.assertFalse(done.await(100, TimeUnit.MILLISECONDS));
-
-      Session sessionReceive = connReceive.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
-      for (int i = 0; i < MESSAGES; i++) {
-         TextMessage message = (TextMessage) consumer.receive(5000);
-         Assert.assertNotNull(message);
-         Assert.assertEquals("OK!" + i, message.getText());
+         Assert.assertFalse(done.await(100, TimeUnit.MILLISECONDS));
       }
-      sessionReceive.close();
 
-      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ221046"), 5000, 10); // unblock
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         Session sessionReceive = connReceive.createSession(false, Session.AUTO_ACKNOWLEDGE);
+         MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
+         for (int i = 0; i < MESSAGES; i++) {
+            TextMessage message = (TextMessage) consumer.receive(5000);
+            Assert.assertNotNull(message);
+            Assert.assertEquals("OK!" + i, message.getText());
+         }
+         sessionReceive.close();
+
+         Wait.assertTrue(() -> loggerHandler.findText("AMQ221046"), 5000, 10); // unblock
+      }
    }
 
 
@@ -600,12 +594,8 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
       runAfter(connSend::close); // not using closeable because OPENWIRE might not support it depending on the version
       runAfter(connReceive::close); // not using closeable because OPENWIRE might not support it depending on the version
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(() -> AssertionLoggerHandler.stopCapture());
-
       for (int repeat = 0; repeat < 5; repeat++) {
-         AssertionLoggerHandler.clear();
-         {
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
             Session session = connSend.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageProducer producer = session.createProducer(session.createQueue(ADDRESS));
             producer.setDeliveryMode(DeliveryMode.PERSISTENT);
@@ -613,14 +603,12 @@ public class MaxMessagesPagingTest extends ActiveMQTestBase {
                producer.send(session.createTextMessage("OK!" + i));
             }
             session.close();
-         }
 
-         if (repeat == 0) {
-            // the server will only log it on the first repeat as expected
-            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ222039")); // dropped messages
-         }
+            if (repeat == 0) {
+               // the server will only log it on the first repeat as expected
+               Assert.assertTrue(loggerHandler.findText("AMQ222039")); // dropped messages
+            }
 
-         {
             Session sessionReceive = connReceive.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = sessionReceive.createConsumer(sessionReceive.createQueue(ADDRESS));
             for (int i = 0; i < 10; i++) {

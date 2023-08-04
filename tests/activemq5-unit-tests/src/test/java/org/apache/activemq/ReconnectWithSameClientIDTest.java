@@ -21,7 +21,6 @@ import javax.jms.ConnectionFactory;
 import javax.jms.InvalidClientIDException;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.Test;
 
@@ -48,9 +47,7 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
    }
 
    public void testReconnectMultipleTimesWithSameClientID() throws Exception {
-      AssertionLoggerHandler.startCapture();
-
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          connection = connectionFactory.createConnection();
          useConnection(connection);
 
@@ -72,9 +69,7 @@ public class ReconnectWithSameClientIDTest extends EmbeddedBrokerTestSupport {
          connection.close();
          connection = connectionFactory.createConnection();
          useConnection(connection);
-         Assert.assertFalse(AssertionLoggerHandler.findText("Failed to register MBean"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertFalse(loggerHandler.findText("Failed to register MBean"));
       }
    }
 

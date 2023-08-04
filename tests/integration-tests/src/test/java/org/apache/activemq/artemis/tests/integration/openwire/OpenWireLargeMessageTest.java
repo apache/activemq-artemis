@@ -142,8 +142,7 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
 
    @Test
    public void testFastLargeMessageProducerDropOnPaging() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
          // Create 200K Message
          int size = 200 * 1024;
 
@@ -182,10 +181,8 @@ public class OpenWireLargeMessageTest extends BasicOpenWireTest {
             }
          }
          server.stop();
-         Assert.assertFalse(AssertionLoggerHandler.findText("NullPointerException"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("It was not possible to delete message"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertFalse(loggerHandler.findTrace("NullPointerException"));
+         Assert.assertFalse(loggerHandler.findText("It was not possible to delete message"));
       }
    }
 

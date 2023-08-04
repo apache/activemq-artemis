@@ -136,102 +136,99 @@ public class ReplicaTimeoutTest extends ActiveMQTestBase {
 
    @Test//(timeout = 120000)
    public void testFailbackTimeout() throws Exception {
-      AssertionLoggerHandler.startCapture();
+      TestableServer backupServer = null;
+      TestableServer liveServer = null;
+      ClientSessionFactory sf = null;
       try {
-         TestableServer backupServer = null;
-         TestableServer liveServer = null;
-         ClientSessionFactory sf = null;
-         try {
-            final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
-            final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
-            final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
+         final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+         final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
+         final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
-            Configuration backupConfig = createDefaultInVMConfig();
-            Configuration liveConfig = createDefaultInVMConfig();
+         Configuration backupConfig = createDefaultInVMConfig();
+         Configuration liveConfig = createDefaultInVMConfig();
 
-            configureReplicationPair(backupConfig, liveConfig, backupConnector, backupAcceptor, liveConnector);
+         configureReplicationPair(backupConfig, liveConfig, backupConnector, backupAcceptor, liveConnector);
 
-            backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).
-               setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
-            liveConfig.setBindingsDirectory(getBindingsDir(0, false)).setJournalDirectory(getJournalDir(0, false)).
-               setPagingDirectory(getPageDir(0, false)).setLargeMessagesDirectory(getLargeMessagesDir(0, false)).setSecurityEnabled(false);
+         backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).
+            setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
+         liveConfig.setBindingsDirectory(getBindingsDir(0, false)).setJournalDirectory(getJournalDir(0, false)).
+            setPagingDirectory(getPageDir(0, false)).setLargeMessagesDirectory(getLargeMessagesDir(0, false)).setSecurityEnabled(false);
 
-            NodeManager replicatedBackupNodeManager = createReplicatedBackupNodeManager(backupConfig);
+         NodeManager replicatedBackupNodeManager = createReplicatedBackupNodeManager(backupConfig);
 
-            backupServer = createTestableServer(backupConfig, replicatedBackupNodeManager);
+         backupServer = createTestableServer(backupConfig, replicatedBackupNodeManager);
 
-            liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
+         liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-            NodeManager nodeManager = createReplicatedBackupNodeManager(liveConfig);
-            liveServer = createTestableServer(liveConfig, nodeManager);
+         NodeManager nodeManager = createReplicatedBackupNodeManager(liveConfig);
+         liveServer = createTestableServer(liveConfig, nodeManager);
 
-            final TestableServer theBackup = backupServer;
+         final TestableServer theBackup = backupServer;
 
-            liveServer.start();
-            backupServer.start();
+         liveServer.start();
+         backupServer.start();
 
-            Wait.assertTrue(backupServer.getServer()::isReplicaSync);
+         Wait.assertTrue(backupServer.getServer()::isReplicaSync);
 
-            sf = createSessionFactory();
+         sf = createSessionFactory();
 
-            ClientSession session = createSession(sf, true, true);
+         ClientSession session = createSession(sf, true, true);
 
-            session.createQueue(new QueueConfiguration(ADDRESS));
+         session.createQueue(new QueueConfiguration(ADDRESS));
 
-            crash(liveServer, backupServer, session);
+         crash(liveServer, backupServer, session);
 
-            Wait.assertTrue(backupServer.getServer()::isActive);
+         Wait.assertTrue(backupServer.getServer()::isActive);
 
-            ((ActiveMQServerImpl) backupServer.getServer()).setAfterActivationCreated(new Runnable() {
-               @Override
-               public void run() {
-                  final Activation backupActivation = theBackup.getServer().getActivation();
-                  if (backupActivation instanceof SharedNothingBackupActivation) {
-                     SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
-                     ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
-                     repEnd.addOutgoingInterceptorForReplication((packet, connection) -> {
+         ((ActiveMQServerImpl) backupServer.getServer()).setAfterActivationCreated(new Runnable() {
+            @Override
+            public void run() {
+               final Activation backupActivation = theBackup.getServer().getActivation();
+               if (backupActivation instanceof SharedNothingBackupActivation) {
+                  SharedNothingBackupActivation activation = (SharedNothingBackupActivation) backupActivation;
+                  ReplicationEndpoint repEnd = activation.getReplicationEndpoint();
+                  repEnd.addOutgoingInterceptorForReplication((packet, connection) -> {
+                     if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
+                        return false;
+                     }
+                     return true;
+                  });
+               } else if (backupActivation instanceof ReplicationBackupActivation) {
+                  ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
+                  activation.spyReplicationEndpointCreation(replicationEndpoint -> {
+                     replicationEndpoint.addOutgoingInterceptorForReplication((packet, connection) -> {
                         if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
                            return false;
                         }
                         return true;
                      });
-                  } else if (backupActivation instanceof ReplicationBackupActivation) {
-                     ReplicationBackupActivation activation = (ReplicationBackupActivation) backupActivation;
-                     activation.spyReplicationEndpointCreation(replicationEndpoint -> {
-                        replicationEndpoint.addOutgoingInterceptorForReplication((packet, connection) -> {
-                           if (packet.getType() == PacketImpl.REPLICATION_RESPONSE_V2) {
-                              return false;
-                           }
-                           return true;
-                        });
-                     });
-                  }
+                  });
                }
-            });
+            }
+         });
 
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
             liveServer.start();
 
-            Assert.assertTrue(Wait.waitFor(() -> AssertionLoggerHandler.findText("AMQ229114")));
-
-            if (expectLiveSuicide()) {
-               Wait.assertFalse(liveServer.getServer()::isStarted);
-            }
-
-         } finally {
-            if (sf != null) {
-               sf.close();
-            }
-            try {
-               liveServer.getServer().stop();
-            } catch (Throwable ignored) {
-            }
-            try {
-               backupServer.getServer().stop();
-            } catch (Throwable ignored) {
-            }
+            Assert.assertTrue(Wait.waitFor(() -> loggerHandler.findTrace("AMQ229114")));
          }
+
+         if (expectLiveSuicide()) {
+            Wait.assertFalse(liveServer.getServer()::isStarted);
+         }
+
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         if (sf != null) {
+            sf.close();
+         }
+         try {
+            liveServer.getServer().stop();
+         } catch (Throwable ignored) {
+         }
+         try {
+            backupServer.getServer().stop();
+         } catch (Throwable ignored) {
+         }
       }
    }
 

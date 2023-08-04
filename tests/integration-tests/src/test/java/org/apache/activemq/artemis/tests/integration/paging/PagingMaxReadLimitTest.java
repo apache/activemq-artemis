@@ -89,8 +89,8 @@ public class PagingMaxReadLimitTest extends ActiveMQTestBase {
          Assert.assertTrue(serverQueue.getPagingStore().isPaging());
       }
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       AtomicInteger errorCounter = new AtomicInteger(0);
       CountDownLatch done = new CountDownLatch(1);
@@ -120,7 +120,7 @@ public class PagingMaxReadLimitTest extends ActiveMQTestBase {
       });
 
       Assert.assertTrue(done.await(5, TimeUnit.SECONDS));
-      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ224127"), 2000, 10);
+      Wait.assertTrue(() -> loggerHandler.findText("AMQ224127"), 2000, 10);
       Assert.assertEquals(0, errorCounter.get());
 
    }

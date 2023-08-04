@@ -67,6 +67,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
    protected static final int AMQP_PORT_2 = 5673;
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    ActiveMQServer server_2;
+   private AssertionLoggerHandler loggerHandler;
 
    @After
    public void stopServer1() throws Exception {
@@ -84,15 +85,16 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
    @Before
    public void startLogging() {
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
+
    }
 
    @After
-   public void stopLogging() {
+   public void stopLogging() throws Exception {
       try {
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222214"));
+         Assert.assertFalse(loggerHandler.findText("AMQ222214"));
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       }
    }
 
@@ -467,8 +469,8 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
 
    @Test
    public void testLVQ() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       server.setIdentity("Server1");
       {
@@ -541,7 +543,7 @@ public class BrokerInSyncTest extends AmqpClientTestSupport {
       server_2.stop();
       server.stop();
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222153"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222153"));
    }
 
 

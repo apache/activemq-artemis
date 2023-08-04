@@ -30,21 +30,16 @@ import org.junit.Test;
 public class NetworkHealthCheckTest extends ActiveMQTestBase {
 
    private static final String HEALTH_CHECK_LOGGER_NAME = NetworkHealthCheck.class.getName();
-   private static LogLevel previousLevel = null;
+   private static LogLevel previousLevel;
 
    @BeforeClass
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(HEALTH_CHECK_LOGGER_NAME, LogLevel.DEBUG);
-      AssertionLoggerHandler.startCapture();
    }
 
    @AfterClass
    public static void clearLogger() {
-      try {
-         AssertionLoggerHandler.stopCapture();
-      } finally {
-         AssertionLoggerHandler.setLevel(HEALTH_CHECK_LOGGER_NAME, previousLevel);
-      }
+      AssertionLoggerHandler.setLevel(HEALTH_CHECK_LOGGER_NAME, previousLevel);
    }
 
 
@@ -62,10 +57,10 @@ public class NetworkHealthCheckTest extends ActiveMQTestBase {
 
       ActiveMQServer server = createServer(false, config);
 
-      server.start();
-      try {
-         Assert.assertTrue(AssertionLoggerHandler.findText("executing ping:: " + String.format(customIpv4Command, checkingTimeout, checkingHost)));
-         Assert.assertFalse(AssertionLoggerHandler.findText(String.format(NetworkHealthCheck.IPV4_DEFAULT_COMMAND, checkingTimeout, checkingHost)));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.start();
+         Assert.assertTrue(loggerHandler.findText("executing ping:: " + String.format(customIpv4Command, checkingTimeout, checkingHost)));
+         Assert.assertFalse(loggerHandler.findText(String.format(NetworkHealthCheck.IPV4_DEFAULT_COMMAND, checkingTimeout, checkingHost)));
       } finally {
          server.stop();
       }

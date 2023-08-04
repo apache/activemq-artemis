@@ -39,8 +39,7 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
     */
    @Test
    public void testStartStopAndCleanupIDs() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          ActiveMQServer server = null;
 
          for (int i = 0; i < 50; i++) {
@@ -50,8 +49,8 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
          }
 
          // There shouldn't be any error from starting / stopping the server
-         assertFalse("There shouldn't be any error for just starting / stopping the server", AssertionLoggerHandler.hasLevel(LogLevel.ERROR));
-         assertFalse(AssertionLoggerHandler.findText("AMQ224008"));
+         assertFalse("There shouldn't be any error for just starting / stopping the server", loggerHandler.hasLevel(LogLevel.ERROR));
+         assertFalse(loggerHandler.findText("AMQ224008"));
 
          HashMap<Integer, AtomicInteger> records = this.internalCountJournalLivingRecords(server.getConfiguration(), false);
 
@@ -75,8 +74,6 @@ public class SimpleStartStopTest extends ActiveMQTestBase {
 
          server.stop();
 
-      } finally {
-         AssertionLoggerHandler.stopCapture();
       }
    }
 }

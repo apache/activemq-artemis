@@ -97,47 +97,39 @@ public class SimpleBundleTest {
    }
 
    @Test
-   public void longList() {
-      AssertionLoggerHandler.startCapture(false, true);
-      try {
+   public void longList() throws Exception {
+      try (AssertionLoggerHandler logHandler = new AssertionLoggerHandler()) {
          SimpleBundle.MESSAGES.longParameters("1", "2", "3", "4", "5");
-         Assert.assertTrue("parameter not found", AssertionLoggerHandler.findText("p1"));
-         Assert.assertTrue("parameter not found", AssertionLoggerHandler.findText("p2"));
-         Assert.assertTrue("parameter not found", AssertionLoggerHandler.findText("p3"));
-         Assert.assertTrue("parameter not found", AssertionLoggerHandler.findText("p4"));
-         Assert.assertTrue("parameter not found", AssertionLoggerHandler.findText("p5"));
-         Assert.assertFalse("{}", AssertionLoggerHandler.findText("{}"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue("parameter not found", logHandler.findText("p1"));
+         Assert.assertTrue("parameter not found", logHandler.findText("p2"));
+         Assert.assertTrue("parameter not found", logHandler.findText("p3"));
+         Assert.assertTrue("parameter not found", logHandler.findText("p4"));
+         Assert.assertTrue("parameter not found", logHandler.findText("p5"));
+         Assert.assertFalse("{}", logHandler.findText("{}"));
       }
    }
 
 
    @Test
-   public void onlyException() {
-      try {
-         AssertionLoggerHandler.startCapture(false, false);
-
+   public void onlyException() throws Exception {
+      try (AssertionLoggerHandler logHandler = new AssertionLoggerHandler()) {
          SimpleBundle.MESSAGES.onlyException(createMyExceptionBreadcrumbMethod("MSG7777"));
 
-         Assert.assertTrue(AssertionLoggerHandler.findText("TST14"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("MSG7777"));
+         Assert.assertTrue(logHandler.findText("TST14"));
+         Assert.assertFalse(logHandler.findText("MSG7777"));
+      }
 
-         AssertionLoggerHandler.clear();
-
-         AssertionLoggerHandler.startCapture(false, true);
+      try (AssertionLoggerHandler logHandler = new AssertionLoggerHandler(true)) {
          SimpleBundle.MESSAGES.onlyException(createMyExceptionBreadcrumbMethod("MSG7777"));
-         Assert.assertTrue(AssertionLoggerHandler.findText("TST14"));
-         Assert.assertTrue(AssertionLoggerHandler.findText("MSG7777"));
-         Assert.assertTrue(AssertionLoggerHandler.findText("createMyExceptionBreadcrumbMethod"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue(logHandler.findText("TST14"));
+         Assert.assertTrue(logHandler.findTrace("MSG7777"));
+         Assert.assertTrue(logHandler.findTrace("createMyExceptionBreadcrumbMethod"));
       }
    }
 
 
    // I'm doing it on a method just to assert if this method will appear on the stack trace
-   private MyException createMyExceptionBreadcrumbMethod(String message) {
+   private static MyException createMyExceptionBreadcrumbMethod(String message) {
       return new MyException(message);
    }
 

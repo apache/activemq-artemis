@@ -154,6 +154,8 @@ public class PagingTest extends ActiveMQTestBase {
 
    static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
 
+   private AssertionLoggerHandler loggerHandler;
+
    public PagingTest(StoreConfiguration.StoreType storeType) {
       this.storeType = storeType;
    }
@@ -166,17 +168,17 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Before
    public void checkLoggerStart() throws Exception {
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
    }
 
    @After
    public void checkLoggerEnd() throws Exception {
       try {
          // These are the message errors for the negative size address size
-         Assert.assertFalse(AssertionLoggerHandler.findText("222214"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("222215"));
+         Assert.assertFalse(loggerHandler.findText("222214"));
+         Assert.assertFalse(loggerHandler.findText("222215"));
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       }
    }
 
@@ -287,9 +289,7 @@ public class PagingTest extends ActiveMQTestBase {
 
    @Test
    public void testPageTX() throws Exception {
-      AssertionLoggerHandler.startCapture();
-
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          Configuration config = createDefaultInVMConfig();
 
          final int PAGE_MAX = 20 * 1024;
@@ -366,12 +366,10 @@ public class PagingTest extends ActiveMQTestBase {
          }
 
          session.close();
-         Assert.assertFalse(AssertionLoggerHandler.findText("Could not locate page"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222029"));
+         Assert.assertFalse(loggerHandler.findText("Could not locate page"));
+         Assert.assertFalse(loggerHandler.findText("AMQ222029"));
          server.getPagingManager().getPageStore(ADDRESS).enableCleanup();
          Wait.assertFalse(server.getPagingManager().getPageStore(ADDRESS)::isPaging);
-      } finally {
-         AssertionLoggerHandler.stopCapture();
       }
    }
 
@@ -2679,9 +2677,7 @@ public class PagingTest extends ActiveMQTestBase {
       // this test only applies to file-based stores
       Assume.assumeTrue(storeType == StoreConfiguration.StoreType.FILE);
 
-      AssertionLoggerHandler.startCapture();
-
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          clearDataRecreateServerDirs();
 
          Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false).setPagingDirectory("/" + UUID.randomUUID().toString());
@@ -2732,12 +2728,8 @@ public class PagingTest extends ActiveMQTestBase {
          sf.close();
          locator.close();
       } finally {
-         try {
-            if (storeType != StoreConfiguration.StoreType.DATABASE) {
-               Assert.assertTrue(AssertionLoggerHandler.findText("AMQ144010"));
-            }
-         } finally {
-            AssertionLoggerHandler.stopCapture();
+         if (storeType != StoreConfiguration.StoreType.DATABASE) {
+            Assert.assertTrue(loggerHandler.findText("AMQ144010"));
          }
       }
    }
@@ -6350,84 +6342,72 @@ public class PagingTest extends ActiveMQTestBase {
     */
    @Test
    public void testFailMessagesNonDurable() throws Exception {
-      AssertionLoggerHandler.startCapture();
+      clearDataRecreateServerDirs();
+
+      Configuration config = createDefaultInVMConfig();
+
+      HashMap<String, AddressSettings> settings = new HashMap<>();
+
+      AddressSettings set = new AddressSettings();
+      set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
+
+      settings.put(PagingTest.ADDRESS.toString(), set);
+
+      server = createServer(true, config, 1024, 5 * 1024, settings);
+
+      server.start();
+
+      locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true);
+
+      sf = createSessionFactory(locator);
+      ClientSession session = sf.createSession(true, true, 0);
+
+      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+
+      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+
+      ClientMessage message = session.createMessage(false);
+
+      int biggerMessageSize = 1024;
+      byte[] body = new byte[biggerMessageSize];
+      ByteBuffer bb = ByteBuffer.wrap(body);
+      for (int j = 1; j <= biggerMessageSize; j++) {
+         bb.put(getSamplebyte(j));
+      }
+
+      message.getBodyBuffer().writeBytes(body);
+
+      // Send enough messages to fill up the address, but don't test for an immediate exception because we do not block
+      // on non-durable send. Instead of receiving an exception immediately the exception will be logged on the server.
+      for (int i = 0; i < 32; i++) {
+         producer.send(message);
+      }
+
+      // allow time for the logging to actually happen on the server
+      Wait.assertTrue("Expected to find AMQ224016", () -> loggerHandler.findText("AMQ224016"), 100);
+
+      ClientConsumer consumer = session.createConsumer(ADDRESS);
+
+      session.start();
+
+      // Once the destination is full and the client has run out of credits then it will receive an exception
+      for (int i = 0; i < 10; i++) {
+         validateExceptionOnSending(producer, message);
+      }
+
+      // Receive a message.. this should release credits
+      ClientMessage msgReceived = consumer.receive(5000);
+      assertNotNull(msgReceived);
+      msgReceived.acknowledge();
+      session.commit(); // to make sure it's on the server (roundtrip)
 
       try {
-         clearDataRecreateServerDirs();
-
-         Configuration config = createDefaultInVMConfig();
-
-         HashMap<String, AddressSettings> settings = new HashMap<>();
-
-         AddressSettings set = new AddressSettings();
-         set.setAddressFullMessagePolicy(AddressFullMessagePolicy.FAIL);
-
-         settings.put(PagingTest.ADDRESS.toString(), set);
-
-         server = createServer(true, config, 1024, 5 * 1024, settings);
-
-         server.start();
-
-         locator.setBlockOnNonDurableSend(false).setBlockOnDurableSend(false).setBlockOnAcknowledge(true);
-
-         sf = createSessionFactory(locator);
-         ClientSession session = sf.createSession(true, true, 0);
-
-         session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
-
-         ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
-
-         ClientMessage message = session.createMessage(false);
-
-         int biggerMessageSize = 1024;
-         byte[] body = new byte[biggerMessageSize];
-         ByteBuffer bb = ByteBuffer.wrap(body);
-         for (int j = 1; j <= biggerMessageSize; j++) {
-            bb.put(getSamplebyte(j));
-         }
-
-         message.getBodyBuffer().writeBytes(body);
-
-         // Send enough messages to fill up the address, but don't test for an immediate exception because we do not block
-         // on non-durable send. Instead of receiving an exception immediately the exception will be logged on the server.
-         for (int i = 0; i < 32; i++) {
+         for (int i = 0; i < 1000; i++) {
+            // this send will succeed on the server
             producer.send(message);
          }
-
-         // allow time for the logging to actually happen on the server
-         Thread.sleep(100);
-
-         Assert.assertTrue("Expected to find AMQ224016", AssertionLoggerHandler.findText("AMQ224016"));
-
-         ClientConsumer consumer = session.createConsumer(ADDRESS);
-
-         session.start();
-
-         // Once the destination is full and the client has run out of credits then it will receive an exception
-         for (int i = 0; i < 10; i++) {
-            validateExceptionOnSending(producer, message);
-         }
-
-         // Receive a message.. this should release credits
-         ClientMessage msgReceived = consumer.receive(5000);
-         assertNotNull(msgReceived);
-         msgReceived.acknowledge();
-         session.commit(); // to make sure it's on the server (roundtrip)
-
-         boolean exception = false;
-
-         try {
-            for (int i = 0; i < 1000; i++) {
-               // this send will succeed on the server
-               producer.send(message);
-            }
-         } catch (Exception e) {
-            exception = true;
-         }
-
-         assertTrue("Expected to throw an exception", exception);
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         fail("Expected to throw an exception");
+      } catch (Exception expected) {
       }
    }
 

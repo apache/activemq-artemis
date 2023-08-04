@@ -94,28 +94,22 @@ public class DelegateCallbackTest {
    }
 
    @Test
-   public void shouldLogOnDoneForEachExceptions() {
-      AssertionLoggerHandler.startCapture();
-      try {
+   public void shouldLogOnDoneForEachExceptions() throws Exception {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
          final DelegateCallback callback = new DelegateCallback(Collections.singleton(countingIOCallback));
          callback.done();
-         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ142024"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue(loggerHandler.findText("AMQ142024"));
       }
    }
 
    @Test
-   public void shouldLogOnErrorForEachExceptions() {
-      AssertionLoggerHandler.startCapture();
-      try {
+   public void shouldLogOnErrorForEachExceptions() throws Exception {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          final CountingIOCallback countingIOCallback = new CountingIOCallback(true);
          final DelegateCallback callback = new DelegateCallback(Collections.singleton(countingIOCallback));
          callback.onError(0, "not a real error");
-         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ142025"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue(loggerHandler.findText("AMQ142025"));
       }
    }
 

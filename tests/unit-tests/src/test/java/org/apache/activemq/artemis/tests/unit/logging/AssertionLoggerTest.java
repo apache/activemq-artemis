@@ -21,9 +21,7 @@ import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.utils.RandomUtil;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +32,6 @@ import org.slf4j.LoggerFactory;
  * are validating the log4j2-tests-config.properties files and the classloading of everything.
  */
 public class AssertionLoggerTest {
-
-   @Before
-   public void prepare() {
-      AssertionLoggerHandler.startCapture(true);
-   }
-
-   @After
-   public void cleanup() {
-      AssertionLoggerHandler.stopCapture();
-   }
 
    @Test
    public void testHandlingOnAMQP() throws Exception {
@@ -57,29 +45,32 @@ public class AssertionLoggerTest {
 
    @Test
    public void testInfoAMQP() throws Exception {
-      ActiveMQAMQPProtocolLogger.LOGGER.retryConnection("test", "test", 1, 1);
-      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ111002"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         ActiveMQAMQPProtocolLogger.LOGGER.retryConnection("test", "test", 1, 1);
+         Assert.assertTrue(loggerHandler.findText("AMQ111002"));
+      }
    }
 
-   private void validateLogging(Class<?> clazz) {
+   private void validateLogging(Class<?> clazz) throws Exception {
       String randomLogging = RandomUtil.randomString();
       Logger logging = LoggerFactory.getLogger(clazz);
-      logging.warn(randomLogging);
-      Assert.assertTrue(AssertionLoggerHandler.findText(randomLogging));
-
-      AssertionLoggerHandler.clear();
-
-      for (int i = 0; i < 10; i++) {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          logging.warn(randomLogging);
-      }
-      Assert.assertEquals(10, AssertionLoggerHandler.countText(randomLogging));
-
-      AssertionLoggerHandler.clear();
-
-      for (int i = 0; i < 10; i++) {
-         logging.info(randomLogging);
+         Assert.assertTrue(loggerHandler.findText(randomLogging));
       }
 
-      Assert.assertEquals(10, AssertionLoggerHandler.countText(randomLogging));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         for (int i = 0; i < 10; i++) {
+            logging.warn(randomLogging);
+         }
+         Assert.assertEquals(10, loggerHandler.countText(randomLogging));
+      }
+
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         for (int i = 0; i < 10; i++) {
+            logging.info(randomLogging);
+         }
+         Assert.assertEquals(10, loggerHandler.countText(randomLogging));
+      }
    }
 }

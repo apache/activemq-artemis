@@ -2128,8 +2128,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
    @Test
    public void testDoubleDelete() throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
          setup(10, 10 * 1024, true);
          createJournal();
          startJournal();
@@ -2154,7 +2153,7 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
                   journal.appendDeleteRecord(2, false);
                } catch (java.lang.IllegalStateException expected) {
                } catch (Exception e) {
-                  e.printStackTrace();
+                  // e.printStackTrace();
                }
             });
             threads[i].start();
@@ -2169,13 +2168,11 @@ public abstract class JournalImplTestUnit extends JournalImplTestBase {
          }
          journal.flush();
 
-         Assert.assertFalse(AssertionLoggerHandler.findText("NullPointerException"));
+         Assert.assertFalse(loggerHandler.findTrace("NullPointerException"));
          stopJournal();
          createJournal();
          startJournal();
          loadAndCheck();
-      } finally {
-         AssertionLoggerHandler.stopCapture();
       }
    }
 
