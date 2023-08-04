@@ -95,9 +95,7 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
    @Test
    public void testAutoDelete() throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          AtomicBoolean error = new AtomicBoolean(false);
 
@@ -153,10 +151,8 @@ public class AutoDeleteDistributedTest extends ClusterTestBase {
          Assert.assertFalse(error.get());
 
          Thread.sleep(100); // I couldn't make it to fail without a minimal sleep here
-         Assert.assertFalse(AssertionLoggerHandler.findText("java.lang.IllegalStateException"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("Cannot find binding"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertFalse(loggerHandler.findText("java.lang.IllegalStateException"));
+         Assert.assertFalse(loggerHandler.findText("Cannot find binding"));
       }
    }
 

@@ -967,16 +967,13 @@ public class FileConfigurationTest extends ConfigurationImplTest {
    @Test
    public void testValidateCache() throws Exception {
 
-      AssertionLoggerHandler.startCapture(true);
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          FileConfiguration fc = new FileConfiguration();
          FileDeploymentManager deploymentManager = new FileDeploymentManager(getConfigurationName());
          deploymentManager.addDeployable(fc);
          deploymentManager.readConfiguration();
-         Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224117"));
-         Assert.assertEquals(1, AssertionLoggerHandler.countText("AMQ224117"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertTrue(loggerHandler.findText("AMQ224117"));
+         Assert.assertEquals(1, loggerHandler.countText("AMQ224117"));
       }
 
    }

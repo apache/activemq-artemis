@@ -410,11 +410,10 @@ public class LargeMessageTest extends LargeMessageTestBase {
       });
       server.stop();
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
-
-      server.start();
-      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ221019"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.start();
+         Assert.assertTrue(loggerHandler.findText("AMQ221019"));
+      }
 
       validateNoFilesOnLargeDir();
       runAfter(server::stop);
@@ -2087,8 +2086,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
    @Test
    public void testPageOnLargeMessageMultipleQueues() throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       Configuration config = createDefaultConfig(isNetty());
 
@@ -2213,8 +2212,8 @@ public class LargeMessageTest extends LargeMessageTestBase {
          session.close();
       }
 
-      // Reference Counting negative errrors
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ214034"));
+      // Reference Counting negative errors
+      Assert.assertFalse(loggerHandler.findText("AMQ214034"));
    }
 
    // JBPAPP-6237

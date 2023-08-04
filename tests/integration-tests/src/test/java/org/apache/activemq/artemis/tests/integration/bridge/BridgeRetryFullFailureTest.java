@@ -86,8 +86,8 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
 
       int NUMBER_OF_MESSAGES = 1000;
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       try (Connection connection = factory0.createConnection()) {
          Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -100,7 +100,7 @@ public class BridgeRetryFullFailureTest extends ActiveMQTestBase {
          }
       }
 
-      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ229102"));
+      Wait.assertTrue(() -> loggerHandler.findText("AMQ229102"));
 
       // the reconnects and failure may introduce out of order issues. so we just check if they were all received
       HashSet<Integer> receivedIntegers = new HashSet<>();

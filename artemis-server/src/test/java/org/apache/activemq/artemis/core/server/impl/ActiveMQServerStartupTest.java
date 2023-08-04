@@ -45,8 +45,7 @@ public class ActiveMQServerStartupTest extends ActiveMQTestBase {
 
    private void testTooLongToStart(CriticalAnalyzerPolicy policy) throws Exception {
 
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
 
          ConfigurationImpl configuration = new ConfigurationImpl();
          configuration.setCriticalAnalyzerPolicy(policy);
@@ -58,11 +57,9 @@ public class ActiveMQServerStartupTest extends ActiveMQTestBase {
          // this will be faking a condition
          server.setState(ActiveMQServer.SERVER_STATE.STARTING);
          CriticalAnalyzerAccessor.fireActions(server.getCriticalAnalyzer(), new CriticalComponentImpl(server.getCriticalAnalyzer(), 2));
-         Assert.assertTrue(AssertionLoggerHandler.findText("224116"));
+         Assert.assertTrue(loggerHandler.findText("224116"));
          Assert.assertEquals(ActiveMQServer.SERVER_STATE.STARTING, server.getState()); // should not be changed
          server.stop();
-      } finally {
-         AssertionLoggerHandler.stopCapture();
       }
    }
 

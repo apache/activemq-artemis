@@ -110,8 +110,6 @@ public class PagingLimitTest extends ActiveMQTestBase {
                                                  String protocol,
                                                  boolean transacted,
                                                  boolean drop) throws Exception {
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(queueName);
       Assert.assertNotNull(serverQueue);
 
@@ -168,7 +166,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
             session.commit();
          }
 
-         try {
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
             producer.send(session.createTextMessage("should not complete"));
             if (transacted) {
                session.commit();
@@ -176,7 +174,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
             if (!drop) {
                Assert.fail("an Exception was expected");
             }
-            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224120"));
+            Assert.assertTrue(loggerHandler.findText("AMQ224120"));
          } catch (JMSException e) {
             logger.debug("Expected exception, ok!", e);
          }
@@ -226,11 +224,9 @@ public class PagingLimitTest extends ActiveMQTestBase {
          if (transacted) {
             session.commit();
          }
-         AssertionLoggerHandler.clear();
-         Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224120"));
 
 
-         try {
+         try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
             producer.send(session.createTextMessage("should not complete"));
             if (transacted) {
                session.commit();
@@ -238,7 +234,7 @@ public class PagingLimitTest extends ActiveMQTestBase {
             if (!drop) {
                Assert.fail("an Exception was expected");
             } else {
-               Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224120"));
+               Assert.assertFalse(loggerHandler.findText("AMQ224120"));
             }
          } catch (JMSException e) {
             logger.debug("Expected exception, ok!", e);

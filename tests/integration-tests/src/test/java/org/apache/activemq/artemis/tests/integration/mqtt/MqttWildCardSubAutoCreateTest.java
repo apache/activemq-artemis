@@ -144,9 +144,7 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
    @Test
    public void testCoreHierarchicalTopic() throws Exception {
 
-      try {
-         AssertionLoggerHandler.startCapture();
-
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          ConnectionFactory cf = new ActiveMQConnectionFactory();
 
          Connection connection = cf.createConnection();
@@ -228,9 +226,7 @@ public class MqttWildCardSubAutoCreateTest extends MQTTTestSupport {
 
          connection.close();
 
-         Assert.assertFalse(AssertionLoggerHandler.findText("222295"));
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         Assert.assertFalse(loggerHandler.findText("222295"));
       }
    }
 

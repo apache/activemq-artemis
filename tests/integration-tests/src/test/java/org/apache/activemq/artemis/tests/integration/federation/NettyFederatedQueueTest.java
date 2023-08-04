@@ -42,8 +42,8 @@ public class NettyFederatedQueueTest extends FederatedTestBase {
 
    @Test
    public void testFederatedQueueBiDirectionalUpstream() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       String queueName = getName();
       FederationConfiguration federationConfiguration0 = FederatedTestUtil.createQueueUpstreamFederationConfiguration("server1", queueName);
@@ -89,6 +89,6 @@ public class NettyFederatedQueueTest extends FederatedTestBase {
 
       Assert.assertNotNull(consumer2.receive(5000));
 
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222153"));
+      Assert.assertFalse(loggerHandler.findText("AMQ222153"));
    }
 }

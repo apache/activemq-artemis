@@ -83,22 +83,19 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
    @Test
    public void testDoNotActivateOnIsolation() throws Exception {
-      AssertionLoggerHandler.startCapture();
 
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          ServerLocator locator = getServerLocator();
 
          // this block here is just to validate if ignoring loopback addresses logic is in place
          {
             backupServer.getServer().getNetworkHealthCheck().addAddress("127.0.0.1");
 
-            Assert.assertTrue(AssertionLoggerHandler.findText("AMQ202001"));
-
-            AssertionLoggerHandler.clear();
+            Assert.assertTrue(loggerHandler.findText("AMQ202001"));
 
             backupServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
 
-            Assert.assertFalse(AssertionLoggerHandler.findText("AMQ202001"));
+            Assert.assertEquals(1, loggerHandler.countText("AMQ202001"));
 
             backupServer.getServer().getNetworkHealthCheck().clearAddresses();
          }
@@ -133,8 +130,6 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
          // This will make sure the backup got synchronized after the network was activated again
          Assert.assertTrue(getReplicationEndpoint(backupServer.getServer()).isStarted());
-      } finally {
-         AssertionLoggerHandler.stopCapture();
       }
    }
 

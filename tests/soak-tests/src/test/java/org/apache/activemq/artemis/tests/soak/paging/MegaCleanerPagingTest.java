@@ -184,12 +184,11 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       session.commit();
       connection.close();
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
-
-      server.stop();
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222023")); // error associated with OME
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222010")); // critical IO Error
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.stop();
+         Assert.assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
+         Assert.assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
+      }
    }
 
 
@@ -243,13 +242,13 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       Assert.assertNull(consumer.receiveNoWait());
       connection.close();
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
-      store.getCursorProvider().resumeCleanup();
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         store.getCursorProvider().resumeCleanup();
 
-      server.stop();
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222023")); // error associated with OME
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222010")); // critical IO Error
+         server.stop();
+         Assert.assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
+         Assert.assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
+      }
    }
 
    public void internalTest(boolean midstream) throws Throwable {
@@ -334,16 +333,16 @@ public class MegaCleanerPagingTest extends ActiveMQTestBase {
       connection.close();
       slowConnection.close();
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
-      store.enableCleanup();
-      store.getCursorProvider().scheduleCleanup();
-      if (!midstream) {
-         Wait.assertFalse(store::isPaging);
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         store.enableCleanup();
+         store.getCursorProvider().scheduleCleanup();
+         if (!midstream) {
+            Wait.assertFalse(store::isPaging);
+         }
+         server.stop();
+         Assert.assertFalse(loggerHandler.findText("AMQ222023")); // error associated with OME
+         Assert.assertFalse(loggerHandler.findText("AMQ222010")); // critical IO Error
       }
-      server.stop();
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222023")); // error associated with OME
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ222010")); // critical IO Error
    }
 
 

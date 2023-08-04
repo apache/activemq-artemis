@@ -23,22 +23,10 @@ import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class PotentialOOMELoggingTest extends ActiveMQTestBase {
-
-   @BeforeClass
-   public static void prepareLogger() {
-      AssertionLoggerHandler.startCapture();
-   }
-
-   @AfterClass
-   public static void clearLogger() {
-      AssertionLoggerHandler.stopCapture();
-   }
 
    /**
     * When running this test from an IDE add this to the test command line so that the AssertionLoggerHandler works properly:
@@ -48,14 +36,17 @@ public class PotentialOOMELoggingTest extends ActiveMQTestBase {
    @Test
    public void testBlockLogging() throws Exception {
       ActiveMQServer server = createServer(false, createDefaultInVMConfig());
-      for (int i = 0; i < 100; i++) {
+      for (int i = 0; i < 200; i++) {
          server.getConfiguration().addQueueConfiguration(new QueueConfiguration(UUID.randomUUID().toString()));
       }
       server.getConfiguration().setGlobalMaxSize(-1);
       server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setMaxSizeBytes(10485760 * 10));
-      server.start();
 
-      // Using the code only so the test doesn't fail just because someone edits the log text
-      Assert.assertTrue("Expected to find 222205", AssertionLoggerHandler.findText("AMQ222205"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.start();
+
+         // Using the code only so the test doesn't fail just because someone edits the log text
+         Assert.assertTrue("Expected to find 222205", loggerHandler.findText("AMQ222205"));
+      }
    }
 }

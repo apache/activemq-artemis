@@ -22,8 +22,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -32,30 +30,17 @@ import org.junit.Test;
  */
 public class WrongRoleFileConfigurationParserTest extends ActiveMQTestBase {
 
-   @BeforeClass
-   public static void prepareLogger() {
-      AssertionLoggerHandler.startCapture();
-   }
-
-   @AfterClass
-   public static void clearLogger() {
-      AssertionLoggerHandler.stopCapture();
-   }
-
-   /**
-    *
-    *
-    *
-    */
    @Test
    public void testParsingDefaultServerConfig() throws Exception {
-      FileConfigurationParser parser = new FileConfigurationParser();
-      ByteArrayInputStream input = new ByteArrayInputStream(configuration.getBytes(StandardCharsets.UTF_8));
-      parser.parseMainConfig(input);
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         FileConfigurationParser parser = new FileConfigurationParser();
+         ByteArrayInputStream input = new ByteArrayInputStream(configuration.getBytes(StandardCharsets.UTF_8));
+         parser.parseMainConfig(input);
 
-      // Using the code only because I don't want a test failing just for someone editing Log text
-      assertTrue(AssertionLoggerHandler.findText("AMQ222177", "create-durable-queue"));
-      assertTrue(AssertionLoggerHandler.findText("AMQ222177", "delete-durable-queue"));
+         // Using the code only because I don't want a test failing just for someone editing Log text
+         assertTrue(loggerHandler.findText("AMQ222177", "create-durable-queue"));
+         assertTrue(loggerHandler.findText("AMQ222177", "delete-durable-queue"));
+      }
    }
 
    private static final String configuration = "<configuration xmlns=\"urn:activemq\"\n" +

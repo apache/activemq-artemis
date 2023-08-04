@@ -1105,11 +1105,10 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       server.stop();
 
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
-
-      server.start();
-      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ221019"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler())  {
+         server.start();
+         Assert.assertTrue(loggerHandler.findText("AMQ221019"));
+      }
 
       validateNoFilesOnLargeDir();
       runAfter(server::stop);
@@ -1134,12 +1133,13 @@ public class AmqpLargeMessageTest extends AmqpClientTestSupport {
 
       server.stop();
 
-      AssertionLoggerHandler.startCapture();
-      server.start();
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         server.start();
 
-      // These two should not happen as the consumer will receive them
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ221019")); // unferenced record
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ221018")); // unferenced large message
+         // These two should not happen as the consumer will receive them
+         Assert.assertFalse(loggerHandler.findText("AMQ221019")); // unferenced record
+         Assert.assertFalse(loggerHandler.findText("AMQ221018")); // unferenced large message
+      }
 
       connection = addConnection(client.connect());
       try {

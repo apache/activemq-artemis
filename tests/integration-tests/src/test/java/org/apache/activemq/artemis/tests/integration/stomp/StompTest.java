@@ -207,8 +207,7 @@ public class StompTest extends StompTestBase {
 
    @Test
    public void testSendOverDiskFull() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          MessageConsumer consumer = session.createConsumer(queue);
 
          conn.connect(defUser, defPass);
@@ -235,9 +234,7 @@ public class StompTest extends StompTestBase {
          }
          assertNotNull(e);
          // It should encounter the exception on logs
-         AssertionLoggerHandler.findText("AMQ119119");
-      } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.findText("AMQ119119");
       }
    }
 

@@ -111,8 +111,8 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
    }
 
    private void pendingSend(String protocol, boolean rollback, boolean restart) throws Exception {
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(ADDRESS);
 
@@ -135,7 +135,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          }
       }
 
-      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ222038"), 2000);
+      Wait.assertTrue(() -> loggerHandler.findText("AMQ222038"), 2000);
 
       Wait.assertEquals(INITIAL_NUMBER_OF_MESSAGES, serverQueue::getMessageCount, 2000);
 
@@ -224,8 +224,8 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
    }
 
    private void pendingACKTXRollback(String protocol, boolean rollback, boolean restart) throws Exception {
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+      AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler();
+      runAfter(() -> loggerHandler.close());
 
       org.apache.activemq.artemis.core.server.Queue serverQueue = server.locateQueue(ADDRESS);
 
@@ -243,7 +243,7 @@ public class PendingTXCounterTest extends ActiveMQTestBase {
          }
       }
 
-      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ222038"), 2000);
+      Wait.assertTrue(() -> loggerHandler.findText("AMQ222038"), 2000);
 
       Wait.assertEquals(NUMBER_OF_MESSAGES, serverQueue::getMessageCount, 2000);
 

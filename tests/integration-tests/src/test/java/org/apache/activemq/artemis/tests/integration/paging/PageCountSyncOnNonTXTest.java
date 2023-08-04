@@ -57,19 +57,21 @@ public class PageCountSyncOnNonTXTest extends SpawnedTestBase {
 
    Process process;
 
+   private AssertionLoggerHandler loggerHandler;
+
    @Before
    public void checkLoggerStart() throws Exception {
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
    }
 
    @After
    public void checkLoggerEnd() throws Exception {
       try {
          // These are the message errors for the negative size address size
-         Assert.assertFalse(AssertionLoggerHandler.findText("222214"));
-         Assert.assertFalse(AssertionLoggerHandler.findText("222215"));
+         Assert.assertFalse(loggerHandler.findText("222214"));
+         Assert.assertFalse(loggerHandler.findText("222215"));
       } finally {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       }
    }
 

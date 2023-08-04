@@ -49,6 +49,8 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
    private static LogLevel previousLevel = null;
 
+   private static AssertionLoggerHandler loggerHandler;
+
    @Override
    @Before
    public void setUp() throws Exception {
@@ -69,13 +71,13 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
    @BeforeClass
    public static void prepareLogger() {
       previousLevel = AssertionLoggerHandler.setLevel(MESSAGE_AUDIT_LOGGER_NAME, LogLevel.INFO);
-      AssertionLoggerHandler.startCapture();
+      loggerHandler = new AssertionLoggerHandler();
    }
 
    @AfterClass
-   public static void clearLogger() {
+   public static void clearLogger() throws Exception {
       try {
-         AssertionLoggerHandler.stopCapture();
+         loggerHandler.close();
       } finally {
          AssertionLoggerHandler.setLevel(MESSAGE_AUDIT_LOGGER_NAME, previousLevel);
       }
@@ -232,10 +234,10 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
             Assert.assertFalse(producer.failed);
          }
 
-         assertFalse(AssertionLoggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue2.*"));
-         assertFalse(AssertionLoggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue1.*"));
-         assertTrue(AssertionLoggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue2.*"));
-         assertTrue(AssertionLoggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue1.*"));
+         assertFalse(loggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue2.*"));
+         assertFalse(loggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue1.*"));
+         assertTrue(loggerHandler.matchText(".*User queue2\\(queue2\\).* is consuming a message from queue2.*"));
+         assertTrue(loggerHandler.matchText(".*User queue1\\(queue1\\).* is consuming a message from queue1.*"));
       }
    }
 }

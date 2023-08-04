@@ -101,21 +101,6 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
       }
    }
 
-   private LeaseLock lock(long acquireMillis, long queryTimeoutMillis, long allowedTimeDiff) {
-      try {
-         return JdbcSharedStateManager
-            .createLiveLock(
-               UUID.randomUUID().toString(),
-               jdbcSharedStateManager.getJdbcConnectionProvider(),
-               sqlProvider,
-               acquireMillis,
-               queryTimeoutMillis,
-               allowedTimeDiff);
-      } catch (Exception e) {
-         throw new IllegalStateException(e);
-      }
-   }
-
    @Before
    public void createLockTable() throws Exception {
       dbConf = createDefaultDatabaseStorageConfiguration();
@@ -418,9 +403,7 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void validateTimeDiffsOnLeaseLock() {
-      AssertionLoggerHandler.startCapture();
-      runAfter(AssertionLoggerHandler::stopCapture);
+   public void validateTimeDiffsOnLeaseLock() throws Exception {
 
       AtomicInteger diff = new AtomicInteger(0);
 
@@ -435,18 +418,22 @@ public class JdbcLeaseLockTest extends ActiveMQTestBase {
          }
       };
 
-      diff.set(10_000);
-      hackLock.dbCurrentTimeMillis();
-      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224118"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         diff.set(10_000);
+         hackLock.dbCurrentTimeMillis();
+         Assert.assertTrue(loggerHandler.findText("AMQ224118"));
+      }
 
-      diff.set(-10_000);
-      AssertionLoggerHandler.clear();
-      hackLock.dbCurrentTimeMillis();
-      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224118"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         diff.set(-10_000);
+         hackLock.dbCurrentTimeMillis();
+         Assert.assertTrue(loggerHandler.findText("AMQ224118"));
+      }
 
-      diff.set(0);
-      AssertionLoggerHandler.clear();
-      hackLock.dbCurrentTimeMillis();
-      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224118"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         diff.set(0);
+         hackLock.dbCurrentTimeMillis();
+         Assert.assertFalse(loggerHandler.findText("AMQ224118"));
+      }
    }
 }

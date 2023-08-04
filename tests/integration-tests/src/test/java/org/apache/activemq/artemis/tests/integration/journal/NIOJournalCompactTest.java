@@ -51,7 +51,6 @@ import org.apache.activemq.artemis.core.journal.impl.dataformat.ByteArrayEncodin
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
-import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.JournalImplTestBase;
 import org.apache.activemq.artemis.tests.unit.core.journal.impl.fakes.SimpleEncoding;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
@@ -279,18 +278,13 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
       journal.appendUpdateRecordTransactional(4, -1, recordType, "upd".getBytes());
       journal.appendCommitRecord(3, true);
 
+      journal.testCompact();
+      int cnt = loggerHandler.countText("must be");
+      Assert.assertTrue(cnt > 0);
+      Assert.assertFalse(failed.get());
 
-      try {
-         AssertionLoggerHandler.startCapture();
-         journal.testCompact();
-         Assert.assertTrue(AssertionLoggerHandler.findText("must be"));
-         Assert.assertFalse(failed.get());
-         AssertionLoggerHandler.clear();
-         journal.testCompact();
-         Assert.assertFalse(AssertionLoggerHandler.findText("must be")); // the invalid records should be cleared during a compact
-      } finally {
-         AssertionLoggerHandler.stopCapture();
-      }
+      journal.testCompact();
+      Assert.assertEquals(cnt, loggerHandler.countText("must be")); // the invalid records should be cleared during a compact
    }
 
    @Test
@@ -416,7 +410,6 @@ public class NIOJournalCompactTest extends JournalImplTestBase {
 
       journal.start();
 
-      ArrayList<RecordInfo> list = new ArrayList<>();
       journal.load(new LoaderCallback() {
          @Override
          public void addPreparedTransaction(PreparedTransactionInfo preparedTransaction) {

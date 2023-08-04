@@ -30,9 +30,9 @@ import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
 import org.apache.qpid.jms.JmsConnectionFactory;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,11 +43,6 @@ public class PendingDeliveriesTest extends ClientTestBase {
    public void createQueue() throws Exception {
       server.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("queue1"), RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration("queue1").setRoutingType(RoutingType.ANYCAST));
-   }
-
-   @After
-   public void clearLogger() throws Exception {
-      AssertionLoggerHandler.stopCapture();
    }
 
    private static final String AMQP_URI = "amqp://localhost:61616?amqp.saslLayer=false";
@@ -173,17 +168,19 @@ public class PendingDeliveriesTest extends ClientTestBase {
 
    @Test
    public void testCleanShutdownNoLogger() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      startClient(CORE_URI_NO_RECONNECT, "queue1", false, true);
-      Thread.sleep(500);
-      Assert.assertFalse(AssertionLoggerHandler.findText("clearing up resources"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         startClient(CORE_URI_NO_RECONNECT, "queue1", false, true);
+         Thread.sleep(500);
+         Assert.assertFalse(loggerHandler.findText("clearing up resources"));
+      }
    }
 
    @Test
    public void testBadShutdownLogger() throws Exception {
-      AssertionLoggerHandler.startCapture();
-      startClient(CORE_URI_NO_RECONNECT, "queue1", false, false);
-      Assert.assertTrue(AssertionLoggerHandler.findText(1000, "clearing up resources"));
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
+         startClient(CORE_URI_NO_RECONNECT, "queue1", false, false);
+         Wait.assertTrue(() -> loggerHandler.findText("clearing up resources"), 1000);
+      }
    }
 
    @Test

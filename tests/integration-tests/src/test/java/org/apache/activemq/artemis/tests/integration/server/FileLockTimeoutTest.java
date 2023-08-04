@@ -30,25 +30,13 @@ import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.ActiveMQThreadFactory;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileLockTimeoutTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-   @BeforeClass
-   public static void prepareLogger() {
-      AssertionLoggerHandler.startCapture();
-   }
-
-   @AfterClass
-   public static void clearLogger() {
-      AssertionLoggerHandler.stopCapture();
-   }
 
    protected void doTest(final boolean useAIO) throws Exception {
       if (useAIO) {
@@ -85,17 +73,19 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
          }
       };
 
-      Future<?> f = service.submit(r);
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler(true)) {
+         Future<?> f = service.submit(r);
 
-      try {
-         f.get(15, TimeUnit.SECONDS);
-      } catch (Exception e) {
-         logger.warn("aborting test because server is taking too long to start");
+         try {
+            f.get(15, TimeUnit.SECONDS);
+         } catch (Exception e) {
+            logger.warn("aborting test because server is taking too long to start");
+         }
+
+         service.shutdown();
+
+         assertTrue("Expected to find AMQ224000", loggerHandler.findText("AMQ224000"));
+         assertTrue("Expected to find \"Timed out waiting for lock\"", loggerHandler.findTrace("Timed out waiting for lock"));
       }
-
-      service.shutdown();
-
-      assertTrue("Expected to find AMQ224000", AssertionLoggerHandler.findText("AMQ224000"));
-      assertTrue("Expected to find \"Timed out waiting for lock\"", AssertionLoggerHandler.findText("Timed out waiting for lock"));
    }
 }

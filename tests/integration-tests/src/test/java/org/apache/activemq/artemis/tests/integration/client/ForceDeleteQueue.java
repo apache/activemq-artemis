@@ -90,8 +90,7 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
       ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, uri);
       Connection conn = factory.createConnection();
 
-      AssertionLoggerHandler.startCapture();
-      try {
+      try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
          Session session = conn.createSession(true, Session.SESSION_TRANSACTED);
          Queue queue = session.createQueue(queueName.toString());
          MessageProducer producer = session.createProducer(queue);
@@ -139,11 +138,10 @@ public class ForceDeleteQueue extends ActiveMQTestBase {
          }
 
 
-         Assert.assertFalse(AssertionLoggerHandler.findText("Cannot find add info"));
+         Assert.assertFalse(loggerHandler.findText("Cannot find add info"));
 
 
       } finally {
-         AssertionLoggerHandler.stopCapture();
          try {
             conn.close();
          } catch (Throwable ignored) {
