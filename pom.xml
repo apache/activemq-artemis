@@ -101,7 +101,7 @@
       <hawtio.version>2.15.0</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jetty.version>10.0.15</jetty.version>
-      <tomcat.servlet-api.version>8.5.78</tomcat.servlet-api.version>
+      <jetty-servlet-api.version>4.0.6</jetty-servlet-api.version>
       <jgroups.version>5.2.16.Final</jgroups.version>
       <errorprone.version>2.20.0</errorprone.version>
       <maven.bundle.plugin.version>5.1.9</maven.bundle.plugin.version>
@@ -785,28 +785,17 @@
          <!-- ## Jetty web Dependencies ##-->
          <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-            <exclusions>
-               <exclusion>
-                  <groupId>javax.servlet</groupId>
-                  <artifactId>javax.servlet-api</artifactId>
-               </exclusion>
-            </exclusions>
-            <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
-         </dependency>
-         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-bom</artifactId>
             <version>${jetty.version}</version>
             <type>pom</type>
             <scope>import</scope>
-            <!-- License: (Joint): Apache 2.0 & EPL 1.0 -->
+            <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>
          <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat-servlet-api</artifactId>
-            <version>${tomcat.servlet-api.version}</version>
+            <groupId>org.eclipse.jetty.toolchain</groupId>
+            <artifactId>jetty-servlet-api</artifactId>
+            <version>${jetty-servlet-api.version}</version>
+            <!-- License: (Joint): Apache 2.0 or EPL 2.0 -->
          </dependency>
          <!-- ## End Jetty Wed Dependencies ## -->
 

@@ -290,6 +290,10 @@
                <groupId>net.minidev</groupId>
                <artifactId>json-smart</artifactId>
             </exclusion>
+            <exclusion>
+               <groupId>javax.servlet</groupId>
+               <artifactId>javax.servlet-api</artifactId>
+            </exclusion>
          </exclusions>
       </dependency>
       <dependency>
