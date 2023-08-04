@@ -475,9 +475,14 @@ See the xref:examples.adoc#jmx-management[JMX Management Example] which shows ho
 The default Broker configuration ships with the https://jolokia.org[Jolokia] HTTP agent deployed as a web application.
 Jolokia is a remote JMX-over-HTTP bridge that exposes MBeans.
 For a full guide as to how to use it refer to https://jolokia.org/documentation.html[Jolokia Documentation], however a simple example to query the broker's version would be to use a `curl` command like this:
-
+[,console]
 ----
-curl -v -H "Origin: http://localhost" -u myUser:myPass http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=\"0.0.0.0\"/Active
+$ curl -v -H "Origin: http://localhost" -u myUser:myPass http://localhost:8161/console/jolokia/read/org.apache.activemq.artemis:broker=\"0.0.0.0\"/Active
+----
+Or you could send a JSON formatted request instead of using the URL
+[,console]
+----
+$ curl -v -H "Origin: http://localhost" -u myUser:myPass --header "Content-type: application/json" --request POST --data '{"attribute": "Active", "mbean": "org.apache.activemq.artemis:broker=\"0.0.0.0\"", "type": "read"}' http://localhost:8161/console/jolokia
 ----
 
 By default it's necessary to pass the `Origin` header due to the CORS checking which is configured in `etc/jolokia-access.xml`.
