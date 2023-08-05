@@ -27,7 +27,7 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.utils.RandomUtil;
@@ -382,9 +382,9 @@ public class SessionFactoryTest extends ActiveMQTestBase {
 
       BroadcastGroupConfiguration broadcastGroupConfiguration = new BroadcastGroupConfiguration().setName(bcGroupName).setBroadcastPeriod(broadcastPeriod).setConnectorInfos(Arrays.asList(liveTC.getName())).setEndpointFactory(new UDPBroadcastEndpointFactory().setGroupAddress(getUDPDiscoveryAddress()).setGroupPort(getUDPDiscoveryPort()).setLocalBindPort(localBindPort));
 
-      Configuration liveConf = createDefaultInVMConfig().addConnectorConfiguration(liveTC.getName(), liveTC).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addBroadcastGroupConfiguration(broadcastGroupConfiguration);
+      Configuration primaryConf = createDefaultInVMConfig().addConnectorConfiguration(liveTC.getName(), liveTC).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addBroadcastGroupConfiguration(broadcastGroupConfiguration);
 
-      liveService = createServer(false, liveConf);
+      liveService = createServer(false, primaryConf);
       liveService.start();
    }
 }

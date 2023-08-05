@@ -26,14 +26,14 @@ public class LargeMessageFailoverTest extends FailoverTest {
    @Override
    @Test
    @Ignore
-   public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
+   public void testPrimaryAndBackupPrimaryComesBackNewFactory() throws Exception {
       // skip test because it triggers OutOfMemoryError.
    }
 
    @Override
    @Test
    @Ignore
-   public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
+   public void testPrimaryAndBackupBackupComesBackNewFactory() throws Exception {
       // skip test because it triggers OutOfMemoryError.
    }
 

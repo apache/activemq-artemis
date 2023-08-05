@@ -915,12 +915,12 @@ public class ArtemisTest extends CliTestBase {
 
          addCmd.setUserCommandUser("user2");
          addCmd.setUserCommandPassword("password2");
-         addCmd.setRole("admin,manager,master");
+         addCmd.setRole("admin,manager,primary");
          addCmd.execute(new TestActionContext());
 
          addCmd.setUserCommandUser("user3");
          addCmd.setUserCommandPassword("password3");
-         addCmd.setRole("system,master");
+         addCmd.setRole("system,primary");
          addCmd.execute(new TestActionContext());
 
          //verify use list cmd
@@ -936,11 +936,11 @@ public class ArtemisTest extends CliTestBase {
                        .matcher(result)
                        .find());
          assertTrue(Pattern
-                       .compile("\"user2\"\\((admin|manager|master),(admin|manager|master),(admin|manager|master)\\)")
+                       .compile("\"user2\"\\((admin|manager|primary),(admin|manager|primary),(admin|manager|primary)\\)")
                        .matcher(result)
                        .find());
          assertTrue(Pattern
-                       .compile("\"user3\"\\((master|system),(master|system)\\)")
+                       .compile("\"user3\"\\((primary|system),(primary|system)\\)")
                        .matcher(result)
                        .find());
 
@@ -961,10 +961,10 @@ public class ArtemisTest extends CliTestBase {
 
          //reset role
          resetCommand.setUserCommandUser("user2");
-         resetCommand.setRole("manager,master,operator");
+         resetCommand.setRole("manager,primary,operator");
          resetCommand.execute(new TestActionContext());
 
-         checkRole("user2", roleFile, basic, "manager", "master", "operator");
+         checkRole("user2", roleFile, basic, "manager", "primary", "operator");
 
          //reset both
          resetCommand.setUserCommandUser("user3");
@@ -1159,8 +1159,8 @@ public class ArtemisTest extends CliTestBase {
       activeMQServerControl.addUser("user1", "password1", "admin,manager", plaintext);
       assertTrue(checkPassword("user1", "password1", userFile));
       assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user1", userFile)));
-      activeMQServerControl.addUser("user2", "password2", "admin,manager,master", plaintext);
-      activeMQServerControl.addUser("user3", "password3", "system,master", plaintext);
+      activeMQServerControl.addUser("user2", "password2", "admin,manager,primary", plaintext);
+      activeMQServerControl.addUser("user3", "password3", "system,primary", plaintext);
 
 
       //verify use list cmd
@@ -1170,8 +1170,8 @@ public class ArtemisTest extends CliTestBase {
       contains(JsonUtil.readJsonArray(jsonResult), "user1", "manager");
       contains(JsonUtil.readJsonArray(jsonResult), "user2", "admin");
       contains(JsonUtil.readJsonArray(jsonResult), "user2", "manager");
-      contains(JsonUtil.readJsonArray(jsonResult), "user2", "master");
-      contains(JsonUtil.readJsonArray(jsonResult), "user3", "master");
+      contains(JsonUtil.readJsonArray(jsonResult), "user2", "primary");
+      contains(JsonUtil.readJsonArray(jsonResult), "user3", "primary");
       contains(JsonUtil.readJsonArray(jsonResult), "user3", "system");
 
       checkRole("user1", roleFile, "admin", "manager");
@@ -1185,9 +1185,9 @@ public class ArtemisTest extends CliTestBase {
       assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user1", userFile)));
 
       //reset role
-      activeMQServerControl.resetUser("user2", null, "manager,master,operator", plaintext);
+      activeMQServerControl.resetUser("user2", null, "manager,primary,operator", plaintext);
 
-      checkRole("user2", roleFile, "manager", "master", "operator");
+      checkRole("user2", roleFile, "manager", "primary", "operator");
       assertTrue(checkPassword("user2", "password2", userFile));
       assertEquals(plaintext, !PasswordMaskingUtil.isEncMasked(getStoredPassword("user2", userFile)));
 

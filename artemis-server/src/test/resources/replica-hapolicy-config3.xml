@@ -22,12 +22,12 @@
    <core xmlns="urn:activemq:core">
       <ha-policy>
          <replication>
-            <slave>
+            <backup>
                <group-name>tiddles</group-name>
                <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
                <cluster-name>33rrrrr</cluster-name>
                <restart-backup>false</restart-backup>
-            </slave>
+            </backup>
          </replication>
       </ha-policy>
    </core>

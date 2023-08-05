@@ -64,11 +64,11 @@ public class FailoverWithDivertTest extends FailoverTestBase {
    protected void createConfigs() throws Exception {
       createReplicatedConfigs();
 
-      liveConfig.setJournalFileSize(10240000);
+      primaryConfig.setJournalFileSize(10240000);
       backupConfig.setJournalFileSize(10240000);
-      addQueue(liveConfig, DIVERT_ADDRESS, DIVERT_ADDRESS);
-      addQueue(liveConfig, DIVERT_FORWARD_ADDRESS, DIVERT_FORWARD_ADDRESS);
-      addDivert(liveConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
+      addQueue(primaryConfig, DIVERT_ADDRESS, DIVERT_ADDRESS);
+      addQueue(primaryConfig, DIVERT_FORWARD_ADDRESS, DIVERT_FORWARD_ADDRESS);
+      addDivert(primaryConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
       addDivert(backupConfig, DIVERT_ADDRESS, DIVERT_FORWARD_ADDRESS, false);
    }
 

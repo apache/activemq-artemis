@@ -26,10 +26,10 @@ import org.apache.activemq.artemis.utils.UUID;
 interface SharedStateManager extends AutoCloseable {
 
    enum State {
-      LIVE, PAUSED, FAILING_BACK, NOT_STARTED, FIRST_TIME_START
+      ACTIVE, PAUSED, FAILING_BACK, NOT_STARTED, FIRST_TIME_START
    }
 
-   LeaseLock liveLock();
+   LeaseLock primaryLock();
 
    LeaseLock backupLock();
 
@@ -38,7 +38,7 @@ interface SharedStateManager extends AutoCloseable {
    void writeNodeId(UUID nodeId);
 
    /**
-    * Purpose of this method is to setup the environment to provide a shared state between live/backup servers.
+    * Purpose of this method is to setup the environment to provide a shared state between primary/backup servers.
     * That means:
     * - check if a shared state exist and create it/wait for it if not
     * - check if a nodeId exists and create it if not

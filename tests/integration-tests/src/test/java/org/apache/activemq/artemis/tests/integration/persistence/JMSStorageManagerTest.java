@@ -141,12 +141,12 @@ public class JMSStorageManagerTest extends ActiveMQTestBase {
       }
 
       List<String> connectorConfigs = new ArrayList<>();
-      Map<String, Object> liveParams = new HashMap<>();
-      liveParams.put(TransportConstants.PORT_PROP_NAME, 5665);
+      Map<String, Object> primaryParams = new HashMap<>();
+      primaryParams.put(TransportConstants.PORT_PROP_NAME, 5665);
       Map<String, Object> backupParams = new HashMap<>();
       backupParams.put(TransportConstants.PORT_PROP_NAME, 5775);
-      Map<String, Object> liveParams2 = new HashMap<>();
-      liveParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
+      Map<String, Object> primaryParams2 = new HashMap<>();
+      primaryParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
 
       ConnectionFactoryConfiguration config = new ConnectionFactoryConfigurationImpl().setName("some-name").setConnectorNames(connectorConfigs).setBindings(str).setCallTimeout(RandomUtil.randomPositiveLong());
       List<Pair<String, String>> connectors = new ArrayList<>();

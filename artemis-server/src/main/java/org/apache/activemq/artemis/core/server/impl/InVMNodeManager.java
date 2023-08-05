@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.server.ActivateCallback;
 import org.apache.activemq.artemis.utils.UUIDGenerator;
 
 import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.FAILING_BACK;
-import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.LIVE;
+import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.ACTIVE;
 import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.NOT_STARTED;
 import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State.PAUSED;
 
@@ -37,12 +37,12 @@ import static org.apache.activemq.artemis.core.server.impl.InVMNodeManager.State
  */
 public final class InVMNodeManager extends FileBasedNodeManager {
 
-   private final Semaphore liveLock;
+   private final Semaphore primaryLock;
 
    private final Semaphore backupLock;
 
    public enum State {
-      LIVE, PAUSED, FAILING_BACK, NOT_STARTED
+      ACTIVE, PAUSED, FAILING_BACK, NOT_STARTED
    }
 
    public volatile State state = NOT_STARTED;
@@ -57,7 +57,7 @@ public final class InVMNodeManager extends FileBasedNodeManager {
 
    public InVMNodeManager(boolean replicatedBackup, File directory) {
       super(replicatedBackup, directory);
-      liveLock = new Semaphore(1);
+      primaryLock = new Semaphore(1);
       backupLock = new Semaphore(1);
       setUUID(UUIDGenerator.getInstance().generateUUID());
    }
@@ -72,21 +72,21 @@ public final class InVMNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public void awaitLiveNode() throws InterruptedException {
+   public void awaitPrimaryNode() throws InterruptedException {
       do {
          while (state == NOT_STARTED) {
             Thread.sleep(10);
          }
 
-         liveLock.acquire();
+         primaryLock.acquire();
 
          if (state == PAUSED) {
-            liveLock.release();
+            primaryLock.release();
             Thread.sleep(10);
          } else if (state == FAILING_BACK) {
-            liveLock.release();
+            primaryLock.release();
             Thread.sleep(10);
-         } else if (state == LIVE) {
+         } else if (state == ACTIVE) {
             break;
          }
       }
@@ -97,8 +97,8 @@ public final class InVMNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public void awaitLiveStatus() throws InterruptedException {
-      while (state != LIVE) {
+   public void awaitActiveStatus() throws InterruptedException {
+      while (state != ACTIVE) {
          Thread.sleep(10);
       }
    }
@@ -109,26 +109,26 @@ public final class InVMNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public ActivateCallback startLiveNode() throws InterruptedException {
+   public ActivateCallback startPrimaryNode() throws InterruptedException {
       state = FAILING_BACK;
-      liveLock.acquire();
+      primaryLock.acquire();
       return new CleaningActivateCallback() {
          @Override
          public void activationComplete() {
-            state = LIVE;
+            state = ACTIVE;
          }
       };
    }
 
    @Override
-   public void pauseLiveServer() {
+   public void pausePrimaryServer() {
       state = PAUSED;
-      liveLock.release();
+      primaryLock.release();
    }
 
    @Override
-   public void crashLiveServer() {
-      liveLock.release();
+   public void crashPrimaryServer() {
+      primaryLock.release();
    }
 
    @Override
@@ -137,8 +137,8 @@ public final class InVMNodeManager extends FileBasedNodeManager {
    }
 
    @Override
-   public boolean isBackupLive() {
-      return liveLock.availablePermits() == 0;
+   public boolean isBackupActive() {
+      return primaryLock.availablePermits() == 0;
    }
 
    @Override

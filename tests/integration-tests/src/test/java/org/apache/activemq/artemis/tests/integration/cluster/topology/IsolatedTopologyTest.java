@@ -76,8 +76,8 @@ public class IsolatedTopologyTest extends ActiveMQTestBase {
 
       TopologyMemberImpl member1 = topology.getMember(nodeId1);
       TopologyMemberImpl member2 = topology.getMember(nodeId2);
-      Assert.assertEquals(member1.getLive().getParams().toString(), cfg1.getParams().toString());
-      Assert.assertEquals(member2.getLive().getParams().toString(), cfg2.getParams().toString());
+      Assert.assertEquals(member1.getPrimary().getParams().toString(), cfg1.getParams().toString());
+      Assert.assertEquals(member2.getPrimary().getParams().toString(), cfg2.getParams().toString());
    }
 
    private ActiveMQServer createServer1() throws Exception {

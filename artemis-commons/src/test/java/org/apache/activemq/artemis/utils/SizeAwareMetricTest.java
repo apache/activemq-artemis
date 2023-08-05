@@ -252,45 +252,45 @@ public class SizeAwareMetricTest {
    }
    @Test
    public void testMaxElementsReleaseNonSizeParentMetric() throws Exception {
-      SizeAwareMetric metricMaster = new SizeAwareMetric(10000, 500, 10,10);
+      SizeAwareMetric metricMain = new SizeAwareMetric(10000, 500, 10,10);
       SizeAwareMetric metric = new SizeAwareMetric(10000, 500, 1000,1000);
 
-      metric.setOnSizeCallback(metricMaster::addSize);
+      metric.setOnSizeCallback(metricMain::addSize);
 
       AtomicBoolean over = new AtomicBoolean(false);
-      metricMaster.setOverCallback(() -> over.set(true));
-      metricMaster.setUnderCallback(() -> over.set(false));
+      metricMain.setOverCallback(() -> over.set(true));
+      metricMain.setUnderCallback(() -> over.set(false));
 
       for (int i = 0; i < 11; i++) {
          metric.addSize(10);
       }
       metric.addSize(1000, true);
 
-      Assert.assertEquals(1110L, metricMaster.getSize());
-      Assert.assertEquals(11, metricMaster.getElements());
+      Assert.assertEquals(1110L, metricMain.getSize());
+      Assert.assertEquals(11, metricMain.getElements());
       Assert.assertEquals(1110L, metric.getSize());
       Assert.assertEquals(11, metric.getElements());
-      Assert.assertTrue(metricMaster.isOverElements());
-      Assert.assertFalse(metricMaster.isOverSize());
+      Assert.assertTrue(metricMain.isOverElements());
+      Assert.assertFalse(metricMain.isOverSize());
       Assert.assertFalse(metric.isOverElements());
       Assert.assertFalse(metric.isOverSize());
       Assert.assertTrue(over.get());
 
       metric.addSize(-1000, true);
 
-      Assert.assertEquals(110L, metricMaster.getSize());
-      Assert.assertEquals(11, metricMaster.getElements());
-      Assert.assertTrue(metricMaster.isOverElements());
-      Assert.assertFalse(metricMaster.isOverSize());
+      Assert.assertEquals(110L, metricMain.getSize());
+      Assert.assertEquals(11, metricMain.getElements());
+      Assert.assertTrue(metricMain.isOverElements());
+      Assert.assertFalse(metricMain.isOverSize());
       Assert.assertTrue(over.get());
 
       for (int i = 0; i < 11; i++) {
          metric.addSize(-10);
       }
 
-      Assert.assertEquals(0L, metricMaster.getSize());
-      Assert.assertEquals(0L, metricMaster.getElements());
-      Assert.assertFalse(metricMaster.isOver());
+      Assert.assertEquals(0L, metricMain.getSize());
+      Assert.assertEquals(0L, metricMain.getElements());
+      Assert.assertFalse(metricMain.isOver());
       Assert.assertEquals(0L, metric.getSize());
       Assert.assertEquals(0L, metric.getElements());
       Assert.assertFalse(metric.isOver());
@@ -494,27 +494,27 @@ public class SizeAwareMetricTest {
    @Test
    public void testMultipleNonSized() throws Exception {
       AtomicBoolean over = new AtomicBoolean(false);
-      final SizeAwareMetric metricMaster = new SizeAwareMetric(0, 0, 1, 1);
+      final SizeAwareMetric metricMain = new SizeAwareMetric(0, 0, 1, 1);
       SizeAwareMetric metric = new SizeAwareMetric(0, 0, 1, 1);
       metric.setSizeEnabled(false);
       metric.setOverCallback(() -> over.set(true));
-      metric.setOnSizeCallback(metricMaster::addSize);
+      metric.setOnSizeCallback(metricMain::addSize);
       for (int i = 0; i  < 10; i++) {
          metric.addSize(10, true);
       }
 
-      Assert.assertEquals(100, metricMaster.getSize());
+      Assert.assertEquals(100, metricMain.getSize());
       Assert.assertEquals(100, metric.getSize());
-      Assert.assertEquals(0, metricMaster.getElements());
+      Assert.assertEquals(0, metricMain.getElements());
       Assert.assertEquals(0, metric.getElements());
 
       for (int i = 0; i  < 10; i++) {
          metric.addSize(10, false);
       }
 
-      Assert.assertEquals(200, metricMaster.getSize());
+      Assert.assertEquals(200, metricMain.getSize());
       Assert.assertEquals(200, metric.getSize());
-      Assert.assertEquals(10, metricMaster.getElements());
+      Assert.assertEquals(10, metricMain.getElements());
       Assert.assertEquals(10, metric.getElements());
    }
 

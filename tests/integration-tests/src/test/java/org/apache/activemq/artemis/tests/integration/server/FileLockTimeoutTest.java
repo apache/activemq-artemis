@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.nativo.jlibaio.LibaioContext;
@@ -42,7 +42,7 @@ public class FileLockTimeoutTest extends ActiveMQTestBase {
       if (useAIO) {
          Assert.assertTrue(String.format("libAIO is not loaded on %s %s %s", System.getProperty("os.name"), System.getProperty("os.arch"), System.getProperty("os.version")), LibaioContext.isLoaded());
       }
-      Configuration config = super.createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).clearAcceptorConfigurations();
+      Configuration config = super.createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).clearAcceptorConfigurations();
 
       ActiveMQServer server1 = createServer(true, config);
       if (useAIO) {

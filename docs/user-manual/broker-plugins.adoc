@@ -8,7 +8,7 @@ Multiple plugins can be registered at the same time and they will be chained tog
 Creating a plugin is very simple.
 It requires:
 
-* Implementing the https://github.com/apache/activemq-artemis/blob/master/artemis-server/src/main/java/org/apache/activemq/artemis/core/server/plugin/ActiveMQServerPlugin.java[`ActiveMQServerPlugin`] interface
+* Implementing the https://github.com/apache/activemq-artemis/blob/main/artemis-server/src/main/java/org/apache/activemq/artemis/core/server/plugin/ActiveMQServerPlugin.java[`ActiveMQServerPlugin`] interface
 * Making sure the plugin is xref:using-server.adoc#adding-runtime-dependencies[on the classpath]
 * Registering it with the broker either via <<registering-a-plugin,xml>> or <<registering-a-plugin-programmatically,programmatically>>.
 

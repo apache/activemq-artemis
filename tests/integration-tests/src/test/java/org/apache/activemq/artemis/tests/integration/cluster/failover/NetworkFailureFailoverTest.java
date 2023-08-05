@@ -168,7 +168,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final AtomicInteger countSent = new AtomicInteger(0);
 
-      liveServer.addInterceptor(new Interceptor() {
+      primaryServer.addInterceptor(new Interceptor() {
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             //logger.debug("Received {}", packet);
@@ -179,7 +179,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
                      NetUtil.netDown(LIVE_IP);
                      logger.debug("Blocking traffic");
                      // Thread.sleep(3000); // this is important to let stuff to block
-                     liveServer.crash(true, false);
+                     primaryServer.crash(true, false);
                   } catch (Exception e) {
                      e.printStackTrace();
                   }
@@ -392,7 +392,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
                         if (received == 300) {
                            logger.debug("Shutting down IP");
                            NetUtil.netDown(LIVE_IP);
-                           liveServer.crash(true, false);
+                           primaryServer.crash(true, false);
                         }
                         logger.debug("Received {}", received);
                         sessionConsumer.commit();
@@ -459,7 +459,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final CountDownLatch latchDown = new CountDownLatch(1);
 
-      liveServer.addInterceptor(new Interceptor() {
+      primaryServer.addInterceptor(new Interceptor() {
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             //logger.debug("Received {}", packet);
@@ -544,7 +544,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       logger.debug("Server crashed now!!!");
 
-      liveServer.crash(true, false);
+      primaryServer.crash(true, false);
 
       try {
          Assert.assertTrue(latchCreated.await(5, TimeUnit.MINUTES));
@@ -570,7 +570,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
 
       final CountDownLatch latchBlocked = new CountDownLatch(1);
 
-      liveServer.addInterceptor(new Interceptor() {
+      primaryServer.addInterceptor(new Interceptor() {
          @Override
          public boolean intercept(Packet packet, RemotingConnection connection) throws ActiveMQException {
             //logger.debug("Received {}", packet);
@@ -684,7 +684,7 @@ public class NetworkFailureFailoverTest extends FailoverTestBase {
          Thread.sleep(500);
       }
 
-      liveServer.crash(true, false);
+      primaryServer.crash(true, false);
 
       Assert.assertTrue(messagesSentlatch.await(3, TimeUnit.MINUTES));
 

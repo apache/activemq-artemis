@@ -195,7 +195,7 @@ public class JmsContextTest extends JMSTestBase {
 
       TextMessage msg = (TextMessage) consumer.receiveNoWait();
 
-      // Time to live kicked in, so it's supposed to return null
+      // Time-to-live kicked in, so it's supposed to return null
       assertNull(msg);
 
       strRandom = newXID().toString();

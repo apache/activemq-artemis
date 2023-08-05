@@ -183,8 +183,8 @@ public class ReplicatedDistributionTest extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      setupLiveServer(1, true, haType(), true, false);
-      setupLiveServer(3, true, haType(), true, false);
+      setupPrimaryServer(1, true, haType(), true, false);
+      setupPrimaryServer(3, true, haType(), true, false);
       setupBackupServer(2, 3, true, haType(), true);
 
       final String address = ReplicatedDistributionTest.ADDRESS.toString();

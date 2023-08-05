@@ -38,7 +38,7 @@ public class ColocatedPolicyConfiguration implements HAPolicyConfiguration {
 
    private int portOffset = ActiveMQDefaultConfiguration.getDefaultHapolicyBackupPortOffset();
 
-   private HAPolicyConfiguration liveConfig;
+   private HAPolicyConfiguration primaryConfig;
 
    private HAPolicyConfiguration backupConfig;
 
@@ -113,12 +113,12 @@ public class ColocatedPolicyConfiguration implements HAPolicyConfiguration {
       return this;
    }
 
-   public HAPolicyConfiguration getLiveConfig() {
-      return liveConfig;
+   public HAPolicyConfiguration getPrimaryConfig() {
+      return primaryConfig;
    }
 
-   public ColocatedPolicyConfiguration setLiveConfig(HAPolicyConfiguration liveConfig) {
-      this.liveConfig = liveConfig;
+   public ColocatedPolicyConfiguration setPrimaryConfig(HAPolicyConfiguration primaryConfig) {
+      this.primaryConfig = primaryConfig;
       return this;
    }
 

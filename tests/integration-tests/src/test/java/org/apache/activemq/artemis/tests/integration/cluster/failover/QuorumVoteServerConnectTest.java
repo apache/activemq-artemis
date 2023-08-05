@@ -57,23 +57,23 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
    public void testVoteOnRequestToStay() {
       Assume.assumeThat(trueVotes, Matchers.greaterThan(0));
       Assume.assumeThat(size, Matchers.greaterThan(trueVotes));
-      final String liveConnector = "live";
+      final String connector = "primary";
       final String backupConnector = "backup";
-      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, liveConnector);
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, connector);
       quorum.vote(new ServerConnectVote("foo", true, backupConnector));
       Assert.assertFalse(quorum.getDecision());
       for (int i = 0; i < trueVotes - 1; i++) {
-         quorum.vote(new ServerConnectVote("foo", true, liveConnector));
+         quorum.vote(new ServerConnectVote("foo", true, connector));
          Assert.assertFalse(quorum.getDecision());
       }
-      quorum.vote(new ServerConnectVote("foo", true, liveConnector));
+      quorum.vote(new ServerConnectVote("foo", true, connector));
       Assert.assertTrue(quorum.getDecision());
    }
 
    @Test
    public void testAllVoteCastFreezeNotRequestToStayDecision() {
       QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo");
-      Assert.assertFalse(quorum.isRequestToStayLive());
+      Assert.assertFalse(quorum.isRequestToStayActive());
       final boolean decisionBeforeVoteCompleted = quorum.getDecision();
       quorum.allVotesCast(null);
       for (int i = 0; i < trueVotes; i++) {
@@ -84,13 +84,13 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testAllVoteCastFreezeRequestToStayDecision() {
-      final String liveConnector = "live";
-      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, liveConnector);
-      Assert.assertTrue(quorum.isRequestToStayLive());
+      final String connector = "primary";
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, connector);
+      Assert.assertTrue(quorum.isRequestToStayActive());
       final boolean decisionBeforeVoteCompleted = quorum.getDecision();
       quorum.allVotesCast(null);
       for (int i = 0; i < trueVotes; i++) {
-         quorum.vote(new ServerConnectVote("foo", true, liveConnector));
+         quorum.vote(new ServerConnectVote("foo", true, connector));
       }
       Assert.assertEquals(decisionBeforeVoteCompleted, quorum.getDecision());
    }
@@ -135,9 +135,9 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
    public void testRequestToStayQuorumUnblockAwait() throws InterruptedException {
       Assume.assumeThat(trueVotes, Matchers.greaterThan(0));
       Assume.assumeThat(size, Matchers.greaterThan(trueVotes));
-      final String liveConnector = "live";
+      final String connector = "primary";
       final String backupConnector = "backup";
-      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, liveConnector);
+      QuorumVoteServerConnect quorum = new QuorumVoteServerConnect(size, "foo", true, connector);
       Assert.assertFalse(quorum.getDecision());
       CountDownLatch taskStarted = new CountDownLatch(1);
       ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -157,11 +157,11 @@ public class QuorumVoteServerConnectTest extends ActiveMQTestBase {
          Assert.assertFalse(waitingTaskResult.isDone());
          Assert.assertFalse(quorum.getDecision());
          for (int i = 0; i < trueVotes - 1; i++) {
-            quorum.vote(new ServerConnectVote("foo", true, liveConnector));
+            quorum.vote(new ServerConnectVote("foo", true, connector));
             Assert.assertFalse(waitingTaskResult.isDone());
             Assert.assertFalse(quorum.getDecision());
          }
-         quorum.vote(new ServerConnectVote("foo", true, liveConnector));
+         quorum.vote(new ServerConnectVote("foo", true, connector));
          Assert.assertTrue(quorum.getDecision());
          try {
             Assert.assertNull(waitingTaskResult.get(5, TimeUnit.SECONDS));

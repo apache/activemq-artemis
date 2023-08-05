@@ -23,23 +23,23 @@ import org.apache.activemq.artemis.utils.UUID;
 
 public class NodeManagerAction {
 
-   public static final int START_LIVE = 0;
+   public static final int START_PRIMARY = 0;
    public static final int START_BACKUP = 1;
-   public static final int CRASH_LIVE = 2;
-   public static final int PAUSE_LIVE = 3;
+   public static final int CRASH_PRIMARY = 2;
+   public static final int PAUSE_PRIMARY = 3;
    public static final int STOP_BACKUP = 4;
-   public static final int AWAIT_LIVE = 5;
+   public static final int AWAIT_PRIMARY = 5;
    public static final int RELEASE_BACKUP = 6;
 
-   public static final int HAS_LIVE = 10;
+   public static final int HAS_PRIMARY = 10;
    public static final int HAS_BACKUP = 11;
-   public static final int DOESNT_HAVE_LIVE = 12;
+   public static final int DOESNT_HAVE_PRIMARY = 12;
    public static final int DOESNT_HAVE_BACKUP = 13;
    public static final int CHECK_ID = 14;
 
    private final int[] work;
 
-   boolean hasLiveLock = false;
+   boolean hasPrimaryLock = false;
    boolean hasBackupLock = false;
 
    public NodeManagerAction(int... work) {
@@ -49,36 +49,36 @@ public class NodeManagerAction {
    public void performWork(NodeManager nodeManager) throws Exception {
       for (int action : work) {
          switch (action) {
-            case START_LIVE:
-               nodeManager.startLiveNode().activationComplete();
-               hasLiveLock = true;
+            case START_PRIMARY:
+               nodeManager.startPrimaryNode().activationComplete();
+               hasPrimaryLock = true;
                hasBackupLock = false;
                break;
             case START_BACKUP:
                nodeManager.startBackup();
                hasBackupLock = true;
                break;
-            case CRASH_LIVE:
-               nodeManager.crashLiveServer();
-               hasLiveLock = false;
+            case CRASH_PRIMARY:
+               nodeManager.crashPrimaryServer();
+               hasPrimaryLock = false;
                break;
-            case PAUSE_LIVE:
-               nodeManager.pauseLiveServer();
-               hasLiveLock = false;
+            case PAUSE_PRIMARY:
+               nodeManager.pausePrimaryServer();
+               hasPrimaryLock = false;
                break;
             case STOP_BACKUP:
                nodeManager.stopBackup();
                hasBackupLock = false;
                break;
-            case AWAIT_LIVE:
-               nodeManager.awaitLiveNode();
-               hasLiveLock = true;
+            case AWAIT_PRIMARY:
+               nodeManager.awaitPrimaryNode();
+               hasPrimaryLock = true;
                break;
             case RELEASE_BACKUP:
                nodeManager.releaseBackup();
                hasBackupLock = false;
-            case HAS_LIVE:
-               if (!hasLiveLock) {
+            case HAS_PRIMARY:
+               if (!hasPrimaryLock) {
                   throw new IllegalStateException("live lock not held");
                }
                break;
@@ -87,8 +87,8 @@ public class NodeManagerAction {
                   throw new IllegalStateException("backup lock not held");
                }
                break;
-            case DOESNT_HAVE_LIVE:
-               if (hasLiveLock) {
+            case DOESNT_HAVE_PRIMARY:
+               if (hasPrimaryLock) {
                   throw new IllegalStateException("live lock held");
                }
                break;

@@ -330,7 +330,7 @@ Artemis ships with several login modules which will be discussed further down.
 This is the default security manager.
 * The `ActiveMQBasicSecurityManager` which doesn't use JAAS and only supports auth via username & password credentials.
 It also supports adding, removing, and updating users via the management API.
-All user & role data is stored in the broker's bindings journal which means any changes made to a live broker will be available on its backup.
+All user & role data is stored in the broker's bindings journal which means any changes made to a primary broker will be available on its backup.
 * The legacy, deprecated `ActiveMQSecurityManagerImpl` that reads user credentials, i.e. user names, passwords and role information from properties files on the classpath called `artemis-users.properties` and `artemis-roles.properties`.
 
 === JAAS Security Manager
@@ -1088,10 +1088,10 @@ Therefore you will _still need_ to configure a `login.config` if you plan on usi
 However, this security manager _may_ still may have a couple of advantages depending on your use-case.
 
 All user & role data is stored in the bindings journal (or bindings table if using JDBC).
-The advantage here is that in a live/backup use-case any user management performed on the live broker will be reflected on the backup upon failover.
+The advantage here is that in a primary/backup use-case any user management performed on the primary broker will be reflected on the backup upon failover.
 
 Typically LDAP would be employed for this kind of use-case, but not everyone wants or is able to administer an independent LDAP server.
-One significant benefit of LDAP is that user data can be shared between multiple live brokers.
+One significant benefit of LDAP is that user data can be shared between multiple active brokers.
 However, this is not possible with the `ActiveMQBasicSecurityManager` or, in fact, any other configuration potentially available out of the box.
 Nevertheless, if you just want to share user data between a single live/backup pair then the basic security manager may be a good fit for you.
 
@@ -1337,11 +1337,11 @@ keytool -storetype pkcs12 -keystore client-truststore.p12 -storepass securepass 
 
 Artemis provides a simple class filtering mechanism with which a user can specify which packages are to be trusted and which are not. Objects whose classes are from trusted packages can be deserialized without problem, whereas those from 'not trusted' packages will be denied deserialization.
 
-Artemis keeps a `black list` to keep track of packages that are not trusted and a `white list` for trusted packages. By default both lists are empty, meaning any serializable object is allowed to be deserialized.
-If an object whose class matches one of the packages in black list, it is not allowed to be deserialized.
-If it matches one in the white list the object can be deserialized.
-If a package appears in both black list and white list, the one in black list takes precedence.
-If a class neither matches with `black list` nor with the `white list`, the class deserialization will be denied unless the white list is empty (meaning the user doesn't specify the white list at all).
+Artemis keeps a `deny list` to keep track of packages that are not trusted and a `allow list` for trusted packages. By default both lists are empty, meaning any serializable object is allowed to be deserialized.
+If an object whose class matches one of the packages in deny list, it is not allowed to be deserialized.
+If it matches one in the allow list the object can be deserialized.
+If a package appears in both deny list and allow list, the one in deny list takes precedence.
+If a class neither matches with `deny list` nor with the `allow list`, the class deserialization will be denied unless the allow list is empty (meaning the user doesn't specify the allow list at all).
 
 A class is considered as a 'match' if:
 
@@ -1355,44 +1355,43 @@ entries could be:
 * `org.apache.pkg1` - exact package match.
 * `org.apache` -- sub package match.
 
-A `*` means 'match-all' in a black or white list.
+A `*` means 'match-all' in a deny or allow list.
 
 ### Config via Connection Factories
 
-To specify the white and black lists one can use the URL parameters
-`deserializationBlackList` and `deserializationWhiteList`. For example, using
-JMS:
+To specify the _allow_ and _deny_ lists one can use the URL parameters `deserializationDenyList` and `deserializationAllowList`.
+For example, using JMS:
 
 [,java]
 ----
-ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0?deserializationBlackList=org.apache.pkg1,org.some.pkg2");
+ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("vm://0?deserializationDenyList=org.apache.pkg1,org.some.pkg2");
 ----
 
-The above statement creates a factory that has a black list contains two forbidden packages, "org.apache.pkg1" and "org.some.pkg2", separated by a comma.
+The above statement creates a factory that has a deny list contains two forbidden packages, "org.apache.pkg1" and "org.some.pkg2", separated by a comma.
 
 === Config via system properties
 
-There are two system properties available for specifying black list and white list:
+There are two system properties available for specifying deny list and allow list:
 
-org.apache.activemq.artemis.jms.deserialization.whitelist::
-comma separated list of entries for the white list.
+org.apache.activemq.artemis.jms.deserialization.allowlist::
+comma separated list of entries for the allow list.
 
-org.apache.activemq.artemis.jms.deserialization.blacklist::
-comma separated list of entries for the black list.
+org.apache.activemq.artemis.jms.deserialization.denylist::
+comma separated list of entries for the deny list.
 
 Once defined, all JMS object message deserialization in the VM is subject to checks against the two lists.
-However if you create a ConnectionFactory and set a new set of black/white lists on it, the new values will override the system properties.
+However if you create a ConnectionFactory and set a new set of deny/allow lists on it, the new values will override the system properties.
 
 === Config for resource adapters
 
 Message beans using a JMS resource adapter to receive messages can also control their object deserialization via properly configuring relevant properties for their resource adapters.
 There are two properties that you can configure with connection factories in a resource adapter:
 
-deserializationBlackList::
-comma separated values for black list
+deserializationDenyList::
+comma separated values for deny list
 
-deserializationWhiteList::
-comma separated values for white list
+deserializationAllowList::
+comma separated values for allow list
 
 These properties, once specified, are eventually set on the corresponding internal factories.
 

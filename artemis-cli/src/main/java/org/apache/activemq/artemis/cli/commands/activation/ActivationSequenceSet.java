@@ -125,9 +125,9 @@ public class ActivationSequenceSet extends LockAbstract {
 
                }
                try (MutableLong coordinatedActivationSequence = manager.getMutableLong(localNodeId);
-                    DistributedLock liveLock = manager.getDistributedLock(localNodeId)) {
-                  if (!liveLock.tryLock()) {
-                     throw new IllegalStateException("Cannot safely set coordinated activation sequence for NodeID=" + localNodeId + ": live lock is still held.");
+                    DistributedLock primaryLock = manager.getDistributedLock(localNodeId)) {
+                  if (!primaryLock.tryLock()) {
+                     throw new IllegalStateException("Cannot safely set coordinated activation sequence for NodeID=" + localNodeId + ": primary lock is still held.");
                   }
                   final long remoteActivationSequence = coordinatedActivationSequence.get();
                   coordinatedActivationSequence.set(value);

@@ -39,8 +39,8 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnector;
 import org.apache.activemq.artemis.core.remoting.impl.invm.InVMRegistry;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -71,13 +71,13 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    protected static final int PAGE_SIZE = 1024;
 
 
-   protected TestableServer liveServer;
+   protected TestableServer primaryServer;
 
    protected TestableServer backupServer;
 
    protected Configuration backupConfig;
 
-   protected Configuration liveConfig;
+   protected Configuration primaryConfig;
 
    protected NodeManager nodeManager;
 
@@ -93,9 +93,9 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       super.setUp();
       createConfigs();
 
-      setLiveIdentity();
-      liveServer.start();
-      waitForServerToStart(liveServer.getServer());
+      setPrimaryIdentity();
+      primaryServer.start();
+      waitForServerToStart(primaryServer.getServer());
 
       if (backupServer != null) {
          setBackupIdentity();
@@ -114,8 +114,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       backupServer.setIdentity(this.getClass().getSimpleName() + "/backupServers");
    }
 
-   protected void setLiveIdentity() {
-      liveServer.setIdentity(this.getClass().getSimpleName() + "/liveServer");
+   protected void setPrimaryIdentity() {
+      primaryServer.setIdentity(this.getClass().getSimpleName() + "/primaryServer");
    }
 
    protected TestableServer createTestableServer(Configuration config) throws Exception {
@@ -123,15 +123,15 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
-      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreBackupPolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 
    protected TestableServer createColocatedTestableServer(Configuration config,
-                                                          NodeManager liveNodeManager,
+                                                          NodeManager primaryNodeManager,
                                                           NodeManager backupNodeManager,
                                                           int id) {
-      return new SameProcessActiveMQServer(createColocatedInVMFailoverServer(true, config, liveNodeManager, backupNodeManager, id));
+      return new SameProcessActiveMQServer(createColocatedInVMFailoverServer(true, config, primaryNodeManager, backupNodeManager, id));
    }
 
    /**
@@ -176,16 +176,16 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
    protected void createConfigs() throws Exception {
       nodeManager = createNodeManager();
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), primaryConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(createBasicClusterConfig(liveConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector);
+      primaryConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(createBasicClusterConfig(primaryConnector.getName())).addConnectorConfiguration(primaryConnector.getName(), primaryConnector);
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    /**
@@ -200,14 +200,14 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    }
 
    protected void createReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      final TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
       backupConfig = createDefaultInVMConfig();
-      liveConfig = createDefaultInVMConfig();
+      primaryConfig = createDefaultInVMConfig();
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null);
 
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
@@ -216,30 +216,30 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       backupServer = createTestableServer(backupConfig, backupNodeManager);
 
-      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
+      primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      nodeManager = createNodeManager(liveConfig);
-      liveServer = createTestableServer(liveConfig, nodeManager);
+      nodeManager = createNodeManager(primaryConfig);
+      primaryServer = createTestableServer(primaryConfig, nodeManager);
 
       if (supportsRetention()) {
-         liveServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, false) + "_retention");
+         primaryServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, false) + "_retention");
          backupServer.getServer().getConfiguration().setJournalRetentionDirectory(getJournalDir(0, true) + "_retention");
       }
    }
 
    protected void createPluggableReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      final TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
       backupConfig = createDefaultInVMConfig();
-      liveConfig = createDefaultInVMConfig();
+      primaryConfig = createDefaultInVMConfig();
 
       managerConfiguration =
          new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
                                                       Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
-      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null, managerConfiguration, managerConfiguration);
+      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null, managerConfiguration, managerConfiguration);
 
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
@@ -248,10 +248,10 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       backupServer = createTestableServer(backupConfig, backupNodeManager);
 
-      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
+      primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      nodeManager = createNodeManager(liveConfig);
-      liveServer = createTestableServer(liveConfig, nodeManager);
+      nodeManager = createNodeManager(primaryConfig);
+      primaryServer = createTestableServer(primaryConfig, nodeManager);
    }
 
    protected void setupHAPolicyConfiguration() {
@@ -260,7 +260,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
    }
 
-   protected final void adaptLiveConfigForReplicatedFailBack(TestableServer server) {
+   protected final void adaptPrimaryConfigForReplicatedFailBack(TestableServer server) {
       Configuration configuration = server.getServer().getConfiguration();
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       if (server.getServer().getHAPolicy().isSharedStore()) {
@@ -274,7 +274,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
       }
       HAPolicy policy = server.getServer().getHAPolicy();
       if (policy instanceof ReplicatedPolicy) {
-         ((ReplicatedPolicy) policy).setCheckForLiveServer(true);
+         ((ReplicatedPolicy) policy).setCheckForPrimaryServer(true);
       }
 
    }
@@ -291,7 +291,7 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       backupServer = null;
 
-      liveServer = null;
+      primaryServer = null;
 
       nodeManager = null;
 
@@ -358,14 +358,14 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
    protected void crash(final boolean failover,
                         final boolean waitFailure,
                         final ClientSession... sessions) throws Exception {
-      liveServer.crash(failover, waitFailure, sessions);
+      primaryServer.crash(failover, waitFailure, sessions);
    }
 
 
    public static final class LatchClusterTopologyListener implements ClusterTopologyListener {
 
       final CountDownLatch latch;
-      List<String> liveNode = new ArrayList<>();
+      List<String> primaryNode = new ArrayList<>();
       List<String> backupNode = new ArrayList<>();
 
       public LatchClusterTopologyListener(CountDownLatch latch) {
@@ -374,8 +374,8 @@ public abstract class FailoverTestBase extends ActiveMQTestBase {
 
       @Override
       public void nodeUP(TopologyMember topologyMember, boolean last) {
-         if (topologyMember.getLive() != null && !liveNode.contains(topologyMember.getLive().getName())) {
-            liveNode.add(topologyMember.getLive().getName());
+         if (topologyMember.getPrimary() != null && !primaryNode.contains(topologyMember.getPrimary().getName())) {
+            primaryNode.add(topologyMember.getPrimary().getName());
             latch.countDown();
          }
          if (topologyMember.getBackup() != null && !backupNode.contains(topologyMember.getBackup().getName())) {

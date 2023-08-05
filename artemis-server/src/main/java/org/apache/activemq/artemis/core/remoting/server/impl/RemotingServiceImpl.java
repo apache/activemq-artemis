@@ -403,7 +403,7 @@ public class RemotingServiceImpl implements RemotingService, ServerConnectionLif
 
       }
 
-      logger.debug("Sending disconnect on live connections");
+      logger.debug("Sending disconnect on client connections");
 
       HashSet<ConnectionEntry> connectionEntries = new HashSet<>(connections.values());
 

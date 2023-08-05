@@ -41,35 +41,35 @@ public class ConnectionHangOnStartupTest extends OpenwireArtemisBaseTest {
    // maxReconnectDelay so that the test runs faster (because it will retry
    // connection sooner)
    protected String uriString = "failover://(tcp://localhost:62001?wireFormat.maxInactivityDurationInitalDelay=1,tcp://localhost:62002?wireFormat.maxInactivityDurationInitalDelay=1)?randomize=false&maxReconnectDelay=200";
-   protected EmbeddedJMS master = null;
-   protected AtomicReference<EmbeddedJMS> slave = new AtomicReference<>();
+   protected EmbeddedJMS primary = null;
+   protected AtomicReference<EmbeddedJMS> backup = new AtomicReference<>();
 
    @After
    public void tearDown() throws Exception {
 
-      EmbeddedJMS brokerService = slave.get();
+      EmbeddedJMS brokerService = backup.get();
       if (brokerService != null) {
          brokerService.stop();
       }
-      if (master != null)
-         master.stop();
+      if (primary != null)
+         primary.stop();
    }
 
    protected ActiveMQConnectionFactory createConnectionFactory() throws Exception {
       return new ActiveMQConnectionFactory(uriString);
    }
 
-   protected void createMaster() throws Exception {
+   protected void createPrimary() throws Exception {
       Configuration config = createConfig("localhost", 0, 62001);
-      master = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
-      master.start();
+      primary = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
+      primary.start();
    }
 
-   protected void createSlave() throws Exception {
+   protected void createBackup() throws Exception {
       Configuration config = createConfig("localhost", 1, 62002);
       EmbeddedJMS broker = new EmbeddedJMS().setConfiguration(config).setJmsConfiguration(new JMSConfigurationImpl());
       broker.start();
-      slave.set(broker);
+      backup.set(broker);
    }
 
    @Test(timeout = 60000)
@@ -90,7 +90,7 @@ public class ConnectionHangOnStartupTest extends OpenwireArtemisBaseTest {
          }
       };
       t.start();
-      createMaster();
+      createPrimary();
 
       // slave will never start unless the master dies!
       //createSlave();

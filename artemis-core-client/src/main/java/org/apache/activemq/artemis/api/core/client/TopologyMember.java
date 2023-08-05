@@ -28,22 +28,22 @@ import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 public interface TopologyMember {
 
    /**
-    * Returns the {@code backup-group-name} of the live server and backup servers associated with
+    * Returns the {@code backup-group-name} of the primary server and backup servers associated with
     * Topology entry.
     * <p>
-    * This is a server configuration value. A (remote) backup will only work with live servers that
+    * This is a server configuration value. A (remote) backup will only work with primary servers that
     * have a matching {@code backup-group-name}.
     * <p>
-    * This value does not apply to "shared-storage" backup and live pairs.
+    * This value does not apply to "shared-storage" backup and primary pairs.
     *
     * @return the {@code backup-group-name}
     */
    String getBackupGroupName();
 
    /**
-    * Returns the {@code scale-down-group-name} of the live server with this Topology entry.
+    * Returns the {@code scale-down-group-name} of the server with this Topology entry.
     * <p>
-    * This is a server configuration value. a live server will only send its messages to another live server
+    * This is a server configuration value. An active server will only send its messages to another active server
     * with matching {@code scale-down-group-name}.
     * <p>
     *
@@ -54,12 +54,18 @@ public interface TopologyMember {
    /**
     * @return configuration relative to the live server
     */
+   @Deprecated(forRemoval = true)
    TransportConfiguration getLive();
+
+   /**
+    * @return configuration relative to the primary server
+    */
+   TransportConfiguration getPrimary();
 
    /**
     * Returns the TransportConfiguration relative to the backup server if any.
     *
-    * @return a {@link TransportConfiguration} for the backup, or null} if the live server has no
+    * @return a {@link TransportConfiguration} for the backup, or null if the primary server has no
     * backup server.
     */
    TransportConfiguration getBackup();

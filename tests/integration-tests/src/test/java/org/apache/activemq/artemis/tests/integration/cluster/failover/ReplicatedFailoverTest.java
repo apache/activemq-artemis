@@ -83,49 +83,49 @@ public class ReplicatedFailoverTest extends FailoverTest {
 
          crash(session);
 
-         ReplicatedPolicy haPolicy = (ReplicatedPolicy) liveServer.getServer().getHAPolicy();
+         ReplicatedPolicy haPolicy = (ReplicatedPolicy) primaryServer.getServer().getHAPolicy();
 
-         haPolicy.setCheckForLiveServer(true);
+         haPolicy.setCheckForPrimaryServer(true);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForSync(backupServer.getServer());
 
-         waitForServerToStart(liveServer.getServer());
+         waitForServerToStart(primaryServer.getServer());
 
          session = createSession(sf, true, true);
 
          crash(session);
 
-         ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+         ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) primaryServer.getServer().getConfiguration().getHAPolicyConfiguration();
 
-         replicatedPolicyConfiguration.setCheckForLiveServer(true);
+         replicatedPolicyConfiguration.setCheckForActiveServer(true);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForSync(backupServer.getServer());
 
-         waitForServerToStart(liveServer.getServer());
+         waitForServerToStart(primaryServer.getServer());
 
          session = createSession(sf, true, true);
 
          crash(session);
 
-         replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+         replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) primaryServer.getServer().getConfiguration().getHAPolicyConfiguration();
 
-         replicatedPolicyConfiguration.setCheckForLiveServer(true);
+         replicatedPolicyConfiguration.setCheckForActiveServer(true);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          backupServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForServerToStart(backupServer.getServer());
 
@@ -136,7 +136,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
             sf.close();
          }
          try {
-            liveServer.getServer().stop();
+            primaryServer.getServer().stop();
          } catch (Throwable ignored) {
          }
          try {
@@ -147,7 +147,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
    }
 
    @Test
-   public void testReplicatedFailbackBackupFromLiveBackToBackup() throws Exception {
+   public void testReplicatedFailbackBackupFromPrimaryBackToBackup() throws Exception {
 
       InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       HttpServer httpServer = HttpServer.create(address, 100);
@@ -181,7 +181,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
          backupServer.getServer().getNetworkHealthCheck().parseURIList("http://localhost:8787");
          Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
          backupServer.getServer().addExternalComponent(webServerComponent, false);
-         // this is called when backup servers go from live back to backup
+         // this is called when backup servers go from primary back to backup
          backupServer.getServer().fail(true);
          Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
          Assert.assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
@@ -200,7 +200,7 @@ public class ReplicatedFailoverTest extends FailoverTest {
    @Override
    protected void setupHAPolicyConfiguration() {
       if (isReplicatedFailbackTest) {
-         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
+         ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setCheckForActiveServer(true);
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
       } else {

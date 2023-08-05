@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 
 /**
- * Registers a given backup-server as the replicating backup of a live server (i.e. a regular
+ * Registers a given backup-server as the replicating backup of a primary server (i.e. a regular
  * ActiveMQ).
  * <p>
  * If it succeeds the backup will start synchronization of its state with the new backup node, and

@@ -75,9 +75,9 @@ For example, `./artemis help create`:
 [,console]
 ----
 Usage: artemis create [--aio] [--allow-anonymous] [--autocreate] [--autodelete]
-                      [--blocking] [--clustered] [--cygwin]
+                      [--backup] [--blocking] [--clustered]
                       [--disable-persistence] [--failover-on-shutdown]
-                      [--force] [--jdbc] [--mapped] [--nio]
+                      [--force] [--jdbc] [--linux] [--mapped] [--nio]
                       [--no-amqp-acceptor] [--no-autocreate] [--no-autotune]
                       [--no-fsync] [--no-hornetq-acceptor] [--no-mqtt-acceptor]
                       [--no-stomp-acceptor] [--no-web] [--paging]
@@ -116,7 +116,7 @@ Usage: artemis create [--aio] [--allow-anonymous] [--autocreate] [--autodelete]
                       [--ssl-key-password=<sslKeyPassword>]
                       [--ssl-trust=<sslTrust>]
                       [--ssl-trust-password=<sslTrustPassword>]
-                      [--static-cluster=<staticNode>] [--user=<user>]
+                      [--staticCluster=<staticNode>] [--user=<user>]
                       [--java-options=<javaOptions>]... <directory>
 Create a new broker instance.
       <directory>            The instance directory to hold the broker's
@@ -134,6 +134,8 @@ Create a new broker instance.
                                Default: true.
       --autodelete           Allow automatic deletion of addresses & queues.
                                Default: false.
+      --backup               Be a backup broker. Valid for shared store or
+                               replication.
       --blocking             Block producers when address becomes full.
                                Opposite of --paging. Default: false.
       --cluster-password=<clusterPassword>
@@ -141,8 +143,6 @@ Create a new broker instance.
       --cluster-user=<clusterUser>
                              The user to use for clustering. Default: input.
       --clustered            Enable clustering.
-      --cygwin               Force Cygwin script creation. Default: based on
-                               your actual system.
       --data=<data>          Directory where ActiveMQ data are stored. Paths
                                can be absolute or relative to artemis.instance
                                directory. Default: data.
@@ -208,6 +208,8 @@ Create a new broker instance.
       --journal-retention-max-bytes=<retentionMaxBytes>
                              Maximum number of bytes to keep in the retention
                                directory.
+      --linux, --cygwin      Force Linux or Cygwin script creation. Default:
+                               based on your actual system.
       --mapped               Set the journal as mapped.
       --max-hops=<maxHops>   Number of hops on the cluster configuration.
       --message-load-balancing=<messageLoadBalancing>
@@ -251,8 +253,7 @@ Create a new broker instance.
       --shared-store         Enable broker shared store.
       --silent               Disable all the inputs, and make a best guess for
                                any required input.
-      --slave                Be a slave broker. Valid for shared store or
-                               replication.
+      --slave                Deprecated for removal. Use 'backup' instead.
       --ssl-key=<sslKey>     Embedded web server's key store path.
       --ssl-key-password=<sslKeyPassword>
                              The key store's password.
@@ -260,7 +261,7 @@ Create a new broker instance.
                                authentication.
       --ssl-trust-password=<sslTrustPassword>
                              The trust store's password.
-      --static-cluster=<staticNode>
+      --staticCluster, --static-cluster=<staticNode>
                              Cluster node connectors list separated by comma, e.
                                g. "tcp://server:61616,tcp://server2:61616,tcp:
                                //server3:61616".

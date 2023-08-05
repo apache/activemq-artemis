@@ -70,23 +70,23 @@ public interface SQLProvider {
 
    String createNodeIdSQL();
 
-   String createLiveLockSQL();
+   String createPrimaryLockSQL();
 
    String createBackupLockSQL();
 
-   String tryAcquireLiveLockSQL();
+   String tryAcquirePrimaryLockSQL();
 
    String tryAcquireBackupLockSQL();
 
-   String tryReleaseLiveLockSQL();
+   String tryReleasePrimaryLockSQL();
 
    String tryReleaseBackupLockSQL();
 
-   String isLiveLockedSQL();
+   String isPrimaryLockedSQL();
 
    String isBackupLockedSQL();
 
-   String renewLiveLockSQL();
+   String renewPrimaryLockSQL();
 
    String renewBackupLockSQL();
 

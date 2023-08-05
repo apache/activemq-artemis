@@ -40,8 +40,8 @@ import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -71,9 +71,9 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    protected Configuration backupConf;
 
-   protected Configuration liveConf;
+   protected Configuration primaryConf;
 
-   protected ActiveMQServer liveServer;
+   protected ActiveMQServer primaryServer;
 
    protected ActiveMQServer backupServer;
 
@@ -81,9 +81,9 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    private TransportConfiguration backuptc;
 
-   private TransportConfiguration livetc;
+   private TransportConfiguration primarytc;
 
-   private TransportConfiguration liveAcceptortc;
+   private TransportConfiguration primaryAcceptortc;
 
    private TransportConfiguration backupAcceptortc;
 
@@ -91,7 +91,7 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    @Test
    public void testAutomaticFailover() throws Exception {
-      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, livetc);
+      ActiveMQConnectionFactory jbcf = ActiveMQJMSClient.createConnectionFactoryWithHA(JMSFactoryType.CF, primarytc);
       jbcf.setReconnectAttempts(-1);
       jbcf.setRetryInterval(100);
       jbcf.setConnectionTTL(500);
@@ -142,13 +142,13 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
          producer.send(bm);
       }
 
-      Wait.assertEquals(numMessages, liveServer.locateQueue(jmsQueueName)::getMessageCount);
+      Wait.assertEquals(numMessages, primaryServer.locateQueue(jmsQueueName)::getMessageCount);
 
       conn.start();
 
       logger.debug("sent messages and started connection");
 
-      JMSUtil.crash(liveServer, ((ActiveMQSession) sess).getCoreSession());
+      JMSUtil.crash(primaryServer, ((ActiveMQSession) sess).getCoreSession());
 
       Wait.assertTrue(() -> FailoverEventType.FAILURE_DETECTED == listener.get(0));
       for (int i = 0; i < numMessages; i++) {
@@ -172,11 +172,11 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
 
    @Test
    public void testManualFailover() throws Exception {
-      ActiveMQConnectionFactory jbcfLive = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
+      ActiveMQConnectionFactory jbcfPrimary = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY));
 
-      jbcfLive.setBlockOnNonDurableSend(true);
-      jbcfLive.setBlockOnDurableSend(true);
-      jbcfLive.setCallTimeout(1000);
+      jbcfPrimary.setBlockOnNonDurableSend(true);
+      jbcfPrimary.setBlockOnDurableSend(true);
+      jbcfPrimary.setCallTimeout(1000);
 
       ActiveMQConnectionFactory jbcfBackup = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams));
       jbcfBackup.setBlockOnNonDurableSend(true);
@@ -185,37 +185,37 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       jbcfBackup.setReconnectAttempts(-1);
       jbcfBackup.setRetryInterval(100);
 
-      ActiveMQConnection connLive = (ActiveMQConnection) jbcfLive.createConnection();
+      ActiveMQConnection connPrimary = (ActiveMQConnection) jbcfPrimary.createConnection();
 
       MyFailoverListener listener = new MyFailoverListener();
 
-      connLive.setFailoverListener(listener);
+      connPrimary.setFailoverListener(listener);
 
-      Session sessLive = connLive.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session sessPrimary = connPrimary.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-      ClientSession coreSessionLive = ((ActiveMQSession) sessLive).getCoreSession();
+      ClientSession coreSessionPrimary = ((ActiveMQSession) sessPrimary).getCoreSession();
 
       SimpleString jmsQueueName = new SimpleString("myqueue");
 
-      coreSessionLive.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
+      coreSessionPrimary.createQueue(new QueueConfiguration(jmsQueueName).setRoutingType(RoutingType.ANYCAST));
 
-      Queue queue = sessLive.createQueue("myqueue");
+      Queue queue = sessPrimary.createQueue("myqueue");
 
       final int numMessages = 1000;
 
-      MessageProducer producerLive = sessLive.createProducer(queue);
+      MessageProducer producerPrimary = sessPrimary.createProducer(queue);
 
       for (int i = 0; i < numMessages; i++) {
-         TextMessage tm = sessLive.createTextMessage("message" + i);
+         TextMessage tm = sessPrimary.createTextMessage("message" + i);
 
-         producerLive.send(tm);
+         producerPrimary.send(tm);
       }
 
       // Note we block on P send to make sure all messages get to server before failover
 
-      JMSUtil.crash(liveServer, coreSessionLive);
+      JMSUtil.crash(primaryServer, coreSessionPrimary);
       Assert.assertEquals(FailoverEventType.FAILURE_DETECTED, listener.get(0));
-      connLive.close();
+      connPrimary.close();
 
       // Now recreate on backup
 
@@ -258,14 +258,14 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
    protected void startServers() throws Exception {
       NodeManager nodeManager = new InVMNodeManager(false);
       backuptc = new TransportConfiguration(INVM_CONNECTOR_FACTORY, backupParams);
-      livetc = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
+      primarytc = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
 
-      liveAcceptortc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY);
+      primaryAcceptortc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY);
       backupAcceptortc = new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams);
 
       backupParams.put(TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      backupConf = createBasicConfig().addAcceptorConfiguration(backupAcceptortc).addConnectorConfiguration(livetc.getName(), livetc).addConnectorConfiguration(backuptc.getName(), backuptc).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), livetc.getName()));
+      backupConf = createBasicConfig().addAcceptorConfiguration(backupAcceptortc).addConnectorConfiguration(primarytc.getName(), primarytc).addConnectorConfiguration(backuptc.getName(), backuptc).setJournalType(getDefaultJournalType()).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, backupParams)).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(backuptc.getName(), primarytc.getName()));
       backupConf.setConnectionTtlCheckInterval(100);
 
       backupServer = addServer(new InVMNodeManagerServer(backupConf, nodeManager));
@@ -274,15 +274,15 @@ public class JMSFailoverListenerTest extends ActiveMQTestBase {
       logger.debug("Starting backup");
       backupServer.start();
 
-      liveConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).addAcceptorConfiguration(liveAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(livetc.getName(), livetc).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(livetc.getName()));
-      liveConf.setConnectionTtlCheckInterval(100);
+      primaryConf = createBasicConfig().setJournalDirectory(getJournalDir()).setBindingsDirectory(getBindingsDir()).addAcceptorConfiguration(primaryAcceptortc).setJournalType(getDefaultJournalType()).setBindingsDirectory(getBindingsDir()).setJournalMinFiles(2).setJournalDirectory(getJournalDir()).setPagingDirectory(getPageDir()).setLargeMessagesDirectory(getLargeMessagesDir()).addConnectorConfiguration(primarytc.getName(), primarytc).setPersistenceEnabled(true).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(primarytc.getName()));
+      primaryConf.setConnectionTtlCheckInterval(100);
 
-      liveServer = addServer(new InVMNodeManagerServer(liveConf, nodeManager));
+      primaryServer = addServer(new InVMNodeManagerServer(primaryConf, nodeManager));
 
-      liveServer.setIdentity("JMSLive");
+      primaryServer.setIdentity("JMSPrimary");
       logger.debug("Starting life");
 
-      liveServer.start();
+      primaryServer.start();
 
       JMSUtil.waitForServer(backupServer);
    }

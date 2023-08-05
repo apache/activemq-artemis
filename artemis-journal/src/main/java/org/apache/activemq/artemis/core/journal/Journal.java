@@ -45,18 +45,18 @@ public interface Journal extends ActiveMQComponent {
        */
       STARTED,
       /**
-       * When a replicating server is still not synchronized with its live. So if the live stops,
-       * the backup may not fail-over and will stop as well.
+       * When a replicating server is still not synchronized with its replica. So if the replicating
+       * server stops, the replica may not fail-over and will stop as well.
        */
       SYNCING,
       /**
-       * Journal is being used by a replicating server which is up-to-date with its live. That means
-       * that if the live stops, the backup can fail-over.
+       * Journal is being used by a replicating server which is up-to-date with its replica. That means
+       * that if the replicating server stops, the replica can fail-over.
        */
       SYNCING_UP_TO_DATE,
       /**
        * The journal is fully operational. This is the state the journal should be when its server
-       * is live.
+       * is active.
        */
       LOADED;
    }
@@ -297,9 +297,9 @@ public interface Journal extends ActiveMQComponent {
     * Reserves journal file IDs, creates the necessary files for synchronization, and places
     * references to these (reserved for sync) files in the map.
     * <p>
-    * During the synchronization between a live server and backup, we reserve in the backup the
-    * journal file IDs used in the live server. This call also makes sure the files are created
-    * empty without any kind of headers added.
+    * During the synchronization between a replicating server and replica, we reserve in the
+    * replica the journal file IDs used in the replicating server. This call also makes sure
+    * the files are created empty without any kind of headers added.
     *
     * @param fileIds IDs to reserve for synchronization
     * @return map to be filled with id and journal file pairs for <b>synchronization</b>.
@@ -364,16 +364,17 @@ public interface Journal extends ActiveMQComponent {
    /**
     * Stops any operation that may delete or modify old (stale) data.
     * <p>
-    * Meant to be used during synchronization of data between a live server and its replicating
-    * (remote) backup. Old files must not be compacted or deleted during synchronization.
+    * Meant to be used during synchronization of data between a replicating server and its
+    * replica. Old files must not be compacted or deleted during synchronization.
     */
    void replicationSyncPreserveOldFiles();
 
    /**
     * Restarts file reclaim and compacting on the journal.
     * <p>
-    * Meant to be used to revert the effect of {@link #replicationSyncPreserveOldFiles()}. it should
-    * only be called once the synchronization of the backup and live servers is completed.
+    * Meant to be used to revert the effect of {@link #replicationSyncPreserveOldFiles()}.
+    * it should only be called once the synchronization of the replica and replicating
+    * servers is completed.
     */
    void replicationSyncFinished();
 

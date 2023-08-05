@@ -70,12 +70,12 @@ public class ReplicatedVotingFailoverTest extends FailoverTestBase {
          addClientSession(session);
          ClientProducer producer = session.createProducer("testAddress");
          producer.send(session.createMessage(true));
-         assertTrue(liveServer.isActive());
+         assertTrue(primaryServer.isActive());
 
 
       } finally {
          try {
-            liveServer.getServer().stop();
+            primaryServer.getServer().stop();
          } catch (Throwable ignored) {
          }
          try {
@@ -104,13 +104,13 @@ public class ReplicatedVotingFailoverTest extends FailoverTestBase {
          } catch (Exception e) {
             //expected
          }
-         waitForServerToStop(liveServer.getServer());
-         assertFalse(liveServer.isStarted());
+         waitForServerToStop(primaryServer.getServer());
+         assertFalse(primaryServer.isStarted());
 
 
       } finally {
          try {
-            liveServer.getServer().stop();
+            primaryServer.getServer().stop();
          } catch (Throwable ignored) {
          }
          try {
@@ -127,12 +127,12 @@ public class ReplicatedVotingFailoverTest extends FailoverTestBase {
 
    @Override
    protected void setupHAPolicyConfiguration() {
-      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setCheckForLiveServer(true);
-      ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setVoteOnReplicationFailure(true);
+      ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setCheckForActiveServer(true);
+      ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setVoteOnReplicationFailure(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(2).setAllowFailBack(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
       if (testBackupFailsVoteFails) {
-         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setQuorumSize(2);
+         ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setQuorumSize(2);
       }
    }
 

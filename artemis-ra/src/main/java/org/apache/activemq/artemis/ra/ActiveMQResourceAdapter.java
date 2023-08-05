@@ -885,28 +885,56 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
       raProperties.setProtocolManagerFactoryStr(protocolManagerFactoryStr);
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
       logger.trace("getDeserializationBlackList()");
 
       return raProperties.getDeserializationBlackList();
    }
 
-   public void setDeserializationBlackList(String deserializationBlackList) {
-      logger.trace("setDeserializationBlackList({})", deserializationBlackList);
+   @Deprecated(forRemoval = true)
+   public void setDeserializationBlackList(String deserializationDenyList) {
+      logger.trace("setDeserializationBlackList({})", deserializationDenyList);
 
-      raProperties.setDeserializationBlackList(deserializationBlackList);
+      raProperties.setDeserializationDenyList(deserializationDenyList);
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
       logger.trace("getDeserializationWhiteList()");
 
-      return raProperties.getDeserializationWhiteList();
+      return raProperties.getDeserializationAllowList();
    }
 
-   public void setDeserializationWhiteList(String deserializationWhiteList) {
-      logger.trace("setDeserializationWhiteList({})", deserializationWhiteList);
+   @Deprecated(forRemoval = true)
+   public void setDeserializationWhiteList(String deserializationAllowList) {
+      logger.trace("setDeserializationWhiteList({})", deserializationAllowList);
 
-      raProperties.setDeserializationWhiteList(deserializationWhiteList);
+      raProperties.setDeserializationAllowList(deserializationAllowList);
+   }
+
+   public String getDeserializationDenyList() {
+      logger.trace("getDeserializationDenyList()");
+
+      return raProperties.getDeserializationDenyList();
+   }
+
+   public void setDeserializationDenyList(String deserializationDenyList) {
+      logger.trace("setDeserializationDenyList({})", deserializationDenyList);
+
+      raProperties.setDeserializationBlackList(deserializationDenyList);
+   }
+
+   public String getDeserializationAllowList() {
+      logger.trace("getDeserializationAllowList()");
+
+      return raProperties.getDeserializationAllowList();
+   }
+
+   public void setDeserializationAllowList(String deserializationAllowList) {
+      logger.trace("setDeserializationAllowList({})", deserializationAllowList);
+
+      raProperties.setDeserializationAllowList(deserializationAllowList);
    }
 
    /**
@@ -1756,157 +1784,165 @@ public class ActiveMQResourceAdapter implements ResourceAdapter, Serializable {
    }
 
    private void setParams(final ActiveMQConnectionFactory cf, final ConnectionFactoryProperties overrideProperties) {
-      Boolean val = overrideProperties.isAutoGroup() != null ? overrideProperties.isAutoGroup() : raProperties.isAutoGroup();
-      if (val != null) {
-         cf.setAutoGroup(val);
+      Boolean booleanVal = overrideProperties.isAutoGroup() != null ? overrideProperties.isAutoGroup() : raProperties.isAutoGroup();
+      if (booleanVal != null) {
+         cf.setAutoGroup(booleanVal);
       }
-      val = overrideProperties.isBlockOnAcknowledge() != null ? overrideProperties.isBlockOnAcknowledge() : raProperties.isBlockOnAcknowledge();
-      if (val != null) {
-         cf.setBlockOnAcknowledge(val);
+      booleanVal = overrideProperties.isBlockOnAcknowledge() != null ? overrideProperties.isBlockOnAcknowledge() : raProperties.isBlockOnAcknowledge();
+      if (booleanVal != null) {
+         cf.setBlockOnAcknowledge(booleanVal);
       }
-      val = overrideProperties.isBlockOnNonDurableSend() != null ? overrideProperties.isBlockOnNonDurableSend() : raProperties.isBlockOnNonDurableSend();
-      if (val != null) {
-         cf.setBlockOnNonDurableSend(val);
+      booleanVal = overrideProperties.isBlockOnNonDurableSend() != null ? overrideProperties.isBlockOnNonDurableSend() : raProperties.isBlockOnNonDurableSend();
+      if (booleanVal != null) {
+         cf.setBlockOnNonDurableSend(booleanVal);
       }
-      val = overrideProperties.isBlockOnDurableSend() != null ? overrideProperties.isBlockOnDurableSend() : raProperties.isBlockOnDurableSend();
-      if (val != null) {
-         cf.setBlockOnDurableSend(val);
+      booleanVal = overrideProperties.isBlockOnDurableSend() != null ? overrideProperties.isBlockOnDurableSend() : raProperties.isBlockOnDurableSend();
+      if (booleanVal != null) {
+         cf.setBlockOnDurableSend(booleanVal);
       }
-      val = overrideProperties.isPreAcknowledge() != null ? overrideProperties.isPreAcknowledge() : raProperties.isPreAcknowledge();
-      if (val != null) {
-         cf.setPreAcknowledge(val);
+      booleanVal = overrideProperties.isPreAcknowledge() != null ? overrideProperties.isPreAcknowledge() : raProperties.isPreAcknowledge();
+      if (booleanVal != null) {
+         cf.setPreAcknowledge(booleanVal);
       }
-      val = overrideProperties.isUseGlobalPools() != null ? overrideProperties.isUseGlobalPools() : raProperties.isUseGlobalPools();
-      if (val != null) {
-         cf.setUseGlobalPools(val);
-      }
-
-      val = overrideProperties.isCacheLargeMessagesClient() != null ? overrideProperties.isCacheLargeMessagesClient() : raProperties.isCacheLargeMessagesClient();
-      if (val != null) {
-         cf.setCacheLargeMessagesClient(val);
+      booleanVal = overrideProperties.isUseGlobalPools() != null ? overrideProperties.isUseGlobalPools() : raProperties.isUseGlobalPools();
+      if (booleanVal != null) {
+         cf.setUseGlobalPools(booleanVal);
       }
 
-      val = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
-      if (val != null) {
-         cf.setCompressLargeMessage(val);
+      booleanVal = overrideProperties.isCacheLargeMessagesClient() != null ? overrideProperties.isCacheLargeMessagesClient() : raProperties.isCacheLargeMessagesClient();
+      if (booleanVal != null) {
+         cf.setCacheLargeMessagesClient(booleanVal);
       }
 
-      val = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();
-      if (val != null) {
-         cf.setCacheDestinations(val);
+      booleanVal = overrideProperties.isCompressLargeMessage() != null ? overrideProperties.isCompressLargeMessage() : raProperties.isCompressLargeMessage();
+      if (booleanVal != null) {
+         cf.setCompressLargeMessage(booleanVal);
       }
 
-      Integer val2 = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate() : raProperties.getConsumerMaxRate();
-      if (val2 != null) {
-         cf.setConsumerMaxRate(val2);
-      }
-      val2 = overrideProperties.getConsumerWindowSize() != null ? overrideProperties.getConsumerWindowSize() : raProperties.getConsumerWindowSize();
-      if (val2 != null) {
-         cf.setConsumerWindowSize(val2);
-      }
-      val2 = overrideProperties.getDupsOKBatchSize() != null ? overrideProperties.getDupsOKBatchSize() : raProperties.getDupsOKBatchSize();
-      if (val2 != null) {
-         cf.setDupsOKBatchSize(val2);
+      booleanVal = overrideProperties.isCacheDestinations() != null ? overrideProperties.isCacheDestinations() : raProperties.isCacheDestinations();
+      if (booleanVal != null) {
+         cf.setCacheDestinations(booleanVal);
       }
 
-      val2 = overrideProperties.getMinLargeMessageSize() != null ? overrideProperties.getMinLargeMessageSize() : raProperties.getMinLargeMessageSize();
-      if (val2 != null) {
-         cf.setMinLargeMessageSize(val2);
+      Integer intVal = overrideProperties.getConsumerMaxRate() != null ? overrideProperties.getConsumerMaxRate() : raProperties.getConsumerMaxRate();
+      if (intVal != null) {
+         cf.setConsumerMaxRate(intVal);
       }
-      val2 = overrideProperties.getProducerMaxRate() != null ? overrideProperties.getProducerMaxRate() : raProperties.getProducerMaxRate();
-      if (val2 != null) {
-         cf.setProducerMaxRate(val2);
+      intVal = overrideProperties.getConsumerWindowSize() != null ? overrideProperties.getConsumerWindowSize() : raProperties.getConsumerWindowSize();
+      if (intVal != null) {
+         cf.setConsumerWindowSize(intVal);
       }
-      val2 = overrideProperties.getProducerWindowSize() != null ? overrideProperties.getProducerWindowSize() : raProperties.getProducerWindowSize();
-      if (val2 != null) {
-         cf.setProducerWindowSize(val2);
+      intVal = overrideProperties.getDupsOKBatchSize() != null ? overrideProperties.getDupsOKBatchSize() : raProperties.getDupsOKBatchSize();
+      if (intVal != null) {
+         cf.setDupsOKBatchSize(intVal);
       }
-      val2 = overrideProperties.getConfirmationWindowSize() != null ? overrideProperties.getConfirmationWindowSize() : raProperties.getConfirmationWindowSize();
-      if (val2 != null) {
-         cf.setConfirmationWindowSize(val2);
+
+      intVal = overrideProperties.getMinLargeMessageSize() != null ? overrideProperties.getMinLargeMessageSize() : raProperties.getMinLargeMessageSize();
+      if (intVal != null) {
+         cf.setMinLargeMessageSize(intVal);
       }
-      val2 = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts() : raProperties.getReconnectAttempts();
-      if (val2 != null) {
-         cf.setReconnectAttempts(val2);
+      intVal = overrideProperties.getProducerMaxRate() != null ? overrideProperties.getProducerMaxRate() : raProperties.getProducerMaxRate();
+      if (intVal != null) {
+         cf.setProducerMaxRate(intVal);
+      }
+      intVal = overrideProperties.getProducerWindowSize() != null ? overrideProperties.getProducerWindowSize() : raProperties.getProducerWindowSize();
+      if (intVal != null) {
+         cf.setProducerWindowSize(intVal);
+      }
+      intVal = overrideProperties.getConfirmationWindowSize() != null ? overrideProperties.getConfirmationWindowSize() : raProperties.getConfirmationWindowSize();
+      if (intVal != null) {
+         cf.setConfirmationWindowSize(intVal);
+      }
+      intVal = overrideProperties.getReconnectAttempts() != null ? overrideProperties.getReconnectAttempts() : raProperties.getReconnectAttempts();
+      if (intVal != null) {
+         cf.setReconnectAttempts(intVal);
       } else {
          //the global default is 0 but we should always try to reconnect JCA
          cf.setReconnectAttempts(-1);
       }
-      val2 = overrideProperties.getThreadPoolMaxSize() != null ? overrideProperties.getThreadPoolMaxSize() : raProperties.getThreadPoolMaxSize();
-      if (val2 != null) {
-         cf.setThreadPoolMaxSize(val2);
+      intVal = overrideProperties.getThreadPoolMaxSize() != null ? overrideProperties.getThreadPoolMaxSize() : raProperties.getThreadPoolMaxSize();
+      if (intVal != null) {
+         cf.setThreadPoolMaxSize(intVal);
       }
-      val2 = overrideProperties.getScheduledThreadPoolMaxSize() != null ? overrideProperties.getScheduledThreadPoolMaxSize() : raProperties.getScheduledThreadPoolMaxSize();
-      if (val2 != null) {
-         cf.setScheduledThreadPoolMaxSize(val2);
+      intVal = overrideProperties.getScheduledThreadPoolMaxSize() != null ? overrideProperties.getScheduledThreadPoolMaxSize() : raProperties.getScheduledThreadPoolMaxSize();
+      if (intVal != null) {
+         cf.setScheduledThreadPoolMaxSize(intVal);
       }
-      val2 = overrideProperties.getTransactionBatchSize() != null ? overrideProperties.getTransactionBatchSize() : raProperties.getTransactionBatchSize();
-      if (val2 != null) {
-         cf.setTransactionBatchSize(val2);
+      intVal = overrideProperties.getTransactionBatchSize() != null ? overrideProperties.getTransactionBatchSize() : raProperties.getTransactionBatchSize();
+      if (intVal != null) {
+         cf.setTransactionBatchSize(intVal);
       }
-      val2 = overrideProperties.getInitialConnectAttempts() != null ? overrideProperties.getInitialConnectAttempts() : raProperties.getInitialConnectAttempts();
-      if (val2 != null) {
-         cf.setInitialConnectAttempts(val2);
+      intVal = overrideProperties.getInitialConnectAttempts() != null ? overrideProperties.getInitialConnectAttempts() : raProperties.getInitialConnectAttempts();
+      if (intVal != null) {
+         cf.setInitialConnectAttempts(intVal);
       }
-      val2 = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize() : raProperties.getInitialMessagePacketSize();
-      if (val2 != null) {
-         cf.setInitialMessagePacketSize(val2);
+      intVal = overrideProperties.getInitialMessagePacketSize() != null ? overrideProperties.getInitialMessagePacketSize() : raProperties.getInitialMessagePacketSize();
+      if (intVal != null) {
+         cf.setInitialMessagePacketSize(intVal);
       }
-      val2 = overrideProperties.getCompressionLevel() != null ? overrideProperties.getCompressionLevel() : raProperties.getCompressionLevel();
-      if (val2 != null) {
-         cf.setCompressionLevel(val2);
-      }
-
-      Long val3 = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod() : raProperties.getClientFailureCheckPeriod();
-      if (val3 != null) {
-         cf.setClientFailureCheckPeriod(val3);
-      }
-      val3 = overrideProperties.getCallTimeout() != null ? overrideProperties.getCallTimeout() : raProperties.getCallTimeout();
-      if (val3 != null) {
-         cf.setCallTimeout(val3);
-      }
-      val3 = overrideProperties.getCallFailoverTimeout() != null ? overrideProperties.getCallFailoverTimeout() : raProperties.getCallFailoverTimeout();
-      if (val3 != null) {
-         cf.setCallFailoverTimeout(val3);
-      }
-      val3 = overrideProperties.getConnectionTTL() != null ? overrideProperties.getConnectionTTL() : raProperties.getConnectionTTL();
-      if (val3 != null) {
-         cf.setConnectionTTL(val3);
+      intVal = overrideProperties.getCompressionLevel() != null ? overrideProperties.getCompressionLevel() : raProperties.getCompressionLevel();
+      if (intVal != null) {
+         cf.setCompressionLevel(intVal);
       }
 
-      val3 = overrideProperties.getRetryInterval() != null ? overrideProperties.getRetryInterval() : raProperties.getRetryInterval();
-      if (val3 != null) {
-         cf.setRetryInterval(val3);
+      Long longVal = overrideProperties.getClientFailureCheckPeriod() != null ? overrideProperties.getClientFailureCheckPeriod() : raProperties.getClientFailureCheckPeriod();
+      if (longVal != null) {
+         cf.setClientFailureCheckPeriod(longVal);
+      }
+      longVal = overrideProperties.getCallTimeout() != null ? overrideProperties.getCallTimeout() : raProperties.getCallTimeout();
+      if (longVal != null) {
+         cf.setCallTimeout(longVal);
+      }
+      longVal = overrideProperties.getCallFailoverTimeout() != null ? overrideProperties.getCallFailoverTimeout() : raProperties.getCallFailoverTimeout();
+      if (longVal != null) {
+         cf.setCallFailoverTimeout(longVal);
+      }
+      longVal = overrideProperties.getConnectionTTL() != null ? overrideProperties.getConnectionTTL() : raProperties.getConnectionTTL();
+      if (longVal != null) {
+         cf.setConnectionTTL(longVal);
       }
 
-      val3 = overrideProperties.getMaxRetryInterval() != null ? overrideProperties.getMaxRetryInterval() : raProperties.getMaxRetryInterval();
-      if (val3 != null) {
-         cf.setMaxRetryInterval(val3);
+      longVal = overrideProperties.getRetryInterval() != null ? overrideProperties.getRetryInterval() : raProperties.getRetryInterval();
+      if (longVal != null) {
+         cf.setRetryInterval(longVal);
       }
 
-      Double val4 = overrideProperties.getRetryIntervalMultiplier() != null ? overrideProperties.getRetryIntervalMultiplier() : raProperties.getRetryIntervalMultiplier();
-      if (val4 != null) {
-         cf.setRetryIntervalMultiplier(val4);
+      longVal = overrideProperties.getMaxRetryInterval() != null ? overrideProperties.getMaxRetryInterval() : raProperties.getMaxRetryInterval();
+      if (longVal != null) {
+         cf.setMaxRetryInterval(longVal);
       }
-      String val5 = overrideProperties.getClientID() != null ? overrideProperties.getClientID() : raProperties.getClientID();
-      if (val5 != null) {
-         cf.setClientID(val5);
+
+      Double doubleVal = overrideProperties.getRetryIntervalMultiplier() != null ? overrideProperties.getRetryIntervalMultiplier() : raProperties.getRetryIntervalMultiplier();
+      if (doubleVal != null) {
+         cf.setRetryIntervalMultiplier(doubleVal);
       }
-      val5 = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName() : raProperties.getConnectionLoadBalancingPolicyClassName();
-      if (val5 != null) {
-         cf.setConnectionLoadBalancingPolicyClassName(val5);
+      String stringVal = overrideProperties.getClientID() != null ? overrideProperties.getClientID() : raProperties.getClientID();
+      if (stringVal != null) {
+         cf.setClientID(stringVal);
       }
-      val5 = overrideProperties.getProtocolManagerFactoryStr() != null ? overrideProperties.getProtocolManagerFactoryStr() : raProperties.getProtocolManagerFactoryStr();
-      if (val5 != null) {
-         cf.setProtocolManagerFactoryStr(val5);
+      stringVal = overrideProperties.getConnectionLoadBalancingPolicyClassName() != null ? overrideProperties.getConnectionLoadBalancingPolicyClassName() : raProperties.getConnectionLoadBalancingPolicyClassName();
+      if (stringVal != null) {
+         cf.setConnectionLoadBalancingPolicyClassName(stringVal);
       }
-      val5 = overrideProperties.getDeserializationBlackList() != null ? overrideProperties.getDeserializationBlackList() : raProperties.getDeserializationBlackList();
-      if (val5 != null) {
-         cf.setDeserializationBlackList(val5);
+      stringVal = overrideProperties.getProtocolManagerFactoryStr() != null ? overrideProperties.getProtocolManagerFactoryStr() : raProperties.getProtocolManagerFactoryStr();
+      if (stringVal != null) {
+         cf.setProtocolManagerFactoryStr(stringVal);
       }
-      val5 = overrideProperties.getDeserializationWhiteList() != null ? overrideProperties.getDeserializationWhiteList() : raProperties.getDeserializationWhiteList();
-      if (val5 != null) {
-         cf.setDeserializationWhiteList(val5);
+      stringVal = overrideProperties.getDeserializationBlackList() != null ? overrideProperties.getDeserializationBlackList() : raProperties.getDeserializationBlackList();
+      if (stringVal != null) {
+         cf.setDeserializationBlackList(stringVal);
+      }
+      stringVal = overrideProperties.getDeserializationWhiteList() != null ? overrideProperties.getDeserializationWhiteList() : raProperties.getDeserializationWhiteList();
+      if (stringVal != null) {
+         cf.setDeserializationWhiteList(stringVal);
+      }
+      stringVal = overrideProperties.getDeserializationDenyList() != null ? overrideProperties.getDeserializationDenyList() : raProperties.getDeserializationDenyList();
+      if (stringVal != null) {
+         cf.setDeserializationDenyList(stringVal);
+      }
+      stringVal = overrideProperties.getDeserializationAllowList() != null ? overrideProperties.getDeserializationAllowList() : raProperties.getDeserializationAllowList();
+      if (stringVal != null) {
+         cf.setDeserializationAllowList(stringVal);
       }
 
       cf.setIgnoreJTA(isIgnoreJTA());

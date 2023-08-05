@@ -1515,7 +1515,7 @@ public final class JMSBridgeImpl implements JMSBridge {
 
          logger.trace("Sending message {}", msg);
 
-         // Make sure the correct time to live gets propagated
+         // Make sure the correct time-to-live gets propagated
 
          long timeToLive = msg.getJMSExpiration();
 

@@ -29,9 +29,9 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator.BackupRegistrationListener;
+import org.apache.activemq.artemis.core.server.NodeLocator.BackupRegistrationListener;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.slf4j.Logger;
@@ -60,18 +60,18 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    @GuardedBy("this")
    private ScheduledFuture<?> forcedFailover;
 
-   private volatile String liveID;
+   private volatile String primaryID;
    private volatile boolean backupUpToDate;
    private volatile boolean closed;
 
    /**
-    * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
-    * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
-    * {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#FAIL_OVER}.
+    * This is a safety net in case the primary sends the first {@link ReplicationPrimaryIsStoppingMessage} with code
+    * {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#STOP_CALLED} and crashes before sending the second with
+    * {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#FAIL_OVER}.
     * <p>
-    * If the second message does come within this dead line, we fail over anyway.
+    * If the second message comes within this dead-line we fail over anyway.
     */
-   public static final int WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG = 60;
+   public static final int WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG = 60;
 
    private ReplicationObserver(final NodeManager nodeManager,
                                final BackupManager backupManager,
@@ -89,7 +89,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
       this.connection = null;
       this.forcedFailover = null;
 
-      this.liveID = null;
+      this.primaryID = null;
       this.backupUpToDate = false;
       this.closed = false;
    }
@@ -108,7 +108,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
       return new ReplicationObserver(nodeManager, backupManager, scheduledPool, false, null);
    }
 
-   private void onLiveDown(boolean voluntaryFailover) {
+   private void onPrimaryDown(boolean voluntaryFailover) {
       if (closed || replicationFailure.isDone()) {
          return;
       }
@@ -132,13 +132,13 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    public void nodeDown(long eventUID, String nodeID) {
       // ignore it during a failback:
       // a failing slave close all connections but the one used for replication
-      // triggering a nodeDown before the restarted master receive a STOP_CALLED from it.
-      // This can make master to fire a useless quorum vote during a normal failback.
+      // triggering a nodeDown before the restarted primary receive a STOP_CALLED from it.
+      // This can make primary to fire a useless quorum vote during a normal failback.
       if (failback) {
          return;
       }
-      if (nodeID.equals(liveID)) {
-         onLiveDown(false);
+      if (nodeID.equals(primaryID)) {
+         onPrimaryDown(false);
       }
    }
 
@@ -147,11 +147,11 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    }
 
    /**
-    * if the connection to our replicated live goes down then decide on an action
+    * if the connection to our replicated primary goes down then decide on an action
     */
    @Override
    public void connectionFailed(ActiveMQException exception, boolean failedOver) {
-      onLiveDown(false);
+      onPrimaryDown(false);
    }
 
    @Override
@@ -180,19 +180,19 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    }
 
    /**
-    * @param liveSessionFactory the session factory used to connect to the live server
+    * @param primarySessionFactory the session factory used to connect to the primary server
     */
-   public synchronized void listenConnectionFailuresOf(final ClientSessionFactoryInternal liveSessionFactory) {
+   public synchronized void listenConnectionFailuresOf(final ClientSessionFactoryInternal primarySessionFactory) {
       if (closed) {
          throw new IllegalStateException("the observer is closed: cannot listen to any failures");
       }
       if (sessionFactory != null || connection != null) {
          throw new IllegalStateException("this observer is already listening to other session factory failures");
       }
-      this.sessionFactory = liveSessionFactory;
+      this.sessionFactory = primarySessionFactory;
       //belts and braces, there are circumstances where the connection listener doesn't get called but the session does.
       this.sessionFactory.addFailureListener(this);
-      connection = (CoreRemotingConnection) liveSessionFactory.getConnection();
+      connection = (CoreRemotingConnection) primarySessionFactory.getConnection();
       connection.addFailureListener(this);
    }
 
@@ -234,7 +234,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
       if (forcedFailover != null) {
          return;
       }
-      forcedFailover = scheduledPool.schedule(() -> onLiveDown(false), WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG, TimeUnit.SECONDS);
+      forcedFailover = scheduledPool.schedule(() -> onPrimaryDown(false), WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG, TimeUnit.SECONDS);
    }
 
    private synchronized void stopForcedFailoverAfterDelay() {
@@ -260,13 +260,13 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
             replicationFailure.complete(ReplicationFailure.WrongNodeId);
             return;
          }
-         if (liveID == null) {
-            liveID = nodeId;
+         if (primaryID == null) {
+            primaryID = nodeId;
          }
          if (activationSequence <= 0) {
-            // NOTE:
-            // activationSequence == 0 is still illegal,
-            // because live has to increase the sequence before replicating
+            /* NOTE: activationSequence == 0 is still illegal because the primary has to increase the sequence before
+             * replicating.
+             */
             stopForcedFailoverAfterDelay();
             unlistenConnectionFailures();
             logger.error("Illegal activation sequence {} from NodeID = {}", activationSequence, nodeId);
@@ -286,15 +286,15 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
       return backupUpToDate;
    }
 
-   public String getLiveID() {
-      return liveID;
+   public String getPrimaryID() {
+      return primaryID;
    }
 
    private boolean validateNodeId(String nodeID) {
       if (nodeID == null) {
          return false;
       }
-      final String existingNodeId = this.liveID;
+      final String existingNodeId = this.primaryID;
       if (existingNodeId == null) {
          if (!failback) {
             return true;
@@ -305,11 +305,11 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    }
 
    @Override
-   public void onLiveNodeId(String nodeId) {
+   public void onPrimaryNodeId(String nodeId) {
       if (closed || replicationFailure.isDone()) {
          return;
       }
-      final String existingNodeId = this.liveID;
+      final String existingNodeId = this.primaryID;
       if (existingNodeId != null && existingNodeId.equals(nodeId)) {
          return;
       }
@@ -321,10 +321,10 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
             stopForcedFailoverAfterDelay();
             unlistenConnectionFailures();
             replicationFailure.complete(ReplicationFailure.WrongNodeId);
-         } else if (liveID == null) {
+         } else if (primaryID == null) {
             // just store it locally: if is stored on the node manager
             // it will be persisted on broker's stop while data is not yet in sync
-            liveID = nodeId;
+            primaryID = nodeId;
          }
       }
    }
@@ -334,7 +334,7 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
    }
 
    @Override
-   public void onLiveStopping(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) {
+   public void onPrimaryStopping(ReplicationPrimaryIsStoppingMessage.PrimaryStopping finalMessage) {
       if (closed || replicationFailure.isDone()) {
          return;
       }
@@ -347,10 +347,10 @@ final class ReplicationObserver implements ClusterTopologyListener, SessionFailu
                scheduleForcedFailoverAfterDelay();
                break;
             case FAIL_OVER:
-               onLiveDown(true);
+               onPrimaryDown(true);
                break;
             default:
-               logger.error("unsupported LiveStopping type: {}", finalMessage);
+               logger.error("unsupported PrimaryStopping type: {}", finalMessage);
          }
       }
    }

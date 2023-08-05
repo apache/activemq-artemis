@@ -408,20 +408,20 @@ public final class ActiveMQDefaultConfiguration {
    // If true then the server will request a backup on another node
    private static boolean DEFAULT_HAPOLICY_REQUEST_BACKUP = false;
 
-   // How many times the live server will try to request a backup, -1 means for ever.
+   // How many times this server will try to request a backup, -1 means for ever.
    private static int DEFAULT_HAPOLICY_BACKUP_REQUEST_RETRIES = -1;
 
    // How long to wait for retries between attempts to request a backup server.
    private static long DEFAULT_HAPOLICY_BACKUP_REQUEST_RETRY_INTERVAL = 5000;
 
-   // Whether or not this live server will accept backup requests from other live servers.
+   // Whether or not this server will accept backup requests from other servers.
    private static int DEFAULT_HAPOLICY_MAX_BACKUPS = 1;
 
    // The offset to use for the Connectors and Acceptors when creating a new backup server.
    private static int DEFAULT_HAPOLICY_BACKUP_PORT_OFFSET = 100;
 
-   // Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to live servers and not to backups.
-   private static boolean DEFAULT_CHECK_FOR_LIVE_SERVER = false;
+   // Whether to check the cluster for an active server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to primary servers and not to backups.
+   private static boolean DEFAULT_CHECK_FOR_ACTIVE_SERVER = false;
 
    // This specifies how many times a replicated backup server can restart after moving its files on start. Once there are this number of backup journal files the server will stop permanently after if fails back.
    private static int DEFAULT_MAX_SAVED_REPLICATED_JOURNALS_SIZE = 2;
@@ -435,10 +435,10 @@ public final class ActiveMQDefaultConfiguration {
    // When a replica comes online this is how long the replicating server will wait for a confirmation from the replica that the replication synchronization process is complete
    private static long DEFAULT_INITIAL_REPLICATION_SYNC_TIMEOUT = 30000;
 
-   // Will this backup server come live on a normal server shutdown
+   // Will this backup server become active on a normal server shutdown
    private static boolean DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN = false;
 
-   // Will a shared-store master startup wait for activation
+   // Will a shared-store primary startup wait for activation
    private static boolean  DEFAULT_WAIT_FOR_ACTIVATION = true;
 
    // Will the broker populate the message with the name of the validated user
@@ -1330,7 +1330,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * How many times the live server will try to request a backup, -1 means for ever.
+    * How many times the primary server will try to request a backup, -1 means for ever.
     */
    public static int getDefaultHapolicyBackupRequestRetries() {
       return DEFAULT_HAPOLICY_BACKUP_REQUEST_RETRIES;
@@ -1344,7 +1344,7 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether or not this live server will accept backup requests from other live servers.
+    * Whether or not this server will accept backup requests from other servers.
     */
    public static int getDefaultHapolicyMaxBackups() {
       return DEFAULT_HAPOLICY_MAX_BACKUPS;
@@ -1358,10 +1358,10 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Whether to check the cluster for a (live) server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to live servers and not to backups.
+    * Whether to check the cluster for an active server using our own server ID when starting up. This option is only necessary for performing 'fail-back' on replicating servers. Strictly speaking this setting only applies to primary servers and not to backups.
     */
-   public static boolean isDefaultCheckForLiveServer() {
-      return DEFAULT_CHECK_FOR_LIVE_SERVER;
+   public static boolean isDefaultCheckForActiveServer() {
+      return DEFAULT_CHECK_FOR_ACTIVE_SERVER;
    }
 
    /**
@@ -1403,14 +1403,14 @@ public final class ActiveMQDefaultConfiguration {
    }
 
    /**
-    * Will this backup server come live on a normal server shutdown
+    * Will this backup server become active on a normal server shutdown
     */
    public static boolean isDefaultFailoverOnServerShutdown() {
       return DEFAULT_FAILOVER_ON_SERVER_SHUTDOWN;
    }
 
    /**
-    * Will a shared-store master startup wait for activation
+    * Will a shared-store primary startup wait for activation
     */
    public static boolean isDefaultWaitForActivation() {
       return DEFAULT_WAIT_FOR_ACTIVATION;

@@ -34,8 +34,8 @@ public class ServerConnectVote extends BooleanVote {
       super(false);
    }
 
-   public ServerConnectVote(String nodeid, boolean isLive, String transportConfiguration) {
-      super(isLive);
+   public ServerConnectVote(String nodeid, boolean isPrimary, String transportConfiguration) {
+      super(isPrimary);
       this.nodeId = nodeid;
       this.transportConfiguration = transportConfiguration;
    }

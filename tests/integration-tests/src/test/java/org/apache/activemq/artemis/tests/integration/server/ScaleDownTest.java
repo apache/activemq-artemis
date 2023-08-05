@@ -43,7 +43,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
@@ -89,12 +89,12 @@ public class ScaleDownTest extends ClusterTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      setupLiveServer(0, isFileStorage(), isNetty(), true);
-      setupLiveServer(1, isFileStorage(), isNetty(), true);
+      setupPrimaryServer(0, isFileStorage(), isNetty(), true);
+      setupPrimaryServer(1, isFileStorage(), isNetty(), true);
       servers[0].getConfiguration().addAcceptorConfiguration("amqp", AMQP_ACCEPTOR_URI + "?protocols=AMQP");
-      LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
+      PrimaryOnlyPolicyConfiguration haPolicyConfiguration0 = (PrimaryOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
       haPolicyConfiguration0.setScaleDownConfiguration(new ScaleDownConfiguration());
-      LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
+      PrimaryOnlyPolicyConfiguration haPolicyConfiguration1 = (PrimaryOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
       haPolicyConfiguration1.setScaleDownConfiguration(new ScaleDownConfiguration());
       if (useScaleDownGroupName) {
          haPolicyConfiguration0.getScaleDownConfiguration().setGroupName("bill");

@@ -165,50 +165,50 @@ public class ActiveMQMessageHandlerTest extends ActiveMQRATestBase {
 
    @Test
    public void testObjectMessageReceiveSerializationControl() throws Exception {
-      String blackList = "org.apache.activemq.artemis.tests.integration.ra";
-      String whiteList = "*";
-      testDeserialization(blackList, whiteList, false);
+      String denyList = "org.apache.activemq.artemis.tests.integration.ra";
+      String allowList = "*";
+      testDeserialization(denyList, allowList, false);
    }
 
    @Test
    public void testObjectMessageReceiveSerializationControl1() throws Exception {
-      String blackList = "some.other.pkg";
-      String whiteList = "org.apache.activemq.artemis.tests.integration.ra";
-      testDeserialization(blackList, whiteList, true);
+      String denyList = "some.other.pkg";
+      String allowList = "org.apache.activemq.artemis.tests.integration.ra";
+      testDeserialization(denyList, allowList, true);
    }
 
    @Test
    public void testObjectMessageReceiveSerializationControl2() throws Exception {
-      String blackList = "*";
-      String whiteList = "org.apache.activemq.artemis.tests.integration.ra";
-      testDeserialization(blackList, whiteList, false);
+      String denyList = "*";
+      String allowList = "org.apache.activemq.artemis.tests.integration.ra";
+      testDeserialization(denyList, allowList, false);
    }
 
    @Test
    public void testObjectMessageReceiveSerializationControl3() throws Exception {
-      String blackList = "org.apache.activemq.artemis.tests";
-      String whiteList = "org.apache.activemq.artemis.tests.integration.ra";
-      testDeserialization(blackList, whiteList, false);
+      String denyList = "org.apache.activemq.artemis.tests";
+      String allowList = "org.apache.activemq.artemis.tests.integration.ra";
+      testDeserialization(denyList, allowList, false);
    }
 
    @Test
    public void testObjectMessageReceiveSerializationControl4() throws Exception {
-      String blackList = null;
-      String whiteList = "some.other.pkg";
-      testDeserialization(blackList, whiteList, false);
+      String denyList = null;
+      String allowList = "some.other.pkg";
+      testDeserialization(denyList, allowList, false);
    }
 
    @Test
    public void testObjectMessageReceiveSerializationControl5() throws Exception {
-      String blackList = null;
-      String whiteList = null;
-      testDeserialization(blackList, whiteList, true);
+      String denyList = null;
+      String allowList = null;
+      testDeserialization(denyList, allowList, true);
    }
 
-   private void testDeserialization(String blackList, String whiteList, boolean shouldSucceed) throws Exception {
+   private void testDeserialization(String denyList, String allowList, boolean shouldSucceed) throws Exception {
       ActiveMQResourceAdapter qResourceAdapter = newResourceAdapter();
-      qResourceAdapter.setDeserializationBlackList(blackList);
-      qResourceAdapter.setDeserializationWhiteList(whiteList);
+      qResourceAdapter.setDeserializationDenyList(denyList);
+      qResourceAdapter.setDeserializationAllowList(allowList);
 
       MyBootstrapContext ctx = new MyBootstrapContext();
       qResourceAdapter.start(ctx);

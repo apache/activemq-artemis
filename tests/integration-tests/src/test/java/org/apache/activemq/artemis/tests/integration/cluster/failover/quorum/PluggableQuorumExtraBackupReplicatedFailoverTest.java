@@ -53,7 +53,7 @@ public class PluggableQuorumExtraBackupReplicatedFailoverTest extends FailoverTe
    @Override
    protected void setupHAPolicyConfiguration() {
       if (useGroupName) {
-         ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName(GROUP_NAME);
+         ((ReplicationPrimaryPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setGroupName(GROUP_NAME);
          ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName(GROUP_NAME);
       }
    }

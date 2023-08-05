@@ -40,8 +40,8 @@ public class AmqpRedirectTest extends RoutingTestBase {
 
    @Test
    public void testRouterRejectionDueToOfflineTargetPool() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      setupLiveServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
 
       // Zero quorum size to avoid the quorum delay, given it will never be satisfied
       setupRouterServerWithStaticConnectors(0, KeyType.USER_NAME, FirstElementPolicy.NAME, null, false, null, 0, 1);
@@ -101,8 +101,8 @@ public class AmqpRedirectTest extends RoutingTestBase {
 
    @Test
    public void testRouterRedirectDetails() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      setupLiveServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
 
       setupRouterServerWithStaticConnectors(0, KeyType.USER_NAME, FirstElementPolicy.NAME, null, false, null, 1, 1);
 
@@ -191,7 +191,7 @@ public class AmqpRedirectTest extends RoutingTestBase {
 
    @Test
    public void testRouterRejectionUseAnother() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
 
       // only accepts users with RoleName==B so will reject
       setupRouterServerWithLocalTarget(0, KeyType.ROLE_NAME, "B", null);

@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * This message may signal start or end of the replication synchronization.
  * <p>
- * At start, it sends all fileIDs used in a given journal live server to the backup, so the backup
+ * At start, it sends all fileIDs used in a given journal primary server to the backup, so the backup
  * can reserve those IDs.
  */
 public class ReplicationStartSyncMessage extends PacketImpl {
@@ -184,7 +184,7 @@ public class ReplicationStartSyncMessage extends PacketImpl {
    }
 
    /**
-    * @return {@code true} if the live has finished synchronizing its data and the backup is
+    * @return {@code true} if the primary has finished synchronizing its data and the backup is
     * therefore up-to-date, {@code false} otherwise.
     */
    public boolean isSynchronizationFinished() {

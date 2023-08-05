@@ -50,7 +50,7 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.io.IOCallback;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -139,41 +139,41 @@ public final class ReplicationTest extends ActiveMQTestBase {
                             boolean backup,
                             ExtraConfigurer extraConfig,
                             String... incomingInterceptors) throws Exception {
-      TransportConfiguration liveConnector = null;
-      TransportConfiguration liveAcceptor = null;
+      TransportConfiguration primaryConnector = null;
+      TransportConfiguration primaryAcceptor = null;
       TransportConfiguration backupConnector = null;
       TransportConfiguration backupAcceptor = null;
       if (useNetty) {
-         liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
-         liveAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
+         primaryConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
+         primaryAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
          backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
          backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
       } else {
-         liveConnector = TransportConfigurationUtils.getInVMConnector(true);
+         primaryConnector = TransportConfigurationUtils.getInVMConnector(true);
          backupConnector = TransportConfigurationUtils.getInVMConnector(false);
          backupAcceptor = TransportConfigurationUtils.getInVMAcceptor(false);
       }
 
-      Configuration liveConfig = createDefaultInVMConfig();
+      Configuration primaryConfig = createDefaultInVMConfig();
 
-      Configuration backupConfig = createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
+      Configuration backupConfig = createDefaultInVMConfig().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setIncomingInterceptorClassNames(incomingInterceptors.length > 0 ? Arrays.asList(incomingInterceptors) : new ArrayList<String>());
 
       if (!pluggableQuorum) {
-         ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
+         ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, primaryAcceptor);
       } else {
          DistributedPrimitiveManagerConfiguration managerConfiguration =
             new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
                                                          Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
-         ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor, managerConfiguration, managerConfiguration);
+         ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, primaryAcceptor, managerConfiguration, managerConfiguration);
       }
 
       if (extraConfig != null) {
-         extraConfig.config(liveConfig, backupConfig);
+         extraConfig.config(primaryConfig, backupConfig);
       }
 
       if (backup) {
-         liveServer = createServer(liveConfig);
+         liveServer = createServer(primaryConfig);
          liveServer.start();
          waitForComponent(liveServer);
       }
@@ -438,7 +438,7 @@ public final class ReplicationTest extends ActiveMQTestBase {
       ExtraConfigurer configurer = new ExtraConfigurer() {
 
          @Override
-         public void config(Configuration liveConfig, Configuration backupConfig) {
+         public void config(Configuration primaryConfig, Configuration backupConfig) {
             List<ClusterConnectionConfiguration> ccList = backupConfig.getClusterConfigurations();
             assertTrue(ccList.size() > 0);
             ClusterConnectionConfiguration cc = ccList.get(0);
@@ -1072,6 +1072,6 @@ public final class ReplicationTest extends ActiveMQTestBase {
 
    private interface ExtraConfigurer {
 
-      void config(Configuration liveConfig, Configuration backupConfig);
+      void config(Configuration primaryConfig, Configuration backupConfig);
    }
 }

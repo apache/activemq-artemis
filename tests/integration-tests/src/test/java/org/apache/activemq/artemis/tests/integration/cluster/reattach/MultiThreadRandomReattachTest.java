@@ -28,8 +28,8 @@ public class MultiThreadRandomReattachTest extends MultiThreadRandomReattachTest
 
    @Override
    protected void start() throws Exception {
-      Configuration liveConf = createDefaultInVMConfig();
-      server = createServer(false, liveConf);
+      Configuration primaryConf = createDefaultInVMConfig();
+      server = createServer(false, primaryConf);
       server.getConfiguration().getAddressConfigurations().add(new CoreAddressConfiguration().setName(ADDRESS.toString()).addRoutingType(RoutingType.MULTICAST));
       server.start();
       waitForServerToStart(server);

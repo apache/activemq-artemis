@@ -58,13 +58,13 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.Bindings;
 import org.apache.activemq.artemis.core.postoffice.PostOffice;
@@ -354,29 +354,29 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
                      Collection<TopologyMemberImpl> members = clusterConnection.getTopology().getMembers();
                      for (TopologyMemberImpl member : members) {
                         String nodeId = member.getNodeId();
-                        String liveServer = null;
+                        String primaryServer = null;
                         String backupServer = null;
                         for (ActiveMQServer server : servers) {
                            if (server != null && server.getNodeID() != null && server.isActive() && server.getNodeID().toString().equals(nodeId)) {
                               if (server.isActive()) {
-                                 liveServer = server.getIdentity();
-                                 if (member.getLive() != null) {
-                                    liveServer += "(notified)";
+                                 primaryServer = server.getIdentity();
+                                 if (member.getPrimary() != null) {
+                                    primaryServer += "(notified)";
                                  } else {
-                                    liveServer += "(not notified)";
+                                    primaryServer += "(not notified)";
                                  }
                               } else {
                                  backupServer = server.getIdentity();
                                  if (member.getBackup() != null) {
-                                    liveServer += "(notified)";
+                                    primaryServer += "(notified)";
                                  } else {
-                                    liveServer += "(not notified)";
+                                    primaryServer += "(not notified)";
                                  }
                               }
                            }
                         }
 
-                        topologyDiagram.append("\t").append("|\n").append("\t->").append(liveServer).append("/").append(backupServer).append("\n");
+                        topologyDiagram.append("\t").append("|\n").append("\t->").append(primaryServer).append("/").append(backupServer).append("\n");
                      }
                   } else {
                      topologyDiagram.append("-> no cluster connections\n");
@@ -426,8 +426,8 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       long waitTimeout = ActiveMQTestBase.WAIT_TIMEOUT;
       if (!isSharedStore()) {
          //it should be greater than
-         //QuorumManager.WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG (60 sec)
-         waitTimeout = 1000 * (SharedNothingBackupQuorum.WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG + 5);
+         //QuorumManager.WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG (60 sec)
+         waitTimeout = 1000 * (SharedNothingBackupQuorum.WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG + 5);
       }
       if (!servers[node].waitForActivation(waitTimeout, TimeUnit.MILLISECONDS)) {
          String msg = "Timed out waiting for server starting = " + node;
@@ -1510,7 +1510,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       locators[node] = addServerLocator(ActiveMQClient.createServerLocatorWithHA(serverToTC)).setRetryInterval(100).setRetryIntervalMultiplier(1d).setReconnectAttempts(300).setBlockOnNonDurableSend(blocking).setBlockOnDurableSend(blocking);
 
-      final String identity = "TestClientConnector,live=" + node + ",backup=" + backupNode;
+      final String identity = "TestClientConnector,primary=" + node + ",backup=" + backupNode;
       ((ServerLocatorInternal) locators[node]).setIdentity(identity);
 
       ClientSessionFactory sf = createSessionFactory(locators[node]);
@@ -1530,34 +1530,34 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void setupServer(final int node, final boolean fileStorage, final boolean netty) throws Exception {
-      setupLiveServer(node, fileStorage, HAType.SharedNothingReplication, netty, false);
+      setupPrimaryServer(node, fileStorage, HAType.SharedNothingReplication, netty, false);
    }
 
-   protected void setupLiveServer(final int node,
-                                  final boolean fileStorage,
-                                  final boolean netty,
-                                  boolean isLive) throws Exception {
-      setupLiveServer(node, fileStorage, HAType.SharedNothingReplication, netty, isLive);
+   protected void setupPrimaryServer(final int node,
+                                     final boolean fileStorage,
+                                     final boolean netty,
+                                     boolean isPrimary) throws Exception {
+      setupPrimaryServer(node, fileStorage, HAType.SharedNothingReplication, netty, isPrimary);
    }
 
    protected boolean isResolveProtocols() {
       return false;
    }
 
-   protected void setupLiveServer(final int node,
-                                  final boolean fileStorage,
-                                  final HAType haType,
-                                  final boolean netty,
-                                  boolean liveOnly) throws Exception {
+   protected void setupPrimaryServer(final int node,
+                                     final boolean fileStorage,
+                                     final HAType haType,
+                                     final boolean netty,
+                                     boolean primaryOnly) throws Exception {
       if (servers[node] != null) {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
       final HAPolicyConfiguration haPolicyConfiguration;
-      if (liveOnly) {
-         haPolicyConfiguration = new LiveOnlyPolicyConfiguration();
+      if (primaryOnly) {
+         haPolicyConfiguration = new PrimaryOnlyPolicyConfiguration();
       } else {
-         haPolicyConfiguration = haPolicyLiveConfiguration(haType);
+         haPolicyConfiguration = haPolicyPrimaryConfiguration(haType);
       }
 
       Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, generateParams(node, netty))).setHAPolicyConfiguration(haPolicyConfiguration).setResolveProtocols(isResolveProtocols());
@@ -1582,14 +1582,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       server.addProtocolManagerFactory(new CoreProtocolManagerFactory());
 
-      server.setIdentity(this.getClass().getSimpleName() + "/Live(" + node + ")");
+      server.setIdentity(this.getClass().getSimpleName() + "/Primary(" + node + ")");
       servers[node] = addServer(server);
    }
 
-   private HAPolicyConfiguration haPolicyLiveConfiguration(HAType haType) {
+   private HAPolicyConfiguration haPolicyPrimaryConfiguration(HAType haType) {
       switch (haType) {
          case SharedStore:
-            return new SharedStoreMasterPolicyConfiguration();
+            return new SharedStorePrimaryPolicyConfiguration();
          case SharedNothingReplication:
             return new ReplicatedPolicyConfiguration();
          case PluggableQuorumReplication:
@@ -1609,14 +1609,14 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
     * to add it.
     *
     * @param node
-    * @param liveNode
+    * @param primaryNode
     * @param fileStorage
     * @param haType
     * @param netty
     * @throws Exception
     */
    protected void setupBackupServer(final int node,
-                                    final int liveNode,
+                                    final int primaryNode,
                                     final boolean fileStorage,
                                     final HAType haType,
                                     final boolean netty) throws Exception {
@@ -1624,23 +1624,23 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
 
-      TransportConfiguration liveConfig = createTransportConfiguration(netty, false, generateParams(liveNode, netty));
+      TransportConfiguration primaryConfig = createTransportConfiguration(netty, false, generateParams(primaryNode, netty));
       TransportConfiguration backupConfig = createTransportConfiguration(netty, false, generateParams(node, netty));
       TransportConfiguration acceptorConfig = createTransportConfiguration(netty, true, generateParams(node, netty));
 
       final boolean sharedStorage = HAType.SharedStore.equals(haType);
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(liveConfig.getName(), liveConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(haPolicyBackupConfiguration(haType));
+      Configuration configuration = createBasicConfig(sharedStorage ? primaryNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(acceptorConfig).addConnectorConfiguration(primaryConfig.getName(), primaryConfig).addConnectorConfiguration(backupConfig.getName(), backupConfig).setHAPolicyConfiguration(haPolicyBackupConfiguration(haType));
 
       ActiveMQServer server;
 
       if (sharedStorage) {
-         server = createInVMFailoverServer(true, configuration, nodeManagers[liveNode], liveNode);
+         server = createInVMFailoverServer(true, configuration, nodeManagers[primaryNode], primaryNode);
       } else {
          boolean enablePersistency = fileStorage ? true : configuration.isPersistenceEnabled();
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));
       }
-      server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
+      server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of primary " + primaryNode + ")");
       servers[node] = addServer(server);
    }
 
@@ -1648,7 +1648,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       switch (haType) {
 
          case SharedStore:
-            return new SharedStoreSlavePolicyConfiguration();
+            return new SharedStoreBackupPolicyConfiguration();
          case SharedNothingReplication:
             return new ReplicaPolicyConfiguration();
          case PluggableQuorumReplication:
@@ -1659,12 +1659,12 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
       }
    }
 
-   protected void setupLiveServerWithDiscovery(final int node,
-                                               final String groupAddress,
-                                               final int port,
-                                               final boolean fileStorage,
-                                               final boolean netty,
-                                               final boolean sharedStorage) throws Exception {
+   protected void setupPrimaryServerWithDiscovery(final int node,
+                                                  final String groupAddress,
+                                                  final int port,
+                                                  final boolean fileStorage,
+                                                  final boolean netty,
+                                                  final boolean sharedStorage) throws Exception {
       if (servers[node] != null) {
          throw new IllegalArgumentException("Already a server at node " + node);
       }
@@ -1682,7 +1682,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(1000).setDiscoveryInitialWaitTimeout(1000).setBroadcastEndpointFactory(endpoint);
 
-      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStorePrimaryPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       ActiveMQServer server;
       if (fileStorage) {
@@ -1704,7 +1704,7 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
    }
 
    protected void setupBackupServerWithDiscovery(final int node,
-                                                 final int liveNode,
+                                                 final int primaryNode,
                                                  final String groupAddress,
                                                  final int port,
                                                  final boolean fileStorage,
@@ -1727,11 +1727,11 @@ public abstract class ClusterTestBase extends ActiveMQTestBase {
 
       DiscoveryGroupConfiguration dcConfig = new DiscoveryGroupConfiguration().setName("dg1").setRefreshTimeout(5000).setDiscoveryInitialWaitTimeout(5000).setBroadcastEndpointFactory(endpoint);
 
-      Configuration configuration = createBasicConfig(sharedStorage ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreSlavePolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(sharedStorage ? primaryNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(createTransportConfiguration(netty, true, params)).addConnectorConfiguration(connector.getName(), connector).addBroadcastGroupConfiguration(bcConfig).addDiscoveryGroupConfiguration(dcConfig.getName(), dcConfig).setHAPolicyConfiguration(sharedStorage ? new SharedStoreBackupPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       ActiveMQServer server;
       if (sharedStorage) {
-         server = createInVMFailoverServer(fileStorage, configuration, nodeManagers[liveNode], liveNode);
+         server = createInVMFailoverServer(fileStorage, configuration, nodeManagers[primaryNode], primaryNode);
       } else {
          boolean enablePersistency = fileStorage ? configuration.isPersistenceEnabled() : false;
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, enablePersistency));

@@ -74,7 +74,7 @@ public interface ClientProtocolManager {
 
    boolean cleanupBeforeFailover(ActiveMQException cause);
 
-   boolean checkForFailover(String liveNodeID) throws ActiveMQException;
+   boolean checkForFailover(String nodeID) throws ActiveMQException;
 
    void setSessionFactory(ClientSessionFactory factory);
 

@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
@@ -52,11 +52,11 @@ public class ScaleDownRemoveSFTest extends ClusterTestBase {
       super.setUp();
 
       ScaleDownConfiguration scaleDownConfiguration = new ScaleDownConfiguration();
-      setupLiveServer(0, isFileStorage(), isNetty(), true);
-      setupLiveServer(1, isFileStorage(), isNetty(), true);
-      LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
+      setupPrimaryServer(0, isFileStorage(), isNetty(), true);
+      setupPrimaryServer(1, isFileStorage(), isNetty(), true);
+      PrimaryOnlyPolicyConfiguration haPolicyConfiguration0 = (PrimaryOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
       haPolicyConfiguration0.setScaleDownConfiguration(scaleDownConfiguration);
-      LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
+      PrimaryOnlyPolicyConfiguration haPolicyConfiguration1 = (PrimaryOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
       haPolicyConfiguration1.setScaleDownConfiguration(new ScaleDownConfiguration());
 
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);

@@ -72,8 +72,8 @@ A broadcast group is the means by which a server broadcasts connectors over the 
 A connector defines a way in which a client (or other server) can make connections to the server.
 For more information on what a connector is, please see xref:configuring-transports.adoc#configuring-the-transport[Configuring the Transport].
 
-The broadcast group takes a set of connector pairs, each connector pair contains connection settings for a live and backup server (if one exists) and broadcasts them on the network.
-Depending on which broadcasting technique you configure the cluster, it uses either UDP or JGroups to broadcast connector pairs information.
+The broadcast group takes a connector and broadcasts it on the network.
+Depending on which broadcasting technique you configure, it uses either UDP or JGroups to broadcast connector information.
 
 Broadcast groups are defined in the server configuration file `broker.xml`.
 There can be many broadcast groups per Apache ActiveMQ Artemis server.
@@ -230,12 +230,10 @@ Discovery groups are used in two places in Apache ActiveMQ Artemis:
 * By cluster connections so they know how to obtain an initial connection to download the topology
 * By messaging clients so they know how to obtain an initial connection to download the topology
 
-Although a discovery group will always accept broadcasts, its current list of available live and backup servers is only ever used when an initial connection is made, from then server discovery is done over the normal Apache ActiveMQ Artemis connections.
+Although a discovery group will always accept broadcasts, its current list of available primary and backup servers is only ever used when an initial connection is made, from then server discovery is done over the normal Apache ActiveMQ Artemis connections.
 
 [NOTE]
 ====
-
-
 Each discovery group must be configured with broadcast endpoint (UDP or JGroups) that matches its broadcast group counterpart.
 For example, if broadcast is configured using UDP, the discovery group must also use UDP, and the same multicast address.
 ====

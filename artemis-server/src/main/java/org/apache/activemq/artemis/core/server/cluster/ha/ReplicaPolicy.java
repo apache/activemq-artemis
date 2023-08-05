@@ -46,7 +46,7 @@ public class ReplicaPolicy extends BackupPolicy {
    private int quorumSize;
 
    /*
-   * whether or not this live broker should vote to remain live
+   * whether this broker should vote to remain active
    * */
    private boolean voteOnReplicationFailure;
 
@@ -210,10 +210,10 @@ public class ReplicaPolicy extends BackupPolicy {
 
    @Override
    public Activation createActivation(ActiveMQServerImpl server,
-                                      boolean wasLive,
+                                      boolean wasPrimary,
                                       Map<String, Object> activationParams,
                                       IOCriticalErrorListener ioCriticalErrorListener) throws Exception {
-      SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasLive, activationParams, ioCriticalErrorListener, this, networkHealthCheck);
+      SharedNothingBackupActivation backupActivation = new SharedNothingBackupActivation(server, wasPrimary, activationParams, ioCriticalErrorListener, this, networkHealthCheck);
       backupActivation.init();
       return backupActivation;
    }

@@ -109,7 +109,7 @@ public class KeyTypeTest extends RoutingTestBase {
 
    @Test
    public void testClientIDKey() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.CLIENT_ID, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 
@@ -133,7 +133,7 @@ public class KeyTypeTest extends RoutingTestBase {
 
    @Test
    public void testClientIDKeyOnBackup() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
       setupRouterServerWithCluster(0, KeyType.CLIENT_ID, FirstElementPolicy.NAME, null, true, null, 1, "cluster0");
       setupBackupServer(1, 0, false, HAType.SharedNothingReplication, true);
@@ -179,7 +179,7 @@ public class KeyTypeTest extends RoutingTestBase {
          }
       }
 
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       getDefaultServerAcceptor(0).getParams().put(TransportConstants.SSL_ENABLED_PROP_NAME, true);
       getDefaultServerAcceptor(0).getParams().put(TransportConstants.KEYSTORE_PATH_PROP_NAME, "server-keystore.jks");
       getDefaultServerAcceptor(0).getParams().put(TransportConstants.KEYSTORE_PASSWORD_PROP_NAME, "securepass");
@@ -200,7 +200,7 @@ public class KeyTypeTest extends RoutingTestBase {
 
    @Test
    public void testSourceIPKey() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.SOURCE_IP, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 
@@ -217,7 +217,7 @@ public class KeyTypeTest extends RoutingTestBase {
 
    @Test
    public void testUserNameKey() throws Exception {
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       setupRouterServerWithDiscovery(0, KeyType.USER_NAME, MOCK_POLICY_NAME, null, true, null, 1);
       startServers(0);
 

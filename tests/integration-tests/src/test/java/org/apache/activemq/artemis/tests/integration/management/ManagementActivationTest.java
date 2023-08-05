@@ -84,7 +84,7 @@ public class ManagementActivationTest extends FailoverTestBase {
 
       assertTrue("exception expected", exception);
 
-      liveServer.crash();
+      primaryServer.crash();
 
       long timeout = System.currentTimeMillis() + 5000;
 
@@ -118,7 +118,7 @@ public class ManagementActivationTest extends FailoverTestBase {
 
       assertTrue("exception expected", exception);
 
-      liveServer.crash();
+      primaryServer.crash();
 
       long timeout = System.currentTimeMillis() + 5000;
 
@@ -152,7 +152,7 @@ public class ManagementActivationTest extends FailoverTestBase {
 
       assertTrue("exception expected", exception);
 
-      liveServer.crash();
+      primaryServer.crash();
 
       long timeout = System.currentTimeMillis() + 5000;
 

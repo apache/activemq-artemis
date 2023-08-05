@@ -20,18 +20,18 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.TopologyMember;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeLocator;
 
-public class NamedNodeIdNodeLocator extends LiveNodeLocator {
+public class NamedNodeIdNodeLocator extends NodeLocator {
 
    private final String nodeID;
 
-   private final Pair<TransportConfiguration, TransportConfiguration> liveConfiguration;
+   private final Pair<TransportConfiguration, TransportConfiguration> configuration;
 
    public NamedNodeIdNodeLocator(String nodeID,
-                                 Pair<TransportConfiguration, TransportConfiguration> liveConfiguration) {
+                                 Pair<TransportConfiguration, TransportConfiguration> configuration) {
       this.nodeID = nodeID;
-      this.liveConfiguration = liveConfiguration;
+      this.configuration = configuration;
    }
 
    @Override
@@ -45,8 +45,8 @@ public class NamedNodeIdNodeLocator extends LiveNodeLocator {
    }
 
    @Override
-   public Pair<TransportConfiguration, TransportConfiguration> getLiveConfiguration() {
-      return liveConfiguration;
+   public Pair<TransportConfiguration, TransportConfiguration> getPrimaryConfiguration() {
+      return configuration;
    }
 
    @Override

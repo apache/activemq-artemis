@@ -279,12 +279,11 @@ You can also use wildcards for the MBean properties so the following would also 
 
 [NOTE]
 ====
-
-
-The allowlist element has replaced the whitelist element which is now deprecated
+The `allowlist` element has replaced the `whitelist` element which is now deprecated
 ====
 
-The ``role-access``defines how roles are mapped to particular MBeans and its attributes and methods, the default configuration looks like:
+The `role-access` defines how roles are mapped to particular MBeans and its attributes and methods.
+The default configuration looks like:
 
 [,xml]
 ----

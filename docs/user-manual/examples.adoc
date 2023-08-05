@@ -127,7 +127,7 @@ server-out:
 server-out:
 [INFO] awaiting server to start
 server-out:2023-12-14 14:33:06,314 INFO  [org.apache.activemq.artemis.integration.bootstrap] AMQ101000: Starting ActiveMQ Artemis Server version 2.32.0
-server-out:2023-12-14 14:33:06,339 INFO  [org.apache.activemq.artemis.core.server] AMQ221000: live Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=./data/journal,bindingsDirectory=./data/bindings,largeMessagesDirectory=./data/large-messages,pagingDirectory=./data/paging)
+server-out:2023-12-14 14:33:06,339 INFO  [org.apache.activemq.artemis.core.server] AMQ221000: primary Message Broker is starting with configuration Broker Configuration (clustered=false,journalDirectory=./data/journal,bindingsDirectory=./data/bindings,largeMessagesDirectory=./data/large-messages,pagingDirectory=./data/paging)
 server-out:2023-12-14 14:33:06,354 INFO  [org.apache.activemq.artemis.core.server] AMQ221012: Using AIO Journal
 server-out:2023-12-14 14:33:06,380 INFO  [org.apache.activemq.artemis.core.server] AMQ221057: Global Max Size is being adjusted to 1/2 of the JVM max size (-Xmx). being defined as 1073741824
 server-out:2023-12-14 14:33:06,391 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-server]. Adding protocol support for: CORE
@@ -136,8 +136,8 @@ server-out:2023-12-14 14:33:06,391 INFO  [org.apache.activemq.artemis.core.serve
 server-out:2023-12-14 14:33:06,392 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-mqtt-protocol]. Adding protocol support for: MQTT
 server-out:2023-12-14 14:33:06,392 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-openwire-protocol]. Adding protocol support for: OPENWIRE
 server-out:2023-12-14 14:33:06,392 INFO  [org.apache.activemq.artemis.core.server] AMQ221043: Protocol module found: [artemis-stomp-protocol]. Adding protocol support for: STOMP
-server-out:2023-12-14 14:33:06,411 INFO  [org.apache.activemq.artemis.core.server] AMQ221034: Waiting indefinitely to obtain live lock
-server-out:2023-12-14 14:33:06,411 INFO  [org.apache.activemq.artemis.core.server] AMQ221035: Live Server Obtained live lock
+server-out:2023-12-14 14:33:06,411 INFO  [org.apache.activemq.artemis.core.server] AMQ221034: Waiting indefinitely to obtain primary lock
+server-out:2023-12-14 14:33:06,411 INFO  [org.apache.activemq.artemis.core.server] AMQ221035: Primary Server Obtained primary lock
 server-out:2023-12-14 14:33:06,450 INFO  [org.apache.activemq.artemis.core.server] AMQ221080: Deploying address DLQ supporting [ANYCAST]
 server-out:2023-12-14 14:33:06,454 INFO  [org.apache.activemq.artemis.core.server] AMQ221003: Deploying ANYCAST queue DLQ on address DLQ
 server-out:2023-12-14 14:33:06,476 INFO  [org.apache.activemq.artemis.core.server] AMQ221080: Deploying address ExpiryQueue supporting [ANYCAST]
@@ -439,11 +439,11 @@ Please consult the JMS 1.1 specification for full details.
 
 == Multiple Failover
 
-This example demonstrates how to set up a live server with multiple backups
+This example demonstrates how to set up a primary server with multiple backups
 
 == Multiple Failover Failback
 
-This example demonstrates how to set up a live server with multiple backups but forcing failover back to the original live server
+This example demonstrates how to set up a primary server with multiple backups but forcing failover back to the original primary server
 
 == No Consumer Buffering
 
@@ -458,11 +458,11 @@ This example demonstrates that.
 
 == Non-Transaction Failover With Server Data Replication
 
-The `non-transaction-failover` example demonstrates two servers coupled as a live-backup pair for high availability (HA), and a client using a _non-transacted_ JMS session failing over from live to backup when the live server is crashed.
+The `non-transaction-failover` example demonstrates two servers coupled as a live-backup pair for high availability (HA), and a client using a _non-transacted_ JMS session failing over from primary to backup when the primary server is crashed.
 
-Apache ActiveMQ Artemis implements failover of client connections between live and backup servers.
-This is implemented by the replication of state between live and backup nodes.
-When replication is configured and a live node crashes, the client connections can carry and continue to send and consume messages.
+Apache ActiveMQ Artemis implements failover of client connections between primary and backup servers.
+This is implemented by the replication of state between primary and backup nodes.
+When replication is configured and a primary node crashes, the client connections can carry on and continue to send and consume messages.
 When non-transacted sessions are used, once and only once message delivery is not guaranteed and it is possible that some messages will be lost or delivered twice.
 
 == OpenWire
@@ -513,8 +513,8 @@ Apache ActiveMQ Artemis can be configured to automatically retry the connection,
 
 == Replicated Failback example
 
-An example showing how failback works when using replication, In this example a live server will replicate all its Journal to a backup server as it updates it.
-When the live server crashes the backup takes over from the live server and the client reconnects and carries on from where it left off.
+An example showing how failback works when using replication. In this example a primary server will replicate all its Journal to a backup server as it updates it.
+When the primary server crashes the backup takes over from the primary server and the client reconnects and carries on from where it left off.
 
 == Replicated Failback static example
 
@@ -622,16 +622,16 @@ The `topic-selector-example2` example shows you how to selectively consume messa
 
 == Transaction Failover
 
-The `transaction-failover` example demonstrates two servers coupled as a live-backup pair for high availability (HA), and a client using a transacted JMS session failing over from live to backup when the live server is crashed.
+The `transaction-failover` example demonstrates two servers coupled as a live-backup pair for high availability (HA), and a client using a transacted JMS session failing over from primary to backup when the primary server is crashed.
 
-Apache ActiveMQ Artemis implements failover of client connections between live and backup servers.
+Apache ActiveMQ Artemis implements failover of client connections between primary and backup servers.
 This is implemented by the sharing of a journal between the servers.
-When a live node crashes, the client connections can carry and continue to send and consume messages.
+When a primary node crashes, the client connections can carry and continue to send and consume messages.
 When transacted sessions are used, once and only once message delivery is guaranteed.
 
 == Failover Without Transactions
 
-The `stop-server-failover` example demonstrates failover of the JMS connection from one node to another when the live server crashes using a JMS non-transacted session.
+The `stop-server-failover` example demonstrates failover of the JMS connection from one node to another when the primary server crashes using a JMS non-transacted session.
 
 == Transactional Session
 

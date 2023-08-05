@@ -52,7 +52,7 @@ import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirror
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
@@ -358,7 +358,7 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    public void testSerialize() throws Exception {
       boolean b = RandomUtil.randomBoolean();
 
-      conf.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+      conf.setHAPolicyConfiguration(new PrimaryOnlyPolicyConfiguration());
 
       int i = RandomUtil.randomInt();
       conf.setScheduledThreadPoolMaxSize(i);

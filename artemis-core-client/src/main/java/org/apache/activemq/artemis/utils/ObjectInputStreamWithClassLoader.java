@@ -32,63 +32,91 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
 
 
    /**
-    * Value used to indicate that all classes should be white or black listed,
+    * Value used to indicate that all classes should be allowed or denied
     */
    public static final String CATCH_ALL_WILDCARD = "*";
 
+   @Deprecated(forRemoval = true)
    public static final String WHITELIST_PROPERTY = "org.apache.activemq.artemis.jms.deserialization.whitelist";
+   public static final String ALLOWLIST_PROPERTY = "org.apache.activemq.artemis.jms.deserialization.allowlist";
+   @Deprecated(forRemoval = true)
    public static final String BLACKLIST_PROPERTY = "org.apache.activemq.artemis.jms.deserialization.blacklist";
+   public static final String DENYLIST_PROPERTY = "org.apache.activemq.artemis.jms.deserialization.denylist";
 
 
-   private List<String> whiteList = new ArrayList<>();
-   private List<String> blackList = new ArrayList<>();
+   private List<String> allowList = new ArrayList<>();
+   private List<String> denyList = new ArrayList<>();
 
 
    public ObjectInputStreamWithClassLoader(final InputStream in) throws IOException {
       super(in);
-      String whiteList = System.getProperty(WHITELIST_PROPERTY, null);
-      setWhiteList(whiteList);
+      addToAllowList(System.getProperty(WHITELIST_PROPERTY, null));
+      addToAllowList(System.getProperty(ALLOWLIST_PROPERTY, null));
 
-      String blackList = System.getProperty(BLACKLIST_PROPERTY, null);
-      setBlackList(blackList);
+      addToDenyList(System.getProperty(BLACKLIST_PROPERTY, null));
+      addToDenyList(System.getProperty(DENYLIST_PROPERTY, null));
    }
 
    /**
-    * @return the whiteList configured on this policy instance.
+    * @return the allowList configured on this policy instance.
     */
-   public String getWhiteList() {
-      return StringUtil.joinStringList(whiteList, ",");
+   public String getAllowList() {
+      return StringUtil.joinStringList(allowList, ",");
    }
 
    /**
-    * @return the blackList configured on this policy instance.
+    * @return the denyList configured on this policy instance.
     */
-   public String getBlackList() {
-      return StringUtil.joinStringList(blackList, ",");
+   public String getDenyList() {
+      return StringUtil.joinStringList(denyList, ",");
    }
 
    /**
-    * Replaces the currently configured whiteList with a comma separated
-    * string containing the new whiteList. Null or empty string denotes
-    * no whiteList entries, {@value #CATCH_ALL_WILDCARD} indicates that
-    * all classes are whiteListed.
+    * Replaces the currently configured allowList with a comma separated
+    * string containing the new allowList. Null or empty string denotes
+    * no allowList entries, {@value #CATCH_ALL_WILDCARD} indicates that
+    * all classes are allowListed.
     *
-    * @param whiteList the whiteList that this policy is configured to recognize.
+    * @param allowList the list that this policy is configured to recognize.
     */
-   public void setWhiteList(String whiteList) {
-      this.whiteList = StringUtil.splitStringList(whiteList, ",");
+   public void setAllowList(String allowList) {
+      this.allowList = StringUtil.splitStringList(allowList, ",");
    }
 
    /**
-    * Replaces the currently configured blackList with a comma separated
-    * string containing the new blackList. Null or empty string denotes
-    * no blacklist entries, {@value #CATCH_ALL_WILDCARD} indicates that
-    * all classes are blacklisted.
+    * Adds to the currently configured allowList with a comma separated
+    * string containing the additional allowList entries. Null or empty
+    * string denotes no additional allowList entries.
     *
-    * @param blackList the blackList that this policy is configured to recognize.
+    * @param allowList the additional list entries that this policy is
+    *                  configured to recognize.
     */
-   public void setBlackList(String blackList) {
-      this.blackList = StringUtil.splitStringList(blackList, ",");
+   public void addToAllowList(String allowList) {
+      this.allowList.addAll(StringUtil.splitStringList(allowList, ","));
+   }
+
+   /**
+    * Replaces the currently configured denyList with a comma separated
+    * string containing the new denyList. Null or empty string denotes
+    * no denylist entries, {@value #CATCH_ALL_WILDCARD} indicates that
+    * all classes are denylisted.
+    *
+    * @param denyList the list that this policy is configured to recognize.
+    */
+   public void setDenyList(String denyList) {
+      this.denyList = StringUtil.splitStringList(denyList, ",");
+   }
+
+   /**
+    * Adds to the currently configured denyList with a comma separated
+    * string containing the additional denyList entries. Null or empty
+    * string denotes no additional denyList entries.
+    *
+    * @param denyList the additional list entries that this policy is
+    *                  configured to recognize.
+    */
+   public void addToDenyList(String denyList) {
+      this.denyList.addAll(StringUtil.splitStringList(denyList, ","));
    }
 
    @Override
@@ -97,12 +125,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
          return resolveClass0(desc);
       } else {
          try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
-               @Override
-               public Class run() throws Exception {
-                  return resolveClass0(desc);
-               }
-            });
+            return AccessController.doPrivileged((PrivilegedExceptionAction<Class>) () -> resolveClass0(desc));
          } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
@@ -115,12 +138,7 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
          return resolveProxyClass0(interfaces);
       } else {
          try {
-            return AccessController.doPrivileged(new PrivilegedExceptionAction<Class>() {
-               @Override
-               public Class run() throws Exception {
-                  return resolveProxyClass0(interfaces);
-               }
-            });
+            return AccessController.doPrivileged((PrivilegedExceptionAction<Class>) () -> resolveProxyClass0(interfaces));
          } catch (PrivilegedActionException e) {
             throw unwrapException(e);
          }
@@ -221,25 +239,25 @@ public class ObjectInputStreamWithClassLoader extends ObjectInputStream {
          className = clazz.getName();
       }
 
-      for (String blackListEntry : blackList) {
-         if (CATCH_ALL_WILDCARD.equals(blackListEntry)) {
+      for (String entry : denyList) {
+         if (CATCH_ALL_WILDCARD.equals(entry)) {
             return false;
-         } else if (isClassOrPackageMatch(className, blackListEntry)) {
+         } else if (isClassOrPackageMatch(className, entry)) {
             return false;
          }
       }
 
-      for (String whiteListEntry : whiteList) {
-         if (CATCH_ALL_WILDCARD.equals(whiteListEntry)) {
+      for (String entry : allowList) {
+         if (CATCH_ALL_WILDCARD.equals(entry)) {
             return true;
-         } else if (isClassOrPackageMatch(className, whiteListEntry)) {
+         } else if (isClassOrPackageMatch(className, entry)) {
             return true;
          }
       }
 
       // Failing outright rejection or allow from above
-      // reject only if the whiteList is not empty.
-      return whiteList.size() == 0;
+      // reject only if the allowList is not empty.
+      return allowList.size() == 0;
    }
 
    private boolean isClassOrPackageMatch(String className, String listEntry) {

@@ -139,7 +139,7 @@ public class NettyReplicationStopTest extends FailoverTestBase {
       }
 
       Assert.assertTrue(alignedOnSend.await(10, TimeUnit.SECONDS));
-      liveServer.stop();
+      primaryServer.stop();
 
       Assert.assertEquals(0, codesSent.size());
 

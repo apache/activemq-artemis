@@ -57,10 +57,10 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
    @Test
    public void testConsumerAfterFailover() throws Exception {
       setupCluster();
-      startServers(getLiveServerIDs());
+      startServers(getPrimaryServerIDs());
       startServers(getBackupServerIDs());
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          waitForTopology(servers[i], 3, 3);
       }
 
@@ -68,7 +68,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
          waitForFailoverTopology(i, 0, 1, 2);
       }
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          setupSessionFactory(i, i + 3, isNetty(), false);
          createQueue(i, QUEUES_TESTADDRESS, QUEUE_NAME, null, true);
       }
@@ -131,10 +131,10 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
          getServer(i).getAddressSettingsRepository().addMatch(QUEUES_TESTADDRESS, testAddressSettings);
       }
 
-      startServers(getLiveServerIDs());
+      startServers(getPrimaryServerIDs());
       startServers(getBackupServerIDs());
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          waitForTopology(servers[i], 3, 3);
       }
 
@@ -142,13 +142,13 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
          waitForFailoverTopology(i, 0, 1, 2);
       }
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          setupSessionFactory(i, i + 3, isNetty(), false);
          createQueue(i, QUEUES_TESTADDRESS, QUEUE_NAME, null, true);
       }
 
       List<TransportConfiguration> transportConfigList = new ArrayList<>();
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          Map<String, Object> params = generateParams(i, isNetty());
          TransportConfiguration serverToTC = createTransportConfiguration("node" + i, isNetty(), false, params);
          serverToTC.getExtraParams().put(TEST_PARAM, TEST_PARAM);
@@ -196,7 +196,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                      getConnectorConfiguration().getName().substring(4));
                   Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
 
-                  Assert.assertTrue(isLiveServerID(serverIdAfterCrash));
+                  Assert.assertTrue(isPrimaryServerID(serverIdAfterCrash));
 
                   QueueControl testQueueControlAfterCrash = (QueueControl)getServer(serverIdAfterCrash).
                      getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
@@ -216,18 +216,18 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
    public void testAutoCreatedQueueAfterFailoverWithoutHA() throws Exception {
       setupCluster();
 
-      startServers(getLiveServerIDs());
+      startServers(getPrimaryServerIDs());
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          waitForTopology(servers[i], 3, 0);
       }
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          setupSessionFactory(i, i + 3, isNetty(), false);
       }
 
       List<TransportConfiguration> transportConfigList = new ArrayList<>();
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          Map<String, Object> params = generateParams(i, isNetty());
          TransportConfiguration serverToTC = createTransportConfiguration("node" + i, isNetty(), false, params);
          serverToTC.getExtraParams().put(TEST_PARAM, TEST_PARAM);
@@ -254,7 +254,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                QueueControl testQueueControlBeforeCrash = (QueueControl) getServer(serverIdBeforeCrash).getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME);
                Assert.assertEquals(0, testQueueControlBeforeCrash.getMessageCount());
 
-               for (int i : getLiveServerIDs()) {
+               for (int i : getPrimaryServerIDs()) {
                   if (i != serverIdBeforeCrash) {
                      Assert.assertNull(getServer(i).getManagementService().getResource(ResourceNames.QUEUE + QUEUE_NAME));
                   }
@@ -277,7 +277,7 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
                   Assert.assertNotEquals(serverIdBeforeCrash, serverIdAfterCrash);
 
                   boolean serverIdAfterCrashFound = false;
-                  for (int i : getLiveServerIDs()) {
+                  for (int i : getPrimaryServerIDs()) {
                      if (i == serverIdAfterCrash) {
                         serverIdAfterCrashFound = true;
                      }
@@ -308,10 +308,10 @@ public class ClientConnectorFailoverTest extends StaticClusterWithBackupFailover
    public void testJMSConsumerAfterFailover() throws Exception {
 
       setupCluster();
-      startServers(getLiveServerIDs());
+      startServers(getPrimaryServerIDs());
       startServers(getBackupServerIDs());
 
-      for (int i : getLiveServerIDs()) {
+      for (int i : getPrimaryServerIDs()) {
          waitForTopology(servers[i], 3, 3);
       }
 

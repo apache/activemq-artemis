@@ -1217,8 +1217,8 @@ public class JMSServerManagerImpl extends CleaningActivateCallback implements JM
       cf.setCompressionLevel(cfConfig.getCompressionLevel());
       cf.setGroupID(cfConfig.getGroupID());
       cf.setProtocolManagerFactoryStr(cfConfig.getProtocolManagerFactoryStr());
-      cf.setDeserializationBlackList(cfConfig.getDeserializationBlackList());
-      cf.setDeserializationWhiteList(cfConfig.getDeserializationWhiteList());
+      cf.setDeserializationDenyList(cfConfig.getDeserializationDenyList());
+      cf.setDeserializationAllowList(cfConfig.getDeserializationAllowList());
       cf.setInitialMessagePacketSize(cfConfig.getInitialMessagePacketSize());
       cf.setEnable1xPrefixes(cfConfig.isEnable1xPrefixes());
       cf.setEnableSharedClientID(cfConfig.isEnableSharedClientID());

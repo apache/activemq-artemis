@@ -530,7 +530,7 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testActivationDeserializationParameters() throws Exception {
+   public void testDeprecatedActivationDeserializationParameters() throws Exception {
       ActiveMQServer server = createServer(false);
 
       try {
@@ -557,6 +557,42 @@ public class ResourceAdapterTest extends ActiveMQTestBase {
          factory = ra.newConnectionFactory(overrides);
          assertEquals("k.l.m.n", factory.getDeserializationWhiteList());
          assertEquals("o.p.q.r", factory.getDeserializationBlackList());
+
+         ra.stop();
+
+      } finally {
+         server.stop();
+      }
+   }
+
+   @Test
+   public void testActivationDeserializationParameters() throws Exception {
+      ActiveMQServer server = createServer(false);
+
+      try {
+
+         server.start();
+
+         ActiveMQResourceAdapter ra = new ActiveMQResourceAdapter();
+
+         ra.setConnectorClassName(INVM_CONNECTOR_FACTORY);
+         ra.setUserName("userGlobal");
+         ra.setPassword("passwordGlobal");
+         ra.setDeserializationAllowList("a.b.c.d.e");
+         ra.setDeserializationDenyList("f.g.h.i.j");
+         ra.start(new BootstrapContext());
+
+         ActiveMQConnectionFactory factory = ra.getDefaultActiveMQConnectionFactory();
+         assertEquals("a.b.c.d.e", factory.getDeserializationAllowList());
+         assertEquals("f.g.h.i.j", factory.getDeserializationDenyList());
+
+         ConnectionFactoryProperties overrides = new ConnectionFactoryProperties();
+         overrides.setDeserializationAllowList("k.l.m.n");
+         overrides.setDeserializationDenyList("o.p.q.r");
+
+         factory = ra.newConnectionFactory(overrides);
+         assertEquals("k.l.m.n", factory.getDeserializationAllowList());
+         assertEquals("o.p.q.r", factory.getDeserializationDenyList());
 
          ra.stop();
 

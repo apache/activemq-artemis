@@ -30,9 +30,9 @@ import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.CountDownSessionFailureListener;
@@ -60,7 +60,7 @@ public class FailBackAutoTest extends FailoverTestBase {
 
    @Test
    public void testAutoFailback() throws Exception {
-      ((SharedStoreSlavePolicy) backupServer.getServer().getHAPolicy()).setRestartBackup(false);
+      ((SharedStoreBackupPolicy) backupServer.getServer().getHAPolicy()).setRestartBackup(false);
       createSessionFactory();
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -70,11 +70,11 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      liveServer.crash();
+      primaryServer.crash();
 
       assertTrue(latch.await(5, TimeUnit.SECONDS));
 
-      logger.debug("backup (nowLive) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      logger.debug("backup (now primary) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
       logger.debug("Server Crash!!!");
 
@@ -96,8 +96,8 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      logger.debug("******* starting live server back");
-      liveServer.start();
+      logger.debug("******* starting primary server back");
+      primaryServer.start();
 
       Thread.sleep(1000);
 
@@ -148,9 +148,9 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       session.addFailureListener(listener);
 
-      logger.debug("Crashing live server...");
+      logger.debug("Crashing primary server...");
 
-      liveServer.crash(session);
+      primaryServer.crash(session);
 
       ClientProducer producer = session.createProducer(ADDRESS);
 
@@ -165,8 +165,8 @@ public class FailBackAutoTest extends FailoverTestBase {
       listener = new CountDownSessionFailureListener(session);
 
       session.addFailureListener(listener);
-      logger.debug("restarting live node now");
-      liveServer.start();
+      logger.debug("restarting primary node now");
+      primaryServer.start();
 
       assertTrue("expected a session failure 1", listener.getLatch().await(5, TimeUnit.SECONDS));
 
@@ -184,9 +184,9 @@ public class FailBackAutoTest extends FailoverTestBase {
 
       waitForBackup(sf, 10);
 
-      logger.debug("Crashing live server again...");
+      logger.debug("Crashing primary server again...");
 
-      liveServer.crash();
+      primaryServer.crash();
 
       assertTrue("expected a session failure 2", listener.getLatch().await(5, TimeUnit.SECONDS));
 
@@ -202,7 +202,7 @@ public class FailBackAutoTest extends FailoverTestBase {
     */
    @Test
    public void testFailBack() throws Exception {
-      ((SharedStoreSlavePolicy) backupServer.getServer().getHAPolicy()).setRestartBackup(false);
+      ((SharedStoreBackupPolicy) backupServer.getServer().getHAPolicy()).setRestartBackup(false);
       createSessionFactory();
       ClientSession session = sendAndConsume(sf, true);
 
@@ -219,16 +219,16 @@ public class FailBackAutoTest extends FailoverTestBase {
       producer = session.createProducer(ADDRESS);
       sendMessages(session, producer, 2 * NUM_MESSAGES);
       session.commit();
-      assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
-      adaptLiveConfigForReplicatedFailBack(liveServer);
+      assertFalse("must NOT be a backup", primaryServer.getServer().getHAPolicy().isBackup());
+      adaptPrimaryConfigForReplicatedFailBack(primaryServer);
 
       CountDownSessionFailureListener listener = new CountDownSessionFailureListener(session);
       session.addFailureListener(listener);
 
-      liveServer.start();
+      primaryServer.start();
 
       assertTrue(listener.getLatch().await(5, TimeUnit.SECONDS));
-      assertTrue("live initialized after restart", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
+      assertTrue("primary initialized after restart", primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
 
       session.start();
       receiveMessages(consumer, 0, NUM_MESSAGES, true);
@@ -250,26 +250,26 @@ public class FailBackAutoTest extends FailoverTestBase {
    protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
 
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setRestartBackup(true)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration().setRestartBackup(true)).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), primaryConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
+      primaryConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(primaryConnector.getName(), backupConnector.getName())).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMAcceptor(live);
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMAcceptor(primary);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMConnector(live);
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMConnector(primary);
    }
 
    private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {

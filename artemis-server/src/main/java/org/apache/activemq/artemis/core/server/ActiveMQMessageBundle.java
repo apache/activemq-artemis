@@ -90,7 +90,7 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229007, value = "unhandled error during replication")
    ActiveMQInternalErrorException replicationUnhandledError(Exception e);
 
-   @Message(id = 229008, value = "Live Node contains more journals than the backup node. Probably a version match error")
+   @Message(id = 229008, value = "Primary node contains more journals than the backup node. Probably a version match error")
    ActiveMQInternalErrorException replicationTooManyJournals();
 
    @Message(id = 229009, value = "Unhandled file type {}")
@@ -367,8 +367,8 @@ public interface ActiveMQMessageBundle {
    @Message(id = 229114, value = "Replication synchronization process timed out after waiting {} milliseconds")
    ActiveMQReplicationTimeooutException replicationSynchronizationTimeout(long timeout);
 
-   @Message(id = 229115, value = "Colocated Policy hasn't different type live and backup")
-   ActiveMQIllegalStateException liveBackupMismatch();
+   @Message(id = 229115, value = "Colocated Policy hasn't different type primary and backup")
+   ActiveMQIllegalStateException primaryBackupMismatch();
 
    @Message(id = 229116, value = "Netty Acceptor unavailable")
    IllegalStateException acceptorUnavailable();

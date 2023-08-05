@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 
 public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
 
-   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
+   private boolean checkForPrimaryServer = ActiveMQDefaultConfiguration.isDefaultCheckForActiveServer();
 
    private String groupName = null;
 
@@ -52,12 +52,12 @@ public class ReplicatedPolicyConfiguration implements HAPolicyConfiguration {
       return TYPE.REPLICATED;
    }
 
-   public boolean isCheckForLiveServer() {
-      return checkForLiveServer;
+   public boolean isCheckForActiveServer() {
+      return checkForPrimaryServer;
    }
 
-   public ReplicatedPolicyConfiguration setCheckForLiveServer(boolean checkForLiveServer) {
-      this.checkForLiveServer = checkForLiveServer;
+   public ReplicatedPolicyConfiguration setCheckForActiveServer(boolean checkForPrimaryServer) {
+      this.checkForPrimaryServer = checkForPrimaryServer;
       return this;
    }
 

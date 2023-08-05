@@ -100,7 +100,11 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    private boolean clustered;
 
    @Parameter(defaultValue = "false")
+   @Deprecated(forRemoval = true)
    private boolean slave;
+
+   @Parameter(defaultValue = "false")
+   private boolean backup;
 
    @Parameter
    private String staticCluster;
@@ -204,8 +208,8 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          add(listCommands, "--no-web");
       }
 
-      if (slave) {
-         add(listCommands, "--slave");
+      if (slave || backup) {
+         add(listCommands, "--backup");
       }
 
       if (replicated) {

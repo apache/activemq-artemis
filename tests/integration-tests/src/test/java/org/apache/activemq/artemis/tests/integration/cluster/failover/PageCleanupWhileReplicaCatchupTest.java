@@ -91,8 +91,8 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
       Worker[] workers = new Worker[NUMBER_OF_WORKERS];
 
       for (int i = 0; i < NUMBER_OF_WORKERS; i++) {
-         liveServer.getServer().addAddressInfo(new AddressInfo("WORKER_" + i).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-         liveServer.getServer().createQueue(new QueueConfiguration("WORKER_" + i).setRoutingType(RoutingType.ANYCAST).setDurable(true));
+         primaryServer.getServer().addAddressInfo(new AddressInfo("WORKER_" + i).setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+         primaryServer.getServer().createQueue(new QueueConfiguration("WORKER_" + i).setRoutingType(RoutingType.ANYCAST).setDurable(true));
          workers[i] = new Worker("WORKER_" + i);
          workers[i].start();
       }
@@ -131,7 +131,7 @@ public class PageCleanupWhileReplicaCatchupTest extends FailoverTestBase {
       Worker(String queue) {
          super("Worker on queue " + queue + " for test on PageCleanupWhileReplicaCatchupTest");
          this.queueName = queue;
-         this.queue = liveServer.getServer().locateQueue(queueName);
+         this.queue = primaryServer.getServer().locateQueue(queueName);
       }
 
       @Override

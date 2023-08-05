@@ -124,7 +124,7 @@ public interface ActiveMQClientLogger {
    @LogMessage(id = 212033, value = "unable to send notification when discovery group is stopped", level = LogMessage.Level.WARN)
    void errorSendingNotifOnDiscoveryStop(Throwable e);
 
-   @LogMessage(id = 212034, value = "There are more than one servers on the network broadcasting the same node id. " + "You will see this message exactly once (per node) if a node is restarted, in which case it can be safely " + "ignored. But if it is logged continuously it means you really do have more than one node on the same network " + "active concurrently with the same node id. This could occur if you have a backup node active at the same time as " + "its live node. nodeID={}", level = LogMessage.Level.WARN)
+   @LogMessage(id = 212034, value = "There are more than one servers on the network broadcasting the same node id. You will see this message exactly once (per node) if a node is restarted, in which case it can be safely ignored. But if it is logged continuously it means you really do have more than one node on the same network active concurrently with the same node id. This could occur if you have a backup node active at the same time as its primary node. nodeID={}", level = LogMessage.Level.WARN)
    void multipleServersBroadcastingSameNode(String nodeId);
 
    @LogMessage(id = 212035, value = "error receiving packet in discovery", level = LogMessage.Level.WARN)

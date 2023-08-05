@@ -173,13 +173,38 @@ public class ConnectionFactoryURITest {
 
    @Test
    public void testTCPAllProperties() throws Exception {
-      StringBuilder sb = new StringBuilder();
-      sb.append("tcp://localhost:3030?ha=true");
-      BeanUtilsBean bean = new BeanUtilsBean();
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
-      populate(sb, bean, factory);
-      ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
-      checkEquals(bean, factory, factory2);
+      ignoreList.add("deserializationBlackList");
+      ignoreList.add("deserializationWhiteList");
+      try {
+         StringBuilder sb = new StringBuilder();
+         sb.append("tcp://localhost:3030?ha=true");
+         BeanUtilsBean bean = new BeanUtilsBean();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+         populate(sb, bean, factory);
+         ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
+         checkEquals(bean, factory, factory2);
+      } finally {
+         ignoreList.remove("deserializationBlackList");
+         ignoreList.remove("deserializationWhiteList");
+      }
+   }
+
+   @Test
+   public void testTCPAllPropertiesWithDeprecatedProps() throws Exception {
+      ignoreList.add("deserializationDenyList");
+      ignoreList.add("deserializationAllowList");
+      try {
+         StringBuilder sb = new StringBuilder();
+         sb.append("tcp://localhost:3030?ha=true");
+         BeanUtilsBean bean = new BeanUtilsBean();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+         populate(sb, bean, factory);
+         ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
+         checkEquals(bean, factory, factory2);
+      } finally {
+         ignoreList.remove("deserializationDenyList");
+         ignoreList.remove("deserializationAllowList");
+      }
    }
 
    @Test
@@ -295,13 +320,38 @@ public class ConnectionFactoryURITest {
 
    @Test
    public void testUDPAllProperties() throws Exception {
-      StringBuilder sb = new StringBuilder();
-      sb.append("udp://localhost:3030?ha=true");
-      BeanUtilsBean bean = new BeanUtilsBean();
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
-      populate(sb, bean, factory);
-      ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
-      checkEquals(bean, factory, factory2);
+      ignoreList.add("deserializationBlackList");
+      ignoreList.add("deserializationWhiteList");
+      try {
+         StringBuilder sb = new StringBuilder();
+         sb.append("udp://localhost:3030?ha=true");
+         BeanUtilsBean bean = new BeanUtilsBean();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+         populate(sb, bean, factory);
+         ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
+         checkEquals(bean, factory, factory2);
+      } finally {
+         ignoreList.remove("deserializationBlackList");
+         ignoreList.remove("deserializationWhiteList");
+      }
+   }
+
+   @Test
+   public void testUDPAllPropertiesWithDeprecatedListProps() throws Exception {
+      ignoreList.add("deserializationDenyList");
+      ignoreList.add("deserializationAllowList");
+      try {
+         StringBuilder sb = new StringBuilder();
+         sb.append("udp://localhost:3030?ha=true");
+         BeanUtilsBean bean = new BeanUtilsBean();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+         populate(sb, bean, factory);
+         ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
+         checkEquals(bean, factory, factory2);
+      } finally {
+         ignoreList.remove("deserializationDenyList");
+         ignoreList.remove("deserializationAllowList");
+      }
    }
 
    @Test
@@ -356,13 +406,38 @@ public class ConnectionFactoryURITest {
 
    @Test
    public void testJGroupsAllProperties() throws Exception {
-      StringBuilder sb = new StringBuilder();
-      sb.append("jgroups://?file=param=value;param=value&channelName=channelName&ha=true");
-      BeanUtilsBean bean = new BeanUtilsBean();
-      ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
-      populate(sb, bean, factory);
-      ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
-      checkEquals(bean, factory, factory2);
+      ignoreList.add("deserializationBlackList");
+      ignoreList.add("deserializationWhiteList");
+      try {
+         StringBuilder sb = new StringBuilder();
+         sb.append("jgroups://?file=param=value;param=value&channelName=channelName&ha=true");
+         BeanUtilsBean bean = new BeanUtilsBean();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+         populate(sb, bean, factory);
+         ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
+         checkEquals(bean, factory, factory2);
+      } finally {
+         ignoreList.remove("deserializationBlackList");
+         ignoreList.remove("deserializationWhiteList");
+      }
+   }
+
+   @Test
+   public void testJGroupsAllPropertiesWithDeprecatedListProps() throws Exception {
+      ignoreList.add("deserializationDenyList");
+      ignoreList.add("deserializationAllowList");
+      try {
+         StringBuilder sb = new StringBuilder();
+         sb.append("jgroups://?file=param=value;param=value&channelName=channelName&ha=true");
+         BeanUtilsBean bean = new BeanUtilsBean();
+         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(true, (TransportConfiguration) null);
+         populate(sb, bean, factory);
+         ActiveMQConnectionFactory factory2 = parser.newObject(new URI(sb.toString()), null);
+         checkEquals(bean, factory, factory2);
+      } finally {
+         ignoreList.remove("deserializationDenyList");
+         ignoreList.remove("deserializationAllowList");
+      }
    }
 
    @Test

@@ -59,13 +59,13 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
       super.setUp();
 
       createReplicatedConfigs();
-      liveConfig.setResolveProtocols(true).addAcceptorConfiguration("amqp", smallFrameLive + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
+      primaryConfig.setResolveProtocols(true).addAcceptorConfiguration("amqp", smallFrameLive + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
       backupConfig.setResolveProtocols(true).addAcceptorConfiguration("amqp", smallFrameBackup + "?protocols=AMQP;useEpoll=false;maxFrameSize=512");
-      liveServer.start();
+      primaryServer.start();
       backupServer.start();
 
-      liveServer.getServer().addAddressInfo(new AddressInfo(getQueueName(), RoutingType.ANYCAST));
-      liveServer.getServer().createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
+      primaryServer.getServer().addAddressInfo(new AddressInfo(getQueueName(), RoutingType.ANYCAST));
+      primaryServer.getServer().createQueue(new QueueConfiguration(getQueueName()).setRoutingType(RoutingType.ANYCAST));
 
 
       waitForRemoteBackupSynchronization(backupServer.getServer());
@@ -80,7 +80,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
    public void testSimpleSend() throws Exception {
       try {
 
-         ActiveMQServer server = liveServer.getServer();
+         ActiveMQServer server = primaryServer.getServer();
 
          boolean crashServer = true;
          int size = 100 * 1024;
@@ -117,7 +117,7 @@ public class AmqpReplicatedLargeMessageTest extends AmqpReplicatedTestSupport {
 
          if (crashServer) {
             connection.close();
-            liveServer.crash();
+            primaryServer.crash();
 
             Wait.assertTrue(backupServer::isActive);
 

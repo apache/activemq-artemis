@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQComponent;
-import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingPrimaryActivation;
 import org.apache.activemq.artemis.tests.integration.cluster.util.BackupSyncDelay;
 import org.apache.activemq.artemis.utils.RetryRule;
 import org.junit.Assert;
@@ -87,9 +87,9 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       send(0, QUEUES_TESTADDRESS, 10, false, null);
       verifyReceiveRoundRobinInSomeOrder(true, 10, 0, 1, 2);
 
-      final TopologyListener liveTopologyListener = new TopologyListener("LIVE-1");
+      final TopologyListener primaryTopologyListener = new TopologyListener("PRIMARY-1");
 
-      locators[0].addClusterTopologyListener(liveTopologyListener);
+      locators[0].addClusterTopologyListener(primaryTopologyListener);
 
       assertTrue("we assume 3 is a backup", servers[3].getHAPolicy().isBackup());
       assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
@@ -109,7 +109,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
    }
 
    @Test
-   public void testQuorumVotingLiveNotDead() throws Exception {
+   public void testQuorumVotingPrimaryNotDead() throws Exception {
       int[] liveServerIDs = new int[]{0, 1, 2};
       setupCluster();
       startServers(0, 1, 2);
@@ -144,15 +144,15 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
       send(0, QUEUES_TESTADDRESS, 10, false, null);
       verifyReceiveRoundRobinInSomeOrder(true, 10, 0, 1, 2);
 
-      final TopologyListener liveTopologyListener = new TopologyListener("LIVE-1");
+      final TopologyListener primaryTopologyListener = new TopologyListener("PRIMARY-1");
 
-      locators[0].addClusterTopologyListener(liveTopologyListener);
+      locators[0].addClusterTopologyListener(primaryTopologyListener);
 
       assertTrue("we assume 3 is a backup", servers[3].getHAPolicy().isBackup());
       assertFalse("no shared storage", servers[3].getHAPolicy().isSharedStore());
 
-      SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) servers[0].getActivation();
-      liveActivation.freezeReplication();
+      SharedNothingPrimaryActivation primaryActivation = (SharedNothingPrimaryActivation) servers[0].getActivation();
+      primaryActivation.freezeReplication();
       assertFalse(servers[0].isReplicaSync());
       waitForRemoteBackupSynchronization(servers[0]);
       assertTrue(servers[0].isReplicaSync());
@@ -178,7 +178,7 @@ public class QuorumFailOverTest extends StaticClusterWithBackupFailoverTest {
 
       @Override
       public void nodeUP(TopologyMember topologyMember, boolean last) {
-         Pair<TransportConfiguration, TransportConfiguration> connectorPair = new Pair<>(topologyMember.getLive(), topologyMember.getBackup());
+         Pair<TransportConfiguration, TransportConfiguration> connectorPair = new Pair<>(topologyMember.getPrimary(), topologyMember.getBackup());
          nodes.put(topologyMember.getBackupGroupName(), connectorPair);
       }
 

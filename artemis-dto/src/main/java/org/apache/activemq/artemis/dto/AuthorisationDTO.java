@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class AuthorisationDTO {
 
    @XmlElementRef( required = false)
-   @Deprecated
+   @Deprecated(forRemoval = true)
    WhiteListDTO whitelist;
 
    @XmlElementRef( required = false )
@@ -39,7 +39,7 @@ public class AuthorisationDTO {
    @XmlElementRef
    RoleAccessDTO roleAccess;
 
-   @Deprecated
+   @Deprecated(forRemoval = true)
    public WhiteListDTO getWhiteList() {
       return whitelist;
    }

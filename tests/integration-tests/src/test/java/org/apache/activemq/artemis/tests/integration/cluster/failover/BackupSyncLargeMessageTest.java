@@ -85,7 +85,7 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
    public void testDeleteLargeMessagesDuringSync() throws Exception {
       setNumberOfMessages(200);
       File backupLMdir = new File(backupServer.getServer().getConfiguration().getLargeMessagesDirectory());
-      File liveLMDir = new File(liveServer.getServer().getConfiguration().getLargeMessagesDirectory());
+      File primaryLMDir = new File(primaryServer.getServer().getConfiguration().getLargeMessagesDirectory());
       assertEquals("Should not have any large messages... previous test failed to clean up?", 0, getAllMessageFileIds(backupLMdir).size());
       createProducerSendSomeMessages();
 
@@ -95,26 +95,26 @@ public class BackupSyncLargeMessageTest extends BackupSyncJournalTest {
 
       startBackupFinishSyncing();
       Thread.sleep(500);
-      liveServer.getServer().stop();
+      primaryServer.getServer().stop();
       backupServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
       backupServer.stop();
 
       Set<Long> backupLM = getAllMessageFileIds(backupLMdir);
-      Set<Long> liveLM = getAllMessageFileIds(liveLMDir);
-      assertEquals("live and backup should have the same files ", liveLM, backupLM);
+      Set<Long> primaryLM = getAllMessageFileIds(primaryLMDir);
+      assertEquals("primary and backup should have the same files ", primaryLM, backupLM);
       assertEquals("we really ought to delete these after delivery: " + backupLM, getNumberOfMessages() / 2, backupLM.size());
       assertEquals("we really ought to delete these after delivery", getNumberOfMessages() / 2, getAllMessageFileIds(backupLMdir).size());
    }
 
    /**
     * LargeMessages are passed from the client to the server in chunks. Here we test the backup
-    * starting the data synchronization with the live in the middle of a multiple chunks large
-    * message upload from the client to the live server.
+    * starting the data synchronization with the primary in the middle of a multiple chunks large
+    * message upload from the client to the primary server.
     *
     * @throws Exception
     */
    @Test
-   public void testBackupStartsWhenLiveIsReceivingLargeMessage() throws Exception {
+   public void testBackupStartsWhenPrimaryIsReceivingLargeMessage() throws Exception {
       final ClientSession session = addClientSession(sessionFactory.createSession(true, true));
       session.createQueue(new QueueConfiguration(FailoverTestBase.ADDRESS));
       final ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);

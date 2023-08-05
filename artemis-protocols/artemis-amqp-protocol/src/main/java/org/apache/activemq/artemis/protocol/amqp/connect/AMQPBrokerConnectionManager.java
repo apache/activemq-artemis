@@ -223,7 +223,7 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
       }
 
       @Override
-      public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
+      public boolean checkForFailover(String nodeID) throws ActiveMQException {
          return false;
       }
 

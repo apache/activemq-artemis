@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.api.core.client.ClientProducer;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.persistence.impl.journal.JournalStorageManager;
 import org.apache.activemq.artemis.core.persistence.impl.journal.LargeServerMessageImpl;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
@@ -50,16 +50,16 @@ public class ScaleDown3NodeTest extends ClusterTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      setupLiveServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupPrimaryServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[0].getConfiguration().setSecurityEnabled(true);
-      setupLiveServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupPrimaryServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[1].getConfiguration().setSecurityEnabled(true);
-      setupLiveServer(2, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupPrimaryServer(2, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[2].getConfiguration().setSecurityEnabled(true);
-      LiveOnlyPolicyConfiguration haPolicyConfiguration0 = (LiveOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
+      PrimaryOnlyPolicyConfiguration haPolicyConfiguration0 = (PrimaryOnlyPolicyConfiguration) servers[0].getConfiguration().getHAPolicyConfiguration();
       ScaleDownConfiguration scaleDownConfiguration0 = new ScaleDownConfiguration();
       haPolicyConfiguration0.setScaleDownConfiguration(scaleDownConfiguration0);
-      LiveOnlyPolicyConfiguration haPolicyConfiguration1 = (LiveOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
+      PrimaryOnlyPolicyConfiguration haPolicyConfiguration1 = (PrimaryOnlyPolicyConfiguration) servers[1].getConfiguration().getHAPolicyConfiguration();
       ScaleDownConfiguration scaleDownConfiguration1 = new ScaleDownConfiguration();
       haPolicyConfiguration1.setScaleDownConfiguration(scaleDownConfiguration1);
       scaleDownConfiguration0.setGroupName("bill");

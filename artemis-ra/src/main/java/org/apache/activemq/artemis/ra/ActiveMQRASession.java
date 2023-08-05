@@ -1021,7 +1021,7 @@ public class ActiveMQRASession implements QueueSession, TopicSession, XAQueueSes
    public String getNodeId() throws JMSException {
       ActiveMQSession session = (ActiveMQSession) getSessionInternal();
       ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) session.getCoreSession().getSessionFactory();
-      return factory.getLiveNodeId();
+      return factory.getPrimaryNodeId();
    }
 
    /**

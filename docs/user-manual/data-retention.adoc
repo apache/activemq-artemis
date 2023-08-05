@@ -45,7 +45,7 @@ The broker will scan the set of files accordingly to the parameters you passed a
 === CLI recover operation
 
 The CLI recover operation is intended as a low level operation, where data is read and recovered directly into a set of journal files.
-Notice uou should never manipulate journal files that are being used by a live broker as that could risk the integrity of your data files and running broker.
+Notice uou should never manipulate journal files that are being used by an active broker as that could risk the integrity of your data files and running broker.
 
 [,shell]
 ----

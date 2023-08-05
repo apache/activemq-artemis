@@ -45,8 +45,8 @@ public class StreamClassPathTest {
       testStream(Create.class, "etc/" + Create.ETC_BROKER_XML);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_ROLES_PROPERTIES);
       testStream(Create.class, "etc/" + Create.ETC_ARTEMIS_USERS_PROPERTIES);
-      testStream(Create.class, Create.ETC_REPLICATED_MASTER_SETTINGS_TXT);
-      testStream(Create.class, Create.ETC_REPLICATED_SLAVE_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_REPLICATED_PRIMARY_SETTINGS_TXT);
+      testStream(Create.class, Create.ETC_REPLICATED_BACKUP_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_SHARED_STORE_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CLUSTER_SECURITY_SETTINGS_TXT);
       testStream(Create.class, Create.ETC_CLUSTER_SETTINGS_TXT);

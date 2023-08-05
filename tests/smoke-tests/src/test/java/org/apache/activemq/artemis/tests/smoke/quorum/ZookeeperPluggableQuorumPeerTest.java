@@ -31,10 +31,10 @@ import java.lang.invoke.MethodHandles;
 
 import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
 import static org.apache.activemq.artemis.tests.util.Jmx.decodeNetworkTopologyJson;
-import static org.apache.activemq.artemis.tests.util.Jmx.liveOf;
+import static org.apache.activemq.artemis.tests.util.Jmx.primaryOf;
 import static org.apache.activemq.artemis.tests.util.Jmx.validateNetworkTopology;
 import static org.apache.activemq.artemis.tests.util.Jmx.withBackup;
-import static org.apache.activemq.artemis.tests.util.Jmx.withLive;
+import static org.apache.activemq.artemis.tests.util.Jmx.withPrimary;
 import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
 import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 
@@ -64,16 +64,16 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       final String coordinationId = "peer.journal.001";
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       logger.info("starting peer a");
-      final Process live = primary.startServer(this, 0);
+      final Process primary = this.primary.startServer(this, 0);
       logger.info("waiting peer a to increase coordinated activation sequence to 1");
-      Wait.assertEquals(1L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
-      Assert.assertEquals(coordinationId, primary.getNodeID().get());
-      Wait.waitFor(() -> primary.listNetworkTopology().isPresent(), timeout);
-      final String urlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      Wait.assertEquals(1L, () -> this.primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
+      Assert.assertEquals(coordinationId, this.primary.getNodeID().get());
+      Wait.waitFor(() -> this.primary.listNetworkTopology().isPresent(), timeout);
+      final String urlPeerA = primaryOf(coordinationId, decodeNetworkTopologyJson(this.primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPeerA);
       logger.info("peer a acceptor: {}", urlPeerA);
       logger.info("killing peer a");
-      ServerUtil.killServer(live, forceKill);
+      ServerUtil.killServer(primary, forceKill);
       logger.info("starting peer b");
       Process emptyBackup = backup.startServer(this, 0);
       logger.info("waiting until peer b act as empty backup");
@@ -85,14 +85,14 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       logger.info("Restart majority of quorum nodes");
       restart(majority);
       logger.info("Restart peer a as legit last live");
-      final Process restartedLive = primary.startServer(this, 0);
+      final Process restartedPrimary = this.primary.startServer(this, 0);
       logger.info("waiting peer a to increase coordinated activation sequence to 2");
-      Wait.assertEquals(2L, () -> primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
-      Assert.assertEquals(coordinationId, primary.getNodeID().get());
+      Wait.assertEquals(2L, () -> this.primary.getActivationSequence().orElse(Long.MAX_VALUE).longValue(), timeout);
+      Assert.assertEquals(coordinationId, this.primary.getNodeID().get());
       logger.info("waiting peer b to be a replica");
       Wait.waitFor(() -> backup.isReplicaSync().orElse(false));
       Wait.assertEquals(2L, () -> backup.getActivationSequence().get().longValue());
-      final String expectedUrlPeerA = liveOf(coordinationId, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      final String expectedUrlPeerA = primaryOf(coordinationId, decodeNetworkTopologyJson(this.primary.listNetworkTopology().get()));
       Assert.assertEquals(urlPeerA, expectedUrlPeerA);
    }
 
@@ -120,7 +120,7 @@ public class ZookeeperPluggableQuorumPeerTest extends ZookeeperPluggableQuorumSi
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
-                                                          .and(withLive(nodeID, Objects::nonNull))
+                                                          .and(withPrimary(nodeID, Objects::nonNull))
                                                           .and(withBackup(nodeID, Objects::nonNull))
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);

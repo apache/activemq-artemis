@@ -107,13 +107,14 @@ Both upstreams are configured with the same queue-policy `news-queue-federation`
 Let's take a look at all the `queue-policy` parameters in turn, in order of priority.
 
 name::
- attribute.
 All address-policies must have a unique name in the server.
 include::
- the address-match pattern to whitelist addresses, multiple of these can be set.
+The address-match pattern to include addresses.
+Multiple of these can be set.
 If none are set all addresses are matched.
 exclude::
- the address-match pattern to blacklist addresses, multiple of these can be set.
+The address-match pattern to exclude addresses.
+Multiple of these can be set.
 priority-adjustment::
  when a consumer attaches its priority is used to make the upstream consumer,  but with an adjustment by default -1, so that local consumers get load balanced first over remote, this enables this to be configurable should it be wanted/needed.
 include-federated::

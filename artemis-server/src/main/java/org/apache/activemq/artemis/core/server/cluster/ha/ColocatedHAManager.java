@@ -111,7 +111,7 @@ public class ColocatedHAManager implements HAManager {
    }
 
    /**
-    * send a request to a live server to start a backup for us
+    * send a request to a primary server to start a backup for us
     *
     * @param connectorPair the connector for the node to request a backup from
     * @param backupSize    the current size of the requested nodes backups
@@ -156,10 +156,10 @@ public class ColocatedHAManager implements HAManager {
          backup.start();
       } catch (Exception e) {
          backup.stop();
-         ActiveMQServerLogger.LOGGER.activateSharedStoreSlaveFailed(e);
+         ActiveMQServerLogger.LOGGER.activateSharedStoreBackupFailed(e);
          return false;
       }
-      ActiveMQServerLogger.LOGGER.activatingSharedStoreSlave();
+      ActiveMQServerLogger.LOGGER.activatingSharedStoreBackup();
       return true;
    }
 

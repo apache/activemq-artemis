@@ -452,7 +452,7 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    boolean addToPage(PagingStore store, Message msg, Transaction tx, RouteContextList listCtx) throws Exception;
 
    /**
-    * Stops the replication of data from the live to the backup.
+    * Stops the replication of data from the primary to the backup.
     * <p>
     * Typical scenario is a broken connection.
     */

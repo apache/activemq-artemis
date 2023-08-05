@@ -132,7 +132,7 @@ Please see xref:core.adoc#core-api[Core] for using the Core API with Apache Acti
 High Availability (HA) means that the system should remain operational after failure of one or more of the servers.
 The degree of support for HA varies between various messaging systems.
 
-Apache ActiveMQ Artemis provides automatic failover where your sessions are automatically reconnected to the backup server on event of live server failure.
+Apache ActiveMQ Artemis provides automatic failover where your sessions are automatically reconnected to a backup server on event of a server failure.
 
 For more information on HA, please see xref:ha.adoc#high-availability-and-failover[High Availability and Failover].
 

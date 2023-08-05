@@ -74,7 +74,7 @@ public class AutoClientIDShardClusterTest extends RoutingTestBase {
 
    protected void setupServers() throws Exception {
       for (int i = 0; i < 2; i++) {
-         setupLiveServer(i, true, HAType.SharedNothingReplication, true, false);
+         setupPrimaryServer(i, true, HAType.SharedNothingReplication, true, false);
          servers[i].addProtocolManagerFactory(new ProtonProtocolManagerFactory());
          servers[i].addProtocolManagerFactory(new OpenWireProtocolManagerFactory());
       }

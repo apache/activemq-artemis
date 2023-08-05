@@ -37,7 +37,7 @@ public class ReplicatedWithDelayFailoverTest extends ReplicatedFailoverTest {
    public void setUp() throws Exception {
       startBackupServer = false;
       super.setUp();
-      syncDelay = new BackupSyncDelay(backupServer, liveServer);
+      syncDelay = new BackupSyncDelay(backupServer, primaryServer);
       backupServer.start();
       waitForServerToStart(backupServer.getServer());
    }

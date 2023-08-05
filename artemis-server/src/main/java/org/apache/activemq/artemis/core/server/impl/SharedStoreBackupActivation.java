@@ -38,7 +38,7 @@ import org.apache.activemq.artemis.core.server.QueueFactory;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.management.ManagementService;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ public final class SharedStoreBackupActivation extends Activation {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    //this is how we act as a backup
-   private final SharedStoreSlavePolicy sharedStoreSlavePolicy;
+   private final SharedStoreBackupPolicy sharedStoreBackupPolicy;
 
    private final ActiveMQServerImpl activeMQServer;
 
@@ -63,10 +63,10 @@ public final class SharedStoreBackupActivation extends Activation {
    private final IOCriticalErrorListener ioCriticalErrorListener;
 
    public SharedStoreBackupActivation(ActiveMQServerImpl server,
-                                      SharedStoreSlavePolicy sharedStoreSlavePolicy,
+                                      SharedStoreBackupPolicy sharedStoreBackupPolicy,
                                       IOCriticalErrorListener ioCriticalErrorListener) {
       this.activeMQServer = server;
-      this.sharedStoreSlavePolicy = sharedStoreSlavePolicy;
+      this.sharedStoreBackupPolicy = sharedStoreBackupPolicy;
       this.ioCriticalErrorListener = ioCriticalErrorListener;
       synchronized (failbackCheckerGuard) {
          cancelFailBackChecker = false;
@@ -80,7 +80,7 @@ public final class SharedStoreBackupActivation extends Activation {
 
          activeMQServer.getNodeManager().startBackup();
 
-         ScaleDownPolicy scaleDownPolicy = sharedStoreSlavePolicy.getScaleDownPolicy();
+         ScaleDownPolicy scaleDownPolicy = sharedStoreBackupPolicy.getScaleDownPolicy();
 
          boolean scalingDown = scaleDownPolicy != null && scaleDownPolicy.isEnabled();
 
@@ -93,11 +93,11 @@ public final class SharedStoreBackupActivation extends Activation {
 
          ActiveMQServerLogger.LOGGER.backupServerStarted(activeMQServer.getVersion().getFullVersion(), activeMQServer.getNodeManager().getNodeId());
 
-         activeMQServer.getNodeManager().awaitLiveNode();
+         activeMQServer.getNodeManager().awaitPrimaryNode();
 
-         sharedStoreSlavePolicy.getSharedStoreMasterPolicy().setSharedStoreSlavePolicy(sharedStoreSlavePolicy);
+         sharedStoreBackupPolicy.getSharedStorePrimaryPolicy().setSharedStoreBackupPolicy(sharedStoreBackupPolicy);
 
-         activeMQServer.setHAPolicy(sharedStoreSlavePolicy.getSharedStoreMasterPolicy());
+         activeMQServer.setHAPolicy(sharedStoreBackupPolicy.getSharedStorePrimaryPolicy());
 
          //activeMQServer.configuration.getHAPolicy().setPolicyType(HAPolicy.POLICY_TYPE.SHARED_STORE);
 
@@ -123,7 +123,7 @@ public final class SharedStoreBackupActivation extends Activation {
                   try {
                      activeMQServer.stop();
                      //we are shared store but if we were started by a parent server then we shouldn't restart
-                     if (sharedStoreSlavePolicy.isRestartBackup()) {
+                     if (sharedStoreBackupPolicy.isRestartBackup()) {
                         activeMQServer.start();
                      }
                   } catch (Exception e) {
@@ -134,11 +134,11 @@ public final class SharedStoreBackupActivation extends Activation {
             t.start();
             return;
          } else {
-            ActiveMQServerLogger.LOGGER.backupServerIsLive();
+            ActiveMQServerLogger.LOGGER.backupServerIsActive();
 
             activeMQServer.getNodeManager().releaseBackup();
          }
-         if (sharedStoreSlavePolicy.isAllowAutoFailBack() && ActiveMQServerImpl.SERVER_STATE.STOPPING != activeMQServer.getState() && ActiveMQServerImpl.SERVER_STATE.STOPPED != activeMQServer.getState()) {
+         if (sharedStoreBackupPolicy.isAllowAutoFailBack() && ActiveMQServerImpl.SERVER_STATE.STOPPING != activeMQServer.getState() && ActiveMQServerImpl.SERVER_STATE.STOPPED != activeMQServer.getState()) {
             startFailbackChecker();
          }
       } catch (NodeManagerException nodeManagerException) {
@@ -186,12 +186,12 @@ public final class SharedStoreBackupActivation extends Activation {
 
          if (nodeManagerInUse != null) {
             unregisterActiveLockListener(nodeManagerInUse);
-            // if we are now live, behave as live
+            // if we are now active, behave as primary
             // We need to delete the file too, otherwise the backup will failover when we shutdown or if the backup is
-            // started before the live
-            if (sharedStoreSlavePolicy.isFailoverOnServerShutdown() || permanently) {
+            // started before the primary
+            if (sharedStoreBackupPolicy.isFailoverOnServerShutdown() || permanently) {
                try {
-                  nodeManagerInUse.crashLiveServer();
+                  nodeManagerInUse.crashPrimaryServer();
                } catch (Throwable t) {
                   if (!permanently) {
                      throw t;
@@ -199,7 +199,7 @@ public final class SharedStoreBackupActivation extends Activation {
                   logger.warn("Errored while closing activation: can be ignored because of permanent close", t);
                }
             } else {
-               nodeManagerInUse.pauseLiveServer();
+               nodeManagerInUse.pausePrimaryServer();
             }
          }
       }
@@ -236,8 +236,8 @@ public final class SharedStoreBackupActivation extends Activation {
                                             GroupingHandler groupingHandler,
                                             Configuration configuration,
                                             ActiveMQServer parentServer) throws ActiveMQException {
-      if (sharedStoreSlavePolicy.getScaleDownPolicy() != null && sharedStoreSlavePolicy.getScaleDownPolicy().isEnabled()) {
-         return new BackupRecoveryJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer, ScaleDownPolicy.getScaleDownConnector(sharedStoreSlavePolicy.getScaleDownPolicy(), activeMQServer), activeMQServer.getClusterManager().getClusterController());
+      if (sharedStoreBackupPolicy.getScaleDownPolicy() != null && sharedStoreBackupPolicy.getScaleDownPolicy().isEnabled()) {
+         return new BackupRecoveryJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer, ScaleDownPolicy.getScaleDownConnector(sharedStoreBackupPolicy.getScaleDownPolicy(), activeMQServer), activeMQServer.getClusterManager().getClusterController());
       } else {
          return super.createJournalLoader(postOffice, pagingManager, storageManager, queueFactory, nodeManager, managementService, groupingHandler, configuration, parentServer);
       }
@@ -284,39 +284,36 @@ public final class SharedStoreBackupActivation extends Activation {
                   return;
                }
                ActiveMQServerLogger.LOGGER.awaitFailBack();
-               Thread t = new Thread(new Runnable() {
-                  @Override
-                  public void run() {
+               Thread t = new Thread(() -> {
+                  try {
+                     logger.debug("{}::Stopping active node in favor of failback", activeMQServer);
+
+                     NodeManager nodeManager = activeMQServer.getNodeManager();
+                     activeMQServer.stop(true, false, true);
+
+                     // ensure that the server to which we are failing back actually starts fully before we restart
+                     nodeManager.start();
                      try {
-                        logger.debug("{}::Stopping live node in favor of failback", activeMQServer);
-
-                        NodeManager nodeManager = activeMQServer.getNodeManager();
-                        activeMQServer.stop(true, false, true);
-
-                        // ensure that the server to which we are failing back actually starts fully before we restart
-                        nodeManager.start();
-                        try {
-                           nodeManager.awaitLiveStatus();
-                        } finally {
-                           nodeManager.stop();
-                        }
-
-                        synchronized (failbackCheckerGuard) {
-                           if (cancelFailBackChecker || !sharedStoreSlavePolicy.isRestartBackup())
-                              return;
-
-                           activeMQServer.setHAPolicy(sharedStoreSlavePolicy);
-                           logger.debug("{}::Starting backup node now after failback", activeMQServer);
-                           activeMQServer.start();
-
-                           LockListener lockListener = activeLockListener;
-                           if (lockListener != null) {
-                              activeMQServer.getNodeManager().registerLockListener(lockListener);
-                           }
-                        }
-                     } catch (Exception e) {
-                        ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
+                        nodeManager.awaitActiveStatus();
+                     } finally {
+                        nodeManager.stop();
                      }
+
+                     synchronized (failbackCheckerGuard) {
+                        if (cancelFailBackChecker || !sharedStoreBackupPolicy.isRestartBackup())
+                           return;
+
+                        activeMQServer.setHAPolicy(sharedStoreBackupPolicy);
+                        logger.debug("{}::Starting backup node now after failback", activeMQServer);
+                        activeMQServer.start();
+
+                        LockListener lockListener = activeLockListener;
+                        if (lockListener != null) {
+                           activeMQServer.getNodeManager().registerLockListener(lockListener);
+                        }
+                     }
+                  } catch (Exception e) {
+                     ActiveMQServerLogger.LOGGER.serverRestartWarning(e);
                   }
                });
                t.start();

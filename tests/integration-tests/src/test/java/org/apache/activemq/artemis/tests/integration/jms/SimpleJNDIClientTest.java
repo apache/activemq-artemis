@@ -47,7 +47,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants;
 import org.apache.activemq.artemis.core.security.Role;
@@ -410,7 +410,7 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
       Map<String, Object> params = new HashMap<>();
       params.put(org.apache.activemq.artemis.core.remoting.impl.invm.TransportConstants.SERVER_ID_PROP_NAME, 1);
 
-      Configuration liveConf = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY)).setConnectorConfigurations(connectors).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).setSecurityEnabled(true);
+      Configuration primaryConf = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY, params)).addAcceptorConfiguration(new TransportConfiguration(NETTY_ACCEPTOR_FACTORY)).setConnectorConfigurations(connectors).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).setSecurityEnabled(true);
 
       final long broadcastPeriod = 250;
 
@@ -422,9 +422,9 @@ public class SimpleJNDIClientTest extends ActiveMQTestBase {
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<>();
       bcConfigs1.add(bcConfig1);
-      liveConf.setBroadcastGroupConfigurations(bcConfigs1);
+      primaryConf.setBroadcastGroupConfigurations(bcConfigs1);
 
-      liveService = addServer(ActiveMQServers.newActiveMQServer(liveConf, false));
+      liveService = addServer(ActiveMQServers.newActiveMQServer(primaryConf, false));
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().addUser("guest", "guest");
       ((ActiveMQJAASSecurityManager) liveService.getSecurityManager()).getConfiguration().setDefaultUser("guest");
       liveService.start();

@@ -97,12 +97,12 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
 
    @Test
    public void testReplicateFromSlowLive() throws Exception {
-      // start live
-      Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.start();
+      // start primary
+      Configuration primaryConfiguration = createPrimaryConfiguration();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       final CountDownLatch replicated = new CountDownLatch(1);
 
@@ -112,7 +112,7 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       locator.addClusterTopologyListener(new ClusterTopologyListener() {
          @Override
          public void nodeUP(TopologyMember member, boolean last) {
-            logger.debug("nodeUP fired last={}, live={}, backup={}", last, member.getLive(), member.getBackup());
+            logger.debug("nodeUP fired last={}, primary={}, backup={}", last, member.getPrimary(), member.getBackup());
             if (member.getBackup() != null) {
                replicated.countDown();
             }
@@ -190,25 +190,25 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
       csf.close();
       locator.close();
       backupServer.stop(true);
-      liveServer.stop(true);
+      primaryServer.stop(true);
 
       SequentialFileFactory fileFactory;
 
-      File liveJournalDir = brokersFolder.getRoot().toPath().resolve("live").resolve("data").resolve("journal").toFile();
-      fileFactory = new MappedSequentialFileFactory(liveConfiguration.getJournalLocation(), liveConfiguration.getJournalFileSize(), false, liveConfiguration.getJournalBufferSize_NIO(), liveConfiguration.getJournalBufferTimeout_NIO(), null);
+      File primaryJournalDir = brokersFolder.getRoot().toPath().resolve("live").resolve("data").resolve("journal").toFile();
+      fileFactory = new MappedSequentialFileFactory(primaryConfiguration.getJournalLocation(), primaryConfiguration.getJournalFileSize(), false, primaryConfiguration.getJournalBufferSize_NIO(), primaryConfiguration.getJournalBufferTimeout_NIO(), null);
 
-      JournalImpl liveMessageJournal = new JournalImpl(liveConfiguration.getJournalFileSize(), liveConfiguration.getJournalMinFiles(), liveConfiguration.getJournalPoolFiles(), liveConfiguration.getJournalCompactMinFiles(), liveConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
+      JournalImpl primaryMessageJournal = new JournalImpl(primaryConfiguration.getJournalFileSize(), primaryConfiguration.getJournalMinFiles(), primaryConfiguration.getJournalPoolFiles(), primaryConfiguration.getJournalCompactMinFiles(), primaryConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
 
-      liveMessageJournal.start();
-      final AtomicInteger liveJournalCounter = new AtomicInteger();
-      liveMessageJournal.load(new AddRecordLoaderCallback() {
+      primaryMessageJournal.start();
+      final AtomicInteger primaryJournalCounter = new AtomicInteger();
+      primaryMessageJournal.load(new AddRecordLoaderCallback() {
          @Override
          public void addRecord(RecordInfo info) {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            logger.debug("got live message {}", info.id);
-            liveJournalCounter.incrementAndGet();
+            logger.debug("got primary message {}", info.id);
+            primaryJournalCounter.incrementAndGet();
          }
       });
 
@@ -232,40 +232,40 @@ public class SharedNothingReplicationTest extends ActiveMQTestBase {
          }
       });
 
-      logger.debug("expected {} messages, live={}, backup={}", j, liveJournalCounter.get(), replicationCounter.get());
-      Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
+      logger.debug("expected {} messages, primary={}, backup={}", j, primaryJournalCounter.get(), replicationCounter.get());
+      Assert.assertEquals("Primary lost journal record", j, primaryJournalCounter.get());
       Assert.assertEquals("Backup did not replicated all journal", j, replicationCounter.get());
 
       // if this ever happens.. you need to make sure this persister is registered instead of the CoreMessagePersister
       Assert.assertTrue("The test is not valid, slow persister stopped being used", SlowMessagePersister._getInstance().used);
    }
 
-   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+   protected HAPolicyConfiguration createReplicationPrimaryConfiguration() {
       return new ReplicatedPolicyConfiguration()
          .setVoteOnReplicationFailure(false)
-         .setCheckForLiveServer(false);
+         .setCheckForActiveServer(false);
    }
 
-   protected Configuration createLiveConfiguration() throws Exception {
+   protected Configuration createPrimaryConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
-      conf.setName("localhost::live");
+      conf.setName("localhost::primary");
 
-      File liveDir = brokersFolder.newFolder("live");
-      conf.setBrokerInstance(liveDir);
+      File primaryDir = brokersFolder.newFolder("primary");
+      conf.setBrokerInstance(primaryDir);
 
-      conf.addAcceptorConfiguration("live", "tcp://localhost:61616");
+      conf.addAcceptorConfiguration("primary", "tcp://localhost:61616");
       conf.addConnectorConfiguration("backup", "tcp://localhost:61617");
-      conf.addConnectorConfiguration("live", "tcp://localhost:61616");
+      conf.addConnectorConfiguration("primary", "tcp://localhost:61616");
 
       conf.setClusterUser("mycluster");
       conf.setClusterPassword("mypassword");
 
-      conf.setHAPolicyConfiguration(createReplicationLiveConfiguration());
+      conf.setHAPolicyConfiguration(createReplicationPrimaryConfiguration());
 
       ClusterConnectionConfiguration ccconf = new ClusterConnectionConfiguration();
       ccconf.setStaticConnectors(new ArrayList<>()).getStaticConnectors().add("backup");
       ccconf.setName("cluster");
-      ccconf.setConnectorName("live");
+      ccconf.setConnectorName("primary");
       conf.addClusterConfiguration(ccconf);
 
       conf.setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);

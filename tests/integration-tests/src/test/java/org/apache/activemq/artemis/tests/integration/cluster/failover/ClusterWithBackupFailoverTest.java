@@ -20,7 +20,7 @@ import org.junit.Test;
 
 public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFailoverTestBase {
    @Test
-   public void testFailLiveNodes() throws Throwable {
+   public void testFailPrimaryNodes() throws Throwable {
       setupCluster();
 
       startServers(3, 4, 5, 0, 1, 2);
@@ -67,13 +67,13 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       waitForFailoverTopology(4, 3, 1, 2);
       waitForFailoverTopology(5, 3, 1, 2);
 
-      // live nodes
+      // primary nodes
       waitForBindings(1, QUEUES_TESTADDRESS, 1, 1, true);
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
       // activated backup nodes
       waitForBindings(3, QUEUES_TESTADDRESS, 1, 1, true);
 
-      // live nodes
+      // primary nodes
       waitForBindings(1, QUEUES_TESTADDRESS, 2, 2, false);
       waitForBindings(2, QUEUES_TESTADDRESS, 2, 2, false);
       // activated backup nodes
@@ -95,13 +95,13 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       waitForFailoverTopology(5, 3, 4, 2);
 
       Thread.sleep(1000);
-      // live nodes
+      // primary nodes
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
       // activated backup nodes
       waitForBindings(3, QUEUES_TESTADDRESS, 1, 1, true);
       waitForBindings(4, QUEUES_TESTADDRESS, 1, 1, true);
 
-      // live nodes
+      // primary nodes
       waitForBindings(2, QUEUES_TESTADDRESS, 2, 2, false);
       // activated backup nodes
       waitForBindings(3, QUEUES_TESTADDRESS, 2, 2, false);
@@ -257,13 +257,13 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
 
       waitForFailoverTopology(4, 3, 1, 2);
       waitForFailoverTopology(5, 3, 1, 2);
-      // live nodes
+      // primary nodes
       waitForBindings(1, QUEUES_TESTADDRESS, 1, 1, true);
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
       // activated backup nodes
       waitForBindings(3, QUEUES_TESTADDRESS, 1, 1, true);
 
-      // live nodes
+      // primary nodes
       waitForBindings(1, QUEUES_TESTADDRESS, 2, 2, false);
       waitForBindings(2, QUEUES_TESTADDRESS, 2, 2, false);
       // activated backup nodes
@@ -283,11 +283,11 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       removeConsumer(0);
       failNode(3);
 
-      // live nodes
+      // primary nodes
       waitForBindings(1, QUEUES_TESTADDRESS, 1, 1, true);
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
 
-      // live nodes
+      // primary nodes
       waitForBindings(1, QUEUES_TESTADDRESS, 1, 1, false);
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, false);
 
@@ -300,12 +300,12 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
       failNode(1);
 
       waitForFailoverTopology(5, 2, 4);
-      // live nodes
+      // primary nodes
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
       // activated backup nodes
       waitForBindings(4, QUEUES_TESTADDRESS, 1, 1, true);
 
-      // live nodes
+      // primary nodes
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, false);
       // activated backup nodes
       waitForBindings(4, QUEUES_TESTADDRESS, 1, 1, false);
@@ -318,9 +318,9 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
 
       removeConsumer(1);
 
-      // live nodes
+      // primary nodes
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 1, true);
-      // live nodes
+      // primary nodes
       waitForBindings(2, QUEUES_TESTADDRESS, 1, 0, false);
 
       failNode(4, 1);
@@ -330,9 +330,9 @@ public  abstract class ClusterWithBackupFailoverTest extends ClusterWithBackupFa
 
       failNode(2);
 
-      // live nodes
+      // primary nodes
       waitForBindings(5, QUEUES_TESTADDRESS, 1, 1, true);
-      // live nodes
+      // primary nodes
       waitForBindings(5, QUEUES_TESTADDRESS, 0, 0, false);
 
       send(2, QUEUES_TESTADDRESS, 10, false, null);

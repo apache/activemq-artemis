@@ -38,12 +38,12 @@ under the License.
 
       <ha-policy>
          <replication>
-            <master>
+            <primary>
                <group-name>test-pair-zero</group-name>
                <check-for-live-server>false</check-for-live-server>
                <vote-on-replication-failure>false</vote-on-replication-failure>
                <quorum-size>2</quorum-size>
-            </master>
+            </primary>
          </replication>
       </ha-policy>
 

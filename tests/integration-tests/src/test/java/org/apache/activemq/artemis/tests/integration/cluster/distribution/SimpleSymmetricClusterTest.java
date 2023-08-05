@@ -62,9 +62,9 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       setupBackupServer(2, 5, isFileStorage(), HAType.SharedStore, isNetty());
 
       // The lives
-      setupLiveServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(5, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(5, isFileStorage(), HAType.SharedStore, isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 3, 4, 5);
 

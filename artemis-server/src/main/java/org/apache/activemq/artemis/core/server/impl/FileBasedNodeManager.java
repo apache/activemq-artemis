@@ -127,8 +127,8 @@ public abstract class FileBasedNodeManager extends NodeManager {
     * <p>
     * Roughly the different use cases are:
     * <ol>
-    * <li>old live server restarts: a server.lock file already exists and contains a nodeID.
-    * <li>new live server starting for the first time: no file exists, and we just *create* a new
+    * <li>old server restarts: a server.lock file already exists and contains a nodeID.
+    * <li>new server starting for the first time: no file exists, and we just *create* a new
     * UUID to use as nodeID
     * <li>replicated backup received its nodeID from its live: no file exists, we need to persist
     * the *current* nodeID

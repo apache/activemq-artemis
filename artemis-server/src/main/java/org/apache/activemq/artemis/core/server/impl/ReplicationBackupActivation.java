@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.core.protocol.core.Channel;
 import org.apache.activemq.artemis.core.replication.ReplicationEndpoint;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeLocator;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
 import org.apache.activemq.artemis.core.server.cluster.ClusterController;
@@ -58,7 +58,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
 
    private final ReplicationBackupPolicy policy;
    private final ActiveMQServerImpl activeMQServer;
-   // This field is != null iff this node is a primary during a fail-back ie acting as a backup in order to become live again.
+   // This field is != null iff this node is a primary during a fail-back (i.e. acting as a backup in order to become active again).
    private final String expectedNodeID;
    @GuardedBy("this")
    private boolean closed;
@@ -78,7 +78,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       this.activeMQServer = activeMQServer;
       if (policy.isTryFailback()) {
          // patch expectedNodeID
-         final String coordinationId = policy.getLivePolicy().getCoordinationId();
+         final String coordinationId = policy.getPrimaryPolicy().getCoordinationId();
          if (coordinationId != null) {
             expectedNodeID = coordinationId;
          } else {
@@ -117,17 +117,17 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    }
 
    /**
-    * This util class exists because {@link LiveNodeLocator} need a {@link LiveNodeLocator.BackupRegistrationListener}
+    * This util class exists because {@link NodeLocator} need a {@link NodeLocator.BackupRegistrationListener}
     * to forward backup registration failure events: this is used to switch on/off backup registration event listening
     * on an existing locator.
     */
-   private static final class RegistrationFailureForwarder implements LiveNodeLocator.BackupRegistrationListener, AutoCloseable {
+   private static final class RegistrationFailureForwarder implements NodeLocator.BackupRegistrationListener, AutoCloseable {
 
-      private static final LiveNodeLocator.BackupRegistrationListener NOOP_LISTENER = ignore -> {
+      private static final NodeLocator.BackupRegistrationListener NOOP_LISTENER = ignore -> {
       };
-      private volatile LiveNodeLocator.BackupRegistrationListener listener = NOOP_LISTENER;
+      private volatile NodeLocator.BackupRegistrationListener listener = NOOP_LISTENER;
 
-      public RegistrationFailureForwarder to(LiveNodeLocator.BackupRegistrationListener listener) {
+      public RegistrationFailureForwarder to(NodeLocator.BackupRegistrationListener listener) {
          this.listener = listener;
          return this;
       }
@@ -155,7 +155,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             activeMQServer.setState(ActiveMQServerImpl.SERVER_STATE.STARTED);
          }
          // restart of server due to unavailable quorum can cause NM restart losing the coordination-id
-         final String coordinationId = policy.getLivePolicy().getCoordinationId();
+         final String coordinationId = policy.getPrimaryPolicy().getCoordinationId();
          if (coordinationId != null) {
             final String nodeId = activeMQServer.getNodeManager().getNodeId().toString();
             if (!coordinationId.equals(nodeId)) {
@@ -166,11 +166,11 @@ public final class ReplicationBackupActivation extends Activation implements Dis
          final NodeManager nodeManager = activeMQServer.getNodeManager();
          // only a backup with positive local activation sequence could contain valuable data
          if (nodeManager.getNodeActivationSequence() > 0) {
-            DistributedLock liveLockWithInSyncReplica;
+            DistributedLock primaryLockWithInSyncReplica;
             while (true) {
                distributedManager.start();
                try {
-                  liveLockWithInSyncReplica = tryActivate(activeMQServer.getNodeManager(), distributedManager, logger);
+                  primaryLockWithInSyncReplica = tryActivate(activeMQServer.getNodeManager(), distributedManager, logger);
                   break;
                } catch (UnavailableStateException canRecoverEx) {
                   distributedManager.stop();
@@ -180,12 +180,12 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   return;
                }
             }
-            if (liveLockWithInSyncReplica != null) {
+            if (primaryLockWithInSyncReplica != null) {
                // retain state and start as live
                if (!activeMQServer.initialisePart1(false)) {
                   return;
                }
-               startAsLive(liveLockWithInSyncReplica);
+               startAsPrimary(primaryLockWithInSyncReplica);
                return;
             }
          }
@@ -208,16 +208,16 @@ public final class ReplicationBackupActivation extends Activation implements Dis
 
          final ClusterController clusterController = activeMQServer.getClusterManager().getClusterController();
 
-         logger.info("Apache ActiveMQ Artemis Backup Server version {} [{}] started, awaiting connection to a live cluster member to start replication", activeMQServer.getVersion().getFullVersion(),
+         logger.info("Apache ActiveMQ Artemis Backup Server version {} [{}] started, awaiting connection to a primary to start replication", activeMQServer.getVersion().getFullVersion(),
                       activeMQServer.toString());
 
          clusterController.awaitConnectionToReplicationCluster();
          activeMQServer.getBackupManager().start();
-         final DistributedLock liveLock = replicateAndFailover(clusterController);
-         if (liveLock == null) {
+         final DistributedLock primaryLock = replicateAndFailover(clusterController);
+         if (primaryLock == null) {
             return;
          }
-         startAsLive(liveLock);
+         startAsPrimary(primaryLock);
       } catch (Exception e) {
          if ((e instanceof InterruptedException || e instanceof IllegalStateException) && !activeMQServer.isStarted()) {
             // do not log these errors if the server is being stopped.
@@ -227,12 +227,12 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       }
    }
 
-   private void startAsLive(final DistributedLock liveLock) throws Exception {
-      activeMQServer.setHAPolicy(policy.getLivePolicy());
+   private void startAsPrimary(final DistributedLock primaryLock) throws Exception {
+      activeMQServer.setHAPolicy(policy.getPrimaryPolicy());
 
       synchronized (activeMQServer) {
          if (!activeMQServer.isStarted()) {
-            liveLock.close();
+            primaryLock.close();
             return;
          }
          final NodeManager nodeManager = activeMQServer.getNodeManager();
@@ -243,58 +243,58 @@ public final class ReplicationBackupActivation extends Activation implements Dis
             ensureSequentialAccessToNodeData(activeMQServer.toString(), nodeManager, distributedManager, logger);
          } catch (Throwable fatal) {
             logger.warn(fatal.getMessage());
-            // policy is already live one, but there's no activation yet: we can just stop
+            // policy is already primary one, but there's no activation yet: we can just stop
             asyncRestartServer(activeMQServer, false, false);
             throw new ActiveMQIllegalStateException("This server cannot ensure sequential access to broker data: activation is failed");
          }
-         ActiveMQServerLogger.LOGGER.becomingLive(activeMQServer);
+         ActiveMQServerLogger.LOGGER.becomingActive(activeMQServer);
          activeMQServer.getStorageManager().start();
          activeMQServer.getBackupManager().activated();
          // IMPORTANT:
          // we're setting this activation JUST because it would allow the server to use its
          // getActivationChannelHandler to handle replication
-         final ReplicationPrimaryActivation primaryActivation = new ReplicationPrimaryActivation(activeMQServer, distributedManager, policy.getLivePolicy());
-         liveLock.addListener(primaryActivation);
+         final ReplicationPrimaryActivation primaryActivation = new ReplicationPrimaryActivation(activeMQServer, distributedManager, policy.getPrimaryPolicy());
+         primaryLock.addListener(primaryActivation);
          activeMQServer.setActivation(primaryActivation);
          activeMQServer.initialisePart2(false);
          // calling primaryActivation.stateChanged !isHelByCaller is necessary in case the lock was unavailable
-         // before liveLock.addListener: just throwing an exception won't stop the broker.
-         final boolean stillLive;
+         // before primaryLock.addListener: just throwing an exception won't stop the broker.
+         final boolean stillPrimary;
          try {
-            stillLive = liveLock.isHeldByCaller();
+            stillPrimary = primaryLock.isHeldByCaller();
          } catch (UnavailableStateException e) {
             logger.warn(e.getMessage(), e);
             primaryActivation.onUnavailableLockEvent();
-            throw new ActiveMQIllegalStateException("This server cannot check its role as a live: activation is failed");
+            throw new ActiveMQIllegalStateException("This server cannot check its role as a primary: activation is failed");
          }
-         if (!stillLive) {
+         if (!stillPrimary) {
             primaryActivation.onUnavailableLockEvent();
-            throw new ActiveMQIllegalStateException("This server is not live anymore: activation is failed");
+            throw new ActiveMQIllegalStateException("This server is not primary anymore: activation is failed");
          }
          if (activeMQServer.getIdentity() != null) {
-            ActiveMQServerLogger.LOGGER.serverIsLive(activeMQServer.getIdentity());
+            ActiveMQServerLogger.LOGGER.serverIsActive(activeMQServer.getIdentity());
          } else {
-            ActiveMQServerLogger.LOGGER.serverIsLive();
+            ActiveMQServerLogger.LOGGER.serverIsActive();
          }
          activeMQServer.completeActivation(true);
       }
    }
 
-   private LiveNodeLocator createLiveNodeLocator(final LiveNodeLocator.BackupRegistrationListener registrationListener) {
+   private NodeLocator createNodeLocator(final NodeLocator.BackupRegistrationListener registrationListener) {
       if (expectedNodeID != null) {
          assert policy.isTryFailback();
-         return new NamedLiveNodeIdLocatorForReplication(expectedNodeID, registrationListener, policy.getRetryReplicationWait());
+         return new NamedNodeIdLocatorForReplication(expectedNodeID, registrationListener, policy.getRetryReplicationWait());
       }
       return policy.getGroupName() == null ?
-         new AnyLiveNodeLocatorForReplication(registrationListener, activeMQServer, policy.getRetryReplicationWait()) :
-         new NamedLiveNodeLocatorForReplication(policy.getGroupName(), registrationListener, policy.getRetryReplicationWait());
+         new AnyNodeLocatorForReplication(registrationListener, activeMQServer, policy.getRetryReplicationWait()) :
+         new NamedNodeLocatorForReplication(policy.getGroupName(), registrationListener, policy.getRetryReplicationWait());
    }
 
    private DistributedLock replicateAndFailover(final ClusterController clusterController) throws ActiveMQException, InterruptedException {
       final RegistrationFailureForwarder registrationFailureForwarder = new RegistrationFailureForwarder();
-      // node locator isn't stateless and contains a live-list of candidate nodes to connect too, hence
-      // it MUST be reused for each replicateLive attempt
-      final LiveNodeLocator nodeLocator = createLiveNodeLocator(registrationFailureForwarder);
+      // node locator isn't stateless and contains a list of candidate nodes to connect too, hence
+      // it MUST be reused for each replicatePrimary attempt
+      final NodeLocator nodeLocator = createNodeLocator(registrationFailureForwarder);
       clusterController.addClusterTopologyListenerForReplication(nodeLocator);
       try {
          while (true) {
@@ -304,9 +304,9 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                }
             }
             if (expectedNodeID != null) {
-               logger.info("awaiting connecting to any live node with NodeID = {}", expectedNodeID);
+               logger.info("awaiting connecting to node with NodeID = {}", expectedNodeID);
             }
-            final ReplicationFailure failure = replicateLive(clusterController, nodeLocator, registrationFailureForwarder);
+            final ReplicationFailure failure = replicatePrimary(clusterController, nodeLocator, registrationFailureForwarder);
             if (failure == null) {
                Thread.sleep(clusterController.getRetryIntervalForReplicatedCluster());
                continue;
@@ -327,22 +327,22 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   // no more interested into these events: handling it manually from here
                   distributedManager.removeUnavailableManagerListener(this);
                   final NodeManager nodeManager = activeMQServer.getNodeManager();
-                  DistributedLock liveLockWithInSyncReplica = null;
+                  DistributedLock primaryLockWithInSyncReplica = null;
                   if (nodeManager.getNodeActivationSequence() > 0) {
                      try {
-                        liveLockWithInSyncReplica = tryActivate(nodeManager, distributedManager, logger);
+                        primaryLockWithInSyncReplica = tryActivate(nodeManager, distributedManager, logger);
                      } catch (Throwable error) {
                         // no need to retry here, can just restart as backup that will handle a more resilient tryActivate
                         logger.warn("Errored while attempting failover", error);
-                        liveLockWithInSyncReplica = null;
+                        primaryLockWithInSyncReplica = null;
                      }
                   } else {
                      logger.error("Expected positive local activation sequence for NodeID = {} during fail-over, but was {}: restarting as backup",
                                    nodeManager.getNodeId(), nodeManager.getNodeActivationSequence());
                   }
                   assert stopping.get();
-                  if (liveLockWithInSyncReplica != null) {
-                     return liveLockWithInSyncReplica;
+                  if (primaryLockWithInSyncReplica != null) {
+                     return primaryLockWithInSyncReplica;
                   }
                   ActiveMQServerLogger.LOGGER.restartingAsBackupBasedOnQuorumVoteResults();
                   // let's ignore the stopping flag here, we're already in control of it
@@ -354,8 +354,8 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   return null;
                case AlreadyReplicating:
                   // can just retry here, data should be clean and nodeLocator
-                  // should remove the live node that has answered this
-                  logger.info("Live broker was already replicating: retry sync with another live");
+                  // should remove the primary node that has answered this
+                  logger.info("Primary broker was already replicating: retry sync with another primary");
                   continue;
                case ClosedObserver:
                   return null;
@@ -379,11 +379,11 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   asyncRestartServer(activeMQServer, restart);
                   return null;
                case WrongNodeId:
-                  logger.error("Stopping broker because of wrong node ID communication from live: maybe a misbehaving live?");
+                  logger.error("Stopping broker because of wrong node ID communication from primary: maybe a misbehaving primary?");
                   asyncRestartServer(activeMQServer, false);
                   return null;
                case WrongActivationSequence:
-                  logger.error("Stopping broker because of wrong activation sequence communication from live: maybe a misbehaving live?");
+                  logger.error("Stopping broker because of wrong activation sequence communication from primary: maybe a misbehaving primary?");
                   asyncRestartServer(activeMQServer, false);
                   return null;
                default:
@@ -402,23 +402,23 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       return ReplicationObserver.failoverObserver(activeMQServer.getNodeManager(), activeMQServer.getBackupManager(), activeMQServer.getScheduledPool());
    }
 
-   private ReplicationFailure replicateLive(final ClusterController clusterController,
-                                            final LiveNodeLocator liveLocator,
-                                            final RegistrationFailureForwarder registrationFailureForwarder) throws ActiveMQException {
+   private ReplicationFailure replicatePrimary(final ClusterController clusterController,
+                                               final NodeLocator nodeLocator,
+                                               final RegistrationFailureForwarder registrationFailureForwarder) throws ActiveMQException {
       try (ReplicationObserver replicationObserver = replicationObserver();
            RegistrationFailureForwarder ignored = registrationFailureForwarder.to(replicationObserver)) {
          this.replicationObserver = replicationObserver;
          clusterController.addClusterTopologyListener(replicationObserver);
-         // ReplicationError notifies backup registration failures to live locator -> forwarder -> observer
-         final ReplicationError replicationError = new ReplicationError(liveLocator);
+         // ReplicationError notifies backup registration failures to node locator -> forwarder -> observer
+         final ReplicationError replicationError = new ReplicationError(nodeLocator);
          clusterController.addIncomingInterceptorForReplication(replicationError);
          try {
-            final ClusterControl liveControl = tryLocateAndConnectToLive(liveLocator, clusterController);
-            if (liveControl == null) {
+            final ClusterControl primaryControl = tryLocateAndConnectToPrimary(nodeLocator, clusterController);
+            if (primaryControl == null) {
                return null;
             }
             try {
-               final ReplicationEndpoint replicationEndpoint = tryAuthorizeAndAsyncRegisterAsBackupToLive(liveControl, replicationObserver);
+               final ReplicationEndpoint replicationEndpoint = tryAuthorizeAndAsyncRegisterAsBackupToPrimary(primaryControl, replicationObserver);
                if (replicationEndpoint == null) {
                   return ReplicationFailure.RegistrationError;
                }
@@ -431,7 +431,7 @@ public final class ReplicationBackupActivation extends Activation implements Dis
                   closeChannelOf(replicationEndpoint);
                }
             } finally {
-               silentExecution("Error on live control close", liveControl::close);
+               silentExecution("Error on primary control close", primaryControl::close);
             }
          } finally {
             silentExecution("Error on cluster topology listener cleanup", () -> clusterController.removeClusterTopologyListener(replicationObserver));
@@ -495,13 +495,13 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       return true;
    }
 
-   private ClusterControl tryLocateAndConnectToLive(final LiveNodeLocator liveLocator,
-                                                    final ClusterController clusterController) throws ActiveMQException {
-      liveLocator.locateNode();
-      final Pair<TransportConfiguration, TransportConfiguration> possibleLive = liveLocator.getLiveConfiguration();
-      final String nodeID = liveLocator.getNodeID();
+   private ClusterControl tryLocateAndConnectToPrimary(final NodeLocator nodeLocator,
+                                                       final ClusterController clusterController) throws ActiveMQException {
+      nodeLocator.locateNode();
+      final Pair<TransportConfiguration, TransportConfiguration> possiblePrimary = nodeLocator.getPrimaryConfiguration();
+      final String nodeID = nodeLocator.getNodeID();
       if (nodeID == null) {
-         throw new RuntimeException("Could not establish the connection with any live");
+         throw new RuntimeException("Could not establish the connection with any primary");
       }
       if (!policy.isTryFailback()) {
          assert expectedNodeID == null;
@@ -509,14 +509,14 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       } else {
          assert expectedNodeID.equals(nodeID);
       }
-      if (possibleLive == null) {
+      if (possiblePrimary == null) {
          return null;
       }
-      final ClusterControl liveControl = tryConnectToNodeInReplicatedCluster(clusterController, possibleLive.getA());
-      if (liveControl != null) {
-         return liveControl;
+      final ClusterControl primaryControl = tryConnectToNodeInReplicatedCluster(clusterController, possiblePrimary.getA());
+      if (primaryControl != null) {
+         return primaryControl;
       }
-      return tryConnectToNodeInReplicatedCluster(clusterController, possibleLive.getB());
+      return tryConnectToNodeInReplicatedCluster(clusterController, possiblePrimary.getB());
    }
 
    private static ClusterControl tryConnectToNodeInReplicatedCluster(final ClusterController clusterController,
@@ -564,22 +564,22 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       // TODO replication endpoint close?
    }
 
-   private ReplicationEndpoint tryAuthorizeAndAsyncRegisterAsBackupToLive(final ClusterControl liveControl,
-                                                                          final ReplicationObserver liveObserver) {
+   private ReplicationEndpoint tryAuthorizeAndAsyncRegisterAsBackupToPrimary(final ClusterControl primaryControl,
+                                                                             final ReplicationObserver primaryObserver) {
       ReplicationEndpoint replicationEndpoint = null;
       try {
-         liveControl.getSessionFactory().setReconnectAttempts(0);
-         liveObserver.listenConnectionFailuresOf(liveControl.getSessionFactory());
-         liveControl.authorize();
-         replicationEndpoint = new ReplicationEndpoint(activeMQServer, policy.isTryFailback(), liveObserver);
+         primaryControl.getSessionFactory().setReconnectAttempts(0);
+         primaryObserver.listenConnectionFailuresOf(primaryControl.getSessionFactory());
+         primaryControl.authorize();
+         replicationEndpoint = new ReplicationEndpoint(activeMQServer, policy.isTryFailback(), primaryObserver);
          final Consumer<ReplicationEndpoint> onReplicationEndpointCreation = this.onReplicationEndpointCreation;
          if (onReplicationEndpointCreation != null) {
             onReplicationEndpointCreation.accept(replicationEndpoint);
          }
          replicationEndpoint.setExecutor(activeMQServer.getExecutorFactory().getExecutor());
-         connectToReplicationEndpoint(liveControl, replicationEndpoint);
+         connectToReplicationEndpoint(primaryControl, replicationEndpoint);
          replicationEndpoint.start();
-         liveControl.announceReplicatingBackupToLive(policy.isTryFailback(), policy.getClusterName());
+         primaryControl.announceReplicatingBackupToPrimary(policy.isTryFailback(), policy.getClusterName());
          return replicationEndpoint;
       } catch (Exception e) {
          ActiveMQServerLogger.LOGGER.replicationStartProblem(e);
@@ -589,9 +589,9 @@ public final class ReplicationBackupActivation extends Activation implements Dis
       }
    }
 
-   private static boolean connectToReplicationEndpoint(final ClusterControl liveControl,
+   private static boolean connectToReplicationEndpoint(final ClusterControl primaryControl,
                                                        final ReplicationEndpoint replicationEndpoint) {
-      final Channel replicationChannel = liveControl.createReplicationChannel();
+      final Channel replicationChannel = primaryControl.createReplicationChannel();
       replicationChannel.setHandler(replicationEndpoint);
       replicationEndpoint.setChannel(replicationChannel);
       return true;
@@ -600,12 +600,12 @@ public final class ReplicationBackupActivation extends Activation implements Dis
    @Override
    public boolean isReplicaSync() {
       // NOTE: this method is just for monitoring purposes, not suitable to perform logic!
-      // During a failover this backup won't have any active liveObserver and will report `false`!!
-      final ReplicationObserver liveObserver = this.replicationObserver;
-      if (liveObserver == null) {
+      // During a failover this backup won't have any active primaryObserver and will report `false`!!
+      final ReplicationObserver primaryObserver = this.replicationObserver;
+      if (primaryObserver == null) {
          return false;
       }
-      return liveObserver.isBackupUpToDate();
+      return primaryObserver.isBackupUpToDate();
    }
 
    public ReplicationEndpoint getReplicationEndpoint() {

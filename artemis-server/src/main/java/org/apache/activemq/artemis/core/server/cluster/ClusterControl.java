@@ -92,8 +92,8 @@ public class ClusterControl implements AutoCloseable {
     *                           server.
     * @throws ActiveMQException
     */
-   public void announceReplicatingBackupToLive(final boolean attemptingFailBack,
-                                               String replicationClusterName) throws ActiveMQException {
+   public void announceReplicatingBackupToPrimary(final boolean attemptingFailBack,
+                                                  String replicationClusterName) throws ActiveMQException {
 
       ClusterConnectionConfiguration config = ConfigurationUtils.getReplicationClusterConfiguration(server.getConfiguration(), replicationClusterName);
       if (config == null) {

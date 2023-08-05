@@ -28,30 +28,30 @@ import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
  */
 public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boolean> {
 
-   public static final SimpleString LIVE_FAILOVER_VOTE = new SimpleString("LiveFailoverQuorumVote");
+   public static final SimpleString PRIMARY_FAILOVER_VOTE = new SimpleString("PrimaryFailoverQuorumVote");
    // this flag mark the end of the vote
    private final CountDownLatch voteCompleted;
    private final String targetNodeId;
-   private final String liveConnector;
+   private final String connector;
    private int votesNeeded;
 
-   // Is this the live requesting to stay live, or a backup requesting to become live.
-   private final boolean requestToStayLive;
+   // Is this the primary requesting to stay active, or a backup requesting to become active.
+   private final boolean requestToStayActive;
 
    /**
-    * live nodes | remaining nodes |  majority   | votes needed
-    * 1      |       0         |     0       |      0
-    * 2      |       1         |     1       |      1
-    * n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
-    * 3      |       2         |     2.5     |      2
-    * 4      |       3         |      3      |      3
-    * 5      |       4         |     3.5     |      3
-    * 6      |       5         |      4      |      4
+    * active nodes | remaining nodes |  majority   | votes needed
+    * 1            |       0         |      0      |      0
+    * 2            |       1         |      1      |      1
+    * 3            |       2         |     2.5     |      2
+    * 4            |       3         |      3      |      3
+    * 5            |       4         |     3.5     |      3
+    * 6            |       5         |      4      |      4
+    * n            |      n-1        |   n/2 + 1   |   n/2 + 1 rounded
     */
-   public QuorumVoteServerConnect(int size, String targetNodeId, boolean requestToStayLive, String liveConnector) {
-      super(LIVE_FAILOVER_VOTE);
+   public QuorumVoteServerConnect(int size, String targetNodeId, boolean requestToStayActive, String connector) {
+      super(PRIMARY_FAILOVER_VOTE);
       this.targetNodeId = targetNodeId;
-      this.liveConnector = liveConnector;
+      this.connector = connector;
       double majority;
       if (size <= 2) {
          majority = ((double) size) / 2;
@@ -65,7 +65,7 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
       if (votesNeeded == 0) {
          voteCompleted.countDown();
       }
-      this.requestToStayLive = requestToStayLive;
+      this.requestToStayActive = requestToStayActive;
    }
 
    public QuorumVoteServerConnect(int size, String targetNodeId) {
@@ -78,7 +78,7 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
     */
    @Override
    public Vote connected() {
-      return new ServerConnectVote(targetNodeId, requestToStayLive, null);
+      return new ServerConnectVote(targetNodeId, requestToStayActive, null);
    }
    /**
     * if we cant connect to the node
@@ -91,14 +91,14 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
    }
 
    /**
-    * live nodes | remaining nodes |  majority   | votes needed
-    * 1      |       0         |     0       |      0
-    * 2      |       1         |     1       |      1
-    * n      |    r = n-1      |   n/2 + 1   |   n/2 + 1 rounded
-    * 3      |       2         |     2.5     |      2
-    * 4      |       3         |      3      |      3
-    * 5      |       4         |     3.5     |      3
-    * 6      |       5         |      4      |      4
+    * active nodes | remaining nodes |  majority   | votes needed
+    * 1            |       0         |      0      |      0
+    * 2            |       1         |      1      |      1
+    * 3            |       2         |     2.5     |      2
+    * 4            |       3         |      3      |      3
+    * 5            |       4         |     3.5     |      3
+    * 6            |       5         |      4      |      4
+    * n            |      n-1        |   n/2 + 1   |   n/2 + 1 rounded
     *
     * @param vote the vote to make.
     */
@@ -109,12 +109,12 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
          return;
       }
       if (vote.getVote()) {
-         if (!requestToStayLive) {
+         if (!requestToStayActive) {
             acceptPositiveVote();
-         } else if (liveConnector.equals(vote.getTransportConfiguration())) {
+         } else if (connector.equals(vote.getTransportConfiguration())) {
             acceptPositiveVote();
          } else {
-            ActiveMQServerLogger.LOGGER.quorumBackupIsLive(vote.getTransportConfiguration());
+            ActiveMQServerLogger.LOGGER.quorumBackupIsActive(vote.getTransportConfiguration());
          }
       }
    }
@@ -149,7 +149,7 @@ public class QuorumVoteServerConnect extends QuorumVote<ServerConnectVote, Boole
          ActiveMQServerLogger.LOGGER.timeoutWaitingForQuorumVoteResponses();
    }
 
-   public boolean isRequestToStayLive() {
-      return requestToStayLive;
+   public boolean isRequestToStayActive() {
+      return requestToStayActive;
    }
 }

@@ -71,17 +71,17 @@ public abstract class ClusterWithBackupFailoverTestBase extends ClusterTestBase 
 
    /**
     * @param node             The node which we should fail
-    * @param originalLiveNode The number of the original node, to locate session to fail
+    * @param originalPrimaryNode The number of the original node, to locate session to fail
     * @throws Exception
     */
-   protected void failNode(final int node, final int originalLiveNode) throws Exception {
+   protected void failNode(final int node, final int originalPrimaryNode) throws Exception {
       logger.debug("*** failing node {}", node);
 
       ActiveMQServer server = getServer(node);
 
       TestableServer tstServer = new SameProcessActiveMQServer(server);
 
-      ClientSession[] sessionsArray = exploreSessions(originalLiveNode);
+      ClientSession[] sessionsArray = exploreSessions(originalPrimaryNode);
 
       tstServer.crash(sessionsArray);
    }

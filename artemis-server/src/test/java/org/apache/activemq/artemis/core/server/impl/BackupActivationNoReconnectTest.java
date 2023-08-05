@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ClusterConnectReplyMessage;
 import org.apache.activemq.artemis.core.remoting.FailureListener;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeLocator;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.cluster.BackupManager;
 import org.apache.activemq.artemis.core.server.cluster.ClusterControl;
@@ -83,13 +83,13 @@ public class BackupActivationNoReconnectTest {
    public void verifyReplicationBackupActivation() throws Exception {
       ReplicationBackupPolicy policy = Mockito.mock(ReplicationBackupPolicy.class);
       ReplicationPrimaryPolicy replicationPrimaryPolicy = Mockito.mock(ReplicationPrimaryPolicy.class);
-      when(policy.getLivePolicy()).thenReturn(replicationPrimaryPolicy);
+      when(policy.getPrimaryPolicy()).thenReturn(replicationPrimaryPolicy);
       ActiveMQServerImpl server = Mockito.mock(ActiveMQServerImpl.class);
 
       DistributedPrimitiveManager distributedManager = Mockito.mock(DistributedPrimitiveManager.class);
       ReplicationBackupActivation replicationBackupActivation = new ReplicationBackupActivation(server, distributedManager, policy);
 
-      verifySingleAttemptToLocateLive(server, replicationBackupActivation);
+      verifySingleAttemptToLocatePrimary(server, replicationBackupActivation);
    }
 
    @Test(timeout = 30000)
@@ -112,10 +112,10 @@ public class BackupActivationNoReconnectTest {
       ReplicaPolicy replicaPolicy = new ReplicaPolicy(null, 0);
       replicaPolicy.setAllowFailback(false);
 
-      verifySingleAttemptToLocateLive(server, replicaPolicy.createActivation(server, false, activationParams, null));
+      verifySingleAttemptToLocatePrimary(server, replicaPolicy.createActivation(server, false, activationParams, null));
    }
 
-   protected void verifySingleAttemptToLocateLive(ActiveMQServerImpl server, Activation activation) throws Exception {
+   protected void verifySingleAttemptToLocatePrimary(ActiveMQServerImpl server, Activation activation) throws Exception {
 
       NodeManager nodeManager = Mockito.mock(NodeManager.class);
       when(server.getNodeManager()).thenReturn(nodeManager);
@@ -137,14 +137,14 @@ public class BackupActivationNoReconnectTest {
 
 
       final CountDownLatch gotLocator = new CountDownLatch(1);
-      final AtomicReference<LiveNodeLocator> locatorAtomicReference = new AtomicReference<>();
+      final AtomicReference<NodeLocator> locatorAtomicReference = new AtomicReference<>();
       doAnswer(invocation -> {
-         locatorAtomicReference.set((LiveNodeLocator) invocation.getArguments()[0]);
+         locatorAtomicReference.set((NodeLocator) invocation.getArguments()[0]);
          gotLocator.countDown();
          return null;
       }).when(clusterController).addClusterTopologyListenerForReplication(Mockito.any());
 
-      when(server.checkLiveIsNotColocated(Mockito.anyString())).thenReturn(true);
+      when(server.checkBrokerIsNotColocated(Mockito.anyString())).thenReturn(true);
 
       ClusterControl clusterControl = Mockito.mock(ClusterControl.class);
       when(clusterController.connectToNodeInReplicatedCluster(Mockito.any())).thenReturn(clusterControl);

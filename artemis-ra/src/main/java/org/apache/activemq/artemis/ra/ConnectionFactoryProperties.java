@@ -126,9 +126,9 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
 
    private String protocolManagerFactoryStr;
 
-   private String deserializationBlackList;
+   private String deserializationDenyList;
 
-   private String deserializationWhiteList;
+   private String deserializationAllowList;
 
    private Boolean enableSharedClientID;
 
@@ -677,24 +677,50 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
    }
 
    @Override
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
-      return deserializationBlackList;
+      return deserializationDenyList;
    }
 
    @Override
-   public void setDeserializationBlackList(String deserializationBlackList) {
-      this.deserializationBlackList = deserializationBlackList;
+   @Deprecated(forRemoval = true)
+   public void setDeserializationBlackList(String deserializationDenyList) {
+      this.deserializationDenyList = deserializationDenyList;
       hasBeenUpdated = true;
    }
 
    @Override
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
-      return this.deserializationWhiteList;
+      return this.deserializationAllowList;
    }
 
    @Override
-   public void setDeserializationWhiteList(String deserializationWhiteList) {
-      this.deserializationWhiteList = deserializationWhiteList;
+   @Deprecated(forRemoval = true)
+   public void setDeserializationWhiteList(String deserializationAllowList) {
+      this.deserializationAllowList = deserializationAllowList;
+      hasBeenUpdated = true;
+   }
+
+   @Override
+   public String getDeserializationDenyList() {
+      return deserializationDenyList;
+   }
+
+   @Override
+   public void setDeserializationDenyList(String deserializationDenyList) {
+      this.deserializationDenyList = deserializationDenyList;
+      hasBeenUpdated = true;
+   }
+
+   @Override
+   public String getDeserializationAllowList() {
+      return this.deserializationAllowList;
+   }
+
+   @Override
+   public void setDeserializationAllowList(String deserializationAllowList) {
+      this.deserializationAllowList = deserializationAllowList;
       hasBeenUpdated = true;
    }
 
@@ -933,16 +959,16 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       } else if (!connectionParameters.equals(other.connectionParameters))
          return false;
 
-      if (deserializationBlackList == null) {
-         if (other.deserializationBlackList != null)
+      if (deserializationDenyList == null) {
+         if (other.deserializationDenyList != null)
             return false;
-      } else if (!deserializationBlackList.equals(other.deserializationBlackList))
+      } else if (!deserializationDenyList.equals(other.deserializationDenyList))
          return false;
 
-      if (deserializationWhiteList == null) {
-         if (other.deserializationWhiteList != null)
+      if (deserializationAllowList == null) {
+         if (other.deserializationAllowList != null)
             return false;
-      } else if (!deserializationWhiteList.equals(other.deserializationWhiteList))
+      } else if (!deserializationAllowList.equals(other.deserializationAllowList))
          return false;
 
       if (this.enable1xPrefixes == null) {
@@ -1006,8 +1032,8 @@ public class ConnectionFactoryProperties implements ConnectionFactoryOptions {
       result = prime * result + ((groupID == null) ? 0 : groupID.hashCode());
       result = prime * result + ((connectorClassName == null) ? 0 : connectorClassName.hashCode());
       result = prime * result + ((connectionParameters == null) ? 0 : connectionParameters.hashCode());
-      result = prime * result + ((deserializationBlackList == null) ? 0 : deserializationBlackList.hashCode());
-      result = prime * result + ((deserializationWhiteList == null) ? 0 : deserializationWhiteList.hashCode());
+      result = prime * result + ((deserializationDenyList == null) ? 0 : deserializationDenyList.hashCode());
+      result = prime * result + ((deserializationAllowList == null) ? 0 : deserializationAllowList.hashCode());
       result = prime * result + ((enable1xPrefixes == null) ? 0 : enable1xPrefixes.hashCode());
       result = prime * result + ((enableSharedClientID == null) ? 0 : enableSharedClientID.hashCode());
       return result;

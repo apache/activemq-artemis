@@ -64,8 +64,8 @@ public class ScaleDownDirectTest extends ClusterTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      setupLiveServer(0, isFileStorage(), isNetty, true);
-      setupLiveServer(1, isFileStorage(), isNetty, true);
+      setupPrimaryServer(0, isFileStorage(), isNetty, true);
+      setupPrimaryServer(1, isFileStorage(), isNetty, true);
       startServers(0, 1);
       setupSessionFactory(0, isNetty);
       setupSessionFactory(1, isNetty);

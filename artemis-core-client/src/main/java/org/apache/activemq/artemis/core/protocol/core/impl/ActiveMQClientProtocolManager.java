@@ -422,8 +422,8 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
    }
 
    @Override
-   public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
-      CheckFailoverMessage packet = new CheckFailoverMessage(liveNodeID);
+   public boolean checkForFailover(String nodeID) throws ActiveMQException {
+      CheckFailoverMessage packet = new CheckFailoverMessage(nodeID);
       CheckFailoverReplyMessage message = (CheckFailoverReplyMessage) getChannel1().sendBlocking(packet, PacketImpl.CHECK_FOR_FAILOVER_REPLY);
       return message.isOkToFailover();
    }

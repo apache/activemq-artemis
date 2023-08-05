@@ -102,7 +102,7 @@ public class FailoverOnFlowControlTest extends FailoverTestBase {
    @Override
    protected void createConfigs() throws Exception {
       super.createConfigs();
-      liveServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
+      primaryServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
       backupServer.getServer().getConfiguration().setJournalFileSize(1024 * 1024);
    }
 

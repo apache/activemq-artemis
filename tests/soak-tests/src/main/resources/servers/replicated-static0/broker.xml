@@ -38,10 +38,10 @@ under the License.
 
       <ha-policy>
          <replication>
-            <master>
+            <primary>
                <!--we need this for auto failback-->
                <check-for-live-server>true</check-for-live-server>
-            </master>
+            </primary>
          </replication>
       </ha-policy>
 

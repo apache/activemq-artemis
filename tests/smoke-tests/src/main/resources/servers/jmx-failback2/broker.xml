@@ -160,9 +160,9 @@ under the License.
 
       <ha-policy>
          <shared-store>
-            <slave>
+            <backup>
                <failover-on-shutdown>true</failover-on-shutdown>
-            </slave>
+            </backup>
          </shared-store>
       </ha-policy>
 

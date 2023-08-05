@@ -119,13 +119,13 @@ import org.apache.activemq.artemis.core.server.ServiceComponent;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.ClusterManager;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.PrimaryOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.group.GroupingHandler;
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingPrimaryActivation;
 import org.apache.activemq.artemis.core.server.replay.ReplayManager;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -407,8 +407,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof SharedStoreSlavePolicy) {
-            ((SharedStoreSlavePolicy) haPolicy).setFailoverOnServerShutdown(failoverOnServerShutdown);
+         if (haPolicy instanceof SharedStoreBackupPolicy) {
+            ((SharedStoreBackupPolicy) haPolicy).setFailoverOnServerShutdown(failoverOnServerShutdown);
          }
       } finally {
          blockOnIO();
@@ -425,8 +425,8 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       clearIO();
       try {
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof SharedStoreSlavePolicy) {
-            return ((SharedStoreSlavePolicy) haPolicy).isFailoverOnServerShutdown();
+         if (haPolicy instanceof SharedStoreBackupPolicy) {
+            return ((SharedStoreBackupPolicy) haPolicy).isFailoverOnServerShutdown();
          } else {
             return false;
          }
@@ -844,9 +844,9 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
       }
       try (AutoCloseable lock = server.managementLock()) {
          Activation activation = server.getActivation();
-         if (activation instanceof SharedNothingLiveActivation) {
-            SharedNothingLiveActivation liveActivation = (SharedNothingLiveActivation) activation;
-            liveActivation.freezeReplication();
+         if (activation instanceof SharedNothingPrimaryActivation) {
+            SharedNothingPrimaryActivation primaryActivation = (SharedNothingPrimaryActivation) activation;
+            primaryActivation.freezeReplication();
             return true;
          }
          return false;
@@ -4143,17 +4143,17 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
 
          clearIO();
          HAPolicy haPolicy = server.getHAPolicy();
-         if (haPolicy instanceof LiveOnlyPolicy) {
-            LiveOnlyPolicy liveOnlyPolicy = (LiveOnlyPolicy) haPolicy;
+         if (haPolicy instanceof PrimaryOnlyPolicy) {
+            PrimaryOnlyPolicy primaryOnlyPolicy = (PrimaryOnlyPolicy) haPolicy;
 
-            if (liveOnlyPolicy.getScaleDownPolicy() == null) {
-               liveOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());
+            if (primaryOnlyPolicy.getScaleDownPolicy() == null) {
+               primaryOnlyPolicy.setScaleDownPolicy(new ScaleDownPolicy());
             }
 
-            liveOnlyPolicy.getScaleDownPolicy().setEnabled(true);
+            primaryOnlyPolicy.getScaleDownPolicy().setEnabled(true);
 
             if (connector != null) {
-               liveOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
+               primaryOnlyPolicy.getScaleDownPolicy().getConnectors().add(0, connector);
             }
 
             server.fail(true);
@@ -4180,10 +4180,12 @@ public class ActiveMQServerControlImpl extends AbstractControl implements Active
                Collection<TopologyMemberImpl> members = topology.getMembers();
                for (TopologyMemberImpl member : members) {
 
-                  TransportConfiguration live = member.getLive();
-                  if (live != null) {
+                  TransportConfiguration primary = member.getPrimary();
+                  if (primary != null) {
                      JsonObjectBuilder obj = JsonLoader.createObjectBuilder();
-                     obj.add("nodeID", member.getNodeId()).add("live", live.getParams().get("host") + ":" + live.getParams().get("port"));
+                     // keep "live" here for backwards compatibility
+                     obj.add("nodeID", member.getNodeId()).add("live", primary.getParams().get("host") + ":" + primary.getParams().get("port"));
+                     obj.add("nodeID", member.getNodeId()).add("primary", primary.getParams().get("host") + ":" + primary.getParams().get("port"));
                      TransportConfiguration backup = member.getBackup();
                      if (backup != null) {
                         obj.add("backup", backup.getParams().get("host") + ":" + backup.getParams().get("port"));

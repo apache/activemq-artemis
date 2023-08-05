@@ -2,23 +2,23 @@
 :idprefix:
 :idseparator: -
 
-It is possible that if a replicated live or backup server becomes isolated in a network that failover will occur and you will end up with 2 live servers serving messages in a cluster, this we call split brain.
-There are different configurations you can choose from that will help mitigate this problem
+It is possible that if a primary or backup configured for replication becomes isolated in a network that failover will occur and you will end up with 2 active brokers serving messages. This we call _split brain_.
+There are different configurations you can choose from that will help mitigate this problem.
 
 == Quorum Voting
 
-Quorum voting is used by both the live and the backup to decide what to do if a replication connection is disconnected.
-Basically the server will request each live server in the cluster to vote as to whether it thinks the server it is replicating to or from is still alive.
+Quorum voting is used by both the primary and the backup to decide what to do if a replication connection is disconnected.
+Basically the server will request each active server in the cluster to vote as to whether it thinks the server it is replicating to or from is still alive.
 You can also configure the time for which the quorum manager will wait for the quorum vote response.
-The default time is 30 seconds you can configure like so for master and also for the slave:
+The default time is 30 seconds you can configure like so for primary and also for the backup:
 
 [,xml]
 ----
 <ha-policy>
   <replication>
-    <master>
+    <primary>
        <quorum-vote-wait>12</quorum-vote-wait>
-    </master>
+    </primary>
   </replication>
 </ha-policy>
 ----
@@ -28,10 +28,10 @@ If less than 3 pairs are used then the only option is to use a Network Pinger wh
 
 === Backup Voting
 
-By default if a replica loses its replication connection to the live broker it makes a decision as to whether to start or not with a quorum vote.
-This of course requires that there be at least 3 pairs of live/backup nodes in the cluster.
-For a 3 node cluster it will start if it gets 2 votes back saying that its live server is no longer available, for 4 nodes this would be 3 votes and so on.
-When a backup loses connection to the master it will keep voting for a quorum until it either receives a vote allowing it to start or it detects that the master is still live.
+By default if a backup loses its replication connection to its primary it makes a decision as to whether to start or not with a quorum vote.
+This of course requires that there be at least 3 pairs of primary/backup nodes in the cluster.
+For a 3 node cluster it will start if it gets 2 votes back saying that its primary server is no longer available, for 4 nodes this would be 3 votes and so on.
+When a backup loses connection to the primary it will keep voting for a quorum until it either receives a vote allowing it to start or it detects that the primary is still active.
 for the latter it will then restart as a backup.
 How many votes and how long between each vote the backup should wait is configured like so:
 
@@ -39,10 +39,10 @@ How many votes and how long between each vote the backup should wait is configur
 ----
 <ha-policy>
   <replication>
-    <slave>
+    <backup>
        <vote-retries>12</vote-retries>
        <vote-retry-wait>5000</vote-retry-wait>
-    </slave>
+    </backup>
   </replication>
 </ha-policy>
 ----
@@ -53,30 +53,30 @@ It's also possible to statically set the quorum size that should be used for the
 ----
 <ha-policy>
   <replication>
-    <slave>
+    <backup>
        <quorum-size>2</quorum-size>
-    </slave>
+    </backup>
   </replication>
 </ha-policy>
 ----
 
 In this example the quorum size is set to 2 so if you were using a single pair and the backup lost connectivity it would never start.
 
-=== Live Voting
+=== Primary Voting
 
-By default, if the live server loses its replication connection then it will just carry on and wait for a backup to reconnect and start replicating again.
-In the event of a possible split brain scenario this may mean that the live stays live even though the backup has been activated.
-It is possible to configure the live server to vote for a quorum if this happens, in this way if the live server doesn't not receive a majority vote then it will shutdown.
-This is done by setting the _vote-on-replication-failure_ to true.
+By default, if the primary server loses its replication connection then it will just carry on and wait for a backup to reconnect and start replicating again.
+In the event of a possible split brain scenario this may mean that the primary stays active even though the backup has been activated.
+It is possible to configure the primary server to vote for a quorum if this happens, in this way if the primary server does not receive a majority vote then it will shutdown.
+This is done by setting the _vote-on-replication-failure_ to `true`.
 
 [,xml]
 ----
 <ha-policy>
   <replication>
-    <master>
+    <primary>
        <vote-on-replication-failure>true</vote-on-replication-failure>
        <quorum-size>2</quorum-size>
-    </master>
+    </primary>
   </replication>
 </ha-policy>
 ----
@@ -175,11 +175,10 @@ Once you re establish your network connections towards the configured check list
 09:53:23,556 INFO  [org.apache.activemq.artemis.core.server] AMQ221001: Apache ActiveMQ Artemis Message Broker version 1.6.0 [0.0.0.0, nodeID=04fd5dd8-b18c-11e6-9efe-6a0001921ad0]
 ----
 
-____
-== Warning
-
+[WARNING]
+====
 Make sure you understand your network topology as this is meant to validate your network.
 Using IPs that could eventually disappear or be partially visible may defeat the purpose.
 You can use a list of multiple IPs.
 Any successful ping will make the server OK to continue running
-____
+====

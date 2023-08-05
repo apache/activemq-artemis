@@ -22,12 +22,12 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
-import org.apache.activemq.artemis.core.server.impl.LiveActivation;
-import org.apache.activemq.artemis.core.server.impl.SharedNothingLiveActivation;
+import org.apache.activemq.artemis.core.server.impl.PrimaryActivation;
+import org.apache.activemq.artemis.core.server.impl.SharedNothingPrimaryActivation;
 
-public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
+public class ReplicatedPolicy implements HAPolicy<PrimaryActivation> {
 
-   private boolean checkForLiveServer = ActiveMQDefaultConfiguration.isDefaultCheckForLiveServer();
+   private boolean checkForPrimaryServer = ActiveMQDefaultConfiguration.isDefaultCheckForActiveServer();
 
    private String groupName = null;
 
@@ -38,13 +38,13 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    private long initialReplicationSyncTimeout = ActiveMQDefaultConfiguration.getDefaultInitialReplicationSyncTimeout();
 
    /*
-   * these are only set by the ReplicaPolicy after failover to decide if the live server can failback, these should not
-   * be exposed in configuration.
+   * these are only set by the ReplicaPolicy after failover to decide if the primary server can failback, these should
+   * not be exposed in configuration.
    * */
    private boolean allowAutoFailBack = ActiveMQDefaultConfiguration.isDefaultAllowAutoFailback();
 
    /*
-   * whether or not this live broker should vote to remain live
+   * whether this broker should vote to remain active
    * */
    private boolean voteOnReplicationFailure;
 
@@ -60,7 +60,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    private long retryReplicationWait;
 
    /*
-   * this are only used as the policy when the server is started as a live after a failover
+   * this is only used as the policy when the server is started as a backup after a failover
    * */
    private ReplicaPolicy replicaPolicy;
 
@@ -74,7 +74,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.quorumVoteWait = quorumVoteWait;
    }
 
-   public ReplicatedPolicy(boolean checkForLiveServer,
+   public ReplicatedPolicy(boolean checkForPrimaryServer,
                            String groupName,
                            String clusterName,
                            int maxSavedReplicatedJournalsSize,
@@ -86,7 +86,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            long voteRetryWait,
                            int quorumVoteWait,
                            long retryReplicationWait) {
-      this.checkForLiveServer = checkForLiveServer;
+      this.checkForPrimaryServer = checkForPrimaryServer;
       this.groupName = groupName;
       this.clusterName = clusterName;
       this.maxSavedReplicatedJournalsSize = maxSavedReplicatedJournalsSize;
@@ -100,7 +100,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.retryReplicationWait = retryReplicationWait;
    }
 
-   public ReplicatedPolicy(boolean checkForLiveServer,
+   public ReplicatedPolicy(boolean checkForPrimaryServer,
                            boolean allowAutoFailBack,
                            long initialReplicationSyncTimeout,
                            String groupName,
@@ -112,7 +112,7 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
                            int voteRetries,
                            long voteRetryWait,
                            int quorumVoteWait) {
-      this.checkForLiveServer = checkForLiveServer;
+      this.checkForPrimaryServer = checkForPrimaryServer;
       this.clusterName = clusterName;
       this.groupName = groupName;
       this.allowAutoFailBack = allowAutoFailBack;
@@ -124,12 +124,12 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
       this.quorumVoteWait = quorumVoteWait;
    }
 
-   public boolean isCheckForLiveServer() {
-      return checkForLiveServer;
+   public boolean isCheckForPrimaryServer() {
+      return checkForPrimaryServer;
    }
 
-   public void setCheckForLiveServer(boolean checkForLiveServer) {
-      this.checkForLiveServer = checkForLiveServer;
+   public void setCheckForPrimaryServer(boolean checkForPrimaryServer) {
+      this.checkForPrimaryServer = checkForPrimaryServer;
    }
 
    public boolean isAllowAutoFailBack() {
@@ -234,11 +234,11 @@ public class ReplicatedPolicy implements HAPolicy<LiveActivation> {
    }
 
    @Override
-   public LiveActivation createActivation(ActiveMQServerImpl server,
-                                          boolean wasLive,
-                                          Map<String, Object> activationParams,
-                                          IOCriticalErrorListener ioCriticalErrorListener) {
-      return new SharedNothingLiveActivation(server, this);
+   public PrimaryActivation createActivation(ActiveMQServerImpl server,
+                                             boolean wasPrimary,
+                                             Map<String, Object> activationParams,
+                                             IOCriticalErrorListener ioCriticalErrorListener) {
+      return new SharedNothingPrimaryActivation(server, this);
    }
 
    public int getQuorumSize() {

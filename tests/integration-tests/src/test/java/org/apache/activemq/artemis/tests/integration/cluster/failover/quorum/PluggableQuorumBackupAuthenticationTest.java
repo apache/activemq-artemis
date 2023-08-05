@@ -62,8 +62,8 @@ public class PluggableQuorumBackupAuthenticationTest extends FailoverTestBase {
    @Test
    public void testWrongPasswordSetting() throws Exception {
       FakeServiceComponent fakeServiceComponent = new FakeServiceComponent("fake web server");
-      Wait.assertTrue(liveServer.getServer()::isActive);
-      waitForServerToStart(liveServer.getServer());
+      Wait.assertTrue(primaryServer.getServer()::isActive);
+      waitForServerToStart(primaryServer.getServer());
       backupServer.start();
       backupServer.getServer().addExternalComponent(fakeServiceComponent, true);
       assertTrue(registrationStarted .await(5, TimeUnit.SECONDS));
@@ -75,16 +75,16 @@ public class PluggableQuorumBackupAuthenticationTest extends FailoverTestBase {
       assertFalse("backup should have stopped", backupServer.isStarted());
       Wait.assertFalse(fakeServiceComponent::isStarted);
       backupServer.stop();
-      liveServer.stop();
+      primaryServer.stop();
    }
 
    @Override
    protected void createConfigs() throws Exception {
       createPluggableReplicatedConfigs();
       backupConfig.setClusterPassword("crocodile");
-      liveConfig.setIncomingInterceptorClassNames(Arrays.asList(NotifyingInterceptor.class.getName()));
+      primaryConfig.setIncomingInterceptorClassNames(Arrays.asList(NotifyingInterceptor.class.getName()));
       backupConfig.setSecurityEnabled(true);
-      liveConfig.setSecurityEnabled(true);
+      primaryConfig.setSecurityEnabled(true);
    }
 
    @Override
