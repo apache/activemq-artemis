@@ -19,8 +19,8 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.client.ClientMessage;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.postoffice.impl.LocalQueueBinding;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -40,17 +40,17 @@ public class SharedStoreScaleDownBackupTest extends ClusterTestBase {
    public void setUp() throws Exception {
       super.setUp();
 
-      setupLiveServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
       setupBackupServer(2, 0, isFileStorage(), HAType.SharedStore, isNetty());
 
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster1", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 2, 1);
 
-      ((SharedStoreMasterPolicyConfiguration)getServer(0).getConfiguration().getHAPolicyConfiguration()).
+      ((SharedStorePrimaryPolicyConfiguration)getServer(0).getConfiguration().getHAPolicyConfiguration()).
          setFailoverOnServerShutdown(true);
-      ((SharedStoreSlavePolicyConfiguration)getServer(2).getConfiguration().getHAPolicyConfiguration()).
+      ((SharedStoreBackupPolicyConfiguration)getServer(2).getConfiguration().getHAPolicyConfiguration()).
          setFailoverOnServerShutdown(true).
          setRestartBackup(true).
          setScaleDownConfiguration(new ScaleDownConfiguration().setEnabled(true).addConnector(

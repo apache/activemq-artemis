@@ -137,13 +137,13 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       }
 
       try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(data))) {
-         String blackList = getDeserializationBlackList();
-         if (blackList != null) {
-            ois.setBlackList(blackList);
+         String denyList = getDeserializationDenyList();
+         if (denyList != null) {
+            ois.setDenyList(denyList);
          }
-         String whiteList = getDeserializationWhiteList();
-         if (whiteList != null) {
-            ois.setWhiteList(whiteList);
+         String allowList = getDeserializationAllowList();
+         if (allowList != null) {
+            ois.setAllowList(allowList);
          }
          Serializable object = (Serializable) ois.readObject();
          return object;
@@ -181,19 +181,19 @@ public class ActiveMQObjectMessage extends ActiveMQMessage implements ObjectMess
       }
    }
 
-   private String getDeserializationBlackList() {
+   private String getDeserializationDenyList() {
       if (options == null) {
          return null;
       } else {
-         return options.getDeserializationBlackList();
+         return options.getDeserializationDenyList();
       }
    }
 
-   private String getDeserializationWhiteList() {
+   private String getDeserializationAllowList() {
       if (options == null) {
          return null;
       } else {
-         return options.getDeserializationWhiteList();
+         return options.getDeserializationAllowList();
       }
    }
 }

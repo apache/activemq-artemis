@@ -66,7 +66,7 @@ public class ExtraBackupReplicatedFailoverTest extends FailoverTestBase {
       ReplicaPolicyConfiguration backupReplicaPolicyConfiguration = (ReplicaPolicyConfiguration) backupServer.getServer().getConfiguration().getHAPolicyConfiguration();
       backupReplicaPolicyConfiguration.setGroupName("foo");
 
-      ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) liveServer.getServer().getConfiguration().getHAPolicyConfiguration();
+      ReplicatedPolicyConfiguration replicatedPolicyConfiguration = (ReplicatedPolicyConfiguration) primaryServer.getServer().getConfiguration().getHAPolicyConfiguration();
       replicatedPolicyConfiguration.setGroupName("foo");
 
       Configuration secondBackupConfig = backupConfig.copy();
@@ -93,7 +93,7 @@ public class ExtraBackupReplicatedFailoverTest extends FailoverTestBase {
    @Override
    protected void setupHAPolicyConfiguration() {
       if (isExtraBackupGroupNameReplicates) {
-         ((ReplicatedPolicyConfiguration) liveConfig.getHAPolicyConfiguration()).setGroupName("foo");
+         ((ReplicatedPolicyConfiguration) primaryConfig.getHAPolicyConfiguration()).setGroupName("foo");
          ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setGroupName("foo");
 
       }

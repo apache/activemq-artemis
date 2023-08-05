@@ -24,9 +24,9 @@ import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.ColocatedActivation;
-import org.apache.activemq.artemis.core.server.impl.LiveActivation;
+import org.apache.activemq.artemis.core.server.impl.PrimaryActivation;
 
-public class ColocatedPolicy implements HAPolicy<LiveActivation> {
+public class ColocatedPolicy implements HAPolicy<PrimaryActivation> {
 
    /*live stuff*/
    private boolean requestBackup = ActiveMQDefaultConfiguration.isDefaultHapolicyRequestBackup();
@@ -44,7 +44,7 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation> {
 
    private BackupPolicy backupPolicy;
 
-   private HAPolicy<LiveActivation> livePolicy;
+   private HAPolicy<PrimaryActivation> primaryPolicy;
 
    public ColocatedPolicy(boolean requestBackup,
                           int backupRequestRetries,
@@ -52,7 +52,7 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation> {
                           int maxBackups,
                           int backupPortOffset,
                           List<String> excludedConnectors,
-                          HAPolicy livePolicy,
+                          HAPolicy primaryPolicy,
                           BackupPolicy backupPolicy) {
       this.requestBackup = requestBackup;
       this.backupRequestRetries = backupRequestRetries;
@@ -60,17 +60,17 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation> {
       this.maxBackups = maxBackups;
       this.backupPortOffset = backupPortOffset;
       this.excludedConnectors = excludedConnectors;
-      this.livePolicy = livePolicy;
+      this.primaryPolicy = primaryPolicy;
       this.backupPolicy = backupPolicy;
    }
 
    @Override
    public String getBackupGroupName() {
-      final HAPolicy<LiveActivation> livePolicy = this.livePolicy;
-      if (livePolicy == null) {
+      final HAPolicy<PrimaryActivation> primaryPolicy = this.primaryPolicy;
+      if (primaryPolicy == null) {
          return null;
       }
-      return livePolicy.getBackupGroupName();
+      return primaryPolicy.getBackupGroupName();
    }
 
    @Override
@@ -89,11 +89,11 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation> {
    }
 
    @Override
-   public LiveActivation createActivation(ActiveMQServerImpl server,
-                                          boolean wasLive,
-                                          Map<String, Object> activationParams,
-                                          IOCriticalErrorListener ioCriticalErrorListener) throws Exception {
-      return new ColocatedActivation(server, this, livePolicy.createActivation(server, wasLive, activationParams, ioCriticalErrorListener));
+   public PrimaryActivation createActivation(ActiveMQServerImpl server,
+                                             boolean wasPrimary,
+                                             Map<String, Object> activationParams,
+                                             IOCriticalErrorListener ioCriticalErrorListener) throws Exception {
+      return new ColocatedActivation(server, this, primaryPolicy.createActivation(server, wasPrimary, activationParams, ioCriticalErrorListener));
    }
 
    @Override
@@ -154,12 +154,12 @@ public class ColocatedPolicy implements HAPolicy<LiveActivation> {
       this.excludedConnectors = excludedConnectors;
    }
 
-   public HAPolicy<LiveActivation> getLivePolicy() {
-      return livePolicy;
+   public HAPolicy<PrimaryActivation> getPrimaryPolicy() {
+      return primaryPolicy;
    }
 
-   public void setLivePolicy(HAPolicy<LiveActivation> livePolicy) {
-      this.livePolicy = livePolicy;
+   public void setPrimaryPolicy(HAPolicy<PrimaryActivation> primaryPolicy) {
+      this.primaryPolicy = primaryPolicy;
    }
 
    public BackupPolicy getBackupPolicy() {

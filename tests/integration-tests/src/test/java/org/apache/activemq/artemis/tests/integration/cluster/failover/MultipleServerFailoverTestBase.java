@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.Queue;
@@ -75,17 +75,17 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    protected static final SimpleString ADDRESS = new SimpleString("jms.FailoverTestAddress");
 
 
-   protected List<TestableServer> liveServers = new ArrayList<>();
+   protected List<TestableServer> primaryServers = new ArrayList<>();
 
    protected List<TestableServer> backupServers = new ArrayList<>();
 
    protected List<Configuration> backupConfigs = new ArrayList<>();
 
-   protected List<Configuration> liveConfigs = new ArrayList<>();
+   protected List<Configuration> primaryConfigs = new ArrayList<>();
 
    protected List<NodeManager> nodeManagers;
 
-   public abstract int getLiveServerCount();
+   public abstract int getPrimaryServerCount();
 
    public abstract int getBackupServerCount();
 
@@ -107,17 +107,17 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      liveServers = new ArrayList<>();
+      primaryServers = new ArrayList<>();
       backupServers = new ArrayList<>();
       backupConfigs = new ArrayList<>();
-      liveConfigs = new ArrayList<>();
+      primaryConfigs = new ArrayList<>();
 
-      for (int i = 0; i < getLiveServerCount(); i++) {
+      for (int i = 0; i < getPrimaryServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
          switch (haType()) {
 
             case SharedStore:
-               haPolicyConfiguration = new SharedStoreMasterPolicyConfiguration();
+               haPolicyConfiguration = new SharedStorePrimaryPolicyConfiguration();
                break;
             case SharedNothingReplication:
                haPolicyConfiguration = new ReplicatedPolicyConfiguration();
@@ -146,7 +146,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          TransportConfiguration livetc = getConnectorTransportConfiguration(true, i);
          configuration.addConnectorConfiguration(livetc.getName(), livetc);
          List<String> connectors = new ArrayList<>();
-         for (int j = 0; j < getLiveServerCount(); j++) {
+         for (int j = 0; j < getPrimaryServerCount(); j++) {
             if (j != i) {
                TransportConfiguration staticTc = getConnectorTransportConfiguration(true, j);
                configuration.getConnectorConfigurations().put(staticTc.getName(), staticTc);
@@ -157,11 +157,11 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          String[] input = new String[connectors.size()];
          connectors.toArray(input);
          configuration.addClusterConfiguration(basicClusterConnectionConfig(livetc.getName(), input));
-         liveConfigs.add(configuration);
+         primaryConfigs.add(configuration);
          ActiveMQServer server = createServer(true, configuration);
          TestableServer activeMQServer = new SameProcessActiveMQServer(server);
-         activeMQServer.setIdentity("Live-" + i);
-         liveServers.add(activeMQServer);
+         activeMQServer.setIdentity("Primary-" + i);
+         primaryServers.add(activeMQServer);
       }
       for (int i = 0; i < getBackupServerCount(); i++) {
          HAPolicyConfiguration haPolicyConfiguration = null;
@@ -169,7 +169,7 @@ public abstract class MultipleServerFailoverTestBase extends ActiveMQTestBase {
          switch (haType()) {
 
             case SharedStore:
-               haPolicyConfiguration = new SharedStoreSlavePolicyConfiguration();
+               haPolicyConfiguration = new SharedStoreBackupPolicyConfiguration();
                break;
             case SharedNothingReplication:
                haPolicyConfiguration = new ReplicaPolicyConfiguration();

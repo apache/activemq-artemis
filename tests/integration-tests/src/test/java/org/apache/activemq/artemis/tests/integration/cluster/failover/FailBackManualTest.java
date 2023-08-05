@@ -28,8 +28,8 @@ import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.integration.cluster.util.TestableServer;
@@ -63,7 +63,7 @@ public class FailBackManualTest extends FailoverTestBase {
 
       backupServer.stop();
 
-      liveServer.crash();
+      primaryServer.crash();
 
       backupServer.start();
 
@@ -79,7 +79,7 @@ public class FailBackManualTest extends FailoverTestBase {
 
       session.removeFailureListener(listener);
 
-      Thread t = new Thread(new ServerStarter(liveServer));
+      Thread t = new Thread(new ServerStarter(primaryServer));
 
       t.start();
 
@@ -89,9 +89,9 @@ public class FailBackManualTest extends FailoverTestBase {
 
       backupServer.crash();
 
-      waitForServerToStart(liveServer.getServer());
+      waitForServerToStart(primaryServer.getServer());
 
-      assertTrue(liveServer.isStarted());
+      assertTrue(primaryServer.isStarted());
 
       sf.close();
 
@@ -103,16 +103,16 @@ public class FailBackManualTest extends FailoverTestBase {
    @Override
    protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration().setAllowFailBack(false)).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration().setAllowFailBack(false)).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), primaryConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName()));
+      primaryConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(primaryConnector.getName(), backupConnector.getName()));
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    @Override

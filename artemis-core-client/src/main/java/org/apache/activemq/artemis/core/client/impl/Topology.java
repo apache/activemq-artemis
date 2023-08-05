@@ -128,7 +128,7 @@ public final class Topology {
    /**
     * This is called by the server when the node is activated from backup state. It will always succeed
     */
-   public void updateAsLive(final String nodeId, final TopologyMemberImpl memberInput) {
+   public void updateAsPrimary(final String nodeId, final TopologyMemberImpl memberInput) {
       synchronized (this) {
          if (logger.isDebugEnabled()) {
             logger.debug("{}::node {}={}", this, nodeId, memberInput);
@@ -141,7 +141,7 @@ public final class Topology {
    }
 
    /**
-    * After the node is started, it will resend the notifyLive a couple of times to avoid gossip between two servers
+    * After the node is started, it will resend the notifyPrimary a couple of times to avoid gossip between two servers
     *
     * @param nodeId
     */
@@ -168,14 +168,14 @@ public final class Topology {
          TopologyMemberImpl currentMember = getMember(nodeId);
          if (currentMember == null) {
             if (logger.isTraceEnabled()) {
-               logger.trace("There's no live to be updated on backup update, node={} memberInput={}", nodeId, memberInput, new Exception("trace"));
+               logger.trace("There's no primary to be updated on backup update, node={} memberInput={}", nodeId, memberInput, new Exception("trace"));
             }
 
             currentMember = memberInput;
             topology.put(nodeId, currentMember);
          }
 
-         TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, currentMember.getBackupGroupName(), currentMember.getScaleDownGroupName(), currentMember.getLive(), memberInput.getBackup());
+         TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, currentMember.getBackupGroupName(), currentMember.getScaleDownGroupName(), currentMember.getPrimary(), memberInput.getBackup());
          newMember.setUniqueEventID(System.currentTimeMillis());
          topology.remove(nodeId);
          topology.put(nodeId, newMember);
@@ -220,11 +220,11 @@ public final class Topology {
             sendMemberUp(nodeId, memberInput);
             return true;
          }
-         if (uniqueEventID > currentMember.getUniqueEventID() || (currentMember.getLive() == null && memberInput.getLive() != null)) {
-            TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getLive(), memberInput.getBackup());
+         if (uniqueEventID > currentMember.getUniqueEventID() || (currentMember.getPrimary() == null && memberInput.getPrimary() != null)) {
+            TopologyMemberImpl newMember = new TopologyMemberImpl(nodeId, memberInput.getBackupGroupName(), memberInput.getScaleDownGroupName(), memberInput.getPrimary(), memberInput.getBackup());
 
-            if (newMember.getLive() == null && currentMember.getLive() != null) {
-               newMember.setLive(currentMember.getLive());
+            if (newMember.getPrimary() == null && currentMember.getPrimary() != null) {
+               newMember.setPrimary(currentMember.getPrimary());
             }
 
             if (newMember.getBackup() == null && currentMember.getBackup() != null) {
@@ -404,7 +404,7 @@ public final class Topology {
    synchronized int nodes() {
       int count = 0;
       for (TopologyMemberImpl member : topology.values()) {
-         if (member.getLive() != null) {
+         if (member.getPrimary() != null) {
             count++;
          }
          if (member.getBackup() != null) {
@@ -445,7 +445,7 @@ public final class Topology {
 
    public TransportConfiguration getBackupForConnector(final Connector connector) {
       for (TopologyMemberImpl member : topology.values()) {
-         if (member.getLive() != null && connector.isEquivalent(member.getLive().getParams())) {
+         if (member.getPrimary() != null && connector.isEquivalent(member.getPrimary().getParams())) {
             return member.getBackup();
          }
       }

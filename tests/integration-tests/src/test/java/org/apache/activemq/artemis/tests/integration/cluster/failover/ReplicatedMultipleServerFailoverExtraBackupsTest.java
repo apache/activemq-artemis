@@ -51,7 +51,7 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
    @RetryMethod(retries = 1)
    @Override
    @Test
-   public void testStartLiveFirst() throws Exception {
+   public void testStartPrimaryFirst() throws Exception {
       switch (haType()) {
          case SharedNothingReplication:
             ((ReplicaPolicyConfiguration) backupServers.get(2).getServer().getConfiguration().getHAPolicyConfiguration()).setGroupName(getNodeGroupName() + "-0");
@@ -63,21 +63,21 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
             break;
       }
 
-      startServers(liveServers);
+      startServers(primaryServers);
       backupServers.get(0).start();
       backupServers.get(1).start();
       waitForSync(backupServers.get(0).getServer());
       waitForSync(backupServers.get(1).getServer());
 
-      // wait to start the other 2 backups so the first 2 can sync with the 2 live servers
+      // wait to start the other 2 backups so the first 2 can sync with the 2 primary servers
       backupServers.get(2).start();
       backupServers.get(3).start();
 
       sendCrashReceive();
       Wait.assertTrue(backupServers.get(0)::isActive, 5000, 10);
       Wait.assertTrue(backupServers.get(1)::isActive, 5000, 10);
-      waitForTopology(backupServers.get(0).getServer(), liveServers.size(), 2);
-      waitForTopology(backupServers.get(1).getServer(), liveServers.size(), 2);
+      waitForTopology(backupServers.get(0).getServer(), primaryServers.size(), 2);
+      waitForTopology(backupServers.get(1).getServer(), primaryServers.size(), 2);
 
       sendCrashBackupReceive();
    }
@@ -110,10 +110,10 @@ public class ReplicatedMultipleServerFailoverExtraBackupsTest extends Replicated
 
 
       startServers(backupServers);
-      startServers(liveServers);
+      startServers(primaryServers);
       waitForBackups();
 
-      waitForTopology(liveServers.get(0).getServer(), liveServers.size(), 2);
+      waitForTopology(primaryServers.get(0).getServer(), primaryServers.size(), 2);
       sendCrashReceive();
    }
 

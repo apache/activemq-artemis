@@ -94,7 +94,7 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
 
       ClientProducer producer = session.createProducer(FailoverTestBase.ADDRESS);
 
-      Queue queue = liveServer.getServer().locateQueue(FailoverTest.ADDRESS);
+      Queue queue = primaryServer.getServer().locateQueue(FailoverTest.ADDRESS);
 
       for (int j = 0; j < iterations; j++) {
          System.err.println("#iteration " + j);
@@ -126,12 +126,12 @@ public class ReplicatedPagedFailoverTest extends ReplicatedFailoverTest {
          if (temperMode == 1) {
             // this is tampering with the system causing an artifical issue. The system should still heal itself.
             for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
-               liveServer.getServer().getStorageManager().pageClosed(store.getStoreName(), (int) pageID);
+               primaryServer.getServer().getStorageManager().pageClosed(store.getStoreName(), (int) pageID);
             }
          }  else if (temperMode == 2) {
             // this is tampering with the system causing an artifical issue. The system should still heal itself.
             for (long pageID = store.getFirstPage(); pageID <= store.getCurrentPage().getPageId() + 10; pageID++) {
-               liveServer.getServer().getStorageManager().pageDeleted(store.getStoreName(), (int) pageID);
+               primaryServer.getServer().getStorageManager().pageDeleted(store.getStoreName(), (int) pageID);
             }
          }
          store.getFirstPage();

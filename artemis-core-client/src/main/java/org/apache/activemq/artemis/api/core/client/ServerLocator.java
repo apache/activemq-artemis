@@ -490,7 +490,7 @@ public interface ServerLocator extends AutoCloseable {
    ServerLocator setAckBatchSize(int ackBatchSize);
 
    /**
-    * Returns an array of TransportConfigurations representing the static list of live servers used
+    * Returns an array of TransportConfigurations representing the static list of servers used
     * when creating this object
     *
     * @return array with all static {@link TransportConfiguration}s
@@ -674,7 +674,7 @@ public interface ServerLocator extends AutoCloseable {
    int getInitialConnectAttempts();
 
    /**
-    * Sets the maximum number of failover attempts to establish a connection to other live servers after a connection failure.
+    * Sets the maximum number of failover attempts to establish a connection to other primary servers after a connection failure.
     * <p>
     * Value must be -1 (to retry infinitely), 0 (to never retry connection) or greater than 0.
     *
@@ -690,7 +690,7 @@ public interface ServerLocator extends AutoCloseable {
 
    /**
     * Returns true if the client will automatically attempt to connect to the backup server if the initial
-    * connection to the live server fails
+    * connection to the primary server fails
     * <p>
     * Default value is {@link ActiveMQClient#DEFAULT_FAILOVER_ON_INITIAL_CONNECTION}.
     */

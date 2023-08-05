@@ -43,7 +43,7 @@ public final class UUIDGenerator {
    private static final UUIDGenerator sSingleton = new UUIDGenerator();
 
    // Windows has some fake adapters that will return the same HARDWARE ADDRESS on any computer. We need to ignore those
-   private static final byte[][] BLACK_LIST = new byte[][]{{2, 0, 84, 85, 78, 1}};
+   private static final byte[][] DENY_LIST = new byte[][]{{2, 0, 84, 85, 78, 1}};
 
    /**
     * Random-generator, used by various UUID-generation methods:
@@ -211,9 +211,9 @@ public final class UUIDGenerator {
    }
 
 
-   private static boolean isBlackList(final byte[] address) {
-      for (byte[] blackList : UUIDGenerator.BLACK_LIST) {
-         if (Arrays.equals(address, blackList)) {
+   private static boolean isDenyList(final byte[] address) {
+      for (byte[] denyList : UUIDGenerator.DENY_LIST) {
+         if (Arrays.equals(address, denyList)) {
             return true;
          }
       }
@@ -285,8 +285,8 @@ public final class UUIDGenerator {
 
                   byte[] paddedAddress = UUIDGenerator.getZeroPaddedSixBytes(address);
 
-                  if (UUIDGenerator.isBlackList(address)) {
-                     throw new Exception("black listed address");
+                  if (UUIDGenerator.isDenyList(address)) {
+                     throw new Exception("deny listed address");
                   }
 
                   if (paddedAddress != null) {

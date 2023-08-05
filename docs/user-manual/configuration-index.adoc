@@ -156,8 +156,8 @@ Please consult your specific configuration to know which values will actually be
 | <<address-setting-type,a list of address-setting>>
 | n/a
 
-| xref:ha.adoc#failing-back-to-live-server[allow-failback]
-| Should stop backup on live restart.
+| xref:ha.adoc#failing-back-to-primary-server[allow-failback]
+| Should stop backup on primary restart.
 | `true`
 
 | xref:amqp.adoc#amqp[amqp-use-core-subscription-naming]
@@ -197,7 +197,7 @@ Please consult your specific configuration to know which values will actually be
 | 5000
 
 | xref:ha.adoc#data-replication[check-for-live-server]
-| Used for a live server to verify if there are other nodes with the same ID on the topology
+| Used by a primary server to verify if there are other nodes with the same ID on the topology
 | n/a
 
 | xref:clusters.adoc#configuring-cluster-connections[cluster-connections]

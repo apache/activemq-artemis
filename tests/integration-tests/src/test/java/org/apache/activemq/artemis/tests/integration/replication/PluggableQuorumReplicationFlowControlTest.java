@@ -44,7 +44,7 @@ public class PluggableQuorumReplicationFlowControlTest extends SharedNothingRepl
    }
 
    @Override
-   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+   protected HAPolicyConfiguration createReplicationPrimaryConfiguration() {
       ReplicationPrimaryPolicyConfiguration haPolicy = ReplicationPrimaryPolicyConfiguration.withDefault();
       haPolicy.setDistributedManagerConfiguration(managerConfiguration);
       return haPolicy;

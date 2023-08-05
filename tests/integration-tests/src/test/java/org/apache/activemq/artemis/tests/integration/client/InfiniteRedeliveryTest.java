@@ -34,7 +34,7 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.cli.commands.tools.journal.CompactJournal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
@@ -74,27 +74,27 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
    String protocol;
    boolean useCLI;
 
-   TestableServer liveServer;
+   TestableServer primaryServer;
    TestableServer backupServer;
 
    Configuration backupConfig;
-   Configuration liveConfig;
+   Configuration primaryConfig;
 
    protected TestableServer createTestableServer(Configuration config, NodeManager nodeManager) throws Exception {
-      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreSlavePolicyConfiguration;
+      boolean isBackup = config.getHAPolicyConfiguration() instanceof ReplicaPolicyConfiguration || config.getHAPolicyConfiguration() instanceof SharedStoreBackupPolicyConfiguration;
       return new SameProcessActiveMQServer(createInVMFailoverServer(true, config, nodeManager, isBackup ? 2 : 1));
    }
 
    // I am using a replicated config to make sure the replica will also configured replaceable records
    protected void createReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
+      final TransportConfiguration primaryConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
       final TransportConfiguration backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
       final TransportConfiguration backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
 
       backupConfig = createDefaultConfig(0, true);
-      liveConfig = createDefaultConfig(0, true);
+      primaryConfig = createDefaultConfig(0, true);
 
-      configureReplicationPair(backupConnector, backupAcceptor, liveConnector);
+      configureReplicationPair(backupConnector, backupAcceptor, primaryConnector);
 
       backupConfig.setBindingsDirectory(getBindingsDir(0, true)).setJournalDirectory(getJournalDir(0, true)).setPagingDirectory(getPageDir(0, true)).setLargeMessagesDirectory(getLargeMessagesDir(0, true)).setSecurityEnabled(false);
 
@@ -102,15 +102,15 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
       backupServer = createTestableServer(backupConfig, new InVMNodeManager(true, backupConfig.getJournalLocation()));
 
-      liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(TransportConfigurationUtils.getNettyAcceptor(true, 0));
+      primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(TransportConfigurationUtils.getNettyAcceptor(true, 0));
 
-      liveServer = createTestableServer(liveConfig, new InVMNodeManager(false, liveConfig.getJournalLocation()));
+      primaryServer = createTestableServer(primaryConfig, new InVMNodeManager(false, primaryConfig.getJournalLocation()));
    }
 
    protected void configureReplicationPair(TransportConfiguration backupConnector,
                                            TransportConfiguration backupAcceptor,
-                                           TransportConfiguration liveConnector) {
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+                                           TransportConfiguration primaryConnector) {
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);
       ((ReplicaPolicyConfiguration) backupConfig.getHAPolicyConfiguration()).setRestartBackup(false);
    }
@@ -124,7 +124,7 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    protected void startServer(boolean reschedule) throws Exception {
       createReplicatedConfigs();
-      Configuration configuration = liveServer.getServer().getConfiguration();
+      Configuration configuration = primaryServer.getServer().getConfiguration();
       configuration.getAddressSettings().clear();
       if (reschedule) {
          AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(Integer.MAX_VALUE).setRedeliveryDelay(1);
@@ -133,9 +133,9 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
          AddressSettings settings = new AddressSettings().setMaxDeliveryAttempts(Integer.MAX_VALUE).setRedeliveryDelay(0);
          configuration.getAddressSettings().put("#", settings);
       }
-      liveServer.start();
+      primaryServer.start();
       backupServer.start();
-      Wait.waitFor(liveServer.getServer()::isReplicaSync);
+      Wait.waitFor(primaryServer.getServer()::isReplicaSync);
    }
 
    @Test
@@ -150,8 +150,8 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
 
    public void testInifinteRedeliveryWithScheduling(boolean reschedule) throws Exception {
       startServer(reschedule);
-      liveServer.getServer().addAddressInfo(new AddressInfo("test").setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
-      liveServer.getServer().createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST).setAddress("test").setDurable(true));
+      primaryServer.getServer().addAddressInfo(new AddressInfo("test").setAutoCreated(false).addRoutingType(RoutingType.ANYCAST));
+      primaryServer.getServer().createQueue(new QueueConfiguration("test").setRoutingType(RoutingType.ANYCAST).setAddress("test").setDurable(true));
 
       ConnectionFactory factory;
 
@@ -181,19 +181,19 @@ public class InfiniteRedeliveryTest extends ActiveMQTestBase {
       connection.close();
 
       if (!useCLI) {
-         liveServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
+         primaryServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
          backupServer.getServer().getStorageManager().getMessageJournal().scheduleCompactAndBlock(5000);
       }
 
-      liveServer.stop();
+      primaryServer.stop();
       backupServer.stop();
 
       if (useCLI) {
          CompactJournal.compactJournals(backupServer.getServer().getConfiguration());
-         CompactJournal.compactJournals(liveServer.getServer().getConfiguration());
+         CompactJournal.compactJournals(primaryServer.getServer().getConfiguration());
       }
 
-      HashMap<Integer, AtomicInteger> counts = countJournal(liveServer.getServer().getConfiguration());
+      HashMap<Integer, AtomicInteger> counts = countJournal(primaryServer.getServer().getConfiguration());
       counts.forEach((k, v) -> logger.debug("{}={}", k, v));
       counts.forEach((k, v) -> Assert.assertTrue("Record type " + k + " has a lot of records:" +  v, v.intValue() < 20));
 

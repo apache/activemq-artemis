@@ -1043,10 +1043,10 @@ public class ServerSessionPacketHandler implements ChannelHandler {
       // before we have transferred the connection, leaving it in a started state
       session.setTransferring(true);
 
-      // Note. We do not destroy the replicating connection here. In the case the live server has really crashed
+      // Note. We do not destroy the replicating connection here. In the case the primary server has really crashed
       // then the connection will get cleaned up anyway when the server ping timeout kicks in.
-      // In the case the live server is really still up, i.e. a split brain situation (or in tests), then closing
-      // the replicating connection will cause the outstanding responses to be be replayed on the live server,
+      // In the case the primary server is really still up, i.e. a split brain situation (or in tests), then closing
+      // the replicating connection will cause the outstanding responses to be replayed on the primary server,
       // if these reach the client who then subsequently fails over, on reconnection to backup, it will have
       // received responses that the backup did not know about.
 

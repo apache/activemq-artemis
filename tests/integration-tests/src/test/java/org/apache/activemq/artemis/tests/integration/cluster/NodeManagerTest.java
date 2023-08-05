@@ -25,17 +25,17 @@ import org.apache.activemq.artemis.tests.util.SpawnedTestBase;
 import org.junit.Test;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.AWAIT_LIVE;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.AWAIT_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.CHECK_ID;
-import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.CRASH_LIVE;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.CRASH_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_BACKUP;
-import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_LIVE;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.DOESNT_HAVE_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.HAS_BACKUP;
-import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.HAS_LIVE;
-import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.PAUSE_LIVE;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.HAS_PRIMARY;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.PAUSE_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.RELEASE_BACKUP;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.START_BACKUP;
-import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.START_LIVE;
+import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.START_PRIMARY;
 import static org.apache.activemq.artemis.tests.integration.cluster.NodeManagerAction.STOP_BACKUP;
 
 public class NodeManagerTest extends SpawnedTestBase {
@@ -47,86 +47,86 @@ public class NodeManagerTest extends SpawnedTestBase {
    }
 
    @Test
-   public void testLive() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
+   public void testPrimary() throws Exception {
+      NodeManagerAction live1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
       performWork(live1);
    }
 
    @Test
-   public void testSimpleLiveAndBackup() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, PAUSE_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      performWork(live1, backup1);
+   public void testSimplePrimaryAndBackup() throws Exception {
+      NodeManagerAction primary1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, PAUSE_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      performWork(primary1, backup1);
    }
 
    @Test
-   public void testSimpleBackupAndLive() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, PAUSE_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
+   public void testSimpleBackupAndPrimary() throws Exception {
+      NodeManagerAction live1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, PAUSE_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
       performWork(backup1, live1);
    }
 
    @Test
-   public void testSimpleLiveAnd2Backups() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
+   public void testSimplePrimaryAnd2Backups() throws Exception {
+      NodeManagerAction live1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
       performWork(live1, backup1, backup2);
    }
 
    @Test
-   public void testSimple2BackupsAndLive() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
+   public void testSimple2BackupsAndPrimary() throws Exception {
+      NodeManagerAction live1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
       performWork(backup1, backup2, live1);
    }
 
    @Test
-   public void testSimpleLiveAnd2BackupsPaused() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, PAUSE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, PAUSE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      performWork(live1, backup1, backup2);
+   public void testSimplePrimaryAnd2BackupsPaused() throws Exception {
+      NodeManagerAction primary1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, PAUSE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, PAUSE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      performWork(primary1, backup1, backup2);
    }
 
    @Test
-   public void testSimple2BackupsPausedAndLive() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, PAUSE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, PAUSE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
+   public void testSimple2BackupsPausedAndPrimary() throws Exception {
+      NodeManagerAction live1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, PAUSE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, PAUSE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
       performWork(backup1, backup2, live1);
    }
 
    @Test
    public void testBackupsOnly() throws Exception {
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup3 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup4 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup5 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup6 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup7 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup8 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup9 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup10 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
-      NodeManagerAction backup11 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup3 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup4 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup5 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup6 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup7 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup8 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup9 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup10 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
+      NodeManagerAction backup11 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, STOP_BACKUP, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY);
       performWork(backup1, backup2, backup3, backup4, backup5, backup6, backup7, backup8, backup9, backup10, backup11);
    }
 
    @Test
-   public void testLiveAndBackupLiveForcesFailback() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, AWAIT_LIVE, HAS_LIVE, PAUSE_LIVE);
-      performWork(live1, backup1);
+   public void testPrimaryAndBackupActiveForcesFailback() throws Exception {
+      NodeManagerAction primary1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, AWAIT_PRIMARY, HAS_PRIMARY, PAUSE_PRIMARY);
+      performWork(primary1, backup1);
    }
 
    @Test
-   public void testLiveAnd2BackupsLiveForcesFailback() throws Exception {
-      NodeManagerAction live1 = new NodeManagerAction(START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_LIVE, HAS_LIVE, DOESNT_HAVE_BACKUP, CRASH_LIVE);
-      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE);
-      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, START_BACKUP, HAS_BACKUP, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE, DOESNT_HAVE_BACKUP, DOESNT_HAVE_LIVE, AWAIT_LIVE, RELEASE_BACKUP, HAS_LIVE, CRASH_LIVE);
-      performWork(live1, backup1, backup2);
+   public void testPrimaryAnd2BackupsActiveForcesFailback() throws Exception {
+      NodeManagerAction primary1 = new NodeManagerAction(START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_PRIMARY, HAS_PRIMARY, DOESNT_HAVE_BACKUP, CRASH_PRIMARY);
+      NodeManagerAction backup1 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY);
+      NodeManagerAction backup2 = new NodeManagerAction(DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, START_BACKUP, HAS_BACKUP, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY, DOESNT_HAVE_BACKUP, DOESNT_HAVE_PRIMARY, AWAIT_PRIMARY, RELEASE_BACKUP, HAS_PRIMARY, CRASH_PRIMARY);
+      performWork(primary1, backup1, backup2);
    }
 
    public void performWork(NodeManagerAction... actions) throws Exception {

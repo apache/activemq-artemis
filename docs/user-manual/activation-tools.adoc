@@ -8,20 +8,20 @@ The 2 main commands are `activation list` and `activation set`, that can be used
 
 Here is a disaster scenario built around the RI (using https://zookeeper.apache.org/[Apache ZooKeeper] and https://curator.apache.org/[Apache curator]) to demonstrate the usage of such commands.
 
-== Troubleshooting Case: ZooKeeper Cluster disaster
+== ZooKeeper cluster disaster
 
-A proper ZooKeeper cluster should use at least 3 nodes, but what happens if all these nodes crash loosing any activation state information required to run an Artemis replication cluster?
+A proper ZooKeeper cluster should use at least 3 nodes, but what happens if all these nodes crash loosing any activation state information required to manage replication?
 
-During the disaster ie ZooKeeper nodes no longer reachable, brokers:
+During the disaster (i.e. ZooKeeper nodes are no longer reachable) the follow occurs:
 
-* live ones shutdown (and if restarted by a script, should hang awaiting to connect to the ZooKeeper cluster again)
-* replicas become passive, awaiting to connect to the ZooKeeper cluster again
+* Active brokers shutdown (and if restarted, should hang waiting to reconnect to the ZooKeeper cluster again)
+* Passive brokers unpair and wait to reconnect to the ZooKeeper cluster again
 
-Admin should:
+Necessary administrative action:
 
-. Stop all Artemis brokers
+. Stop all brokers
 . Restart ZooKeeper cluster
-. Search brokers with the highest local activation sequence for their `NodeID`, by running this command from the `bin` folder of the broker:
+. Search for brokers with the highest local activation sequence for their `NodeID` by running this command from the `bin` folder of the broker:
 +
 [,bash]
 ----
@@ -39,6 +39,6 @@ $ ./artemis activation set --remote --to 1
 Forced coordinated activation sequence for NodeID=7debb3d1-0d4b-11ec-9704-ae9213b68ac4 from 0 to 1
 ----
 
-. Restart all brokers: previously live ones should be able to be live again
+. Restart all brokers: previously active ones should be able to be active again
 
-The higher the number of ZooKeeper nodes are, the less the chance are that a disaster like this requires Admin intervention, because it allows the ZooKeeper cluster to tolerate more failures.
+The more ZooKeeper nodes there are the less chance that a disaster like this requires administrative intervention because it allows the ZooKeeper cluster to tolerate more failures.

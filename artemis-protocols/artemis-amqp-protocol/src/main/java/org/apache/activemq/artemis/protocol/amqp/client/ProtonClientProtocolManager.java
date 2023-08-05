@@ -105,7 +105,7 @@ public class ProtonClientProtocolManager extends ProtonProtocolManager implement
    }
 
    @Override
-   public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
+   public boolean checkForFailover(String nodeID) throws ActiveMQException {
       throw new UnsupportedOperationException();
    }
 

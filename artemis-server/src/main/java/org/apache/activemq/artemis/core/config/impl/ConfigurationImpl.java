@@ -2339,17 +2339,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
       this.artemisInstance = directory;
    }
 
-   public boolean isCheckForLiveServer() {
+   public boolean isCheckForPrimaryServer() {
       if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
-         return ((ReplicatedPolicyConfiguration) haPolicyConfiguration).isCheckForLiveServer();
+         return ((ReplicatedPolicyConfiguration) haPolicyConfiguration).isCheckForActiveServer();
       } else {
          return false;
       }
    }
 
-   public ConfigurationImpl setCheckForLiveServer(boolean checkForLiveServer) {
+   public ConfigurationImpl setCheckForPrimaryServer(boolean checkForPrimaryServer) {
       if (haPolicyConfiguration instanceof ReplicaPolicyConfiguration) {
-         ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setCheckForLiveServer(checkForLiveServer);
+         ((ReplicatedPolicyConfiguration) haPolicyConfiguration).setCheckForActiveServer(checkForPrimaryServer);
       }
 
       return this;

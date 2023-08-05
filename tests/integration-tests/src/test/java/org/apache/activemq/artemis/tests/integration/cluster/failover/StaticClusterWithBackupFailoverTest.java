@@ -24,12 +24,12 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
       return new int[]{0, 1, 2, 3, 4, 5};
    }
 
-   protected int[] getLiveServerIDs() {
+   protected int[] getPrimaryServerIDs() {
       return new int[]{0, 1, 2};
    }
 
-   protected boolean isLiveServerID(int id) {
-      for (int i : getLiveServerIDs()) {
+   protected boolean isPrimaryServerID(int id) {
+      for (int i : getPrimaryServerIDs()) {
          if (i == id) {
             return true;
          }
@@ -77,8 +77,8 @@ public class StaticClusterWithBackupFailoverTest extends ClusterWithBackupFailov
       setupBackupServer(5, 2, isFileStorage(), haType(), isNetty());
 
       // The lives
-      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
-      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
-      setupLiveServer(2, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(0, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(2, isFileStorage(), haType(), isNetty(), false);
    }
 }

@@ -66,7 +66,7 @@ public abstract class Activation implements Runnable {
    /*
    * called by the server to notify the Activation that the server is stopping
    * */
-   public void sendLiveIsStopping() {
+   public void sendPrimaryIsStopping() {
    }
 
    /*

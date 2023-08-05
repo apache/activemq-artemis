@@ -160,13 +160,13 @@ public class FileLockTest extends ActiveMQTestBase {
       lockManager1.start();
       lockManager2.start();
 
-      lockManager1.startLiveNode();
+      lockManager1.startPrimaryNode();
 
       Thread t = new Thread() {
          @Override
          public void run() {
             try {
-               lockManager2.startLiveNode();
+               lockManager2.startPrimaryNode();
             } catch (Exception e) {
                e.printStackTrace();
             }
@@ -175,18 +175,18 @@ public class FileLockTest extends ActiveMQTestBase {
 
       t.start();
 
-      assertTrue(lockManager1.isLiveLocked());
+      assertTrue(lockManager1.isPrimaryLocked());
       Thread.sleep(500);
-      assertFalse(lockManager2.isLiveLocked());
+      assertFalse(lockManager2.isPrimaryLocked());
 
-      lockManager1.crashLiveServer();
+      lockManager1.crashPrimaryServer();
 
       t.join();
 
-      assertFalse(lockManager1.isLiveLocked());
-      assertTrue(lockManager2.isLiveLocked());
+      assertFalse(lockManager1.isPrimaryLocked());
+      assertTrue(lockManager2.isPrimaryLocked());
 
-      lockManager2.crashLiveServer();
+      lockManager2.crashPrimaryServer();
 
       lockManager1.stop();
       lockManager2.stop();

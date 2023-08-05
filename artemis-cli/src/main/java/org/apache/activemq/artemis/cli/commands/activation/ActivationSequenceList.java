@@ -142,9 +142,9 @@ public class ActivationSequenceList extends LockAbstract {
 
                }
                try (MutableLong coordinatedActivationSequence = manager.getMutableLong(nodeId);
-                    DistributedLock liveLock = manager.getDistributedLock(nodeId)) {
-                  if (!liveLock.tryLock()) {
-                     throw new IllegalStateException("Cannot safely get the coordinated activation sequence for NodeID=" + nodeId + ": maybe the live lock is still held.");
+                    DistributedLock primaryLock = manager.getDistributedLock(nodeId)) {
+                  if (!primaryLock.tryLock()) {
+                     throw new IllegalStateException("Cannot safely get the coordinated activation sequence for NodeID=" + nodeId + ": maybe the primary lock is still held.");
                   }
                   coordinatedSequence = coordinatedActivationSequence.get();
                   if (out != null) {

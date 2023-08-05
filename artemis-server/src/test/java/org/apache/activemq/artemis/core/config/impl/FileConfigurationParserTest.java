@@ -32,8 +32,8 @@ import org.apache.activemq.artemis.core.config.FileDeploymentManager;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ScaleDownConfiguration;
 import org.apache.activemq.artemis.core.config.WildcardConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
@@ -166,17 +166,17 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
    public void testParsingHaSharedStoreWaitForActivation() throws Exception {
       FileConfigurationParser parser = new FileConfigurationParser();
 
-      String configStr = firstPart + "<ha-policy><shared-store><master><wait-for-activation>false</wait-for-activation></master></shared-store></ha-policy>" + lastPart;
+      String configStr = firstPart + "<ha-policy><shared-store><primary><wait-for-activation>false</wait-for-activation></primary></shared-store></ha-policy>" + lastPart;
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
 
       Configuration config = parser.parseMainConfig(input);
       HAPolicyConfiguration haConfig = config.getHAPolicyConfiguration();
 
-      assertTrue(haConfig instanceof SharedStoreMasterPolicyConfiguration);
+      assertTrue(haConfig instanceof SharedStorePrimaryPolicyConfiguration);
 
-      SharedStoreMasterPolicyConfiguration masterConfig = (SharedStoreMasterPolicyConfiguration) haConfig;
+      SharedStorePrimaryPolicyConfiguration primaryConfig = (SharedStorePrimaryPolicyConfiguration) haConfig;
 
-      assertFalse(masterConfig.isWaitForActivation());
+      assertFalse(primaryConfig.isWaitForActivation());
    }
 
    @Test
@@ -358,10 +358,10 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       Configuration config = parser.parseMainConfig(input);
 
       HAPolicyConfiguration haConfig = config.getHAPolicyConfiguration();
-      assertTrue(haConfig instanceof LiveOnlyPolicyConfiguration);
+      assertTrue(haConfig instanceof PrimaryOnlyPolicyConfiguration);
 
-      LiveOnlyPolicyConfiguration liveOnlyCfg = (LiveOnlyPolicyConfiguration) haConfig;
-      ScaleDownConfiguration scaledownCfg = liveOnlyCfg.getScaleDownConfiguration();
+      PrimaryOnlyPolicyConfiguration primaryOnlyCfg = (PrimaryOnlyPolicyConfiguration) haConfig;
+      ScaleDownConfiguration scaledownCfg = primaryOnlyCfg.getScaleDownConfiguration();
       List<String> connectors = scaledownCfg.getConnectors();
       assertEquals(1, connectors.size());
       String connector = connectors.get(0);

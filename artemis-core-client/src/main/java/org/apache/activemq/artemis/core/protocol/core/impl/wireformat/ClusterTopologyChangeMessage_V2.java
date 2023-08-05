@@ -106,9 +106,9 @@ public class ClusterTopologyChangeMessage_V2 extends ClusterTopologyChangeMessag
       nodeID = buffer.readString();
       uniqueEventID = buffer.readLong();
       if (!exit) {
-         boolean hasLive = buffer.readBoolean();
+         boolean hasPrimary = buffer.readBoolean();
          TransportConfiguration a;
-         if (hasLive) {
+         if (hasPrimary) {
             a = new TransportConfiguration();
             a.decode(buffer);
          } else {

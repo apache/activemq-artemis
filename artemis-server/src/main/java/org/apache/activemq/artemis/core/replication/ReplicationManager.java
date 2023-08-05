@@ -66,8 +66,8 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage.PrimaryStopping;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
@@ -91,8 +91,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 /**
- * Manages replication tasks on the live server (that is the live server side of a "remote backup"
- * use case).
+ * Manages replication tasks on the primary server (i.e. the active server side of a "remote backup" use case).
  * <p>
  * Its equivalent in the backup server is {@link ReplicationEndpoint}.
  *
@@ -420,8 +419,7 @@ public final class ReplicationManager implements ActiveMQComponent {
    /**
     * Completes any pending operations.
     * <p>
-    * This can be necessary in case the live loses connection to the backup (network failure, or
-    * backup crashing).
+    * This can be necessary in case the primary loses the connection to the backup (network failure, or backup crashing).
     */
    public void clearReplicationTokens() {
       logger.trace("clearReplicationTokens initiating");
@@ -872,18 +870,18 @@ public final class ReplicationManager implements ActiveMQComponent {
    }
 
    /**
-    * Notifies the backup that the live server is stopping.
+    * Notifies the backup that the primary server is stopping.
     * <p>
     * This notification allows the backup to skip quorum voting (or any other measure to avoid
     * 'split-brain') and do a faster fail-over.
     *
     * @return
     */
-   public OperationContext sendLiveIsStopping(final LiveStopping finalMessage) {
-      logger.debug("LIVE IS STOPPING?!? message={} enabled={}", finalMessage, enabled);
+   public OperationContext sendPrimaryIsStopping(final PrimaryStopping finalMessage) {
+      logger.debug("PRIMARY IS STOPPING?!? message={} enabled={}", finalMessage, enabled);
       if (enabled) {
-         logger.debug("LIVE IS STOPPING?!? message={} {}", finalMessage, enabled);
-         return sendReplicatePacket(new ReplicationLiveIsStoppingMessage(finalMessage));
+         logger.debug("PRIMARY IS STOPPING?!? message={} {}", finalMessage, enabled);
+         return sendReplicatePacket(new ReplicationPrimaryIsStoppingMessage(finalMessage));
       }
       return null;
    }

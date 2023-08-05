@@ -29,36 +29,36 @@ import org.apache.activemq.artemis.spi.core.security.ActiveMQSecurityManager;
 
 public class ColocatedActiveMQServer extends ActiveMQServerImpl {
 
-   private final NodeManager nodeManagerLive;
+   private final NodeManager nodeManagerPrimary;
    private final NodeManager nodeManagerBackup;
    boolean backup = false;
    public ColocatedActiveMQServer backupServer;
 
    public ColocatedActiveMQServer(FileConfiguration fc,
                                   ActiveMQSecurityManager sm,
-                                  NodeManager nodeManagerLive,
+                                  NodeManager nodeManagerPrimary,
                                   NodeManager nodeManagerBackup) {
       super(fc, sm);
-      this.nodeManagerLive = nodeManagerLive;
+      this.nodeManagerPrimary = nodeManagerPrimary;
       this.nodeManagerBackup = nodeManagerBackup;
    }
 
    public ColocatedActiveMQServer(Configuration backupServerConfiguration,
                                   ActiveMQServer parentServer,
                                   NodeManager nodeManagerBackup,
-                                  NodeManager nodeManagerLive) {
+                                  NodeManager nodeManagerPrimary) {
       super(backupServerConfiguration, null, null, parentServer);
-      this.nodeManagerLive = nodeManagerLive;
+      this.nodeManagerPrimary = nodeManagerPrimary;
       this.nodeManagerBackup = nodeManagerBackup;
    }
 
    public ColocatedActiveMQServer(Configuration configuration,
                                   MBeanServer platformMBeanServer,
                                   ActiveMQSecurityManager securityManager,
-                                  NodeManager nodeManagerLive,
+                                  NodeManager nodeManagerPrimary,
                                   NodeManager nodeManagerBackup) {
       super(configuration, platformMBeanServer, securityManager);
-      this.nodeManagerLive = nodeManagerLive;
+      this.nodeManagerPrimary = nodeManagerPrimary;
       this.nodeManagerBackup = nodeManagerBackup;
    }
 
@@ -70,14 +70,14 @@ public class ColocatedActiveMQServer extends ActiveMQServerImpl {
          if (backup) {
             return nodeManagerBackup;
          } else {
-            return nodeManagerLive;
+            return nodeManagerPrimary;
          }
       }
    }
 
    @Override
    public ActiveMQServer createBackupServer(Configuration configuration) {
-      ColocatedActiveMQServer backup = new ColocatedActiveMQServer(configuration, this, nodeManagerBackup, nodeManagerLive);
+      ColocatedActiveMQServer backup = new ColocatedActiveMQServer(configuration, this, nodeManagerBackup, nodeManagerPrimary);
       backup.backup = true;
       this.backupServer = backup;
       return backup;

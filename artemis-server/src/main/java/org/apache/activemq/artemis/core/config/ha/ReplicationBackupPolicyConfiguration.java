@@ -47,7 +47,7 @@ public class ReplicationBackupPolicyConfiguration implements HAPolicyConfigurati
 
    @Override
    public HAPolicyConfiguration.TYPE getType() {
-      return TYPE.BACKUP;
+      return TYPE.REPLICATION_BACKUP;
    }
 
    public String getClusterName() {

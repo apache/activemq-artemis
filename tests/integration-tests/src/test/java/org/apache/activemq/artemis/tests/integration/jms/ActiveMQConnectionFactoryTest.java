@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.jms.ActiveMQJMSClient;
 import org.apache.activemq.artemis.api.jms.JMSFactoryType;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
@@ -67,7 +67,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    private ActiveMQServer liveService;
 
-   private TransportConfiguration liveTC;
+   private TransportConfiguration primaryTC;
 
    @Test
    public void testDefaultConstructor() throws Exception {
@@ -93,9 +93,9 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    @Test
    public void testDefaultConstructorAndSetConnectorPairs() throws Exception {
-      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, primaryTC);
 
-      assertFactoryParams(cf, new TransportConfiguration[]{liveTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      assertFactoryParams(cf, new TransportConfiguration[]{primaryTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
 
       Connection conn = cf.createConnection();
 
@@ -122,8 +122,8 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    @Test
    public void testStaticConnectorListConstructor() throws Exception {
-      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
-      assertFactoryParams(cf, new TransportConfiguration[]{liveTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, primaryTC);
+      assertFactoryParams(cf, new TransportConfiguration[]{primaryTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
       Connection conn = cf.createConnection();
 
       conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -135,9 +135,9 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testStaticConnectorLiveConstructor() throws Exception {
-      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
-      assertFactoryParams(cf, new TransportConfiguration[]{liveTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
+   public void testStaticConnectorPrimaryConstructor() throws Exception {
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, primaryTC);
+      assertFactoryParams(cf, new TransportConfiguration[]{primaryTC}, null, null, ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, ActiveMQClient.DEFAULT_CONNECTION_TTL, ActiveMQClient.DEFAULT_CALL_TIMEOUT, ActiveMQClient.DEFAULT_CALL_FAILOVER_TIMEOUT, ActiveMQClient.DEFAULT_MIN_LARGE_MESSAGE_SIZE, ActiveMQClient.DEFAULT_CONSUMER_WINDOW_SIZE, ActiveMQClient.DEFAULT_CONSUMER_MAX_RATE, ActiveMQClient.DEFAULT_CONFIRMATION_WINDOW_SIZE, ActiveMQClient.DEFAULT_PRODUCER_MAX_RATE, ActiveMQClient.DEFAULT_BLOCK_ON_ACKNOWLEDGE, ActiveMQClient.DEFAULT_BLOCK_ON_DURABLE_SEND, ActiveMQClient.DEFAULT_BLOCK_ON_NON_DURABLE_SEND, ActiveMQClient.DEFAULT_AUTO_GROUP, ActiveMQClient.DEFAULT_PRE_ACKNOWLEDGE, ActiveMQClient.DEFAULT_CONNECTION_LOAD_BALANCING_POLICY_CLASS_NAME, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_ACK_BATCH_SIZE, ActiveMQClient.DEFAULT_DISCOVERY_INITIAL_WAIT_TIMEOUT, ActiveMQClient.DEFAULT_USE_GLOBAL_POOLS, ActiveMQClient.DEFAULT_SCHEDULED_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_THREAD_POOL_MAX_SIZE, ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS);
       Connection conn = cf.createConnection();
 
       conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -151,7 +151,7 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
    @Test
    public void testGettersAndSetters() {
-      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, liveTC);
+      ActiveMQConnectionFactory cf = ActiveMQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, primaryTC);
 
       long clientFailureCheckPeriod = RandomUtil.randomPositiveLong();
       long connectionTTL = RandomUtil.randomPositiveLong();
@@ -244,71 +244,71 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
                                  .setRoutingType(RoutingType.ANYCAST));
 
       //default ok
-      String blackList = null;
-      String whiteList = null;
-      Object obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      String denyList = null;
+      String allowList = null;
+      Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof TestClass1);
 
-      //not in the white list
-      blackList = "java.lang";
-      whiteList = "some.other.package1";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //not in the allow list
+      denyList = "java.lang";
+      allowList = "some.other.package1";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof JMSException);
       //but String always trusted
-      obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), useJndi, useBrowser);
+      obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), useJndi, useBrowser);
       assertTrue("java.lang.String always trusted ", "hello".equals(obj));
 
-      //in the blacklist
-      blackList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
-      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //in the denylist
+      denyList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof JMSException);
 
-      //black list parent package
-      blackList = "org.apache.activemq.artemis";
-      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //deny list parent package
+      denyList = "org.apache.activemq.artemis";
+      allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof JMSException);
 
-      //in white list
-      blackList = "some.other.package";
-      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //in allow list
+      denyList = "some.other.package";
+      allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof TestClass1);
 
-      //parent in white list
-      blackList = "some.other.package";
-      whiteList = "org.apache.activemq.artemis.tests.integration.jms";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //parent in allow list
+      denyList = "some.other.package";
+      allowList = "org.apache.activemq.artemis.tests.integration.jms";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof TestClass1);
 
-      //sub package in white list
-      blackList = "some.other.package";
-      whiteList = "org.apache.activemq.artemis.tests.integration.jms.serializables.pkg1";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //sub package in allow list
+      denyList = "some.other.package";
+      allowList = "org.apache.activemq.artemis.tests.integration.jms.serializables.pkg1";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof JMSException);
 
-      //wild card white list but black listed
-      blackList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
-      whiteList = "*";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //wild card allow list but deny listed
+      denyList = "org.apache.activemq.artemis.tests.integration.jms.serializables";
+      allowList = "*";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof JMSException);
 
-      //wild card white list and not black listed
-      blackList = "some.other.package";
-      whiteList = "*";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //wild card allow list and not deny listed
+      denyList = "some.other.package";
+      allowList = "*";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof TestClass1);
 
-      //wild card black list
-      blackList = "*";
-      whiteList = "*";
-      obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), useJndi, useBrowser);
+      //wild card deny list
+      denyList = "*";
+      allowList = "*";
+      obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), useJndi, useBrowser);
       assertTrue("Object is " + obj, obj instanceof JMSException);
    }
 
    @Test
-   public void testSystemPropertyBlackWhiteListDefault() throws Exception {
+   public void testDeprecatedSystemPropertyBlackWhiteListDefault() throws Exception {
       System.setProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY, "*");
       System.setProperty(ObjectInputStreamWithClassLoader.WHITELIST_PROPERTY, "some.other.package");
 
@@ -317,21 +317,21 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
 
       try {
-         String blackList = null;
-         String whiteList = null;
-         Object obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), false, false);
+         String denyList = null;
+         String allowList = null;
+         Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
          assertTrue("Object is " + obj, obj instanceof JMSException);
          //but String always trusted
-         obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), false, false);
+         obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
          assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
 
          //override
-         blackList = "some.other.package";
-         whiteList = "org.apache.activemq.artemis.tests.integration";
-         obj = receiveObjectMessage(blackList, whiteList, qname, new TestClass1(), false, false);
+         denyList = "some.other.package";
+         allowList = "org.apache.activemq.artemis.tests.integration";
+         obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
          assertTrue("Object is " + obj, obj instanceof TestClass1);
          //but String always trusted
-         obj = receiveObjectMessage(blackList, whiteList, qname, new String("hello"), false, false);
+         obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
          assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
       } finally {
          System.clearProperty(ObjectInputStreamWithClassLoader.BLACKLIST_PROPERTY);
@@ -339,8 +339,40 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       }
    }
 
-   private Object receiveObjectMessage(String blackList,
-                                       String whiteList,
+   @Test
+   public void testSystemPropertyDenyAllowListDefault() throws Exception {
+      System.setProperty(ObjectInputStreamWithClassLoader.DENYLIST_PROPERTY, "*");
+      System.setProperty(ObjectInputStreamWithClassLoader.ALLOWLIST_PROPERTY, "some.other.package");
+
+      String qname = "SerialTestQueue";
+      SimpleString qaddr = new SimpleString(qname);
+      liveService.createQueue(new QueueConfiguration(qaddr).setRoutingType(RoutingType.ANYCAST));
+
+      try {
+         String denyList = null;
+         String allowList = null;
+         Object obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
+         assertTrue("Object is " + obj, obj instanceof JMSException);
+         //but String always trusted
+         obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
+         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+
+         //override
+         denyList = "some.other.package";
+         allowList = "org.apache.activemq.artemis.tests.integration";
+         obj = receiveObjectMessage(denyList, allowList, qname, new TestClass1(), false, false);
+         assertTrue("Object is " + obj, obj instanceof TestClass1);
+         //but String always trusted
+         obj = receiveObjectMessage(denyList, allowList, qname, new String("hello"), false, false);
+         assertTrue("java.lang.String always trusted " + obj, "hello".equals(obj));
+      } finally {
+         System.clearProperty(ObjectInputStreamWithClassLoader.DENYLIST_PROPERTY);
+         System.clearProperty(ObjectInputStreamWithClassLoader.ALLOWLIST_PROPERTY);
+      }
+   }
+
+   private Object receiveObjectMessage(String denyList,
+                                       String allowList,
                                        String qname,
                                        Serializable obj,
                                        boolean useJndi,
@@ -348,20 +380,20 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
       sendObjectMessage(qname, obj);
 
       StringBuilder query = new StringBuilder("");
-      if (blackList != null) {
+      if (denyList != null) {
          query.append("?");
-         query.append("deserializationBlackList=");
-         query.append(blackList);
+         query.append("deserializationDenyList=");
+         query.append(denyList);
 
-         if (whiteList != null) {
+         if (allowList != null) {
             query.append("&");
-            query.append("deserializationWhiteList=");
-            query.append(whiteList);
+            query.append("deserializationAllowList=");
+            query.append(allowList);
          }
       } else {
-         if (whiteList != null) {
-            query.append("?deserializationWhiteList=");
-            query.append(whiteList);
+         if (allowList != null) {
+            query.append("?deserializationAllowList=");
+            query.append(allowList);
          }
       }
 
@@ -682,13 +714,13 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
    }
 
    private void startServer() throws Exception {
-      liveTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
+      primaryTC = new TransportConfiguration(INVM_CONNECTOR_FACTORY);
       Map<String, TransportConfiguration> connectors = new HashMap<>();
-      connectors.put(liveTC.getName(), liveTC);
+      connectors.put(primaryTC.getName(), primaryTC);
       List<String> connectorNames = new ArrayList<>();
-      connectorNames.add(liveTC.getName());
+      connectorNames.add(primaryTC.getName());
 
-      Configuration liveConf = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).setConnectorConfigurations(connectors).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration());
+      Configuration primaryConf = createBasicConfig().addAcceptorConfiguration(new TransportConfiguration(INVM_ACCEPTOR_FACTORY)).setConnectorConfigurations(connectors).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration());
 
       final long broadcastPeriod = 250;
 
@@ -700,9 +732,9 @@ public class ActiveMQConnectionFactoryTest extends ActiveMQTestBase {
 
       List<BroadcastGroupConfiguration> bcConfigs1 = new ArrayList<>();
       bcConfigs1.add(bcConfig1);
-      liveConf.setBroadcastGroupConfigurations(bcConfigs1);
+      primaryConf.setBroadcastGroupConfigurations(bcConfigs1);
 
-      liveService = addServer(ActiveMQServers.newActiveMQServer(liveConf, false));
+      liveService = addServer(ActiveMQServers.newActiveMQServer(primaryConf, false));
       liveService.start();
    }
 

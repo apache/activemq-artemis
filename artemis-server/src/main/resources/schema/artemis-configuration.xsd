@@ -2248,15 +2248,15 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:choice minOccurs="0" maxOccurs="1">
-            <xsd:element name="transformer-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:choice maxOccurs="1" minOccurs="0">
+            <xsd:element name="transformer-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      an optional class name of a transformer
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-            <xsd:element name="transformer" type="transformerType" minOccurs="0" maxOccurs="1">
+            <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      optional transformer configuration
@@ -2282,15 +2282,15 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:choice minOccurs="0" maxOccurs="1">
-            <xsd:element name="transformer-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:choice maxOccurs="1" minOccurs="0">
+            <xsd:element name="transformer-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      an optional class name of a transformer
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-            <xsd:element name="transformer" type="transformerType" minOccurs="0" maxOccurs="1">
+            <xsd:element name="transformer" type="transformerType" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      optional transformer configuration
@@ -2672,14 +2672,14 @@
 
    <xsd:complexType name="storeType">
       <xsd:choice>
-         <xsd:element name="file-store" type="fileStoreType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="file-store" type="fileStoreType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   Use a file based store for persisting journal, paging and large messages
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="database-store" type="databaseStoreType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="database-store" type="databaseStoreType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   Use a database for persisting journal, paging and large messages
@@ -2696,21 +2696,21 @@
 
    <xsd:complexType name="databaseStoreType">
       <xsd:all>
-         <xsd:element name="jdbc-driver-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-driver-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC Driver class name
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-connection-url" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-connection-url" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC Connection URL e.g. jdbc:mysql://localhost:3306/
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-user" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-user" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC User to use for connecting to the database, NB this will only work with drivers where support
@@ -2718,7 +2718,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-password" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-password" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC Password to use for connecting to the database, NB this will only work with drivers where support
@@ -2726,14 +2726,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="data-source-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="data-source-class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The DataSource class name
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="data-source-properties" minOccurs="0" maxOccurs="1">
+         <xsd:element name="data-source-properties" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A list of options for the DataSource
@@ -2751,74 +2751,74 @@
                </xsd:sequence>
             </xsd:complexType>
          </xsd:element>
-         <xsd:element name="message-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+         <xsd:element name="message-table-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The table name used to store message journal entries
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="bindings-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+         <xsd:element name="bindings-table-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The table name used to store bindings journal entries
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="large-message-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+         <xsd:element name="large-message-table-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The table name used to large message files
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="page-store-table-name" type="xsd:string" minOccurs="1" maxOccurs="1">
+         <xsd:element name="page-store-table-name" type="xsd:string" maxOccurs="1" minOccurs="1">
             <xsd:annotation>
                <xsd:documentation>
                   The table name used to large message files
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="node-manager-store-table-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="node-manager-store-table-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The table name used to hold shared store data
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-network-timeout" type="xsd:int" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-network-timeout" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC network connection timeout in milliseconds.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-lock-renew-period" type="xsd:int" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-lock-renew-period" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The period in milliseconds of the keep alive service of a JDBC lock.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-lock-expiration" type="xsd:int" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-lock-expiration" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The time in milliseconds a JDBC lock is considered valid without keeping it alive.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-journal-sync-period" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="jdbc-journal-sync-period" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The JDBC jouranl sync period in milliseconds.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="jdbc-allowed-time-diff" type="xsd:long" minOccurs="0" maxOccurs="1" default="250">
+         <xsd:element name="jdbc-allowed-time-diff" type="xsd:long" maxOccurs="1" minOccurs="0" default="250">
             <xsd:annotation>
                <xsd:documentation>
                   The maximal time offset between the broker and the database in milliseconds when requesting the
-                  current time of the database while updating and validating live and backup locks.
+                  current time of the database while updating and validating primary and backup locks.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2860,24 +2860,31 @@
       </xsd:annotation>
       <xsd:complexType>
          <xsd:choice>
-            <xsd:element name="live-only" type="haLiveOnlyPolicyType" minOccurs="0" maxOccurs="1">
+            <xsd:element name="live-only" type="haLiveOnlyPolicyType" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     A live only server with no HA capabilities apart from scale down.
+                     DEPRECATED FOR REMOVAL: use 'primary-only' instead.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-            <xsd:element name="replication" type="haReplicationType" minOccurs="0" maxOccurs="1">
+            <xsd:element name="primary-only" type="haPrimaryOnlyPolicyType" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     Configuration for a replicated server, either master, slave or colocated.
+                     A primary only server with no HA capabilities apart from scale down.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
-            <xsd:element name="shared-store" type="haSharedStoreType" minOccurs="0" maxOccurs="1">
+            <xsd:element name="replication" type="haReplicationType" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
-                     Configuration for a shared store server, either master, slave or colocated.
+                     Configuration for a replicated server, either primary, backup or colocated.
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="shared-store" type="haSharedStoreType" maxOccurs="1" minOccurs="0">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     Configuration for a shared store server, either primary, backup or colocated.
                   </xsd:documentation>
                </xsd:annotation>
             </xsd:element>
@@ -2888,14 +2895,14 @@
 
    <xsd:complexType name="distributed-primitive-manager">
       <xsd:all>
-         <xsd:element name="class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="class-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The distributed-primitive-manager class name
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="properties" minOccurs="0" maxOccurs="1">
+         <xsd:element name="properties" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A list of options for the distributed-primitive-manager
@@ -2918,38 +2925,38 @@
 
    <xsd:complexType name="haReplicationType">
       <xsd:choice>
-         <xsd:element name="master" type="replicatedPolicyType" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A live server configured to replicate.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="slave" type="replicaPolicyType" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  A backup server configured to replicate.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="colocated" type="haColocationReplicationType" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  a replicated lives server that will allow requests to create colocated replicated backup servers.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="primary" type="asyncPrimaryPolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="primary" type="replicationPrimaryPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A primary server configured to replicate.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup" type="asyncBackupPolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="master" type="replicationPrimaryPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED FOR REMOVAL: use 'primary' instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="backup" type="replicationBackupPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A backup server configured to replicate.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="slave" type="replicationBackupPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED FOR REMOVAL. Use 'backup' instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="colocated" type="haColocationReplicationType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  a replicated primary server that will allow requests to create colocated replicated backup servers.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -2959,35 +2966,35 @@
 
    <xsd:complexType name="haColocationReplicationType">
       <xsd:all>
-         <xsd:element name="request-backup" type="xsd:boolean" minOccurs="0" maxOccurs="1" default="false">
+         <xsd:element name="request-backup" type="xsd:boolean" maxOccurs="1" minOccurs="0" default="false">
             <xsd:annotation>
                <xsd:documentation>
                   If true then the server will request a backup on another node
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-request-retries" type="xsd:int" minOccurs="0" maxOccurs="1" default="-1">
+         <xsd:element name="backup-request-retries" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
             <xsd:annotation>
                <xsd:documentation>
-                  How many times the live server will try to request a backup, -1 means for ever.
+                  How many times the primary server will try to request a backup, -1 means forever.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-request-retry-interval" type="xsd:long" minOccurs="0" maxOccurs="1" default="5000">
+         <xsd:element name="backup-request-retry-interval" type="xsd:long" maxOccurs="1" minOccurs="0" default="5000">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait for retries between attempts to request a backup server.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="max-backups" type="xsd:int" minOccurs="0" maxOccurs="1" default="1">
+         <xsd:element name="max-backups" type="xsd:int" maxOccurs="1" minOccurs="0" default="1">
             <xsd:annotation>
                <xsd:documentation>
-                  Whether or not this live server will accept backup requests from other live servers.
+                  Whether this server will accept backup requests.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-port-offset" type="xsd:int" minOccurs="0" maxOccurs="1" default="100">
+         <xsd:element name="backup-port-offset" type="xsd:int" maxOccurs="1" minOccurs="0" default="100">
             <xsd:annotation>
                <xsd:documentation>
                   The offset to use for the Connectors and Acceptors when creating a new backup server.
@@ -3008,17 +3015,31 @@
                <xsd:attributeGroup ref="xml:specialAttrs"/>
             </xsd:complexType>
          </xsd:element>
-         <xsd:element name="master" type="replicatedPolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="master" type="replicationPrimaryPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The configuration for the live replicated server.
+                  DEPRECATED FOR REMOVAL. Use 'primary' instead.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="slave" type="replicaPolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="primary" type="replicationPrimaryPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The configuration for any slaves created.
+                  The configuration for the primary replicated server.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="slave" type="replicationBackupPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED FOR REMOVAL. Use 'backup' instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="backup" type="replicationBackupPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The configuration for any backups created.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3028,49 +3049,63 @@
 
    <xsd:complexType name="haColocationSharedStoreType">
       <xsd:all>
-         <xsd:element name="request-backup" type="xsd:boolean" minOccurs="0" maxOccurs="1" default="false">
+         <xsd:element name="request-backup" type="xsd:boolean" maxOccurs="1" minOccurs="0" default="false">
             <xsd:annotation>
                <xsd:documentation>
                   If true then the server will request a backup on another node
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-request-retries" type="xsd:int" minOccurs="0" maxOccurs="1" default="-1">
+         <xsd:element name="backup-request-retries" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
             <xsd:annotation>
                <xsd:documentation>
-                  How many times the live server will try to request a backup, -1 means for ever.
+                  How many times the server will try to request a backup, -1 means forever.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-request-retry-interval" type="xsd:long" minOccurs="0" maxOccurs="1" default="5000">
+         <xsd:element name="backup-request-retry-interval" type="xsd:long" maxOccurs="1" minOccurs="0" default="5000">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait for retries between attempts to request a backup server.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="max-backups" type="xsd:int" minOccurs="0" maxOccurs="1" default="1">
+         <xsd:element name="max-backups" type="xsd:int" maxOccurs="1" minOccurs="0" default="1">
             <xsd:annotation>
                <xsd:documentation>
-                  Whether or not this live server will accept backup requests from other live servers.
+                  Whether this server will accept backup requests.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-port-offset" type="xsd:int" minOccurs="0" maxOccurs="1" default="100">
+         <xsd:element name="backup-port-offset" type="xsd:int" maxOccurs="1" minOccurs="0" default="100">
             <xsd:annotation>
                <xsd:documentation>
                   The offset to use for the Connectors and Acceptors when creating a new backup server.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="master" type="sharedStoreMasterPolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="master" type="sharedStorePrimaryPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The configuration for the live shared store server.
+                  DEPRECATED FOR REMOVAL. Use 'primary' instead.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="slave" type="sharedStoreSlavePolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="primary" type="sharedStorePrimaryPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The configuration for the primary shared store server.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="slave" type="sharedStoreBackupPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED FOR REMOVAL. Use 'backup' instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="backup" type="sharedStoreBackupPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The configuration for any shared store backups created.
@@ -3083,21 +3118,35 @@
 
    <xsd:complexType name="haSharedStoreType">
       <xsd:choice>
-         <xsd:element name="master" type="sharedStoreMasterPolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="master" type="sharedStorePrimaryPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  A shared store live server configuration.
+                  DEPRECATED FOR REMOVAL: use 'primary' instead.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="slave" type="sharedStoreSlavePolicyType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="primary" type="sharedStorePrimaryPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  A shared store primary server configuration.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="slave" type="sharedStoreBackupPolicyType" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  DEPRECATED FOR REMOVAL. Use 'backup' instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="backup" type="sharedStoreBackupPolicyType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A shared store backup server configuration.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="colocated" type="haColocationSharedStoreType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="colocated" type="haColocationSharedStoreType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   A shared store colocated configuration
@@ -3110,10 +3159,10 @@
 
    <xsd:complexType name="haLiveOnlyPolicyType">
       <xsd:all>
-         <xsd:element name="scale-down" type="scaleDownType" minOccurs="0" maxOccurs="1">
+         <xsd:element name="scale-down" type="scaleDownType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  The scale down configuration of this live server.
+                  DEPRECATED: The scale down configuration of this server.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3121,12 +3170,25 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="replicatedPolicyType">
+   <xsd:complexType name="haPrimaryOnlyPolicyType">
       <xsd:all>
-         <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="scale-down" type="scaleDownType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  used for replication, if set, (remote) backup servers will only pair with live servers with matching
+                  The scale down configuration of this server.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+      </xsd:all>
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="replicationPrimaryPolicyType">
+      <xsd:all>
+         <xsd:element name="group-name" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  used for replication, if set, (remote) backup servers will only pair with primary servers with matching
                   group-name
                </xsd:documentation>
             </xsd:annotation>
@@ -3135,7 +3197,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Name of the cluster configuration to use for replication. This setting is only necessary in case you
-                  configure multiple cluster connections. It is used by a replicating backups and by live servers that
+                  configure multiple cluster connections. It is used by a replicating backups and by primary servers that
                   may attempt fail-back.
                </xsd:documentation>
             </xsd:annotation>
@@ -3152,15 +3214,21 @@
          <xsd:element name="check-for-live-server" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
+                  DEPRECATED: use 'check-for-active-server' instead.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="check-for-active-server" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
                   Whether to check the cluster for a (live) server using our own server ID when starting
                   up. This option is only necessary for performing 'fail-back' on replicating
-                  servers. Strictly speaking this setting only applies to live servers and not to
+                  servers. Strictly speaking this setting only applies to primary servers and not to
                   backups.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
-                      minOccurs="0">
+         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The amount of time to wait for the replica to acknowledge it has received all the necessary data from
@@ -3168,46 +3236,62 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Whether or not this live broker should vote to remain as live if replication is lost.
+                  Whether this primary broker should vote to remain active if replication is lost.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="quorum-size" type="xsd:integer" default="-1" minOccurs="0" maxOccurs="1">
+         <xsd:element name="quorum-size" type="xsd:integer" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The quorum size used for voting after replication loss, -1 means use the current cluster size
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-retries" type="xsd:integer" default="12" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  If we start as a replica and lose connection to the master, how many times should we attempt to vote
+                  If we start as a replica and lose connection to the primary, how many times should we attempt to vote
                   for quorum before restarting
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-retry-wait" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-retry-wait" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in milliseconds) between each vote
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="quorum-vote-wait" type="xsd:integer" default="30" minOccurs="0" maxOccurs="1">
+         <xsd:element name="quorum-vote-wait" type="xsd:integer" default="30" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in seconds) for vote results
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
+         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   If we start as a replica how long to wait (in milliseconds) before trying to replicate again after failing to find a replica
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="manager" type="distributed-primitive-manager" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The manager used to manage distributed locks used for this type of replication.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="coordination-id" type="xsd:string" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The common identity to use for coordination that is shared across instances that will replicate.
+                  The value will be used as the internal server nodeId and as the identity of entities in the
+                  distributed-primitive-manager.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3215,12 +3299,12 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="replicaPolicyType">
+   <xsd:complexType name="replicationBackupPolicyType">
       <xsd:all>
-         <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="group-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  used for replication, if set, (remote) backup servers will only pair with live servers with matching
+                  used for replication, if set, (remote) backup servers will only pair with primary servers with matching
                   group-name
                </xsd:documentation>
             </xsd:annotation>
@@ -3229,7 +3313,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Name of the cluster configuration to use for replication. This setting is only necessary in case you
-                  configure multiple cluster connections. It is used by a replicating backups and by live servers that
+                  configure multiple cluster connections. It is used by a replicating backups and by primary servers that
                   may attempt fail-back.
                </xsd:documentation>
             </xsd:annotation>
@@ -3246,7 +3330,7 @@
          <xsd:element name="scale-down" type="scaleDownType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  if provided then this backup will scale down rather than becoming live after fail over.
+                  if provided then this backup will scale down rather than becoming active after fail over.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3275,8 +3359,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
-                      minOccurs="0">
+         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   If we have to start as a replicated server this is the amount of time to wait for the replica to
@@ -3285,15 +3368,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-on-replication-failure" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  If we have to start as a replicated server decide whether or not this live broker should vote to remain
-                  as live if replication is lost.
+                  If we have to start as a replicated server decide whether to vote to remain active if replication is lost.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="quorum-size" type="xsd:integer" default="-1" minOccurs="0" maxOccurs="1">
+         <xsd:element name="quorum-size" type="xsd:integer" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   If we have to start as a replicated server or we are a backup and lose connection to live, the quorum size
@@ -3301,161 +3383,38 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-retries" type="xsd:integer" default="12" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-retries" type="xsd:integer" default="12" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  If we lose connection to the master, how many times should we attempt to vote for quorum before restarting
+                  If we lose connection to the primary, how many times should we attempt to vote for quorum before restarting
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="vote-retry-wait" type="xsd:long" default="5000" minOccurs="0" maxOccurs="1">
+         <xsd:element name="vote-retry-wait" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in milliseconds) between each vote
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
+         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in milliseconds) before trying to replicate again after failing to find a replica
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="quorum-vote-wait" type="xsd:integer" default="30" minOccurs="0" maxOccurs="1">
+         <xsd:element name="quorum-vote-wait" type="xsd:integer" default="30" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait (in seconds) for vote results
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-      </xsd:all>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
-
-   <xsd:complexType name="asyncPrimaryPolicyType">
-      <xsd:all>
-         <xsd:element name="manager" type="distributed-primitive-manager" minOccurs="1" maxOccurs="1">
+         <xsd:element name="manager" type="distributed-primitive-manager" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  It's the manager used to manager distributed locks used for this type of replication.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  used for replication, if set, (remote) backup servers will only pair with live servers with matching
-                  group-name
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="cluster-name" type="xsd:string" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Name of the cluster configuration to use for replication. This setting is only necessary in case you
-                  configure multiple cluster connections. It is used by a replicating backups and by live servers that
-                  may attempt fail-back.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="coordination-id" type="xsd:string" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The common identity to use for coordination that is shared across instances that will replicate.
-                  The value will be used as the internal server nodeId and as the identity of entities in the
-                  distributed-primitive-manager.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
-                      minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  The amount of time to wait for the replica to acknowledge it has received all the necessary data from
-                  the replicating server at the final step of the initial replication synchronization process.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  If we start as a replica how long to wait (in milliseconds) before trying to replicate again after failing to find a replica
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="max-saved-replicated-journals-size" type="xsd:int" default="2" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  This option specifies how many replication backup directories will be kept when server starts as replica.
-                  Every time when server starts as replica all former data moves to 'oldreplica.{id}' directory, where id is growing backup index,
-                  this parameter sets the maximum number of such directories kept on disk.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-      </xsd:all>
-      <xsd:attributeGroup ref="xml:specialAttrs"/>
-   </xsd:complexType>
-
-   <xsd:complexType name="asyncBackupPolicyType">
-      <xsd:all>
-         <xsd:element name="manager" type="distributed-primitive-manager" minOccurs="1" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  It's the manager used to manager distributed locks used for this type of replication.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  used for replication, if set, (remote) backup servers will only pair with live servers with matching
-                  group-name
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="cluster-name" type="xsd:string" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Name of the cluster configuration to use for replication. This setting is only necessary in case you
-                  configure multiple cluster connections. It is used by a replicating backups and by live servers that
-                  may attempt fail-back.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="max-saved-replicated-journals-size" type="xsd:int" default="2" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  This option specifies how many replication backup directories will be kept when server starts as replica.
-                  Every time when server starts as replica all former data moves to 'oldreplica.{id}' directory, where id is growing backup index,
-                  this parameter sets the maximum number of such directories kept on disk.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="allow-failback" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  Whether a server will automatically stop when a another places a request to take over
-                  its place. The use case is when a regular server stops and its backup takes over its
-                  duties, later the main server restarts and requests the server (the former backup) to
-                  stop operating.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="initial-replication-sync-timeout" type="xsd:long" default="30000" maxOccurs="1"
-                      minOccurs="0">
-            <xsd:annotation>
-               <xsd:documentation>
-                  If we have to start as a replicated server this is the amount of time to wait for the replica to
-                  acknowledge it has received all the necessary data from the replicating server at the final step
-                  of the initial replication synchronization process.
-               </xsd:documentation>
-            </xsd:annotation>
-         </xsd:element>
-         <xsd:element name="retry-replication-wait" type="xsd:long" default="2000" minOccurs="0" maxOccurs="1">
-            <xsd:annotation>
-               <xsd:documentation>
-                  How long to wait (in milliseconds) before trying to replicate again after failing to find a replica
+                  The manager used to manage distributed locks used for this type of replication.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3465,10 +3424,10 @@
 
    <xsd:complexType name="colocatedReplicaPolicyType">
       <xsd:all>
-         <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="group-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  used for replication, if set, (remote) backup servers will only pair with live servers with matching
+                  used for replication, if set, (remote) backup servers will only pair with primary servers with matching
                   group-name
                </xsd:documentation>
             </xsd:annotation>
@@ -3477,7 +3436,7 @@
             <xsd:annotation>
                <xsd:documentation>
                   Name of the cluster configuration to use for replication. This setting is only necessary in case you
-                  configure multiple cluster connections. It is used by a replicating backups and by live servers that
+                  configure multiple cluster connections. It is used by a replicating backups and by primary servers that
                   may attempt fail-back.
                </xsd:documentation>
             </xsd:annotation>
@@ -3494,7 +3453,7 @@
          <xsd:element name="scale-down" type="scaleDownType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  if provided then this backup will scale down rather than becoming live after fail over.
+                  if provided then this backup will scale down rather than becoming active after fail over.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3509,7 +3468,7 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="sharedStoreMasterPolicyType">
+   <xsd:complexType name="sharedStorePrimaryPolicyType">
       <xsd:all>
          <xsd:element name="failback-delay" type="xsd:long" default="5000" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -3521,14 +3480,14 @@
          <xsd:element name="failover-on-shutdown" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Will this backup server come live on a normal server shutdown
+                  Will this backup server become active on a normal server shutdown
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="wait-for-activation" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Will the master startup wait until it is activated
+                  Will the primary startup wait until it is activated
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3536,7 +3495,7 @@
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
-   <xsd:complexType name="sharedStoreSlavePolicyType">
+   <xsd:complexType name="sharedStoreBackupPolicyType">
       <xsd:all>
          <xsd:element name="allow-failback" type="xsd:boolean" default="true" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
@@ -3558,14 +3517,14 @@
          <xsd:element name="failover-on-shutdown" type="xsd:boolean" default="false" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Will this backup server come live on a normal server shutdown
+                  Will this backup server become active on a normal server shutdown
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
          <xsd:element name="scale-down" type="scaleDownType" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  if provided then this backup will scale down rather than becoming live after fail over.
+                  if provided then this backup will scale down rather than becoming active after fail over.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3582,35 +3541,35 @@
 
    <xsd:complexType name="colocatedPolicyType">
       <xsd:all>
-         <xsd:element name="request-backup" type="xsd:boolean" minOccurs="0" maxOccurs="1" default="false">
+         <xsd:element name="request-backup" type="xsd:boolean" maxOccurs="1" minOccurs="0" default="false">
             <xsd:annotation>
                <xsd:documentation>
                   If true then the server will request a backup on another node
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-request-retries" type="xsd:int" minOccurs="0" maxOccurs="1" default="-1">
+         <xsd:element name="backup-request-retries" type="xsd:int" maxOccurs="1" minOccurs="0" default="-1">
             <xsd:annotation>
                <xsd:documentation>
-                  How many times the live server will try to request a backup, -1 means for ever.
+                  How many times the server will try to request a backup, -1 means forever.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-request-retry-interval" type="xsd:long" minOccurs="0" maxOccurs="1" default="5000">
+         <xsd:element name="backup-request-retry-interval" type="xsd:long" maxOccurs="1" minOccurs="0" default="5000">
             <xsd:annotation>
                <xsd:documentation>
                   How long to wait for retries between attempts to request a backup server.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="max-backups" type="xsd:int" minOccurs="0" maxOccurs="1" default="1">
+         <xsd:element name="max-backups" type="xsd:int" maxOccurs="1" minOccurs="0" default="1">
             <xsd:annotation>
                <xsd:documentation>
-                  Whether or not this live server will accept backup requests from other live servers.
+                  Whether this server will accept backup requests.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="backup-port-offset" type="xsd:int" minOccurs="0" maxOccurs="1" default="100">
+         <xsd:element name="backup-port-offset" type="xsd:int" maxOccurs="1" minOccurs="0" default="100">
             <xsd:annotation>
                <xsd:documentation>
                   The offset to use for the Connectors and Acceptors when creating a new backup server.
@@ -3631,7 +3590,7 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
-         <xsd:element name="group-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+         <xsd:element name="group-name" type="xsd:string" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
                   The scale down group to scale down to, a server will only scale down to a server within the same group
@@ -3653,7 +3612,7 @@
                   <xsd:attributeGroup ref="xml:specialAttrs"/>
                </xsd:complexType>
             </xsd:element>
-            <xsd:element name="connectors" minOccurs="0" maxOccurs="1">
+            <xsd:element name="connectors" maxOccurs="1" minOccurs="0">
                <xsd:annotation>
                   <xsd:documentation>
                      A list of connectors to use for scaling down, if not supplied then the scale-down-discovery-group

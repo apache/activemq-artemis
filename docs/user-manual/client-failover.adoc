@@ -2,7 +2,7 @@
 :idprefix:
 :idseparator: -
 
-Apache ActiveMQ Artemis clients can be configured to automatically <<reconnect-to-the-same-server,reconnect to the same server>>, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-live-servers,reconnect to other live servers>> in the event that a failure is detected in the connection between the client and the server.
+Apache ActiveMQ Artemis clients can be configured to automatically <<reconnect-to-the-same-server,reconnect to the same server>>, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-active-servers,reconnect to other active servers>> in the event that a failure is detected in the connection between the client and the server.
 The clients detect connection failure when they have not received any packets from the server within the time given by `client-failure-check-period` as explained in section xref:connection-ttl.adoc#detecting-dead-connections[Detecting Dead Connections].
 
 == Reconnect to the same server
@@ -39,18 +39,18 @@ They can be configured explicitly or probably the most common way of doing this 
 For full details on how to configure server discovery, please see xref:clusters.adoc#clusters[Clusters].
 Alternatively, the clients can explicitly connect to a specific server and download the current servers and backups see xref:clusters.adoc#clusters[Clusters].
 
-By default, failover will only occur after at least one connection has been made to the live server.
-In other words, by default, failover will not occur if the client fails to make an initial connection to the live server - in this case it will simply retry connecting to the live server according to the reconnect-attempts property and fail after this number of attempts.
+By default, failover will only occur after at least one connection has been made.
+In other words, by default, failover will not occur if the client fails to make an initial connection - in this case it will simply retry connecting according to the reconnect-attempts property and fail after this number of attempts.
 
-== Reconnect to other live servers
+== Reconnect to other active servers
 
-Set `failoverAttempts` to any non-zero value to reconnect to other live servers, for further details see <<reconnection-and-failover-attributes,Reconnection and failover attributes>>.
+Set `failoverAttempts` to any non-zero value to reconnect to other active servers, for further details see <<reconnection-and-failover-attributes,Reconnection and failover attributes>>.
 
-If `reconnectAttempts` value is not zero then the client will try to reconnect to other live servers only after all attempts to <<reconnect-to-the-same-server,reconnect to the same server>> or <<reconnect-to-the-backup-server,reconnect to the backup server>> fail.
+If `reconnectAttempts` value is not zero then the client will try to reconnect to other active servers only after all attempts to <<reconnect-to-the-same-server,reconnect to the same server>> or <<reconnect-to-the-backup-server,reconnect to the backup server>> fail.
 
 == Session reconnection
 
-When clients <<reconnect-to-the-same-server,reconnect to the same server>> after a restart, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-live-servers,reconnect to other live servers>> any sessions will no longer exist on the server and it won't be possible to 100% transparently re-attach to them.
+When clients <<reconnect-to-the-same-server,reconnect to the same server>> after a restart, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-active-servers,reconnect to other active servers>> any sessions will no longer exist on the server and it won't be possible to 100% transparently re-attach to them.
 In this case, any sessions and consumers on the client will be automatically recreated on the server.
 
 Client reconnection is also used internally by components such as core bridges to allow them to reconnect to their target servers.
@@ -58,7 +58,7 @@ Client reconnection is also used internally by components such as core bridges t
 == Failing over on the initial connection
 
 Since the client does not learn about the full topology until after the first connection is made there is a window where it does not know about the backup.
-If a failure happens at this point the client can only try reconnecting to the original live server.
+If a failure happens at this point the client can only try reconnecting to the original server.
 To configure how many attempts the client will make you can set the URL parameter `initialConnectAttempts`.
 The default for this is `0`, that is try only once.
 Once the number of attempts has been made an exception will be thrown.
@@ -91,7 +91,7 @@ By setting this parameter you can set an upper limit on that value.
 The default value is `2000` milliseconds.
 
 ha::
-This optional parameter determines weather the client will try to reconnect to the backup node when the live node is not reachable.
+This optional parameter determines whether the client will try to reconnect to the backup node when the primary node is not reachable.
 The default value is `false`.
 For more information on HA, please see xref:ha.adoc#high-availability-and-failover[High Availability and Failover].
 

@@ -109,12 +109,12 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
    @Test
    public void testReplicationIfFlowControlled() throws Exception {
-      // start live
-      Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.start();
+      // start primary
+      Configuration primaryConfiguration = createPrimaryConfiguration();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.start();
 
-      Wait.waitFor(() -> liveServer.isStarted());
+      Wait.waitFor(() -> primaryServer.isStarted());
 
       ServerLocator locator = ServerLocatorImpl.newLocator("tcp://localhost:61616");
       locator.setCallTimeout(60_000L);
@@ -169,26 +169,26 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
 
       csf.close();
       locator.close();
-      Assert.assertTrue("Waiting for replica sync timeout", Wait.waitFor(liveServer::isReplicaSync, 30000));
+      Assert.assertTrue("Waiting for replica sync timeout", Wait.waitFor(primaryServer::isReplicaSync, 30000));
       backupServer.stop(true);
-      liveServer.stop(true);
+      primaryServer.stop(true);
 
       SequentialFileFactory fileFactory;
 
-      fileFactory = new MappedSequentialFileFactory(liveConfiguration.getJournalLocation(), liveConfiguration.getJournalFileSize(), false, liveConfiguration.getJournalBufferSize_NIO(), liveConfiguration.getJournalBufferTimeout_NIO(), null);
+      fileFactory = new MappedSequentialFileFactory(primaryConfiguration.getJournalLocation(), primaryConfiguration.getJournalFileSize(), false, primaryConfiguration.getJournalBufferSize_NIO(), primaryConfiguration.getJournalBufferTimeout_NIO(), null);
 
-      JournalImpl liveMessageJournal = new JournalImpl(liveConfiguration.getJournalFileSize(), liveConfiguration.getJournalMinFiles(), liveConfiguration.getJournalPoolFiles(), liveConfiguration.getJournalCompactMinFiles(), liveConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
+      JournalImpl primaryMessageJournal = new JournalImpl(primaryConfiguration.getJournalFileSize(), primaryConfiguration.getJournalMinFiles(), primaryConfiguration.getJournalPoolFiles(), primaryConfiguration.getJournalCompactMinFiles(), primaryConfiguration.getJournalCompactPercentage(), fileFactory, "activemq-data", "amq", fileFactory.getMaxIO());
 
-      liveMessageJournal.start();
-      final AtomicInteger liveJournalCounter = new AtomicInteger();
-      liveMessageJournal.load(new SharedNothingReplicationFlowControlTest.AddRecordLoaderCallback() {
+      primaryMessageJournal.start();
+      final AtomicInteger primaryJournalCounter = new AtomicInteger();
+      primaryMessageJournal.load(new SharedNothingReplicationFlowControlTest.AddRecordLoaderCallback() {
          @Override
          public void addRecord(RecordInfo info) {
             if (!(info.userRecordType == JournalRecordIds.ADD_MESSAGE_PROTOCOL)) {
                // ignore
             }
-            liveJournalCounter.incrementAndGet();
-            logger.info("got live message {} {}, counter={}", info.id, info.userRecordType, liveJournalCounter.get());
+            primaryJournalCounter.incrementAndGet();
+            logger.info("got primary message {} {}, counter={}", info.id, info.userRecordType, primaryJournalCounter.get());
          }
       });
 
@@ -212,15 +212,15 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
          }
       });
 
-      logger.info("expected {} messages, live={}, backup={}", j, liveJournalCounter.get(), replicationCounter.get());
-      Assert.assertEquals("Live lost journal record", j, liveJournalCounter.get());
+      logger.info("expected {} messages, primary={}, backup={}", j, primaryJournalCounter.get(), replicationCounter.get());
+      Assert.assertEquals("Primary lost journal record", j, primaryJournalCounter.get());
       Assert.assertEquals("Backup did not replicated all journal", j, replicationCounter.get());
    }
 
    @Test
    public void testSendPages() throws Exception {
       // start live
-      Configuration liveConfiguration = createLiveConfiguration();
+      Configuration liveConfiguration = createPrimaryConfiguration();
       ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       liveServer.start();
 
@@ -356,33 +356,33 @@ public class SharedNothingReplicationFlowControlTest extends ActiveMQTestBase {
       }
    }
 
-   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+   protected HAPolicyConfiguration createReplicationPrimaryConfiguration() {
       return new ReplicatedPolicyConfiguration()
          .setVoteOnReplicationFailure(false)
-         .setCheckForLiveServer(false);
+         .setCheckForActiveServer(false);
    }
 
    // Set a small call timeout and write buffer high water mark value to trigger replication flow control
-   private Configuration createLiveConfiguration() throws Exception {
+   private Configuration createPrimaryConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
-      conf.setName("localhost::live");
+      conf.setName("localhost::primary");
 
-      File liveDir = brokersFolder.newFolder("live");
-      conf.setBrokerInstance(liveDir);
+      File primaryDir = brokersFolder.newFolder("primary");
+      conf.setBrokerInstance(primaryDir);
 
-      conf.addAcceptorConfiguration("live", "tcp://localhost:61616?writeBufferHighWaterMark=2048&writeBufferLowWaterMark=2048");
+      conf.addAcceptorConfiguration("primary", "tcp://localhost:61616?writeBufferHighWaterMark=2048&writeBufferLowWaterMark=2048");
       conf.addConnectorConfiguration("backup", "tcp://localhost:61617");
-      conf.addConnectorConfiguration("live", "tcp://localhost:61616");
+      conf.addConnectorConfiguration("primary", "tcp://localhost:61616");
 
       conf.setClusterUser("mycluster");
       conf.setClusterPassword("mypassword");
 
-      conf.setHAPolicyConfiguration(createReplicationLiveConfiguration());
+      conf.setHAPolicyConfiguration(createReplicationPrimaryConfiguration());
 
       ClusterConnectionConfiguration ccconf = new ClusterConnectionConfiguration();
       ccconf.setStaticConnectors(new ArrayList<>()).getStaticConnectors().add("backup");
       ccconf.setName("cluster");
-      ccconf.setConnectorName("live");
+      ccconf.setConnectorName("primary");
       ccconf.setCallTimeout(4000);
       conf.addClusterConfiguration(ccconf);
 

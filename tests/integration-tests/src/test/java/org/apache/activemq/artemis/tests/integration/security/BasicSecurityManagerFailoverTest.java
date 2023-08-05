@@ -23,8 +23,8 @@ import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.api.core.client.ClientSession;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.tests.integration.cluster.failover.FailoverTestBase;
 import org.apache.activemq.artemis.tests.util.ReplicatedBackupUtils;
@@ -59,7 +59,7 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
 
    protected void createSharedStoreConfigs() throws Exception {
       nodeManager = createNodeManager();
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
       backupConfig = super
@@ -67,39 +67,39 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
          .setSecurityEnabled(true)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(false))
-         .setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration())
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector)
+         .setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration())
+         .addConnectorConfiguration(primaryConnector.getName(), primaryConnector)
          .addConnectorConfiguration(backupConnector.getName(), backupConnector)
-         .addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), liveConnector.getName()));
+         .addClusterConfiguration(createBasicClusterConfig(backupConnector.getName(), primaryConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
       backupServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
 
-      liveConfig = super
+      primaryConfig = super
          .createDefaultInVMConfig()
          .setSecurityEnabled(true)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true))
-         .setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration())
-         .addClusterConfiguration(createBasicClusterConfig(liveConnector.getName()))
-         .addConnectorConfiguration(liveConnector.getName(), liveConnector);
+         .setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration())
+         .addClusterConfiguration(createBasicClusterConfig(primaryConnector.getName()))
+         .addConnectorConfiguration(primaryConnector.getName(), primaryConnector);
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
 
-      liveServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
+      primaryServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
    }
 
    @Override
    protected void createReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      final TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
       backupConfig = createDefaultInVMConfig();
-      liveConfig = createDefaultInVMConfig();
+      primaryConfig = createDefaultInVMConfig();
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, null);
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null);
 
       backupConfig
          .setSecurityEnabled(true)
@@ -115,14 +115,14 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
 
       backupServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
 
-      liveConfig
+      primaryConfig
          .setSecurityEnabled(true)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
 
-      liveServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
+      primaryServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
    }
 
    @Override
@@ -138,7 +138,7 @@ public class BasicSecurityManagerFailoverTest extends FailoverTestBase {
    @Test
    public void testFailover() throws Exception {
 
-      liveServer.getServer().getActiveMQServerControl().addUser("foo", "bar", "baz", false);
+      primaryServer.getServer().getActiveMQServerControl().addUser("foo", "bar", "baz", false);
 
       ClientSessionFactory cf = createSessionFactory(getServerLocator());
       ClientSession session = null;

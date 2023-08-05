@@ -1528,7 +1528,7 @@ public class ActiveMQServerControlUsingCoreTest extends ActiveMQServerControlTes
             proxy.invokeOperation("forceFailover");
          }
 
-         public String getLiveConnectorName() throws Exception {
+         public String getPrimaryConnectorName() throws Exception {
             return (String) proxy.retrieveAttributeValue("liveConnectorName");
          }
 

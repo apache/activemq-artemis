@@ -63,7 +63,7 @@ public class MessageRedistributionWithDiscoveryTest extends ClusterTestBase {
     * @throws Exception
     */
    protected void setServer(final MessageLoadBalancingType messageLoadBalancingType, int server) throws Exception {
-      setupLiveServerWithDiscovery(server, groupAddress, groupPort, isFileStorage(), isNetty(), false);
+      setupPrimaryServerWithDiscovery(server, groupAddress, groupPort, isFileStorage(), isNetty(), false);
 
       AddressSettings setting = new AddressSettings().setRedeliveryDelay(0).setRedistributionDelay(0);
 

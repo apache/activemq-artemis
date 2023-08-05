@@ -161,7 +161,7 @@ public class BackupManager implements ActiveMQComponent {
    }
 
    /*
-   * called to notify us that we have been activated as a live server so the connectors are no longer needed.
+   * called to notify us that we have been activated so the connectors are no longer needed.
    * */
    public void activated() {
       for (BackupConnector backupConnector : backupConnectors) {

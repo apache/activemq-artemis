@@ -1898,7 +1898,7 @@ public class ActiveMQServerControlTest extends ManagementTestBase {
                                  ActiveMQClient.DEFAULT_RETRY_INTERVAL, ActiveMQClient.DEFAULT_RETRY_INTERVAL_MULTIPLIER, ActiveMQClient.INITIAL_CONNECT_ATTEMPTS, ActiveMQClient.DEFAULT_RECONNECT_ATTEMPTS, false, // duplicateDetection
                                  1, // confirmationWindowSize
                                  -1, // producerWindowSize
-                                 ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, connectorConfig.getName(), // liveConnector
+                                 ActiveMQClient.DEFAULT_CLIENT_FAILURE_CHECK_PERIOD, connectorConfig.getName(), // primaryConnector
                                  false, false, null, null);
 
       checkResource(ObjectNameBuilder.DEFAULT.getBridgeObjectName(name));

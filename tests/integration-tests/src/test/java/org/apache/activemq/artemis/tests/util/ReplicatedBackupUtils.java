@@ -26,7 +26,7 @@ import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfig
 
 public final class ReplicatedBackupUtils {
 
-   public static final String LIVE_NODE_NAME = "amqLIVE";
+   public static final String PRIMARY_NODE_NAME = "amqPrimary";
    public static final String BACKUP_NODE_NAME = "amqBackup";
 
    private ReplicatedBackupUtils() {
@@ -36,45 +36,45 @@ public final class ReplicatedBackupUtils {
    public static void configureReplicationPair(Configuration backupConfig,
                                                TransportConfiguration backupConnector,
                                                TransportConfiguration backupAcceptor,
-                                               Configuration liveConfig,
-                                               TransportConfiguration liveConnector,
-                                               TransportConfiguration liveAcceptor) {
+                                               Configuration primaryConfig,
+                                               TransportConfiguration primaryConnector,
+                                               TransportConfiguration primaryAcceptor) {
       if (backupAcceptor != null) {
          backupConfig.clearAcceptorConfigurations().addAcceptorConfiguration(backupAcceptor);
       }
 
-      if (liveAcceptor != null) {
-         liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor);
+      if (primaryAcceptor != null) {
+         primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(primaryAcceptor);
       }
 
-      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME)).setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
+      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(PRIMARY_NODE_NAME, primaryConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, PRIMARY_NODE_NAME)).setHAPolicyConfiguration(new ReplicaPolicyConfiguration());
 
-      liveConfig.setName(LIVE_NODE_NAME).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME)).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
+      primaryConfig.setName(PRIMARY_NODE_NAME).addConnectorConfiguration(PRIMARY_NODE_NAME, primaryConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(PRIMARY_NODE_NAME, BACKUP_NODE_NAME)).setHAPolicyConfiguration(new ReplicatedPolicyConfiguration());
    }
 
 
    public static void configurePluggableQuorumReplicationPair(Configuration backupConfig,
                                                TransportConfiguration backupConnector,
                                                TransportConfiguration backupAcceptor,
-                                               Configuration liveConfig,
-                                               TransportConfiguration liveConnector,
-                                               TransportConfiguration liveAcceptor,
+                                               Configuration primaryConfig,
+                                               TransportConfiguration primaryConnector,
+                                               TransportConfiguration primaryAcceptor,
                                                DistributedPrimitiveManagerConfiguration primaryManagerConfiguration,
                                                DistributedPrimitiveManagerConfiguration backupManagerConfiguration) {
       if (backupAcceptor != null) {
          backupConfig.clearAcceptorConfigurations().addAcceptorConfiguration(backupAcceptor);
       }
 
-      if (liveAcceptor != null) {
-         liveConfig.clearAcceptorConfigurations().addAcceptorConfiguration(liveAcceptor);
+      if (primaryAcceptor != null) {
+         primaryConfig.clearAcceptorConfigurations().addAcceptorConfiguration(primaryAcceptor);
       }
 
-      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, LIVE_NODE_NAME))
-         .setHAPolicyConfiguration(ReplicationBackupPolicyConfiguration.withDefault()
+      backupConfig.addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).addConnectorConfiguration(PRIMARY_NODE_NAME, primaryConnector).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(BACKUP_NODE_NAME, PRIMARY_NODE_NAME))
+                  .setHAPolicyConfiguration(ReplicationBackupPolicyConfiguration.withDefault()
                                       .setDistributedManagerConfiguration(backupManagerConfiguration));
 
-      liveConfig.setName(LIVE_NODE_NAME).addConnectorConfiguration(LIVE_NODE_NAME, liveConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(LIVE_NODE_NAME, BACKUP_NODE_NAME))
-         .setHAPolicyConfiguration(ReplicationPrimaryPolicyConfiguration.withDefault()
+      primaryConfig.setName(PRIMARY_NODE_NAME).addConnectorConfiguration(PRIMARY_NODE_NAME, primaryConnector).addConnectorConfiguration(BACKUP_NODE_NAME, backupConnector).setSecurityEnabled(false).addClusterConfiguration(ActiveMQTestBase.basicClusterConnectionConfig(PRIMARY_NODE_NAME, BACKUP_NODE_NAME))
+                   .setHAPolicyConfiguration(ReplicationPrimaryPolicyConfiguration.withDefault()
                                       .setDistributedManagerConfiguration(primaryManagerConfiguration));
    }
 }

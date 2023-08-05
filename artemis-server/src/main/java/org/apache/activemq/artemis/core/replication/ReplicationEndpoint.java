@@ -67,7 +67,7 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageBeginMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageEndMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLargeMessageWriteMessage;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageEventMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPageWriteMessage;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrepareMessage;
@@ -98,9 +98,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       void onRemoteBackupUpToDate(String nodeId, long activationSequence);
 
-      void onLiveStopping(ReplicationLiveIsStoppingMessage.LiveStopping message) throws ActiveMQException;
+      void onPrimaryStopping(ReplicationPrimaryIsStoppingMessage.PrimaryStopping message) throws ActiveMQException;
 
-      void onLiveNodeId(String nodeId);
+      void onPrimaryNodeId(String nodeId);
    }
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -231,7 +231,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          } else if (type == PacketImpl.REPLICATION_SYNC_FILE) {
             handleReplicationSynchronization((ReplicationSyncFileMessage) packet);
          } else if (type == PacketImpl.REPLICATION_SCHEDULED_FAILOVER) {
-            handleLiveStopping((ReplicationLiveIsStoppingMessage) packet);
+            handlePrimaryStopping((ReplicationPrimaryIsStoppingMessage) packet);
          } else if (type == PacketImpl.BACKUP_REGISTRATION_FAILED) {
             handleFatalError((BackupReplicationStartFailedMessage) packet);
          } else {
@@ -285,8 +285,8 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
     * @param packet
     * @throws ActiveMQException
     */
-   private void handleLiveStopping(ReplicationLiveIsStoppingMessage packet) throws ActiveMQException {
-      eventListener.onLiveStopping(packet.isFinalMessage());
+   private void handlePrimaryStopping(ReplicationPrimaryIsStoppingMessage packet) throws ActiveMQException {
+      eventListener.onPrimaryStopping(packet.isFinalMessage());
    }
 
    @Override
@@ -336,7 +336,7 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
 
       OrderedExecutorFactory.flushExecutor(executor);
 
-      // Channel may be null if there isn't a connection to a live server
+      // Channel may be null if there isn't a connection to a primary server
       if (channel != null) {
          channel.close();
       }
@@ -416,9 +416,9 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
       }
    }
 
-   private synchronized void finishSynchronization(String liveID, long activationSequence) throws Exception {
+   private synchronized void finishSynchronization(String primaryID, long activationSequence) throws Exception {
       if (logger.isTraceEnabled()) {
-         logger.trace("BACKUP-SYNC-START: finishSynchronization::{} activationSequence = {}", liveID, activationSequence);
+         logger.trace("BACKUP-SYNC-START: finishSynchronization::{} activationSequence = {}", primaryID, activationSequence);
       }
       for (JournalContent jc : EnumSet.allOf(JournalContent.class)) {
          Journal journal = journalsHolder.remove(jc);
@@ -463,19 +463,19 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
          }
       }
 
-      logger.trace("setRemoteBackupUpToDate and liveIDSet for {}", liveID);
+      logger.trace("setRemoteBackupUpToDate and primaryIDSet for {}", primaryID);
 
       journalsHolder = null;
-      eventListener.onRemoteBackupUpToDate(liveID, activationSequence);
+      eventListener.onRemoteBackupUpToDate(primaryID, activationSequence);
 
       logger.trace("Backup is synchronized / BACKUP-SYNC-DONE");
 
-      ActiveMQServerLogger.LOGGER.backupServerSynchronized(server, liveID);
+      ActiveMQServerLogger.LOGGER.backupServerSynchronized(server, primaryID);
       return;
    }
 
    /**
-    * Receives 'raw' journal/page/large-message data from live server for synchronization of logs.
+    * Receives 'raw' journal/page/large-message data from primary server for synchronization of logs.
     *
     * @param msg
     * @throws Exception
@@ -579,18 +579,21 @@ public final class ReplicationEndpoint implements ChannelHandler, ActiveMQCompon
             FileWrapperJournal syncJournal = new FileWrapperJournal(journal);
             registerJournal(journalContent.typeByte, syncJournal);
 
-            // We send a response now, to avoid a situation where we handle votes during the deactivation of the live during a failback.
+            /* We send a response now to avoid a situation where we handle votes during the deactivation of the primary
+             * during a failback.
+             */
             if (supportResponseBatching) {
                endOfBatch();
             }
             channel.send(replicationResponseMessage);
             replicationResponseMessage = null;
 
-            // This needs to be done after the response is sent, to avoid voting shutting it down for any reason.
+            // This needs to be done after the response is sent to avoid voting shutting it down for any reason.
             if (packet.getNodeID() != null) {
-               // At the start of replication, we still do not know which is the nodeID that the live uses.
-               // This is the point where the backup gets this information.
-               eventListener.onLiveNodeId(packet.getNodeID());
+               /* At the start of replication we still do not know which is the nodeID that the primary uses.
+                * This is the point where the backup gets this information.
+                */
+               eventListener.onPrimaryNodeId(packet.getNodeID());
             }
 
             break;

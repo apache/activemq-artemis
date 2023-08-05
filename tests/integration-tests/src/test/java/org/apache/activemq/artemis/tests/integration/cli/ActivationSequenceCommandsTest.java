@@ -67,26 +67,26 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
       super.tearDown();
    }
 
-   protected Configuration createLiveConfiguration() throws Exception {
+   protected Configuration createPrimaryConfiguration() throws Exception {
       Configuration conf = new ConfigurationImpl();
-      conf.setName("localhost::live");
+      conf.setName("localhost::primary");
 
-      File liveDir = brokersFolder.newFolder("live");
-      conf.setBrokerInstance(liveDir);
+      File primaryDir = brokersFolder.newFolder("primary");
+      conf.setBrokerInstance(primaryDir);
 
-      conf.addAcceptorConfiguration("live", "tcp://localhost:61616");
+      conf.addAcceptorConfiguration("primary", "tcp://localhost:61616");
       conf.addConnectorConfiguration("backup", "tcp://localhost:61617");
-      conf.addConnectorConfiguration("live", "tcp://localhost:61616");
+      conf.addConnectorConfiguration("primary", "tcp://localhost:61616");
 
       conf.setClusterUser("mycluster");
       conf.setClusterPassword("mypassword");
 
-      conf.setHAPolicyConfiguration(createReplicationLiveConfiguration());
+      conf.setHAPolicyConfiguration(createReplicationPrimaryConfiguration());
 
       ClusterConnectionConfiguration ccconf = new ClusterConnectionConfiguration();
       ccconf.setStaticConnectors(new ArrayList<>()).getStaticConnectors().add("backup");
       ccconf.setName("cluster");
-      ccconf.setConnectorName("live");
+      ccconf.setConnectorName("primary");
       conf.addClusterConfiguration(ccconf);
 
       conf.setSecurityEnabled(false).setJMXManagementEnabled(false).setJournalType(JournalType.MAPPED).setJournalFileSize(1024 * 512).setConnectionTTLOverride(60_000L);
@@ -121,7 +121,7 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
       return conf;
    }
 
-   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+   protected HAPolicyConfiguration createReplicationPrimaryConfiguration() {
       ReplicationPrimaryPolicyConfiguration haPolicy = ReplicationPrimaryPolicyConfiguration.withDefault();
       haPolicy.setDistributedManagerConfiguration(managerConfiguration);
       return haPolicy;
@@ -137,14 +137,14 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
    @Test
    public void restorePrimaryCoordinatedSequence() throws Exception {
       // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
-      final ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
+      final ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      liveServer.setIdentity("PRIMARY");
       liveServer.start();
       Wait.waitFor(liveServer::isStarted);
       final String nodeID = liveServer.getNodeID().toString();
       liveServer.stop();
-      restoreCoordinatedSequence(liveConfiguration, liveServer, nodeID, 1);
+      restoreCoordinatedSequence(primaryConfiguration, liveServer, nodeID, 1);
    }
 
    @Test
@@ -152,7 +152,7 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
 
       // start live
-      Configuration liveConfiguration = createLiveConfiguration();
+      Configuration liveConfiguration = createPrimaryConfiguration();
 
       ActiveMQServer primaryInstance = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
       primaryInstance.setIdentity("PRIMARY");
@@ -190,23 +190,23 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
 
    @Test
    public void restorePeerCoordinatedSequence() throws Exception {      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
-      ((ReplicationPrimaryPolicyConfiguration) liveConfiguration.getHAPolicyConfiguration()).setCoordinationId("peer-id");
-      final ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
+      ((ReplicationPrimaryPolicyConfiguration) primaryConfiguration.getHAPolicyConfiguration()).setCoordinationId("peer-id");
+      final ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      liveServer.setIdentity("PRIMARY");
       liveServer.start();
       Wait.waitFor(liveServer::isStarted);
       final String nodeID = liveServer.getNodeID().toString();
       liveServer.stop();
-      restoreCoordinatedSequence(liveConfiguration, liveServer, nodeID, 1);
+      restoreCoordinatedSequence(primaryConfiguration, liveServer, nodeID, 1);
    }
 
-   private void restoreCoordinatedSequence(Configuration liveConfiguration,
+   private void restoreCoordinatedSequence(Configuration primaryConfiguration,
                                            ActiveMQServer liveServer,
                                            String nodeID,
                                            final long expectedStartCoordinatedSequence) throws Exception {
       final ActivationSequenceList sequenceList = new ActivationSequenceList();
-      ActivationSequenceList.ListResult list = ActivationSequenceList.execute(sequenceList, liveConfiguration, null);
+      ActivationSequenceList.ListResult list = ActivationSequenceList.execute(sequenceList, primaryConfiguration, null);
       Assert.assertEquals(expectedStartCoordinatedSequence, list.coordinatedActivationSequence.longValue());
       Assert.assertEquals(expectedStartCoordinatedSequence, list.localActivationSequence.longValue());
       try (DistributedPrimitiveManager distributedPrimitiveManager = DistributedPrimitiveManager
@@ -220,12 +220,12 @@ public class ActivationSequenceCommandsTest extends ActiveMQTestBase {
             coordinatedActivationSequence.set(0);
          }
          sequenceList.remote = true;
-         Assert.assertEquals(0, ActivationSequenceList.execute(sequenceList, liveConfiguration, null)
+         Assert.assertEquals(0, ActivationSequenceList.execute(sequenceList, primaryConfiguration, null)
             .coordinatedActivationSequence.longValue());
          final ActivationSequenceSet sequenceSet = new ActivationSequenceSet();
          sequenceSet.remote = true;
          sequenceSet.value = expectedStartCoordinatedSequence;
-         ActivationSequenceSet.execute(sequenceSet, liveConfiguration, null);
+         ActivationSequenceSet.execute(sequenceSet, primaryConfiguration, null);
          liveServer.start();
          Wait.waitFor(liveServer::isStarted);
          Assert.assertTrue(liveServer.isActive());

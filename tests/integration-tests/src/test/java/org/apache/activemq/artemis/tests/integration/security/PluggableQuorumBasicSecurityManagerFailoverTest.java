@@ -41,20 +41,19 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
 
    @Override
    protected void createPluggableReplicatedConfigs() throws Exception {
-      final TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      final TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       final TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
       final TransportConfiguration backupAcceptor = getAcceptorTransportConfiguration(false);
 
       backupConfig = createDefaultInVMConfig();
-      liveConfig = createDefaultInVMConfig();
+      primaryConfig = createDefaultInVMConfig();
 
       DistributedPrimitiveManagerConfiguration managerConfiguration =
          new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(),
                                                       Collections.singletonMap("locks-folder",
                                                                                temporaryFolder.newFolder("manager").toString()));
 
-      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor,
-                                                                    liveConfig, liveConnector, null,
+      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null,
                                                                     managerConfiguration, managerConfiguration);
 
       backupConfig
@@ -71,15 +70,15 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
 
       backupServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
 
-      liveConfig
+      primaryConfig
          .setSecurityEnabled(true)
          .clearAcceptorConfigurations()
          .addAcceptorConfiguration(getAcceptorTransportConfiguration(true));
 
-      nodeManager = createNodeManager(liveConfig);
-      liveServer = createTestableServer(liveConfig, nodeManager);
+      nodeManager = createNodeManager(primaryConfig);
+      primaryServer = createTestableServer(primaryConfig, nodeManager);
 
-      liveServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
+      primaryServer.getServer().setSecurityManager(new ActiveMQBasicSecurityManager());
    }
 
    @Override
@@ -100,7 +99,7 @@ public class PluggableQuorumBasicSecurityManagerFailoverTest extends FailoverTes
    @Test
    public void testFailover() throws Exception {
 
-      liveServer.getServer().getActiveMQServerControl().addUser("foo", "bar", "baz", false);
+      primaryServer.getServer().getActiveMQServerControl().addUser("foo", "bar", "baz", false);
 
       ClientSessionFactory cf = createSessionFactory(getServerLocator());
       ClientSession session = null;

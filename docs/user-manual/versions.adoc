@@ -31,6 +31,17 @@ These settings are now no longer required.
 +
 Configure `defaultMqttSessionExpiryInterval` instead.
 
+* Due to https://issues.apache.org/jira/browse/ARTEMIS-3474[ARTEMIS-3474] the following configuration elements have changed wherever they occur (e.g. `broker.xml`, `bootstrap.xml`, etc.), although all the previous configurations will still be supported for the time being:
+** `master` -> `primary`
+** `slave` -> `backup`
+** `check-for-live-server` -> `check-for-active-server`
+** `whitelist` -> `allowlist`
+** `blacklist` -> `denylist`
+
++
+Additionally, references to these elements have also changed in the documentation and in management interfaces.
+Cluster topology information (e.g. returned from the `listNetworkTopology`) will contain both `primary` *and* `live` entries for nodes functioning as primary servers.
+
 == 2.31.2
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353776[Full release notes]
@@ -766,7 +777,7 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * Support xref:web-server.adoc#embedded-web-server[logging HTTP access].
 * Add a CLI command to purge a queue.
 * Support user and role manipulation for PropertiesLoginModule via management interfaces.
-* https://github.com/apache/activemq-artemis/tree/master/artemis-docker[Docker images].
+* https://github.com/apache/activemq-artemis/tree/main/artemis-docker[Docker images].
 * xref:logging.adoc#configuring-broker-audit-logging[Audit logging].
 * Implementing xref:consumer-priority.adoc#consumer-priority[consumer priority].
 * Support xref:address-model.adoc#fully-qualified-queue-names[FQQN] for producers.

@@ -27,8 +27,8 @@ import org.apache.activemq.artemis.core.config.ClusterConnectionConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServers;
 import org.apache.activemq.artemis.core.server.NodeManager;
@@ -92,7 +92,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
       }
 
       for (int i = 0; i < getNumberOfServers(); i++) {
-         Pair<ActiveMQServer, NodeManager> nodeServer = setupLiveServer(i, useRealFiles(), useSharedStorage());
+         Pair<ActiveMQServer, NodeManager> nodeServer = setupPrimaryServer(i, useRealFiles(), useSharedStorage());
          this.servers[i] = nodeServer.getA();
 
          if (useBackups()) {
@@ -145,9 +145,9 @@ public class MultiServerTestBase extends ActiveMQTestBase {
 
    }
 
-   protected Pair<ActiveMQServer, NodeManager> setupLiveServer(final int node,
-                                                               final boolean realFiles,
-                                                               final boolean sharedStorage) throws Exception {
+   protected Pair<ActiveMQServer, NodeManager> setupPrimaryServer(final int node,
+                                                                  final boolean realFiles,
+                                                                  final boolean sharedStorage) throws Exception {
       NodeManager nodeManager = null;
       TransportConfiguration serverConfigAcceptor = createTransportConfiguration(useNetty(), true, generateParams(node, useNetty()));
       TransportConfiguration thisConnector = createTransportConfiguration(useNetty(), false, generateParams(node, useNetty()));
@@ -156,7 +156,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
          nodeManager = new InVMNodeManager(false);
       }
 
-      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(sharedStorage ? new SharedStoreMasterPolicyConfiguration() : new ReplicatedPolicyConfiguration());
+      Configuration configuration = createBasicConfig(node).setJournalMaxIO_AIO(1000).setThreadPoolMaxSize(10).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(sharedStorage ? new SharedStorePrimaryPolicyConfiguration() : new ReplicatedPolicyConfiguration());
 
       List<String> targetServersOnConnection = new ArrayList<>();
 
@@ -189,7 +189,7 @@ public class MultiServerTestBase extends ActiveMQTestBase {
          server = createServer(realFiles, configuration);
       }
 
-      server.setIdentity(this.getClass().getSimpleName() + "/Live(" + node + ")");
+      server.setIdentity(this.getClass().getSimpleName() + "/Primary(" + node + ")");
 
       addServer(server);
 
@@ -197,12 +197,12 @@ public class MultiServerTestBase extends ActiveMQTestBase {
    }
 
    protected ActiveMQServer setupBackupServer(final int node,
-                                              final int liveNode,
+                                              final int primaryNode,
                                               final NodeManager nodeManager) throws Exception {
       TransportConfiguration serverConfigAcceptor = createTransportConfiguration(useNetty(), true, generateParams(node, useNetty()));
       TransportConfiguration thisConnector = createTransportConfiguration(useNetty(), false, generateParams(node, useNetty()));
 
-      Configuration configuration = createBasicConfig(useSharedStorage() ? liveNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(useSharedStorage() ? new SharedStoreSlavePolicyConfiguration() : new ReplicaPolicyConfiguration());
+      Configuration configuration = createBasicConfig(useSharedStorage() ? primaryNode : node).clearAcceptorConfigurations().addAcceptorConfiguration(serverConfigAcceptor).addConnectorConfiguration("thisConnector", thisConnector).setHAPolicyConfiguration(useSharedStorage() ? new SharedStoreBackupPolicyConfiguration() : new ReplicaPolicyConfiguration());
 
       List<String> targetServersOnConnection = new ArrayList<>();
 
@@ -225,11 +225,11 @@ public class MultiServerTestBase extends ActiveMQTestBase {
       ActiveMQServer server;
 
       if (useSharedStorage()) {
-         server = createInVMFailoverServer(true, configuration, nodeManager, liveNode);
+         server = createInVMFailoverServer(true, configuration, nodeManager, primaryNode);
       } else {
          server = addServer(ActiveMQServers.newActiveMQServer(configuration, useRealFiles()));
       }
-      server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of live " + liveNode + ")");
+      server.setIdentity(this.getClass().getSimpleName() + "/Backup(" + node + " of primary " + primaryNode + ")");
       return server;
    }
 

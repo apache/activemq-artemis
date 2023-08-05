@@ -42,9 +42,9 @@ public class DiscoveryClusterWithBackupFailoverTest extends ClusterWithBackupFai
    @Override
    protected void setupServers() throws Exception {
       // The lives
-      setupLiveServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), true);
-      setupLiveServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), true);
-      setupLiveServerWithDiscovery(2, groupAddress, groupPort, isFileStorage(), isNetty(), true);
+      setupPrimaryServerWithDiscovery(0, groupAddress, groupPort, isFileStorage(), isNetty(), true);
+      setupPrimaryServerWithDiscovery(1, groupAddress, groupPort, isFileStorage(), isNetty(), true);
+      setupPrimaryServerWithDiscovery(2, groupAddress, groupPort, isFileStorage(), isNetty(), true);
 
       // The backups
       setupBackupServerWithDiscovery(3, 0, groupAddress, groupPort, isFileStorage(), isNetty(), true);

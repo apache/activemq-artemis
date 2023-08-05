@@ -44,7 +44,7 @@ public class ReplicationPrimaryPolicyConfiguration implements HAPolicyConfigurat
 
    @Override
    public TYPE getType() {
-      return TYPE.PRIMARY;
+      return TYPE.REPLICATION_PRIMARY;
    }
 
    public String getGroupName() {

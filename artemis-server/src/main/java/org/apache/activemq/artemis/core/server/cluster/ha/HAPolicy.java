@@ -24,7 +24,7 @@ import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 
 /**
- * Every live server will have an HAPolicy that configures the type of server that it should be either live, backup or
+ * Every active server will have an HAPolicy that configures the type of server that it should be either primary, backup or
  * colocated (both). It also configures how, if colocated, it should react to sending and receiving requests for backups.
  */
 public interface HAPolicy<T extends Activation> {
@@ -33,7 +33,7 @@ public interface HAPolicy<T extends Activation> {
    * created the Activation associated with this policy.
    * */
    T createActivation(ActiveMQServerImpl server,
-                      boolean wasLive,
+                      boolean wasPrimary,
                       Map<String, Object> activationParams,
                       IOCriticalErrorListener shutdownOnCriticalIO) throws Exception;
 

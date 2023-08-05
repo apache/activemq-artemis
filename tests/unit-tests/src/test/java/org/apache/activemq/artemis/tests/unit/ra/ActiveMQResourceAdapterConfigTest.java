@@ -414,8 +414,20 @@ public class ActiveMQResourceAdapterConfigTest extends ActiveMQTestBase {
       "         <config-property-value></config-property-value>" +
       "      </config-property>" +
       "      <config-property>" +
+      "         <description>List of package/class names against which matching objects are permitted to be deserialized</description>" +
+      "         <config-property-name>DeserializationAllowList</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
       "         <description>List of package/class names against which matching objects are forbidden to be deserialized</description>" +
       "         <config-property-name>DeserializationBlackList</config-property-name>" +
+      "         <config-property-type>java.lang.String</config-property-type>" +
+      "         <config-property-value></config-property-value>" +
+      "      </config-property>" +
+      "      <config-property>" +
+      "         <description>List of package/class names against which matching objects are forbidden to be deserialized</description>" +
+      "         <config-property-name>DeserializationDenyList</config-property-name>" +
       "         <config-property-type>java.lang.String</config-property-type>" +
       "         <config-property-value></config-property-value>" +
       "      </config-property>" +

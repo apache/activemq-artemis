@@ -16,7 +16,7 @@
  */
 package org.apache.activemq.artemis.tests.integration.cluster.distribution;
 
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Test;
@@ -460,22 +460,22 @@ public class SymmetricClusterWithBackupTest extends SymmetricClusterTest {
       setupBackupServer(9, 4, isFileStorage(), HAType.SharedStore, isNetty());
 
       // The lives
-      setupLiveServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(2, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
-      setupLiveServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(0, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(2, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(3, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(4, isFileStorage(), HAType.SharedStore, isNetty(), false);
    }
 
    @Override
    protected void startServers() throws Exception {
       // Need to set backup, since when restarting backup after it has failed over, backup will have been set to false
 
-      getServer(5).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
-      getServer(6).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
-      getServer(7).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
-      getServer(8).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
-      getServer(9).getConfiguration().setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration());
+      getServer(5).getConfiguration().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration());
+      getServer(6).getConfiguration().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration());
+      getServer(7).getConfiguration().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration());
+      getServer(8).getConfiguration().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration());
+      getServer(9).getConfiguration().setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration());
 
       startServers(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
    }

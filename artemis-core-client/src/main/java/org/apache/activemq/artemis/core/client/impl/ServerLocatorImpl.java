@@ -379,7 +379,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    /**
-    * Create a ServerLocatorImpl using a static list of live servers
+    * Create a ServerLocatorImpl using a static list of servers
     *
     * @param transportConfigs
     */
@@ -402,7 +402,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
    }
 
    /**
-    * Create a ServerLocatorImpl using a static list of live servers
+    * Create a ServerLocatorImpl using a static list of servers
     *
     * @param transportConfigs
     */
@@ -607,14 +607,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
       if (topologyMember == null) {
          return null;
       }
-      if (topologyMember.getLive() != null) {
-         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getLive());
+      if (topologyMember.getPrimary() != null) {
+         ClientSessionFactoryInternal factory = (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getPrimary());
          if (topologyMember.getBackup() != null) {
-            factory.setBackupConnector(topologyMember.getLive(), topologyMember.getBackup());
+            factory.setBackupConnector(topologyMember.getPrimary(), topologyMember.getBackup());
          }
          return factory;
       }
-      if (topologyMember.getLive() == null && topologyMember.getBackup() != null) {
+      if (topologyMember.getPrimary() == null && topologyMember.getBackup() != null) {
          // This shouldn't happen, however I wanted this to consider all possible cases
          return (ClientSessionFactoryInternal) createSessionFactory(topologyMember.getBackup());
       }
@@ -1548,14 +1548,14 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
 
       TopologyMember actMember = topology.getMember(nodeID);
 
-      if (actMember != null && actMember.getLive() != null && actMember.getBackup() != null) {
+      if (actMember != null && actMember.getPrimary() != null && actMember.getBackup() != null) {
          HashSet<ClientSessionFactory> clonedFactories = new HashSet<>();
          synchronized (factories) {
             clonedFactories.addAll(factories);
          }
 
          for (ClientSessionFactory factory : clonedFactories) {
-            ((ClientSessionFactoryInternal) factory).setBackupConnector(actMember.getLive(), actMember.getBackup());
+            ((ClientSessionFactoryInternal) factory).setBackupConnector(actMember.getPrimary(), actMember.getBackup());
          }
       }
 
@@ -1597,7 +1597,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          Collection<TopologyMemberImpl> membersCopy = topology.getMembers();
 
          if (membersCopy.size() == 0) {
-            //it could happen when live is down, in that case we keeps the old copy
+            //it could happen when primary is down, in that case we keeps the old copy
             //and don't update
             return;
          }

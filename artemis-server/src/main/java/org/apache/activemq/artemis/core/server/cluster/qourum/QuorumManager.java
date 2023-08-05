@@ -176,30 +176,30 @@ public final class QuorumManager implements ClusterTopologyListener, ActiveMQCom
       }
    }
 
-   public boolean hasLive(String nodeID, int quorumSize, int voteTimeout, TimeUnit voteTimeoutUnit) {
+   public boolean hasPrimary(String nodeID, int quorumSize, int voteTimeout, TimeUnit voteTimeoutUnit) {
       Objects.requireNonNull(nodeID, "nodeID");
       if (!started) {
          throw new IllegalStateException("QuorumManager must start first");
       }
       int size = quorumSize == -1 ? maxClusterSize : quorumSize;
       QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, nodeID);
-      // A positive decision means that there is no live with nodeID
-      boolean noLive = awaitVoteComplete(quorumVote, voteTimeout, voteTimeoutUnit);
-      return !noLive;
+      // A positive decision means that there is no primary with nodeID
+      boolean noPrimary = awaitVoteComplete(quorumVote, voteTimeout, voteTimeoutUnit);
+      return !noPrimary;
    }
 
-   public boolean isStillLive(String nodeID,
-                              TransportConfiguration liveConnector,
-                              int quorumSize,
-                              int voteTimeout,
-                              TimeUnit voteTimeoutUnit) {
+   public boolean isStillActive(String nodeID,
+                                TransportConfiguration connector,
+                                int quorumSize,
+                                int voteTimeout,
+                                TimeUnit voteTimeoutUnit) {
       Objects.requireNonNull(nodeID, "nodeID");
-      Objects.requireNonNull(liveConnector, "liveConnector");
+      Objects.requireNonNull(connector, "connector");
       if (!started) {
          throw new IllegalStateException("QuorumManager must start first");
       }
       int size = quorumSize == -1 ? maxClusterSize : quorumSize;
-      QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, nodeID, true, liveConnector.toString());
+      QuorumVoteServerConnect quorumVote = new QuorumVoteServerConnect(size, nodeID, true, connector.toString());
       return awaitVoteComplete(quorumVote, voteTimeout, voteTimeoutUnit);
    }
 

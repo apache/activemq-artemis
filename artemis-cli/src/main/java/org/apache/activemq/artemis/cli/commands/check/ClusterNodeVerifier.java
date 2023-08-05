@@ -86,10 +86,10 @@ public class ClusterNodeVerifier implements AutoCloseable {
 
       mainTopology.forEach((a, b) -> {
          try {
-            context.out.println("--> Verifying Topology for NodeID " + b.nodeID + ", live = " + b.live + ", backup = " + b.backup);
-            if (b.live != null) {
-               context.out.println("   verification on live " + b.live);
-               if (!subVerify(context, b.live, mainTopology)) {
+            context.out.println("--> Verifying Topology for NodeID " + b.nodeID + ", primary = " + b.primary + ", backup = " + b.backup);
+            if (b.primary != null) {
+               context.out.println("   verification on primary " + b.primary);
+               if (!subVerify(context, b.primary, mainTopology)) {
                   verificationResult.set(false);
                } else {
                   context.out.println("   ok!");
@@ -115,14 +115,14 @@ public class ClusterNodeVerifier implements AutoCloseable {
       if (supportTime) {
          Long[] times = fetchTopologyTime(mainTopology);
 
-         context.out.printf(FORMAT, "nodeID", "live", "live local time", "backup");
+         context.out.printf(FORMAT, "nodeID", "primary", "primary local time", "backup");
          context.out.println();
          SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
          long initialTime = System.currentTimeMillis();
 
          mainTopology.forEach((id, node) -> {
-            context.out.printf(FORMAT, id, node.live, formatDate(sdf, node.liveTime), node.backup);
+            context.out.printf(FORMAT, id, node.primary, formatDate(sdf, node.primaryTime), node.backup);
             context.out.println();
          });
 
@@ -169,13 +169,13 @@ public class ClusterNodeVerifier implements AutoCloseable {
    protected Long[] fetchTopologyTime(Map<String, TopologyItem> topologyItemMap) {
       ArrayList<Long> times = new ArrayList<>(topologyItemMap.size() * 2);
       topologyItemMap.forEach((id, node) -> {
-         if (node.live != null) {
+         if (node.primary != null) {
             try {
-               node.liveTime = fetchTime(node.live);
-               times.add(node.liveTime);
+               node.primaryTime = fetchTime(node.primary);
+               times.add(node.primaryTime);
             } catch (Exception e) {
-               ActionContext.system().err.println("Cannot fetch liveTime for nodeID=" + id + ", url=" + node.live + " -> " + e.getMessage());
-               node.liveTime = 0;
+               ActionContext.system().err.println("Cannot fetch liveTime for nodeID=" + id + ", url=" + node.primary + " -> " + e.getMessage());
+               node.primaryTime = 0;
             }
          }
       });
@@ -233,7 +233,7 @@ public class ClusterNodeVerifier implements AutoCloseable {
       context.out.printf(prefix + "%-40s | %-25s | %-25s", "nodeID", "live", "backup");
       context.out.println();
       navigateTopology(topology, t -> {
-         context.out.printf(prefix + "%-40s | %-25s | %-25s", t.nodeID, t.live, t.backup);
+         context.out.printf(prefix + "%-40s | %-25s | %-25s", t.nodeID, t.primary, t.backup);
          context.out.println();
       });
    }
@@ -241,10 +241,10 @@ public class ClusterNodeVerifier implements AutoCloseable {
    private void navigateTopology(JsonArray topology, Consumer<TopologyItem> consumer) {
       for (int i = 0; i < topology.size(); i++) {
          JsonObject node = topology.getJsonObject(i);
-         JsonString live = node.getJsonString("live");
+         JsonString primary = node.getJsonString("primary");
          JsonString backup = node.getJsonString("backup");
          String nodeID = node.getString("nodeID");
-         TopologyItem item = new TopologyItem(nodeID, live != null ? live.getString() : null, backup != null ? backup.getString() : null);
+         TopologyItem item = new TopologyItem(nodeID, primary != null ? primary.getString() : null, backup != null ? backup.getString() : null);
          consumer.accept(item);
       }
    }
@@ -258,8 +258,8 @@ public class ClusterNodeVerifier implements AutoCloseable {
    }
 
    protected long fetchTime(String uri) throws Exception {
-      SimpleManagement liveManagement = new SimpleManagement(uri, user, password);
-      return liveManagement.getCurrentTimeMillis();
+      SimpleManagement management = new SimpleManagement(uri, user, password);
+      return management.getCurrentTimeMillis();
    }
 
    protected JsonArray fetchMainTopology() throws Exception {
@@ -267,22 +267,22 @@ public class ClusterNodeVerifier implements AutoCloseable {
    }
 
    protected JsonArray fetchTopology(String uri) throws Exception {
-      SimpleManagement liveManagement = new SimpleManagement(uri, user, password);
-      return liveManagement.listNetworkTopology();
+      SimpleManagement management = new SimpleManagement(uri, user, password);
+      return management.listNetworkTopology();
    }
 
    public static class TopologyItem {
 
-      final String nodeID, live, backup;
+      final String nodeID, primary, backup;
 
-      long liveTime, backupTime;
+      long primaryTime, backupTime;
 
-      TopologyItem(String nodeID, String live, String backup) {
+      TopologyItem(String nodeID, String primary, String backup) {
          this.nodeID = nodeID;
-         if (live != null) {
-            this.live = "tcp://" + live;
+         if (primary != null) {
+            this.primary = "tcp://" + primary;
          } else {
-            this.live = null;
+            this.primary = null;
          }
          if (backup != null) {
             this.backup = "tcp://" + backup;
@@ -302,7 +302,7 @@ public class ClusterNodeVerifier implements AutoCloseable {
 
          if (nodeID != null ? !nodeID.equals(item.nodeID) : item.nodeID != null)
             return false;
-         if (live != null ? !live.equals(item.live) : item.live != null)
+         if (primary != null ? !primary.equals(item.primary) : item.primary != null)
             return false;
          return backup != null ? backup.equals(item.backup) : item.backup == null;
       }
@@ -310,14 +310,14 @@ public class ClusterNodeVerifier implements AutoCloseable {
       @Override
       public int hashCode() {
          int result = nodeID != null ? nodeID.hashCode() : 0;
-         result = 31 * result + (live != null ? live.hashCode() : 0);
+         result = 31 * result + (primary != null ? primary.hashCode() : 0);
          result = 31 * result + (backup != null ? backup.hashCode() : 0);
          return result;
       }
 
       @Override
       public String toString() {
-         return "TopologyItem{" + "nodeID='" + nodeID + '\'' + ", live='" + live + '\'' + ", backup='" + backup + '\'' + '}';
+         return "TopologyItem{" + "nodeID='" + nodeID + '\'' + ", primary='" + primary + '\'' + ", backup='" + backup + '\'' + '}';
       }
    }
 }

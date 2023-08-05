@@ -55,9 +55,9 @@ Whilst this setup is cheap in regards to connections, it is brittle, in that if 
 .Address Federation - Fan Out
 image::images/federation-address-fan-out.png[]
 
-One master address (it would required no configuration) is linked to by a tree of downstream federated addresses,  the tree can extend to any depth, and can be extended to without needing to re-configure existing brokers.
+One main address (it would required no configuration) is linked to by a tree of downstream federated addresses,  the tree can extend to any depth, and can be extended to without needing to re-configure existing brokers.
 
-In this case messages published to the master address can be received by any consumer connected to any broker in the tree.
+In this case messages published to the main address can be received by any consumer connected to any broker in the tree.
 
 === Divert Binding Support
 
@@ -121,14 +121,14 @@ Both upstreams are configured with the same address-policy `news-address-federat
 Let's take a look at all the `address-policy` parameters in turn, in order of priority.
 
 name::
- attribute.
 All address-policies must have a unique name in the server.
 include::
- the address-match pattern to whitelist addresses, multiple of these can be set.
+The address-match pattern to include addresses.
+Multiple of these can be set.
 If none are set all addresses are matched.
 exclude::
- the address-match pattern to blacklist addresses, multiple of these can be set.
-
+The address-match pattern to exclude addresses.
+Multiple of these can be set.
 max-hops::
 The number of hops that a message can have made for it to be federated, see <<topology-patterns,Topology Patterns>> above for more details.
 

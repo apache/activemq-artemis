@@ -36,11 +36,11 @@ public class ScaleDownDeterminism extends ClusterTestBase {
    @Before
    public void setUp() throws Exception {
       super.setUp();
-      setupLiveServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupPrimaryServer(0, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[0].getConfiguration().setSecurityEnabled(true);
-      setupLiveServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupPrimaryServer(1, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[1].getConfiguration().setSecurityEnabled(true);
-      setupLiveServer(2, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
+      setupPrimaryServer(2, isFileStorage(), HAType.SharedNothingReplication, isNetty(), true);
       servers[2].getConfiguration().setSecurityEnabled(true);
 
       setupClusterConnection("cluster0", "testAddress", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1, 2);

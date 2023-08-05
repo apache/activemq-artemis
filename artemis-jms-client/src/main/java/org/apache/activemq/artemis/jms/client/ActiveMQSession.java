@@ -690,12 +690,22 @@ public class ActiveMQSession implements QueueSession, TopicSession {
       return internalCreateSharedConsumer(localTopic, name, messageSelector, ConsumerDurability.DURABLE);
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
-      return connection.getDeserializationBlackList();
+      return getDeserializationDenyList();
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
-      return connection.getDeserializationWhiteList();
+      return getDeserializationAllowList();
+   }
+
+   public String getDeserializationDenyList() {
+      return connection.getDeserializationDenyList();
+   }
+
+   public String getDeserializationAllowList() {
+      return connection.getDeserializationAllowList();
    }
 
    enum ConsumerDurability {

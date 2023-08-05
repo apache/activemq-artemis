@@ -78,8 +78,8 @@ public class RedirectTest extends RoutingTestBase {
    public void testSimpleRedirect() throws Exception {
       final String queueName = "RedirectTestQueue";
 
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      setupLiveServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       if (CLUSTER_POOL.equals(pool)) {
          setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
          setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
@@ -167,11 +167,11 @@ public class RedirectTest extends RoutingTestBase {
       QueueControl[] queueControls = new QueueControl[targets + 1];
 
       nodes[0] = 0;
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       for (int i = 0; i < targets; i++) {
          nodes[i + 1] = i + 1;
          targetNodes[i] = i + 1;
-         setupLiveServerWithDiscovery(i + 1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+         setupPrimaryServerWithDiscovery(i + 1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       }
 
       if (CLUSTER_POOL.equals(pool)) {
@@ -259,8 +259,8 @@ public class RedirectTest extends RoutingTestBase {
    public void testSymmetricRedirect() throws Exception {
       final String queueName = "RedirectTestQueue";
 
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      setupLiveServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       if (CLUSTER_POOL.equals(pool)) {
          setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
          setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
@@ -332,9 +332,9 @@ public class RedirectTest extends RoutingTestBase {
    public void testRedirectAfterFailure() throws Exception {
       final String queueName = "RedirectTestQueue";
 
-      setupLiveServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      setupLiveServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
-      setupLiveServerWithDiscovery(2, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(0, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(1, GROUP_ADDRESS, GROUP_PORT, true, true, false);
+      setupPrimaryServerWithDiscovery(2, GROUP_ADDRESS, GROUP_PORT, true, true, false);
       if (CLUSTER_POOL.equals(pool)) {
          setupDiscoveryClusterConnection("cluster0", 0, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);
          setupDiscoveryClusterConnection("cluster1", 1, "dg1", "queues", MessageLoadBalancingType.OFF, 1, true);

@@ -46,25 +46,25 @@ public abstract class MultipleBackupsFailoverTestBase extends ActiveMQTestBase {
 
    protected abstract boolean isNetty();
 
-   protected int waitForNewLive(long seconds,
-                                boolean waitForNewBackup,
-                                Map<Integer, TestableServer> servers,
-                                int... nodes) {
+   protected int waitForNewPrimary(long seconds,
+                                   boolean waitForNewBackup,
+                                   Map<Integer, TestableServer> servers,
+                                   int... nodes) {
       long time = System.currentTimeMillis();
       long toWait = seconds * 1000;
-      int newLive = -1;
+      int newPrimary = -1;
       while (true) {
          for (int node : nodes) {
             TestableServer backupServer = servers.get(node);
-            if (newLive == -1 && backupServer.isActive()) {
-               newLive = node;
-            } else if (newLive != -1) {
+            if (newPrimary == -1 && backupServer.isActive()) {
+               newPrimary = node;
+            } else if (newPrimary != -1) {
                if (waitForNewBackup) {
-                  if (node != newLive && servers.get(node).isStarted()) {
-                     return newLive;
+                  if (node != newPrimary && servers.get(node).isStarted()) {
+                     return newPrimary;
                   }
                } else {
-                  return newLive;
+                  return newPrimary;
                }
             }
          }

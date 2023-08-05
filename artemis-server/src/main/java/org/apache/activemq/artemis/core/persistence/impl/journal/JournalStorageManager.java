@@ -56,7 +56,7 @@ import org.apache.activemq.artemis.core.paging.PagingStore;
 import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.LargeMessagePersister;
 import org.apache.activemq.artemis.core.persistence.impl.journal.codec.RefEncoding;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
 import org.apache.activemq.artemis.core.replication.ReplicatedJournal;
 import org.apache.activemq.artemis.core.replication.ReplicationManager;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
@@ -290,12 +290,12 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          try {
 
             // We cache the variable as the replicator could be changed between here and the time we call stop
-            // since sendLiveIsStopping may issue a close back from the channel
+            // since sendPrimaryIsStopping may issue a close back from the channel
             // and we want to ensure a stop here just in case
             ReplicationManager replicatorInUse = replicator;
             if (replicatorInUse != null) {
                if (sendFailover) {
-                  final OperationContext token = replicator.sendLiveIsStopping(ReplicationLiveIsStoppingMessage.LiveStopping.FAIL_OVER);
+                  final OperationContext token = replicator.sendPrimaryIsStopping(ReplicationPrimaryIsStoppingMessage.PrimaryStopping.FAIL_OVER);
                   if (token != null) {
                      try {
                         token.waitCompletion(5000);
@@ -626,11 +626,11 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
             replicator = replicationManager;
 
             if (!((JournalImpl) originalMessageJournal).flushAppendExecutor(10, TimeUnit.SECONDS)) {
-               throw new Exception("Live message journal is busy");
+               throw new Exception("Primary message journal is busy");
             }
 
             if (!((JournalImpl) originalBindingsJournal).flushAppendExecutor(10, TimeUnit.SECONDS)) {
-               throw new Exception("Live bindings journal is busy");
+               throw new Exception("Primary bindings journal is busy");
             }
 
             // Establishes lock

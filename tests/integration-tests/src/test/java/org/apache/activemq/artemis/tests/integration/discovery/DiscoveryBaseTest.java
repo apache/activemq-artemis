@@ -180,11 +180,11 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void awaitLiveNode() {
+      public void awaitPrimaryNode() {
       }
 
       @Override
-      public void awaitLiveStatus() {
+      public void awaitActiveStatus() {
       }
 
       @Override
@@ -192,17 +192,17 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       }
 
       @Override
-      public ActivateCallback startLiveNode() {
+      public ActivateCallback startPrimaryNode() {
          return new CleaningActivateCallback() {
          };
       }
 
       @Override
-      public void pauseLiveServer() {
+      public void pausePrimaryServer() {
       }
 
       @Override
-      public void crashLiveServer() {
+      public void crashPrimaryServer() {
       }
 
       @Override
@@ -220,7 +220,7 @@ public class DiscoveryBaseTest extends ActiveMQTestBase {
       }
 
       @Override
-      public boolean isBackupLive() {
+      public boolean isBackupActive() {
          return false;
       }
 

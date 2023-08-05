@@ -86,23 +86,23 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221005, value = "Deleting pending large message as it was not completed: {}", level = LogMessage.Level.INFO)
    void deletingPendingMessage(Pair<Long, Long> msgToDelete);
 
-   @LogMessage(id = 221006, value = "Waiting to obtain live lock", level = LogMessage.Level.INFO)
-   void awaitingLiveLock();
+   @LogMessage(id = 221006, value = "Waiting to obtain primary lock", level = LogMessage.Level.INFO)
+   void awaitingPrimaryLock();
 
-   @LogMessage(id = 221007, value = "Server is now live", level = LogMessage.Level.INFO)
-   void serverIsLive();
+   @LogMessage(id = 221007, value = "Server is now active", level = LogMessage.Level.INFO)
+   void serverIsActive();
 
-   @LogMessage(id = 221008, value = "live server wants to restart, restarting server in backup", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221008, value = "primary server wants to restart, restarting server in backup", level = LogMessage.Level.INFO)
    void awaitFailBack();
 
-   @LogMessage(id = 221109, value = "Apache ActiveMQ Artemis Backup Server version {} [{}] started, waiting live to fail before it gets active", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221109, value = "Apache ActiveMQ Artemis Backup Server version {} [{}] started; waiting for primary to fail before activating", level = LogMessage.Level.INFO)
    void backupServerStarted(String version, SimpleString nodeID);
 
-   @LogMessage(id = 221010, value = "Backup Server is now live", level = LogMessage.Level.INFO)
-   void backupServerIsLive();
+   @LogMessage(id = 221010, value = "Backup Server is now active", level = LogMessage.Level.INFO)
+   void backupServerIsActive();
 
-   @LogMessage(id = 221011, value = "Server {} is now live", level = LogMessage.Level.INFO)
-   void serverIsLive(String identity);
+   @LogMessage(id = 221011, value = "Server {} is now active", level = LogMessage.Level.INFO)
+   void serverIsActive(String identity);
 
    @LogMessage(id = 221012, value = "Using AIO Journal", level = LogMessage.Level.INFO)
    void journalUseAIO();
@@ -140,8 +140,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221023, value = "unable to stop connector service: {}", level = LogMessage.Level.INFO)
    void errorStoppingConnectorService(String name, Throwable e);
 
-   @LogMessage(id = 221024, value = "Backup server {} is synchronized with live server, nodeID={}.", level = LogMessage.Level.INFO)
-   void backupServerSynchronized(ActiveMQServerImpl server, String liveID);
+   @LogMessage(id = 221024, value = "Backup server {} is synchronized with primary server, nodeID={}.", level = LogMessage.Level.INFO)
+   void backupServerSynchronized(ActiveMQServerImpl server, String nodeID);
 
    @LogMessage(id = 221025, value = "Replication: sending {} (size={}) to replica.", level = LogMessage.Level.INFO)
    void replicaSyncFile(SequentialFile jf, Long size);
@@ -170,11 +170,11 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221033, value = "** got backup lock", level = LogMessage.Level.INFO)
    void gotBackupLock();
 
-   @LogMessage(id = 221034, value = "Waiting {} to obtain live lock", level = LogMessage.Level.INFO)
-   void waitingToObtainLiveLock(String timeoutMessage);
+   @LogMessage(id = 221034, value = "Waiting {} to obtain primary lock", level = LogMessage.Level.INFO)
+   void waitingToObtainPrimaryLock(String timeoutMessage);
 
-   @LogMessage(id = 221035, value = "Live Server Obtained live lock", level = LogMessage.Level.INFO)
-   void obtainedLiveLock();
+   @LogMessage(id = 221035, value = "Primary Server Obtained primary lock", level = LogMessage.Level.INFO)
+   void obtainedPrimaryLock();
 
    @LogMessage(id = 221036, value = "Message with duplicate ID {} was already set at {}. Move from {} being ignored and message removed from {}", level = LogMessage.Level.INFO)
    void messageWithDuplicateID(Object duplicateProperty,
@@ -182,13 +182,13 @@ public interface ActiveMQServerLogger {
                                SimpleString address,
                                SimpleString simpleString);
 
-   @LogMessage(id = 221037, value = "{} to become 'live'", level = LogMessage.Level.INFO)
-   void becomingLive(ActiveMQServer server);
+   @LogMessage(id = 221037, value = "{} to become 'active'", level = LogMessage.Level.INFO)
+   void becomingActive(ActiveMQServer server);
 
-   @LogMessage(id = 221038, value = "Configuration option '{}' is deprecated. Consult the manual for details.", level = LogMessage.Level.INFO)
-   void deprecatedConfigurationOption(String deprecatedOption);
+   @LogMessage(id = 221038, value = "Configuration option '{}' is deprecated and will be removed in a future version. Use '{}' instead. Consult the manual for details.", level = LogMessage.Level.INFO)
+   void deprecatedConfigurationOption(String deprecatedOption, String alternative);
 
-   @LogMessage(id = 221039, value = "Restarting as Replicating backup server after live restart", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221039, value = "Restarting as replicating backup server after primary restart", level = LogMessage.Level.INFO)
    void restartingReplicatedBackupAfterFailback();
 
    @LogMessage(id = 221040, value = "Remote group coordinators has not started.", level = LogMessage.Level.INFO)
@@ -209,7 +209,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221046, value = "Unblocking message production on address '{}'; {}", level = LogMessage.Level.INFO)
    void unblockingMessageProduction(SimpleString addressName, String sizeInfo);
 
-   @LogMessage(id = 221047, value = "Backup Server has scaled down to live server", level = LogMessage.Level.INFO)
+   @LogMessage(id = 221047, value = "Backup Server has scaled down to primary server", level = LogMessage.Level.INFO)
    void backupServerScaledDown();
 
    @LogMessage(id = 221048, value = "Consumer {}:{} attached to queue '{}' from {} identified as 'slow.' Expected consumption rate: {} msgs/second; actual consumption rate: {} msgs/second.", level = LogMessage.Level.INFO)
@@ -223,8 +223,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 221049, value = "Activating Replica for node: {}", level = LogMessage.Level.INFO)
    void activatingReplica(SimpleString nodeID);
 
-   @LogMessage(id = 221050, value = "Activating Shared Store Slave", level = LogMessage.Level.INFO)
-   void activatingSharedStoreSlave();
+   @LogMessage(id = 221050, value = "Activating Shared Store Backup", level = LogMessage.Level.INFO)
+   void activatingSharedStoreBackup();
 
    @LogMessage(id = 221051, value = "Populating security roles from LDAP at: {}", level = LogMessage.Level.INFO)
    void populatingSecurityRolesFromLDAP(String url);
@@ -871,8 +871,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 222188, value = "Unable to find target queue for node {}", level = LogMessage.Level.WARN)
    void unableToFindTargetQueue(String targetNodeID);
 
-   @LogMessage(id = 222189, value = "Failed to activate shared store slave", level = LogMessage.Level.WARN)
-   void activateSharedStoreSlaveFailed(Throwable e);
+   @LogMessage(id = 222189, value = "Failed to activate shared store backup", level = LogMessage.Level.WARN)
+   void activateSharedStoreBackupFailed(Throwable e);
 
    @LogMessage(id = 222191, value = "Could not find any configured role for user {}.", level = LogMessage.Level.WARN)
    void cannotFindRoleForUser(String user);
@@ -1374,7 +1374,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224055, value = "Bridge Failed to ack", level = LogMessage.Level.ERROR)
    void bridgeFailedToAck(Throwable t);
 
-   @LogMessage(id = 224056, value = "Live server will not fail-back automatically", level = LogMessage.Level.ERROR)
+   @LogMessage(id = 224056, value = "Primary server will not fail-back automatically", level = LogMessage.Level.ERROR)
    void autoFailBackDenied();
 
    @LogMessage(id = 224057, value = "Backup server that requested fail-back was not announced. Server will not stop for fail-back.", level = LogMessage.Level.ERROR)
@@ -1496,8 +1496,8 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224097, value = "Failed to start server", level = LogMessage.Level.ERROR)
    void failedToStartServer(Throwable t);
 
-   @LogMessage(id = 224098, value = "Received a vote saying the backup is live with connector: {}", level = LogMessage.Level.INFO)
-   void quorumBackupIsLive(String liveConnector);
+   @LogMessage(id = 224098, value = "Received a vote saying the backup is active with connector: {}", level = LogMessage.Level.INFO)
+   void quorumBackupIsActive(String connector);
 
    @LogMessage(id = 224099, value = "Message with ID {} has a header too large. More information available on debug level for class {}", level = LogMessage.Level.WARN)
    void messageWithHeaderTooLarge(Long messageID, String loggerClass);

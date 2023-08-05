@@ -248,7 +248,7 @@ public class GCPauseSimulationTests extends PluggableQuorumVoteTestBase {
       // restart artemis-backup
       service.start(artemisBackup);
 
-      // wait for artemis-primary to became live again and accept connections
+      // wait for artemis-primary to became primary again and accept connections
       service.waitForServerToStart(artemisPrimary, CONNECTION_USER, CONNECTION_PASSWORD, 20_000);
 
       // ensure artemis-primary is the live

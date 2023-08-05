@@ -282,7 +282,7 @@ public interface ActiveMQServerControl {
    void setMessageCounterSamplePeriod(long newPeriod) throws Exception;
 
    /**
-    * Returns {@code true} if this server is a backup, {@code false} if it is a live server.
+    * Returns {@code true} if this server is a backup, {@code false} if it is a primary server.
     * <br>
     * If a backup server has been activated, returns {@code false}.
     */
@@ -290,9 +290,9 @@ public interface ActiveMQServerControl {
    boolean isBackup();
 
    /**
-    * Returns whether this server shares its data store with a corresponding live or backup server.
+    * Returns whether this server shares its data store with a corresponding primary or backup server.
     */
-   @Attribute(desc = "Whether this server shares its data store with a corresponding live or backup serve")
+   @Attribute(desc = "Whether this server shares its data store with a corresponding primary or backup serve")
    boolean isSharedStore();
 
    /**
@@ -468,7 +468,7 @@ public interface ActiveMQServerControl {
 
    /**
     * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
-    * either the live or backup server.
+    * either the primary or backup server.
     */
    @Attribute(desc = "Whether the initial replication synchronization process with the backup server is complete")
    boolean isReplicaSync();

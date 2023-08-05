@@ -360,10 +360,10 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which creates session factories from a set of live servers, no HA
+    * Create a ServerLocator which creates session factories from a set of active servers, no HA
     * backup information is propagated to the client
     * <p>
-    * The UDP address and port are used to listen for live servers in the cluster
+    * The UDP address and port are used to listen for active servers in the cluster
     *
     * @param groupConfiguration
     * @return the ServerLocator
@@ -373,9 +373,9 @@ public final class ActiveMQClient {
    }
 
    /**
-    * Create a ServerLocator which creates session factories from a set of live servers, no HA
+    * Create a ServerLocator which creates session factories from a set of active servers, no HA
     * backup information is propagated to the client The UDP address and port are used to listen for
-    * live servers in the cluster
+    * active servers in the cluster
     *
     * @param ha                 The Locator will support topology updates and ha (this required the server to be
     *                           clustered, otherwise the first connection will timeout)
@@ -396,7 +396,7 @@ public final class ActiveMQClient {
     * downloaded and automatically updated whenever the cluster topology changes.
     * <p>
     * If the topology includes backup servers that information is also propagated to the client so
-    * that it can know which server to failover onto in case of live server failure.
+    * that it can know which server to failover onto in case of active server failure.
     *
     * @param initialServers The initial set of servers used to make a connection to the cluster.
     *                       Each one is tried in turn until a successful connection is made. Once a connection
@@ -418,7 +418,7 @@ public final class ActiveMQClient {
     * updated whenever the cluster topology changes.
     * <p>
     * If the topology includes backup servers that information is also propagated to the client so
-    * that it can know which server to failover onto in case of live server failure.
+    * that it can know which server to failover onto in case of active server failure.
     *
     * @param groupConfiguration
     * @return the ServerLocator

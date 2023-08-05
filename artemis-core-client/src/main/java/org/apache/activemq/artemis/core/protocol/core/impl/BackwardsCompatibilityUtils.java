@@ -163,9 +163,9 @@ public class BackwardsCompatibilityUtils {
    public static Pair<TransportConfiguration, TransportConfiguration> checkTCPPairConversion(int clientIncrementingVersion,
                                                                                              TopologyMember member) {
       if (clientIncrementingVersion < INITIAL_ACTIVEMQ_INCREMENTING_VERSION) {
-         return new Pair<>(convertTransport(member.getLive()), convertTransport(member.getBackup()));
+         return new Pair<>(convertTransport(member.getPrimary()), convertTransport(member.getBackup()));
       }
-      return new Pair<>(member.getLive(), member.getBackup());
+      return new Pair<>(member.getPrimary(), member.getBackup());
    }
 
    /**

@@ -30,12 +30,12 @@
                <max-backups>3</max-backups>
                <request-backup>false</request-backup>
                <backup-port-offset>33</backup-port-offset>
-               <master>
+               <primary>
                   <group-name>purple</group-name>
-                  <check-for-live-server>true</check-for-live-server>
                   <cluster-name>abcdefg</cluster-name>
-               </master>
-               <slave>
+                  <check-for-active-server>true</check-for-active-server>
+               </primary>
+               <backup>
                   <group-name>tiddles</group-name>
                   <max-saved-replicated-journals-size>22</max-saved-replicated-journals-size>
                   <cluster-name>33rrrrr</cluster-name>
@@ -46,7 +46,7 @@
                      <!--either a discovery group-->
                      <discovery-group-ref discovery-group-name="wahey"/>
                   </scale-down>
-               </slave>
+               </backup>
             </colocated>
          </replication>
       </ha-policy>

@@ -83,32 +83,32 @@ public final class TransportConfigurationUtils {
       return new TransportConfiguration(classname, server1Params);
    }
 
-   private static TransportConfiguration transportConfiguration(String classname, boolean live, int server) {
+   private static TransportConfiguration transportConfiguration(String classname, boolean primary, int server) {
       if (classname.contains("netty")) {
          Map<String, Object> serverParams = new HashMap<>();
-         Integer port = live ? 61616 + server : 5545 + server;
+         Integer port = primary ? 61616 + server : 5545 + server;
          serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams);
       }
 
       Map<String, Object> serverParams = new HashMap<>();
-      serverParams.put(TransportConstants.SERVER_ID_PROP_NAME, live ? server : server + 100);
+      serverParams.put(TransportConstants.SERVER_ID_PROP_NAME, primary ? server : server + 100);
       return new TransportConfiguration(classname, serverParams);
    }
 
    private static TransportConfiguration transportConfiguration(String classname,
-                                                                boolean live,
+                                                                boolean primary,
                                                                 int server,
                                                                 String name) {
       if (classname.contains("netty")) {
          Map<String, Object> serverParams = new HashMap<>();
-         Integer port = live ? 61616 + server : 5545 + server;
+         Integer port = primary ? 61616 + server : 5545 + server;
          serverParams.put(org.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.PORT_PROP_NAME, port);
          return new TransportConfiguration(classname, serverParams, name);
       }
 
       Map<String, Object> serverParams = new HashMap<>();
-      serverParams.put(TransportConstants.SERVER_ID_PROP_NAME, live ? server : server + 100);
+      serverParams.put(TransportConstants.SERVER_ID_PROP_NAME, primary ? server : server + 100);
       return new TransportConfiguration(classname, serverParams, name);
    }
 }

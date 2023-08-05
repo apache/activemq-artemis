@@ -43,9 +43,9 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase {
    public void testGroupingLocalHandlerFails() throws Exception {
       setupBackupServer(2, 0, isFileStorage(), haType(), isNetty());
 
-      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(0, isFileStorage(), haType(), isNetty(), false);
 
-      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), haType(), isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
 
@@ -143,9 +143,9 @@ public abstract class GroupingFailoverTestBase extends ClusterTestBase {
    public void testGroupingLocalHandlerFailsMultipleGroups() throws Exception {
       setupBackupServer(2, 0, isFileStorage(), haType(), isNetty());
 
-      setupLiveServer(0, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(0, isFileStorage(), haType(), isNetty(), false);
 
-      setupLiveServer(1, isFileStorage(), haType(), isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), haType(), isNetty(), false);
 
       setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
 

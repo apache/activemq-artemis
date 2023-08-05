@@ -53,7 +53,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
    public static int messageChunkCount = 0;
 
    private static ActiveMQServer backupServer;
-   private static ActiveMQServer liveServer;
+   private static ActiveMQServer primaryServer;
 
    ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("tcp://localhost:61616?minLargeMessageSize=10000&HA=true&retryInterval=100&reconnectAttempts=-1&producerWindowSize=10000");
    ActiveMQConnection connection;
@@ -64,7 +64,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
 
    Configuration backupConfig;
 
-   Configuration liveConfig;
+   Configuration primaryConfig;
 
    // To inform the main thread the condition is met
    static final ReusableLatch flagChunkEntered = new ReusableLatch(1);
@@ -89,8 +89,8 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
 
       messageChunkCount = 0;
 
-      TransportConfiguration liveConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
-      TransportConfiguration liveAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
+      TransportConfiguration primaryConnector = TransportConfigurationUtils.getNettyConnector(true, 0);
+      TransportConfiguration primaryAcceptor = TransportConfigurationUtils.getNettyAcceptor(true, 0);
       TransportConfiguration backupConnector = TransportConfigurationUtils.getNettyConnector(false, 0);
       TransportConfiguration backupAcceptor = TransportConfigurationUtils.getNettyAcceptor(false, 0);
 
@@ -102,21 +102,21 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
 
       DivertConfiguration divertConfiguration = new DivertConfiguration().setName("Test").setAddress(SOURCE_QUEUE).setForwardingAddress(TARGET_QUEUE).setRoutingName("Test");
 
-      liveConfig = createDefaultInVMConfig();
-      liveConfig.addQueueConfiguration(new QueueConfiguration(SOURCE_QUEUE).setRoutingType(RoutingType.ANYCAST));
-      liveConfig.addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE).setRoutingType(RoutingType.ANYCAST));
-      liveConfig.addDivertConfiguration(divertConfiguration);
+      primaryConfig = createDefaultInVMConfig();
+      primaryConfig.addQueueConfiguration(new QueueConfiguration(SOURCE_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      primaryConfig.addQueueConfiguration(new QueueConfiguration(TARGET_QUEUE).setRoutingType(RoutingType.ANYCAST));
+      primaryConfig.addDivertConfiguration(divertConfiguration);
 
       backupConfig.addDivertConfiguration(divertConfiguration);
 
-      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, liveConfig, liveConnector, liveAcceptor);
+      ReplicatedBackupUtils.configureReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, primaryAcceptor);
 
-      liveServer = createServer(liveConfig);
-      liveServer.start();
+      primaryServer = createServer(primaryConfig);
+      primaryServer.start();
 
       startBackup();
 
-      waitForServerToStart(liveServer);
+      waitForServerToStart(primaryServer);
 
       // Just to make sure the expression worked
       Assert.assertEquals(10000, factory.getMinLargeMessageSize());
@@ -139,7 +139,6 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       backupServer.start();
 
       waitForServerToStart(backupServer);
-
    }
 
    @After
@@ -155,12 +154,12 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
          backupServer = null;
       }
 
-      if (liveServer != null) {
-         liveServer.stop();
-         liveServer = null;
+      if (primaryServer != null) {
+         primaryServer.stop();
+         primaryServer = null;
       }
 
-      backupServer = liveServer = null;
+      backupServer = primaryServer = null;
    }
 
    @Test
@@ -218,7 +217,7 @@ public class ReplicationWithDivertTest extends ActiveMQTestBase {
       }
 
       Assert.assertFalse(t.isAlive());
-      liveServer.fail(true);
+      primaryServer.fail(true);
       Assert.assertTrue(failedOver.await(10, TimeUnit.SECONDS));
 
       {

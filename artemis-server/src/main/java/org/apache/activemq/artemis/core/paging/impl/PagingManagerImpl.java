@@ -70,7 +70,7 @@ public final class PagingManagerImpl implements PagingManager {
    private volatile boolean started = false;
 
    /**
-    * Lock used at the start of synchronization between a live server and its backup.
+    * Lock used at the start of synchronization between a primary server and its backup.
     * Synchronization will lock all {@link PagingStore} instances, and so any operation here that
     * requires a lock on a {@link PagingStore} instance needs to take a read-lock on
     * {@link #syncLock} to avoid dead-locks.

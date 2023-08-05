@@ -58,7 +58,13 @@ public final class TopologyMemberImpl implements TopologyMember {
    }
 
    @Override
+   @Deprecated(forRemoval = true)
    public TransportConfiguration getLive() {
+      return getPrimary();
+   }
+
+   @Override
+   public TransportConfiguration getPrimary() {
       return connector.getA();
    }
 
@@ -71,7 +77,7 @@ public final class TopologyMemberImpl implements TopologyMember {
       connector.setB(param);
    }
 
-   public void setLive(final TransportConfiguration param) {
+   public void setPrimary(final TransportConfiguration param) {
       connector.setA(param);
    }
 
@@ -129,8 +135,8 @@ public final class TopologyMemberImpl implements TopologyMember {
 
    @Override
    public String toURI() {
-      TransportConfiguration liveConnector = getLive();
-      Map<String, Object> props = liveConnector.getParams();
+      TransportConfiguration primaryConnector = getPrimary();
+      Map<String, Object> props = primaryConnector.getParams();
       String host = ConfigurationHelper.getStringProperty(TransportConstants.HOST_PROP_NAME, "localhost", props);
       int port = ConfigurationHelper.getIntProperty(TransportConstants.PORT_PROP_NAME, 0, props);
       return "tcp://" + host + ":" + port;

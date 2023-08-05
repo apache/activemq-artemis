@@ -78,37 +78,37 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
 
          crash(session);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForSync(backupServer.getServer());
 
-         waitForServerToStart(liveServer.getServer());
+         waitForServerToStart(primaryServer.getServer());
 
          session = createSession(sf, true, true);
 
          crash(session);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForSync(backupServer.getServer());
 
-         waitForServerToStart(liveServer.getServer());
+         waitForServerToStart(primaryServer.getServer());
 
          session = createSession(sf, true, true);
 
          crash(session);
 
-         liveServer.start();
+         primaryServer.start();
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
-         liveServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+         primaryServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
 
-         waitForSync(liveServer.getServer());
+         waitForSync(primaryServer.getServer());
 
          waitForServerToStart(backupServer.getServer());
 
@@ -119,7 +119,7 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
             sf.close();
          }
          try {
-            liveServer.getServer().stop();
+            primaryServer.getServer().stop();
          } catch (Throwable ignored) {
          }
          try {
@@ -130,7 +130,7 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
    }
 
    @Test
-   public void testReplicatedFailbackBackupFromLiveBackToBackup() throws Exception {
+   public void testReplicatedFailbackBackupFromPrimaryBackToBackup() throws Exception {
       InetSocketAddress address = new InetSocketAddress("127.0.0.1", 8787);
       HttpServer httpServer = HttpServer.create(address, 100);
       httpServer.start();
@@ -163,7 +163,7 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
          backupServer.getServer().getNetworkHealthCheck().parseURIList("http://localhost:8787");
          Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
          backupServer.getServer().addExternalComponent(webServerComponent, false);
-         // this is called when backup servers go from live back to backup
+         // this is called when backup servers go from primary back to backup
          backupServer.getServer().fail(true);
          Assert.assertTrue(backupServer.getServer().getNetworkHealthCheck().isStarted());
          Assert.assertTrue(backupServer.getServer().getExternalComponents().get(0).isStarted());
@@ -187,13 +187,13 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
-      return getNettyAcceptorTransportConfiguration(live);
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
+      return getNettyAcceptorTransportConfiguration(primary);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
-      return getNettyConnectorTransportConfiguration(live);
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
+      return getNettyConnectorTransportConfiguration(primary);
    }
 
    @Override
@@ -221,7 +221,7 @@ public class PluggableQuorumNettyNoGroupNameReplicatedFailoverTest extends Failo
    }
 
    @Override
-   protected void decrementActivationSequenceForForceRestartOf(TestableServer testableServer) throws Exception {
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer primaryServer) throws Exception {
       doDecrementActivationSequenceForForceRestartOf(logger, nodeManager, managerConfiguration);
    }
 

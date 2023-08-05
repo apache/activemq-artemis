@@ -25,7 +25,7 @@ import java.util.List;
 
 @XmlRootElement(name = "whitelist")
 @XmlAccessorType(XmlAccessType.FIELD)
-@Deprecated
+@Deprecated(forRemoval = true)
 public class WhiteListDTO {
 
    @XmlElementRef

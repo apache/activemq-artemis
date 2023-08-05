@@ -19,7 +19,7 @@ package org.apache.activemq.artemis.tests.integration.cluster.failover;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancingType;
 import org.apache.activemq.artemis.tests.integration.cluster.distribution.ClusterTestBase;
@@ -37,32 +37,32 @@ public class SharedStoreDontWaitForActivationTest extends ClusterTestBase {
    }
 
    private void setupServers() throws Exception {
-      // Two live servers with same shared storage, using a shared lock file
+      // Two primary servers with same shared storage, using a shared lock file
 
       // 1. configure 0 as backup of one to share the same node manager and file
       // storage locations
       setupBackupServer(0, 1, isFileStorage(), HAType.SharedStore, isNetty());
-      setupLiveServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
+      setupPrimaryServer(1, isFileStorage(), HAType.SharedStore, isNetty(), false);
 
-      // now reconfigure the HA policy for both servers to master with automatic
+      // now reconfigure the HA policy for both servers to primary with automatic
       // failover and wait-for-activation disabled.
-      setupSharedStoreMasterPolicy(0);
-      setupSharedStoreMasterPolicy(1);
+      setupSharedStorePrimaryPolicy(0);
+      setupSharedStorePrimaryPolicy(1);
 
       // configure cluster for bother servers
       setupClusterConnection("cluster", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
       setupClusterConnection("cluster", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
    }
 
-   private void setupSharedStoreMasterPolicy(int node) {
+   private void setupSharedStorePrimaryPolicy(int node) {
       ActiveMQServer server = getServer(node);
-      SharedStoreMasterPolicyConfiguration liveConfiguration = new SharedStoreMasterPolicyConfiguration();
-      liveConfiguration.setFailoverOnServerShutdown(true);
-      liveConfiguration.setWaitForActivation(false);
+      SharedStorePrimaryPolicyConfiguration primaryConfiguration = new SharedStorePrimaryPolicyConfiguration();
+      primaryConfiguration.setFailoverOnServerShutdown(true);
+      primaryConfiguration.setWaitForActivation(false);
 
       Configuration config = server.getConfiguration();
 
-      config.setHAPolicyConfiguration(liveConfiguration);
+      config.setHAPolicyConfiguration(primaryConfiguration);
    }
 
    private boolean isNetty() {
@@ -70,7 +70,7 @@ public class SharedStoreDontWaitForActivationTest extends ClusterTestBase {
    }
 
    @Test
-   public void startupLiveAndBackups() throws Exception {
+   public void startupPrimaryAndBackups() throws Exception {
       ActiveMQServer server0 = getServer(0);
       ActiveMQServer server1 = getServer(1);
 

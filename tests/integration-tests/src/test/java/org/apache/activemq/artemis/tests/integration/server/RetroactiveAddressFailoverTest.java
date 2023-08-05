@@ -58,15 +58,15 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
    public void testFailover() throws Exception {
       final int MESSAGE_COUNT = 10;
       final int OFFSET = 5;
-      ActiveMQServer live = liveServer.getServer();
+      ActiveMQServer primary = primaryServer.getServer();
       ActiveMQServer backup = backupServer.getServer();
       ClientSession session = addClientSession(sf.createSession(true, true));
       final SimpleString queueName = SimpleString.toSimpleString("simpleQueue");
       final SimpleString addressName = SimpleString.toSimpleString("myAddress");
       final SimpleString divertQueue = ResourceNames.getRetroactiveResourceQueueName(internalNamingPrefix, delimiter, addressName, RoutingType.MULTICAST);
-      live.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
+      primary.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
       backup.getAddressSettingsRepository().addMatch(addressName.toString(), new AddressSettings().setRetroactiveMessageCount(MESSAGE_COUNT));
-      live.addAddressInfo(new AddressInfo(addressName));
+      primary.addAddressInfo(new AddressInfo(addressName));
 
       ClientProducer producer = addClientProducer(session.createProducer(addressName));
       for (int j = 0; j < OFFSET; j++) {
@@ -75,7 +75,7 @@ public class RetroactiveAddressFailoverTest extends FailoverTestBase {
          producer.send(message);
       }
 
-      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> live.locateQueue(divertQueue).getMessageCount() == OFFSET);
+      org.apache.activemq.artemis.tests.util.Wait.assertTrue(() -> primary.locateQueue(divertQueue).getMessageCount() == OFFSET);
 
       crash(session);
 

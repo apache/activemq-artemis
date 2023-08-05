@@ -44,7 +44,7 @@ public class ReplayTest extends SmokeTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 1099;
    static String liveURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
-   static ObjectNameBuilder liveNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "replay", true);
+   static ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "replay", true);
 
    public static final String SERVER_NAME_0 = "replay/replay";
 
@@ -94,7 +94,7 @@ public class ReplayTest extends SmokeTestBase {
 
       final String queueName = "RetentionTest";
 
-      ActiveMQServerControl serverControl = getServerControl(liveURI, liveNameBuilder, 5000);
+      ActiveMQServerControl serverControl = getServerControl(liveURI, nameBuilder, 5000);
 
       String bufferStr;
       {

@@ -40,27 +40,27 @@ import org.apache.qpid.proton.engine.Transport;
  */
 public final class UnmodifiableProxy {
 
-   private static ArrayList<String> blacklist = new ArrayList<>();
+   private static ArrayList<String> denylist = new ArrayList<>();
 
    // These methods are mutating but don't take an arguments so they
    // aren't automatically filtered out. We will have to keep an eye
    // on proton API in the future and modify this list as it evolves.
    static {
-      blacklist.add("close");
-      blacklist.add("free");
-      blacklist.add("open");
-      blacklist.add("sasl");
-      blacklist.add("session");
-      blacklist.add("close_head");
-      blacklist.add("close_tail");
-      blacklist.add("outputConsumed");
-      blacklist.add("process");
-      blacklist.add("processInput");
-      blacklist.add("unbind");
-      blacklist.add("settle");
-      blacklist.add("clear");
-      blacklist.add("detach");
-      blacklist.add("abort");
+      denylist.add("close");
+      denylist.add("free");
+      denylist.add("open");
+      denylist.add("sasl");
+      denylist.add("session");
+      denylist.add("close_head");
+      denylist.add("close_tail");
+      denylist.add("outputConsumed");
+      denylist.add("process");
+      denylist.add("processInput");
+      denylist.add("unbind");
+      denylist.add("settle");
+      denylist.add("clear");
+      denylist.add("detach");
+      denylist.add("abort");
    }
 
    private UnmodifiableProxy() {
@@ -122,7 +122,7 @@ public final class UnmodifiableProxy {
                throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
             }
 
-            if (blacklist.contains(method.getName())) {
+            if (denylist.contains(method.getName())) {
                throw new UnsupportedOperationException("Cannot mutate outside the Client work thread");
             }
 

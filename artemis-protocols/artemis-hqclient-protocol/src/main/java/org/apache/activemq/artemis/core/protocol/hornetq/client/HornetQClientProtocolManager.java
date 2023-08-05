@@ -67,7 +67,7 @@ public class HornetQClientProtocolManager extends ActiveMQClientProtocolManager 
    }
 
    @Override
-   public boolean checkForFailover(String liveNodeID) throws ActiveMQException {
+   public boolean checkForFailover(String nodeID) throws ActiveMQException {
       //HornetQ doesn't support CheckFailoverMessage packet
       return true;
    }

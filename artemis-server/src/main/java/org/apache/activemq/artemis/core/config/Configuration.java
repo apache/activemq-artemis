@@ -343,7 +343,7 @@ public interface Configuration {
 
    /**
     * Returns the connection time to live. <br>
-    * This value overrides the connection time to live <em>sent by the client</em>. <br>
+    * This value overrides the connection time-to-live <em>sent by the client</em>. <br>
     * Default value is {@link org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration#DEFAULT_CONNECTION_TTL_OVERRIDE}.
     */
    long getConnectionTTLOverride();
@@ -397,7 +397,7 @@ public interface Configuration {
     * @param uri  the URI of the acceptor
     * @return this
     * @throws Exception in case of Parsing errors on the URI
-    * @see <a href="https://github.com/apache/activemq-artemis/blob/master/docs/user-manual/en/configuring-transports.md">Configuring the Transport</a>
+    * @see <a href="https://github.com/apache/activemq-artemis/blob/main/docs/user-manual/en/configuring-transports.md">Configuring the Transport</a>
     */
    Configuration addAcceptorConfiguration(String name, String uri) throws Exception;
 

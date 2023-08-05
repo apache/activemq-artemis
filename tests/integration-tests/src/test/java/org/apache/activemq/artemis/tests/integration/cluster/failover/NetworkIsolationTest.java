@@ -67,18 +67,18 @@ public class NetworkIsolationTest extends FailoverTestBase {
 
    @Test
    public void testReactivate() throws Exception {
-      liveServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);
-      liveServer.start();
+      primaryServer.getServer().getConfiguration().setNetworkCheckPeriod(100).setNetworkCheckTimeout(200);
+      primaryServer.start();
 
-      Assert.assertTrue(Wait.waitFor(liveServer::isActive));
+      Assert.assertTrue(Wait.waitFor(primaryServer::isActive));
 
-      liveServer.getServer().getNetworkHealthCheck().addAddress(badAddress);
+      primaryServer.getServer().getNetworkHealthCheck().addAddress(badAddress);
 
-      Wait.assertFalse(liveServer::isStarted);
+      Wait.assertFalse(primaryServer::isStarted);
 
-      liveServer.getServer().getNetworkHealthCheck().clearAddresses();
+      primaryServer.getServer().getNetworkHealthCheck().clearAddresses();
 
-      Assert.assertTrue(Wait.waitFor(liveServer::isStarted));
+      Assert.assertTrue(Wait.waitFor(primaryServer::isStarted));
    }
 
    @Test
@@ -120,7 +120,7 @@ public class NetworkIsolationTest extends FailoverTestBase {
          Assert.assertTrue(backupServer.isStarted());
          Assert.assertFalse(backupServer.isActive());
 
-         liveServer.start();
+         primaryServer.start();
 
          for (int i = 0; i < 1000 && getReplicationEndpoint(backupServer.getServer()) != null && !getReplicationEndpoint(backupServer.getServer()).isStarted(); i++) {
             Thread.sleep(10);
@@ -134,36 +134,36 @@ public class NetworkIsolationTest extends FailoverTestBase {
    }
 
    @Test
-   public void testLiveIsolated() throws Exception {
+   public void testPrimaryIsolated() throws Exception {
       backupServer.stop();
 
       FakeServiceComponent component = new FakeServiceComponent("Component for " + getName());
 
-      liveServer.getServer().addExternalComponent(component, true);
-      liveServer.getServer().getConfiguration().setNetworkCheckList(badAddress).
+      primaryServer.getServer().addExternalComponent(component, true);
+      primaryServer.getServer().getConfiguration().setNetworkCheckList(badAddress).
          setNetworkCheckPeriod(100).setNetworkCheckTimeout(100);
-      ((ActiveMQServerImpl)liveServer.getServer()).reloadNetworkHealthCheck();
+      ((ActiveMQServerImpl) primaryServer.getServer()).reloadNetworkHealthCheck();
 
       try {
 
-         Assert.assertEquals(100L, liveServer.getServer().getNetworkHealthCheck().getPeriod());
+         Assert.assertEquals(100L, primaryServer.getServer().getNetworkHealthCheck().getPeriod());
 
-         liveServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
+         primaryServer.getServer().getNetworkHealthCheck().setTimeUnit(TimeUnit.MILLISECONDS);
 
-         Assert.assertFalse(liveServer.getServer().getNetworkHealthCheck().check());
+         Assert.assertFalse(primaryServer.getServer().getNetworkHealthCheck().check());
 
-         Wait.assertFalse(liveServer::isStarted);
+         Wait.assertFalse(primaryServer::isStarted);
 
-         liveServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
+         primaryServer.getServer().getNetworkHealthCheck().setIgnoreLoopback(true).addAddress("127.0.0.1");
 
-         Wait.assertTrue(liveServer::isStarted);
+         Wait.assertTrue(primaryServer::isStarted);
 
          Assert.assertTrue(component.isStarted());
       } catch (Throwable e) {
          logger.warn(e.getMessage(), e);
          throw e;
       } finally {
-         liveServer.getServer().stop();
+         primaryServer.getServer().stop();
          backupServer.getServer().stop();
       }
 

@@ -34,8 +34,8 @@ import org.apache.activemq.artemis.api.core.client.FailoverEventType;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.impl.InVMNodeManager;
 import org.apache.activemq.artemis.jms.client.ActiveMQTextMessage;
 import org.apache.activemq.artemis.tests.util.TransportConfigurationUtils;
@@ -73,11 +73,11 @@ public class FailoverListenerTest extends FailoverTestBase {
       sf.addFailoverListener(listener);
       ClientSession session = sendAndConsume(sf, true);
 
-      liveServer.crash();
+      primaryServer.crash();
       assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
-      logger.debug("backup (nowLive) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
+      logger.debug("backup (now primary) topology = {}", backupServer.getServer().getClusterManager().getDefaultConnection(null).getTopology().describe());
 
       logger.debug("Server Crash!!!");
 
@@ -95,10 +95,10 @@ public class FailoverListenerTest extends FailoverTestBase {
 
       verifyMessageOnServer(1, 1);
 
-      logger.debug("******* starting live server back");
-      liveServer.start();
+      logger.debug("******* starting primary server back");
+      primaryServer.start();
       Thread.sleep(1000);
-      //starting the live server trigger a failover event
+      //starting the primary server trigger a failover event
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(2));
 
       //the life server should be online by now
@@ -160,7 +160,7 @@ public class FailoverListenerTest extends FailoverTestBase {
       sf.addFailoverListener(listener);
       ClientSession session = sendAndConsume(sf, true);
 
-      liveServer.crash(session);
+      primaryServer.crash(session);
       assertTrue(failureLatch.await(5, TimeUnit.SECONDS));
       assertEquals(FailoverEventType.FAILURE_DETECTED, listener.getFailoverEventType().get(0));
 
@@ -188,26 +188,26 @@ public class FailoverListenerTest extends FailoverTestBase {
    @Override
    protected void createConfigs() throws Exception {
       nodeManager = new InVMNodeManager(false);
-      TransportConfiguration liveConnector = getConnectorTransportConfiguration(true);
+      TransportConfiguration primaryConnector = getConnectorTransportConfiguration(true);
       TransportConfiguration backupConnector = getConnectorTransportConfiguration(false);
 
-      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreSlavePolicyConfiguration()).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), liveConnector.getName()));
+      backupConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(false)).setHAPolicyConfiguration(new SharedStoreBackupPolicyConfiguration()).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector).addClusterConfiguration(basicClusterConnectionConfig(backupConnector.getName(), primaryConnector.getName()));
 
       backupServer = createTestableServer(backupConfig);
 
-      liveConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStoreMasterPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(liveConnector.getName(), backupConnector.getName())).addConnectorConfiguration(liveConnector.getName(), liveConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
+      primaryConfig = super.createDefaultInVMConfig().clearAcceptorConfigurations().addAcceptorConfiguration(getAcceptorTransportConfiguration(true)).setHAPolicyConfiguration(new SharedStorePrimaryPolicyConfiguration()).addClusterConfiguration(basicClusterConnectionConfig(primaryConnector.getName(), backupConnector.getName())).addConnectorConfiguration(primaryConnector.getName(), primaryConnector).addConnectorConfiguration(backupConnector.getName(), backupConnector);
 
-      liveServer = createTestableServer(liveConfig);
+      primaryServer = createTestableServer(primaryConfig);
    }
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMAcceptor(live);
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMAcceptor(primary);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMConnector(live);
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMConnector(primary);
    }
 
    private ClientSession sendAndConsume(final ClientSessionFactory sf, final boolean createQueue) throws Exception {

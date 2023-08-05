@@ -59,7 +59,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
    private static final String JMX_SERVER_HOSTNAME = "localhost";
    private static final int JMX_SERVER_PORT_0 = 1099;
    static String liveURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
-   static ObjectNameBuilder liveNameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "replay", true);
+   static ObjectNameBuilder nameBuilder = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "replay", true);
 
    public static final String SERVER_NAME_0 = "replay/large-message";
 
@@ -115,7 +115,7 @@ public class LargeMessageRetentionTest extends SoakTestBase {
    private void testRetention(String protocol, int NUMBER_OF_MESSAGES, int backlog, int bodySize, int producers) throws Throwable {
       Assert.assertTrue(NUMBER_OF_MESSAGES % producers == 0); // checking that it is a multiple
 
-      ActiveMQServerControl serverControl = getServerControl(liveURI, liveNameBuilder, 5000);
+      ActiveMQServerControl serverControl = getServerControl(liveURI, nameBuilder, 5000);
 
       final Semaphore consumerCredits = new Semaphore(-backlog);
       final String queueName = "RetentionTest";

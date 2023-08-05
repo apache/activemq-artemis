@@ -44,7 +44,7 @@ import org.apache.activemq.artemis.core.server.cluster.qourum.QuorumVoteHandler;
 import org.apache.activemq.artemis.core.server.cluster.qourum.Vote;
 import org.apache.activemq.artemis.spi.core.remoting.Acceptor;
 
-public class ColocatedActivation extends LiveActivation {
+public class ColocatedActivation extends PrimaryActivation {
 
    private static final SimpleString REQUEST_BACKUP_QUORUM_VOTE = new SimpleString("RequestBackupQuorumVote");
 
@@ -52,16 +52,16 @@ public class ColocatedActivation extends LiveActivation {
 
    private final ColocatedPolicy colocatedPolicy;
 
-   LiveActivation liveActivation;
+   PrimaryActivation primaryActivation;
 
    private final ActiveMQServerImpl server;
 
    public ColocatedActivation(ActiveMQServerImpl activeMQServer,
                               ColocatedPolicy colocatedPolicy,
-                              LiveActivation liveActivation) {
+                              PrimaryActivation primaryActivation) {
       server = activeMQServer;
       this.colocatedPolicy = colocatedPolicy;
-      this.liveActivation = liveActivation;
+      this.primaryActivation = primaryActivation;
       colocatedHAManager = new ColocatedHAManager(colocatedPolicy, server);
    }
 
@@ -76,27 +76,27 @@ public class ColocatedActivation extends LiveActivation {
 
    @Override
    public void freezeConnections(RemotingService remotingService) {
-      liveActivation.freezeConnections(remotingService);
+      primaryActivation.freezeConnections(remotingService);
    }
 
    @Override
    public void postConnectionFreeze() {
-      liveActivation.postConnectionFreeze();
+      primaryActivation.postConnectionFreeze();
    }
 
    @Override
    public void preStorageClose() throws Exception {
-      liveActivation.preStorageClose();
+      primaryActivation.preStorageClose();
    }
 
    @Override
-   public void sendLiveIsStopping() {
-      liveActivation.sendLiveIsStopping();
+   public void sendPrimaryIsStopping() {
+      primaryActivation.sendPrimaryIsStopping();
    }
 
    @Override
    public ReplicationManager getReplicationManager() {
-      return liveActivation.getReplicationManager();
+      return primaryActivation.getReplicationManager();
    }
 
    @Override
@@ -106,17 +106,17 @@ public class ColocatedActivation extends LiveActivation {
 
    @Override
    public void run() {
-      liveActivation.run();
+      primaryActivation.run();
    }
 
    @Override
    public void close(boolean permanently, boolean restarting) throws Exception {
-      liveActivation.close(permanently, restarting);
+      primaryActivation.close(permanently, restarting);
    }
 
    @Override
    public ChannelHandler getActivationChannelHandler(final Channel channel, final Acceptor acceptorUsed) {
-      final ChannelHandler activationChannelHandler = liveActivation.getActivationChannelHandler(channel, acceptorUsed);
+      final ChannelHandler activationChannelHandler = primaryActivation.getActivationChannelHandler(channel, acceptorUsed);
       return new ChannelHandler() {
          @Override
          public void handlePacket(Packet packet) {

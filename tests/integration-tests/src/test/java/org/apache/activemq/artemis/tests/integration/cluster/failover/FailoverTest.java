@@ -69,8 +69,8 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationBackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStorePrimaryPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.impl.ClusterConnectionImpl;
 import org.apache.activemq.artemis.core.server.files.FileMoveManager;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
@@ -644,7 +644,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test(timeout = 60000)
-   public void testFailBothRestartLive() throws Exception {
+   public void testFailBothRestartPrimary() throws Exception {
       ServerLocator locator = getServerLocator();
 
       locator.setReconnectAttempts(-1).setRetryInterval(10);
@@ -669,9 +669,9 @@ public class FailoverTest extends FailoverTestBase {
 
       backupServer.getServer().fail(true);
 
-      decrementActivationSequenceForForceRestartOf(liveServer);
+      decrementActivationSequenceForForceRestartOf(primaryServer);
 
-      liveServer.start();
+      primaryServer.start();
 
       consumer.close();
 
@@ -687,7 +687,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test
-   public void testFailLiveTooSoon() throws Exception {
+   public void testFailPrimaryTooSoon() throws Exception {
       ServerLocator locator = getServerLocator();
 
       locator.setReconnectAttempts(-1);
@@ -697,10 +697,10 @@ public class FailoverTest extends FailoverTestBase {
 
       waitForBackupConfig(sf);
 
-      TransportConfiguration initialLive = getFieldFromSF(sf, "currentConnectorConfig");
+      TransportConfiguration initialPrimary = getFieldFromSF(sf, "currentConnectorConfig");
       TransportConfiguration initialBackup = getFieldFromSF(sf, "backupConnectorConfig");
 
-      logger.debug("initlive: {}", initialLive);
+      logger.debug("initprimary: {}", initialPrimary);
       logger.debug("initback: {}", initialBackup);
 
       TransportConfiguration last = getFieldFromSF(sf, "connectorConfig");
@@ -708,7 +708,7 @@ public class FailoverTest extends FailoverTestBase {
 
       logger.debug("now last: {}", last);
       logger.debug("now current: {}", current);
-      assertTrue(current.equals(initialLive));
+      assertTrue(current.equals(initialPrimary));
 
       ClientSession session = createSession(sf, true, true);
 
@@ -723,19 +723,19 @@ public class FailoverTest extends FailoverTestBase {
       last = getFieldFromSF(sf, "connectorConfig");
       current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      logger.debug("now after live crashed last: {}", last);
+      logger.debug("now after primary crashed last: {}", last);
       logger.debug("now current: {}", current);
 
       assertTrue(current.equals(initialBackup));
 
       //fail back
-      beforeRestart(liveServer);
-      adaptLiveConfigForReplicatedFailBack(liveServer);
-      liveServer.getServer().start();
+      beforeRestart(primaryServer);
+      adaptPrimaryConfigForReplicatedFailBack(primaryServer);
+      primaryServer.getServer().start();
 
-      Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
+      Assert.assertTrue("primary initialized...", primaryServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
       Wait.assertTrue(backupServer::isStarted);
-      liveServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
+      primaryServer.getServer().waitForActivation(5, TimeUnit.SECONDS);
       Assert.assertTrue(backupServer.isStarted());
 
       //make sure failover is ok
@@ -744,12 +744,12 @@ public class FailoverTest extends FailoverTestBase {
       last = getFieldFromSF(sf, "connectorConfig");
       current = getFieldFromSF(sf, "currentConnectorConfig");
 
-      logger.debug("now after live back again last: {}", last);
+      logger.debug("now after primary back again last: {}", last);
       logger.debug("now current: {}", current);
 
       //cannot use equals here because the config's name (uuid) changes
       //after failover
-      assertTrue(current.isSameParams(initialLive));
+      assertTrue(current.isSameParams(initialPrimary));
 
       //now manually corrupt the backup in sf
       setSFFieldValue(sf, "backupConnectorConfig", null);
@@ -804,7 +804,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test(timeout = 120000)
-   public void testFailBackLiveRestartsBackupIsGone() throws Exception {
+   public void testFailBackPrimaryRestartsBackupIsGone() throws Exception {
       createSessionFactory();
       ClientSession session = createSessionAndQueue();
 
@@ -813,7 +813,7 @@ public class FailoverTest extends FailoverTestBase {
       sendMessages(session, producer, NUM_MESSAGES);
       producer.close();
       session.commit();
-      SimpleString liveId = liveServer.getServer().getNodeID();
+      SimpleString primaryId = primaryServer.getServer().getNodeID();
       crash(session);
 
       session.start();
@@ -823,29 +823,29 @@ public class FailoverTest extends FailoverTestBase {
       consumer.close();
       session.commit();
 
-      Assert.assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
+      Assert.assertEquals("backup must be running with the same nodeID", primaryId, backupServer.getServer().getNodeID());
       sf.close();
 
       backupServer.crash();
       Thread.sleep(100);
       Assert.assertFalse("backup is not running", backupServer.isStarted());
 
-      final boolean isBackup = liveServer.getServer().getHAPolicy() instanceof BackupPolicy ||
-         liveServer.getServer().getHAPolicy() instanceof ReplicationBackupPolicy;
+      final boolean isBackup = primaryServer.getServer().getHAPolicy() instanceof BackupPolicy ||
+         primaryServer.getServer().getHAPolicy() instanceof ReplicationBackupPolicy;
       Assert.assertFalse("must NOT be a backup", isBackup);
-      adaptLiveConfigForReplicatedFailBack(liveServer);
-      beforeRestart(liveServer);
-      decrementActivationSequenceForForceRestartOf(liveServer);
-      liveServer.start();
-      Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
+      adaptPrimaryConfigForReplicatedFailBack(primaryServer);
+      beforeRestart(primaryServer);
+      decrementActivationSequenceForForceRestartOf(primaryServer);
+      primaryServer.start();
+      Assert.assertTrue("primary initialized...", primaryServer.getServer().waitForActivation(15, TimeUnit.SECONDS));
 
       sf = (ClientSessionFactoryInternal) createSessionFactory(locator);
 
       ClientSession session2 = createSession(sf, false, false);
       session2.start();
       ClientConsumer consumer2 = session2.createConsumer(FailoverTestBase.ADDRESS);
-      final boolean replication = liveServer.getServer().getHAPolicy() instanceof ReplicatedPolicy ||
-         liveServer.getServer().getHAPolicy() instanceof ReplicationPrimaryPolicy;
+      final boolean replication = primaryServer.getServer().getHAPolicy() instanceof ReplicatedPolicy ||
+         primaryServer.getServer().getHAPolicy() instanceof ReplicationPrimaryPolicy;
       if (replication)
          receiveMessages(consumer2, 0, NUM_MESSAGES, true);
       assertNoMoreMessages(consumer2);
@@ -893,10 +893,10 @@ public class FailoverTest extends FailoverTestBase {
       waitForRemoteBackupSynchronization(backupServer.getServer());
       backupServer.stop(); // Backup stops!
 
-      liveServer.stop();
-      beforeRestart(liveServer);
-      liveServer.start();
-      liveServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
+      primaryServer.stop();
+      beforeRestart(primaryServer);
+      primaryServer.start();
+      primaryServer.getServer().waitForActivation(10, TimeUnit.SECONDS);
 
       ClientSession session2 = createSession(sf, false, false);
       session2.start();
@@ -919,7 +919,7 @@ public class FailoverTest extends FailoverTestBase {
       sendMessages(session, producer, NUM_MESSAGES);
       producer.close();
       session.commit();
-      SimpleString liveId = liveServer.getServer().getNodeID();
+      SimpleString primaryId = primaryServer.getServer().getNodeID();
       crash(session);
 
       session.start();
@@ -933,13 +933,13 @@ public class FailoverTest extends FailoverTestBase {
       producer.close();
       session.commit();
 
-      Assert.assertEquals("backup must be running with the same nodeID", liveId, backupServer.getServer().getNodeID());
+      Assert.assertEquals("backup must be running with the same nodeID", primaryId, backupServer.getServer().getNodeID());
       if (doFailBack) {
-         Assert.assertFalse("must NOT be a backup", liveServer.getServer().getHAPolicy().isBackup());
-         adaptLiveConfigForReplicatedFailBack(liveServer);
-         beforeRestart(liveServer);
-         liveServer.start();
-         Assert.assertTrue("live initialized...", liveServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
+         Assert.assertFalse("must NOT be a backup", primaryServer.getServer().getHAPolicy().isBackup());
+         adaptPrimaryConfigForReplicatedFailBack(primaryServer);
+         beforeRestart(primaryServer);
+         primaryServer.start();
+         Assert.assertTrue("primary initialized...", primaryServer.getServer().waitForActivation(40, TimeUnit.SECONDS));
          if (isReplicated) {
             // wait until it switch role again
             Wait.assertTrue(() -> backupServer.getServer().getHAPolicy().isBackup());
@@ -1065,7 +1065,7 @@ public class FailoverTest extends FailoverTestBase {
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
 
-      // Crash live server
+      // Crash primary server
       crash();
 
       ClientSession session = createSession(sf);
@@ -1204,7 +1204,7 @@ public class FailoverTest extends FailoverTestBase {
          session.close();
       } finally {
          try {
-            liveServer.getServer().stop();
+            primaryServer.getServer().stop();
          } catch (Throwable ignored) {
          }
          try {
@@ -2028,7 +2028,7 @@ public class FailoverTest extends FailoverTestBase {
 
       // Add an interceptor to delay the send method so we can get time to cause failover before it returns
       DelayInterceptor interceptor = new DelayInterceptor();
-      liveServer.getServer().getRemotingService().addIncomingInterceptor(interceptor);
+      primaryServer.getServer().getRemotingService().addIncomingInterceptor(interceptor);
 
       final ClientSession session = createSession(sf, true, true, 0);
 
@@ -2229,13 +2229,13 @@ public class FailoverTest extends FailoverTestBase {
             Interceptor interceptor = new DelayInterceptor3();
 
             try {
-               liveServer.addInterceptor(interceptor);
+               primaryServer.addInterceptor(interceptor);
 
                session.commit();
             } catch (ActiveMQTransactionRolledBackException trbe) {
                // Ok - now we retry the commit after removing the interceptor
 
-               liveServer.removeInterceptor(interceptor);
+               primaryServer.removeInterceptor(interceptor);
 
                try {
                   session.commit();
@@ -2246,7 +2246,7 @@ public class FailoverTest extends FailoverTestBase {
             } catch (ActiveMQTransactionOutcomeUnknownException toue) {
                // Ok - now we retry the commit after removing the interceptor
 
-               liveServer.removeInterceptor(interceptor);
+               primaryServer.removeInterceptor(interceptor);
 
                try {
                   session.commit();
@@ -2297,7 +2297,7 @@ public class FailoverTest extends FailoverTestBase {
    @Test(timeout = 120000)
    public void testBackupServerNotRemoved() throws Exception {
       // HORNETQ-720 Disabling test for replicating backups.
-      if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreSlavePolicy)) {
+      if (!(backupServer.getServer().getHAPolicy() instanceof SharedStoreBackupPolicy)) {
          return;
       }
       createSessionFactory();
@@ -2309,7 +2309,7 @@ public class FailoverTest extends FailoverTestBase {
 
       backupServer.stop();
 
-      liveServer.crash();
+      primaryServer.crash();
 
       // To reload security or other settings that are read during startup
       beforeRestart(backupServer);
@@ -2328,7 +2328,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test(timeout = 120000)
-   public void testLiveAndBackupLiveComesBack() throws Exception {
+   public void testPrimaryAndBackupPrimaryComesBack() throws Exception {
       createSessionFactory();
       final CountDownLatch latch = new CountDownLatch(1);
 
@@ -2338,14 +2338,14 @@ public class FailoverTest extends FailoverTestBase {
 
       backupServer.stop();
 
-      liveServer.crash();
+      primaryServer.crash();
 
-      beforeRestart(liveServer);
+      beforeRestart(primaryServer);
 
       // To reload security or other settings that are read during startup
-      beforeRestart(liveServer);
+      beforeRestart(primaryServer);
 
-      liveServer.start();
+      primaryServer.start();
 
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
@@ -2359,7 +2359,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test(timeout = 120000)
-   public void testLiveAndBackupLiveComesBackNewFactory() throws Exception {
+   public void testPrimaryAndBackupPrimaryComesBackNewFactory() throws Exception {
       createSessionFactory();
 
       final CountDownLatch latch = new CountDownLatch(1);
@@ -2370,12 +2370,12 @@ public class FailoverTest extends FailoverTestBase {
 
       backupServer.stop();
 
-      liveServer.crash();
+      primaryServer.crash();
 
       // To reload security or other settings that are read during startup
-      beforeRestart(liveServer);
+      beforeRestart(primaryServer);
 
-      liveServer.start();
+      primaryServer.start();
 
       Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
 
@@ -2407,7 +2407,7 @@ public class FailoverTest extends FailoverTestBase {
    }
 
    @Test(timeout = 120000)
-   public void testLiveAndBackupBackupComesBackNewFactory() throws Exception {
+   public void testPrimaryAndBackupBackupComesBackNewFactory() throws Exception {
       locator.setBlockOnNonDurableSend(true).setBlockOnDurableSend(true).setReconnectAttempts(300).setRetryInterval(100);
 
       sf = createSessionFactoryAndWaitForTopology(locator, 2);
@@ -2420,7 +2420,7 @@ public class FailoverTest extends FailoverTestBase {
 
       backupServer.stop();
 
-      liveServer.crash();
+      primaryServer.crash();
 
       // To reload security or other settings that are read during startup
       beforeRestart(backupServer);
@@ -2428,7 +2428,7 @@ public class FailoverTest extends FailoverTestBase {
       if (!backupServer.getServer().getHAPolicy().isSharedStore()) {
          // XXX
          // this test would not make sense in the remote replication use case, without the following
-         backupServer.getServer().setHAPolicy(new SharedStoreMasterPolicy());
+         backupServer.getServer().setHAPolicy(new SharedStorePrimaryPolicy());
       }
 
       backupServer.start();
@@ -2515,20 +2515,20 @@ public class FailoverTest extends FailoverTestBase {
 
 
    @Override
-   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMAcceptor(live);
+   protected TransportConfiguration getAcceptorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMAcceptor(primary);
    }
 
    @Override
-   protected TransportConfiguration getConnectorTransportConfiguration(final boolean live) {
-      return TransportConfigurationUtils.getInVMConnector(live);
+   protected TransportConfiguration getConnectorTransportConfiguration(final boolean primary) {
+      return TransportConfigurationUtils.getInVMConnector(primary);
    }
 
-   protected void beforeRestart(TestableServer liveServer1) {
+   protected void beforeRestart(TestableServer primaryServer1) {
       // no-op
    }
 
-   protected void decrementActivationSequenceForForceRestartOf(TestableServer liveServer) throws Exception {
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer primaryServer) throws Exception {
       // no-op
    }
 

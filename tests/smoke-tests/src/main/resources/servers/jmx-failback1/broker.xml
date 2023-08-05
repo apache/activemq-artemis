@@ -161,9 +161,9 @@ under the License.
 
       <ha-policy>
          <shared-store>
-            <master>
+            <primary>
                <failover-on-shutdown>true</failover-on-shutdown>
-            </master>
+            </primary>
          </shared-store>
       </ha-policy>
 

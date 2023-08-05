@@ -58,7 +58,7 @@ public class TestJDBCDriver extends AbstractJDBCDriver {
          if (initialize) {
             connection.createStatement().execute(sqlProvider.createNodeIdSQL());
             connection.createStatement().execute(sqlProvider.createStateSQL());
-            connection.createStatement().execute(sqlProvider.createLiveLockSQL());
+            connection.createStatement().execute(sqlProvider.createPrimaryLockSQL());
             connection.createStatement().execute(sqlProvider.createBackupLockSQL());
          }
       } catch (SQLException e) {

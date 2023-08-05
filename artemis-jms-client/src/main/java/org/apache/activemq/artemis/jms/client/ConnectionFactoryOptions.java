@@ -18,16 +18,28 @@ package org.apache.activemq.artemis.jms.client;
 
 /**
  * Common interface to be used to share common parameters between the RA and client JMS.
- * Initially developed to carry on Serialization packages white list but it could eventually be expanded.
+ * Initially developed to carry on Serialization packages allow list, but it could eventually be expanded.
  */
 public interface ConnectionFactoryOptions {
 
+   @Deprecated(forRemoval = true)
    String getDeserializationBlackList();
 
-   void setDeserializationBlackList(String blackList);
+   @Deprecated(forRemoval = true)
+   void setDeserializationBlackList(String denyList);
 
+   @Deprecated(forRemoval = true)
    String getDeserializationWhiteList();
 
-   void setDeserializationWhiteList(String whiteList);
+   @Deprecated(forRemoval = true)
+   void setDeserializationWhiteList(String allowList);
+
+   String getDeserializationDenyList();
+
+   void setDeserializationDenyList(String denyList);
+
+   String getDeserializationAllowList();
+
+   void setDeserializationAllowList(String allowList);
 
 }

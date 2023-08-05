@@ -23,7 +23,7 @@ import org.apache.activemq.artemis.core.protocol.core.Packet;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.BackupReplicationStartFailedMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator;
+import org.apache.activemq.artemis.core.server.NodeLocator;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +40,9 @@ final class ReplicationError implements Interceptor {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private LiveNodeLocator nodeLocator;
+   private NodeLocator nodeLocator;
 
-   ReplicationError(LiveNodeLocator nodeLocator) {
+   ReplicationError(NodeLocator nodeLocator) {
       this.nodeLocator = nodeLocator;
    }
 

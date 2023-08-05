@@ -1061,52 +1061,52 @@ public class RedeployTest extends ActiveMQTestBase {
 
 
 
-      EmbeddedActiveMQ live = new EmbeddedActiveMQ();
+      EmbeddedActiveMQ primary = new EmbeddedActiveMQ();
       EmbeddedActiveMQ backup = new EmbeddedActiveMQ();
 
       try {
          // set these system properties to use in the relevant broker.xml files
-         System.setProperty("live-data-dir", getTestDirfile().toPath() + "/redeploy-live-data");
+         System.setProperty("primary-data-dir", getTestDirfile().toPath() + "/redeploy-primary-data");
          System.setProperty("backup-data-dir", getTestDirfile().toPath() + "/redeploy-backup-data");
 
-         Path liveBrokerXML = getTestDirfile().toPath().resolve("live.xml");
+         Path primaryBrokerXML = getTestDirfile().toPath().resolve("primary.xml");
          Path backupBrokerXML = getTestDirfile().toPath().resolve("backup.xml");
-         URL url1 = RedeployTest.class.getClassLoader().getResource("reload-live-original.xml");
-         URL url2 = RedeployTest.class.getClassLoader().getResource("reload-live-changed.xml");
+         URL url1 = RedeployTest.class.getClassLoader().getResource("reload-primary-original.xml");
+         URL url2 = RedeployTest.class.getClassLoader().getResource("reload-primary-changed.xml");
          URL url3 = RedeployTest.class.getClassLoader().getResource("reload-backup-original.xml");
          URL url4 = RedeployTest.class.getClassLoader().getResource("reload-backup-changed.xml");
-         Files.copy(url1.openStream(), liveBrokerXML);
+         Files.copy(url1.openStream(), primaryBrokerXML);
          Files.copy(url3.openStream(), backupBrokerXML);
 
-         live.setConfigResourcePath(liveBrokerXML.toUri().toString());
-         live.start();
+         primary.setConfigResourcePath(primaryBrokerXML.toUri().toString());
+         primary.start();
 
-         waitForServerToStart(live.getActiveMQServer());
+         waitForServerToStart(primary.getActiveMQServer());
 
          backup.setConfigResourcePath(backupBrokerXML.toUri().toString());
          backup.start();
 
          assertTrue(Wait.waitFor(() -> backup.getActiveMQServer().isReplicaSync(), 15000, 200));
 
-         assertEquals("Test address settings original - live", AddressFullMessagePolicy.BLOCK, live.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
+         assertEquals("Test address settings original - primary", AddressFullMessagePolicy.BLOCK, primary.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
          assertEquals("Test address settings original - backup", AddressFullMessagePolicy.BLOCK, backup.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
-         assertEquals("Test security settings original - live", original, live.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
+         assertEquals("Test security settings original - primary", original, primary.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
          assertEquals("Test security settings original - backup", original, backup.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
 
-         final ReusableLatch liveReloadLatch = new ReusableLatch(1);
-         Runnable liveTick = () -> liveReloadLatch.countDown();
-         live.getActiveMQServer().getReloadManager().setTick(liveTick);
+         final ReusableLatch primaryReloadLatch = new ReusableLatch(1);
+         Runnable liveTick = () -> primaryReloadLatch.countDown();
+         primary.getActiveMQServer().getReloadManager().setTick(liveTick);
 
          final ReusableLatch backupReloadTickLatch = new ReusableLatch(1);
          Runnable backupTick = () -> backupReloadTickLatch.countDown();
          backup.getActiveMQServer().getReloadManager().setTick(backupTick);
 
-         liveReloadLatch.await(10, TimeUnit.SECONDS);
-         Files.copy(url2.openStream(), liveBrokerXML, StandardCopyOption.REPLACE_EXISTING);
-         liveBrokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
-         liveReloadLatch.countUp();
-         live.getActiveMQServer().getReloadManager().setTick(liveTick);
-         liveReloadLatch.await(10, TimeUnit.SECONDS);
+         primaryReloadLatch.await(10, TimeUnit.SECONDS);
+         Files.copy(url2.openStream(), primaryBrokerXML, StandardCopyOption.REPLACE_EXISTING);
+         primaryBrokerXML.toFile().setLastModified(System.currentTimeMillis() + 1000);
+         primaryReloadLatch.countUp();
+         primary.getActiveMQServer().getReloadManager().setTick(liveTick);
+         primaryReloadLatch.await(10, TimeUnit.SECONDS);
 
          backupReloadTickLatch.await(10, TimeUnit.SECONDS);
          Files.copy(url4.openStream(), backupBrokerXML, StandardCopyOption.REPLACE_EXISTING);
@@ -1124,10 +1124,10 @@ public class RedeployTest extends ActiveMQTestBase {
          }
 
          assertFalse(backup.getActiveMQServer().isActive());
-         assertEquals("Test address settings redeploy - live", AddressFullMessagePolicy.PAGE, live.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
-         assertEquals("Test security settings redeploy - live", changed, live.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
+         assertEquals("Test address settings redeploy - primary", AddressFullMessagePolicy.PAGE, primary.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
+         assertEquals("Test security settings redeploy - primary", changed, primary.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
 
-         live.stop();
+         primary.stop();
 
          assertTrue(Wait.waitFor(() -> (backup.getActiveMQServer().isActive()), 5000, 100));
 
@@ -1145,9 +1145,9 @@ public class RedeployTest extends ActiveMQTestBase {
          assertEquals("Test security settings redeploy - backup", changed, backup.getActiveMQServer().getSecurityRepository().getMatch("myQueue"));
          assertEquals("Test address settings redeploy - backup", AddressFullMessagePolicy.PAGE, backup.getActiveMQServer().getAddressSettingsRepository().getMatch("myQueue").getAddressFullMessagePolicy());
       } finally {
-         live.stop();
+         primary.stop();
          backup.stop();
-         System.clearProperty("live-data-dir");
+         System.clearProperty("primary-data-dir");
          System.clearProperty("backup-data-dir");
       }
    }

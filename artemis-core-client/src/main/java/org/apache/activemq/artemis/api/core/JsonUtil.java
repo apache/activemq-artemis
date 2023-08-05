@@ -100,7 +100,7 @@ public final class JsonUtil {
                   for (int i1 = 0; i1 < data.length; i1++) {
                      String dataConverted = convertJsonValue(data[i1], String.class).toString();
                      try (ObjectInputStreamWithClassLoader ois = new ObjectInputStreamWithClassLoader(new ByteArrayInputStream(Base64.decode(dataConverted)))) {
-                        ois.setWhiteList("java.util,java.lang,javax.management");
+                        ois.setAllowList("java.util,java.lang,javax.management");
                         cds[i1] = (CompositeDataSupport) ois.readObject();
                      }
                   }

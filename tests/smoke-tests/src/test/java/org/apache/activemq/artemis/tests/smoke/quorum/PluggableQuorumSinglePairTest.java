@@ -46,10 +46,10 @@ import java.lang.invoke.MethodHandles;
 import static org.apache.activemq.artemis.tests.util.Jmx.backupOf;
 import static org.apache.activemq.artemis.tests.util.Jmx.containsExactNodeIds;
 import static org.apache.activemq.artemis.tests.util.Jmx.decodeNetworkTopologyJson;
-import static org.apache.activemq.artemis.tests.util.Jmx.liveOf;
+import static org.apache.activemq.artemis.tests.util.Jmx.primaryOf;
 import static org.apache.activemq.artemis.tests.util.Jmx.validateNetworkTopology;
 import static org.apache.activemq.artemis.tests.util.Jmx.withBackup;
-import static org.apache.activemq.artemis.tests.util.Jmx.withLive;
+import static org.apache.activemq.artemis.tests.util.Jmx.withPrimary;
 import static org.apache.activemq.artemis.tests.util.Jmx.withMembers;
 import static org.apache.activemq.artemis.tests.util.Jmx.withNodes;
 
@@ -183,11 +183,11 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
    public void testCanQueryEmptyBackup() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       logger.info("starting primary");
-      Process live = primary.startServer(this, timeout);
+      Process primary = this.primary.startServer(this, timeout);
       Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
-      Wait.assertTrue(() -> !primary.isBackup().orElse(true), timeout);
+      Wait.assertTrue(() -> !this.primary.isBackup().orElse(true), timeout);
       logger.info("killing primary");
-      ServerUtil.killServer(live, forceKill);
+      ServerUtil.killServer(primary, forceKill);
       logger.info("starting backup");
       backup.startServer(this, 0);
       Wait.assertTrue(() -> backup.isBackup().orElse(false), timeout);
@@ -219,7 +219,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                            containsExactNodeIds(nodeID)
-                                                          .and(withLive(nodeID, Objects::nonNull))
+                                                          .and(withPrimary(nodeID, Objects::nonNull))
                                                           .and(withBackup(nodeID, Objects::nonNull))
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
@@ -231,7 +231,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
       Assert.assertNotNull(urlBackup);
       logger.info("backup: {}", urlBackup);
-      final String urlPrimary = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPrimary);
       logger.info("primary: {}", urlPrimary);
       Assert.assertNotEquals(urlPrimary, urlBackup);
@@ -246,7 +246,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Wait.assertTrue(() -> !backup.isBackup().orElse(true), timeout);
       Wait.assertTrue(() -> validateNetworkTopology(backup.listNetworkTopology().orElse(""),
                                                     containsExactNodeIds(nodeID)
-                                                       .and(withLive(nodeID, urlBackup::equals))
+                                                       .and(withPrimary(nodeID, urlBackup::equals))
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
@@ -267,7 +267,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
-                                                          .and(withLive(nodeID, urlPrimary::equals))
+                                                          .and(withPrimary(nodeID, urlPrimary::equals))
                                                           .and(withBackup(nodeID, urlBackup::equals))
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
@@ -288,7 +288,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
    }
 
    @Test
-   public void testLivePrimarySuicideOnLostQuorum() throws Exception {
+   public void testActivePrimarySuicideOnLostQuorum() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       Process primaryInstance = primary.startServer(this, timeout);
       Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
@@ -296,14 +296,14 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       final String nodeID = primary.getNodeID().get();
       Wait.assertTrue(() -> validateNetworkTopology(primary.listNetworkTopology().orElse(""),
                                                     containsExactNodeIds(nodeID)
-                                                       .and(withLive(nodeID, Objects::nonNull))
+                                                       .and(withPrimary(nodeID, Objects::nonNull))
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
-      final String urlLive = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertTrue(validateNetworkTopology(primary.listNetworkTopology().orElse(""),
                                                 containsExactNodeIds(nodeID)
-                                                   .and(withLive(nodeID, urlLive::equals))
+                                                   .and(withPrimary(nodeID, urlPrimary::equals))
                                                    .and(withBackup(nodeID, Objects::isNull))
                                                    .and(withMembers(1))
                                                    .and(withNodes(1))));
@@ -312,7 +312,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
    }
 
    @Test
-   public void testLiveBackupSuicideOnLostQuorum() throws Exception {
+   public void testActiveBackupSuicideOnLostQuorum() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
       Process primaryInstance = primary.startServer(this, timeout);
       Assert.assertTrue(awaitAsyncSetupCompleted(timeout, TimeUnit.MILLISECONDS));
@@ -324,7 +324,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
-                                                          .and(withLive(nodeID, Objects::nonNull))
+                                                          .and(withPrimary(nodeID, Objects::nonNull))
                                                           .and(withBackup(nodeID, Objects::nonNull))
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
@@ -332,14 +332,14 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Assert.assertTrue(backup.isReplicaSync().get());
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
       Assert.assertNotNull(urlBackup);
-      final String urlPrimary = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPrimary);
       Assert.assertNotEquals(urlPrimary, urlBackup);
       ServerUtil.killServer(primaryInstance, forceKill);
       Wait.assertTrue(() -> !backup.isBackup().orElse(true), timeout);
       Wait.assertTrue(() -> validateNetworkTopology(backup.listNetworkTopology().orElse(""),
                                                     containsExactNodeIds(nodeID)
-                                                       .and(withLive(nodeID, urlBackup::equals))
+                                                       .and(withPrimary(nodeID, urlBackup::equals))
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);
@@ -366,7 +366,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       for (BrokerControl broker : brokers) {
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
                                                        containsExactNodeIds(nodeID)
-                                                          .and(withLive(nodeID, Objects::nonNull))
+                                                          .and(withPrimary(nodeID, Objects::nonNull))
                                                           .and(withBackup(nodeID, Objects::nonNull))
                                                           .and(withMembers(1))
                                                           .and(withNodes(2))), timeout);
@@ -378,7 +378,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       final String urlBackup = backupOf(nodeID, decodeNetworkTopologyJson(backup.listNetworkTopology().get()));
       Assert.assertNotNull(urlBackup);
       logger.info("backup: {}", urlBackup);
-      final String urlPrimary = liveOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
+      final String urlPrimary = primaryOf(nodeID, decodeNetworkTopologyJson(primary.listNetworkTopology().get()));
       Assert.assertNotNull(urlPrimary);
       logger.info("primary: {}", urlPrimary);
       Assert.assertNotEquals(urlPrimary, urlBackup);
@@ -394,7 +394,7 @@ public abstract class PluggableQuorumSinglePairTest extends SmokeTestBase {
       Wait.assertTrue(() -> !backup.isBackup().orElse(true), timeout);
       Wait.assertTrue(() -> validateNetworkTopology(backup.listNetworkTopology().orElse(""),
                                                     containsExactNodeIds(nodeID)
-                                                       .and(withLive(nodeID, urlBackup::equals))
+                                                       .and(withPrimary(nodeID, urlBackup::equals))
                                                        .and(withBackup(nodeID, Objects::isNull))
                                                        .and(withMembers(1))
                                                        .and(withNodes(1))), timeout);

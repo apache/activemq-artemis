@@ -32,16 +32,16 @@ public class PluggableQuorumReplicaTimeoutTest extends ReplicaTimeoutTest {
 
    @Override
    protected void configureReplicationPair(Configuration backupConfig,
-                                           Configuration liveConfig,
+                                           Configuration primaryConfig,
                                            TransportConfiguration backupConnector,
                                            TransportConfiguration backupAcceptor,
-                                           TransportConfiguration liveConnector) throws IOException {
+                                           TransportConfiguration primaryConnector) throws IOException {
       DistributedPrimitiveManagerConfiguration managerConfiguration = new DistributedPrimitiveManagerConfiguration(FileBasedPrimitiveManager.class.getName(), Collections.singletonMap("locks-folder", temporaryFolder.newFolder("manager").toString()));
 
       ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor,
-                                                                    liveConfig, liveConnector, null,
+                                                                    primaryConfig, primaryConnector, null,
                                                                     managerConfiguration, managerConfiguration);
-      ReplicationPrimaryPolicyConfiguration primaryConfiguration = ((ReplicationPrimaryPolicyConfiguration) liveConfig.getHAPolicyConfiguration());
+      ReplicationPrimaryPolicyConfiguration primaryConfiguration = ((ReplicationPrimaryPolicyConfiguration) primaryConfig.getHAPolicyConfiguration());
       primaryConfiguration.setInitialReplicationSyncTimeout(1000);
       ReplicationBackupPolicyConfiguration backupConfiguration = ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration());
       backupConfiguration.setInitialReplicationSyncTimeout(1000);
@@ -50,7 +50,7 @@ public class PluggableQuorumReplicaTimeoutTest extends ReplicaTimeoutTest {
    }
 
    @Override
-   protected boolean expectLiveSuicide() {
+   protected boolean expectPrimarySuicide() {
       return false;
    }
 }

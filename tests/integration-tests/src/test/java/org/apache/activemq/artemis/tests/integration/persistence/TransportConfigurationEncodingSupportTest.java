@@ -62,18 +62,18 @@ public class TransportConfigurationEncodingSupportTest extends Assert {
    @Test
    public void testTransportConfigurations() throws Exception {
       List<Pair<TransportConfiguration, TransportConfiguration>> connectorConfigs = new ArrayList<>();
-      Map<String, Object> liveParams = new HashMap<>();
-      liveParams.put(TransportConstants.PORT_PROP_NAME, 5665);
-      TransportConfiguration live1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), liveParams);
+      Map<String, Object> primaryParams = new HashMap<>();
+      primaryParams.put(TransportConstants.PORT_PROP_NAME, 5665);
+      TransportConfiguration primary1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), primaryParams);
       Map<String, Object> backupParams = new HashMap<>();
       backupParams.put(TransportConstants.PORT_PROP_NAME, 5775);
       TransportConfiguration backup1 = new TransportConfiguration(NettyConnectorFactory.class.getName(), backupParams);
-      Map<String, Object> liveParams2 = new HashMap<>();
-      liveParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
-      TransportConfiguration live2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), liveParams2);
+      Map<String, Object> primaryParams2 = new HashMap<>();
+      primaryParams2.put(TransportConstants.PORT_PROP_NAME, 6665);
+      TransportConfiguration primary2 = new TransportConfiguration(NettyConnectorFactory.class.getName(), primaryParams2);
 
-      connectorConfigs.add(new Pair<>(live1, backup1));
-      connectorConfigs.add(new Pair<TransportConfiguration, TransportConfiguration>(live2, null));
+      connectorConfigs.add(new Pair<>(primary1, backup1));
+      connectorConfigs.add(new Pair<TransportConfiguration, TransportConfiguration>(primary2, null));
 
       ActiveMQBuffer buffer = ActiveMQBuffers.fixedBuffer(TransportConfigurationEncodingSupport.getEncodeSize(connectorConfigs));
       TransportConfigurationEncodingSupport.encodeConfigs(buffer, connectorConfigs);

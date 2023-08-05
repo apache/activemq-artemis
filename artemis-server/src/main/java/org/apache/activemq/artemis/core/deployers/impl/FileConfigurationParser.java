@@ -72,13 +72,13 @@ import org.apache.activemq.artemis.core.config.federation.FederationTransformerC
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.DistributedPrimitiveManagerConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.routing.CacheConfiguration;
 import org.apache.activemq.artemis.core.config.routing.ConnectionRouterConfiguration;
@@ -422,7 +422,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
       //if we aren already set then set to default
       if (config.getHAPolicyConfiguration() == null) {
-         config.setHAPolicyConfiguration(new LiveOnlyPolicyConfiguration());
+         config.setHAPolicyConfiguration(new PrimaryOnlyPolicyConfiguration());
       }
 
       config.setResolveProtocols(getBoolean(e, "resolve-protocols", config.isResolveProtocols()));
@@ -1648,6 +1648,7 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    static {
       HA_LIST.add("live-only");
+      HA_LIST.add("primary-only");
       HA_LIST.add("shared-store");
       HA_LIST.add("replication");
    }
@@ -1679,167 +1680,164 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          if (haNodeList.getLength() > 0) {
             Element haNode = (Element) haNodeList.item(0);
             if (haNode.getTagName().equals("replication")) {
-               NodeList masterNodeList = e.getElementsByTagName("master");
-               if (masterNodeList.getLength() > 0) {
-                  Element masterNode = (Element) masterNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicatedHaPolicy(masterNode));
-               }
-               NodeList slaveNodeList = e.getElementsByTagName("slave");
-               if (slaveNodeList.getLength() > 0) {
-                  Element slaveNode = (Element) slaveNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicaHaPolicy(slaveNode));
-               }
+               // check for "colocated" first because it will contain primary/master & backup/slave elements of its own
                NodeList colocatedNodeList = e.getElementsByTagName("colocated");
                if (colocatedNodeList.getLength() > 0) {
                   Element colocatedNode = (Element) colocatedNodeList.item(0);
                   mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, true));
+                  return;
                }
-               NodeList primaryNodeList = e.getElementsByTagName("primary");
+               NodeList primaryNodeList = e.getElementsByTagName("master");
+               if (primaryNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("master", "primary");
+                  mainConfig.setHAPolicyConfiguration(createReplicationPrimaryHaPolicy((Element) primaryNodeList.item(0)));
+                  return;
+               }
+               NodeList backupNodeList = e.getElementsByTagName("slave");
+               if (backupNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("slave", "backup");
+                  mainConfig.setHAPolicyConfiguration(createReplicationBackupHaPolicy((Element) backupNodeList.item(0)));
+                  return;
+               }
+               primaryNodeList = e.getElementsByTagName("primary");
                if (primaryNodeList.getLength() > 0) {
                   Element primaryNode = (Element) primaryNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicationPrimaryHaPolicy(primaryNode, mainConfig));
+                  if (primaryNode.getElementsByTagName("manager").item(0) != null) {
+                     mainConfig.setHAPolicyConfiguration(createPluggableReplicationPrimaryHaPolicy(primaryNode));
+                     return;
+                  } else {
+                     mainConfig.setHAPolicyConfiguration(createReplicationPrimaryHaPolicy(primaryNode));
+                     return;
+                  }
                }
-               NodeList backupNodeList = e.getElementsByTagName("backup");
+               backupNodeList = e.getElementsByTagName("backup");
                if (backupNodeList.getLength() > 0) {
                   Element backupNode = (Element) backupNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createReplicationBackupHaPolicy(backupNode, mainConfig));
+                  if (backupNode.getElementsByTagName("manager").item(0) != null) {
+                     mainConfig.setHAPolicyConfiguration(createPluggableReplicationBackupHaPolicy(backupNode));
+                     return;
+                  } else {
+                     mainConfig.setHAPolicyConfiguration(createReplicationBackupHaPolicy(backupNode));
+                     return;
+                  }
                }
             } else if (haNode.getTagName().equals("shared-store")) {
-               NodeList masterNodeList = e.getElementsByTagName("master");
-               if (masterNodeList.getLength() > 0) {
-                  Element masterNode = (Element) masterNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createSharedStoreMasterHaPolicy(masterNode));
-               }
-               NodeList slaveNodeList = e.getElementsByTagName("slave");
-               if (slaveNodeList.getLength() > 0) {
-                  Element slaveNode = (Element) slaveNodeList.item(0);
-                  mainConfig.setHAPolicyConfiguration(createSharedStoreSlaveHaPolicy(slaveNode));
-               }
+               // check for "colocated" first because it will contain primary/master & backup/slave elements of its own
                NodeList colocatedNodeList = e.getElementsByTagName("colocated");
                if (colocatedNodeList.getLength() > 0) {
                   Element colocatedNode = (Element) colocatedNodeList.item(0);
                   mainConfig.setHAPolicyConfiguration(createColocatedHaPolicy(colocatedNode, false));
+                  return;
+               }
+               NodeList primaryNodeList = e.getElementsByTagName("master");
+               if (primaryNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("master", "primary");
+                  mainConfig.setHAPolicyConfiguration(createSharedStorePrimaryHaPolicy((Element) primaryNodeList.item(0)));
+                  return;
+               }
+               NodeList backupNodeList = e.getElementsByTagName("slave");
+               if (backupNodeList.getLength() > 0) {
+                  ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("slave", "backup");
+                  mainConfig.setHAPolicyConfiguration(createSharedStoreBackupHaPolicy((Element) backupNodeList.item(0)));
+                  return;
+               }
+               primaryNodeList = e.getElementsByTagName("primary");
+               if (primaryNodeList.getLength() > 0) {
+                  mainConfig.setHAPolicyConfiguration(createSharedStorePrimaryHaPolicy((Element) primaryNodeList.item(0)));
+                  return;
+               }
+               backupNodeList = e.getElementsByTagName("backup");
+               if (backupNodeList.getLength() > 0) {
+                  mainConfig.setHAPolicyConfiguration(createSharedStoreBackupHaPolicy((Element) backupNodeList.item(0)));
+                  return;
                }
             } else if (haNode.getTagName().equals("live-only")) {
                NodeList noneNodeList = e.getElementsByTagName("live-only");
                Element noneNode = (Element) noneNodeList.item(0);
-               mainConfig.setHAPolicyConfiguration(createLiveOnlyHaPolicy(noneNode));
+               mainConfig.setHAPolicyConfiguration(createPrimaryOnlyHaPolicy(noneNode));
+            } else if (haNode.getTagName().equals("primary-only")) {
+               NodeList noneNodeList = e.getElementsByTagName("primary-only");
+               Element noneNode = (Element) noneNodeList.item(0);
+               mainConfig.setHAPolicyConfiguration(createPrimaryOnlyHaPolicy(noneNode));
             }
          }
       }
    }
 
-   private LiveOnlyPolicyConfiguration createLiveOnlyHaPolicy(Element policyNode) {
-      LiveOnlyPolicyConfiguration configuration = new LiveOnlyPolicyConfiguration();
+   private PrimaryOnlyPolicyConfiguration createPrimaryOnlyHaPolicy(Element policyNode) {
+      PrimaryOnlyPolicyConfiguration configuration = new PrimaryOnlyPolicyConfiguration();
 
       configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
 
       return configuration;
    }
 
-   private ReplicatedPolicyConfiguration createReplicatedHaPolicy(Element policyNode) {
+   private ReplicatedPolicyConfiguration createReplicationPrimaryHaPolicy(Element policyNode) {
       ReplicatedPolicyConfiguration configuration = new ReplicatedPolicyConfiguration();
-
       configuration.setQuorumVoteWait(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), GT_ZERO));
-
-      configuration.setCheckForLiveServer(getBoolean(policyNode, "check-for-live-server", configuration.isCheckForLiveServer()));
-
+      final String checkForLiveServer = "check-for-live-server";
+      final String checkForActiveServer = "check-for-active-server";
+      if (policyNode.getElementsByTagName(checkForLiveServer).getLength() > 0) {
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption(checkForLiveServer, checkForActiveServer);
+         configuration.setCheckForActiveServer(getBoolean(policyNode, checkForLiveServer, configuration.isCheckForActiveServer()));
+      } else {
+         configuration.setCheckForActiveServer(getBoolean(policyNode, checkForActiveServer, configuration.isCheckForActiveServer()));
+      }
       configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
-
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
-
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
-
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
-
       configuration.setVoteOnReplicationFailure(getBoolean(policyNode, "vote-on-replication-failure", configuration.getVoteOnReplicationFailure()));
-
       configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), MINUS_ONE_OR_GE_ZERO));
-
       configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), GT_ZERO));
-
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), GT_ZERO));
-
       configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), MINUS_ONE_OR_GT_ZERO));
-
       return configuration;
    }
 
-   private ReplicaPolicyConfiguration createReplicaHaPolicy(Element policyNode) {
-
+   private ReplicaPolicyConfiguration createReplicationBackupHaPolicy(Element policyNode) {
       ReplicaPolicyConfiguration configuration = new ReplicaPolicyConfiguration();
-
       configuration.setQuorumVoteWait(getInteger(policyNode, "quorum-vote-wait", ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait(), GT_ZERO));
-
       configuration.setRestartBackup(getBoolean(policyNode, "restart-backup", configuration.isRestartBackup()));
-
       configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
-
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
-
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
-
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
-
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
-
       configuration.setScaleDownConfiguration(parseScaleDownConfig(policyNode));
-
       configuration.setVoteOnReplicationFailure(getBoolean(policyNode, "vote-on-replication-failure", configuration.getVoteOnReplicationFailure()));
-
       configuration.setVoteRetries(getInteger(policyNode, "vote-retries", configuration.getVoteRetries(), MINUS_ONE_OR_GE_ZERO));
-
       configuration.setVoteRetryWait(getLong(policyNode, "vote-retry-wait", configuration.getVoteRetryWait(), GT_ZERO));
-
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getVoteRetryWait(), GT_ZERO));
-
       configuration.setQuorumSize(getInteger(policyNode, "quorum-size", configuration.getQuorumSize(), MINUS_ONE_OR_GT_ZERO));
-
       return configuration;
    }
 
-   private ReplicationPrimaryPolicyConfiguration createReplicationPrimaryHaPolicy(Element policyNode, Configuration config) {
+   private ReplicationPrimaryPolicyConfiguration createPluggableReplicationPrimaryHaPolicy(Element policyNode) {
       ReplicationPrimaryPolicyConfiguration configuration = ReplicationPrimaryPolicyConfiguration.withDefault();
-
       configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
-
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
-
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
-
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), GT_ZERO));
-
-      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
-
+      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode));
       configuration.setCoordinationId(getString(policyNode, "coordination-id", configuration.getCoordinationId(), NOT_NULL_OR_EMPTY));
-
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
-
       return configuration;
    }
 
-   private ReplicationBackupPolicyConfiguration createReplicationBackupHaPolicy(Element policyNode, Configuration config) {
-
+   private ReplicationBackupPolicyConfiguration createPluggableReplicationBackupHaPolicy(Element policyNode) {
       ReplicationBackupPolicyConfiguration configuration = ReplicationBackupPolicyConfiguration.withDefault();
-
       configuration.setGroupName(getString(policyNode, "group-name", configuration.getGroupName(), NO_CHECK));
-
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
-
       configuration.setInitialReplicationSyncTimeout(getLong(policyNode, "initial-replication-sync-timeout", configuration.getInitialReplicationSyncTimeout(), GT_ZERO));
-
       configuration.setClusterName(getString(policyNode, "cluster-name", configuration.getClusterName(), NO_CHECK));
-
       configuration.setMaxSavedReplicatedJournalsSize(getInteger(policyNode, "max-saved-replicated-journals-size", configuration.getMaxSavedReplicatedJournalsSize(), MINUS_ONE_OR_GE_ZERO));
-
       configuration.setRetryReplicationWait(getLong(policyNode, "retry-replication-wait", configuration.getRetryReplicationWait(), GT_ZERO));
-
-      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode, config));
-
+      configuration.setDistributedManagerConfiguration(createDistributedPrimitiveManagerConfiguration(policyNode));
       return configuration;
    }
 
-   private DistributedPrimitiveManagerConfiguration createDistributedPrimitiveManagerConfiguration(Element policyNode, Configuration config) {
+   private DistributedPrimitiveManagerConfiguration createDistributedPrimitiveManagerConfiguration(Element policyNode) {
       final Element managerNode = (Element) policyNode.getElementsByTagName("manager").item(0);
       final String className = getString(managerNode, "class-name",
                                          ActiveMQDefaultConfiguration.getDefaultDistributedPrimitiveManagerClassName(),
@@ -1861,8 +1859,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return new DistributedPrimitiveManagerConfiguration(className, properties);
    }
 
-   private SharedStoreMasterPolicyConfiguration createSharedStoreMasterHaPolicy(Element policyNode) {
-      SharedStoreMasterPolicyConfiguration configuration = new SharedStoreMasterPolicyConfiguration();
+   private SharedStorePrimaryPolicyConfiguration createSharedStorePrimaryHaPolicy(Element policyNode) {
+      SharedStorePrimaryPolicyConfiguration configuration = new SharedStorePrimaryPolicyConfiguration();
 
       configuration.setFailoverOnServerShutdown(getBoolean(policyNode, "failover-on-shutdown", configuration.isFailoverOnServerShutdown()));
       configuration.setWaitForActivation(getBoolean(policyNode, "wait-for-activation", configuration.isWaitForActivation()));
@@ -1870,8 +1868,8 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
       return configuration;
    }
 
-   private SharedStoreSlavePolicyConfiguration createSharedStoreSlaveHaPolicy(Element policyNode) {
-      SharedStoreSlavePolicyConfiguration configuration = new SharedStoreSlavePolicyConfiguration();
+   private SharedStoreBackupPolicyConfiguration createSharedStoreBackupHaPolicy(Element policyNode) {
+      SharedStoreBackupPolicyConfiguration configuration = new SharedStoreBackupPolicyConfiguration();
 
       configuration.setAllowFailBack(getBoolean(policyNode, "allow-failback", configuration.isAllowFailBack()));
 
@@ -1920,15 +1918,28 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
          }
       }
 
-      NodeList masterNodeList = policyNode.getElementsByTagName("master");
-      if (masterNodeList.getLength() > 0) {
-         Element masterNode = (Element) masterNodeList.item(0);
-         configuration.setLiveConfig(replicated ? createReplicatedHaPolicy(masterNode) : createSharedStoreMasterHaPolicy(masterNode));
+      NodeList primaryNodeList = policyNode.getElementsByTagName("master");
+      if (primaryNodeList.getLength() > 0) {
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("master", "primary");
+         Element primaryNode = (Element) primaryNodeList.item(0);
+         configuration.setPrimaryConfig(replicated ? createReplicationPrimaryHaPolicy(primaryNode) : createSharedStorePrimaryHaPolicy(primaryNode));
       }
-      NodeList slaveNodeList = policyNode.getElementsByTagName("slave");
-      if (slaveNodeList.getLength() > 0) {
-         Element slaveNode = (Element) slaveNodeList.item(0);
-         configuration.setBackupConfig(replicated ? createReplicaHaPolicy(slaveNode) : createSharedStoreSlaveHaPolicy(slaveNode));
+      NodeList backupNodeList = policyNode.getElementsByTagName("slave");
+      if (backupNodeList.getLength() > 0) {
+         ActiveMQServerLogger.LOGGER.deprecatedConfigurationOption("slave", "backup");
+         Element backupNode = (Element) backupNodeList.item(0);
+         configuration.setBackupConfig(replicated ? createReplicationBackupHaPolicy(backupNode) : createSharedStoreBackupHaPolicy(backupNode));
+      }
+
+      primaryNodeList = policyNode.getElementsByTagName("primary");
+      if (primaryNodeList.getLength() > 0) {
+         Element primaryNode = (Element) primaryNodeList.item(0);
+         configuration.setPrimaryConfig(replicated ? createReplicationPrimaryHaPolicy(primaryNode) : createSharedStorePrimaryHaPolicy(primaryNode));
+      }
+      backupNodeList = policyNode.getElementsByTagName("backup");
+      if (backupNodeList.getLength() > 0) {
+         Element backupNode = (Element) backupNodeList.item(0);
+         configuration.setBackupConfig(replicated ? createReplicationBackupHaPolicy(backupNode) : createSharedStoreBackupHaPolicy(backupNode));
       }
 
       return configuration;

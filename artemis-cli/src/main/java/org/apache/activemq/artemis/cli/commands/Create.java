@@ -86,8 +86,8 @@ public class Create extends InstallAbstract {
    private static final String ETC_LOGIN_CONFIG = "login.config";
    private static final String ETC_LOGIN_CONFIG_WITH_GUEST = "etc/login-with-guest.config";
    private static final String ETC_LOGIN_CONFIG_WITHOUT_GUEST = "etc/login-without-guest.config";
-   public static final String ETC_REPLICATED_MASTER_SETTINGS_TXT = "etc/replicated-master-settings.txt";
-   public static final String ETC_REPLICATED_SLAVE_SETTINGS_TXT = "etc/replicated-slave-settings.txt";
+   public static final String ETC_REPLICATED_PRIMARY_SETTINGS_TXT = "etc/replicated-primary-settings.txt";
+   public static final String ETC_REPLICATED_BACKUP_SETTINGS_TXT = "etc/replicated-backup-settings.txt";
    public static final String ETC_SHARED_STORE_SETTINGS_TXT = "etc/shared-store-settings.txt";
    public static final String ETC_CLUSTER_SECURITY_SETTINGS_TXT = "etc/cluster-security-settings.txt";
    public static final String ETC_CLUSTER_SETTINGS_TXT = "etc/cluster-settings.txt";
@@ -170,8 +170,12 @@ public class Create extends InstallAbstract {
    @Option(names = "--shared-store", description = "Enable broker shared store.")
    private boolean sharedStore = false;
 
-   @Option(names = "--slave", description = "Be a slave broker. Valid for shared store or replication.")
+   @Deprecated(forRemoval = true)
+   @Option(names = "--slave", description = "Deprecated for removal. Use 'backup' instead.", hidden = true)
    private boolean slave;
+
+   @Option(names = "--backup", description = "Be a backup broker. Valid for shared store or replication.")
+   private boolean backup;
 
    @Option(names = "--failover-on-shutdown", description = "Whether broker shutdown will trigger failover for clients using the core protocol. Valid only for shared store. Default: false.")
    private boolean failoverOnShutodwn;
@@ -496,8 +500,8 @@ public class Create extends InstallAbstract {
       this.role = role;
    }
 
-   private boolean isSlave() {
-      return slave;
+   private boolean isBackup() {
+      return slave || backup;
    }
 
    private boolean isFailoverOnShutodwn() {
@@ -562,7 +566,7 @@ public class Create extends InstallAbstract {
 
       filters.put("${device-block-size}", Integer.toString(journalDeviceBlockSize));
 
-      filters.put("${master-slave}", isSlave() ? "slave" : "master");
+      filters.put("${primary-backup}", isBackup() ? "backup" : "primary");
 
       filters.put("${failover-on-shutdown}", isFailoverOnShutodwn() ? "true" : "false");
 
@@ -581,7 +585,7 @@ public class Create extends InstallAbstract {
 
       if (replicated) {
          clustered = true;
-         filters.put("${replicated.settings}", readTextFile(isSlave() ? ETC_REPLICATED_SLAVE_SETTINGS_TXT : ETC_REPLICATED_MASTER_SETTINGS_TXT, filters));
+         filters.put("${replicated.settings}", readTextFile(isBackup() ? ETC_REPLICATED_BACKUP_SETTINGS_TXT : ETC_REPLICATED_PRIMARY_SETTINGS_TXT, filters));
       } else {
          filters.put("${replicated.settings}", "");
       }

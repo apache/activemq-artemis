@@ -26,9 +26,9 @@ import org.apache.activemq.artemis.api.core.client.SessionFailureListener;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
 import org.apache.activemq.artemis.core.client.impl.Topology;
 import org.apache.activemq.artemis.core.protocol.core.CoreRemotingConnection;
-import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage;
+import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationPrimaryIsStoppingMessage;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
-import org.apache.activemq.artemis.core.server.LiveNodeLocator.BackupRegistrationListener;
+import org.apache.activemq.artemis.core.server.NodeLocator.BackupRegistrationListener;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.NodeManager;
 import org.slf4j.Logger;
@@ -78,13 +78,13 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
 
    private final boolean failback;
    /**
-    * This is a safety net in case the live sends the first {@link ReplicationLiveIsStoppingMessage}
-    * with code {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#STOP_CALLED} and crashes before sending the second with
-    * {@link org.apache.activemq.artemis.core.protocol.core.impl.wireformat.ReplicationLiveIsStoppingMessage.LiveStopping#FAIL_OVER}.
+    * This is a safety net in case the primary sends the first {@link ReplicationPrimaryIsStoppingMessage}
+    * with code {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#STOP_CALLED} and crashes before sending the second with
+    * {@link ReplicationPrimaryIsStoppingMessage.PrimaryStopping#FAIL_OVER}.
     * <p>
     * If the second message does come within this dead line, we fail over anyway.
     */
-   public static final int WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG = 60;
+   public static final int WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG = 60;
 
    public SharedNothingBackupQuorum(NodeManager nodeManager,
                                     ScheduledExecutorService scheduledPool,
@@ -123,12 +123,12 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
          //given that we're going to latch.countDown(), there is no need to await any
          //scheduled task to complete
          stopForcedFailoverAfterDelay();
-         if (!isLiveDown()) {
-            //lost connection but don't know if live is down so restart as backup as we can't replicate any more
+         if (!isPrimaryDown()) {
+            //lost connection but don't know if primary is down so restart as backup as we can't replicate any more
             ActiveMQServerLogger.LOGGER.restartingAsBackupBasedOnQuorumVoteResults();
             signal = BACKUP_ACTIVATION.FAILURE_RETRY;
          } else {
-            // live is assumed to be down, backup fails-over
+            // primary is assumed to be down, backup fails-over
             ActiveMQServerLogger.LOGGER.failingOverBasedOnQuorumVoteResults();
             signal = BACKUP_ACTIVATION.FAIL_OVER;
          }
@@ -138,7 +138,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
           */
          if (networkHealthCheck != null && !networkHealthCheck.isEmpty()) {
             if (networkHealthCheck.check()) {
-               // live is assumed to be down, backup fails-over
+               // primary is assumed to be down, backup fails-over
                signal = BACKUP_ACTIVATION.FAIL_OVER;
             } else {
                ActiveMQServerLogger.LOGGER.serverIsolatedOnNetwork();
@@ -149,9 +149,9 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
       }
    }
 
-   public void liveIDSet(String liveID) {
-      targetServerID = liveID;
-      nodeManager.setNodeID(liveID);
+   public void primaryIDSet(String primaryID) {
+      targetServerID = primaryID;
+      nodeManager.setNodeID(primaryID);
    }
 
    @Override
@@ -170,8 +170,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    public void nodeDown(Topology topology, long eventUID, String nodeID) {
       // ignore it during a failback:
       // a failing slave close all connections but the one used for replication
-      // triggering a nodeDown before the restarted master receive a STOP_CALLED from it.
-      // This can make master to fire a useless quorum vote during a normal failback.
+      // triggering a nodeDown before the restarted primary receive a STOP_CALLED from it.
+      // This can make primary to fire a useless quorum vote during a normal failback.
       if (!failback && targetServerID.equals(nodeID)) {
          onConnectionFailure();
       }
@@ -183,7 +183,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    }
 
    /**
-    * if the connection to our replicated live goes down then decide on an action
+    * if the connection to our replicated primary goes down then decide on an action
     */
    @Override
    public void connectionFailed(ActiveMQException exception, boolean failedOver) {
@@ -206,7 +206,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
    }
 
    /**
-    * @param sessionFactory the session factory used to connect to the live server
+    * @param sessionFactory the session factory used to connect to the primary server
     */
    public void setSessionFactory(final ClientSessionFactoryInternal sessionFactory) {
       this.sessionFactory = sessionFactory;
@@ -222,7 +222,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     * The use case is for when the 'live' has an orderly shutdown, in which case it informs the
     * backup that it should fail-over.
     */
-   public synchronized void failOver(ReplicationLiveIsStoppingMessage.LiveStopping finalMessage) {
+   public synchronized void failOver(ReplicationPrimaryIsStoppingMessage.PrimaryStopping finalMessage) {
       removeListeners();
       signal = BACKUP_ACTIVATION.FAIL_OVER;
       switch (finalMessage) {
@@ -235,7 +235,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             latch.countDown();
             break;
          default:
-            logger.error("unsupported LiveStopping type: {}", finalMessage);
+            logger.error("unsupported PrimaryStopping type: {}", finalMessage);
       }
    }
 
@@ -292,8 +292,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
             logger.warn("Cancelled an existing uncompleted force failover task: a new one will be scheduled in its place");
          }
       }
-      decisionGuard = scheduledPool.schedule(signalChanged::countDown,
-                                             WAIT_TIME_AFTER_FIRST_LIVE_STOPPING_MSG, TimeUnit.SECONDS);
+      decisionGuard = scheduledPool.schedule(signalChanged::countDown, WAIT_TIME_AFTER_FIRST_PRIMARY_STOPPING_MSG, TimeUnit.SECONDS);
    }
 
    private synchronized boolean stopForcedFailoverAfterDelay() {
@@ -315,8 +314,8 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
     *
     * @return the voting decision
     */
-   private boolean isLiveDown() {
-      // lets assume live is not down
+   private boolean isPrimaryDown() {
+      // let's assume primary is not down
       if (stopped) {
          return false;
       }
@@ -331,7 +330,7 @@ public class SharedNothingBackupQuorum implements Quorum, SessionFailureListener
                   //nothing to do here
                }
             }
-            if (!quorumManager.hasLive(targetServerID, size, quorumVoteWait, TimeUnit.SECONDS)) {
+            if (!quorumManager.hasPrimary(targetServerID, size, quorumVoteWait, TimeUnit.SECONDS)) {
                return true;
             }
          }

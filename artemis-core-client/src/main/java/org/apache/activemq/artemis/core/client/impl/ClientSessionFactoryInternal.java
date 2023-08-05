@@ -35,7 +35,7 @@ public interface ClientSessionFactoryInternal extends ClientSessionFactory {
 
    boolean waitForTopology(long timeout, TimeUnit unit);
 
-   String getLiveNodeId();
+   String getPrimaryNodeId();
 
    // for testing
 

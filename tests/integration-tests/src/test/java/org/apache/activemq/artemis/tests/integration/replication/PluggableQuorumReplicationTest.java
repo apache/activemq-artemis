@@ -59,7 +59,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
    }
 
    @Override
-   protected HAPolicyConfiguration createReplicationLiveConfiguration() {
+   protected HAPolicyConfiguration createReplicationPrimaryConfiguration() {
       ReplicationPrimaryPolicyConfiguration haPolicy = ReplicationPrimaryPolicyConfiguration.withDefault();
       haPolicy.setDistributedManagerConfiguration(managerConfiguration);
       return haPolicy;
@@ -75,14 +75,14 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
    @Test
    public void testUnReplicatedOrderedTransition() throws Exception {
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?ha=true");
       locator.setCallTimeout(60_000L);
@@ -101,10 +101,10 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       Wait.waitFor(backupServer::isStarted);
 
-      waitForTopology(liveServer, 1, 1, 30000);
+      waitForTopology(primaryServer, 1, 1, 30000);
       waitForTopology(backupServer, 1, 1, 30000);
 
-      liveServer.stop();
+      primaryServer.stop();
 
       // backup will take over and run un replicated
 
@@ -119,9 +119,9 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.stop(false);
 
       // now only backup should be able to start as it has run un_replicated
-      liveServer.start();
-      Wait.assertFalse(liveServer::isActive);
-      liveServer.stop();
+      primaryServer.start();
+      Wait.assertFalse(primaryServer::isActive);
+      primaryServer.stop();
 
       // restart backup
       backupServer.start();
@@ -134,23 +134,23 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       clientSession.createQueue(new QueueConfiguration("backup_as_un_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-      // verify the live restart as a backup to the restarted backupServer that has taken on the live role, no failback
-      liveServer.start();
+      // verify the primary restart as a backup to the restarted backupServer that has taken on the primary role, no failback
+      primaryServer.start();
 
       csf = locator.createSessionFactory();
       clientSession = csf.createSession();
       clientSession.createQueue(new QueueConfiguration("backup_as_replicated").setRoutingType(RoutingType.ANYCAST));
       clientSession.close();
 
-      assertTrue(Wait.waitFor(liveServer::isReplicaSync));
-      assertTrue(Wait.waitFor(() -> 3L == liveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(primaryServer::isReplicaSync));
+      assertTrue(Wait.waitFor(() -> 3L == primaryServer.getNodeManager().getNodeActivationSequence()));
 
       backupServer.stop(true);
 
-      waitForTopology(liveServer, 1, 0, 30000);
-      assertTrue(Wait.waitFor(() -> 4L == liveServer.getNodeManager().getNodeActivationSequence()));
+      waitForTopology(primaryServer, 1, 0, 30000);
+      assertTrue(Wait.waitFor(() -> 4L == primaryServer.getNodeManager().getNodeActivationSequence()));
 
-      liveServer.stop(true);
+      primaryServer.stop(true);
       clientSession.close();
       locator.close();
    }
@@ -159,10 +159,10 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
    public void testBackupFailoverAndPrimaryFailback() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
 
-      // start live
-      Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer primaryInstance = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      ActiveMQServer primaryInstance = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
       primaryInstance.setIdentity("PRIMARY");
       primaryInstance.start();
 
@@ -194,7 +194,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       TimeUnit.MILLISECONDS.sleep(100);
 
       // restart primary that will request failback
-      ActiveMQServer restartedPrimaryForFailBack = primaryInstance; //addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      ActiveMQServer restartedPrimaryForFailBack = primaryInstance; //addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
       restartedPrimaryForFailBack.start();
 
       // first step is backup getting replicated
@@ -223,7 +223,7 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       // just to let the console logging breath!
       TimeUnit.MILLISECONDS.sleep(100);
 
-      // live goes un replicated
+      // primary goes un replicated
       org.apache.activemq.artemis.utils.Wait.assertTrue(() -> {
          try {
             return 4L == restartedPrimaryForFailBack.getNodeManager().getNodeActivationSequence();
@@ -240,10 +240,10 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
    public void testPrimaryIncrementActivationSequenceOnUnReplicated() throws Exception {
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
 
-      // start live
-      Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer primaryInstance = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
+      ActiveMQServer primaryInstance = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
       primaryInstance.setIdentity("PRIMARY");
       primaryInstance.start();
 
@@ -284,18 +284,18 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.setIdentity("BACKUP");
       backupServer.start();
 
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
    }
 
    @Test
@@ -307,35 +307,35 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.setIdentity("BACKUP");
       backupServer.start();
 
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
 
       backupServer.stop();
 
       TimeUnit.SECONDS.sleep(1);
 
-      liveServer.stop();
+      primaryServer.stop();
       // backup can get lock but does not have the sequence to start, will try and be a backup
 
       backupServer.start();
 
-      // live server should be active
-      liveServer.start();
-      Wait.waitFor(liveServer::isStarted);
+      // primary server should be active
+      primaryServer.start();
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
    }
 
 
@@ -348,25 +348,25 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.setIdentity("BACKUP");
       backupServer.start();
 
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
 
       backupServer.stop();
 
       TimeUnit.SECONDS.sleep(1);
 
-      final String coordinatedId = liveServer.getNodeID().toString();
-      liveServer.stop();
+      final String coordinatedId = primaryServer.getNodeID().toString();
+      primaryServer.stop();
 
       // backup can get lock but does not have the sequence to start, will try and be a backup
       // to verify it can short circuit with a dirty read we grab the lock for a little while
@@ -392,30 +392,30 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       // release the lock
       distributedPrimitiveManager.stop();
 
-      // live server should be active
-      liveServer.start();
-      Wait.waitFor(liveServer::isStarted);
+      // primary server should be active
+      primaryServer.start();
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
    }
 
    @Test
    public void testSelfRepairPrimary() throws Exception {
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
 
-      liveServer.start();
-      final String coordinatedId = liveServer.getNodeID().toString();
-      Wait.waitFor(liveServer::isStarted);
-      liveServer.stop();
+      primaryServer.start();
+      final String coordinatedId = primaryServer.getNodeID().toString();
+      Wait.waitFor(primaryServer::isStarted);
+      primaryServer.stop();
 
-      liveServer.start();
-      Wait.waitFor(liveServer::isStarted);
-      Assert.assertEquals(2, liveServer.getNodeManager().getNodeActivationSequence());
-      liveServer.stop();
+      primaryServer.start();
+      Wait.waitFor(primaryServer::isStarted);
+      Assert.assertEquals(2, primaryServer.getNodeManager().getNodeActivationSequence());
+      primaryServer.stop();
 
       // backup can get lock but does not have the sequence to start, will try and be a backup
       // to verify it can short circuit with a dirty read we grab the lock for a little while
@@ -426,9 +426,9 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
          assertTrue(lock.tryLock());
          distributedPrimitiveManager.getMutableLong(coordinatedId).compareAndSet(2, -2);
       }
-      liveServer.start();
-      Wait.waitFor(liveServer::isStarted);
-      Assert.assertEquals(3, liveServer.getNodeManager().getNodeActivationSequence());
+      primaryServer.start();
+      Wait.waitFor(primaryServer::isStarted);
+      Assert.assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
       Assert.assertEquals(3, distributedPrimitiveManager.getMutableLong(coordinatedId).get());
 
       distributedPrimitiveManager.stop();
@@ -446,14 +446,14 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
    public void testPrimaryPeers() throws Exception {
       final String PEER_NODE_ID = "some-shared-id-001";
 
-      final Configuration liveConfiguration = createLiveConfiguration();
-      ((ReplicationPrimaryPolicyConfiguration)liveConfiguration.getHAPolicyConfiguration()).setCoordinationId(PEER_NODE_ID);
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
+      ((ReplicationPrimaryPolicyConfiguration)primaryConfiguration.getHAPolicyConfiguration()).setCoordinationId(PEER_NODE_ID);
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       ServerLocator locator = ServerLocatorImpl.newLocator("(tcp://localhost:61616,tcp://localhost:61617)?ha=true");
       locator.setCallTimeout(60_000L);
@@ -461,80 +461,80 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       final ClientSessionFactory keepLocatorAliveSLF = locator.createSessionFactory();
 
       ClientSessionFactory csf = locator.createSessionFactory();
-      sendTo(csf, "live_un_replicated");
+      sendTo(csf, "primary_un_replicated");
       csf.close();
 
       // start peer, will backup
-      Configuration peerLiveConfiguration = createBackupConfiguration(); // to get acceptors and locators ports that won't clash
-      peerLiveConfiguration.setHAPolicyConfiguration(createReplicationLiveConfiguration());
-      ((ReplicationPrimaryPolicyConfiguration)peerLiveConfiguration.getHAPolicyConfiguration()).setCoordinationId(PEER_NODE_ID);
-      peerLiveConfiguration.setName("localhost::live-peer");
+      Configuration primaryPeerConfiguration = createBackupConfiguration(); // to get acceptors and locators ports that won't clash
+      primaryPeerConfiguration.setHAPolicyConfiguration(createReplicationPrimaryConfiguration());
+      ((ReplicationPrimaryPolicyConfiguration)primaryPeerConfiguration.getHAPolicyConfiguration()).setCoordinationId(PEER_NODE_ID);
+      primaryPeerConfiguration.setName("localhost::primary-peer");
 
-      ActiveMQServer livePeerServer = addServer(ActiveMQServers.newActiveMQServer(peerLiveConfiguration));
-      livePeerServer.setIdentity("LIVE-PEER");
-      livePeerServer.start();
+      ActiveMQServer primaryPeerServer = addServer(ActiveMQServers.newActiveMQServer(primaryPeerConfiguration));
+      primaryPeerServer.setIdentity("PRIMARY-PEER");
+      primaryPeerServer.start();
 
-      Wait.waitFor(livePeerServer::isStarted);
+      Wait.waitFor(primaryPeerServer::isStarted);
 
-      waitForTopology(liveServer, 1, 1, 30000);
-      waitForTopology(livePeerServer, 1, 1, 30000);
+      waitForTopology(primaryServer, 1, 1, 30000);
+      waitForTopology(primaryPeerServer, 1, 1, 30000);
 
-      liveServer.stop();
+      primaryServer.stop();
 
-      // livePeerServer will take over and run un replicated
+      // primaryPeerServer will take over and run un replicated
 
       csf = locator.createSessionFactory();
-      receiveFrom(csf, "live_un_replicated");
+      receiveFrom(csf, "primary_un_replicated");
       sendTo(csf, "peer_un_replicated");
       csf.close();
 
-      waitForTopology(livePeerServer, 1, 0, 30000);
+      waitForTopology(primaryPeerServer, 1, 0, 30000);
 
-      assertTrue(Wait.waitFor(() -> 2L == livePeerServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(() -> 2L == primaryPeerServer.getNodeManager().getNodeActivationSequence()));
 
-      livePeerServer.stop(false);
+      primaryPeerServer.stop(false);
 
-      liveServer.start();
+      primaryServer.start();
 
-      Wait.assertTrue(() -> !liveServer.isActive());
+      Wait.assertTrue(() -> !primaryServer.isActive());
 
       // restart backup
-      livePeerServer.start();
+      primaryPeerServer.start();
 
-      Wait.waitFor(livePeerServer::isStarted);
+      Wait.waitFor(primaryPeerServer::isStarted);
 
-      assertEquals(3L, livePeerServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3L, primaryPeerServer.getNodeManager().getNodeActivationSequence());
 
       csf = locator.createSessionFactory();
       receiveFrom(csf, "peer_un_replicated");
       sendTo(csf, "backup_as_un_replicated");
       csf.close();
 
-      // verify the live restart as a backup to the restarted PeerLiveServer that has taken on the live role
-      liveServer.start();
+      // verify the primary restarts as a backup to the restarted primaryPeerServer that has taken on the primary role
+      primaryServer.start();
 
       csf = locator.createSessionFactory();
       receiveFrom(csf, "backup_as_un_replicated");
       sendTo(csf, "backup_as_replicated");
       csf.close();
 
-      assertTrue(Wait.waitFor(liveServer::isReplicaSync));
-      assertTrue(Wait.waitFor(() -> 3L == liveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(primaryServer::isReplicaSync));
+      assertTrue(Wait.waitFor(() -> 3L == primaryServer.getNodeManager().getNodeActivationSequence()));
 
-      waitForTopology(liveServer, 1, 1, 30000);
-      waitForTopology(livePeerServer, 1, 1, 30000);
+      waitForTopology(primaryServer, 1, 1, 30000);
+      waitForTopology(primaryPeerServer, 1, 1, 30000);
 
-      livePeerServer.stop(true);
+      primaryPeerServer.stop(true);
 
-      assertTrue(Wait.waitFor(() -> 4L == liveServer.getNodeManager().getNodeActivationSequence()));
+      assertTrue(Wait.waitFor(() -> 4L == primaryServer.getNodeManager().getNodeActivationSequence()));
 
       csf = locator.createSessionFactory();
       receiveFrom(csf, "backup_as_replicated");
       csf.close();
 
-      waitForTopology(liveServer, 1, 0, 30000);
+      waitForTopology(primaryServer, 1, 0, 30000);
 
-      liveServer.stop(true);
+      primaryServer.stop(true);
       keepLocatorAliveSLF.close();
       locator.close();
    }
@@ -548,37 +548,37 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.setIdentity("BACKUP");
       backupServer.start();
 
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
 
-      final String coordinatedId = liveServer.getNodeID().toString();
+      final String coordinatedId = primaryServer.getNodeID().toString();
 
       backupServer.stop();
       TimeUnit.MILLISECONDS.sleep(500);
-      liveServer.stop();
+      primaryServer.stop();
 
       // some  manual intervention to force an unavailable
-      // simulate live failing in activation local sequence update on un replicated run when backup stops.
+      // simulate primary failing in activation local sequence update on un replicated run when backup stops.
 
       DistributedPrimitiveManager distributedPrimitiveManager = DistributedPrimitiveManager.newInstanceOf(managerConfiguration.getClassName(), managerConfiguration.getProperties());
       distributedPrimitiveManager.start();
       final MutableLong activationSequence = distributedPrimitiveManager.getMutableLong(coordinatedId);
       Assert.assertTrue(activationSequence.compareAndSet(2, -2));
 
-      // live server should activate after self healing its outstanding claim
-      liveServer.start();
-      Wait.waitFor(liveServer::isStarted);
-      Assert.assertEquals(3, liveServer.getNodeManager().getNodeActivationSequence());
+      // primary server should activate after self healing its outstanding claim
+      primaryServer.start();
+      Wait.waitFor(primaryServer::isStarted);
+      Assert.assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
       Assert.assertEquals(3, activationSequence.get());
    }
 
@@ -590,27 +590,27 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       backupServer.setIdentity("BACKUP");
       backupServer.start();
 
-      // start live
-      final Configuration liveConfiguration = createLiveConfiguration();
+      // start primary
+      final Configuration primaryConfiguration = createPrimaryConfiguration();
 
-      ActiveMQServer liveServer = addServer(ActiveMQServers.newActiveMQServer(liveConfiguration));
-      liveServer.setIdentity("LIVE");
-      liveServer.start();
+      ActiveMQServer primaryServer = addServer(ActiveMQServers.newActiveMQServer(primaryConfiguration));
+      primaryServer.setIdentity("PRIMARY");
+      primaryServer.start();
 
-      Wait.waitFor(liveServer::isStarted);
+      Wait.waitFor(primaryServer::isStarted);
 
       assertTrue(Wait.waitFor(backupServer::isStarted));
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
 
-      final String coordinatedId = liveServer.getNodeID().toString();
+      final String coordinatedId = primaryServer.getNodeID().toString();
 
       backupServer.stop();
       TimeUnit.MILLISECONDS.sleep(500);
-      liveServer.stop();
+      primaryServer.stop();
 
       // some  manual intervention to force an unavailable
-      // simulate live failing in activation local sequence update on un replicated run when backup stops.
+      // simulate primary failing in activation local sequence update on un replicated run when backup stops.
 
       DistributedPrimitiveManager distributedPrimitiveManager = DistributedPrimitiveManager.newInstanceOf(
          managerConfiguration.getClassName(),
@@ -620,8 +620,8 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
       Assert.assertTrue(coordinatedActivationSequence.compareAndSet(2, -2));
 
       // case: 2, the fail to write locally 2 but the write actually failing
-      // need to put 1 in the local activation sequence of the live
-      FileLockNodeManager fileLockNodeManager = new FileLockNodeManager(liveConfiguration.getNodeManagerLockLocation().getAbsoluteFile(), true);
+      // need to put 1 in the local activation sequence of the primary
+      FileLockNodeManager fileLockNodeManager = new FileLockNodeManager(primaryConfiguration.getNodeManagerLockLocation().getAbsoluteFile(), true);
       fileLockNodeManager.start();
       assertEquals(2, fileLockNodeManager.readNodeActivationSequence());
       fileLockNodeManager.writeNodeActivationSequence(1);
@@ -629,30 +629,30 @@ public class PluggableQuorumReplicationTest extends SharedNothingReplicationTest
 
       // should delay pending resolution of the uncommitted claim
       backupServer.start();
-      CountDownLatch liveStarting = new CountDownLatch(1);
+      CountDownLatch primaryStarting = new CountDownLatch(1);
       // should delay pending resolution of the uncommitted claim
       // IMPORTANT: primary activation run on the start caller thread!! We need another thread here
-      final Thread liveServerStarterThread = new Thread(() -> {
-         liveStarting.countDown();
+      final Thread primaryServerStarterThread = new Thread(() -> {
+         primaryStarting.countDown();
          try {
-            liveServer.start();
+            primaryServer.start();
          } catch (Throwable e) {
             e.printStackTrace();
          }
       });
-      liveServerStarterThread.start();
-      liveStarting.await();
+      primaryServerStarterThread.start();
+      primaryStarting.await();
       TimeUnit.MILLISECONDS.sleep(500);
       // both are candidates and one of them failed to commit the claim
       // let them compete on retry
       // one of the two can activate
-      Wait.waitFor(() -> liveServer.isStarted() || backupServer.isStarted());
+      Wait.waitFor(() -> primaryServer.isStarted() || backupServer.isStarted());
 
       assertTrue(Wait.waitFor(backupServer::isReplicaSync));
-      assertTrue(liveServer.isReplicaSync());
+      assertTrue(primaryServer.isReplicaSync());
 
       assertEquals(3, backupServer.getNodeManager().getNodeActivationSequence());
-      assertEquals(3, liveServer.getNodeManager().getNodeActivationSequence());
+      assertEquals(3, primaryServer.getNodeManager().getNodeActivationSequence());
 
    }
 

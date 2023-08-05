@@ -172,7 +172,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
    private volatile boolean stopping = false;
 
-   private LiveNotifier liveNotifier = null;
+   private PrimaryNotifier primaryNotifier = null;
 
    private final long clusterNotificationInterval;
 
@@ -514,12 +514,12 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          logger.debug("{}::NodeAnnounced, backup={}{}{}", this, backup, nodeID, connectorPair);
       }
 
-      TransportConfiguration live = connectorPair.getA();
+      TransportConfiguration primary = connectorPair.getA();
       TransportConfiguration backupTC = connectorPair.getB();
-      TopologyMemberImpl newMember = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, live, backupTC);
+      TopologyMemberImpl newMember = new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, primary, backupTC);
       newMember.setUniqueEventID(uniqueEventID);
       if (backup) {
-         topology.updateBackup(new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, live, backupTC));
+         topology.updateBackup(new TopologyMemberImpl(nodeID, backupGroupName, scaleDownGroupName, primary, backupTC));
       } else {
          topology.updateMember(uniqueEventID, nodeID, newMember);
       }
@@ -535,13 +535,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
    @Override
    public boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput) {
       if (splitBrainDetection && nodeId.equals(nodeManager.getNodeId().toString())) {
-         if (memberInput.getLive() != null) {
-            if (!memberInput.getLive().isSameParams(connector)) {
+         if (memberInput.getPrimary() != null) {
+            if (!memberInput.getPrimary().isSameParams(connector)) {
                ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId, memberInput.toString());
                return false;
             }
          } else {
-            memberInput.setLive(connector);
+            memberInput.setPrimary(connector);
          }
       }
       return true;
@@ -579,7 +579,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          ClusterControl clusterControl = manager.getClusterController().connectToNodeInCluster(sf);
          try {
             clusterControl.authorize();
-            clusterControl.sendNodeAnnounce(localMember.getUniqueEventID(), manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), false, localMember.getLive(), localMember.getBackup());
+            clusterControl.sendNodeAnnounce(localMember.getUniqueEventID(), manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), false, localMember.getPrimary(), localMember.getBackup());
          } catch (ActiveMQException e) {
             ActiveMQServerLogger.LOGGER.clusterControlAuthfailure(e.getMessage());
             logger.debug(e.getMessage(), e);
@@ -660,9 +660,9 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          logger.debug("Activating cluster connection nodeID={} for server={}", nodeManager.getNodeId(), server);
       }
 
-      liveNotifier = new LiveNotifier();
-      liveNotifier.updateAsLive();
-      liveNotifier.schedule();
+      primaryNotifier = new PrimaryNotifier();
+      primaryNotifier.updateAsPrimary();
+      primaryNotifier.schedule();
 
       serverLocator = clusterConnector.createServerLocator();
 
@@ -752,7 +752,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
 
       // if the node is more than 1 hop away, we do not create a bridge for direct cluster connection
-      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getLive().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
+      if (allowDirectConnectionsOnly && !allowableConnections.contains(topologyMember.getPrimary().newTransportConfig(TRANSPORT_CONFIG_NAME))) {
          return;
       }
 
@@ -762,7 +762,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          return;
       }
       /*we don't create bridges to backups*/
-      if (topologyMember.getLive() == null) {
+      if (topologyMember.getPrimary() == null) {
          if (logger.isTraceEnabled()) {
             logger.trace("{} ignoring call with nodeID={}, topologyMember={}, last={}", this, nodeID, topologyMember, last);
          }
@@ -798,7 +798,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
                // such as we don't hold groupIDs inside the SnF queue
                queue.setInternalQueue(true);
 
-               createNewRecord(topologyMember.getUniqueEventID(), nodeID, topologyMember.getLive(), queueName, queue, true);
+               createNewRecord(topologyMember.getUniqueEventID(), nodeID, topologyMember.getPrimary(), queueName, queue, true);
             } else {
                if (logger.isTraceEnabled()) {
                   logger.trace("{} ignored nodeUp record for {} on nodeID={} as the record already existed", this, topologyMember, nodeID);
@@ -820,7 +820,7 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
 
       TopologyMemberImpl localMember = new TopologyMemberImpl(nodeID, null, null, null, connector);
 
-      topology.updateAsLive(nodeID, localMember);
+      topology.updateAsPrimary(nodeID, localMember);
    }
 
 
@@ -1605,13 +1605,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
       }
    }
 
-   private final class LiveNotifier implements Runnable {
+   private final class PrimaryNotifier implements Runnable {
 
       int notificationsSent = 0;
 
       @Override
       public void run() {
-         resendLive();
+         resendPrimary();
 
          schedule();
       }
@@ -1622,13 +1622,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
          }
       }
 
-      public void updateAsLive() {
+      public void updateAsPrimary() {
          if (!stopping && started) {
-            topology.updateAsLive(manager.getNodeId(), new TopologyMemberImpl(manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), connector, null));
+            topology.updateAsPrimary(manager.getNodeId(), new TopologyMemberImpl(manager.getNodeId(), manager.getBackupGroupName(), manager.getScaleDownGroupName(), connector, null));
          }
       }
 
-      public void resendLive() {
+      public void resendPrimary() {
          if (!stopping && started) {
             topology.resendNode(manager.getNodeId());
          }

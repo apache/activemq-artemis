@@ -47,7 +47,7 @@ var Artemis;
                     <input type="checkbox" ng-model="$ctrl.showInternalQueues">
                 </label>
 
-                <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Live Brokers:
+                <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Primary Brokers:
                     <input type="checkbox" ng-model="$ctrl.showLiveBrokers">
                 </label>
                 <label style="margin-right: 1em" ng-show="$ctrl.cntLiveBrokers && $ctrl.cntBackupBrokers">Show Backup Brokers:
@@ -145,30 +145,30 @@ var Artemis;
             updateInternalQueueKind();
         });
         function updateLiveBrokerKind() {
-            if(ctrl.kinds.ThisMasterBroker && !ctrl.showLiveBrokers) {
-               delete ctrl.kinds.ThisMasterBroker;
-            } else if (!ctrl.kinds.ThisMasterBroker && ctrl.showLiveBrokers) {
-                ctrl.kinds.ThisMasterBroker = true;
+            if(ctrl.kinds.ThisPrimaryBroker && !ctrl.showLiveBrokers) {
+               delete ctrl.kinds.ThisPrimaryBroker;
+            } else if (!ctrl.kinds.ThisPrimaryBroker && ctrl.showLiveBrokers) {
+                ctrl.kinds.ThisPrimaryBroker = true;
             }
-            if(ctrl.kinds.MasterBroker && !ctrl.showLiveBrokers) {
-               delete ctrl.kinds.MasterBroker;
-            } else if (!ctrl.kinds.MasterBroker && ctrl.showLiveBrokers) {
-                ctrl.kinds.MasterBroker = true;
+            if(ctrl.kinds.PrimaryBroker && !ctrl.showLiveBrokers) {
+               delete ctrl.kinds.PrimaryBroker;
+            } else if (!ctrl.kinds.PrimaryBroker && ctrl.showLiveBrokers) {
+                ctrl.kinds.PrimaryBroker = true;
             }
         }
         $scope.$watch('$ctrl.showLiveBrokers', function () {
             updateLiveBrokerKind();
         });
         function updateBackupBrokerKind() {
-            if(ctrl.kinds.ThisSlaveBroker && !ctrl.showBackupBrokers) {
-               delete ctrl.kinds.ThisSlaveBroker;
-            } else if (!ctrl.kinds.ThisSlaveBroker && ctrl.showBackupBrokers) {
-                ctrl.kinds.ThisSlaveBroker = true;
+            if(ctrl.kinds.ThisBackupBroker && !ctrl.showBackupBrokers) {
+               delete ctrl.kinds.ThisBackupBroker;
+            } else if (!ctrl.kinds.ThisBackupBroker && ctrl.showBackupBrokers) {
+                ctrl.kinds.ThisBackupBroker = true;
             }
-            if(ctrl.kinds.SlaveBroker && !ctrl.showBackupBrokers) {
-               delete ctrl.kinds.SlaveBroker;
-            } else if (!ctrl.kinds.SlaveBroker && ctrl.showBackupBrokers) {
-                ctrl.kinds.SlaveBroker = true;
+            if(ctrl.kinds.BackupBroker && !ctrl.showBackupBrokers) {
+               delete ctrl.kinds.BackupBroker;
+            } else if (!ctrl.kinds.BackupBroker && ctrl.showBackupBrokers) {
+                ctrl.kinds.BackupBroker = true;
             }
             if(ctrl.kinds.OtherBroker && !ctrl.showBackupBrokers) {
                delete ctrl.kinds.OtherBroker;
@@ -196,22 +196,22 @@ var Artemis;
         ctrl.addressIcon = "";
         ctrl.queueIcon = "";
         ctrl.icons = {
-            "ThisMasterBroker": {
+            "ThisPrimaryBroker": {
               "type": "glyph",
               "icon": ctrl.serverIcon,
               "fontfamily": "PatternFlyIcons-webfont"
             },
-            "MasterBroker": {
+            "PrimaryBroker": {
               "type": "glyph",
               "icon": ctrl.serverIcon,
               "fontfamily": "PatternFlyIcons-webfont"
             },
-            "ThisSlaveBroker": {
+            "ThisBackupBroker": {
               "type": "glyph",
               "icon": ctrl.serverIcon,
               "fontfamily": "PatternFlyIcons-webfont"
             },
-            "SlaveBroker": {
+            "BackupBroker": {
               "type": "glyph",
               "icon": ctrl.serverIcon,
               "fontfamily": "PatternFlyIcons-webfont"
@@ -262,10 +262,10 @@ var Artemis;
             ctrl.data.url = "fooBar";
 
             ctrl.kinds = {
-                "ThisMasterBroker": true,
-                "MasterBroker": true,
-                "ThisSlaveBroker": true,
-                "SlaveBroker": true,
+                "ThisPrimaryBroker": true,
+                "PrimaryBroker": true,
+                "ThisBackupBroker": true,
+                "BackupBroker": true,
                 "OtherBroker": true,
                 "Address": true,
                 "Queue": true
@@ -274,49 +274,49 @@ var Artemis;
             ctrl.icons = ctrl.data.icons;
 
             ctrl.nodes = {
-                "ThisMasterBroker": {
-                     "name": "ThisMasterBroker",
+                "ThisPrimaryBroker": {
+                     "name": "ThisPrimaryBroker",
                      "enabled": true,
                      "radius": 28,
                      "textX": 0,
                      "textY": 5,
                      "height": 30,
                      "width": 30,
-                     "icon": ctrl.icons["ThisMasterBroker"].icon,
-                     "fontFamily": ctrl.icons["ThisMasterBroker"].fontfamily
+                     "icon": ctrl.icons["ThisPrimaryBroker"].icon,
+                     "fontFamily": ctrl.icons["ThisPrimaryBroker"].fontfamily
                    },
-                "MasterBroker": {
-                    "name": "MasterBroker",
+                "PrimaryBroker": {
+                    "name": "PrimaryBroker",
                     "enabled": true,
                     "radius": 28,
                     "textX": 0,
                     "textY": 5,
                     "height": 30,
                     "width": 30,
-                    "icon": ctrl.icons["MasterBroker"].icon,
-                    "fontFamily": ctrl.icons["MasterBroker"].fontfamily
+                    "icon": ctrl.icons["PrimaryBroker"].icon,
+                    "fontFamily": ctrl.icons["PrimaryBroker"].fontfamily
                 },
-                "ThisSlaveBroker": {
-                    "name": "ThisSlaveBroker",
+                "ThisBackupBroker": {
+                    "name": "ThisBackupBroker",
                     "enabled": true,
                     "radius": 28,
                     "textX": 0,
                     "textY": 5,
                     "height": 30,
                     "width": 30,
-                    "icon": ctrl.icons["ThisSlaveBroker"].icon,
-                    "fontFamily": ctrl.icons["ThisSlaveBroker"].fontfamily
+                    "icon": ctrl.icons["ThisBackupBroker"].icon,
+                    "fontFamily": ctrl.icons["ThisBackupBroker"].fontfamily
                 },
-                "SlaveBroker": {
-                    "name": "SlaveBroker",
+                "BackupBroker": {
+                    "name": "BackupBroker",
                     "enabled": true,
                     "radius": 28,
                     "textX": 0,
                     "textY": 5,
                     "height": 30,
                     "width": 30,
-                    "icon": ctrl.icons["SlaveBroker"].icon,
-                    "fontFamily": ctrl.icons["SlaveBroker"].fontfamily
+                    "icon": ctrl.icons["BackupBroker"].icon,
+                    "fontFamily": ctrl.icons["BackupBroker"].fontfamily
                 },
                 "OtherBroker": {
                     "name": "OtherBroker",
@@ -446,10 +446,10 @@ var Artemis;
                         val.Connectors = [];
                     }
                     if (thisBroker.live) {
-                        ctrl.items[thisBroker.live] = {
-                            "name": thisBroker.live.replace(/:6161[67]$/, ""),
-                            "kind": isBackup ? "MasterBroker" : "ThisMasterBroker",
-                            "brokerKind": "master",
+                        ctrl.items[thisBroker.primary] = {
+                            "name": thisBroker.primary.replace(/:6161[67]$/, ""),
+                            "kind": isBackup ? "PrimaryBroker" : "ThisPrimaryBroker",
+                            "brokerKind": "primary",
                             "status": "broker",
                             "display_kind": "Server",
                             "mbean": isBackup ? undefined : mBean
@@ -459,30 +459,30 @@ var Artemis;
                     if (thisBroker.backup) {
                         ctrl.items[thisBroker.backup] = {
                             "name": thisBroker.backup.replace(/:6161[67]$/, ""),
-                            "kind": isBackup ? "ThisSlaveBroker" : "SlaveBroker",
-                            "brokerKind": "slave",
+                            "kind": isBackup ? "ThisBackupBroker" : "BackupBroker",
+                            "brokerKind": "backup",
                             "status": "broker",
                             "display_kind": "Server",
                             "mbean": isBackup ? mBean : undefined
                         };
                         cntBackupBrokers += 1;
                     }
-                    if (thisBroker.live && thisBroker.backup) {
+                    if (thisBroker.primary && thisBroker.backup) {
                         ctrl.relations.push({
-                            "source": thisBroker.live,
+                            "source": thisBroker.primary,
                             "target": thisBroker.backup
                         });
                     }
-                    createAddresses(mBean, thisBroker.live)
+                    createAddresses(mBean, thisBroker.primary)
                 }
 
                 angular.forEach(remoteBrokers, function (remoteBroker) {
                     if (nodeId != remoteBroker.nodeID) {
                        if (remoteBroker.live) {
-                          ctrl.items[remoteBroker.live] = {
-                              "name": remoteBroker.live.replace(/:6161[67]$/, ""),
-                              "kind": "MasterBroker",
-                              "brokerKind": "master",
+                          ctrl.items[remoteBroker.primary] = {
+                              "name": remoteBroker.primary.replace(/:6161[67]$/, ""),
+                              "kind": "PrimaryBroker",
+                              "brokerKind": "primary",
                               "status": "broker",
                               "display_kind": "Server"
                           };
@@ -490,22 +490,22 @@ var Artemis;
                           //if we arent a backup then connect to it as we are in the cluster
                           if(!isBackup) {}
                               ctrl.relations.push({
-                                  "source": thisBroker.live,
-                                  "target": remoteBroker.live
+                                  "source": thisBroker.primary,
+                                  "target": remoteBroker.primary
                               });
                           }
                           if (remoteBroker.backup) {
                               ctrl.items[remoteBroker.backup] = {
                                   "name": remoteBroker.backup.replace(/:6161[67]$/, ""),
-                                  "kind": "SlaveBroker",
-                                  "brokerKind": "slave",
+                                  "kind": "BackupBroker",
+                                  "brokerKind": "backup",
                                   "status": "broker",
                                   "display_kind": "Server"
                               };
                               cntBackupBrokers += 1;
                               ctrl.relations.push({
                                  "source": remoteBroker.backup,
-                                 "target": remoteBroker.live
+                                 "target": remoteBroker.primary
                               });
                           }
                     }
@@ -521,7 +521,7 @@ var Artemis;
                     ctrl.items[nodeId] = {
                         "name": nodeId.replace(/:6161[67]$/, ""),
                         "kind": "OtherBroker",
-                        "brokerKind": "slave",
+                        "brokerKind": "backup",
                         "status": "broker",
                         "display_kind": "Server"
                       };
@@ -537,7 +537,7 @@ var Artemis;
             ctrl.cntQueues = val.QueueNames.filter(name => !isInternalName(name, 0)).length;
             ctrl.cntInternalQueues = val.QueueNames.filter(name => isInternalName(name, 0)).length;
         }
-        
+
         function isInternalName(name, start=1) {
             // starts at position 1 when the name is surrounded with quotes
             return name.startsWith("$", start) || name.startsWith("notif", start);

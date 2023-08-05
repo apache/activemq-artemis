@@ -107,9 +107,9 @@ public class ClusterTopologyChangeMessage extends PacketImpl {
       exit = buffer.readBoolean();
       nodeID = buffer.readString();
       if (!exit) {
-         boolean hasLive = buffer.readBoolean();
+         boolean hasPrimary = buffer.readBoolean();
          TransportConfiguration a;
-         if (hasLive) {
+         if (hasPrimary) {
             a = new TransportConfiguration();
             a.decode(buffer);
          } else {

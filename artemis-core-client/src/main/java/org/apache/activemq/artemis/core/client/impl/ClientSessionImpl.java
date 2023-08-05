@@ -1175,7 +1175,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
    @Override
    public String getNodeId() {
-      return sessionFactory.getLiveNodeId();
+      return sessionFactory.getPrimaryNodeId();
    }
 
    // ClientSessionInternal implementation
@@ -1766,14 +1766,14 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
          return false;
       }
 
-      String liveNodeId = sessionFactory.getLiveNodeId();
-      String otherLiveNodeId = ((ClientSessionFactoryInternal) other.getSessionFactory()).getLiveNodeId();
+      String primaryNodeId = sessionFactory.getPrimaryNodeId();
+      String otherPrimaryNodeId = ((ClientSessionFactoryInternal) other.getSessionFactory()).getPrimaryNodeId();
 
-      if (liveNodeId != null && otherLiveNodeId != null) {
-         return liveNodeId.equals(otherLiveNodeId);
+      if (primaryNodeId != null && otherPrimaryNodeId != null) {
+         return primaryNodeId.equals(otherPrimaryNodeId);
       }
 
-      //we shouldn't get here, live node id should always be set
+      //we shouldn't get here, primary node id should always be set
       return sessionFactory == other.getSessionFactory();
    }
 

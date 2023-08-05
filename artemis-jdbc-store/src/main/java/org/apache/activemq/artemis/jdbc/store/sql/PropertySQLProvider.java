@@ -67,7 +67,7 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    private static final int STATE_ROW_ID = 0;
-   private static final int LIVE_LOCK_ROW_ID = 1;
+   private static final int PRIMARY_LOCK_ROW_ID = 1;
    private static final int BACKUP_LOCK_ROW_ID = 2;
    private static final int NODE_ID_ROW_ID = 3;
 
@@ -210,8 +210,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String createLiveLockSQL() {
-      return format(sql("create-state"), tableName, LIVE_LOCK_ROW_ID);
+   public String createPrimaryLockSQL() {
+      return format(sql("create-state"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -220,8 +220,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String tryAcquireLiveLockSQL() {
-      return format(sql("try-acquire-lock"), tableName, LIVE_LOCK_ROW_ID);
+   public String tryAcquirePrimaryLockSQL() {
+      return format(sql("try-acquire-lock"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -230,8 +230,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String tryReleaseLiveLockSQL() {
-      return format(sql("try-release-lock"), tableName, LIVE_LOCK_ROW_ID);
+   public String tryReleasePrimaryLockSQL() {
+      return format(sql("try-release-lock"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -240,8 +240,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String isLiveLockedSQL() {
-      return format(sql("is-locked"), tableName, LIVE_LOCK_ROW_ID);
+   public String isPrimaryLockedSQL() {
+      return format(sql("is-locked"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override
@@ -250,8 +250,8 @@ public class PropertySQLProvider implements SQLProvider {
    }
 
    @Override
-   public String renewLiveLockSQL() {
-      return format(sql("renew-lock"), tableName, LIVE_LOCK_ROW_ID);
+   public String renewPrimaryLockSQL() {
+      return format(sql("renew-lock"), tableName, PRIMARY_LOCK_ROW_ID);
    }
 
    @Override

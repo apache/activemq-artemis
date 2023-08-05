@@ -42,7 +42,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    private final long lockExpirationMillis;
    private final long queryTimeoutMillis;
    private final long allowedTimeDiff;
-   private JdbcLeaseLock liveLock;
+   private JdbcLeaseLock primaryLock;
    private JdbcLeaseLock backupLock;
    private String readNodeId;
    private String writeNodeId;
@@ -79,32 +79,32 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    @Override
    protected void createSchema() {
       try {
-         createTable(sqlProvider.createNodeManagerStoreTableSQL(), sqlProvider.createNodeIdSQL(), sqlProvider.createStateSQL(), sqlProvider.createLiveLockSQL(), sqlProvider.createBackupLockSQL());
+         createTable(sqlProvider.createNodeManagerStoreTableSQL(), sqlProvider.createNodeIdSQL(), sqlProvider.createStateSQL(), sqlProvider.createPrimaryLockSQL(), sqlProvider.createBackupLockSQL());
       } catch (SQLException e) {
          //no op: if a table already exists is not a problem in this case, the prepareStatements() call will fail right after it if the table is not correctly initialized
          logger.debug("Error while creating the schema of the JDBC shared state manager", e);
       }
    }
 
-   static JdbcLeaseLock createLiveLock(String holderId,
-                                       JDBCConnectionProvider connectionProvider,
-                                       SQLProvider sqlProvider,
-                                       long expirationMillis,
-                                       long allowedTimeDiff) {
-      return createLiveLock(holderId, connectionProvider, sqlProvider, expirationMillis, -1, allowedTimeDiff);
+   static JdbcLeaseLock createPrimaryLock(String holderId,
+                                          JDBCConnectionProvider connectionProvider,
+                                          SQLProvider sqlProvider,
+                                          long expirationMillis,
+                                          long allowedTimeDiff) {
+      return createPrimaryLock(holderId, connectionProvider, sqlProvider, expirationMillis, -1, allowedTimeDiff);
    }
 
-   static JdbcLeaseLock createLiveLock(String holderId,
-                                       JDBCConnectionProvider connectionProvider,
-                                       SQLProvider sqlProvider,
-                                       long expirationMillis,
-                                       long queryTimeoutMillis,
-                                       long allowedTimeDiff) {
-      return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquireLiveLockSQL(),
-                               sqlProvider.tryReleaseLiveLockSQL(), sqlProvider.renewLiveLockSQL(),
-                               sqlProvider.isLiveLockedSQL(), sqlProvider.currentTimestampSQL(),
+   static JdbcLeaseLock createPrimaryLock(String holderId,
+                                          JDBCConnectionProvider connectionProvider,
+                                          SQLProvider sqlProvider,
+                                          long expirationMillis,
+                                          long queryTimeoutMillis,
+                                          long allowedTimeDiff) {
+      return new JdbcLeaseLock(holderId, connectionProvider, sqlProvider.tryAcquirePrimaryLockSQL(),
+                               sqlProvider.tryReleasePrimaryLockSQL(), sqlProvider.renewPrimaryLockSQL(),
+                               sqlProvider.isPrimaryLockedSQL(), sqlProvider.currentTimestampSQL(),
                                sqlProvider.currentTimestampTimeZoneId(), expirationMillis, queryTimeoutMillis,
-                               "LIVE", allowedTimeDiff);
+                               "PRIMARY", allowedTimeDiff);
    }
 
    static JdbcLeaseLock createBackupLock(String holderId,
@@ -122,7 +122,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
 
    @Override
    protected void prepareStatements() {
-      this.liveLock = createLiveLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis, allowedTimeDiff);
+      this.primaryLock = createPrimaryLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis, allowedTimeDiff);
       this.backupLock = createBackupLock(this.holderId, this.connectionProvider, sqlProvider, lockExpirationMillis, queryTimeoutMillis, allowedTimeDiff);
       this.readNodeId = sqlProvider.readNodeIdSQL();
       this.writeNodeId = sqlProvider.writeNodeIdSQL();
@@ -139,8 +139,8 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    }
 
    @Override
-   public LeaseLock liveLock() {
-      return this.liveLock;
+   public LeaseLock primaryLock() {
+      return this.primaryLock;
    }
 
    @Override
@@ -289,7 +289,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
       }
       switch (s) {
          case "L":
-            return State.LIVE;
+            return State.ACTIVE;
          case "F":
             return State.FAILING_BACK;
          case "P":
@@ -303,7 +303,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
 
    private static String encodeState(State state) {
       switch (state) {
-         case LIVE:
+         case ACTIVE:
             return "L";
          case FAILING_BACK:
             return "F";
@@ -373,7 +373,7 @@ final class JdbcSharedStateManager extends AbstractJDBCDriver implements SharedS
    public void stop() throws SQLException {
       //release all the managed resources inside the connection lock
       //synchronized (connection) {
-      this.liveLock.close();
+      this.primaryLock.close();
       this.backupLock.close();
       super.stop();
       //}

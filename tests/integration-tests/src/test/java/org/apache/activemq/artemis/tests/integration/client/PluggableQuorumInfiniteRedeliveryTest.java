@@ -44,10 +44,9 @@ public class PluggableQuorumInfiniteRedeliveryTest extends InfiniteRedeliveryTes
    @Override
    protected void configureReplicationPair(TransportConfiguration backupConnector,
                                            TransportConfiguration backupAcceptor,
-                                           TransportConfiguration liveConnector) {
+                                           TransportConfiguration primaryConnector) {
 
-      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor,
-                                                                    liveConfig, liveConnector, null,
+      ReplicatedBackupUtils.configurePluggableQuorumReplicationPair(backupConfig, backupConnector, backupAcceptor, primaryConfig, primaryConnector, null,
                                                                     managerConfiguration, managerConfiguration);
       ((ReplicationBackupPolicyConfiguration) backupConfig.getHAPolicyConfiguration())
          .setMaxSavedReplicatedJournalsSize(-1).setAllowFailBack(true);

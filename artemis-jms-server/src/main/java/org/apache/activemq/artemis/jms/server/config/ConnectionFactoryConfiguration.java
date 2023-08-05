@@ -184,13 +184,25 @@ public interface ConnectionFactoryConfiguration extends EncodingSupport {
 
    JMSFactoryType getFactoryType();
 
+   @Deprecated(forRemoval = true)
    String getDeserializationBlackList();
 
-   void setDeserializationBlackList(String blackList);
+   @Deprecated(forRemoval = true)
+   void setDeserializationBlackList(String denyList);
 
+   @Deprecated(forRemoval = true)
    String getDeserializationWhiteList();
 
-   void setDeserializationWhiteList(String whiteList);
+   @Deprecated(forRemoval = true)
+   void setDeserializationWhiteList(String allowList);
+
+   String getDeserializationDenyList();
+
+   void setDeserializationDenyList(String denyList);
+
+   String getDeserializationAllowList();
+
+   void setDeserializationAllowList(String allowList);
 
    int getInitialMessagePacketSize();
 

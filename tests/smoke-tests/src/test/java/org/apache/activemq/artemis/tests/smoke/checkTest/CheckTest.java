@@ -80,7 +80,7 @@ public class CheckTest extends SmokeTestBase {
       }
    }
 
-   Process liveProcess;
+   Process primaryProcess;
    Process backupProcess;
 
    @Before
@@ -96,7 +96,7 @@ public class CheckTest extends SmokeTestBase {
 
    @Test(timeout = 60_000L)
    public void testNodeCheckActions() throws Exception {
-      liveProcess = startServer(SERVER_NAME_1, 0, 0);
+      primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
 
       NodeCheck nodeCheck = new NodeCheck();
@@ -155,13 +155,13 @@ public class CheckTest extends SmokeTestBase {
 
    @Test(timeout = 60_000L)
    public void testCheckTopology() throws Exception {
-      liveProcess = startServer(SERVER_NAME_1, 0, 0);
+      primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
 
       NodeCheck nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      nodeCheck.setLive(true);
+      nodeCheck.setPrimary(true);
       Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       try {
@@ -179,7 +179,7 @@ public class CheckTest extends SmokeTestBase {
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      nodeCheck.setLive(true);
+      nodeCheck.setPrimary(true);
       Assert.assertEquals(1, nodeCheck.execute(ACTION_CONTEXT));
 
       try {
@@ -201,7 +201,7 @@ public class CheckTest extends SmokeTestBase {
       nodeCheck = new NodeCheck();
       nodeCheck.setUser("admin");
       nodeCheck.setPassword("admin");
-      nodeCheck.setLive(true);
+      nodeCheck.setPrimary(true);
       nodeCheck.setBackup(true);
       nodeCheck.setPeers(2);
       Assert.assertEquals(3, nodeCheck.execute(ACTION_CONTEXT));
@@ -224,7 +224,7 @@ public class CheckTest extends SmokeTestBase {
 
    @Test(timeout = 60_000L)
    public void testQueueCheckUp() throws Exception {
-      liveProcess = startServer(SERVER_NAME_1, 0, 0);
+      primaryProcess = startServer(SERVER_NAME_1, 0, 0);
       ServerUtil.waitForServerToStart("tcp://localhost:61616", 5_000);
 
       SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", "admin", "admin");

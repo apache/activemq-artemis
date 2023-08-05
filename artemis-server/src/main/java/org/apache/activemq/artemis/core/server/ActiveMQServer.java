@@ -437,7 +437,7 @@ public interface ActiveMQServer extends ServiceComponent {
 
    /**
     * Returns whether the initial replication synchronization process with the backup server is complete; applicable for
-    * either the live or backup server.
+    * either the primary or backup server.
     */
    boolean isReplicaSync();
 

@@ -360,9 +360,9 @@ The name of the table to house the page store directory information.
 Note that each address will have its own page table which will use this name appended with a unique id of up to 20 characters.
 
 node-manager-store-table-name::
-The name of the table in which the HA Shared Store locks (ie live and backup) and HA related data will be persisted for the ActiveMQ Artemis server.
+The name of the table in which the HA Shared Store locks (i.e. primary and backup) and HA related data will be persisted for the ActiveMQ Artemis server.
 Specifying table names allows users to share single database amongst multiple servers, without interference.
-Each Shared Store live/backup pairs must use the same table name and isn't supported to share the same table between multiple (and unrelated) live/backup pairs.
+Each Shared Store primary/backup pairs must use the same table name and isn't supported to share the same table between multiple (and unrelated) primary/backup pairs.
 
 jdbc-driver-class-name::
 The fully qualified class name of the desired database Driver.
@@ -385,7 +385,7 @@ The time in milliseconds the journal will be synced with JDBC.
 The default value is 5 milliseconds.
 
 jdbc-allowed-time-diff::
-The maximal time offset between the broker and the database in milliseconds when requesting the current time of the database while updating and validating live and backup locks.
+The maximal time offset between the broker and the database in milliseconds when requesting the current time of the database while updating and validating primary and backup locks.
 Currently this value only affects the logging and will show a warning if the detected difference exceeds the limit.
 The default value is 250 milliseconds.
 

@@ -160,7 +160,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
 
    private final ConfirmationWindowWarning confirmationWindowWarning;
 
-   private String liveNodeID;
+   private String primaryNodeID;
 
    // We need to cache this value here since some listeners may be registered after connectionReadyForWrites was called.
    private boolean connectionReadyForWrites;
@@ -309,7 +309,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public void setBackupConnector(final TransportConfiguration live, final TransportConfiguration backUp) {
+   public void setBackupConnector(final TransportConfiguration primary, final TransportConfiguration backUp) {
       Connector localConnector = connector;
 
       // if the connector has never been used (i.e. the getConnection hasn't been called yet), we will need
@@ -319,15 +319,15 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          localConnector = connectorFactory.createConnector(currentConnectorConfig.getCombinedParams(), new DelegatingBufferHandler(), this, closeExecutor, threadPool, scheduledThreadPool, clientProtocolManager);
       }
 
-      if (localConnector.isEquivalent(live.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())
+      if (localConnector.isEquivalent(primary.getParams()) && backUp != null && !localConnector.isEquivalent(backUp.getParams())
          // check if a server is trying to set its cluster connector config as backup connector config
          && !(serverLocator.getClusterTransportConfiguration() != null && serverLocator.getClusterTransportConfiguration().isSameParams(backUp))) {
-         logger.debug("Setting up backup config = {} for live = {}", backUp, live);
+         logger.debug("Setting up backup config = {} for primary = {}", backUp, primary);
          backupConnectorConfig = backUp;
       } else {
          if (logger.isDebugEnabled()) {
-            logger.debug("ClientSessionFactoryImpl received backup update for live/backup pair = {} / {}  but it didn't belong to {}",
-                         live, backUp, currentConnectorConfig);
+            logger.debug("ClientSessionFactoryImpl received backup update for primary/backup pair = {} / {}  but it didn't belong to {}",
+                         primary, backUp, currentConnectorConfig);
          }
       }
    }
@@ -1086,9 +1086,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
             //we check if we can actually connect.
             // we do it here as to receive the reply connection has to be not null
             //make sure to reset this.connection == null
-            if (connection != null && liveNodeID != null) {
+            if (connection != null && primaryNodeID != null) {
                try {
-                  if (!clientProtocolManager.checkForFailover(liveNodeID)) {
+                  if (!clientProtocolManager.checkForFailover(primaryNodeID)) {
                      connection.destroy();
                      this.connection = null;
                      return null;
@@ -1248,8 +1248,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    /**
-    * It will connect to either live or backup accordingly to the current configurations
-    * it will also switch to backup case it can't connect to live and there's a backup configured
+    * It will connect to either primary or backup accordingly to the current configurations
+    * it will also switch to backup case it can't connect to primary and there's a backup configured
     *
     * @return
     */
@@ -1504,7 +1504,7 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
       Connection transportConnection = createTransportConnection();
 
       if (transportConnection == null) {
-         logger.trace("Neither backup or live were active, will just give up now");
+         logger.trace("Neither backup or primary were active, will just give up now");
          return null;
       }
 
@@ -1533,8 +1533,8 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    @Override
-   public String getLiveNodeId() {
-      return liveNodeID;
+   public String getPrimaryNodeId() {
+      return primaryNodeID;
    }
 
    class SessionFactoryTopologyHandler implements TopologyResponseHandler {
@@ -1580,9 +1580,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
                                boolean isLast) {
 
          try {
-            // if it is our connector then set the live id used for failover
+            // if it is our connector then set the primary id used for failover
             if (connectorPair.getA() != null && TransportConfigurationUtil.isSameHost(connectorPair.getA(), currentConnectorConfig)) {
-               liveNodeID = nodeID;
+               primaryNodeID = nodeID;
             }
 
             serverLocator.notifyNodeUp(uniqueEventID, nodeID, backupGroupName, scaleDownGroupName, connectorPair, isLast);

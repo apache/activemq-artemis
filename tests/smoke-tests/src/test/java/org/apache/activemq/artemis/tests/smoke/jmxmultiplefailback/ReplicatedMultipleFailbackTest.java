@@ -102,9 +102,9 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
          final JsonObject nodePair = nodeIDs.getJsonObject(i);
          try {
             final String nodeID = nodePair.getString("nodeID");
-            final String live = nodePair.getString("live");
+            final String primary = nodePair.getString("primary");
             final String backup = nodePair.getString("backup", null);
-            networkTopology.put(nodeID, new Pair<>(live, backup));
+            networkTopology.put(nodeID, new Pair<>(primary, backup));
          } catch (Exception e) {
             logger.warn("Error on {}", nodePair, e);
          }
@@ -114,7 +114,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
 
    private static long countMembers(Map<String, Pair<String, String>> networkTopology) {
       final long count = networkTopology.values().stream()
-         .map(Pair::getA).filter(live -> live != null && !live.isEmpty())
+         .map(Pair::getA).filter(primary -> primary != null && !primary.isEmpty())
          .count();
       return count;
    }
@@ -122,7 +122,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
    private static long countNodes(Map<String, Pair<String, String>> networkTopology) {
       final long count =  networkTopology.values().stream()
          .flatMap(pair -> Stream.of(pair.getA(), pair.getB()))
-         .filter(liveOrBackup -> liveOrBackup != null && !liveOrBackup.isEmpty())
+         .filter(primaryOrBackup -> primaryOrBackup != null && !primaryOrBackup.isEmpty())
          .count();
       return count;
    }
@@ -136,7 +136,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       return networkTopology.get(nodeID).getB();
    }
 
-   private static String liveOf(String nodeID, Map<String, Pair<String, String>> networkTopology) {
+   private static String primaryOf(String nodeID, Map<String, Pair<String, String>> networkTopology) {
       return networkTopology.get(nodeID).getA();
    }
 
@@ -157,60 +157,60 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       return topology -> compare.test(backupOf(nodeId, topology));
    }
 
-   private static Predicate<Map<String, Pair<String, String>>> withLive(String nodeId, Predicate<String> compare) {
-      return topology -> compare.test(liveOf(nodeId, topology));
+   private static Predicate<Map<String, Pair<String, String>>> withPrimary(String nodeId, Predicate<String> compare) {
+      return topology -> compare.test(primaryOf(nodeId, topology));
    }
 
    private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_PORT_MASTER_1 = 10099;
-   private static final int JMX_PORT_MASTER_2 = 10199;
-   private static final int JMX_PORT_MASTER_3 = 10299;
-   private static final int JMX_PORT_SLAVE_1 = 10399;
+   private static final int JMX_PORT_PRIMARY_1 = 10099;
+   private static final int JMX_PORT_PRIMARY_2 = 10199;
+   private static final int JMX_PORT_PRIMARY_3 = 10299;
+   private static final int JMX_PORT_BACKUP_1 = 10399;
 
-   private static final String MASTER_1_DATA_FOLDER = "replicated-failback-master1";
-   private static final String MASTER_2_DATA_FOLDER = "replicated-failback-master2";
-   private static final String MASTER_3_DATA_FOLDER = "replicated-failback-master3";
-   private static final String SLAVE_1_DATA_FOLDER = "replicated-failback-slave1";
+   private static final String PRIMARY_1_DATA_FOLDER = "replicated-failback-primary1";
+   private static final String PRIMARY_2_DATA_FOLDER = "replicated-failback-primary2";
+   private static final String PRIMARY_3_DATA_FOLDER = "replicated-failback-primary3";
+   private static final String BACKUP_1_DATA_FOLDER = "replicated-failback-backup1";
 
-   private static final int MASTER_1_PORT_ID = 0;
-   private static final int MASTER_2_PORT_ID = MASTER_1_PORT_ID + 100;
-   private static final int MASTER_3_PORT_ID = MASTER_2_PORT_ID + 100;
-   private static final int SLAVE_1_PORT_ID = MASTER_3_PORT_ID + 100;
+   private static final int PRIMARY_1_PORT_ID = 0;
+   private static final int PRIMARY_2_PORT_ID = PRIMARY_1_PORT_ID + 100;
+   private static final int PRIMARY_3_PORT_ID = PRIMARY_2_PORT_ID + 100;
+   private static final int BACKUP_1_PORT_ID = PRIMARY_3_PORT_ID + 100;
 
 
    @BeforeClass
    public static void createServers() throws Exception {
 
-      File server0Location = getFileServerLocation(MASTER_1_DATA_FOLDER);
+      File server0Location = getFileServerLocation(PRIMARY_1_DATA_FOLDER);
       deleteDirectory(server0Location);
-      File server1Location = getFileServerLocation(MASTER_2_DATA_FOLDER);
+      File server1Location = getFileServerLocation(PRIMARY_2_DATA_FOLDER);
       deleteDirectory(server1Location);
-      File server2Location = getFileServerLocation(MASTER_3_DATA_FOLDER);
+      File server2Location = getFileServerLocation(PRIMARY_3_DATA_FOLDER);
       deleteDirectory(server2Location);
-      File server3Location = getFileServerLocation(SLAVE_1_DATA_FOLDER);
+      File server3Location = getFileServerLocation(BACKUP_1_DATA_FOLDER);
       deleteDirectory(server3Location);
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).setConfiguration("./src/main/resources/servers/replicated-failback-master1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).setConfiguration("./src/main/resources/servers/replicated-failback-primary1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).setConfiguration("./src/main/resources/servers/replicated-failback-master2").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server1Location).setConfiguration("./src/main/resources/servers/replicated-failback-primary2").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server2Location).setConfiguration("./src/main/resources/servers/replicated-failback-master3").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server2Location).setConfiguration("./src/main/resources/servers/replicated-failback-primary3").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
 
       {
          HelperCreate cliCreateServer = new HelperCreate();
-         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server3Location).setConfiguration("./src/main/resources/servers/replicated-failback-slave1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server3Location).setConfiguration("./src/main/resources/servers/replicated-failback-backup1").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
          cliCreateServer.createServer();
       }
    }
@@ -218,7 +218,7 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
 
 
    private enum Broker {
-      master1(JMX_PORT_MASTER_1, MASTER_1_DATA_FOLDER, MASTER_1_PORT_ID), master2(JMX_PORT_MASTER_2, MASTER_2_DATA_FOLDER, MASTER_2_PORT_ID), master3(JMX_PORT_MASTER_3, MASTER_3_DATA_FOLDER, MASTER_3_PORT_ID), slave1(JMX_PORT_SLAVE_1, SLAVE_1_DATA_FOLDER, SLAVE_1_PORT_ID);
+      primary1(JMX_PORT_PRIMARY_1, PRIMARY_1_DATA_FOLDER, PRIMARY_1_PORT_ID), primary2(JMX_PORT_PRIMARY_2, PRIMARY_2_DATA_FOLDER, PRIMARY_2_PORT_ID), primary3(JMX_PORT_PRIMARY_3, PRIMARY_3_DATA_FOLDER, PRIMARY_3_PORT_ID), backup1(JMX_PORT_BACKUP_1, BACKUP_1_DATA_FOLDER, BACKUP_1_PORT_ID);
 
       final ObjectNameBuilder objectNameBuilder;
       final String dataFolder;
@@ -268,73 +268,73 @@ public class ReplicatedMultipleFailbackTest extends SmokeTestBase {
       logger.info("TEST BOOTSTRAPPING START: STARTING brokers {}", Arrays.toString(Broker.values()));
       final int failbackRetries = 10;
       final int timeout = (int) TimeUnit.SECONDS.toMillis(30);
-      Process master1 = Broker.master1.startServer(this, timeout);
-      Wait.assertTrue(() -> !Broker.master1.isBackup().orElse(true), timeout);
-      Broker.master2.startServer(this, timeout);
-      Wait.assertTrue(() -> !Broker.master2.isBackup().orElse(true), timeout);
-      Broker.master3.startServer(this, timeout);
-      Wait.assertTrue(() -> !Broker.master3.isBackup().orElse(true), timeout);
-      Broker.slave1.startServer(this, 0);
-      Wait.assertTrue(() -> Broker.slave1.isBackup().orElse(false), timeout);
+      Process primary1 = Broker.primary1.startServer(this, timeout);
+      Wait.assertTrue(() -> !Broker.primary1.isBackup().orElse(true), timeout);
+      Broker.primary2.startServer(this, timeout);
+      Wait.assertTrue(() -> !Broker.primary2.isBackup().orElse(true), timeout);
+      Broker.primary3.startServer(this, timeout);
+      Wait.assertTrue(() -> !Broker.primary3.isBackup().orElse(true), timeout);
+      Broker.backup1.startServer(this, 0);
+      Wait.assertTrue(() -> Broker.backup1.isBackup().orElse(false), timeout);
 
-      final String nodeIDlive1 = Broker.master1.getNodeID().get();
-      final String nodeIDlive2 = Broker.master2.getNodeID().get();
-      final String nodeIDlive3 = Broker.master3.getNodeID().get();
+      final String nodeIDprimary1 = Broker.primary1.getNodeID().get();
+      final String nodeIDprimary2 = Broker.primary2.getNodeID().get();
+      final String nodeIDprimary3 = Broker.primary3.getNodeID().get();
 
       for (Broker broker : Broker.values()) {
          logger.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
          Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
-                                                       containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
-                                                          .and(withLive(nodeIDlive1, Objects::nonNull))
-                                                          .and(withBackup(nodeIDlive1, Objects::nonNull))
+                                                       containsExactNodeIds(nodeIDprimary1, nodeIDprimary2, nodeIDprimary3)
+                                                          .and(withPrimary(nodeIDprimary1, Objects::nonNull))
+                                                          .and(withBackup(nodeIDprimary1, Objects::nonNull))
                                                           .and(withMembers(3))
                                                           .and(withNodes(4))), timeout);
       }
 
-      final String urlSlave1 = backupOf(nodeIDlive1, decodeNetworkTopologyJson(Broker.slave1.listNetworkTopology().get()));
-      Assert.assertNotNull(urlSlave1);
-      final String urlMaster1 = liveOf(nodeIDlive1, decodeNetworkTopologyJson(Broker.master1.listNetworkTopology().get()));
-      Assert.assertNotNull(urlMaster1);
-      Assert.assertNotEquals(urlMaster1, urlSlave1);
+      final String urlBackup1 = backupOf(nodeIDprimary1, decodeNetworkTopologyJson(Broker.backup1.listNetworkTopology().get()));
+      Assert.assertNotNull(urlBackup1);
+      final String urlPrimary1 = primaryOf(nodeIDprimary1, decodeNetworkTopologyJson(Broker.primary1.listNetworkTopology().get()));
+      Assert.assertNotNull(urlPrimary1);
+      Assert.assertNotEquals(urlPrimary1, urlBackup1);
 
-      logger.info("Node ID live 1 is {}", nodeIDlive1);
-      logger.info("Node ID live 2 is {}", nodeIDlive2);
-      logger.info("Node ID live 3 is {}", nodeIDlive3);
+      logger.info("Node ID primary 1 is {}", nodeIDprimary1);
+      logger.info("Node ID primary 2 is {}", nodeIDprimary2);
+      logger.info("Node ID primary 3 is {}", nodeIDprimary3);
 
-      logger.info("{} has url: {}", Broker.master1, urlMaster1);
-      logger.info("{} has url: {}", Broker.slave1, urlSlave1);
+      logger.info("{} has url: {}", Broker.primary1, urlPrimary1);
+      logger.info("{} has url: {}", Broker.backup1, urlBackup1);
 
-      logger.info("BOOTSTRAPPING ENDED: READ nodeIds and master1/slave1 urls");
+      logger.info("BOOTSTRAPPING ENDED: READ nodeIds and primary1/backup1 urls");
 
       for (int i = 0; i < failbackRetries; i++) {
          logger.info("START TEST {}", i + 1);
-         logger.info("KILLING master1");
-         killServer(master1);
+         logger.info("KILLING primary1");
+         killServer(primary1);
          // wait until slave1 became live
-         Wait.assertTrue(() -> !Broker.slave1.isBackup().orElse(true), timeout);
-         logger.info("slave1 is LIVE");
-         logger.info("VALIDATE TOPOLOGY OF ALIVE BROKERS");
-         Stream.of(Broker.master2, Broker.master3, Broker.slave1).forEach(
+         Wait.assertTrue(() -> !Broker.backup1.isBackup().orElse(true), timeout);
+         logger.info("backup1 is PRIMARY");
+         logger.info("VALIDATE TOPOLOGY OF ACTIVE BROKERS");
+         Stream.of(Broker.primary2, Broker.primary3, Broker.backup1).forEach(
             broker -> Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
-                                                                    containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
-                                                                       .and(withLive(nodeIDlive1, urlSlave1::equals))
-                                                                       .and(withBackup(nodeIDlive1, Objects::isNull))
+                                                                    containsExactNodeIds(nodeIDprimary1, nodeIDprimary2, nodeIDprimary3)
+                                                                       .and(withPrimary(nodeIDprimary1, urlBackup1::equals))
+                                                                       .and(withBackup(nodeIDprimary1, Objects::isNull))
                                                                        .and(withMembers(3))
                                                                        .and(withNodes(3))), timeout)
          );
-         // restart master1
-         logger.info("STARTING master1");
-         master1 = Broker.master1.startServer(this, 0);
-         Wait.assertTrue(() -> Broker.slave1.isBackup().orElse(false), timeout);
-         logger.info("slave1 is BACKUP");
-         Wait.assertTrue(() -> !Broker.master1.isBackup().orElse(true), timeout);
-         logger.info("master1 is LIVE");
+         // restart primary1
+         logger.info("STARTING primary1");
+         primary1 = Broker.primary1.startServer(this, 0);
+         Wait.assertTrue(() -> Broker.backup1.isBackup().orElse(false), timeout);
+         logger.info("backup1 is BACKUP");
+         Wait.assertTrue(() -> !Broker.primary1.isBackup().orElse(true), timeout);
+         logger.info("primary1 is PRIMARY");
          for (Broker broker : Broker.values()) {
             logger.info("CHECKING NETWORK TOPOLOGY FOR {}", broker);
             Wait.assertTrue(() -> validateNetworkTopology(broker.listNetworkTopology().orElse(""),
-                                                          containsExactNodeIds(nodeIDlive1, nodeIDlive2, nodeIDlive3)
-                                                             .and(withLive(nodeIDlive1, urlMaster1::equals))
-                                                             .and(withBackup(nodeIDlive1, urlSlave1::equals))
+                                                          containsExactNodeIds(nodeIDprimary1, nodeIDprimary2, nodeIDprimary3)
+                                                             .and(withPrimary(nodeIDprimary1, urlPrimary1::equals))
+                                                             .and(withBackup(nodeIDprimary1, urlBackup1::equals))
                                                              .and(withMembers(3))
                                                              .and(withNodes(4))), timeout);
          }

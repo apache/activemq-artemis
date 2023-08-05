@@ -681,12 +681,22 @@ public class ActiveMQConnection extends ActiveMQConnectionForContextImpl impleme
       return started;
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
-      return this.factoryReference.getDeserializationBlackList();
+      return getDeserializationDenyList();
    }
 
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
-      return this.factoryReference.getDeserializationWhiteList();
+      return getDeserializationAllowList();
+   }
+
+   public String getDeserializationDenyList() {
+      return this.factoryReference.getDeserializationDenyList();
+   }
+
+   public String getDeserializationAllowList() {
+      return this.factoryReference.getDeserializationAllowList();
    }
 
 

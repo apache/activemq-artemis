@@ -93,7 +93,7 @@ public class ReplicationPrimaryPolicy implements HAPolicy<ReplicationPrimaryActi
 
    @Override
    public ReplicationPrimaryActivation createActivation(ActiveMQServerImpl server,
-                                                        boolean wasLive,
+                                                        boolean wasPrimary,
                                                         Map<String, Object> activationParams,
                                                         IOCriticalErrorListener shutdownOnCriticalIO) throws Exception {
       return new ReplicationPrimaryActivation(server,

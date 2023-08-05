@@ -25,11 +25,11 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicationPrimaryPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ColocatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.PrimaryOnlyPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicaPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.ReplicatedPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreMasterPolicyConfiguration;
-import org.apache.activemq.artemis.core.config.ha.SharedStoreSlavePolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStorePrimaryPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.ha.SharedStoreBackupPolicyConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
@@ -38,12 +38,12 @@ import org.apache.activemq.artemis.core.server.cluster.ha.ReplicationPrimaryPoli
 import org.apache.activemq.artemis.core.server.cluster.ha.BackupPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ColocatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.HAPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.LiveOnlyPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.PrimaryOnlyPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicaPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ReplicatedPolicy;
 import org.apache.activemq.artemis.core.server.cluster.ha.ScaleDownPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreMasterPolicy;
-import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreSlavePolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStorePrimaryPolicy;
+import org.apache.activemq.artemis.core.server.cluster.ha.SharedStoreBackupPolicy;
 import org.apache.activemq.artemis.uri.AcceptorTransportConfigurationParser;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
 
@@ -67,64 +67,65 @@ public final class ConfigurationUtils {
    public static HAPolicy getHAPolicy(HAPolicyConfiguration conf,
                                       ActiveMQServer server) throws ActiveMQIllegalStateException {
       if (conf == null) {
-         return new LiveOnlyPolicy();
+         return new PrimaryOnlyPolicy();
       }
 
       switch (conf.getType()) {
-         case LIVE_ONLY: {
-            LiveOnlyPolicyConfiguration pc = (LiveOnlyPolicyConfiguration) conf;
-            return new LiveOnlyPolicy(getScaleDownPolicy(pc.getScaleDownConfiguration()));
+         case PRIMARY_ONLY: {
+            PrimaryOnlyPolicyConfiguration pc = (PrimaryOnlyPolicyConfiguration) conf;
+            return new PrimaryOnlyPolicy(getScaleDownPolicy(pc.getScaleDownConfiguration()));
          }
          case REPLICATED: {
             ReplicatedPolicyConfiguration pc = (ReplicatedPolicyConfiguration) conf;
-            return new ReplicatedPolicy(pc.isCheckForLiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getInitialReplicationSyncTimeout(), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
+            return new ReplicatedPolicy(pc.isCheckForActiveServer(), pc.getGroupName(), pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getInitialReplicationSyncTimeout(), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
          }
          case REPLICA: {
             ReplicaPolicyConfiguration pc = (ReplicaPolicyConfiguration) conf;
             return new ReplicaPolicy(pc.getClusterName(), pc.getMaxSavedReplicatedJournalsSize(), pc.getGroupName(), pc.isRestartBackup(), pc.isAllowFailBack(), pc.getInitialReplicationSyncTimeout(), getScaleDownPolicy(pc.getScaleDownConfiguration()), server.getNetworkHealthCheck(), pc.getVoteOnReplicationFailure(), pc.getQuorumSize(), pc.getVoteRetries(), pc.getVoteRetryWait(), pc.getQuorumVoteWait(), pc.getRetryReplicationWait());
          }
-         case PRIMARY:
+         case REPLICATION_PRIMARY: {
             return ReplicationPrimaryPolicy.with((ReplicationPrimaryPolicyConfiguration) conf);
-         case BACKUP: {
+         }
+         case REPLICATION_BACKUP: {
             return ReplicationBackupPolicy.with((ReplicationBackupPolicyConfiguration) conf);
          }
-         case SHARED_STORE_MASTER: {
-            SharedStoreMasterPolicyConfiguration pc = (SharedStoreMasterPolicyConfiguration) conf;
-            return new SharedStoreMasterPolicy(pc.isFailoverOnServerShutdown(), pc.isWaitForActivation());
+         case SHARED_STORE_PRIMARY: {
+            SharedStorePrimaryPolicyConfiguration pc = (SharedStorePrimaryPolicyConfiguration) conf;
+            return new SharedStorePrimaryPolicy(pc.isFailoverOnServerShutdown(), pc.isWaitForActivation());
          }
-         case SHARED_STORE_SLAVE: {
-            SharedStoreSlavePolicyConfiguration pc = (SharedStoreSlavePolicyConfiguration) conf;
-            return new SharedStoreSlavePolicy(pc.isFailoverOnServerShutdown(), pc.isRestartBackup(), pc.isAllowFailBack(), getScaleDownPolicy(pc.getScaleDownConfiguration()));
+         case SHARED_STORE_BACKUP: {
+            SharedStoreBackupPolicyConfiguration pc = (SharedStoreBackupPolicyConfiguration) conf;
+            return new SharedStoreBackupPolicy(pc.isFailoverOnServerShutdown(), pc.isRestartBackup(), pc.isAllowFailBack(), getScaleDownPolicy(pc.getScaleDownConfiguration()));
          }
          case COLOCATED: {
             ColocatedPolicyConfiguration pc = (ColocatedPolicyConfiguration) conf;
 
-            HAPolicyConfiguration liveConf = pc.getLiveConfig();
-            HAPolicy livePolicy;
+            HAPolicyConfiguration primaryConfig = pc.getPrimaryConfig();
+            HAPolicy primaryPolicy;
             //if null default to colocated
-            if (liveConf == null) {
-               livePolicy = new ReplicatedPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
+            if (primaryConfig == null) {
+               primaryPolicy = new ReplicatedPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
             } else {
-               livePolicy = getHAPolicy(liveConf, server);
+               primaryPolicy = getHAPolicy(primaryConfig, server);
             }
             HAPolicyConfiguration backupConf = pc.getBackupConfig();
             BackupPolicy backupPolicy;
             if (backupConf == null) {
-               if (livePolicy instanceof ReplicatedPolicy) {
+               if (primaryPolicy instanceof ReplicatedPolicy) {
                   backupPolicy = new ReplicaPolicy(server.getNetworkHealthCheck(),ActiveMQDefaultConfiguration.getDefaultQuorumVoteWait());
-               } else if (livePolicy instanceof SharedStoreMasterPolicy) {
-                  backupPolicy = new SharedStoreSlavePolicy();
+               } else if (primaryPolicy instanceof SharedStorePrimaryPolicy) {
+                  backupPolicy = new SharedStoreBackupPolicy();
                } else {
-                  throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
+                  throw ActiveMQMessageBundle.BUNDLE.primaryBackupMismatch();
                }
             } else {
                backupPolicy = (BackupPolicy) getHAPolicy(backupConf, server);
             }
 
-            if ((livePolicy instanceof ReplicatedPolicy && !(backupPolicy instanceof ReplicaPolicy)) || (livePolicy instanceof SharedStoreMasterPolicy && !(backupPolicy instanceof SharedStoreSlavePolicy))) {
-               throw ActiveMQMessageBundle.BUNDLE.liveBackupMismatch();
+            if ((primaryPolicy instanceof ReplicatedPolicy && !(backupPolicy instanceof ReplicaPolicy)) || (primaryPolicy instanceof SharedStorePrimaryPolicy && !(backupPolicy instanceof SharedStoreBackupPolicy))) {
+               throw ActiveMQMessageBundle.BUNDLE.primaryBackupMismatch();
             }
-            return new ColocatedPolicy(pc.isRequestBackup(), pc.getBackupRequestRetries(), pc.getBackupRequestRetryInterval(), pc.getMaxBackups(), pc.getBackupPortOffset(), pc.getExcludedConnectors(), livePolicy, backupPolicy);
+            return new ColocatedPolicy(pc.isRequestBackup(), pc.getBackupRequestRetries(), pc.getBackupRequestRetryInterval(), pc.getMaxBackups(), pc.getBackupPortOffset(), pc.getExcludedConnectors(), primaryPolicy, backupPolicy);
          }
 
       }

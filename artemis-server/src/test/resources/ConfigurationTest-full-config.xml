@@ -392,15 +392,15 @@
 
       <ha-policy>
          <!--only one of the following-->
-         <!--on server shutdown scale down to another live server-->
-         <live-only>
+         <!--on server shutdown scale down to another primary server-->
+         <primary-only>
             <scale-down>
                <!--a grouping of servers that can be scaled down to-->
                <group-name>boo!</group-name>
                <!--either a discovery group-->
                <discovery-group-ref discovery-group-name="dg1"/>
             </scale-down>
-         </live-only>
+         </primary-only>
 
       </ha-policy>
       <cluster-connections>

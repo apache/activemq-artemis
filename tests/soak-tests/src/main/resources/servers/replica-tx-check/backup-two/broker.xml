@@ -38,11 +38,11 @@ under the License.
 
       <ha-policy>
          <replication>
-            <slave>
+            <backup>
                <group-name>test-pair-two</group-name>
                <allow-failback>false</allow-failback>
                <quorum-size>2</quorum-size>
-            </slave>
+            </backup>
          </replication>
       </ha-policy>
 

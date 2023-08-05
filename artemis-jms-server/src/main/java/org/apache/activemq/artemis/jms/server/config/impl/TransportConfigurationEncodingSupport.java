@@ -35,13 +35,13 @@ public class TransportConfigurationEncodingSupport {
       List<Pair<TransportConfiguration, TransportConfiguration>> configs = new ArrayList<>(size);
 
       for (int i = 0; i < size; i++) {
-         TransportConfiguration live = decode(buffer);
+         TransportConfiguration primary = decode(buffer);
          boolean hasBackup = buffer.readBoolean();
          TransportConfiguration backup = null;
          if (hasBackup) {
             backup = decode(buffer);
          }
-         configs.add(new Pair<>(live, backup));
+         configs.add(new Pair<>(primary, backup));
       }
 
       return configs;

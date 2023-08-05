@@ -28,7 +28,7 @@ import org.apache.activemq.artemis.quorum.DistributedPrimitiveManager;
 
 public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActivation> {
 
-   private final ReplicationPrimaryPolicy livePolicy;
+   private final ReplicationPrimaryPolicy primaryPolicy;
    private final String groupName;
    private final String clusterName;
    private final int maxSavedReplicatedJournalsSize;
@@ -37,15 +37,15 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
    private final boolean tryFailback;
 
    private ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration configuration,
-                                   ReplicationPrimaryPolicy livePolicy) {
-      Objects.requireNonNull(livePolicy);
+                                   ReplicationPrimaryPolicy primaryPolicy) {
+      Objects.requireNonNull(primaryPolicy);
       this.clusterName = configuration.getClusterName();
       this.maxSavedReplicatedJournalsSize = configuration.getMaxSavedReplicatedJournalsSize();
       this.groupName = configuration.getGroupName();
       this.retryReplicationWait = configuration.getRetryReplicationWait();
       this.managerConfiguration = configuration.getDistributedManagerConfiguration();
       this.tryFailback = true;
-      this.livePolicy = livePolicy;
+      this.primaryPolicy = primaryPolicy;
    }
 
    private ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration configuration) {
@@ -55,7 +55,7 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
       this.retryReplicationWait = configuration.getRetryReplicationWait();
       this.managerConfiguration = configuration.getDistributedManagerConfiguration();
       this.tryFailback = false;
-      livePolicy = ReplicationPrimaryPolicy.failoverPolicy(
+      primaryPolicy = ReplicationPrimaryPolicy.failoverPolicy(
          configuration.getInitialReplicationSyncTimeout(),
          configuration.getGroupName(),
          configuration.getClusterName(),
@@ -69,7 +69,7 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
    }
 
    /**
-    * It creates a policy which live policy won't cause to broker to try failback.
+    * It creates a policy which primary policy won't cause to broker to try failback.
     */
    public static ReplicationBackupPolicy with(ReplicationBackupPolicyConfiguration configuration) {
       return new ReplicationBackupPolicy(configuration);
@@ -82,7 +82,7 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
                                            int maxSavedReplicatedJournalsSize,
                                            String clusterName,
                                            String groupName,
-                                           ReplicationPrimaryPolicy livePolicy,
+                                           ReplicationPrimaryPolicy primaryPolicy,
                                            DistributedPrimitiveManagerConfiguration distributedManagerConfiguration) {
       return new ReplicationBackupPolicy(ReplicationBackupPolicyConfiguration.withDefault()
                                             .setRetryReplicationWait(retryReplicationWait)
@@ -90,12 +90,12 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
                                             .setClusterName(clusterName)
                                             .setGroupName(groupName)
                                             .setDistributedManagerConfiguration(distributedManagerConfiguration),
-                                         livePolicy);
+                                         primaryPolicy);
    }
 
    @Override
    public ReplicationBackupActivation createActivation(ActiveMQServerImpl server,
-                                                       boolean wasLive,
+                                                       boolean wasPrimary,
                                                        Map<String, Object> activationParams,
                                                        IOCriticalErrorListener shutdownOnCriticalIO) throws Exception {
       return new ReplicationBackupActivation(server, DistributedPrimitiveManager.newInstanceOf(
@@ -140,8 +140,8 @@ public class ReplicationBackupPolicy implements HAPolicy<ReplicationBackupActiva
       return groupName;
    }
 
-   public ReplicationPrimaryPolicy getLivePolicy() {
-      return livePolicy;
+   public ReplicationPrimaryPolicy getPrimaryPolicy() {
+      return primaryPolicy;
    }
 
    public int getMaxSavedReplicatedJournalsSize() {

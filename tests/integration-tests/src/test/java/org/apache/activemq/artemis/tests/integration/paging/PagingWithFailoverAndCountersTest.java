@@ -40,7 +40,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   Process liveProcess;
+   Process primaryProcess;
    Process backupProcess;
 
    PagingWithFailoverServer inProcessBackup;
@@ -48,9 +48,9 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
    private static final int PORT1 = 5050;
    private static final int PORT2 = 5051;
 
-   private void startLive() throws Exception {
-      assertNull(liveProcess);
-      liveProcess = PagingWithFailoverServer.spawnVM(getTestDir(), PORT1, PORT2);
+   private void startPrimary() throws Exception {
+      assertNull(primaryProcess);
+      primaryProcess = PagingWithFailoverServer.spawnVM(getTestDir(), PORT1, PORT2);
    }
 
    private void startBackupInProcess() throws Exception {
@@ -63,7 +63,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
    @Override
    @After
    public void tearDown() throws Exception {
-      killLive();
+      killPrimary();
       killBackup();
       super.tearDown();
    }
@@ -89,14 +89,14 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    }
 
-   private void killLive() {
+   private void killPrimary() {
       try {
-         if (liveProcess != null) {
-            liveProcess.destroy();
+         if (primaryProcess != null) {
+            primaryProcess.destroy();
          }
       } catch (Throwable ignored) {
       }
-      liveProcess = null;
+      primaryProcess = null;
    }
 
    class TestThread extends Thread {
@@ -278,7 +278,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
 
    @Test
    public void testValidateDeliveryAndCounters() throws Exception {
-      startLive();
+      startPrimary();
 
       ServerLocator locator = SpawnedServerSupport.createLocator(PORT1).setInitialConnectAttempts(300).setReconnectAttempts(300).setRetryInterval(100);
 
@@ -306,8 +306,8 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
       long timeKill = System.currentTimeMillis() + 2000;
       while (System.currentTimeMillis() < timeRun) {
          i++;
-         if (System.currentTimeMillis() > timeKill && liveProcess != null) {
-            killLive();
+         if (System.currentTimeMillis() > timeKill && primaryProcess != null) {
+            killPrimary();
             monitor.start();
          }
 
@@ -325,7 +325,7 @@ public class PagingWithFailoverAndCountersTest extends ActiveMQTestBase {
          monitor.stopTest();
       } finally {
          killBackup();
-         killLive();
+         killPrimary();
       }
 
       factory.close();

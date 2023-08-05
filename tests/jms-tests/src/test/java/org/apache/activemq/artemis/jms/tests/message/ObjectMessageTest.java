@@ -203,9 +203,9 @@ public class ObjectMessageTest extends MessageTestBase {
 
       URL[] urlArray = urls.toArray(new URL[urls.size()]);
 
-      ClassLoader masterClassLoader = URLClassLoader.newInstance(urlArray, null);
+      ClassLoader mainClassLoader = URLClassLoader.newInstance(urlArray, null);
 
-      ClassLoader appClassLoader = URLClassLoader.newInstance(new URL[]{classLocation}, masterClassLoader);
+      ClassLoader appClassLoader = URLClassLoader.newInstance(new URL[]{classLocation}, mainClassLoader);
 
       return appClassLoader;
    }

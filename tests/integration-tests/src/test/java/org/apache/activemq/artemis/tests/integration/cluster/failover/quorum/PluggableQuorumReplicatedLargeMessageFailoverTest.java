@@ -64,7 +64,7 @@ public class PluggableQuorumReplicatedLargeMessageFailoverTest extends LargeMess
    }
 
    @Override
-   protected void decrementActivationSequenceForForceRestartOf(TestableServer liveServer) throws Exception {
+   protected void decrementActivationSequenceForForceRestartOf(TestableServer primaryServer) throws Exception {
       doDecrementActivationSequenceForForceRestartOf(logger, nodeManager, managerConfiguration);
    }
 }

@@ -128,7 +128,7 @@ import org.apache.activemq.artemis.core.server.cluster.impl.MessageLoadBalancing
 import org.apache.activemq.artemis.core.server.impl.Activation;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.core.server.impl.AddressInfo;
-import org.apache.activemq.artemis.core.server.impl.LiveOnlyActivation;
+import org.apache.activemq.artemis.core.server.impl.PrimaryOnlyActivation;
 import org.apache.activemq.artemis.core.server.impl.ReplicationBackupActivation;
 import org.apache.activemq.artemis.core.server.impl.SharedNothingBackupActivation;
 import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
@@ -421,10 +421,10 @@ public abstract class ActiveMQTestBase extends Assert {
 
                // disable scaledown on tearDown, otherwise it takes a lot of time
                try {
-                  ((LiveOnlyActivation) server.getActivation()).getLiveOnlyPolicy().getScaleDownPolicy().setEnabled(false);
+                  ((PrimaryOnlyActivation) server.getActivation()).getPrimaryOnlyPolicy().getScaleDownPolicy().setEnabled(false);
                } catch (Throwable ignored) {
                   // don't care about anything here
-                  // if can't find activation, livePolicy or no LiveONlyActivation... don't care!!!
+                  // if can't find activation, primaryPolicy or no PrimaryOnlyActivation... don't care!!!
                   // all I care is f you have scaleDownPolicy, it should be set to false at this point
                }
 
@@ -1235,16 +1235,16 @@ public abstract class ActiveMQTestBase extends Assert {
    }
 
    protected static Topology waitForTopology(final ActiveMQServer server,
-                                      final int nodes,
-                                      final int backups) throws Exception {
+                                             final int nodes,
+                                             final int backups) throws Exception {
       return waitForTopology(server, nodes, backups, WAIT_TIMEOUT);
    }
 
    protected static Topology waitForTopology(final ActiveMQServer server,
-                                      final int liveNodes,
-                                      final int backupNodes,
-                                      final long timeout) throws Exception {
-      logger.debug("waiting for {} on the topology for server = {}", liveNodes, server);
+                                             final int primaryNodes,
+                                             final int backupNodes,
+                                             final long timeout) throws Exception {
+      logger.debug("waiting for {} on the topology for server = {}", primaryNodes, server);
 
       Set<ClusterConnection> ccs = server.getClusterManager().getClusterConnections();
 
@@ -1254,32 +1254,32 @@ public abstract class ActiveMQTestBase extends Assert {
 
       Topology topology = server.getClusterManager().getDefaultConnection(null).getTopology();
 
-      return waitForTopology(topology, timeout, liveNodes, backupNodes);
+      return waitForTopology(topology, timeout, primaryNodes, backupNodes);
    }
 
    protected static Topology waitForTopology(Topology topology,
-                                    long timeout,
-                                    int liveNodes,
-                                    int backupNodes) throws Exception {
+                                             long timeout,
+                                             int primaryNodes,
+                                             int backupNodes) throws Exception {
       final long start = System.currentTimeMillis();
 
-      int liveNodesCount = 0;
+      int primaryNodesCount = 0;
       int backupNodesCount = 0;
 
       do {
-         liveNodesCount = 0;
+         primaryNodesCount = 0;
          backupNodesCount = 0;
 
          for (TopologyMemberImpl member : topology.getMembers()) {
-            if (member.getLive() != null) {
-               liveNodesCount++;
+            if (member.getPrimary() != null) {
+               primaryNodesCount++;
             }
             if (member.getBackup() != null) {
                backupNodesCount++;
             }
          }
 
-         if ((liveNodes == -1 || liveNodes == liveNodesCount) && (backupNodes == -1 || backupNodes == backupNodesCount)) {
+         if ((primaryNodes == -1 || primaryNodes == primaryNodesCount) && (backupNodes == -1 || backupNodes == backupNodesCount)) {
             return topology;
          }
 
@@ -1287,8 +1287,8 @@ public abstract class ActiveMQTestBase extends Assert {
       }
       while (System.currentTimeMillis() - start < timeout);
 
-      String msg = "Timed out waiting for cluster topology of live=" + liveNodes + ",backup=" + backupNodes +
-         " (received live=" + liveNodesCount + ", backup=" + backupNodesCount +
+      String msg = "Timed out waiting for cluster topology of live=" + primaryNodes + ",backup=" + backupNodes +
+         " (received live=" + primaryNodesCount + ", backup=" + backupNodesCount +
          ") topology = " +
          topology.describe() +
          ")";
@@ -1722,10 +1722,10 @@ public abstract class ActiveMQTestBase extends Assert {
 
    protected ActiveMQServer createColocatedInVMFailoverServer(final boolean realFiles,
                                                               final Configuration configuration,
-                                                              NodeManager liveNodeManager,
+                                                              NodeManager primaryNodeManager,
                                                               NodeManager backupNodeManager,
                                                               final int id) {
-      return createColocatedInVMFailoverServer(realFiles, configuration, -1, -1, new HashMap<String, AddressSettings>(), liveNodeManager, backupNodeManager, id);
+      return createColocatedInVMFailoverServer(realFiles, configuration, -1, -1, new HashMap<>(), primaryNodeManager, backupNodeManager, id);
    }
 
    protected ActiveMQServer createColocatedInVMFailoverServer(final boolean realFiles,
@@ -1733,13 +1733,13 @@ public abstract class ActiveMQTestBase extends Assert {
                                                               final int pageSize,
                                                               final int maxAddressSize,
                                                               final Map<String, AddressSettings> settings,
-                                                              NodeManager liveNodeManager,
+                                                              NodeManager primaryNodeManager,
                                                               NodeManager backupNodeManager,
                                                               final int id) {
       ActiveMQServer server;
       ActiveMQSecurityManager securityManager = new ActiveMQJAASSecurityManager(InVMLoginModule.class.getName(), new SecurityConfiguration());
       configuration.setPersistenceEnabled(realFiles);
-      server = new ColocatedActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, liveNodeManager, backupNodeManager);
+      server = new ColocatedActiveMQServer(configuration, ManagementFactory.getPlatformMBeanServer(), securityManager, primaryNodeManager, backupNodeManager);
 
       try {
          server.setIdentity("Server " + id);

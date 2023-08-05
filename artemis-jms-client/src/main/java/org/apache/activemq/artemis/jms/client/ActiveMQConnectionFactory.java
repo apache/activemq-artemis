@@ -90,9 +90,9 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
 
    private String protocolManagerFactoryStr;
 
-   private String deserializationBlackList;
+   private String deserializationDenyList;
 
-   private String deserializationWhiteList;
+   private String deserializationAllowList;
 
    private boolean cacheDestinations;
 
@@ -169,23 +169,47 @@ public class ActiveMQConnectionFactory extends JNDIStorable implements Connectio
    }
 
    @Override
+   @Deprecated(forRemoval = true)
    public String getDeserializationBlackList() {
-      return deserializationBlackList;
+      return deserializationDenyList;
    }
 
    @Override
-   public void setDeserializationBlackList(String blackList) {
-      this.deserializationBlackList = blackList;
+   @Deprecated(forRemoval = true)
+   public void setDeserializationBlackList(String denyList) {
+      this.deserializationDenyList = denyList;
    }
 
    @Override
+   @Deprecated(forRemoval = true)
    public String getDeserializationWhiteList() {
-      return deserializationWhiteList;
+      return deserializationAllowList;
    }
 
    @Override
-   public void setDeserializationWhiteList(String whiteList) {
-      this.deserializationWhiteList = whiteList;
+   @Deprecated(forRemoval = true)
+   public void setDeserializationWhiteList(String allowList) {
+      this.deserializationAllowList = allowList;
+   }
+
+   @Override
+   public String getDeserializationDenyList() {
+      return deserializationDenyList;
+   }
+
+   @Override
+   public void setDeserializationDenyList(String denyList) {
+      this.deserializationDenyList = denyList;
+   }
+
+   @Override
+   public String getDeserializationAllowList() {
+      return deserializationAllowList;
+   }
+
+   @Override
+   public void setDeserializationAllowList(String allowList) {
+      this.deserializationAllowList = allowList;
    }
 
    @Override

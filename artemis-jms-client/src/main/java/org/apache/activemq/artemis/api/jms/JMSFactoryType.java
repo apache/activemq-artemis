@@ -255,7 +255,7 @@ public enum JMSFactoryType {
     * connection is made, up to date cluster topology information is downloaded and automatically
     * updated whenever the cluster topology changes. If the topology includes backup servers that
     * information is also propagated to the client so that it can know which server to failover onto
-    * in case of live server failure.
+    * in case of server failure.
     *
     * @param groupConfiguration
     * @return the ActiveMQConnectionFactory
@@ -263,9 +263,9 @@ public enum JMSFactoryType {
    public abstract ActiveMQConnectionFactory createConnectionFactoryWithHA(DiscoveryGroupConfiguration groupConfiguration);
 
    /**
-    * Create an ActiveMQConnectionFactory which creates session factories from a set of live servers, no HA backup information is propagated to the client
+    * Create an ActiveMQConnectionFactory which creates session factories from a set of active servers, no HA backup information is propagated to the client
     * <p>
-    * The UDP address and port are used to listen for live servers in the cluster
+    * The UDP address and port are used to listen for active servers in the cluster
     *
     * @param groupConfiguration
     * @return the ActiveMQConnectionFactory
@@ -280,7 +280,7 @@ public enum JMSFactoryType {
     * the cluster, once that connection is made, up to date cluster topology information is
     * downloaded and automatically updated whenever the cluster topology changes. If the topology
     * includes backup servers that information is also propagated to the client so that it can know
-    * which server to failover onto in case of live server failure.
+    * which server to failover onto in case of server failure.
     *
     * @param initialServers The initial set of servers used to make a connection to the cluster.
     *                       Each one is tried in turn until a successful connection is made. Once a connection
