@@ -669,6 +669,21 @@ public interface ServerLocator extends AutoCloseable {
    int getFailoverAttempts();
 
    /**
+    * Sets the maximum number of failback attempts to establish a new conection to the original broker after a failover.
+    * <p>
+    * Value must be -1 (to try infinitely), 0 (to never atempt failback) or greater than 0.
+    *
+    * @param attempts maximum number of failback attempts after a successful failover
+    * @return this ServerLocator
+    */
+   ServerLocator setFailbackAttempts(int attempts);
+
+   /**
+    * @return the number of failback attempts after a successful failover
+    */
+   int getFailbackAttempts();
+
+   /**
     * Returns true if the client will automatically attempt to connect to the backup server if the initial
     * connection to the live server fails
     * <p>

@@ -48,6 +48,16 @@ Set `failoverAttempts` to any non-zero value to reconnect to other live servers,
 
 If `reconnectAttempts` value is not zero then the client will try to reconnect to other live servers only after all attempts to <<reconnect-to-the-same-server,reconnect to the same server>> or <<reconnect-to-the-backup-server,reconnect to the backup server>> fail.
 
+== Failing back after a successful failover
+
+It is also possile to have the client keep trying to reconnect to the original live server after a successful failover. In this case the failover connection will get disconnected and moved back to the original server if it comes back online at some later time.
+
+This is controlled by the property `failbackAttempts`
+
+If set to a non-zero value then following a failover the client will try to reach the original server continiously according to the configured `retryInterval`  until it reaches the number of configured `failbackAttempts`.
+
+Setting this parameter to `-1` means try forever. Default value is `0`
+
 == Session reconnection
 
 When clients <<reconnect-to-the-same-server,reconnect to the same server>> after a restart, <<reconnect-to-the-backup-server,reconnect to the backup server>> or <<reconnect-to-other-live-servers,reconnect to other live servers>> any sessions will no longer exist on the server and it won't be possible to 100% transparently re-attach to them.
