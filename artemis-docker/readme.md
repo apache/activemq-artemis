@@ -184,7 +184,14 @@ This will hold the configuration and the data of the running broker. This is use
 
 A broker instance will be created during the execution of the instance. If you pass a mapped folder for `/var/lib/artemis-instance` an image will be created or reused depending on the contents of the folder.
 
+# Overriding files in etc folder
 
+You can use customized configuration for the artemis instance by replacing the files residing in `etc` folder with the custom ones, eg. `broker.xml` or `artemis.profile`. Put the replacement files inside a folder and map it as a volume to:
+- `/var/lib/artemis-instance/etc-override`
+
+The contents of `etc-override` folder will be copied over to etc folder after the instance creation. Therefore, the image will always start with user-supplied configuration.
+
+It you are mapping the whole `var/lib/artemis-instance` to an outside folder for persistence, you can place an `etc-override` folder inside the mapped one, its contents will again be copied over etc folder after creating the instance.
 
 ## Running a CentOS image
 
