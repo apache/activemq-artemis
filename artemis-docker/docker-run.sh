@@ -40,6 +40,9 @@ echo CREATE_ARGUMENTS=${CREATE_ARGUMENTS}
 
 if ! [ -f ./etc/broker.xml ]; then
     /opt/activemq-artemis/bin/artemis create ${CREATE_ARGUMENTS} .
+    if [ -d ./etc-override ]; then
+        for file in `ls ./etc-override`; do echo copying file to etc folder: $file; cp ./etc-override/$file ./etc || :; done
+    fi
 else
     echo "broker already created, ignoring creation"
 fi
