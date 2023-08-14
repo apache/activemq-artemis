@@ -188,9 +188,34 @@ public class NotificationTest extends ActiveMQTestBase {
       Assert.assertTrue(notifications[0].getTimestamp() >= start);
       Assert.assertTrue((long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP) >= start);
       Assert.assertEquals(notifications[0].getTimestamp(), (long) notifications[0].getObjectProperty(ManagementHelper.HDR_NOTIFICATION_TIMESTAMP));
+      Assert.assertNull(notifications[0].getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING));
 
       consumer.close();
       session.deleteQueue(queue);
+   }
+
+   @Test
+   public void testConsumerCreatedWithEmptyFilterString() throws Exception {
+
+      SimpleString queue = RandomUtil.randomSimpleString();
+      SimpleString address = RandomUtil.randomSimpleString();
+      SimpleString filter = SimpleString.toSimpleString("");
+      boolean durable = RandomUtil.randomBoolean();
+
+      try (
+            ClientSessionFactory sf = createSessionFactory(locator);
+            ClientSession clientSession = sf.createSession("myUser", "myPassword", false, true, true, locator.isPreAcknowledge(), locator.getAckBatchSize());
+      ) {
+         clientSession.start();
+         session.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(durable));
+         NotificationTest.flush(notifConsumer);
+         try (ClientConsumer ignored = clientSession.createConsumer(queue, filter)) {
+            ClientMessage[] notifications = NotificationTest.consumeMessages(1, notifConsumer);
+            Assert.assertNull(notifications[0].getSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING));
+         }
+      } finally {
+         session.deleteQueue(queue);
+      }
    }
 
    @Test

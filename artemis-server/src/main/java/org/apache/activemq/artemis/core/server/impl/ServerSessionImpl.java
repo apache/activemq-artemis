@@ -616,8 +616,8 @@ public class ServerSessionImpl implements ServerSession, FailureListener {
 
          props.putSimpleStringProperty(ManagementHelper.HDR_SESSION_NAME, SimpleString.toSimpleString(name));
 
-         if (filterString != null) {
-            props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, filterString);
+         if (filter != null) {
+            props.putSimpleStringProperty(ManagementHelper.HDR_FILTERSTRING, filter.getFilterString());
          }
 
          if (remotingConnection.getClientID() != null) {
