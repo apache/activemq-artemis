@@ -52,12 +52,14 @@ public class CoreClientLeakTest extends ActiveMQTestBase {
    }
 
    @Test
-   public void testConsumerCreatedWithEmptyFilterString() throws Exception {
+   public void testConsumerFiltered() throws Exception {
 
       ServerLocator locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
       SimpleString queue = RandomUtil.randomSimpleString();
       SimpleString address = RandomUtil.randomSimpleString();
-      SimpleString filter = SimpleString.toSimpleString("");
+      SimpleString emptyString = SimpleString.toSimpleString("");
+      SimpleString dummyFilter = SimpleString.toSimpleString("dummy=true");
+
 
       try (ClientSessionFactory sf = createSessionFactory(locator);
            ClientSession clientSession = sf.createSession()) {
@@ -66,8 +68,14 @@ public class CoreClientLeakTest extends ActiveMQTestBase {
             clientSession.createQueue(new QueueConfiguration(queue).setAddress(address).setDurable(true));
             CheckLeak checkLeak = new CheckLeak();
             int initialSimpleString = 0;
+
             for (int i = 0; i < 500; i++) {
-               ClientConsumer consumer = clientSession.createConsumer(queue, filter);
+               ClientConsumer consumer;
+               if (i % 2 == 0) {
+                  consumer = clientSession.createConsumer(queue, emptyString);
+               } else {
+                  consumer = clientSession.createConsumer(queue, dummyFilter);
+               }
                consumer.close();
                consumer = null; // setting it to null to release the consumer earlier before the checkLeak call bellow
                if (i == 100) {
