@@ -49,7 +49,7 @@ public class OpenWireFlowControlFailTest extends OpenWireTestBase {
    }
 
    @Test(timeout = 60000)
-   public void testMesagesNotSent() throws Exception {
+   public void testMessagesNotSent() throws Exception {
 
       AddressInfo addressInfo = new AddressInfo(SimpleString.toSimpleString("Test"), RoutingType.ANYCAST);
       server.addAddressInfo(addressInfo);
