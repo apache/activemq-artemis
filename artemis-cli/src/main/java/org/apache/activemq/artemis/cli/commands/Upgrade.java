@@ -89,7 +89,7 @@ public class Upgrade extends InstallAbstract {
       final File artemisScript = new File(bin, Create.ARTEMIS);
 
       if (etc == null || etc.equals("etc")) {
-         if (IS_WINDOWS && !IS_CYGWIN) {
+         if (IS_WINDOWS) {
             String pattern = "set ARTEMIS_INSTANCE_ETC=";
             etcFolder = getETC(context, etcFolder, artemisCmdScript, pattern);
          } else {
@@ -157,7 +157,7 @@ public class Upgrade extends InstallAbstract {
                     "set ARTEMIS_INSTANCE=\"", "set ARTEMIS_DATA_DIR=", "set ARTEMIS_ETC_DIR=", "set ARTEMIS_OOME_DUMP=", "set ARTEMIS_INSTANCE_URI=", "set ARTEMIS_INSTANCE_ETC_URI=");
       }
 
-      if (!IS_WINDOWS || IS_CYGWIN) {
+      if (IS_NIX) {
          final File artemisScriptTmp = new File(tmp, Create.ARTEMIS);
          final File artemisScriptBkp = new File(binBkp, Create.ARTEMIS);
 
