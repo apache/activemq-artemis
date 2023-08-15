@@ -1562,7 +1562,7 @@ public interface ActiveMQServerLogger {
    @LogMessage(id = 224119, value = "Unable to refresh security settings: {}", level = LogMessage.Level.WARN)
    void unableToRefreshSecuritySettings(String exceptionMessage);
 
-   @LogMessage(id = 224120, value = "Queue {} on Address {} has more messages than configured page limit. PageLimitMesages={} while currentValue={}", level = LogMessage.Level.WARN)
+   @LogMessage(id = 224120, value = "Queue {} on Address {} has more messages than configured page limit. PageLimitMessages={} while currentValue={}", level = LogMessage.Level.WARN)
    void pageFull(SimpleString queue, SimpleString address, Object pageLImitMessage, Object currentValue);
 
    @LogMessage(id = 224121, value = "Queue {} on Address {} is out of page limit now. We will issue a cleanup to check other queues.", level = LogMessage.Level.WARN)

@@ -115,7 +115,7 @@ public class AmqpFlowControlFailTest {
       }
 
       @Test
-      public void testMesagesNotSent() throws Exception {
+      public void testMessagesNotSent() throws Exception {
          AmqpClient client = createAmqpClient(getBrokerAmqpConnectionURI());
          AmqpConnection connection = client.connect();
          int messagesSent = 0;
