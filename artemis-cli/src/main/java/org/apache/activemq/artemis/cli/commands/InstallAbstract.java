@@ -52,8 +52,8 @@ public class InstallAbstract extends InputAbstract {
    @Option(names = "--windows", description = "Force Windows script creation. Default: based on your actual system.")
    protected boolean windows = false;
 
-   @Option(names = "--cygwin", description = "Force Cygwin script creation. Default: based on your actual system.")
-   protected boolean cygwin = false;
+   @Option(names = {"--cygwin", "--linux"}, description = "Force Linux or Cygwin script creation. Default: based on your actual system.")
+   protected boolean nix = false;
 
    @Option(names = "--java-options", description = "Extra Java options to be passed to the profile.")
    protected List<String> javaOptions;
@@ -93,12 +93,29 @@ public class InstallAbstract extends InputAbstract {
    }
 
    protected boolean IS_WINDOWS;
-   protected boolean IS_CYGWIN;
+   protected boolean IS_NIX;
 
    public Object run(ActionContext context) throws Exception {
-      IS_WINDOWS = windows | System.getProperty("os.name").toLowerCase().trim().startsWith("win");
-      IS_CYGWIN = cygwin | IS_WINDOWS && "cygwin".equals(System.getenv("OSTYPE"));
-
+      IS_NIX = false;
+      IS_WINDOWS = false;
+      if (nix) {
+         IS_NIX = true;
+         return null;
+      }
+      if (windows) {
+         IS_WINDOWS = true;
+         return null;
+      }
+      if ("cygwin".equals(System.getenv("OSTYPE"))) {
+         IS_NIX = true;
+         return null;
+      }
+      if (System.getProperty("os.name").toLowerCase().trim().startsWith("win")) {
+         IS_WINDOWS = true;
+         return null;
+      }
+      // Fallback to *nix
+      IS_NIX = true;
       return null;
    }
 
@@ -140,7 +157,7 @@ public class InstallAbstract extends InputAbstract {
 
       // and then writing out in the new target encoding..  Let's also replace \n with the values
       // that is correct for the current platform.
-      String separator = unixTarget && IS_CYGWIN ? "\n" : System.getProperty("line.separator");
+      String separator = unixTarget && IS_NIX ? "\n" : System.getProperty("line.separator");
       content = content.replaceAll("\\r?\\n", Matcher.quoteReplacement(separator));
       ByteArrayInputStream in = new ByteArrayInputStream(content.getBytes(encoding));
       try (FileOutputStream fout = new FileOutputStream(target)) {

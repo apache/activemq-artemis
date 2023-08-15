@@ -1276,8 +1276,11 @@
                   </goals>
                   <configuration>
                      <instance>${basedir}/target/classes/servers/linuxUpgrade</instance>
-                     <!-- we don't pass the java memory argumnent on purpose,
-                          as the upgrade should keep the relevant JVM arguments during the upgrade -->
+                     <args>
+                        <arg>--linux</arg>
+                        <!-- we don't pass the java memory argumnent on purpose,
+                             as the upgrade should keep the relevant JVM arguments during the upgrade -->
+                     </args>
                   </configuration>
                </execution>
                <execution>

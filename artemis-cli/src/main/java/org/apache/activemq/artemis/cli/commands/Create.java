@@ -756,7 +756,7 @@ public class Create extends InstallAbstract {
          writeEtc(ETC_ARTEMIS_PROFILE_CMD, etcFolder, filters, false);
       }
 
-      if (!IS_WINDOWS || IS_CYGWIN) {
+      if (IS_NIX) {
          write(BIN_ARTEMIS, filters, true);
          makeExec(BIN_ARTEMIS);
          write(BIN_ARTEMIS_SERVICE, filters, true);
@@ -847,7 +847,7 @@ public class Create extends InstallAbstract {
       File service = new File(directory, BIN_ARTEMIS_SERVICE);
       context.out.println("");
 
-      if (!IS_WINDOWS || IS_CYGWIN) {
+      if (IS_NIX) {
          context.out.println("Or you can run the broker in the background using:");
          context.out.println("");
          context.out.println(String.format("   \"%s\" start", path(service)));
