@@ -111,7 +111,7 @@
       <checkstyle.version>10.11.0</checkstyle.version>
       <mockito.version>5.4.0</mockito.version>
       <jctools.version>2.1.2</jctools.version>
-      <netty.version>4.1.94.Final</netty.version>
+      <netty.version>4.1.96.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
       <curator.version>5.2.0</curator.version>
       <zookeeper.version>3.6.3</zookeeper.version>
