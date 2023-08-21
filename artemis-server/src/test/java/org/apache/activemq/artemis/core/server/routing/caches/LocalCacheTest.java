@@ -115,7 +115,8 @@ public class LocalCacheTest {
 
       try {
          Assert.assertEquals(CACHE_ENTRY_VALUE, cacheAfterStop.get(CACHE_ENTRY_KEY));
-         Thread.sleep(CACHE_TIMEOUT * 2);
+         // This minimum difference between the scheduled executions is implementation-specific, currently at ~1 second
+         Thread.sleep(1000L + CACHE_TIMEOUT);
          Assert.assertNull(cacheAfterStop.get(CACHE_ENTRY_KEY));
       } finally {
          cacheAfterStop.stop();

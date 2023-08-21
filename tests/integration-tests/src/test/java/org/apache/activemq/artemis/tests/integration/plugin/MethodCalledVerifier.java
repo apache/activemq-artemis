@@ -19,10 +19,10 @@ package org.apache.activemq.artemis.tests.integration.plugin;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.common.base.Preconditions;
 import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -122,13 +122,13 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
 
    @Override
    public void afterCreateConnection(RemotingConnection connection) {
-      Preconditions.checkNotNull(connection);
+      Objects.requireNonNull(connection);
       methodCalled(AFTER_CREATE_CONNECTION);
    }
 
    @Override
    public void afterDestroyConnection(RemotingConnection connection) {
-      Preconditions.checkNotNull(connection);
+      Objects.requireNonNull(connection);
       methodCalled(AFTER_DESTROY_CONNECTION);
    }
 
@@ -137,172 +137,172 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
                                    boolean autoCommitSends, boolean autoCommitAcks, boolean preAcknowledge, boolean xa,
                                    String defaultAddress, SessionCallback callback, boolean autoCreateQueues,
                                    OperationContext context, Map<SimpleString, RoutingType> prefixes) {
-      Preconditions.checkNotNull(connection);
+      Objects.requireNonNull(connection);
       methodCalled(BEFORE_CREATE_SESSION);
    }
 
    @Override
    public void afterCreateSession(ServerSession session) {
-      Preconditions.checkNotNull(session);
+      Objects.requireNonNull(session);
       methodCalled(AFTER_CREATE_SESSION);
    }
 
    @Override
    public void beforeCloseSession(ServerSession session, boolean failed) {
-      Preconditions.checkNotNull(session);
+      Objects.requireNonNull(session);
       methodCalled(BEFORE_CLOSE_SESSION);
    }
 
    @Override
    public void afterCloseSession(ServerSession session, boolean failed) {
-      Preconditions.checkNotNull(session);
+      Objects.requireNonNull(session);
       methodCalled(AFTER_CLOSE_SESSION);
    }
 
    @Override
    public void beforeSessionMetadataAdded(ServerSession session, String key, String data) {
-      Preconditions.checkNotNull(key);
+      Objects.requireNonNull(key);
       methodCalled(BEFORE_SESSION_METADATA_ADDED);
    }
 
    @Override
    public void afterSessionMetadataAdded(ServerSession session, String key, String data) {
-      Preconditions.checkNotNull(key);
+      Objects.requireNonNull(key);
       methodCalled(AFTER_SESSION_METADATA_ADDED);
    }
 
    @Override
    public void beforeCreateConsumer(long consumerID, QueueBinding queueBinding, SimpleString filterString,
                                     boolean browseOnly, boolean supportLargeMessage) {
-      Preconditions.checkNotNull(queueBinding);
+      Objects.requireNonNull(queueBinding);
       methodCalled(BEFORE_CREATE_CONSUMER);
    }
 
    @Override
    public void afterCreateConsumer(ServerConsumer consumer) {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(AFTER_CREATE_CONSUMER);
    }
 
    @Override
    public void beforeCloseConsumer(ServerConsumer consumer, boolean failed) {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(BEFORE_CLOSE_CONSUMER);
    }
 
    @Override
    public void afterCloseConsumer(ServerConsumer consumer, boolean failed) {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(AFTER_CLOSE_CONSUMER);
    }
 
    @Override
    public void beforeAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
-      Preconditions.checkNotNull(addressInfo);
+      Objects.requireNonNull(addressInfo);
       methodCalled(BEFORE_ADD_ADDRESS);
    }
 
    @Override
    public void afterAddAddress(AddressInfo addressInfo, boolean reload) throws ActiveMQException {
-      Preconditions.checkNotNull(addressInfo);
+      Objects.requireNonNull(addressInfo);
       methodCalled(AFTER_ADD_ADDRESS);
    }
 
    @Override
    public void beforeUpdateAddress(SimpleString address, EnumSet<RoutingType> routingTypes)
          throws ActiveMQException {
-      Preconditions.checkNotNull(address);
-      Preconditions.checkNotNull(routingTypes);
+      Objects.requireNonNull(address);
+      Objects.requireNonNull(routingTypes);
       methodCalled(BEFORE_UPDATE_ADDRESS);
    }
 
    @Override
    public void afterUpdateAddress(AddressInfo addressInfo) throws ActiveMQException {
-      Preconditions.checkNotNull(addressInfo);
+      Objects.requireNonNull(addressInfo);
       methodCalled(AFTER_UPDATE_ADDRESS);
    }
 
    @Override
    public void beforeRemoveAddress(SimpleString address) throws ActiveMQException {
-      Preconditions.checkNotNull(address);
+      Objects.requireNonNull(address);
       methodCalled(BEFORE_REMOVE_ADDRESS);
    }
 
    @Override
    public void afterRemoveAddress(SimpleString address, AddressInfo addressInfo) throws ActiveMQException {
-      Preconditions.checkNotNull(address);
-      Preconditions.checkNotNull(addressInfo);
+      Objects.requireNonNull(address);
+      Objects.requireNonNull(addressInfo);
       methodCalled(AFTER_REMOVE_ADDRESS);
    }
 
    @Override
    public void beforeCreateQueue(QueueConfig queueConfig) {
-      Preconditions.checkNotNull(queueConfig);
+      Objects.requireNonNull(queueConfig);
       methodCalled(BEFORE_CREATE_QUEUE);
    }
 
    @Override
    public void afterCreateQueue(org.apache.activemq.artemis.core.server.Queue queue) {
-      Preconditions.checkNotNull(queue);
+      Objects.requireNonNull(queue);
       methodCalled(AFTER_CREATE_QUEUE);
    }
 
    @Override
    public void beforeDestroyQueue(Queue queue, SecurityAuth session, boolean checkConsumerCount,
          boolean removeConsumers, boolean autoDeleteAddress) {
-      Preconditions.checkNotNull(queue);
+      Objects.requireNonNull(queue);
       methodCalled(BEFORE_DESTROY_QUEUE);
    }
 
    @Override
    public void afterDestroyQueue(Queue queue, SimpleString address, SecurityAuth session, boolean checkConsumerCount,
          boolean removeConsumers, boolean autoDeleteAddress) {
-      Preconditions.checkNotNull(queue);
+      Objects.requireNonNull(queue);
       methodCalled(AFTER_DESTROY_QUEUE);
    }
 
    @Override
    public void beforeAddBinding(Binding binding) throws ActiveMQException {
-      Preconditions.checkNotNull(binding);
+      Objects.requireNonNull(binding);
       methodCalled(BEFORE_ADD_BINDING);
    }
 
    @Override
    public void afterAddBinding(Binding binding) throws ActiveMQException {
-      Preconditions.checkNotNull(binding);
+      Objects.requireNonNull(binding);
       methodCalled(AFTER_ADD_BINDING);
    }
 
    @Override
    public void beforeRemoveBinding(SimpleString uniqueName, Transaction tx, boolean deleteData)
          throws ActiveMQException {
-      Preconditions.checkNotNull(uniqueName);
+      Objects.requireNonNull(uniqueName);
       methodCalled(BEFORE_REMOVE_BINDING);
    }
 
    @Override
    public void afterRemoveBinding(Binding binding, Transaction tx, boolean deleteData) throws ActiveMQException {
-      Preconditions.checkNotNull(binding);
+      Objects.requireNonNull(binding);
       methodCalled(AFTER_REMOVE_BINDING);
    }
 
    @Override
    public void messageExpired(MessageReference message, SimpleString messageExpiryAddress, ServerConsumer consumer) {
-      Preconditions.checkNotNull(message);
+      Objects.requireNonNull(message);
       methodCalled(MESSAGE_EXPIRED);
    }
 
    @Override
    public void messageAcknowledged(MessageReference ref, AckReason reason, ServerConsumer consumer) {
-      Preconditions.checkNotNull(ref);
-      Preconditions.checkNotNull(reason);
+      Objects.requireNonNull(ref);
+      Objects.requireNonNull(reason);
       methodCalled(MESSAGE_ACKED);
    }
 
    @Override
    public void beforeSend(ServerSession session, Transaction tx, Message message, boolean direct,
          boolean noAutoCreateQueue) {
-      Preconditions.checkNotNull(message);
+      Objects.requireNonNull(message);
       methodCalled(BEFORE_SEND);
    }
 
@@ -310,148 +310,148 @@ public class MethodCalledVerifier implements ActiveMQServerPlugin {
    public void afterSend(ServerSession session, Transaction tx, Message message, boolean direct,
          boolean noAutoCreateQueue,
                          RoutingStatus result) {
-      Preconditions.checkNotNull(message);
-      Preconditions.checkNotNull(result);
+      Objects.requireNonNull(message);
+      Objects.requireNonNull(result);
       methodCalled(AFTER_SEND);
    }
 
    @Override
    public void onSendException(ServerSession session, Transaction tx, Message message, boolean direct,
                                boolean noAutoCreateQueue, Exception e) {
-      Preconditions.checkNotNull(message);
-      Preconditions.checkNotNull(e);
+      Objects.requireNonNull(message);
+      Objects.requireNonNull(e);
       methodCalled(ON_SEND_EXCEPTION);
    }
 
    @Override
    public void beforeMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates) {
-      Preconditions.checkNotNull(message);
-      Preconditions.checkNotNull(context);
+      Objects.requireNonNull(message);
+      Objects.requireNonNull(context);
       methodCalled(BEFORE_MESSAGE_ROUTE);
    }
 
    @Override
    public void afterMessageRoute(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                  RoutingStatus result) {
-      Preconditions.checkNotNull(message);
-      Preconditions.checkNotNull(context);
-      Preconditions.checkNotNull(result);
+      Objects.requireNonNull(message);
+      Objects.requireNonNull(context);
+      Objects.requireNonNull(result);
       methodCalled(AFTER_MESSAGE_ROUTE);
    }
 
    @Override
    public void onMessageRouteException(Message message, RoutingContext context, boolean direct, boolean rejectDuplicates,
                                        Exception e) {
-      Preconditions.checkNotNull(message);
-      Preconditions.checkNotNull(context);
-      Preconditions.checkNotNull(e);
+      Objects.requireNonNull(message);
+      Objects.requireNonNull(context);
+      Objects.requireNonNull(e);
       methodCalled(ON_MESSAGE_ROUTE_EXCEPTION);
    }
 
    @Override
    public void beforeDeliver(ServerConsumer consumer, MessageReference reference) {
-      Preconditions.checkNotNull(reference);
+      Objects.requireNonNull(reference);
       methodCalled(BEFORE_DELIVER);
    }
 
    @Override
    public void afterDeliver(ServerConsumer consumer, MessageReference reference) {
-      Preconditions.checkNotNull(reference);
+      Objects.requireNonNull(reference);
       methodCalled(AFTER_DELIVER);
    }
 
    @Override
    public void beforeDeployBridge(BridgeConfiguration config) {
-      Preconditions.checkNotNull(config);
+      Objects.requireNonNull(config);
       methodCalled(BEFORE_DEPLOY_BRIDGE);
    }
 
    @Override
    public void afterDeployBridge(Bridge bridge) {
-      Preconditions.checkNotNull(bridge);
+      Objects.requireNonNull(bridge);
       methodCalled(AFTER_DEPLOY_BRIDGE);
    }
 
    @Override
    public void beforeDeliverBridge(Bridge bridge, MessageReference ref) throws ActiveMQException {
-      Preconditions.checkNotNull(bridge);
+      Objects.requireNonNull(bridge);
       methodCalled(BEFORE_DELIVER_BRIDGE);
    }
 
    @Override
    public void afterDeliverBridge(Bridge bridge, MessageReference ref, HandleStatus status) throws ActiveMQException {
-      Preconditions.checkNotNull(bridge);
+      Objects.requireNonNull(bridge);
       methodCalled(AFTER_DELIVER_BRIDGE);
    }
 
    @Override
    public void afterAcknowledgeBridge(Bridge bridge, MessageReference ref) throws ActiveMQException {
-      Preconditions.checkNotNull(bridge);
+      Objects.requireNonNull(bridge);
       methodCalled(AFTER_ACKNOWLEDGE_BRIDGE);
    }
 
    @Override
    public void federationStreamStarted(FederationStream stream) throws ActiveMQException {
-      Preconditions.checkNotNull(stream);
+      Objects.requireNonNull(stream);
       methodCalled(FEDERATION_STREAM_STARTED);
    }
 
    @Override
    public void federationStreamStopped(FederationStream stream) throws ActiveMQException {
-      Preconditions.checkNotNull(stream);
+      Objects.requireNonNull(stream);
       methodCalled(FEDERATION_STREAM_STOPPED);
    }
 
    @Override
    public void beforeCreateFederatedQueueConsumer(FederatedConsumerKey key) throws ActiveMQException {
-      Preconditions.checkNotNull(key);
+      Objects.requireNonNull(key);
       methodCalled(BEFORE_CREATE_FEDERATED_QUEUE_CONSUMER);
    }
 
    @Override
    public void afterCreateFederatedQueueConsumer(FederatedQueueConsumer consumer) throws ActiveMQException {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(AFTER_CREATE_FEDERATED_QUEUE_CONSUMER);
    }
 
    @Override
    public void beforeCloseFederatedQueueConsumer(FederatedQueueConsumer consumer) throws ActiveMQException {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(BEFORE_CLOSE_FEDERATED_QUEUE_CONSUMER);
    }
 
    @Override
    public void afterCloseFederatedQueueConsumer(FederatedQueueConsumer consumer) throws ActiveMQException {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(AFTER_CLOSE_FEDERATED_QUEUE_CONSUMER);
    }
 
    @Override
    public void beforeFederatedQueueConsumerMessageHandled(FederatedQueueConsumer consumer,
                                                           Message message) throws ActiveMQException {
-      Preconditions.checkNotNull(consumer);
-      Preconditions.checkNotNull(message);
+      Objects.requireNonNull(consumer);
+      Objects.requireNonNull(message);
       methodCalled(BEFORE_FEDERATED_QUEUE_CONSUMER_MESSAGE_HANDLED);
    }
 
    @Override
    public void afterFederatedQueueConsumerMessageHandled(FederatedQueueConsumer consumer,
                                                          Message message) throws ActiveMQException {
-      Preconditions.checkNotNull(consumer);
-      Preconditions.checkNotNull(message);
+      Objects.requireNonNull(consumer);
+      Objects.requireNonNull(message);
       methodCalled(AFTER_FEDERATED_QUEUE_CONSUMER_MESSAGE_HANDLED);
    }
 
    @Override
    public boolean federatedAddressConditionalCreateConsumer(Queue queue) throws ActiveMQException {
-      Preconditions.checkNotNull(queue);
+      Objects.requireNonNull(queue);
       methodCalled(FEDERATED_ADDRESS_CONDITIONAL_CREATE_CONSUMER);
       return true;
    }
 
    @Override
    public boolean federatedQueueConditionalCreateConsumer(ServerConsumer consumer) throws ActiveMQException {
-      Preconditions.checkNotNull(consumer);
+      Objects.requireNonNull(consumer);
       methodCalled(FEDERATED_QUEUE_CONDITIONAL_CREATE_CONSUMER);
       return true;
    }

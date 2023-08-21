@@ -55,18 +55,6 @@
       <version>${hawtio.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <!-- License: Apache 2.0 -->
-      <!-- see https://github.com/google/guava/issues/3006: checker-compat-qual could be excluded -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.checkerframework</groupId>
-          <artifactId>checker-compat-qual</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
 
   <build>

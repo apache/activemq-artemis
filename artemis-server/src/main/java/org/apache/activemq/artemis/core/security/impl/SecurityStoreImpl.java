@@ -22,8 +22,6 @@ import java.security.AccessController;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import org.apache.activemq.artemis.api.core.Pair;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.api.core.management.CoreNotificationType;
@@ -54,6 +52,10 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.lang.invoke.MethodHandles;
 
 /**
@@ -101,7 +103,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (authenticationCacheSize == 0) {
          authenticationCache = null;
       } else {
-         authenticationCache = CacheBuilder.newBuilder()
+         authenticationCache = Caffeine.newBuilder()
                                            .maximumSize(authenticationCacheSize)
                                            .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                            .build();
@@ -109,7 +111,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (authorizationCacheSize == 0) {
          authorizationCache = null;
       } else {
-         authorizationCache = CacheBuilder.newBuilder()
+         authorizationCache = Caffeine.newBuilder()
                                           .maximumSize(authorizationCacheSize)
                                           .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
                                           .build();
@@ -481,7 +483,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (authenticationCache == null) {
          return 0;
       } else {
-         return authenticationCache.size();
+         return authenticationCache.estimatedSize();
       }
    }
 
@@ -489,7 +491,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (authorizationCache == null) {
          return 0;
       } else {
-         return authorizationCache.size();
+         return authorizationCache.estimatedSize();
       }
    }
 

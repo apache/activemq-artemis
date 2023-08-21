@@ -184,6 +184,11 @@
         <artifactId>mockito-core</artifactId>
         <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>io.github.classgraph</groupId>
+         <artifactId>classgraph</artifactId>
+         <scope>test</scope>
+      </dependency>
 
       <!-- The johnzon-core and json-api contents are repackaged in -commons,
      However maven can still need them during tests, which run against

@@ -73,8 +73,7 @@
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons.lang.version}</bundle>
 		<bundle dependency="true">mvn:org.jctools/jctools-core/${jctools.version}</bundle>
 		<bundle dependency="true">mvn:org.hdrhistogram/HdrHistogram/${hdrhistogram.version}</bundle>
-		<bundle dependency="true">mvn:com.google.guava/failureaccess/1.0.1</bundle>
-		<bundle dependency="true">mvn:com.google.guava/guava/${guava.version}</bundle>
+		<bundle dependency="true">mvn:com.github.ben-manes.caffeine/caffeine/${caffeine.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-dbcp2/${commons.dbcp2.version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-pool2/${commons.pool2.version}</bundle>
 		<!-- Micrometer can't be included until it supports OSGi. It is currently an "optional" Maven dependency. -->

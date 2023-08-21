@@ -16,8 +16,10 @@
  */
 package org.apache.activemq.artemis.tests.unit;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.reflect.ClassPath;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
+
 import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assume;
 import org.junit.Test;
@@ -28,36 +30,29 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(value = Parameterized.class)
 public class AllClassesTest {
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    @Parameterized.Parameters(name = "classInfo={0}")
-   public static Collection getParameters() {
-      List<Class> parameters = new ArrayList<>();
-      ClassLoader classLoader = AllClassesTest.class.getClassLoader();
-
-      try {
-         ClassPath classPath = ClassPath.from(classLoader);
-         ImmutableSet<ClassPath.ClassInfo> classInfos = classPath.getTopLevelClassesRecursive("org.apache.activemq.artemis");
-
-         for (ClassPath.ClassInfo classInfo : classInfos) {
-            if (!classInfo.getPackageName().contains("tests")) {
+   public static Collection<?> getParameters() {
+      List<Class<?>> parameters = new ArrayList<>();
+      try (ScanResult result = new ClassGraph().acceptPackages("org.apache.activemq.artemis").scan()) {
+         for (Map.Entry<String, ClassInfo> entry : result.getAllClasses().asMap().entrySet()) {
+            if (!entry.getKey().contains("tests")
+               && !entry.getValue().isInterface() && !entry.getValue().isEnum() && !entry.getValue().isAbstract() && !entry.getValue().isInnerClass()) {
                try {
-                  Class loadedClass = classInfo.load();
-                  if (!loadedClass.isEnum() && !loadedClass.isInterface() && !Modifier.isAbstract(loadedClass.getModifiers())) {
-                     parameters.add(loadedClass);
-                  }
+                  parameters.add(entry.getValue().loadClass());
                } catch (Throwable loadThrowable) {
-                  logger.debug("cannot load {} : {}", classInfo.getName(), loadThrowable);
+                  logger.debug("cannot load {} : {}", entry.getKey(), loadThrowable);
                }
             }
          }
@@ -72,9 +67,9 @@ public class AllClassesTest {
       return parameters;
    }
 
-   private Class targetClass;
+   private Class<?> targetClass;
 
-   public AllClassesTest(Class targetClass) {
+   public AllClassesTest(Class<?> targetClass) {
       this.targetClass = targetClass;
    }
 
@@ -105,10 +100,10 @@ public class AllClassesTest {
       }
    }
 
-   private Object newInstance(Class targetClass) {
-      Constructor[] targetConstructors = targetClass.getDeclaredConstructors();
+   private Object newInstance(Class<?> targetClass) {
+      Constructor<?>[] targetConstructors = targetClass.getDeclaredConstructors();
       Arrays.sort(targetConstructors, (c1, c2) -> c2.getParameterCount() - c1.getParameterCount());
-      for (Constructor targetConstructor : targetConstructors) {
+      for (Constructor<?> targetConstructor : targetConstructors) {
          List<Object> initArgs = new ArrayList<>();
          Parameter[] constructorParameters = targetConstructor.getParameters();
 

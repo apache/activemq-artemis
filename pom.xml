@@ -97,7 +97,7 @@
       <commons.io.version>2.10.0</commons.io.version>
       <commons.codec.version>1.15</commons.codec.version>
       <fuse.mqtt.client.version>1.16</fuse.mqtt.client.version>
-      <guava.version>32.0.1-jre</guava.version>
+      <caffeine.version>3.1.6</caffeine.version>
       <hawtio.version>2.15.0</hawtio.version>
       <jsr305.version>3.0.2</jsr305.version>
       <jetty.version>10.0.15</jetty.version>
@@ -110,6 +110,7 @@
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>10.11.0</checkstyle.version>
       <mockito.version>5.4.0</mockito.version>
+      <classgraph.version>4.8.161</classgraph.version>
       <jctools.version>2.1.2</jctools.version>
       <netty.version>4.1.96.Final</netty.version>
       <hdrhistogram.version>2.1.12</hdrhistogram.version>
@@ -385,6 +386,14 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+            <!-- License: MIT -->
+         </dependency>
+
+         <dependency>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>${classgraph.version}</version>
             <scope>test</scope>
             <!-- License: MIT -->
          </dependency>
@@ -938,9 +947,9 @@
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine.version}</version>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
