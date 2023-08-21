@@ -101,6 +101,9 @@
                 <exclude>img/**/*</exclude>
                 <exclude>fonts/glyphicons**</exclude>
                 <exclude>WEB-INF/lib/guava*.jar</exclude>
+                <exclude>WEB-INF/lib/checker-qual-*.jar</exclude>
+                <exclude>WEB-INF/lib/error_prone_annotations-*.jar</exclude>
+                <exclude>WEB-INF/lib/j2objc-annotations-*.jar</exclude>
                 <exclude>WEB-INF/classes/log4j2.properties</exclude>
               </excludes>
             </overlay>
