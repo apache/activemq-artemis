@@ -22,7 +22,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQExceptionType;
 import org.apache.activemq.artemis.api.core.Interceptor;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.w3c.dom.Node;
 
 /**
@@ -31,7 +30,7 @@ import org.w3c.dom.Node;
 @LogBundle(projectCode = "AMQ", regexID = "21[0-9]{4}")
 public interface ActiveMQClientLogger {
 
-   ActiveMQClientLogger LOGGER = BundleFactory.newBundle(ActiveMQClientLogger.class, ActiveMQClientLogger.class.getPackage().getName());
+   ActiveMQClientLogger LOGGER = new ActiveMQClientLogger_impl(ActiveMQClientLogger.class.getPackage().getName());
 
    @LogMessage(id = 212001, value = "Error on clearing messages", level = LogMessage.Level.WARN)
    void errorClearingMessages(Throwable e);

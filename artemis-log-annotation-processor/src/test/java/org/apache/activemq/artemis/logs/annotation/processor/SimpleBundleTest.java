@@ -135,7 +135,7 @@ public class SimpleBundleTest {
 
 
    @Test
-   public void testGetLogger() {
-      Assert.assertNotNull(SimpleBundle.MESSAGES.getLogger());
+   public void testIsInfoEnabled() {
+      Assert.assertTrue(SimpleBundle.MESSAGES.isInfoEnabled());
    }
 }

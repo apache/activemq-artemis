@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.jms.server;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.w3c.dom.Node;
 
 /**
@@ -28,7 +27,7 @@ import org.w3c.dom.Node;
 @LogBundle(projectCode = "AMQ", regexID = "12[0-9]{4}")
 public interface ActiveMQJMSServerLogger {
 
-   ActiveMQJMSServerLogger LOGGER = BundleFactory.newBundle(ActiveMQJMSServerLogger.class, ActiveMQJMSServerLogger.class.getPackage().getName());
+   ActiveMQJMSServerLogger LOGGER = new ActiveMQJMSServerLogger_impl(ActiveMQJMSServerLogger.class.getPackage().getName());
 
    @LogMessage(id = 121004, value = "JMS Server Manager Caching command for {} since the JMS Server is not active.",
       level = LogMessage.Level.INFO)

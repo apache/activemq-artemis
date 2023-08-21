@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.core.server;
 
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
 
@@ -28,7 +27,7 @@ import org.apache.activemq.artemis.logs.annotation.LogMessage;
 @LogBundle(projectCode = "AMQ", regexID = "22[0-9]{4}")
 public interface ActiveMQQueueLogger {
 
-   ActiveMQQueueLogger LOGGER = BundleFactory.newBundle(ActiveMQQueueLogger.class, Queue.class.getName());
+   ActiveMQQueueLogger LOGGER = new ActiveMQQueueLogger_impl(Queue.class.getName());
 
    @LogMessage(id = 224127, value = "Message dispatch from paging is blocked. Address {}/Queue {} will not read any more messages from paging until pending messages are acknowledged. There are currently {} messages pending ({} bytes) with max reads at maxPageReadMessages({}) and maxPageReadBytes({}). Either increase reading attributes at the address-settings or change your consumers to acknowledge more often.", level = LogMessage.Level.WARN)
    void warnPageFlowControl(String address,

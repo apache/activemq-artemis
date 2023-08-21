@@ -23,7 +23,6 @@ import javax.resource.NotSupportedException;
 import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 15
@@ -36,7 +35,7 @@ public interface ActiveMQRABundle {
     */
    String ISE = "This method is not applicable inside the application server. See the JEE spec, e.g. JEE 7 Section 6.7";
 
-   ActiveMQRABundle BUNDLE = BundleFactory.newBundle(ActiveMQRABundle.class);
+   ActiveMQRABundle BUNDLE = new ActiveMQRABundle_impl();
 
    @Message(id = 159000, value = "Error decoding password using codec instance")
    ActiveMQIllegalStateException errorDecodingPassword(Exception e);

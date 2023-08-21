@@ -56,7 +56,6 @@ import org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Replicatio
 import org.apache.activemq.artemis.core.security.CheckType;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 22
@@ -64,7 +63,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "22[0-9]{4}")
 public interface ActiveMQMessageBundle {
 
-   ActiveMQMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQMessageBundle.class);
+   ActiveMQMessageBundle BUNDLE = new ActiveMQMessageBundle_impl();
 
    @Message(id = 229000, value = "Activation for server {}")
    String activationForServer(ActiveMQServer server);

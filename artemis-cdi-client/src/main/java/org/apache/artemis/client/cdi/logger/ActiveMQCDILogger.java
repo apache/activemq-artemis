@@ -23,7 +23,6 @@ import javax.enterprise.inject.spi.ProcessBean;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger code 57
@@ -31,7 +30,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "57[0-9]{4}")
 public interface ActiveMQCDILogger {
 
-   ActiveMQCDILogger LOGGER = BundleFactory.newBundle(ActiveMQCDILogger.class, ActiveMQCDILogger.class.getPackage().getName());
+   ActiveMQCDILogger LOGGER = new ActiveMQCDILogger_impl(ActiveMQCDILogger.class.getPackage().getName());
 
    @LogMessage(id = 571000, value = "Discovered configuration class {}", level = LogMessage.Level.INFO)
    void discoveredConfiguration(ProcessBean<?> pb);

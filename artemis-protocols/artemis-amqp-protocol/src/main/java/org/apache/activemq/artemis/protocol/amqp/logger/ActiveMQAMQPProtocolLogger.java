@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.protocol.amqp.logger;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 11
@@ -27,7 +26,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "11[0-9]{4}")
 public interface ActiveMQAMQPProtocolLogger {
 
-   ActiveMQAMQPProtocolLogger LOGGER = BundleFactory.newBundle(ActiveMQAMQPProtocolLogger.class, ActiveMQAMQPProtocolLogger.class.getPackage().getName());
+   ActiveMQAMQPProtocolLogger LOGGER = new ActiveMQAMQPProtocolLogger_impl(ActiveMQAMQPProtocolLogger.class.getPackage().getName());
 
    @LogMessage(id = 111000, value = "Scheduled task can't be removed from scheduledPool.", level = LogMessage.Level.WARN)
    void cantRemovingScheduledTask();

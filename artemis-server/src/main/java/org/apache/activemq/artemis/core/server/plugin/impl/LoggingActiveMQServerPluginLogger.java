@@ -32,7 +32,6 @@ import org.apache.activemq.artemis.core.server.impl.AckReason;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.spi.core.protocol.RemotingConnection;
 import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 
@@ -42,7 +41,7 @@ import org.apache.activemq.artemis.utils.critical.CriticalComponent;
 @LogBundle(projectCode = "AMQ", regexID = "84[0-9]{4}")
 public interface LoggingActiveMQServerPluginLogger {
 
-   LoggingActiveMQServerPluginLogger LOGGER = BundleFactory.newBundle(LoggingActiveMQServerPluginLogger.class, LoggingActiveMQServerPluginLogger.class.getPackage().getName());
+   LoggingActiveMQServerPluginLogger LOGGER = new LoggingActiveMQServerPluginLogger_impl(LoggingActiveMQServerPluginLogger.class.getPackage().getName());
 
    @LogMessage(id = 841000, value = "created connection: {}", level = LogMessage.Level.INFO)
    void afterCreateConnection(RemotingConnection connection);

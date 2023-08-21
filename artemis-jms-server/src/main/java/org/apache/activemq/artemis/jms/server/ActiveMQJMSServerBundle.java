@@ -21,7 +21,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQIllegalStateException;
 import org.apache.activemq.artemis.api.core.ActiveMQInternalErrorException;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 12
@@ -29,7 +28,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "12[0-9]{4}")
 public interface ActiveMQJMSServerBundle {
 
-   ActiveMQJMSServerBundle BUNDLE = BundleFactory.newBundle(ActiveMQJMSServerBundle.class);
+   ActiveMQJMSServerBundle BUNDLE = new ActiveMQJMSServerBundle_impl();
 
    @Message(id = 129000, value = "Connection Factory {} does not exist")
    ActiveMQInternalErrorException cfDoesntExist(String name);

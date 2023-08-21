@@ -16,7 +16,6 @@
  */
 package org.apache.activemq.artemis.tests.integration;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -32,7 +31,6 @@ import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.logs.AssertionLoggerHandler.LogLevel;
-import org.apache.activemq.artemis.logs.AuditLogger;
 import org.apache.activemq.artemis.spi.core.security.ActiveMQBasicSecurityManager;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.AfterClass;
@@ -45,7 +43,7 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
 
    protected ActiveMQServer server;
    private static final int MESSAGE_COUNT = 10;
-   private static final String MESSAGE_AUDIT_LOGGER_NAME = AuditLogger.MESSAGE_LOGGER.getLogger().getName();
+   private static final String MESSAGE_AUDIT_LOGGER_NAME = "org.apache.activemq.audit.message";
 
    private static LogLevel previousLevel = null;
 
@@ -58,12 +56,10 @@ public class MultiThreadedAuditLoggingTest extends ActiveMQTestBase {
       server = createServer(true, createDefaultInVMConfig().setSecurityEnabled(true));
       server.setSecurityManager(new ActiveMQBasicSecurityManager());
       server.start();
-      Set<Role> roles = new HashSet<>();
-      roles.add(new Role("queue1", true, true, true, true, true, true, true, true, true, true));
-      server.getSecurityRepository().addMatch("queue1", roles);
-      roles = new HashSet<>();
-      roles.add(new Role("queue2", true, true, true, true, true, true, true, true, true, true));
-      server.getSecurityRepository().addMatch("queue2", roles);
+      server.getSecurityRepository().addMatch("queue1",
+         Set.of(new Role("queue1", true, true, true, true, true, true, true, true, true, true)));
+      server.getSecurityRepository().addMatch("queue2",
+         Set.of(new Role("queue2", true, true, true, true, true, true, true, true, true, true)));
       server.getActiveMQServerControl().addUser("queue1", "queue1", "queue1", true);
       server.getActiveMQServerControl().addUser("queue2", "queue2", "queue2", true);
    }

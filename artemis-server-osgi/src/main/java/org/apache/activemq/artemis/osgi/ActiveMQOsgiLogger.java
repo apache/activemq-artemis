@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.osgi;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger code 58
@@ -26,7 +25,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "58[0-9]{4}")
 public interface ActiveMQOsgiLogger {
 
-   ActiveMQOsgiLogger LOGGER = BundleFactory.newBundle(ActiveMQOsgiLogger.class, ActiveMQOsgiLogger.class.getPackage().getName());
+   ActiveMQOsgiLogger LOGGER = new ActiveMQOsgiLogger_impl(ActiveMQOsgiLogger.class.getPackage().getName());
 
    @LogMessage(id = 581000, value = "Broker config {} found. Tracking protocols {}", level = LogMessage.Level.INFO)
    void brokerConfigFound(String name, String protocols);

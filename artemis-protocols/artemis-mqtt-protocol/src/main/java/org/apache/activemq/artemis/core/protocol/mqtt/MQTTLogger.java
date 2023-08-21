@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.protocol.mqtt;
 import org.apache.activemq.artemis.core.server.MessageReference;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 83
@@ -27,7 +26,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "83[0-9]{4}")
 public interface MQTTLogger {
 
-   MQTTLogger LOGGER = BundleFactory.newBundle(MQTTLogger.class, MQTTLogger.class.getPackage().getName());
+   MQTTLogger LOGGER = new MQTTLogger_impl(MQTTLogger.class.getPackage().getName());
 
    @LogMessage(id = 832000, value = "Unable to send message: {}", level = LogMessage.Level.WARN)
    void unableToSendMessage(MessageReference message, Exception e);

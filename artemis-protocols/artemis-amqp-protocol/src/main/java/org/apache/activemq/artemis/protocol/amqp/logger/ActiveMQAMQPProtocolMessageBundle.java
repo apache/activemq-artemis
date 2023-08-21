@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.protocol.amqp.logger;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInvalidFieldException;
@@ -31,7 +30,7 @@ import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurity
 @LogBundle(projectCode = "AMQ", regexID = "11[0-9]{4}")
 public interface ActiveMQAMQPProtocolMessageBundle {
 
-   ActiveMQAMQPProtocolMessageBundle BUNDLE = BundleFactory.newBundle(ActiveMQAMQPProtocolMessageBundle.class);
+   ActiveMQAMQPProtocolMessageBundle BUNDLE = new ActiveMQAMQPProtocolMessageBundle_impl();
 
    @Message(id = 119000, value = "target address not set")
    ActiveMQAMQPInvalidFieldException targetAddressNotSet();

@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.jms.client;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 13
@@ -26,7 +25,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "13[0-9]{4}")
 public interface ActiveMQJMSClientLogger {
 
-   ActiveMQJMSClientLogger LOGGER = BundleFactory.newBundle(ActiveMQJMSClientLogger.class, ActiveMQJMSClientLogger.class.getPackage().getName());
+   ActiveMQJMSClientLogger LOGGER = new ActiveMQJMSClientLogger_impl(ActiveMQJMSClientLogger.class.getPackage().getName());
 
    @LogMessage(id = 132000, value = "I'm closing a JMS connection you left open. Please make sure you close all JMS connections explicitly before letting them go out of scope! see stacktrace to find out where it was created", level = LogMessage.Level.WARN)
    void connectionLeftOpen(Exception e);

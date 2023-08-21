@@ -39,7 +39,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
-import org.apache.activemq.artemis.logs.annotation.GetLogger;
+import org.apache.activemq.artemis.logs.annotation.IsInfoEnabled;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
 import org.apache.activemq.artemis.logs.annotation.Message;
 
@@ -124,8 +124,13 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                writerOutput.println("   }");
                writerOutput.println();
 
-               writerOutput.println("   public " + simpleClassName + "(Logger logger ) {");
-               writerOutput.println("      this.logger = logger;");
+               writerOutput.println("   public " + simpleClassName + "() {");
+               writerOutput.println("      this.logger = LoggerFactory.getLogger(" + simpleClassName + ".class);");
+               writerOutput.println("   }");
+               writerOutput.println();
+
+               writerOutput.println("   public " + simpleClassName + "(String category) {");
+               writerOutput.println("      this.logger = LoggerFactory.getLogger(category);");
                writerOutput.println("   }");
                writerOutput.println();
 
@@ -135,7 +140,7 @@ public class LogAnnotationProcessor extends AbstractProcessor {
 
                      Message messageAnnotation = el.getAnnotation(Message.class);
                      LogMessage logAnnotation = el.getAnnotation(LogMessage.class);
-                     GetLogger getLogger = el.getAnnotation(GetLogger.class);
+                     IsInfoEnabled isInfoEnabled = el.getAnnotation(IsInfoEnabled.class);
 
                      if (DEBUG) {
                         debug("Generating " + executableMember);
@@ -161,12 +166,12 @@ public class LogAnnotationProcessor extends AbstractProcessor {
                         generateLogger(bundleAnnotation, writerOutput, executableMember, logAnnotation, messages);
                      }
 
-                     if (getLogger != null) {
+                     if (isInfoEnabled != null) {
                         generatedPaths++;
                         if (DEBUG) {
-                           debug("... annotated with " + getLogger);
+                           debug("... annotated with " + isInfoEnabled);
                         }
-                        generateGetLogger(bundleAnnotation, writerOutput, executableMember, getLogger);
+                        generateIsInfoEnabled(bundleAnnotation, writerOutput, executableMember, isInfoEnabled);
                      }
 
                      if (generatedPaths > 1) {
@@ -328,16 +333,16 @@ public class LogAnnotationProcessor extends AbstractProcessor {
    }
 
 
-   private static void generateGetLogger(LogBundle bundleAnnotation,
+   private static void generateIsInfoEnabled(LogBundle bundleAnnotation,
                                   PrintWriter writerOutput,
                                   ExecutableElement executableMember,
-                                  GetLogger loggerAnnotation) {
+                                  IsInfoEnabled loggerAnnotation) {
 
       // This is really a debug output
       writerOutput.println("   // " + loggerAnnotation.toString());
       writerOutput.println("   @Override");
-      writerOutput.println("   public Logger " + executableMember.getSimpleName() + "() {");
-      writerOutput.println("      return logger;");
+      writerOutput.println("   public boolean " + executableMember.getSimpleName() + "() {");
+      writerOutput.println("      return logger.isInfoEnabled();");
       writerOutput.println("   }");
       writerOutput.println();
    }

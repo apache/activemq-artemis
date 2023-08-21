@@ -18,7 +18,6 @@ package org.apache.activemq.artemis.integration.bootstrap;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 10
@@ -26,7 +25,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "10[0-9]{4}")
 public interface ActiveMQBootstrapLogger {
 
-   ActiveMQBootstrapLogger LOGGER = BundleFactory.newBundle(ActiveMQBootstrapLogger.class, ActiveMQBootstrapLogger.class.getPackage().getName());
+   ActiveMQBootstrapLogger LOGGER = new ActiveMQBootstrapLogger_impl(ActiveMQBootstrapLogger.class.getPackage().getName());
 
    @LogMessage(id = 101000, value = "Starting ActiveMQ Artemis Server version {}", level = LogMessage.Level.INFO)
    void serverStarting(String version);

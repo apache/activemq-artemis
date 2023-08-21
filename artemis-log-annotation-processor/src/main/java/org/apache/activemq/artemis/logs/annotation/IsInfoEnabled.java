@@ -21,9 +21,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** This tells the processor this method should return the Logger used by the instance */
+/** This tells the processor this method should return is the logger instance enabled for the INFO level */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
-public @interface GetLogger {
+public @interface IsInfoEnabled {
 
 }

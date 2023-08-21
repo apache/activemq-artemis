@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.service.extensions;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 35
@@ -27,7 +26,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "35[0-9]{4}")
 public interface ActiveMQServiceExtensionLogger {
 
-   ActiveMQServiceExtensionLogger LOGGER = BundleFactory.newBundle(ActiveMQServiceExtensionLogger.class, ActiveMQServiceExtensionLogger.class.getPackage().getName());
+   ActiveMQServiceExtensionLogger LOGGER = new ActiveMQServiceExtensionLogger_impl(ActiveMQServiceExtensionLogger.class.getPackage().getName());
 
    @LogMessage(id = 352000, value = "Attempted to locate a Transaction Manager but none found.", level = LogMessage.Level.WARN)
    void transactionManagerNotFound();

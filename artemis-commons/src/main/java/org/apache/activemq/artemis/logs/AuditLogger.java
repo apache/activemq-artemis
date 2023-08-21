@@ -17,9 +17,8 @@
 package org.apache.activemq.artemis.logs;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
-import org.apache.activemq.artemis.logs.annotation.GetLogger;
+import org.apache.activemq.artemis.logs.annotation.IsInfoEnabled;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.slf4j.Logger;
 
 import javax.management.ObjectName;
 import javax.security.auth.Subject;
@@ -34,31 +33,31 @@ import java.util.Set;
 @LogBundle(projectCode = "AMQ", regexID = "60[0-9]{4}")
 public interface AuditLogger {
 
-   AuditLogger BASE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.base");
-   AuditLogger RESOURCE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.resource");
-   AuditLogger MESSAGE_LOGGER = BundleFactory.newBundle(AuditLogger.class, "org.apache.activemq.audit.message");
+   AuditLogger BASE_LOGGER = new AuditLogger_impl("org.apache.activemq.audit.base");
+   AuditLogger RESOURCE_LOGGER = new AuditLogger_impl("org.apache.activemq.audit.resource");
+   AuditLogger MESSAGE_LOGGER = new AuditLogger_impl("org.apache.activemq.audit.message");
 
    ThreadLocal<String> remoteAddress = new ThreadLocal<>();
 
    ThreadLocal<Subject> currentCaller = new ThreadLocal<>();
 
-   @GetLogger
-   Logger getLogger();
+   @IsInfoEnabled
+   boolean isInfoEnabled();
 
    static boolean isAnyLoggingEnabled() {
       return isBaseLoggingEnabled() || isMessageLoggingEnabled() || isResourceLoggingEnabled();
    }
 
    static boolean isBaseLoggingEnabled() {
-      return BASE_LOGGER.getLogger().isInfoEnabled();
+      return BASE_LOGGER.isInfoEnabled();
    }
 
    static boolean isResourceLoggingEnabled() {
-      return RESOURCE_LOGGER.getLogger().isInfoEnabled();
+      return RESOURCE_LOGGER.isInfoEnabled();
    }
 
    static boolean isMessageLoggingEnabled() {
-      return MESSAGE_LOGGER.getLogger().isInfoEnabled();
+      return MESSAGE_LOGGER.isInfoEnabled();
    }
 
    /**

@@ -50,7 +50,6 @@ import org.apache.activemq.artemis.core.server.impl.ServerSessionImpl;
 import org.apache.activemq.artemis.core.server.management.Notification;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.spi.core.remoting.Connection;
 import org.w3c.dom.Node;
 
@@ -60,7 +59,7 @@ import org.w3c.dom.Node;
 @LogBundle(projectCode = "AMQ", regexID = "22[0-9]{4}")
 public interface ActiveMQServerLogger {
 
-   ActiveMQServerLogger LOGGER = BundleFactory.newBundle(ActiveMQServerLogger.class, ActiveMQServerLogger.class.getPackage().getName());
+   ActiveMQServerLogger LOGGER = new ActiveMQServerLogger_impl(ActiveMQServerLogger.class.getPackage().getName());
 
    @LogMessage(id = 223000, value = "Received Interrupt Exception whilst waiting for component to shutdown: {}", level = LogMessage.Level.DEBUG)
    void interruptWhilstStoppingComponent(String componentClassName);

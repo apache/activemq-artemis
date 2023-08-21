@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.service.extensions.xa.recovery;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.LogMessage;
-import org.apache.activemq.artemis.logs.BundleFactory;
 import org.w3c.dom.Node;
 
 /**
@@ -28,7 +27,7 @@ import org.w3c.dom.Node;
 @LogBundle(projectCode = "AMQ", regexID = "17[0-9]{4}")
 public interface ActiveMQXARecoveryLogger {
 
-   ActiveMQXARecoveryLogger LOGGER = BundleFactory.newBundle(ActiveMQXARecoveryLogger.class, ActiveMQXARecoveryLogger.class.getPackage().getName());
+   ActiveMQXARecoveryLogger LOGGER = new ActiveMQXARecoveryLogger_impl(ActiveMQXARecoveryLogger.class.getPackage().getName());
 
    @LogMessage(id = 171003, value = "JMS Server Manager Running cached command for {}", level = LogMessage.Level.INFO)
    void serverRunningCachedCommand(Runnable run);

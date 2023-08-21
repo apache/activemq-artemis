@@ -30,7 +30,6 @@ import org.apache.activemq.artemis.api.core.ActiveMQNonExistentQueueException;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
-import org.apache.activemq.artemis.logs.BundleFactory;
 
 /**
  * Logger Code 13
@@ -38,7 +37,7 @@ import org.apache.activemq.artemis.logs.BundleFactory;
 @LogBundle(projectCode = "AMQ", regexID = "13[0-9]{4}")
 public interface ActiveMQJMSClientBundle {
 
-   ActiveMQJMSClientBundle BUNDLE = BundleFactory.newBundle(ActiveMQJMSClientBundle.class);
+   ActiveMQJMSClientBundle BUNDLE = new ActiveMQJMSClientBundle_impl();
 
    @Message(id = 139000, value = "Invalid filter: {}")
    ActiveMQInvalidFilterExpressionException invalidFilter(SimpleString filter, Throwable e);
