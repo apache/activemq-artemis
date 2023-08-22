@@ -104,17 +104,17 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          authenticationCache = null;
       } else {
          authenticationCache = Caffeine.newBuilder()
-                                           .maximumSize(authenticationCacheSize)
-                                           .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
-                                           .build();
+                                       .maximumSize(authenticationCacheSize)
+                                       .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                       .build();
       }
       if (authorizationCacheSize == 0) {
          authorizationCache = null;
       } else {
          authorizationCache = Caffeine.newBuilder()
-                                          .maximumSize(authorizationCacheSize)
-                                          .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
-                                          .build();
+                                      .maximumSize(authorizationCacheSize)
+                                      .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                      .build();
       }
       this.securityRepository.registerListener(this);
    }
