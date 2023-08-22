@@ -28,7 +28,7 @@
 
 		<!-- AMQP Spring Starter -->
 		<amqp-10-jms-spring.version>2.5.8</amqp-10-jms-spring.version>
-		<spring-boot-plugin.version>2.6.7</spring-boot-plugin.version>
+		<spring-boot-plugin.version>2.6.15</spring-boot-plugin.version>
 	</properties>
 
 	<dependencies>
