@@ -536,4 +536,7 @@ public interface ActiveMQMessageBundle {
 
    @Message(id = 229248, value = "Invalid value for webSocketEncoderType: '{}'. Supported values: 'binary', 'text'.")
    IllegalStateException invalidWebSocketEncoderType(String webSocketEncoderType);
+
+   @Message(id = 229249, value = "Invalid Store property, only DATABASE property is supported")
+   RuntimeException unsupportedStorePropertyType();
 }
