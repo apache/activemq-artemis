@@ -98,14 +98,22 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       this.managementClusterUser = managementClusterUser;
       this.managementClusterPassword = managementClusterPassword;
       this.notificationService = notificationService;
-      authenticationCache = CacheBuilder.newBuilder()
-                                        .maximumSize(authenticationCacheSize)
-                                        .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
-                                        .build();
-      authorizationCache = CacheBuilder.newBuilder()
-                                       .maximumSize(authorizationCacheSize)
-                                       .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
-                                       .build();
+      if (authenticationCacheSize == 0) {
+         authenticationCache = null;
+      } else {
+         authenticationCache = CacheBuilder.newBuilder()
+                                           .maximumSize(authenticationCacheSize)
+                                           .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                           .build();
+      }
+      if (authorizationCacheSize == 0) {
+         authorizationCache = null;
+      } else {
+         authorizationCache = CacheBuilder.newBuilder()
+                                          .maximumSize(authorizationCacheSize)
+                                          .expireAfterWrite(invalidationInterval, TimeUnit.MILLISECONDS)
+                                          .build();
+      }
       this.securityRepository.registerListener(this);
    }
 
@@ -159,7 +167,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          boolean check = true;
 
          Subject subject = null;
-         Pair<Boolean, Subject> cacheEntry = authenticationCache.getIfPresent(createAuthenticationCacheKey(user, password, connection));
+         Pair<Boolean, Subject> cacheEntry = getAuthenticationCacheEntry(user, password, connection);
          if (cacheEntry != null) {
             if (!cacheEntry.getA()) {
                // cached authentication failed previously so don't check again
@@ -186,7 +194,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
             if (securityManager instanceof ActiveMQSecurityManager5) {
                try {
                   subject = ((ActiveMQSecurityManager5) securityManager).authenticate(user, password, connection, securityDomain);
-                  authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
+                  putAuthenticationCacheEntry(user, password, connection, subject);
                   validatedUser = getUserFromSubject(subject);
                } catch (NoCacheLoginException e) {
                   handleNoCacheLoginException(e);
@@ -313,12 +321,12 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
          // if we get here we're granted, add to the cache
          ConcurrentHashSet<SimpleString> set;
          String key = createAuthorizationCacheKey(user, checkType);
-         ConcurrentHashSet<SimpleString> act = authorizationCache.getIfPresent(key);
+         ConcurrentHashSet<SimpleString> act = getAuthorizationCacheEntry(key);
          if (act != null) {
             set = act;
          } else {
             set = new ConcurrentHashSet<>();
-            authorizationCache.put(key, set);
+            putAuthorizationCacheEntry(set, key);
          }
          set.add(fqqn != null ? fqqn : bareAddress);
       }
@@ -394,7 +402,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
     * @return the authenticated Subject with all associated role principals
     */
    private Subject getSubjectForAuthorization(SecurityAuth auth, ActiveMQSecurityManager5 securityManager) {
-      Pair<Boolean, Subject> cached = authenticationCache.getIfPresent(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()));
+      Pair<Boolean, Subject> cached = getAuthenticationCacheEntry(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection());
 
       if (cached == null && auth.getUsername() == null && auth.getPassword() == null && auth.getRemotingConnection() instanceof ManagementRemotingConnection) {
          AccessControlContext accessControlContext = AccessController.getContext();
@@ -410,7 +418,7 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       if (cached == null) {
          try {
             Subject subject = securityManager.authenticate(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection(), auth.getSecurityDomain());
-            authenticationCache.put(createAuthenticationCacheKey(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection()), new Pair<>(subject != null, subject));
+            putAuthenticationCacheEntry(auth.getUsername(), auth.getPassword(), auth.getRemotingConnection(), subject);
             return subject;
          } catch (NoCacheLoginException e) {
             handleNoCacheLoginException(e);
@@ -424,26 +432,71 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
       logger.debug("Skipping authentication cache due to exception: {}", e.getMessage());
    }
 
+   private void putAuthenticationCacheEntry(String user,
+                                            String password,
+                                            RemotingConnection connection,
+                                            Subject subject) {
+      if (authenticationCache != null) {
+         authenticationCache.put(createAuthenticationCacheKey(user, password, connection), new Pair<>(subject != null, subject));
+      }
+   }
+
+   private Pair<Boolean, Subject> getAuthenticationCacheEntry(String user,
+                                                              String password,
+                                                              RemotingConnection connection) {
+      if (authenticationCache == null) {
+         return null;
+      } else {
+         return authenticationCache.getIfPresent(createAuthenticationCacheKey(user, password, connection));
+      }
+   }
+
+   private void putAuthorizationCacheEntry(ConcurrentHashSet<SimpleString> set, String key) {
+      if (authorizationCache != null) {
+         authorizationCache.put(key, set);
+      }
+   }
+
+   private ConcurrentHashSet<SimpleString> getAuthorizationCacheEntry(String key) {
+      if (authorizationCache == null) {
+         return null;
+      } else {
+         return authorizationCache.getIfPresent(key);
+      }
+   }
+
    public void invalidateAuthorizationCache() {
-      authorizationCache.invalidateAll();
+      if (authorizationCache != null) {
+         authorizationCache.invalidateAll();
+      }
    }
 
    public void invalidateAuthenticationCache() {
-      authenticationCache.invalidateAll();
+      if (authenticationCache != null) {
+         authenticationCache.invalidateAll();
+      }
    }
 
    public long getAuthenticationCacheSize() {
-      return authenticationCache.size();
+      if (authenticationCache == null) {
+         return 0;
+      } else {
+         return authenticationCache.size();
+      }
    }
 
    public long getAuthorizationCacheSize() {
-      return authorizationCache.size();
+      if (authorizationCache == null) {
+         return 0;
+      } else {
+         return authorizationCache.size();
+      }
    }
 
    private boolean checkAuthorizationCache(final SimpleString dest, final String user, final CheckType checkType) {
       boolean granted = false;
 
-      ConcurrentHashSet<SimpleString> act = authorizationCache.getIfPresent(createAuthorizationCacheKey(user, checkType));
+      ConcurrentHashSet<SimpleString> act = getAuthorizationCacheEntry(createAuthorizationCacheKey(user, checkType));
       if (act != null) {
          granted = act.contains(dest);
       }
@@ -457,5 +510,15 @@ public class SecurityStoreImpl implements SecurityStore, HierarchicalRepositoryC
 
    private String createAuthorizationCacheKey(String user, CheckType checkType) {
       return user + "." + checkType.name();
+   }
+
+   // for testing
+   protected Cache<String, Pair<Boolean, Subject>> getAuthenticationCache() {
+      return authenticationCache;
+   }
+
+   // for testing
+   protected Cache<String, ConcurrentHashSet<SimpleString>> getAuthorizationCache() {
+      return authorizationCache;
    }
 }
