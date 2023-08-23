@@ -50,6 +50,7 @@ import org.apache.activemq.artemis.core.config.federation.FederationAddressPolic
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.ha.LiveOnlyPolicyConfiguration;
+import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
 import org.apache.activemq.artemis.core.deployers.impl.FileConfigurationParser;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -1552,6 +1553,59 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       } finally {
          System.clearProperty(newKeyName);
       }
+   }
+
+   @Test
+   public void testDatabaseStoreConfigurationProps() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("storeConfiguration", "DATABASE");
+      insertionOrderedProperties.put("storeConfiguration.largeMessageTableName", "lmtn");
+      insertionOrderedProperties.put("storeConfiguration.messageTableName", "mtn");
+      insertionOrderedProperties.put("storeConfiguration.bindingsTableName", "btn");
+      insertionOrderedProperties.put("storeConfiguration.dataSourceClassName", "dscn");
+      insertionOrderedProperties.put("storeConfiguration.nodeManagerStoreTableName", "nmtn");
+      insertionOrderedProperties.put("storeConfiguration.pageStoreTableName", "pstn");
+      insertionOrderedProperties.put("storeConfiguration.jdbcAllowedTimeDiff", 123);
+      insertionOrderedProperties.put("storeConfiguration.jdbcConnectionUrl", "url");
+      insertionOrderedProperties.put("storeConfiguration.jdbcDriverClassName", "dcn");
+      insertionOrderedProperties.put("storeConfiguration.jdbcJournalSyncPeriodMillis", 456);
+      insertionOrderedProperties.put("storeConfiguration.jdbcLockAcquisitionTimeoutMillis", 789);
+      insertionOrderedProperties.put("storeConfiguration.jdbcLockExpirationMillis", 321);
+      insertionOrderedProperties.put("storeConfiguration.jdbcLockRenewPeriodMillis", 654);
+      insertionOrderedProperties.put("storeConfiguration.jdbcNetworkTimeout", 987);
+      insertionOrderedProperties.put("storeConfiguration.jdbcPassword", "pass");
+      insertionOrderedProperties.put("storeConfiguration.jdbcUser", "user");
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+      Assert.assertTrue(configuration.getStoreConfiguration() instanceof DatabaseStorageConfiguration);
+      DatabaseStorageConfiguration dsc = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
+      Assert.assertEquals(dsc.getLargeMessageTableName(), "lmtn");
+      Assert.assertEquals(dsc.getMessageTableName(), "mtn");
+      Assert.assertEquals(dsc.getBindingsTableName(), "btn");
+      Assert.assertEquals(dsc.getDataSourceClassName(), "dscn");
+      Assert.assertEquals(dsc.getJdbcAllowedTimeDiff(), 123);
+      Assert.assertEquals(dsc.getJdbcConnectionUrl(), "url");
+      Assert.assertEquals(dsc.getJdbcDriverClassName(), "dcn");
+      Assert.assertEquals(dsc.getJdbcJournalSyncPeriodMillis(), 456);
+      Assert.assertEquals(dsc.getJdbcLockAcquisitionTimeoutMillis(), 789);
+      Assert.assertEquals(dsc.getJdbcLockExpirationMillis(), 321);
+      Assert.assertEquals(dsc.getJdbcLockRenewPeriodMillis(), 654);
+      Assert.assertEquals(dsc.getJdbcNetworkTimeout(), 987);
+      Assert.assertEquals(dsc.getJdbcPassword(), "pass");
+      Assert.assertEquals(dsc.getJdbcUser(), "user");
+      Assert.assertEquals(dsc.getNodeManagerStoreTableName(), "nmtn");
+      Assert.assertEquals(dsc.getPageStoreTableName(), "pstn");
+   }
+
+   @Test
+   public void testInvalidStoreConfigurationProps() throws Exception {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("storeConfiguration", "File");
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+      String status = configuration.getStatus();
+      //test for exception code
+      Assert.assertTrue(status.contains("AMQ229249"));
    }
 
    @Test

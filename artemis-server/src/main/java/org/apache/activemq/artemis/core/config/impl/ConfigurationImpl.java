@@ -84,6 +84,7 @@ import org.apache.activemq.artemis.core.remoting.impl.invm.InVMConnectorFactory;
 import org.apache.activemq.artemis.core.remoting.impl.netty.NettyConnectorFactory;
 import org.apache.activemq.artemis.core.security.Role;
 import org.apache.activemq.artemis.core.server.ActiveMQServerLogger;
+import org.apache.activemq.artemis.core.server.ActiveMQMessageBundle;
 import org.apache.activemq.artemis.core.server.JournalType;
 import org.apache.activemq.artemis.core.server.NetworkHealthCheck;
 import org.apache.activemq.artemis.core.server.SecuritySettingPlugin;
@@ -772,6 +773,17 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return (T) instance;
          }
       }, TransformerConfiguration.class);
+
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            //we only care about DATABASE type as it is the only one used
+            if (StoreConfiguration.StoreType.DATABASE.toString().equals(value)) {
+               return (T) new DatabaseStorageConfiguration();
+            }
+            throw ActiveMQMessageBundle.BUNDLE.unsupportedStorePropertyType();
+         }
+      }, StoreConfiguration.class);
 
       beanUtils.getConvertUtils().register(new Converter() {
          @Override
