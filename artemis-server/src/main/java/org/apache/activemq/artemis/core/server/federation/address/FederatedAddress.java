@@ -17,6 +17,7 @@
 package org.apache.activemq.artemis.core.server.federation.address;
 
 import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +53,8 @@ import org.apache.activemq.artemis.core.server.transformer.Transformer;
 import org.apache.activemq.artemis.core.settings.impl.Match;
 import org.apache.activemq.artemis.core.transaction.Transaction;
 import org.apache.activemq.artemis.utils.ByteUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Federated Address, replicate messages from the remote brokers address to itself.
@@ -65,6 +68,8 @@ import org.apache.activemq.artemis.utils.ByteUtil;
  */
 public class FederatedAddress extends FederatedAbstract implements ActiveMQServerBindingPlugin, ActiveMQServerAddressPlugin, Serializable {
 
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
    public static final String FEDERATED_QUEUE_PREFIX = "federated";
 
    public static final SimpleString HDR_HOPS = new SimpleString("_AMQ_Hops");
@@ -74,6 +79,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
    private final Set<Matcher> excludes;
    private final FederationAddressPolicyConfiguration config;
    private final Map<DivertBinding, Set<SimpleString>> matchingDiverts = new HashMap<>();
+   private final boolean hasPullConnectionConfig;
 
    public FederatedAddress(Federation federation, FederationAddressPolicyConfiguration config, ActiveMQServer server, FederationUpstream upstream) {
       super(federation, server, upstream);
@@ -102,6 +108,7 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
             excludes.add(new Matcher(exclude, wildcardConfiguration));
          }
       }
+      hasPullConnectionConfig = upstream.getConnection().isPull();
    }
 
    @Override
@@ -310,8 +317,14 @@ public class FederatedAddress extends FederatedAbstract implements ActiveMQServe
    }
 
    private boolean match(SimpleString address, RoutingType routingType) {
-      //Currently only supporting Multicast currently.
       if (RoutingType.ANYCAST.equals(routingType)) {
+         logger.debug("ignoring unsupported ANYCAST address {}", address);
+         return false;
+      }
+      if (hasPullConnectionConfig) {
+         // multicast address federation has no local queue to trigger batch pull requests, a regular fast consumer with credit window is necessary
+         // otherwise the upstream would fill up and block.
+         logger.debug("ignoring MULTICAST address {} on unsupported pull connection, consumerWindowSize=0 ", address);
          return false;
       }
       for (Matcher exclude : excludes) {

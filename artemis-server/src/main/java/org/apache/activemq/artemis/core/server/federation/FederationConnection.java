@@ -36,6 +36,7 @@ public class FederationConnection {
    private volatile ClientSessionFactory clientSessionFactory;
    private volatile boolean started;
    private volatile boolean sharedConnection;
+   private boolean isPull;
 
    public FederationConnection(Configuration configuration, String name, FederationConnectionConfiguration config) {
       this.config = config;
@@ -95,8 +96,8 @@ public class FederationConnection {
             BeanSupport.setData(serverLocator, possibleLocatorParameters);
          } catch (Exception ignoredAsErrorsVisibleViaBeanUtilsLogging) {
          }
+         isPull = ("0".equals(possibleLocatorParameters.get("consumerWindowSize")));
       }
-
    }
 
    public synchronized void start() {
@@ -115,6 +116,10 @@ public class FederationConnection {
 
    public boolean isStarted() {
       return started;
+   }
+
+   public boolean isPull() {
+      return isPull;
    }
 
    public boolean isSharedConnection() {

@@ -22,14 +22,18 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
+import javax.jms.Topic;
 import java.util.Collections;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationQueuePolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationUpstreamConfiguration;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.server.impl.AddressInfo;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -63,6 +67,44 @@ public class FederatedQueuePullConsumerTest extends FederatedTestBase {
       // pull consumers to allow deterministic message consumption
       factory.setConsumerWindowSize(0);
       return factory;
+   }
+
+   @Test
+   public void testAddressFederatedConfiguredWithPullQueueConsumerEnabledNotAnOption() throws Exception {
+      String connector = "server-pull-1";
+
+      getServer(0).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
+      getServer(1).getAddressSettingsRepository().getMatch("#").setAutoCreateAddresses(true).setAutoCreateQueues(true);
+
+      getServer(0).addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+      getServer(1).addAddressInfo(new AddressInfo(SimpleString.toSimpleString("source"), RoutingType.MULTICAST));
+
+      getServer(0).getConfiguration().getFederationConfigurations().add(new FederationConfiguration().setName("default").addFederationPolicy(new FederationAddressPolicyConfiguration().setName("myAddressPolicy").addInclude(new FederationAddressPolicyConfiguration.Matcher().setAddressMatch("#"))).addUpstreamConfiguration(new FederationUpstreamConfiguration().setName("server1-upstream").addPolicyRef("myAddressPolicy").setStaticConnectors(Collections.singletonList(connector))));
+
+      getServer(0).getFederationManager().deploy();
+
+      final ConnectionFactory cf1 = getCF(0);
+      final ConnectionFactory cf2 = getCF(1);
+
+      try (Connection consumer1Connection = cf1.createConnection(); Connection producerConnection = cf2.createConnection()) {
+         consumer1Connection.start();
+         final Session session1 = consumer1Connection.createSession();
+         final Topic topic1 = session1.createTopic("source");
+         final MessageConsumer consumer1 = session1.createConsumer(topic1);
+
+         // Remote
+         final Session session2 = producerConnection.createSession();
+         final Topic topic2 = session2.createTopic("source");
+         final MessageProducer producer = session2.createProducer(topic2);
+
+         producer.send(session2.createTextMessage("hello"));
+
+         // no federation of this address
+         // consumer visible on local
+         assertTrue(waitForBindings(getServer(0), "source", true, 1, 1, 1000));
+         // federation consumer not visible on remote
+         assertFalse(waitForBindings(getServer(1), "source", true, 1, 1, 100));
+      }
    }
 
    @Test
