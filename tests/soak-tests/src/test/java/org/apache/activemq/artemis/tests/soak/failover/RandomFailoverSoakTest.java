@@ -18,7 +18,7 @@ package org.apache.activemq.artemis.tests.soak.failover;
 
 import org.apache.activemq.artemis.tests.integration.cluster.reattach.RandomReattachTest;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 public class RandomFailoverSoakTest extends RandomReattachTest {
 

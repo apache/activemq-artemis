@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# This script shows a simple way to stop a mysql with podman
+source ./container-define.sh
 
-podman kill postgres-artemis-test
-podman rm postgres-artemis-test
+$CONTAINER_COMMAND kill db2-artemis-test
+$CONTAINER_COMMAND rm -f db2-artemis-test

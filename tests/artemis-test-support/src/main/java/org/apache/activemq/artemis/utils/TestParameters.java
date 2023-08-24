@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.soak;
+package org.apache.activemq.artemis.utils;
+
+import java.lang.invoke.MethodHandles;
 
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.lang.invoke.MethodHandles;
 
 /** Encapsulates System properties that could be passed on to the test. */
 public class TestParameters {

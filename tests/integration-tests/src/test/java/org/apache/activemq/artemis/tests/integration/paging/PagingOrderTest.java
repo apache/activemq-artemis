@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.jms.client.ActiveMQJMSConnectionFactory;
 import org.apache.activemq.artemis.jms.server.impl.JMSServerManagerImpl;
 import org.apache.activemq.artemis.tests.unit.util.InVMNamingContext;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
+import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Test;
 
 /**
@@ -69,7 +70,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
    private static final int PAGE_SIZE = 10 * 1024;
 
 
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = new SimpleString("TestQueue");
 
    private Connection conn;
 
@@ -96,7 +97,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -188,7 +189,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -285,11 +286,15 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       assertNotNull(q2);
 
-      assertEquals("q2 msg count", numberOfMessages, getMessageCount(q2));
-      assertEquals("q2 msgs added", numberOfMessages, getMessagesAdded(q2));
-      assertEquals("q1 msg count", 0, getMessageCount(q1));
-      // 0, since nothing was sent to the queue after the server was restarted
-      assertEquals("q1 msgs added", 0, getMessagesAdded(q1));
+      {
+         Queue finalQ2 = q2;
+         Queue finalQ1 = q1;
+         Wait.assertEquals(numberOfMessages, () -> getMessageCount(finalQ2), 5000);
+         Wait.assertEquals(numberOfMessages, () -> getMessagesAdded(finalQ2), 5000);
+         Wait.assertEquals(0, () -> getMessageCount(finalQ1));
+         // 0, since nothing was sent to the queue after the server was restarted
+         Wait.assertEquals(0, () -> getMessagesAdded(finalQ1));
+      }
 
    }
 
@@ -318,7 +323,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
 
       Queue q2 = server.createQueue(new QueueConfiguration(new SimpleString("inactive")).setAddress(ADDRESS).setRoutingType(RoutingType.MULTICAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -410,7 +415,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 
@@ -495,7 +500,7 @@ public class PagingOrderTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       QueueImpl queue = (QueueImpl) server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 

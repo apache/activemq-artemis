@@ -123,6 +123,11 @@ This tells what to do if the system is reaching `page-limit-bytes` or `page-limi
 |
 |===
 
+
+[NOTE]
+
+When using the JDBC storage, the effective page-size-bytes used is limited to jdbc-max-page-size-bytes, configured in the JDBC storage section.
+
 === max-size-bytes and max-size-messages simultaneous usage
 
 It is possible to define max-size-messages (as the maximum number of messages) and max-messages-size (as the max number of estimated memory used by the address) concurrently.

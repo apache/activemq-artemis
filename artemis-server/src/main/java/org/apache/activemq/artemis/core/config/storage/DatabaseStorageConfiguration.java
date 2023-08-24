@@ -69,6 +69,8 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    private long jdbcAllowedTimeDiff = ActiveMQDefaultConfiguration.getDefaultJdbcAllowedTimeDiffMillis();
 
+   private int maxPageSizeBytes = ActiveMQDefaultConfiguration.getDefaultJdbcMaxPageSizeBytes();
+
    @Override
    public StoreType getStoreType() {
       return StoreType.DATABASE;
@@ -148,6 +150,15 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
 
    public long getJdbcAllowedTimeDiff() {
       return jdbcAllowedTimeDiff;
+   }
+
+   public int getMaxPageSizeBytes() {
+      return maxPageSizeBytes;
+   }
+
+   public DatabaseStorageConfiguration setMaxPageSizeBytes(int maxPageSizeBytes) {
+      this.maxPageSizeBytes = maxPageSizeBytes;
+      return this;
    }
 
    /**
@@ -306,4 +317,10 @@ public class DatabaseStorageConfiguration implements StoreConfiguration {
    public void setJdbcAllowedTimeDiff(long jdbcAllowedTimeDiff) {
       this.jdbcAllowedTimeDiff = jdbcAllowedTimeDiff;
    }
+
+   @Override
+   public int getAllowedPageSize(int pageSize)  {
+      return Math.min(pageSize, maxPageSizeBytes);
+   }
+
 }

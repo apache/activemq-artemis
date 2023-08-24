@@ -387,7 +387,7 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
-      public void sync() throws Exception {
+      public void addSyncPoint(OperationContext context) throws Exception {
 
       }
 

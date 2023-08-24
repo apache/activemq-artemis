@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.tests.soak.paging;
+package org.apache.activemq.artemis.tests.db.paging;
 
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
@@ -25,70 +25,45 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.activemq.artemis.tests.soak.SoakTestBase;
+import org.apache.activemq.artemis.tests.db.common.Database;
+import org.apache.activemq.artemis.tests.db.common.ParameterDBTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
-import org.apache.activemq.artemis.tests.util.RandomUtil;
+import org.apache.activemq.artemis.utils.RandomUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
-@RunWith(Parameterized.class)
-public class DatabasePagingTest extends SoakTestBase {
+public class RealServerDatabasePagingTest extends ParameterDBTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    private static final String TEST_NAME = "PGDB";
 
-   // you can use ./start-${database}-podman.sh scripts from ./src/test/scripts to start the databases.
-   // support values are derby, mysql and postgres
-   private static final String DB_LIST = testProperty(TEST_NAME, "DB_LIST", "derby");
-
    private static final int MAX_MESSAGES = Integer.parseInt(testProperty(TEST_NAME, "MAX_MESSAGES", "200"));
 
-   private static final int MESSAGE_SIZE = Integer.parseInt(testProperty(TEST_NAME, "MESSAGE_SIZE", "200"));
+   private static final int MESSAGE_SIZE = Integer.parseInt(testProperty(TEST_NAME, "MESSAGE_SIZE", "1000"));
 
    private static final int COMMIT_INTERVAL = Integer.parseInt(testProperty(TEST_NAME, "COMMIT_INTERVAL", "100"));
 
    Process serverProcess;
 
-   final String database;
-
-   final String serverName;
-
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameterized.Parameters(name = "db={0}")
    public static Collection<Object[]> parameters() {
-      String[] protocols = DB_LIST.split(",");
-
-      ArrayList<Object[]> parameters = new ArrayList<>();
-      for (String str : protocols) {
-         logger.info("Adding {} to the list for the test", str);
-         parameters.add(new Object[]{str});
-      }
-
-      return parameters;
-   }
-
-   public DatabasePagingTest(String database) {
-      this.database = database;
-      serverName = "database-paging/" + database;
+      return convertParameters(Database.selectedList());
    }
 
 
    @Before
    public void before() throws Exception {
-      cleanupData(serverName);
-
-      serverProcess = startServer(serverName, 0, 60_000);
+      serverProcess = startServer(database.getName(), 0, 60_000);
    }
 
 
@@ -105,7 +80,6 @@ public class DatabasePagingTest extends SoakTestBase {
       final String queueName = "QUEUE_" + RandomUtil.randomString() + "_" + protocol + "_" + database;
 
       ConnectionFactory connectionFactory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
-
 
       try (Connection connection = connectionFactory.createConnection()) {
          byte[] messageLoad = new byte[MESSAGE_SIZE];
@@ -129,8 +103,7 @@ public class DatabasePagingTest extends SoakTestBase {
       serverProcess.waitFor(1, TimeUnit.MINUTES);
       Assert.assertFalse(serverProcess.isAlive());
 
-      serverProcess = startServer(serverName, 0, 60_000);
-
+      serverProcess = startServer(database.getName(), 0, 60_000);
 
       try (Connection connection = connectionFactory.createConnection()) {
          connection.start();

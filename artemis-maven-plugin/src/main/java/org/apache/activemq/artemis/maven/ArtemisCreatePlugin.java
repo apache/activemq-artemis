@@ -141,6 +141,10 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
    @Parameter
    private String[] webListWithDeps;
 
+   /** Folders with libs to be copied into target */
+   @Parameter()
+   private String[] libFolders;
+
    @Parameter(defaultValue = "${localRepository}")
    private org.apache.maven.artifact.repository.ArtifactRepository localRepository;
 
@@ -300,6 +304,17 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
          }
 
          FileUtil.makeExec(commandLine);
+
+         if (libFolders != null) {
+            for (String libFolder : libFolders) {
+               File folder = new File(libFolder);
+               for (File file : folder.listFiles()) {
+                  if (!file.isDirectory()) {
+                     copyToDir("lib", file, commandLineStream);
+                  }
+               }
+            }
+         }
 
          if (getLog().isDebugEnabled()) {
             getLog().debug("###################################################################################################");

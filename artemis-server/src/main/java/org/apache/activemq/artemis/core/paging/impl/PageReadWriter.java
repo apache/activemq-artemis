@@ -27,7 +27,9 @@ import org.apache.activemq.artemis.core.buffers.impl.ChannelBufferWrapper;
 import org.apache.activemq.artemis.core.io.SequentialFile;
 import org.apache.activemq.artemis.core.io.SequentialFileFactory;
 import org.apache.activemq.artemis.core.paging.PagedMessage;
+import org.apache.activemq.artemis.core.persistence.OperationContext;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.server.LargeServerMessage;
 import org.apache.activemq.artemis.utils.DataConstants;
 import org.apache.activemq.artemis.utils.Env;
@@ -83,7 +85,15 @@ public class PageReadWriter {
       assert (activeMQBuffer.readableBytes() == bufferSize) : "messageEncodedSize is different from expected";
       //buffer limit and position are the same
       assert (buffer.remaining() == bufferSize) : "buffer position or limit are changed";
-      file.writeDirect(buffer, false);
+      if (fileFactory.supportsIndividualContext()) {
+         OperationContext context = OperationContextImpl.getContext();
+         if (context != null) {
+            context.storeLineUp();
+         }
+         file.writeDirect(buffer, false, context);
+      } else {
+         file.writeDirect(buffer, false);
+      }
       return bufferSize;
    }
 

@@ -141,5 +141,6 @@
       <module>smoke-tests</module>
       <module>e2e-tests</module>
       <module>leak-tests</module>
+      <module>db-tests</module>
    </modules>
 </project>

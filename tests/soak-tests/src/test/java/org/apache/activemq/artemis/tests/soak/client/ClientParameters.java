@@ -17,7 +17,7 @@
 
 package org.apache.activemq.artemis.tests.soak.client;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 public class ClientParameters {
    private static final String TEST_NAME = "CLIENT";

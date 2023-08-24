@@ -895,4 +895,13 @@ public class JournalStorageManager extends AbstractJournalStorageManager {
          monitor.addStore(bindingsFF.getDirectory());
       }
    }
+
+   @Override
+   public int getAllowedPageSize(int pageSize)  {
+      if (config.getStoreConfiguration() == null) {
+         return pageSize;
+      }
+      return config.getStoreConfiguration().getAllowedPageSize(pageSize);
+   }
+
 }

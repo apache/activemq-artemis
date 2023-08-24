@@ -554,6 +554,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    private void configureJdbcNetworkTimeout() {
       if (configuration.isPersistenceEnabled()) {
          if (configuration.getStoreConfiguration() != null && configuration.getStoreConfiguration().getStoreType() == StoreConfiguration.StoreType.DATABASE) {
+            configuration.setMaxDiskUsage(-1); // it does not make sense with JDBC
             DatabaseStorageConfiguration databaseStorageConfiguration = (DatabaseStorageConfiguration) configuration.getStoreConfiguration();
             databaseStorageConfiguration.setConnectionProviderNetworkTimeout(threadPool, databaseStorageConfiguration.getJdbcNetworkTimeout());
          }

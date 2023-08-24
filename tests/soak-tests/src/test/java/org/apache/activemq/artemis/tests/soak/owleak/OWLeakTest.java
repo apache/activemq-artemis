@@ -47,8 +47,8 @@ import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.tests.soak.TestParameters.intMandatoryProperty;
-import static org.apache.activemq.artemis.tests.soak.TestParameters.testProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.intMandatoryProperty;
+import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
  * Refer to ./scripts/parameters.sh for suggested parameters

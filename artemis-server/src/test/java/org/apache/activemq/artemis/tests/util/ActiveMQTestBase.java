@@ -332,7 +332,7 @@ public abstract class ActiveMQTestBase extends Assert {
    private static final String EXPECTED_DERBY_SHUTDOWN_STATE = "XJ015";
 
    /** This method will be passed as a lambda into runAfter from createDefaultDatabaseStorageConfiguration */
-   protected final void dropDerby() throws Exception {
+   protected void dropDerby() throws Exception {
       String user = getJDBCUser();
       String password = getJDBCPassword();
       try {
@@ -926,11 +926,11 @@ public abstract class ActiveMQTestBase extends Assert {
       return "memory:" + getTestDir();
    }
 
-   protected final String getTestJDBCConnectionUrl() {
+   protected String getTestJDBCConnectionUrl() {
       return System.getProperty("jdbc.connection.url", "jdbc:derby:" + getEmbeddedDataBaseName() + ";create=true");
    }
 
-   protected final String getJDBCClassName() {
+   protected String getJDBCClassName() {
       return System.getProperty("jdbc.driver.class", "org.apache.derby.jdbc.EmbeddedDriver");
    }
 
@@ -1213,15 +1213,11 @@ public abstract class ActiveMQTestBase extends Assert {
     * @throws InterruptedException
     */
    protected void waitForNotPaging(Queue queue) throws InterruptedException {
-      waitForNotPaging(queue.getPageSubscription().getPagingStore());
+      waitForNotPaging(queue.getPagingStore());
    }
 
    protected void waitForNotPaging(PagingStore store) throws InterruptedException {
-      long timeout = System.currentTimeMillis() + 20000;
-      while (timeout > System.currentTimeMillis() && store.isPaging()) {
-         Thread.sleep(100);
-      }
-      assertFalse(store.isPaging());
+      Wait.assertFalse("Store is still paging", store::isPaging, 20_000);
    }
 
    protected static Topology waitForTopology(final ActiveMQServer server, final int nodes) throws Exception {

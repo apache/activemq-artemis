@@ -56,6 +56,7 @@ import org.apache.activemq.artemis.core.paging.impl.PageTransactionInfoImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreImpl;
 import org.apache.activemq.artemis.core.paging.impl.PagingStoreTestAccessor;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
+import org.apache.activemq.artemis.core.persistence.impl.journal.OperationContextImpl;
 import org.apache.activemq.artemis.core.persistence.impl.nullpm.NullStorageManager;
 import org.apache.activemq.artemis.core.server.files.FileStoreMonitor;
 import org.apache.activemq.artemis.core.server.impl.RoutingContextImpl;
@@ -185,7 +186,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, storeImpl.getNumberOfPages());
 
-      storeImpl.sync();
+      storeImpl.addSyncPoint(OperationContextImpl.getContext());
 
       storeImpl = new PagingStoreImpl(PagingStoreImplTest.destinationTestName, null, 100, createMockManager(), createStorageManagerMock(), factory, storeFactory, PagingStoreImplTest.destinationTestName, addressSettings, getExecutorFactory().getExecutor(), getExecutorFactory().getExecutor(), true);
 
@@ -230,7 +231,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(1, storeImpl.getNumberOfPages());
 
-      storeImpl.sync();
+      storeImpl.addSyncPoint(OperationContextImpl.getContext());
 
       Page page = storeImpl.depage();
 
@@ -567,7 +568,7 @@ public class PagingStoreImplTest extends ActiveMQTestBase {
 
       Assert.assertEquals(2, store.getNumberOfPages());
 
-      store.sync();
+      store.addSyncPoint(OperationContextImpl.getContext());
 
       int sequence = 0;
 
