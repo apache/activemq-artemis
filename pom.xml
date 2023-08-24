@@ -1622,6 +1622,7 @@
                   <compilerArgs>
                      <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                   </compilerArgs>
+                  <annotationProcessorPaths/>
                </configuration>
             </plugin>
             <plugin>
