@@ -40,7 +40,6 @@ import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.api.core.management.ManagementHelper;
 import org.apache.activemq.artemis.core.client.impl.ClientMessageImpl;
 import org.apache.activemq.artemis.core.config.Configuration;
-import org.apache.activemq.artemis.core.config.StoreConfiguration;
 import org.apache.activemq.artemis.core.paging.PagingManager;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.MessageReference;
@@ -50,19 +49,10 @@ import org.apache.activemq.artemis.core.settings.impl.AddressFullMessagePolicy;
 import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class GlobalPagingTest extends PagingTest {
-
-   public GlobalPagingTest(StoreConfiguration.StoreType storeType) {
-      super(storeType);
-   }
+public class GlobalJournalPagingTest extends JournalPagingTest {
 
    @Override
    @Before
@@ -95,20 +85,13 @@ public class GlobalPagingTest extends PagingTest {
       server.getAddressSettingsRepository().addMatch("#", defaultSetting);
    }
 
-   // test doesn't make sense on GlobalPaging due to configuration issues
-   @Test @Ignore @Override
-   public void testPurge() throws Exception {
-   }
-
    @Test
    public void testPagingOverFullDisk() throws Exception {
-      Assume.assumeTrue(storeType != StoreConfiguration.StoreType.DATABASE);
-
       clearDataRecreateServerDirs();
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      server = createServer(true, config, PagingTest.PAGE_SIZE, PagingTest.PAGE_MAX, -1, -1, new HashMap<>());
+      server = createServer(true, config, JournalPagingTest.PAGE_SIZE, JournalPagingTest.PAGE_MAX, -1, -1, new HashMap<>());
       Assert.assertTrue(customServerCreated);
       server.getConfiguration().setGlobalMaxSize(-1);
       server.getConfiguration().setAddressQueueScanPeriod(100);
@@ -127,9 +110,9 @@ public class GlobalPagingTest extends PagingTest {
 
       final ClientSession session = sf.createSession(false, false, false);
 
-      session.createQueue(new QueueConfiguration(PagingTest.ADDRESS));
+      session.createQueue(new QueueConfiguration(JournalPagingTest.ADDRESS));
 
-      final ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      final ClientProducer producer = session.createProducer(JournalPagingTest.ADDRESS);
 
       ClientMessage message = null;
 
@@ -182,7 +165,7 @@ public class GlobalPagingTest extends PagingTest {
 
       // The consumer has to be created after the getMessageCount(queue) assertion
       // otherwise delivery could alter the messagecount and give us a false failure
-      ClientConsumer consumer = session.createConsumer(PagingTest.ADDRESS);
+      ClientConsumer consumer = session.createConsumer(JournalPagingTest.ADDRESS);
       ClientMessage msg = null;
 
       for (int i = 0; i < numberOfMessages * 2; i++) {
@@ -224,7 +207,7 @@ public class GlobalPagingTest extends PagingTest {
 
       Configuration config = createDefaultInVMConfig().setJournalSyncNonTransactional(false);
 
-      final ActiveMQServer server = createServer(true, config, PagingTest.PAGE_SIZE, -1);
+      final ActiveMQServer server = createServer(true, config, JournalPagingTest.PAGE_SIZE, -1);
 
       try {
          final SimpleString managementAddress = server.getConfiguration().getManagementAddress();
@@ -311,7 +294,7 @@ public class GlobalPagingTest extends PagingTest {
 
       Configuration config = createDefaultNettyConfig().setJournalSyncNonTransactional(false);
 
-      final ActiveMQServer server = createServer(true, config, PagingTest.PAGE_SIZE, -1);
+      final ActiveMQServer server = createServer(true, config, JournalPagingTest.PAGE_SIZE, -1);
 
       try {
          final SimpleString managementAddress = server.getConfiguration().getManagementAddress();

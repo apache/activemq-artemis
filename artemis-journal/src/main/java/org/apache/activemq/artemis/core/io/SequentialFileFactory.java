@@ -122,6 +122,10 @@ public interface SequentialFileFactory {
 
    File getDirectory();
 
+   default String getDirectoryName() {
+      return getDirectory().getName();
+   }
+
    void clearBuffer(ByteBuffer buffer);
 
    void start();
@@ -140,4 +144,11 @@ public interface SequentialFileFactory {
    boolean isDatasync();
 
    long getBufferSize();
+
+   /** Only JDBC supports individual context.
+    *  Meaning for Files we need to use the Sync scheduler.
+    *  for JDBC we need to use a callback from the JDBC completion thread to complete the IOContexts. */
+   default boolean supportsIndividualContext() {
+      return false;
+   }
 }

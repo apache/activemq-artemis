@@ -29,7 +29,7 @@
    <properties>
       <activemq.basedir>${project.basedir}/../../</activemq.basedir>
       <sts-surefire-extra-args />
-      <artemis-distribuiton-lib-dir>-Ddistribution.lib="${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}/lib"</artemis-distribuiton-lib-dir>
+      <artemis-distribution-lib-dir>-Ddistribution.lib="${activemq.basedir}/artemis-distribution/target/apache-artemis-${project.version}-bin/apache-artemis-${project.version}/lib"</artemis-distribution-lib-dir>
       <sts-http-host>localhost</sts-http-host>
    </properties>
 
@@ -1553,7 +1553,7 @@
                <forkCount>1</forkCount>
                <reuseForks>false</reuseForks>
                <skipTests>${skipSmokeTests}</skipTests>
-               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline} ${artemis-distribuiton-lib-dir}</argLine>
+               <argLine>${sts-surefire-extra-args} ${activemq-surefire-argline} ${artemis-distribution-lib-dir}</argLine>
             </configuration>
          </plugin>
       </plugins>

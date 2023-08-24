@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -64,6 +65,11 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
    @Parameter(defaultValue = "${localRepository}")
    protected ArtifactRepository localRepository;
 
+   @Parameter
+   protected String[] extraRepositories;
+
+   List<RemoteRepository> inUseRepositories;
+
    @Override
    public void execute() throws MojoExecutionException, MojoFailureException {
       if (isIgnore()) {
@@ -90,8 +96,6 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
 
    protected abstract boolean isIgnore();
 
-   protected abstract void doExecute() throws MojoExecutionException, MojoFailureException;
-
    protected Artifact newArtifact(String artifactID) throws MojoFailureException {
       Artifact artifact;
       try {
@@ -100,6 +104,26 @@ public abstract class ArtemisAbstractPlugin extends AbstractMojo {
          throw new MojoFailureException(e.getMessage(), e);
       }
       return artifact;
+   }
+
+   protected void doExecute() throws MojoExecutionException, MojoFailureException {
+      int repositories = 0;
+      if (extraRepositories != null) {
+         inUseRepositories = new ArrayList<>();
+         for (String  strRepo: extraRepositories) {
+            RemoteRepository repo = new RemoteRepository.Builder("repo" + (repositories++), "default", strRepo).build();
+            inUseRepositories.add(repo);
+            remoteRepos.add(repo);
+         }
+      }
+   }
+
+   protected void done() {
+      if (inUseRepositories != null) {
+         inUseRepositories.forEach(r -> remoteRepos.remove(r));
+         inUseRepositories.clear(); // give a help to GC
+      }
+      inUseRepositories = null;
    }
 
    protected File resolveArtifactFile(Artifact artifact) throws MojoExecutionException, DependencyCollectionException {

@@ -16,7 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# This script shows a simple way to start a mysql with podman
-
-./stop-postgres-podman.sh
-podman run --name postgres-artemis-test --rm -d -e POSTGRES_USER=artemis -e POSTGRES_PASSWORD=artemis -e POSTGRES_DB=artemis -p 5432:5432 -p 9876:80 postgres
+./stop-db2.sh
+./stop-mssql.sh
+./stop-mysql.sh
+./stop-oracle.sh
+./stop-postgres.sh

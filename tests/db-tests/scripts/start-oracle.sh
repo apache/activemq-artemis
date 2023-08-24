@@ -16,7 +16,31 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# This script shows a simple way to start a mysql with podman
+source ./container-define.sh
 
-./stop-mysql-podman.sh
-podman run -d -p 3306:3306 --name mysql-artemis-test --rm -e MYSQL_ROOT_PASSWORD=artemis -e MYSQL_USER=artemis -e MYSQL_PASSWORD=artemis -e MYSQL_DATABASE=ARTEMIS-TEST mysql:8
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <folder_data>"
+    echo "       setting folder_data as NO_DATA by default"
+    folder_data="NO_DATA"
+else
+    folder_data="$1"
+fi
+
+./stop-oracle.sh
+
+./print-license.sh Oracle Oracle
+
+if [ "$folder_data" = "NO_DATA" ]; then
+    echo "NO_DATA has been specified. not using a data folder"
+    data_argument=""
+else
+   data_argument="-v $folder_data:/opt/oracle/oradata:Z"
+fi
+
+if [ ! -d "$folder_data" ] && [ "$folder_data" != "NO_DATA" ]; then
+    mkdir "$folder_data"
+    chmod 777 $folder_data
+    echo "Folder '$folder_data' created."
+fi
+
+$CONTAINER_COMMAND run -d --name oracle-artemis-test -p 1521:1521 $data_argument -e ORACLE_PWD=artemis container-registry.oracle.com/database/free:latest

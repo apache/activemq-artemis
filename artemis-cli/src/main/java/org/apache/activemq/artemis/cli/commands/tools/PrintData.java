@@ -116,13 +116,13 @@ public class PrintData extends DBOption {
 
       printBanner(out, BINDINGS_BANNER);
 
-      DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe);
+      DescribeJournal bindings = DescribeJournal.printSurvivingRecords(storageManager.getBindingsJournal(), out, safe);
 
       printBanner(out, MESSAGES_BANNER);
 
       DescribeJournal describeJournal = DescribeJournal.printSurvivingRecords(storageManager.getMessageJournal(), out, safe);
 
-      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, null);
+      printPages(describeJournal, storageManager, pagingmanager, out, safe, maxPages, bindings);
 
       cleanup();
 

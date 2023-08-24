@@ -499,4 +499,8 @@ public interface StorageManager extends IDGenerator, ActiveMQComponent {
    void persistIdGenerator();
 
    void injectMonitor(FileStoreMonitor monitor) throws Exception;
+
+   default int getAllowedPageSize(int pageSize)  {
+      return pageSize;
+   }
 }

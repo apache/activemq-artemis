@@ -2786,6 +2786,14 @@
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
+         <xsd:element name="jdbc-max-page-size-bytes" type="xsd:string" default="102400" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  The max page size (in bytes) to use for all addresses when using JDBC.
+                  Supports byte notation like "K", "Mb", "MiB", "GB", etc.
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
       </xsd:all>
       <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>

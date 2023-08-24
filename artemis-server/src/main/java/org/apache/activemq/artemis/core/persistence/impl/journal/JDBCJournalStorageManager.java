@@ -16,6 +16,7 @@
  */
 package org.apache.activemq.artemis.core.persistence.impl.journal;
 
+import java.lang.invoke.MethodHandles;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
@@ -32,8 +33,12 @@ import org.apache.activemq.artemis.jdbc.store.sql.PropertySQLProvider;
 import org.apache.activemq.artemis.jdbc.store.sql.SQLProvider;
 import org.apache.activemq.artemis.utils.ExecutorFactory;
 import org.apache.activemq.artemis.utils.critical.CriticalAnalyzer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class JDBCJournalStorageManager extends JournalStorageManager {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public JDBCJournalStorageManager(Configuration config,
                                     CriticalAnalyzer analyzer,
@@ -80,12 +85,15 @@ public class JDBCJournalStorageManager extends JournalStorageManager {
                  connectionProvider,
                  sqlProviderFactory.create(dbConf.getLargeMessageTableName(), SQLProvider.DatabaseStoreType.LARGE_MESSAGE),
                  executorFactory.getExecutor(),
+                 scheduledExecutorService,
+                 dbConf.getJdbcJournalSyncPeriodMillis(),
                  criticalErrorListener);
          this.bindingsJournal = bindingsJournal;
          this.messageJournal = messageJournal;
          this.largeMessagesFactory = largeMessagesFactory;
          largeMessagesFactory.start();
       } catch (Exception e) {
+         logger.warn(e.getMessage(), e);
          criticalErrorListener.onIOException(e, e.getMessage(), null);
       }
    }

@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.utils.collections.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveMQComponent {
 
@@ -53,19 +54,33 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
 
    private final IOCriticalErrorListener criticalErrorListener;
 
+   private final long syncDelay;
+
+   private final ScheduledExecutorService scheduledExecutorService;
+
+
    public JDBCSequentialFileFactory(final JDBCConnectionProvider connectionProvider,
                                     final SQLProvider sqlProvider,
                                     Executor executor,
+                                    ScheduledExecutorService scheduledExecutorService,
+                                    long syncDelay,
                                     IOCriticalErrorListener criticalErrorListener) throws Exception {
 
       this.executor = executor;
       this.criticalErrorListener = criticalErrorListener;
+      this.scheduledExecutorService = scheduledExecutorService;
+      this.syncDelay = syncDelay;
 
       try {
          this.dbDriver = JDBCFileUtils.getDBFileDriver(connectionProvider, sqlProvider);
       } catch (SQLException e) {
          criticalErrorListener.onIOException(e, "Failed to start JDBC Driver", null);
       }
+   }
+
+   @Override
+   public boolean supportsIndividualContext() {
+      return true;
    }
 
    public JDBCSequentialFileFactoryDriver getDbDriver() {
@@ -114,7 +129,7 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    public SequentialFile createSequentialFile(String fileName) {
       try {
          fileLocks.putIfAbsent(fileName, new Object());
-         JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, dbDriver, fileLocks.get(fileName));
+         JDBCSequentialFile file = new JDBCSequentialFile(this, fileName, executor, scheduledExecutorService, syncDelay, dbDriver, fileLocks.get(fileName));
          files.add(file);
          return file;
       } catch (Exception e) {
@@ -222,6 +237,13 @@ public class JDBCSequentialFileFactory implements SequentialFileFactory, ActiveM
    public File getDirectory() {
       return null;
    }
+
+
+   @Override
+   public String getDirectoryName() {
+      return dbDriver.getSqlProvider().getTableName();
+   }
+
 
    @Override
    public boolean isStarted() {

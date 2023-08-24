@@ -14,5 +14,6 @@
             <jdbc-lock-expiration>${jdbcLockExpiration}</jdbc-lock-expiration>
             <jdbc-lock-renew-period>${jdbcLockRenewPeriod}</jdbc-lock-renew-period>
             <jdbc-network-timeout>${jdbcNetworkTimeout}</jdbc-network-timeout>
+            <jdbc-max-page-size-bytes>100K</jdbc-max-page-size-bytes>
          </database-store>
       </store>

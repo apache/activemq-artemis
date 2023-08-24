@@ -251,10 +251,6 @@ public class JDBCSequentialFileFactoryDriver extends AbstractJDBCDriver {
       }
    }
 
-   public int writeToFile(JDBCSequentialFile file, byte[] data) throws SQLException {
-      return writeToFile(file, data, true);
-   }
-
    /**
     * Persists data to this files associated database mapping.
     *

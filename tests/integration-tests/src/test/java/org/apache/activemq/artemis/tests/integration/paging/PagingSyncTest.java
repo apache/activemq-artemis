@@ -48,7 +48,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
 
 
 
-   static final SimpleString ADDRESS = new SimpleString("SimpleAddress");
+   static final SimpleString ADDRESS = new SimpleString("TestQueue");
 
    @Test
    public void testOrder1() throws Throwable {
@@ -73,7 +73,7 @@ public class PagingSyncTest extends ActiveMQTestBase {
       server.addAddressInfo(new AddressInfo(ADDRESS, RoutingType.ANYCAST));
       server.createQueue(new QueueConfiguration(ADDRESS).setRoutingType(RoutingType.ANYCAST));
 
-      ClientProducer producer = session.createProducer(PagingTest.ADDRESS);
+      ClientProducer producer = session.createProducer(ADDRESS);
 
       byte[] body = new byte[messageSize];
 

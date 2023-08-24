@@ -16,6 +16,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Start a command line mysql for the Database started with ./start-postgres-podman.sh
-podman exec -it postgres-artemis-test psql -U artemis artemis
-#podman exec -it mysql-artemis-test mysql ARTEMIS-TEST -u root --password=artemis
+source ./container-define.sh
+
+$CONTAINER_COMMAND exec -it postgres-artemis-test psql -U artemis artemis

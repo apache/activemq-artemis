@@ -75,7 +75,7 @@ public class PageCounterRebuildManager implements Runnable {
          try {
             paging = store.isPaging();
             if (!paging) {
-               logger.debug("Destination {} was not paging, no need to rebuild counters");
+               logger.trace("Destination {} was not paging, no need to rebuild counters");
                store.getCursorProvider().forEachSubscription(subscription -> {
                   subscription.getCounter().markRebuilding();
                   subscription.getCounter().finishRebuild();
@@ -89,7 +89,7 @@ public class PageCounterRebuildManager implements Runnable {
             limitPageId = store.getCurrentWritingPage();
             limitMessageNr = currentPage.getNumberOfMessages();
             if (logger.isDebugEnabled()) {
-               logger.debug("PageCounterRebuild for {}, Current writing page {} and limit will be {} with lastMessage on last page={}", store.getStoreName(), store.getCurrentWritingPage(), limitPageId, limitMessageNr);
+               logger.trace("PageCounterRebuild for {}, Current writing page {} and limit will be {} with lastMessage on last page={}", store.getStoreName(), store.getCurrentWritingPage(), limitPageId, limitMessageNr);
             }
          } catch (Exception e) {
             logger.warn(e.getMessage(), e);
@@ -196,25 +196,26 @@ public class PageCounterRebuildManager implements Runnable {
 
    public void rebuild() throws Exception {
       if (pgStore == null) {
-         logger.debug("Page store is null during rebuildCounters");
+         logger.trace("Page store is null during rebuildCounters");
          return;
       }
 
       if (!paging) {
-         logger.debug("Ignoring call to rebuild pgStore {}", pgStore.getAddress());
+         logger.trace("Ignoring call to rebuild pgStore {}", pgStore.getAddress());
       }
 
-      logger.debug("Rebuilding counter for store {}", pgStore.getAddress());
+      logger.debug("Rebuilding page counter for address {}", pgStore.getAddress());
 
       for (long pgid = pgStore.getFirstPage(); pgid <= limitPageId; pgid++) {
          if (logger.isDebugEnabled()) {
-            logger.debug("Rebuilding counter on messages from page {} on rebuildCounters for address {}", pgid, pgStore.getAddress());
+            logger.trace("Rebuilding counter on messages from page {} on rebuildCounters for address {}", pgid, pgStore.getAddress());
          }
+         logger.debug("{} reading paging {} of {}", pgStore.getAddress(), pgid, limitPageId);
          Page page = pgStore.newPageObject(pgid);
 
          if (!page.getFile().exists()) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Skipping page {} on store {}", pgid, pgStore.getAddress());
+               logger.trace("Skipping page {} on store {}", pgid, pgStore.getAddress());
             }
             continue;
          }
@@ -227,14 +228,14 @@ public class PageCounterRebuildManager implements Runnable {
                PagedMessage msg = iter.next();
                if (storedLargeMessages != null && msg.getMessage().isLargeMessage()) {
                   if (logger.isDebugEnabled()) {
-                     logger.debug("removing storedLargeMessage {}", msg.getMessage().getMessageID());
+                     logger.trace("removing storedLargeMessage {}", msg.getMessage().getMessageID());
                   }
                   storedLargeMessages.remove(msg.getMessage().getMessageID());
                }
                if (limitPageId == pgid) {
                   if (msg.getMessageNumber() >= limitMessageNr) {
                      if (logger.isDebugEnabled()) {
-                        logger.debug("Rebuild counting on {} reached the last message at {}-{}", pgStore.getAddress(), limitPageId, limitMessageNr);
+                        logger.trace("Rebuild counting on {} reached the last message at {}-{}", pgStore.getAddress(), limitPageId, limitMessageNr);
                      }
                      // this is the limit where we should count..
                      // anything beyond this will be new data
@@ -286,7 +287,7 @@ public class PageCounterRebuildManager implements Runnable {
                      boolean txIncluded = msg.getTransactionID() <= 0 || transactions == null || txInfo != null;
 
                      if (!txIncluded) {
-                        logger.debug("TX is not included for {}", msg);
+                        logger.trace("TX is not included for {}", msg);
                      }
 
                      if (ok && txIncluded) { // not acked and TX is ok
