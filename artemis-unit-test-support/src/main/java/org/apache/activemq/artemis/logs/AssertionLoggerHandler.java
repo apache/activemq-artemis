@@ -112,12 +112,12 @@ public class AssertionLoggerHandler extends AbstractAppender implements Closeabl
     */
    public boolean findText(final String... text) {
       for (LogEntry logEntry : messages) {
-         boolean found = true;
+         boolean found = false;
 
          for (String txtCheck : text) {
             found = logEntry.message.contains(txtCheck);
-            if (found) {
-               continue;
+            if (!found) {
+               break;
             }
          }
 

@@ -118,34 +118,35 @@ public class AddressFullLoggingTest extends ActiveMQTestBase {
          }
       };
 
-      int sendCount = 0;
-
-      for (int i = 0; i < MAX_MESSAGES; i++) {
-         Future<Object> future = executor.submit(sendMessageTask);
-         try {
-            future.get(3, TimeUnit.SECONDS);
-            sendCount++;
-         } catch (TimeoutException ex) {
-            // message sending has been blocked
-            break;
-         } finally {
-            future.cancel(true); // may or may not desire this
-         }
-      }
-
-      executor.shutdown();
-      session.close();
-      session = factory.createSession(false, true, true);
-      session.start();
-      ClientConsumer consumer = session.createConsumer(MY_QUEUE);
-      for (int i = 0; i < sendCount; i++) {
-         ClientMessage msg = consumer.receive(250);
-         if (msg == null)
-            break;
-         msg.acknowledge();
-      }
       try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-         //this is needed to allow to kick-in at least once disk scan
+         int sendCount = 0;
+
+         for (int i = 0; i < MAX_MESSAGES; i++) {
+            Future<Object> future = executor.submit(sendMessageTask);
+            try {
+               future.get(3, TimeUnit.SECONDS);
+               sendCount++;
+            } catch (TimeoutException ex) {
+               // message sending has been blocked
+               break;
+            } finally {
+               future.cancel(true); // may or may not desire this
+            }
+         }
+
+         executor.shutdown();
+         session.close();
+         session = factory.createSession(false, true, true);
+         session.start();
+         ClientConsumer consumer = session.createConsumer(MY_QUEUE);
+         for (int i = 0; i < sendCount; i++) {
+            ClientMessage msg = consumer.receive(250);
+            if (msg == null)
+               break;
+            msg.acknowledge();
+         }
+
+         //this is needed to allow to kick-in at least one disk scan
          TimeUnit.MILLISECONDS.sleep(server.getConfiguration().getDiskScanPeriod() * 2);
          session.close();
          locator.close();
