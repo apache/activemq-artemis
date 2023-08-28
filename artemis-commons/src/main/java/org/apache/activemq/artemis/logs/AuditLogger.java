@@ -1993,8 +1993,8 @@ public interface AuditLogger {
    void handleManagementMessage2(String user, Object source, String args);
 
 
-   static void securityFailure(String reason, Exception cause) {
-      BASE_LOGGER.securityFailure(getCaller(), reason, cause);
+   static void securityFailure(Subject subject, String remoteAddress, String reason, Exception cause) {
+      BASE_LOGGER.securityFailure(getCaller(subject, remoteAddress), reason, cause);
    }
 
    @LogMessage(id = 601264, value = "User {} gets security check failure, reason = {}", level = LogMessage.Level.INFO)
