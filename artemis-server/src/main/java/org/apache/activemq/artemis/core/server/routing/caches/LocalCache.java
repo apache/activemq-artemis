@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalCause;
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import com.github.benmanes.caffeine.cache.Scheduler;
 
 import java.lang.invoke.MethodHandles;
 
@@ -64,9 +63,9 @@ public class LocalCache implements Cache, RemovalListener<String, String> {
       this.storageManager = storageManager;
 
       if (timeout == 0) {
-         cache = Caffeine.newBuilder().build();
+         cache = Caffeine.newBuilder().executor(Runnable::run).build();
       } else {
-         cache = Caffeine.newBuilder().removalListener(this).expireAfterAccess(timeout, TimeUnit.MILLISECONDS).scheduler(Scheduler.systemScheduler()).build();
+         cache = Caffeine.newBuilder().removalListener(this).expireAfterAccess(timeout, TimeUnit.MILLISECONDS).executor(Runnable::run).build();
       }
    }
 
