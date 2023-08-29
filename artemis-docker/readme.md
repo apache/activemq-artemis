@@ -5,8 +5,21 @@ ActiveMQ Artemis based on CentOS or Ubuntu (Eclipse Temurin JDK images).
 
 # Preparing
 
-Use the script ./prepare-docker.sh as it will copy the docker files under the
-binary distribution.
+You need a set of activemq binary distribution files to build the Docker Image.
+These can be your local distribution files, in which case you need to build the project first, 
+or they can be pulled automatically from the official ActiveMQ release repository.
+
+## Using a Local Binary Distribution
+If you want to use a local binary distribution, build the project from the root of the ActiveMQ source tree using maven.
+```
+mvn install -DskipTests=true
+```
+Following the build, the distribution files will be in your local distribution directory.
+```
+artemis-distribution/target/apache-artemis-2.17.0-SNAPSHOT-bin/apache-artemis-2.17.0-SNAPSHOT
+```
+In the artemis-docker directory, run the script ./prepare-docker.sh to copy the docker files into your
+local binary distribution.
 
 Below is shown the command to prepare the build of the Docker Image starting
 from the local distribution (from the source codes of ActiveMQ Artemis)
@@ -61,6 +74,7 @@ Note: -t artemis-centos and -t artemis-ubuntu are just tag names for the purpose
 For more info see readme.md.
 ```
 
+## Using the Official ActiveMQ Binary Release
 The command to prepare the build of the Docker Image starting from the official
 release of ActiveMQ Artemis is shown below
 
@@ -134,7 +148,7 @@ From within the `$ARTEMIS_DIST` folder:
 $ docker build -f ./docker/Dockerfile-ubuntu-11-jre -t artemis-ubuntu .
 ```
 
-# For Ubuntu (Build for linux ARMv7/ARM64)
+## For Ubuntu (Build for linux ARMv7/ARM64)
 ```
 $ docker buildx build --platform linux/arm64,linux/arm/v7 --push -t {your-repository}/apache-artemis:2.17.0-SNAPSHOT -f ./docker/Dockerfile-ubuntu-11 .
 ```
