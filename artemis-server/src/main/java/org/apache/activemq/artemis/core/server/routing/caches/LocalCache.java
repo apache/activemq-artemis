@@ -27,6 +27,7 @@ import java.lang.invoke.MethodHandles;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class LocalCache implements Cache, RemovalListener<String, String> {
@@ -70,7 +71,7 @@ public class LocalCache implements Cache, RemovalListener<String, String> {
    @Override
    public void start() {
       if (persisted) {
-         persistedCacheEntries = storageManager.getPersistedKeyValuePairs(id);
+         persistedCacheEntries = new ConcurrentHashMap<>(storageManager.getPersistedKeyValuePairs(id));
 
          if (persistedCacheEntries != null) {
             for (Map.Entry<String, PersistedKeyValuePair> cacheEntry : persistedCacheEntries.entrySet()) {
