@@ -16,6 +16,8 @@
  */
 package org.apache.activemq.artemis.tests.smoke.jmx2;
 
+import java.util.Map;
+
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import org.apache.activemq.artemis.json.JsonArray;
@@ -26,7 +28,6 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
@@ -91,7 +92,7 @@ public class JmxServerControlTest extends SmokeTestBase {
             MessageConsumer consumer = cf.createConnection().createSession(true, Session.SESSION_TRANSACTED).createConsumer(new ActiveMQQueue(queueName));
 
             try {
-               String options = JsonUtil.toJsonObject(ImmutableMap.of("field","queue", "operation", "EQUALS", "value", queueName)).toString();
+               String options = JsonUtil.toJsonObject(Map.of("field","queue", "operation", "EQUALS", "value", queueName)).toString();
                String consumersAsJsonString = activeMQServerControl.listConsumers(options, 1, 10);
 
                JsonObject consumersAsJsonObject = JsonUtil.readJsonObject(consumersAsJsonString);

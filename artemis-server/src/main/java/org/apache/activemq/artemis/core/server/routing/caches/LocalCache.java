@@ -16,13 +16,15 @@
  */
 package org.apache.activemq.artemis.core.server.routing.caches;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import org.apache.activemq.artemis.core.persistence.StorageManager;
 import org.apache.activemq.artemis.core.persistence.config.PersistedKeyValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.RemovalListener;
+
 import java.lang.invoke.MethodHandles;
 
 import java.util.Map;
@@ -37,7 +39,7 @@ public class LocalCache implements Cache, RemovalListener<String, String> {
    private boolean persisted;
    private int timeout;
    private StorageManager storageManager;
-   private com.google.common.cache.Cache<String, String> cache;
+   private com.github.benmanes.caffeine.cache.Cache<String, String> cache;
    private Map<String, PersistedKeyValuePair> persistedCacheEntries;
 
    private volatile boolean running;
@@ -61,9 +63,9 @@ public class LocalCache implements Cache, RemovalListener<String, String> {
       this.storageManager = storageManager;
 
       if (timeout == 0) {
-         cache = CacheBuilder.newBuilder().build();
+         cache = Caffeine.newBuilder().executor(Runnable::run).build();
       } else {
-         cache = CacheBuilder.newBuilder().removalListener(this).expireAfterAccess(timeout, TimeUnit.MILLISECONDS).build();
+         cache = Caffeine.newBuilder().removalListener(this).expireAfterAccess(timeout, TimeUnit.MILLISECONDS).executor(Runnable::run).build();
       }
    }
 
@@ -123,9 +125,9 @@ public class LocalCache implements Cache, RemovalListener<String, String> {
    }
 
    @Override
-   public void onRemoval(RemovalNotification<String, String> notification) {
+   public void onRemoval(String key, String value, RemovalCause cause) {
       if (running && persisted) {
-         PersistedKeyValuePair persistedKeyValuePair = persistedCacheEntries.remove(notification.getKey());
+         PersistedKeyValuePair persistedKeyValuePair = persistedCacheEntries.remove(key);
 
          if (persistedKeyValuePair != null) {
             try {
