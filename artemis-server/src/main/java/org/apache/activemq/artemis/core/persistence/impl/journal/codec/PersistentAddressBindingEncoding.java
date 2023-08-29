@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.core.persistence.impl.journal.codec;
 
 import java.util.EnumSet;
 
+import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
 import org.apache.activemq.artemis.api.core.ActiveMQBuffer;
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.core.journal.EncodingSupport;
@@ -29,14 +30,17 @@ import static org.apache.activemq.artemis.utils.Preconditions.checkNotNull;
 
 public class PersistentAddressBindingEncoding implements EncodingSupport, AddressBindingInfo {
 
-   public long id;
+   private long id;
 
-   public SimpleString name;
+   private SimpleString name;
 
-   public boolean autoCreated;
-   public AddressStatusEncoding addressStatusEncoding;
+   private boolean autoCreated;
 
-   public EnumSet<RoutingType> routingTypes;
+   private AddressStatusEncoding addressStatusEncoding;
+
+   private EnumSet<RoutingType> routingTypes;
+
+   private boolean internal;
 
    public PersistentAddressBindingEncoding() {
       routingTypes = EnumSet.noneOf(RoutingType.class);
@@ -54,19 +58,22 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
          sb.deleteCharAt(sb.length() - 1);
       }
       sb.append("}");
-      sb.append(", autoCreated=" + autoCreated + "]");
+      sb.append(", autoCreated=" + autoCreated);
+      sb.append(", internal=" + internal + "]");
       return sb.toString();
    }
 
    public PersistentAddressBindingEncoding(final SimpleString name,
                                            final EnumSet<RoutingType> routingTypes,
-                                           final boolean autoCreated) {
+                                           final boolean autoCreated,
+                                           final boolean internal) {
       checkNotNull(name);
       checkNotNull(routingTypes);
 
       this.name = name;
       this.routingTypes = routingTypes;
       this.autoCreated = autoCreated;
+      this.internal = internal;
    }
 
    @Override
@@ -84,7 +91,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
-   public boolean getAutoCreated() {
+   public boolean isAutoCreated() {
       return autoCreated;
    }
 
@@ -103,6 +110,11 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
    }
 
    @Override
+   public boolean isInternal() {
+      return internal;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       int size = buffer.readInt();
@@ -110,6 +122,12 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
          routingTypes.add(RoutingType.getType(buffer.readByte()));
       }
       autoCreated = buffer.readBoolean();
+
+      if (buffer.readableBytes() > 0) {
+         internal = buffer.readBoolean();
+      } else {
+         internal = ActiveMQDefaultConfiguration.getDefaultInternal();
+      }
    }
 
    @Override
@@ -120,6 +138,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
          buffer.writeByte(d.getType());
       }
       buffer.writeBoolean(autoCreated);
+      buffer.writeBoolean(internal);
    }
 
    @Override
@@ -127,6 +146,7 @@ public class PersistentAddressBindingEncoding implements EncodingSupport, Addres
       return SimpleString.sizeofString(name) +
          DataConstants.SIZE_INT +
          (DataConstants.SIZE_BYTE * routingTypes.size()) +
+         DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN;
    }
 }

@@ -187,7 +187,7 @@ public class PostOfficeJournalLoader implements JournalLoader {
       for (AddressBindingInfo addressBindingInfo : addressBindingInfos) {
          AddressInfo addressInfo = new AddressInfo(addressBindingInfo.getName()).setRoutingTypes(addressBindingInfo.getRoutingTypes());
          addressInfo.setId(addressBindingInfo.getId());
-         addressInfo.setAutoCreated(addressBindingInfo.getAutoCreated());
+         addressInfo.setAutoCreated(addressBindingInfo.isAutoCreated());
          if (addressBindingInfo.getAddressStatusEncoding() != null && addressBindingInfo.getAddressStatusEncoding().getStatus() == AddressQueueStatus.PAUSED) {
             addressInfo.setStorageManager(storageManager);
             addressInfo.setPostOffice(postOffice);

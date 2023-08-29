@@ -28,57 +28,59 @@ import org.apache.activemq.artemis.utils.DataConstants;
 
 public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBindingInfo {
 
-   public long id;
+   private long id;
 
-   public SimpleString name;
+   private SimpleString name;
 
-   public SimpleString address;
+   private SimpleString address;
 
-   public SimpleString filterString;
+   private SimpleString filterString;
 
-   public boolean autoCreated;
+   private boolean autoCreated;
 
-   public SimpleString user;
+   private SimpleString user;
 
-   public List<QueueStatusEncoding> queueStatusEncodings;
+   private List<QueueStatusEncoding> queueStatusEncodings;
 
-   public int maxConsumers;
+   private int maxConsumers;
 
-   public boolean purgeOnNoConsumers;
+   private boolean purgeOnNoConsumers;
 
-   public boolean enabled;
+   private boolean enabled;
 
-   public boolean exclusive;
+   private boolean exclusive;
 
-   public boolean lastValue;
+   private boolean lastValue;
 
-   public SimpleString lastValueKey;
+   private SimpleString lastValueKey;
 
-   public boolean nonDestructive;
+   private boolean nonDestructive;
 
-   public int consumersBeforeDispatch;
+   private int consumersBeforeDispatch;
 
-   public long delayBeforeDispatch;
+   private long delayBeforeDispatch;
 
-   public byte routingType;
+   private byte routingType;
 
-   public boolean configurationManaged;
+   private boolean configurationManaged;
 
-   public boolean groupRebalance;
+   private boolean groupRebalance;
 
-   public boolean groupRebalancePauseDispatch;
+   private boolean groupRebalancePauseDispatch;
 
-   public int groupBuckets;
+   private int groupBuckets;
 
-   public SimpleString groupFirstKey;
+   private SimpleString groupFirstKey;
 
-   public boolean autoDelete;
+   private boolean autoDelete;
 
-   public long autoDeleteDelay;
+   private long autoDeleteDelay;
 
-   public long autoDeleteMessageCount;
+   private long autoDeleteMessageCount;
 
-   public long ringSize;
+   private long ringSize;
+
+   private boolean internal;
 
    public PersistentQueueBindingEncoding() {
    }
@@ -86,52 +88,30 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    @Override
    public String toString() {
       return "PersistentQueueBindingEncoding [id=" + id +
-         ", name=" +
-         name +
-         ", address=" +
-         address +
-         ", filterString=" +
-         filterString +
-         ", user=" +
-         user +
-         ", autoCreated=" +
-         autoCreated +
-         ", maxConsumers=" +
-         maxConsumers +
-         ", purgeOnNoConsumers=" +
-         purgeOnNoConsumers +
-         ", enabled=" +
-         enabled +
-         ", exclusive=" +
-         exclusive +
-         ", lastValue=" +
-         lastValue +
-         ", lastValueKey=" +
-         lastValueKey +
-         ", nonDestructive=" +
-         nonDestructive +
-         ", consumersBeforeDispatch=" +
-         consumersBeforeDispatch +
-         ", delayBeforeDispatch=" +
-         delayBeforeDispatch +
-         ", routingType=" +
-         routingType +
-         ", configurationManaged=" +
-         configurationManaged +
-         ", groupRebalance=" +
-         groupRebalance +
-         ", groupRebalancePauseDispatch=" +
-         groupRebalancePauseDispatch +
-         ", groupBuckets=" +
-         groupBuckets +
-         ", groupFirstKey=" +
-         groupFirstKey +
-         ", autoDelete=" +
-         autoDelete +
-         ", autoDeleteDelay=" +
-         autoDeleteDelay +
-         ", autoDeleteMessageCount=" +
-         autoDeleteMessageCount +
+         ", name=" + name +
+         ", address=" + address +
+         ", filterString=" + filterString +
+         ", user=" + user +
+         ", autoCreated=" + autoCreated +
+         ", maxConsumers=" + maxConsumers +
+         ", purgeOnNoConsumers=" + purgeOnNoConsumers +
+         ", enabled=" + enabled +
+         ", exclusive=" + exclusive +
+         ", lastValue=" + lastValue +
+         ", lastValueKey=" + lastValueKey +
+         ", nonDestructive=" + nonDestructive +
+         ", consumersBeforeDispatch=" + consumersBeforeDispatch +
+         ", delayBeforeDispatch=" + delayBeforeDispatch +
+         ", routingType=" + routingType +
+         ", configurationManaged=" + configurationManaged +
+         ", groupRebalance=" + groupRebalance +
+         ", groupRebalancePauseDispatch=" + groupRebalancePauseDispatch +
+         ", groupBuckets=" + groupBuckets +
+         ", groupFirstKey=" + groupFirstKey +
+         ", autoDelete=" + autoDelete +
+         ", autoDeleteDelay=" + autoDeleteDelay +
+         ", autoDeleteMessageCount=" + autoDeleteMessageCount +
+         ", internal=" + internal +
          "]";
    }
 
@@ -158,7 +138,8 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
                                          final long autoDeleteMessageCount,
                                          final byte routingType,
                                          final boolean configurationManaged,
-                                         final long ringSize) {
+                                         final long ringSize,
+                                         final boolean internal) {
       this.name = name;
       this.address = address;
       this.filterString = filterString;
@@ -183,6 +164,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       this.routingType = routingType;
       this.configurationManaged = configurationManaged;
       this.ringSize = ringSize;
+      this.internal = internal;
    }
 
    @Override
@@ -388,6 +370,11 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
    }
 
    @Override
+   public boolean isInternal() {
+      return internal;
+   }
+
+   @Override
    public void decode(final ActiveMQBuffer buffer) {
       name = buffer.readSimpleString();
       address = buffer.readSimpleString();
@@ -499,6 +486,12 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       } else {
          groupRebalancePauseDispatch = ActiveMQDefaultConfiguration.getDefaultGroupRebalancePauseDispatch();
       }
+
+      if (buffer.readableBytes() > 0) {
+         internal = buffer.readBoolean();
+      } else {
+         internal = ActiveMQDefaultConfiguration.getDefaultInternal();
+      }
    }
 
    @Override
@@ -527,6 +520,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
       buffer.writeLong(ringSize);
       buffer.writeBoolean(enabled);
       buffer.writeBoolean(groupRebalancePauseDispatch);
+      buffer.writeBoolean(internal);
    }
 
    @Override
@@ -551,6 +545,7 @@ public class PersistentQueueBindingEncoding implements EncodingSupport, QueueBin
          DataConstants.SIZE_LONG +
          SimpleString.sizeofNullableString(groupFirstKey) +
          DataConstants.SIZE_LONG +
+         DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN +
          DataConstants.SIZE_BOOLEAN;
    }

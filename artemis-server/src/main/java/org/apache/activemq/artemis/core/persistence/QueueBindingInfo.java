@@ -105,4 +105,6 @@ public interface QueueBindingInfo {
    long getAutoDeleteMessageCount();
 
    long getRingSize();
+
+   boolean isInternal();
 }
