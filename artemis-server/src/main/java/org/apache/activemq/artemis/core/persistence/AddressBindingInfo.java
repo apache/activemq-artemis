@@ -28,9 +28,11 @@ public interface AddressBindingInfo {
 
    SimpleString getName();
 
-   boolean getAutoCreated();
+   boolean isAutoCreated();
 
    EnumSet<RoutingType> getRoutingTypes();
 
    AddressStatusEncoding getAddressStatusEncoding();
+
+   boolean isInternal();
 }

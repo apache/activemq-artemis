@@ -52,6 +52,7 @@ public class QueueBindingEncodingTest extends Assert {
       final long ringSize = RandomUtil.randomLong();
       final boolean enabled = RandomUtil.randomBoolean();
       final boolean groupRebalancePauseDispatch = RandomUtil.randomBoolean();
+      final boolean internal = RandomUtil.randomBoolean();
 
       PersistentQueueBindingEncoding encoding = new PersistentQueueBindingEncoding(name,
                                                                                    address,
@@ -76,7 +77,8 @@ public class QueueBindingEncodingTest extends Assert {
                                                                                    autoDeleteMessageCount,
                                                                                    routingType,
                                                                                    configurationManaged,
-                                                                                   ringSize);
+                                                                                   ringSize,
+                                                                                   internal);
       int size = encoding.getEncodeSize();
       ActiveMQBuffer encodedBuffer = ActiveMQBuffers.fixedBuffer(size);
       encoding.encode(encodedBuffer);
@@ -107,8 +109,7 @@ public class QueueBindingEncodingTest extends Assert {
       assertEquals(routingType, decoding.getRoutingType());
       assertEquals(configurationManaged, decoding.isConfigurationManaged());
       assertEquals(ringSize, decoding.getRingSize());
-
       assertEquals(groupRebalancePauseDispatch, decoding.isGroupRebalancePauseDispatch());
-
+      assertEquals(internal, decoding.isInternal());
    }
 }
