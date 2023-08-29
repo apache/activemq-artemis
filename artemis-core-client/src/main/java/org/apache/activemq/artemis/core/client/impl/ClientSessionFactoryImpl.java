@@ -475,15 +475,15 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
    }
 
    private void interruptConnectAndCloseAllSessions(boolean close) {
+      //release all threads waiting for topology
+      latchFinalTopology.countDown();
+
       clientProtocolManager.stop();
 
       synchronized (createSessionLock) {
          closeCleanSessions(close);
          closed = true;
       }
-
-      //release all threads waiting for topology
-      latchFinalTopology.countDown();
    }
 
    /**
@@ -536,7 +536,9 @@ public class ClientSessionFactoryImpl implements ClientSessionFactoryInternal, C
          return latchFinalTopology.await(timeout, unit) && topologyReady;
       } catch (InterruptedException e) {
          Thread.currentThread().interrupt();
-         ActiveMQClientLogger.LOGGER.unableToReceiveClusterTopology(e);
+         if (!isClosed()) {
+            ActiveMQClientLogger.LOGGER.unableToReceiveClusterTopology(e);
+         }
          return false;
       }
    }
