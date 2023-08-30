@@ -48,7 +48,7 @@ import org.apache.activemq.artemis.utils.UUIDGenerator;
  */
 public class XAHeuristicExample {
 
-   private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:3001/jmxrmi";
+   private static final String JMX_URL = "service:jmx:rmi:///jndi/rmi://localhost:1099/jmxrmi";
 
    public static void main(final String[] args) throws Exception {
       Boolean result = true;
