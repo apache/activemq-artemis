@@ -35,6 +35,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.RoutingType;
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.tests.util.JMSTestBase;
 import org.apache.activemq.artemis.tests.util.Wait;
@@ -50,11 +53,12 @@ import static org.apache.activemq.artemis.tests.util.CFUtil.createConnectionFact
 public class JMSOrderTest extends JMSTestBase {
 
    String protocol;
-
+   boolean exclusive;
    ConnectionFactory protocolCF;
 
-   public JMSOrderTest(String protocol) {
+   public JMSOrderTest(String protocol, boolean exclusive) {
       this.protocol = protocol;
+      this.exclusive = exclusive;
    }
 
    @Before
@@ -62,9 +66,16 @@ public class JMSOrderTest extends JMSTestBase {
       protocolCF = createConnectionFactory(protocol, "tcp://localhost:61616");
    }
 
-   @Parameterized.Parameters(name = "protocol={0}")
+   @Parameterized.Parameters(name = "protocol={0}&exclusive={1}")
    public static Collection getParameters() {
-      return Arrays.asList(new Object[][]{{"AMQP"}, {"OPENWIRE"}, {"CORE"}});
+      return Arrays.asList(new Object[][]{{"AMQP", true}, {"AMQP", false}, {"OPENWIRE", true},  {"OPENWIRE", false}, {"CORE", true}, {"CORE", false}});
+   }
+
+   @Override
+   protected void extraServerConfig(ActiveMQServer server) {
+      if (exclusive) {
+         server.getConfiguration().getAddressSettings().put("#", new AddressSettings().setAutoCreateQueues(true).setAutoCreateAddresses(true).setDeadLetterAddress(new SimpleString("ActiveMQ.DLQ")).setDefaultExclusiveQueue(true));
+      }
    }
 
    protected void sendToAmqQueue(int count) throws Exception {
