@@ -573,8 +573,6 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          del.finish();
       }
 
-      removeItself();
-
       List<MessageReference> refs = cancelRefs(failed, false, null);
 
       Transaction tx = new TransactionImpl(storageManager);
@@ -586,6 +584,9 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
       });
 
       tx.rollback();
+
+      // started is false, leaving remove till after cancel ensures order for a single exclusive consumer
+      removeItself();
 
       addLingerRefs();
 
