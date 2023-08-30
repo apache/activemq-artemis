@@ -49,7 +49,7 @@ public interface ActiveMQRALogger {
    @LogMessage(id = 151003, value = "resource adaptor stopped", level = LogMessage.Level.INFO)
    void raStopped();
 
-   @LogMessage(id = 151004, value = "Instantiating {} \"{}\" directly since UseJNDI=false.", level = LogMessage.Level.INFO)
+   @LogMessage(id = 151004, value = "Instantiating {} \"{}\" directly since UseJNDI=false.", level = LogMessage.Level.DEBUG)
    void instantiatingDestination(String destinationType, String destination);
 
    @LogMessage(id = 151005, value = "awaiting server availability", level = LogMessage.Level.INFO)
