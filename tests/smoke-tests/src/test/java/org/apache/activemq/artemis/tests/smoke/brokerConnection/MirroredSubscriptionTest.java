@@ -177,7 +177,7 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    long getMessageCount(String uri, String queueName) throws Exception {
       SimpleManagement management = new SimpleManagement(uri, null, null);
       try {
-         return management.getQueueCount(queueName);
+         return management.getMessageCountOnQueue(queueName);
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
          // if an exception happened during a retry
