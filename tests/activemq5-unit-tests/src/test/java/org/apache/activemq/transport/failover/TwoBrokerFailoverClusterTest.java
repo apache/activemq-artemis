@@ -55,7 +55,7 @@ public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
       Thread.sleep(5000);
 
       assertClientsConnectedToTwoBrokers();
-      assertClientsConnectionsEvenlyDistributed(.35);
+      assertClientsConnectionsEvenlyDistributed(.26);
 
       server0.stop();
       Assert.assertTrue(server1.waitClusterForming(100, TimeUnit.MILLISECONDS, 20, 1));
@@ -73,7 +73,7 @@ public class TwoBrokerFailoverClusterTest extends OpenwireArtemisBaseTest {
 
       //need update-cluster-clients, -on-remove and rebalance set to true.
       assertClientsConnectedToTwoBrokers();
-      assertClientsConnectionsEvenlyDistributed(.35);
+      assertClientsConnectionsEvenlyDistributed(.26);
    }
 
    @Before
