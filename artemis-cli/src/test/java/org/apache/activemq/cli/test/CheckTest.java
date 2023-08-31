@@ -30,6 +30,7 @@ import org.apache.activemq.artemis.cli.commands.Run;
 import org.apache.activemq.artemis.cli.commands.check.NodeCheck;
 import org.apache.activemq.artemis.cli.commands.check.QueueCheck;
 import org.apache.activemq.artemis.cli.commands.tools.LockAbstract;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.impl.ActiveMQServerImpl;
 import org.apache.activemq.artemis.utils.Base64;
 import org.apache.activemq.artemis.utils.Wait;
@@ -196,11 +197,11 @@ public class CheckTest extends CliTestBase {
             Assert.assertEquals(3, nodeCheck.execute(context));
          } finally {
             Artemis.execute(false, false, null, slaveInstance, null, "stop");
-            Wait.assertFalse(slaveServer::isStarted);
+            Wait.assertTrue(() -> slaveServer.getState() == ActiveMQServer.SERVER_STATE.STOPPED);
          }
       } finally {
          Artemis.execute(false, false, null, masterInstance, null, "stop");
-         Wait.assertFalse(masterServer::isStarted);
+         Wait.assertTrue(() -> masterServer.getState() == ActiveMQServer.SERVER_STATE.STOPPED);
       }
    }
 
