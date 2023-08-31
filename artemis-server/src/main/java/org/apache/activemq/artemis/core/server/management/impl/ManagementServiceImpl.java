@@ -288,7 +288,7 @@ public class ManagementServiceImpl implements ManagementService {
                                           final AddressInfo addressInfo,
                                           final StorageManager storageManager) throws Exception {
 
-      if (addressInfo.isInternal()) {
+      if (addressInfo.isInternal() || queue.isInternalQueue()) {
          logger.debug("won't register internal queue: {}", queue);
          return;
       }

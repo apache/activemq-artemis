@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.tests.integration.server;
 
 import org.apache.activemq.artemis.api.core.QueueConfiguration;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.management.ResourceNames;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.Queue;
 import org.apache.activemq.artemis.api.core.RoutingType;
@@ -25,10 +26,10 @@ import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class QueuePeristPauseTest extends ActiveMQTestBase {
+public class QueueConfigPersistenceTest extends ActiveMQTestBase {
 
    @Test
-      public void testPauseQueue() throws Exception {
+   public void testPauseQueue() throws Exception {
       ActiveMQServer server = createServer(true, false);
       server.start();
 
@@ -54,6 +55,21 @@ public class QueuePeristPauseTest extends ActiveMQTestBase {
          queue = server.locateQueue(SimpleString.toSimpleString("q1"));
          Assert.assertFalse(queue.isPaused());
       }
+
+      server.stop();
+   }
+
+   @Test
+   public void testInternalQueue() throws Exception {
+      ActiveMQServer server = createServer(true, false);
+      server.start();
+
+      server.createQueue(new QueueConfiguration(getName()).setInternal(true));
+      server.stop();
+      server.start();
+      Queue queue = server.locateQueue(getName());
+      Assert.assertTrue(queue.isInternalQueue());
+      Assert.assertNull(server.getManagementService().getResource(ResourceNames.QUEUE + getName()));
 
       server.stop();
    }

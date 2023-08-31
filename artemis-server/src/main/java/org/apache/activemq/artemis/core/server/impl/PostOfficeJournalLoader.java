@@ -161,7 +161,8 @@ public class PostOfficeJournalLoader implements JournalLoader {
                                                              .setAutoDeleteMessageCount(queueBindingInfo.getAutoDeleteMessageCount())
                                                              .setRoutingType(RoutingType.getType(queueBindingInfo.getRoutingType()))
                                                              .setConfigurationManaged(queueBindingInfo.isConfigurationManaged())
-                                                             .setRingSize(queueBindingInfo.getRingSize()),
+                                                             .setRingSize(queueBindingInfo.getRingSize())
+                                                             .setInternal(queueBindingInfo.isInternal()),
                                                           pagingManager);
 
 
