@@ -1471,6 +1471,37 @@
                      <configuration>${basedir}/target/classes/servers/topology-check/broker4</configuration>
                   </configuration>
                </execution>
+               <execution>
+                  <id>create-check-test-live</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <instance>${basedir}/target/check-test/live</instance>
+                     <sharedStore>true</sharedStore>
+                     <slave>false</slave>
+                     <dataFolder>${basedir}/target/check-test/data</dataFolder>
+                     <failoverOnShutdown>true</failoverOnShutdown>
+                     <staticCluster>tcp://localhost:61716</staticCluster>
+                  </configuration>
+               </execution>
+               <execution>
+                  <id>create-check-test-backup</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <!-- this makes it easier in certain envs -->
+                     <javaOptions>-Djava.net.preferIPv4Stack=true</javaOptions>
+                     <instance>${basedir}/target/check-test/backup</instance>
+                     <sharedStore>true</sharedStore>
+                     <slave>true</slave>
+                     <dataFolder>${basedir}/target/check-test/data</dataFolder>
+                     <failoverOnShutdown>true</failoverOnShutdown>
+                     <portOffset>100</portOffset>
+                     <staticCluster>tcp://localhost:61616</staticCluster>
+                  </configuration>
+               </execution>
             </executions>
             <dependencies>
                <dependency>

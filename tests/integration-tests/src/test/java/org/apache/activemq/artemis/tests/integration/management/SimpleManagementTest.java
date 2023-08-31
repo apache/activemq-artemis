@@ -83,7 +83,7 @@ public class SimpleManagementTest extends ActiveMQTestBase {
 
       Map<String, Long> queues = simpleManagement.getQueueCounts(100);
       Assert.assertEquals((Long)33L, queues.get(queueName));
-      Assert.assertEquals(33L, simpleManagement.getQueueCount(queueName));
+      Assert.assertEquals(33L, simpleManagement.getMessageCountOnQueue(queueName));
    }
 
    @Test

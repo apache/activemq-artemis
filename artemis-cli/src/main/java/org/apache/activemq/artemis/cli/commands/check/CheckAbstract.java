@@ -61,7 +61,6 @@ public abstract class CheckAbstract extends ConnectionAbstract {
    @Override
    public Object execute(ActionContext context) throws Exception {
       super.execute(context);
-
       ExecutorService executor = Executors.newFixedThreadPool(1);
 
       Future<Integer> checkTask = executor.submit(() -> {
@@ -141,7 +140,7 @@ public abstract class CheckAbstract extends ConnectionAbstract {
       } catch (TimeoutException e) {
          fail("timeout");
       } finally {
-         executor.shutdown();
+         executor.shutdownNow();
       }
 
       return 0;
