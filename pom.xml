@@ -135,7 +135,7 @@
       <johnzon.version>1.2.21</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <hawtdispatch.version>1.22</hawtdispatch.version>
-      <picocli.version>4.7.4</picocli.version>
+      <picocli.version>4.7.5</picocli.version>
       <jline.version>3.23.0</jline.version>
       <jansi.version>2.4.0</jansi.version>
       <jakarta.activation-api.version>1.2.2</jakarta.activation-api.version>
