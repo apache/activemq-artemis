@@ -272,7 +272,7 @@ public class Create extends InstallAbstract {
    @Option(names = "--jdbc", description = "Store message data in JDBC instead of local files.")
    boolean jdbc;
 
-   @Option(names = "--staticCluster", description = "Cluster node connectors list separated by comma, e.g. \"tcp://server:61616,tcp://server2:61616,tcp://server3:61616\".")
+   @Option(names = {"--staticCluster", "--static-cluster"}, description = "Cluster node connectors list separated by comma, e.g. \"tcp://server:61616,tcp://server2:61616,tcp://server3:61616\".")
    String staticNode;
 
    @Option(names = "--support-advisory", description = "Support advisory messages for the OpenWire protocol.")

@@ -386,7 +386,7 @@
                         <arg>--java-options</arg>
                         <arg>-Djava.rmi.server.hostname=localhost</arg>
                         <arg>--clustered</arg>
-                        <arg>--staticCluster</arg>
+                        <arg>--static-cluster</arg>
                         <arg>tcp://localhost:61716</arg>
                         <arg>--queues</arg>
                         <arg>ClusteredLargeMessageInterruptTest</arg>
@@ -414,7 +414,7 @@
                         <arg>--java-options</arg>
                         <arg>-Djava.rmi.server.hostname=localhost</arg>
                         <arg>--clustered</arg>
-                        <arg>--staticCluster</arg>
+                        <arg>--static-cluster</arg>
                         <arg>tcp://localhost:61616</arg>
                         <arg>--queues</arg>
                         <arg>ClusteredLargeMessageInterruptTest</arg>

@@ -200,7 +200,7 @@ public class ArtemisCreatePlugin extends ArtemisAbstractPlugin {
       }
 
       if (staticCluster != null) {
-         add(listCommands, "--staticCluster", staticCluster);
+         add(listCommands, "--static-cluster", staticCluster);
       }
 
       if (!javaOptions.isEmpty()) {
