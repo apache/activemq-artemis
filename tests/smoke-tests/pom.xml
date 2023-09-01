@@ -1199,7 +1199,7 @@
                         <arg>--name</arg>
                         <arg>cluster1</arg>
                         <arg>--clustered</arg>
-                        <arg>--staticCluster</arg>
+                        <arg>--static-cluster</arg>
                         <arg>tcp://localhost:61716</arg>
                         <arg>--max-hops</arg>
                         <arg>1</arg>
@@ -1227,7 +1227,7 @@
                         <arg>--name</arg>
                         <arg>cluster2</arg>
                         <arg>--clustered</arg>
-                        <arg>--staticCluster</arg>
+                        <arg>--static-cluster</arg>
                         <arg>tcp://localhost:61616</arg>
                         <arg>--max-hops</arg>
                         <arg>1</arg>

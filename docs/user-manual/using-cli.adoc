@@ -113,7 +113,7 @@ Usage: artemis create [--aio] [--allow-anonymous] [--autocreate] [--autodelete]
                       [--ssl-key-password=<sslKeyPassword>]
                       [--ssl-trust=<sslTrust>]
                       [--ssl-trust-password=<sslTrustPassword>]
-                      [--staticCluster=<staticNode>] [--user=<user>]
+                      [--static-cluster=<staticNode>] [--user=<user>]
                       [--java-options=<javaOptions>]... <directory>
 Create a new broker instance.
       <directory>            The instance directory to hold the broker's
@@ -257,7 +257,7 @@ Create a new broker instance.
                                authentication.
       --ssl-trust-password=<sslTrustPassword>
                              The trust store's password.
-      --staticCluster=<staticNode>
+      --static-cluster=<staticNode>
                              Cluster node connectors list separated by comma, e.
                                g. "tcp://server:61616,tcp://server2:61616,tcp:
                                //server3:61616".
