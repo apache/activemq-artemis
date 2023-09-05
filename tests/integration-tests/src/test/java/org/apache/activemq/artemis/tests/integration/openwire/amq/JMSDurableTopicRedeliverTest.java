@@ -20,6 +20,10 @@ import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import java.util.Map;
+
+import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,6 +37,19 @@ public class JMSDurableTopicRedeliverTest extends JmsTopicRedeliverTest {
    public void setUp() throws Exception {
       durable = true;
       super.setUp();
+   }
+
+   @Override
+   public boolean isExclusive(SimpleString name) {
+      // JMSXDeliveryCount count depends on order
+      return true;
+   }
+
+   @Override
+   protected void configureAddressSettings(Map<String, AddressSettings> addressSettingsMap) {
+      super.configureAddressSettings(addressSettingsMap);
+      // for auto created topic sub queues
+      addressSettingsMap.get("#").setDefaultExclusiveQueue(true);
    }
 
    /**

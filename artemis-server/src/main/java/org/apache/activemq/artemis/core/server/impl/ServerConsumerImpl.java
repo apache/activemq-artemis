@@ -656,6 +656,7 @@ public class ServerConsumerImpl implements ServerConsumer, ReadyListener {
          browserDeliverer.close();
       } else {
          messageQueue.removeConsumer(this);
+         messageQueue.deliverAsync();
       }
 
       session.removeConsumer(id);

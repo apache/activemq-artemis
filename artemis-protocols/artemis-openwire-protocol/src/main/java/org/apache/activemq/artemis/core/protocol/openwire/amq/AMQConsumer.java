@@ -446,7 +446,7 @@ public class AMQConsumer {
          // treat as delivered
          return true;
       }
-      if (ref.getMessageID() <= info.getLastDeliveredSequenceId() && !isRolledBack(ref)) {
+      if (ref.getQueue().isExclusive() && ref.getMessageID() <= info.getLastDeliveredSequenceId() && !isRolledBack(ref)) {
          // treat as delivered
          return true;
       }

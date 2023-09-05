@@ -150,13 +150,14 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
             TextMessage messageReceived = null;
             for (int j = 0; j < batch; j++) { // a small batch
                messageReceived = (TextMessage) messageConsumer.receive(5000);
-               Assert.assertNotNull("null @ i=" + i, messageReceived);
+               Assert.assertNotNull("null @ i=" + i + ", j=" + j, messageReceived);
                Assert.assertEquals(i + j, messageReceived.getIntProperty("SEQ"));
 
                assertEquals("This is a text message", messageReceived.getText());
             }
             session.commit();
 
+            // force a local socket close such that the broker sees an exception on the connection and fails the consumer via close
             ((FailoverTransport)((org.apache.activemq.ActiveMQConnection)exConn).getTransport().narrow(FailoverTransport.class)).stop();
             exConn.close();
          }

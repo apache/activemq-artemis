@@ -67,20 +67,24 @@ public class BasicOpenWireTest extends OpenWireTestBase {
       System.setProperty("org.apache.activemq.transport.AbstractInactivityMonitor.keepAliveTime", "5");
       createFactories();
       SimpleString coreQueue = new SimpleString(queueName);
-      this.server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(new QueueConfiguration(coreQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(isExclusive(coreQueue)));
       testQueues.put(queueName, coreQueue);
 
       SimpleString coreQueue2 = new SimpleString(queueName2);
-      this.server.createQueue(new QueueConfiguration(coreQueue2).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(new QueueConfiguration(coreQueue2).setRoutingType(RoutingType.ANYCAST).setExclusive(isExclusive(coreQueue2)));
       testQueues.put(queueName2, coreQueue2);
 
       SimpleString durableQueue = new SimpleString(durableQueueName);
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST));
+      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(isExclusive(durableQueue)));
       testQueues.put(durableQueueName, durableQueue);
 
       if (!enableSecurity) {
          connection = (ActiveMQConnection) factory.createConnection();
       }
+   }
+
+   protected boolean isExclusive(SimpleString coreQueue) {
+      return false;
    }
 
    protected void createFactories() {

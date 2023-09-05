@@ -3,7 +3,7 @@
 :idseparator: -
 
 Apache ActiveMQ Artemis supports the http://activemq.apache.org/openwire.html[OpenWire] protocol so that an Apache ActiveMQ "Classic" JMS client can talk directly to an Apache ActiveMQ Artemis server.
-By default there is an `acceptor` configured to accept OpenWire connections on port `61616`.
+By default, there is an `acceptor` configured to accept OpenWire connections on port `61616`.
 
 See the general xref:protocols-interoperability.adoc#protocols-and-interoperability[Protocols and Interoperability] chapter for details on configuring an `acceptor` for OpenWire.
 
@@ -24,9 +24,9 @@ Default value is 10000.
 
 useInactivityMonitor::
 A value of false disables the InactivityMonitor completely and connections will never time out.
-By default it is enabled.
+By default, it is enabled.
 On broker side you don't neet set this.
-Instead you can set the connection-ttl to -1.
+Instead, you can set the connection-ttl to -1.
 
 useKeepAlive::
 Indicates whether to send a KeepAliveInfo on an idle connection to prevent it from timing out.
@@ -66,6 +66,17 @@ The two parameters are configured on an OpenWire `acceptor`, e.g.:
 <acceptor name="artemis">tcp://localhost:61616?protocols=OPENWIRE;supportAdvisory=true;suppressInternalManagementObjects=false</acceptor>
 ----
 
+== OpenWire message JMSXDeliveryCount and JMSRedelivered require an exclusive queue
+
+For non-transactional, well-behaved consumers in normal operation, prefetched messages in OpenWire can have their delivery
+count metric managed based on the lastDeliveredSequenceId propagated on the OpenWire ConsumerClose command. This value
+reflects the minimum sequence of an ordered list of prefetched messages that has been delivered by the client library to the application.
+This value allows the broker to retain the delivered count on messages that have actually been delivered by the client library.
+A prerequisite for this logic is that the broker dispatches an ordered list to the consumer, a prerequisite that only holds when
+the queue is marked as xref:exclusive-queues.adoc#exclusive-queues[exclusive]. If your OpenWire based application depends on the values
+of these message properties, then you need to configure the dependent queues as exclusive.
+For non-exclusive queues, prefetched messages outside a transaction are not considered delivered in normal operation.
+
 == OpenWire Destination Cache
 
 For improved performance of the broker we keep a cache of recently used destinations, so that when new messages are dispatched to them, we do not have to do a lookup every time.
@@ -83,7 +94,7 @@ This cache has to be set to a power of 2, i.e.: `2`, `16`, `128` and so on.
 == Virtual Topic Consumer Destination Translation
 
 For existing OpenWire consumers of virtual topic destinations it is possible to configure a mapping function that will translate the virtual topic consumer destination into a FQQN address.
-This address will then represents the consumer as a multicast binding to an address representing the virtual topic.
+This address will then represent the consumer as a multicast binding to an address representing the virtual topic.
 
 The configuration string list property `virtualTopicConsumerWildcards` has parts separated by a `;`.
 The first is the classic style destination filter that identifies the destination as belonging to a virtual topic.

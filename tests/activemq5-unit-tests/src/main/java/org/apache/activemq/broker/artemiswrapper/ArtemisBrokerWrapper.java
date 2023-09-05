@@ -87,6 +87,7 @@ public class ArtemisBrokerWrapper extends ArtemisBrokerBase {
       AddressSettings commonSettings = addressSettingsMap.get(match);
       if (commonSettings == null) {
          commonSettings = new AddressSettings();
+         commonSettings.setDefaultExclusiveQueue(true); // for JMSRedeliveryCount calculations
          addressSettingsMap.put(match, commonSettings);
       }
       SimpleString dla = new SimpleString("ActiveMQ.DLQ");

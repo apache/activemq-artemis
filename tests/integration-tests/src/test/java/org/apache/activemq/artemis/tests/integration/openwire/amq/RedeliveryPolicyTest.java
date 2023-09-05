@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.server.ServerConsumer;
 import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.api.core.management.QueueControl;
 import org.apache.activemq.artemis.api.core.management.ResourceNames;
+import org.apache.activemq.artemis.core.settings.impl.AddressSettings;
 import org.apache.activemq.artemis.tests.integration.openwire.BasicOpenWireTest;
 import org.apache.activemq.artemis.tests.util.Wait;
 import org.apache.activemq.broker.region.policy.RedeliveryPolicyMap;
@@ -53,6 +54,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
       // making data persistent makes it easier to debug it with print-data
       this.realStore = true;
       super.setUp();
+      server.getAddressSettingsRepository().addMatch("TEST_EXCLUSIVE", new AddressSettings().setDefaultExclusiveQueue(true));
    }
 
    @Test
@@ -778,9 +780,9 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
          Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-         this.makeSureCoreQueueExist("TEST");
+         this.makeSureCoreQueueExist("TEST_EXCLUSIVE");
 
-         Queue queue = session.createQueue("TEST");
+         Queue queue = session.createQueue("TEST_EXCLUSIVE");
 
          MessageProducer producer = session.createProducer(queue);
 
@@ -800,7 +802,7 @@ public class RedeliveryPolicyTest extends BasicOpenWireTest {
 
             Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
-            Queue queue = session.createQueue("TEST");
+            Queue queue = session.createQueue("TEST_EXCLUSIVE");
 
             MessageConsumer consumer = session.createConsumer(queue);
 
