@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -232,7 +233,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
    protected final Map<String, PersistedRole> mapPersistedRoles = new ConcurrentHashMap<>();
 
-   protected final Map<String, Map<String, PersistedKeyValuePair>> mapPersistedKeyValuePairs = new ConcurrentHashMap<>();
+   protected final ConcurrentMap<String, ConcurrentMap<String, PersistedKeyValuePair>> mapPersistedKeyValuePairs = new ConcurrentHashMap<>();
 
    protected final ConcurrentLongHashMap<LargeServerMessage> largeMessagesToDelete = new ConcurrentLongHashMap<>();
 
@@ -891,12 +892,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
          final long id = idGenerator.generateID();
          persistedKeyValuePair.setStoreId(id);
          bindingsJournal.appendAddRecord(id, JournalRecordIds.KEY_VALUE_PAIR_RECORD, persistedKeyValuePair, true);
-         Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(persistedKeyValuePair.getMapId());
-         if (persistedKeyValuePairs == null) {
-            persistedKeyValuePairs = new HashMap<>();
-            mapPersistedKeyValuePairs.put(persistedKeyValuePair.getMapId(), persistedKeyValuePairs);
-         }
-         persistedKeyValuePairs.put(persistedKeyValuePair.getKey(), persistedKeyValuePair);
+         insertPersistedKeyValuePair(persistedKeyValuePair);
       }
    }
 
@@ -1658,12 +1654,7 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
                mapPersistedRoles.put(role.getUsername(), role);
             } else if (rec == JournalRecordIds.KEY_VALUE_PAIR_RECORD) {
                PersistedKeyValuePair keyValuePair = newKeyValuePairEncoding(id, buffer);
-               Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(keyValuePair.getMapId());
-               if (persistedKeyValuePairs == null) {
-                  persistedKeyValuePairs = new HashMap<>();
-                  mapPersistedKeyValuePairs.put(keyValuePair.getMapId(), persistedKeyValuePairs);
-               }
-               persistedKeyValuePairs.put(keyValuePair.getKey(), keyValuePair);
+               insertPersistedKeyValuePair(keyValuePair);
             } else if (rec == JournalRecordIds.CONNECTOR_RECORD) {
                PersistedConnector connector = newConnectorEncoding(id, buffer);
                mapPersistedConnectors.put(connector.getName(), connector);
@@ -1688,6 +1679,18 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
       idGenerator.cleanup();
 
       return bindingsInfo;
+   }
+
+   private void insertPersistedKeyValuePair(final PersistedKeyValuePair keyValuePair) {
+      Map<String, PersistedKeyValuePair> persistedKeyValuePairs = mapPersistedKeyValuePairs.get(keyValuePair.getMapId());
+      if (persistedKeyValuePairs == null) {
+         ConcurrentMap<String, PersistedKeyValuePair> newMap = new ConcurrentHashMap<>();
+         Map<String, PersistedKeyValuePair> existingMap = mapPersistedKeyValuePairs.putIfAbsent(keyValuePair.getMapId(), newMap);
+
+         persistedKeyValuePairs = existingMap == null ? newMap : existingMap;
+      }
+
+      persistedKeyValuePairs.put(keyValuePair.getKey(), keyValuePair);
    }
 
    @Override
