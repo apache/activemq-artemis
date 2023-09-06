@@ -55,11 +55,20 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
    }
 
    @Test(timeout = 60_000)
-   public void testConsumerSingleMessageLoop() throws Exception {
+   public void testConsumerSingleMessageLoopExclusive() throws Exception {
+      doTestConsumerSingleMessageLoop(true);
+   }
+
+   @Test(timeout = 60_000)
+   public void testConsumerSingleMessageLoopNonExclusive() throws Exception {
+      doTestConsumerSingleMessageLoop(false);
+   }
+
+   public void  doTestConsumerSingleMessageLoop(boolean exclusive) throws Exception {
       Connection exConn = null;
 
       SimpleString durableQueue = new SimpleString("exampleQueue");
-      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(true));
+      this.server.createQueue(new QueueConfiguration(durableQueue).setRoutingType(RoutingType.ANYCAST).setExclusive(exclusive));
 
       try {
          ActiveMQConnectionFactory exFact = new ActiveMQConnectionFactory();
@@ -157,6 +166,7 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
             }
             session.commit();
 
+            // force a local socket close such that the broker sees an exception on the connection and fails the consumer via close
             ((FailoverTransport)((org.apache.activemq.ActiveMQConnection)exConn).getTransport().narrow(FailoverTransport.class)).stop();
             exConn.close();
          }

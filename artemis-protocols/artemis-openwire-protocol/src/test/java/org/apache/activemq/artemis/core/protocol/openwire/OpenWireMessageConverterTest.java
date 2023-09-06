@@ -73,7 +73,7 @@ public class OpenWireMessageConverterTest {
          AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
          Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
 
-         MessageDispatch dispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, msg, openWireFormat, amqConsumer, nodeUUID);
+         MessageDispatch dispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, msg, openWireFormat, amqConsumer, nodeUUID, i);
 
          MessageId messageId = dispatch.getMessage().getMessageId();
          assertFalse(mqMessageAuditNoSync.isDuplicate(messageId));
@@ -95,7 +95,7 @@ public class OpenWireMessageConverterTest {
          AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
          Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
 
-         MessageDispatch dispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, msg, openWireFormat, amqConsumer, nodeUUID);
+         MessageDispatch dispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, msg, openWireFormat, amqConsumer, nodeUUID, i);
 
          MessageId messageId = dispatch.getMessage().getMessageId();
          assertFalse(mqMessageAuditNoSync.isDuplicate(messageId));
@@ -114,7 +114,7 @@ public class OpenWireMessageConverterTest {
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
 
-      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
 
       assertTrue(messageDispatch.getMessage().getProperty(bytesPropertyKey) instanceof String);
    }
@@ -130,7 +130,7 @@ public class OpenWireMessageConverterTest {
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
 
-      MessageDispatch marshalled = (MessageDispatch) openWireFormat.unmarshal(openWireFormat.marshal(OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID)));
+      MessageDispatch marshalled = (MessageDispatch) openWireFormat.unmarshal(openWireFormat.marshal(OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0)));
       assertEquals(5, marshalled.getMessage().getProperties().keySet().size());
       Message converted = OpenWireMessageConverter.inbound(marshalled.getMessage(), openWireFormat, null);
       for (int i = 0; i < 5; i++) {
@@ -161,7 +161,7 @@ public class OpenWireMessageConverterTest {
       MessageReference messageReference = new MessageReferenceImpl(artemisMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
-      MessageDispatch classicMessageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, (ICoreMessage) artemisMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch classicMessageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, (ICoreMessage) artemisMessage, openWireFormat, amqConsumer, nodeUUID, 0);
       assertEquals(PRODUCER_ID, classicMessageDispatch.getMessage().getProducerId().toString());
    }
 
@@ -178,7 +178,7 @@ public class OpenWireMessageConverterTest {
       MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
-      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
       assertEquals(PRODUCER_ID, messageDispatch.getMessage().getProducerId().toString());
    }
 
@@ -194,7 +194,7 @@ public class OpenWireMessageConverterTest {
       MessageReference messageReference = new MessageReferenceImpl(artemisMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
-      MessageDispatch classicMessageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, (ICoreMessage) artemisMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch classicMessageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, (ICoreMessage) artemisMessage, openWireFormat, amqConsumer, nodeUUID, 0);
       assertEquals(MESSAGE_ID, classicMessageDispatch.getMessage().getMessageId().toString());
    }
 
@@ -211,7 +211,7 @@ public class OpenWireMessageConverterTest {
       MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
-      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
       assertEquals(MESSAGE_ID, messageDispatch.getMessage().getMessageId().toString());
    }
 
@@ -228,7 +228,7 @@ public class OpenWireMessageConverterTest {
       MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
-      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
       assertEquals("queue://" + DESTINATION, messageDispatch.getMessage().getOriginalDestination().toString());
    }
 
@@ -245,7 +245,7 @@ public class OpenWireMessageConverterTest {
       MessageReference messageReference = new MessageReferenceImpl(coreMessage, Mockito.mock(Queue.class));
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
-      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
       assertEquals("queue://" + DESTINATION, messageDispatch.getMessage().getReplyTo().toString());
    }
 
@@ -269,7 +269,7 @@ public class OpenWireMessageConverterTest {
       AMQConsumer amqConsumer = Mockito.mock(AMQConsumer.class);
       Mockito.when(amqConsumer.getOpenwireDestination()).thenReturn(destination);
 
-      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID);
+      MessageDispatch messageDispatch = OpenWireMessageConverter.createMessageDispatch(messageReference, coreMessage, openWireFormat, amqConsumer, nodeUUID, 0);
 
       assertNull(messageDispatch.getMessage().getProperty(hdrArrival));
       assertNull(messageDispatch.getMessage().getProperty(hdrBrokerInTime));

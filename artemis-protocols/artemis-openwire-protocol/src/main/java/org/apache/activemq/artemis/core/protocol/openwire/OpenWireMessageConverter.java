@@ -481,15 +481,16 @@ public final class OpenWireMessageConverter {
    public static MessageDispatch createMessageDispatch(MessageReference reference,
                                                        ICoreMessage message,
                                                        WireFormat marshaller,
-                                                       AMQConsumer consumer, UUID serverNodeUUID) throws IOException {
+                                                       AMQConsumer consumer,
+                                                       UUID serverNodeUUID,
+                                                       long consumerDeliverySequenceId) throws IOException {
       ActiveMQMessage amqMessage = toAMQMessage(reference, message, marshaller, consumer, serverNodeUUID);
 
-      //we can use core message id for sequenceId
-      amqMessage.getMessageId().setBrokerSequenceId(message.getMessageID());
+      amqMessage.getMessageId().setBrokerSequenceId(consumerDeliverySequenceId);
       MessageDispatch md = new MessageDispatch();
       md.setConsumerId(consumer.getId());
       md.setRedeliveryCounter(reference.getDeliveryCount() - 1);
-      md.setDeliverySequenceId(amqMessage.getMessageId().getBrokerSequenceId());
+      md.setDeliverySequenceId(consumerDeliverySequenceId);
       md.setMessage(amqMessage);
       ActiveMQDestination destination = amqMessage.getDestination();
       md.setDestination(destination);
