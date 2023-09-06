@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -81,6 +82,7 @@ public class AMQConsumer {
    private boolean internalAddress = false;
    private volatile Set<MessageReference> rolledbackMessageRefs;
    private ScheduledFuture<?> delayedDispatchPrompter;
+   private AtomicLong deliveredSequenceId = new AtomicLong(0);
 
    public AMQConsumer(AMQSession amqSession,
                       org.apache.activemq.command.ActiveMQDestination d,
@@ -292,7 +294,7 @@ public class AMQConsumer {
             message.removeProperty(MessageUtil.CONNECTION_ID_PROPERTY_NAME);
          }
          //handleDeliver is performed by an executor (see JBPAPP-6030): any AMQConsumer can share the session.wireFormat()
-         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this, session.getCoreServer().getNodeManager().getUUID());
+         dispatch = OpenWireMessageConverter.createMessageDispatch(reference, message, session.wireFormat(), this, session.getCoreServer().getNodeManager().getUUID(), deliveredSequenceId.getAndIncrement());
          int size = dispatch.getMessage().getSize();
          reference.setProtocolData(MessageId.class, dispatch.getMessage().getMessageId());
          session.deliverMessage(dispatch);
@@ -446,7 +448,7 @@ public class AMQConsumer {
          // treat as delivered
          return true;
       }
-      if (ref.getMessageID() <= info.getLastDeliveredSequenceId() && !isRolledBack(ref)) {
+      if (ref.getProtocolData(MessageId.class).getBrokerSequenceId() <= info.getLastDeliveredSequenceId() && !isRolledBack(ref)) {
          // treat as delivered
          return true;
       }
