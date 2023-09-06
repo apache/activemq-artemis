@@ -1234,6 +1234,9 @@ public abstract class AbstractJournalStorageManager extends CriticalComponentImp
 
                      if (sub != null) {
                         sub.getCounter().loadValue(record.id, encoding.getValue(), encoding.getPersistentSize());
+                        if (encoding.getValue() > 0) {
+                           sub.notEmpty();
+                        }
                      } else {
                         ActiveMQServerLogger.LOGGER.journalCannotFindQueueReloadingPage(encoding.getQueueID());
                         messageJournal.tryAppendDeleteRecord(record.id, this::recordNotFoundCallback, false);
