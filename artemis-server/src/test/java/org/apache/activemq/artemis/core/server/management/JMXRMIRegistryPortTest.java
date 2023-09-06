@@ -31,7 +31,7 @@ public class JMXRMIRegistryPortTest extends ActiveMQTestBase {
    public void explicitLocalhostRegistry() throws IOException {
       RmiRegistryFactory registryFactory = new RmiRegistryFactory();
       registryFactory.setHost("localhost");
-      registryFactory.setPort(1099);
+      registryFactory.setPort(0);
       registryFactory.init();
       runAfter(registryFactory::destroy);
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {
@@ -43,7 +43,7 @@ public class JMXRMIRegistryPortTest extends ActiveMQTestBase {
    public void unlimitedHostRegistry() throws IOException {
       RmiRegistryFactory registryFactory = new RmiRegistryFactory();
       registryFactory.setHost(null);
-      registryFactory.setPort(1099);
+      registryFactory.setPort(0);
       registryFactory.init();
       runAfter(registryFactory::destroy);
       try (ServerSocket testSocket = registryFactory.createTestSocket()) {

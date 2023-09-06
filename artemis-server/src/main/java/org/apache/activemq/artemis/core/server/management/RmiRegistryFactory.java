@@ -63,7 +63,7 @@ public class RmiRegistryFactory {
     * Create a server socket for testing purposes.
     */
    ServerSocket createTestSocket() throws IOException {
-      return socketFactory.createServerSocket(1100);
+      return socketFactory.createServerSocket(0);
    }
 
    public Object getObject() throws Exception {
