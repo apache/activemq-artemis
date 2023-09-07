@@ -18,15 +18,22 @@ package org.apache.activemq.artemis.protocol.amqp.proton;
 
 import java.util.AbstractMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.qpid.proton.amqp.DescribedType;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
+import org.apache.qpid.proton.engine.Link;
 
 /**
  * Set of useful methods and definitions used in the AMQP protocol handling
  */
 public class AmqpSupport {
+
+   // Key used to add a Runnable initializer to a link that the broker has opened
+   // which will be called when the remote responds to the broker outgoing Attach
+   // with its own Attach response.
+   public static final Object AMQP_LINK_INITIALIZER_KEY = Runnable.class;
 
    // Default thresholds/values used for granting credit to producers
    public static final int AMQP_CREDITS_DEFAULT = 1000;
@@ -39,6 +46,7 @@ public class AmqpSupport {
    public static final boolean AMQP_USE_MODIFIED_FOR_TRANSIENT_DELIVERY_ERRORS = false;
 
    // Identification values used to locating JMS selector types.
+   public static final Symbol JMS_SELECTOR_KEY = Symbol.valueOf("jms-selector");
    public static final UnsignedLong JMS_SELECTOR_CODE = UnsignedLong.valueOf(0x0000468C00000004L);
    public static final Symbol JMS_SELECTOR_NAME = Symbol.valueOf("apache.org:selector-filter:string");
    public static final Object[] JMS_SELECTOR_FILTER_IDS = new Object[]{JMS_SELECTOR_CODE, JMS_SELECTOR_NAME};
@@ -67,6 +75,8 @@ public class AmqpSupport {
    public static final Symbol PLATFORM = Symbol.valueOf("platform");
    public static final Symbol RESOURCE_DELETED = Symbol.valueOf("amqp:resource-deleted");
    public static final Symbol CONNECTION_FORCED = Symbol.valueOf("amqp:connection:forced");
+   public static final Symbol DETACH_FORCED = Symbol.valueOf("amqp:link:detach-forced");
+   public static final Symbol NOT_FOUND = Symbol.valueOf("amqp:not-found");
    public static final Symbol SHARED_SUBS = Symbol.valueOf("SHARED-SUBS");
    public static final Symbol NETWORK_HOST = Symbol.valueOf("network-host");
    public static final Symbol PORT = Symbol.valueOf("port");
@@ -144,5 +154,94 @@ public class AmqpSupport {
       }
 
       return null;
+   }
+
+   private static final Symbol[] EMPTY_CAPABILITIES = new Symbol[0];
+
+   /**
+    * Verifies that the desired capabilities that were sent to the remote were indeed
+    * offered in return. If the remote has not offered a capability that was desired then
+    * the initiating resource should determine if the offered set is still acceptable or
+    * it should close the link and report the reason.
+    * <p>
+    * The remote could have offered more capabilities than the requested desired capabilities,
+    * this method does not validate that or consider that a failure.
+    *
+    * @param link
+    *    The link in question (Sender or Receiver).
+    *
+    * @return true if the remote offered all of the capabilities that were desired.
+    */
+   public static boolean verifyOfferedCapabilities(final Link link) {
+      return verifyOfferedCapabilities(link, link.getDesiredCapabilities());
+   }
+
+   /**
+    * Verifies that the given set of desired capabilities (which should be the full set of
+    * desired capabilities configured on the link or a subset of those values) are indeed
+    * offered in return. If the remote has not offered a capability that was desired then
+    * the initiating resource should determine if the offered set is still acceptable or
+    * it should close the link and report the reason.
+    * <p>
+    * The remote could have offered more capabilities than the requested desired capabilities,
+    * this method does not validate that or consider that a failure.
+    *
+    * @param link
+    *    The link in question (Sender or Receiver).
+    * @param capabilities
+    *    The capabilities that are required being checked for.
+    *
+    * @return true if the remote offered all of the capabilities that were desired.
+    */
+   public static boolean verifyOfferedCapabilities(final Link link, final Symbol... capabilities) {
+      final Symbol[] desiredCapabilites = capabilities == null ? EMPTY_CAPABILITIES : capabilities;
+      final Symbol[] remoteOfferedCapabilites =
+         link.getRemoteOfferedCapabilities() == null ? EMPTY_CAPABILITIES : link.getRemoteOfferedCapabilities();
+
+      for (Symbol desired : desiredCapabilites) {
+         boolean foundCurrent = false;
+
+         for (Symbol offered : remoteOfferedCapabilites) {
+            if (desired.equals(offered)) {
+               foundCurrent = true;
+               break;
+            }
+         }
+
+         if (!foundCurrent) {
+            return false;
+         }
+      }
+
+      return true;
+   }
+
+   /**
+    * Verifies that the given remote desired capability is present in the remote link details.
+    * <p>
+    * The remote could have desired more capabilities than the one given, this method does
+    * not validate that or consider that a failure.
+    *
+    * @param link
+    *    The link in question (Sender or Receiver).
+    * @param desiredCapability
+    *    The non-null capability that is being checked as being desired.
+    *
+    * @return true if the remote desired all of the capabilities that were given.
+    */
+   public static boolean verifyDesiredCapability(final Link link, final Symbol desiredCapability) {
+      Objects.requireNonNull(desiredCapability, "Desired capability to verifiy cannot be null");
+
+      if (link.getRemoteDesiredCapabilities() == null) {
+         return false;
+      }
+
+      for (Symbol capability : link.getRemoteDesiredCapabilities()) {
+         if (capability.equals(desiredCapability)) {
+            return true;
+         }
+      }
+
+      return false;
    }
 }

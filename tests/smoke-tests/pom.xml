@@ -1056,6 +1056,41 @@
                   </configuration>
                </execution>
 
+               <!-- used on DualFederationTest  -->
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerConnectFederationA</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>A</user>
+                     <password>A</password>
+                     <noWeb>true</noWeb>
+                     <instance>${basedir}/target/brokerConnect/federationA</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/federationA</configuration>
+                  </configuration>
+               </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>createBrokerConnectFederationB</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <role>amq</role>
+                     <allowAnonymous>true</allowAnonymous>
+                     <user>B</user>
+                     <password>B</password>
+                     <noWeb>true</noWeb>
+                     <portOffset>1</portOffset>
+                     <instance>${basedir}/target/brokerConnect/federationB</instance>
+                     <configuration>${basedir}/target/classes/servers/brokerConnect/federationB</configuration>
+                  </configuration>
+               </execution>
+
                <!-- used on MaxQueueResourceTest  -->
                <execution>
                   <phase>test-compile</phase>

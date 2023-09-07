@@ -40,32 +40,20 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
 
    protected final Receiver receiver;
 
-   /*
-    The maximum number of credits we will allocate to clients.
-    This number is also used by the broker when refresh client credits.
-    */
-   protected final int amqpCredits;
-
-   // Used by the broker to decide when to refresh clients credit.  This is not used when client requests credit.
-   protected final int minCreditRefresh;
-
    protected final int minLargeMessageSize;
 
-   final RoutingContext routingContext;
+   protected final RoutingContext routingContext;
 
    protected final AMQPSessionCallback sessionSPI;
 
    protected volatile AMQPLargeMessage currentLargeMessage;
-   /**
-    * We create this AtomicRunnable with setRan.
-    * This is because we always reuse the same instance.
-    * In case the creditRunnable was run, we reset and send it over.
-    * We set it as ran as the first one should always go through
-    */
+
    protected final Runnable creditRunnable;
+
    protected final boolean useModified;
 
    protected int pendingSettles = 0;
+
    public static boolean isBellowThreshold(int credit, int pending, int threshold) {
       return credit <= threshold - pending;
    }
@@ -82,10 +70,8 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       this.connection = connection;
       this.protonSession = protonSession;
       this.receiver = receiver;
-      this.amqpCredits = connection.getAmqpCredits();
-      this.minCreditRefresh = connection.getAmqpLowCredits();
-      this.minLargeMessageSize = connection.getProtocolManager().getAmqpMinLargeMessageSize();
-      this.creditRunnable = createCreditRunnable(amqpCredits, minCreditRefresh, receiver, connection, this);
+      this.minLargeMessageSize = getConfiguredMinLargeMessageSize(connection);
+      this.creditRunnable = createCreditRunnable(connection);
       useModified = this.connection.getProtocolManager().isUseModifiedForTransientDeliveryErrors();
       this.routingContext = new RoutingContextImpl(null).setDuplicateDetection(connection.getProtocolManager().isAmqpDuplicateDetection());
    }
@@ -93,7 +79,6 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    protected void recoverContext() {
       sessionSPI.recoverContext();
    }
-
 
    protected void clearLargeMessage() {
       connection.runNow(() -> {
@@ -109,10 +94,47 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       });
    }
 
-
+   /**
+    * Subclass can override this to provide a custom credit runnable that performs
+    * other checks or applies credit in a manner more fitting that implementation.
+    *
+    * @param connection
+    *       The {@link AMQPConnectionContext} that this resource falls under.
+    *
+    * @return a {@link Runnable} that will perform the actual credit granting operation.
+    */
+   protected Runnable createCreditRunnable(AMQPConnectionContext connection) {
+      return createCreditRunnable(connection.getAmqpCredits(), connection.getAmqpLowCredits(), receiver, connection, this);
+   }
 
    /**
-    * This Credit Runnable may be used in Mock tests to simulate the credit semantic here
+    * Subclass can override this to provide the minimum large message size that should
+    * be used when creating receiver instances.
+    *
+    * @param connection
+    *       The {@link AMQPConnectionContext} that this resource falls under.
+    *
+    * @return the minimum large message size configuration value for this receiver.
+    */
+   protected int getConfiguredMinLargeMessageSize(AMQPConnectionContext connection) {
+      return connection.getProtocolManager().getAmqpMinLargeMessageSize();
+   }
+
+   /**
+    * This Credit Runnable can be used to manage the credit replenishment of a target AMQP receiver.
+    *
+    * @param refill
+    *       The number of credit to top off the receiver to
+    * @param threshold
+    *       The low water mark for credit before refill is done
+    * @param receiver
+    *       The proton receiver that will have its credit refilled
+    * @param connection
+    *       The connection that own the receiver
+    * @param context
+    *       The context that will be associated with the receiver
+    *
+    * @return A new Runnable that can be used to keep receiver credit replenished.
     */
    public static Runnable createCreditRunnable(int refill,
                                                int threshold,
@@ -122,9 +144,22 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
       return new FlowControlRunner(refill, threshold, receiver, connection, context);
    }
 
-
    /**
-    * This Credit Runnable may be used in Mock tests to simulate the credit semantic here
+    * This Credit Runnable can be used to manage the credit replenishment of a target AMQP receiver.
+    * <p>
+    * This method is generally used for tests as it does not account for the receiver context that is
+    * assigned to the given receiver instance which does not allow for tracking pending settles.
+    *
+    * @param refill
+    *       The number of credit to top off the receiver to
+    * @param threshold
+    *       The low water mark for credit before refill is done
+    * @param receiver
+    *       The proton receiver that will have its credit refilled
+    * @param connection
+    *       The connection that own the receiver
+    *
+    * @return A new Runnable that can be used to keep receiver credit replenished.
     */
    public static Runnable createCreditRunnable(int refill,
                                                int threshold,
@@ -132,6 +167,7 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
                                                AMQPConnectionContext connection) {
       return new FlowControlRunner(refill, threshold, receiver, connection, null);
    }
+
    /**
     * The reason why we use the AtomicRunnable here
     * is because PagingManager will call Runnable in case it was blocked.
@@ -139,8 +175,17 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
     *  and this serves as a control to avoid duplicated calls
     * */
    static class FlowControlRunner implements Runnable {
+
+      /*
+       * The number of credits sent to the remote when the runnable decides that a top off is needed.
+       */
       final int refill;
+
+      /*
+       * The low water mark before the runnable considers performing a credit top off.
+       */
       final int threshold;
+
       final Receiver receiver;
       final AMQPConnectionContext connection;
       final ProtonAbstractReceiver context;
@@ -171,7 +216,6 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
                connection.instantFlush();
             }
          }
-
       }
    }
 
@@ -294,6 +338,10 @@ public abstract class ProtonAbstractReceiver extends ProtonInitializable impleme
    public void close(ErrorCondition condition) throws ActiveMQAMQPException {
       receiver.setCondition(condition);
       close(false);
+   }
+
+   public AMQPConnectionContext getConnection() {
+      return connection;
    }
 
    protected abstract void actualDelivery(AMQPMessage message, Delivery delivery, Receiver receiver, Transaction tx);

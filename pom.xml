@@ -129,6 +129,7 @@
       <!-- this is basically for tests -->
       <netty-tcnative-version>2.0.61.Final</netty-tcnative-version>
       <proton.version>0.34.1</proton.version>
+      <protonj2.version>1.0.0-M17</protonj2.version>
       <slf4j.version>1.7.36</slf4j.version>
       <log4j.version>2.20.0</log4j.version>
       <qpid.jms.version>1.10.0</qpid.jms.version>
@@ -235,6 +236,7 @@
 
       -->
 
+
       <activemq-surefire-argline>-Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0
          -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
@@ -243,6 +245,7 @@
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
       <skipOWASP>true</skipOWASP>
+      <proton.trace.frames>false</proton.trace.frames>
 
       <directory-version>2.0.0.AM25</directory-version>
       <directory-jdbm2-version>2.0.0-M1</directory-jdbm2-version>
@@ -726,6 +729,13 @@
             <groupId>org.apache.qpid</groupId>
             <artifactId>proton-j</artifactId>
             <version>${proton.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>org.apache.qpid</groupId>
+            <artifactId>protonj2-test-driver</artifactId>
+            <version>${protonj2.version}</version>
+            <scope>test</scope>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -1671,6 +1681,9 @@
                   <runOrder>alphabetical</runOrder>
                   <redirectTestOutputToFile>${maven.test.redirectTestOutputToFile}</redirectTestOutputToFile>
                   <argLine>${activemq-surefire-argline}</argLine>
+                  <environmentVariables>
+                     <PN_TRACE_FRM>${proton.trace.frames}</PN_TRACE_FRM>
+                  </environmentVariables>
                </configuration>
             </plugin>
             <plugin>

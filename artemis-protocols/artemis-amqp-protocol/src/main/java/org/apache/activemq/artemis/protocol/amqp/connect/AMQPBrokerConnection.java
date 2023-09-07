@@ -22,12 +22,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apache.activemq.artemis.api.core.ActiveMQException;
@@ -38,6 +41,9 @@ import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.postoffice.QueueBinding;
@@ -57,6 +63,8 @@ import org.apache.activemq.artemis.core.server.plugin.ActiveMQServerQueuePlugin;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ActiveMQProtonRemotingConnection;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationPolicySupport;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerAggregation;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
@@ -86,6 +94,10 @@ import org.apache.qpid.proton.engine.Sender;
 import org.apache.qpid.proton.engine.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyOfferedCapabilities;
+
 import java.lang.invoke.MethodHandles;
 
 public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, ActiveMQServerQueuePlugin, BrokerConnection {
@@ -103,12 +115,14 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    private volatile boolean started = false;
    private final AMQPBrokerConnectionManager bridgeManager;
    private AMQPMirrorControllerSource mirrorControllerSource;
+   private AMQPFederationSource brokerFederation;
    private int retryCounter = 0;
    private int lastRetryCounter;
    private boolean connecting = false;
-   private volatile ScheduledFuture reconnectFuture;
+   private volatile ScheduledFuture<?> reconnectFuture;
    private final Set<Queue> senders = new HashSet<>();
    private final Set<Queue> receivers = new HashSet<>();
+   private final Map<String, Predicate<Link>> linkClosedInterceptors = new ConcurrentHashMap<>();
 
    final Executor connectExecutor;
    final ScheduledExecutorService scheduledExecutorService;
@@ -153,6 +167,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       return connecting;
    }
 
+   public int getConnectionTimeout() {
+      return bridgesConnector.getConnectTimeoutMillis();
+   }
+
    @Override
    public void stop() {
       if (!started) return;
@@ -162,10 +180,16 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          protonRemotingConnection = null;
          connection = null;
       }
-      ScheduledFuture scheduledFuture = reconnectFuture;
+      ScheduledFuture<?> scheduledFuture = reconnectFuture;
       reconnectFuture = null;
       if (scheduledFuture != null) {
          scheduledFuture.cancel(true);
+      }
+      if (brokerFederation != null) {
+         try {
+            brokerFederation.stop();
+         } catch (ActiveMQException e) {
+         }
       }
    }
 
@@ -175,11 +199,14 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       started = true;
       server.getConfiguration().registerBrokerPlugin(this);
       try {
-
          if (brokerConnectConfiguration != null && brokerConnectConfiguration.getConnectionElements() != null) {
             for (AMQPBrokerConnectionElement connectionElement : brokerConnectConfiguration.getConnectionElements()) {
-               if (connectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR) {
+               final AMQPBrokerConnectionAddressType elementType = connectionElement.getType();
+
+               if (elementType == AMQPBrokerConnectionAddressType.MIRROR) {
                   installMirrorController((AMQPMirrorBrokerConnectionElement) connectionElement, server);
+               } else if (elementType == AMQPBrokerConnectionAddressType.FEDERATION) {
+                  installFederation((AMQPFederatedBrokerConnectionElement) connectionElement, server);
                }
             }
          }
@@ -188,6 +215,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          return;
       }
       connectExecutor.execute(() -> doConnect());
+   }
+
+   public ActiveMQServer getServer() {
+      return server;
    }
 
    public NettyConnection getConnection() {
@@ -204,7 +235,8 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
    }
 
    public void validateMatching(Queue queue, AMQPBrokerConnectionElement connectionElement) {
-      if (connectionElement.getType() != AMQPBrokerConnectionAddressType.MIRROR) {
+      if (connectionElement.getType() != AMQPBrokerConnectionAddressType.MIRROR &&
+          connectionElement.getType() != AMQPBrokerConnectionAddressType.FEDERATION) {
          if (connectionElement.getQueueName() != null) {
             if (queue.getName().equals(connectionElement.getQueueName())) {
                createLink(queue, connectionElement);
@@ -239,7 +271,44 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       return snf;
    }
 
+   /**
+    * Adds a remote link closed event interceptor that can intercept the closed event and if it
+    * returns true indicate that the close has been handled and that normal broker connection
+    * remote link closed handling should be ignored.
+    *
+    * @param id
+    *    A unique Id value that identifies the intercepter for later removal.
+    * @param interceptor
+    *    The predicate that will be called for any link close.
+    *
+    * @return this broker connection instance.
+    */
+   public AMQPBrokerConnection addLinkClosedInterceptor(String id, Predicate<Link> interceptor) {
+      linkClosedInterceptors.put(id, interceptor);
+      return this;
+   }
+
+   /**
+    * Remove a previously registered link close interceptor from the broker connection.
+    *
+    * @param id
+    *   The id of the interceptor to remove
+    *
+    * @return this broker connection instance.
+    */
+   public AMQPBrokerConnection removeLinkClosedInterceptor(String id) {
+      linkClosedInterceptors.remove(id);
+      return this;
+   }
+
    private void linkClosed(Link link) {
+      for (Map.Entry<String, Predicate<Link>> interceptor : linkClosedInterceptors.entrySet()) {
+         if (interceptor.getValue().test(link)) {
+            logger.trace("Remote link[{}] close intercepted and handled by interceptor: {}", link.getName(), interceptor.getKey());
+            return;
+         }
+      }
+
       if (link.getLocalState() == EndpointState.ACTIVE) {
          error(ActiveMQAMQPProtocolMessageBundle.BUNDLE.brokerConnectionRemoteLinkClosed(), lastRetryCounter);
       }
@@ -280,7 +349,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          ConnectionEntry entry = protonProtocolManager.createOutgoingConnectionEntry(connection, saslFactory);
          server.getRemotingService().addConnectionEntry(connection, entry);
          protonRemotingConnection = (ActiveMQProtonRemotingConnection) entry.connection;
-         protonRemotingConnection.getAmqpConnection().setLinkCloseListener(this::linkClosed);
+         protonRemotingConnection.getAmqpConnection().addLinkRemoteCloseListener(getName(), this::linkClosed);
 
          connection.getChannel().pipeline().addLast(new AMQPBrokerConnectionChannelHandler(bridgesConnector.getChannelGroup(), protonRemotingConnection.getAmqpConnection().getHandler(), this, server.getExecutorFactory().getExecutor()));
 
@@ -313,6 +382,10 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
                   connectSender(queue, queue.getName().toString(), mirrorControllerSource::setLink, (r) -> AMQPMirrorControllerSource.validateProtocolData(protonProtocolManager.getReferenceIDSupplier(), r, getMirrorSNF(replica)), server.getNodeID().toString(),
                                 new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY}, null);
+               } else if (connectionElement.getType() == AMQPBrokerConnectionAddressType.FEDERATION) {
+                  // Starting the Federation triggers rebuild of federation links
+                  // based on current broker state.
+                  brokerFederation.handleConnectionRestored(protonRemotingConnection.getAmqpConnection(), sessionContext);
                }
             }
          }
@@ -417,7 +490,6 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
       server.scanAddresses(newPartition);
 
-
       if (currentMirrorController == null) {
          server.installMirrorController(newPartition);
       } else {
@@ -443,6 +515,47 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       }
 
       return null;
+   }
+
+   private void installFederation(AMQPFederatedBrokerConnectionElement connectionElement, ActiveMQServer server) throws Exception {
+      final AMQPFederationSource federation = new AMQPFederationSource(connectionElement.getName(), connectionElement.getProperties(), this);
+
+      // Broker federation configuration for local resources that should be receiving from remote resources
+      // when there is local demand.
+      final Set<AMQPFederationAddressPolicyElement> localAddressPolicies = connectionElement.getLocalAddressPolicies();
+      if (!localAddressPolicies.isEmpty()) {
+         for (AMQPFederationAddressPolicyElement policy : localAddressPolicies) {
+            federation.addAddressMatchPolicy(
+               AMQPFederationPolicySupport.create(policy, federation.getWildcardConfiguration()));
+         }
+      }
+      final Set<AMQPFederationQueuePolicyElement> localQueuePolicies = connectionElement.getLocalQueuePolicies();
+      if (!localQueuePolicies.isEmpty()) {
+         for (AMQPFederationQueuePolicyElement policy : localQueuePolicies) {
+            federation.addQueueMatchPolicy(
+               AMQPFederationPolicySupport.create(policy, federation.getWildcardConfiguration()));
+         }
+      }
+
+      // Broker federation configuration for remote resources that should be receiving from local resources
+      // when there is demand on the remote.
+      final Set<AMQPFederationAddressPolicyElement> remoteAddressPolicies = connectionElement.getRemoteAddressPolicies();
+      if (!remoteAddressPolicies.isEmpty()) {
+         for (AMQPFederationAddressPolicyElement policy : remoteAddressPolicies) {
+            federation.addRemoteAddressMatchPolicy(
+               AMQPFederationPolicySupport.create(policy, federation.getWildcardConfiguration()));
+         }
+      }
+      final Set<AMQPFederationQueuePolicyElement> remoteQueuePolicies = connectionElement.getRemoteQueuePolicies();
+      if (!remoteQueuePolicies.isEmpty()) {
+         for (AMQPFederationQueuePolicyElement policy : remoteQueuePolicies) {
+            federation.addRemoteQueueMatchPolicy(
+               AMQPFederationPolicySupport.create(policy, federation.getWildcardConfiguration()));
+         }
+      }
+
+      this.brokerFederation = federation;
+      this.brokerFederation.start();
    }
 
    private void connectReceiver(ActiveMQProtonRemotingConnection protonRemotingConnection,
@@ -537,7 +650,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
             sender.open();
 
-            final ScheduledFuture futureTimeout;
+            final ScheduledFuture<?> futureTimeout;
 
             AtomicBoolean cancelled = new AtomicBoolean(false);
 
@@ -551,7 +664,7 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
             }
 
             // Using attachments to set up a Runnable that will be executed inside AMQPBrokerConnection::remoteLinkOpened
-            sender.attachments().set(Runnable.class, Runnable.class, () -> {
+            sender.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, () -> {
                ProtonServerSenderContext senderContext = new ProtonServerSenderContext(protonRemotingConnection.getAmqpConnection(), sender, sessionContext, sessionContext.getSessionSPI(), outgoingInitializer).setBeforeDelivery(beforeDeliver);
                try {
                   if (!cancelled.get()) {
@@ -596,30 +709,38 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
       });
    }
 
-   protected boolean verifyOfferedCapabilities(Sender sender, Symbol[] capabilities) {
-
-      if (sender.getRemoteOfferedCapabilities() == null) {
-         return false;
-      }
-
-      for (Symbol s : capabilities) {
-         boolean foundS = false;
-         for (Symbol b : sender.getRemoteOfferedCapabilities()) {
-            if (b.equals(s)) {
-               foundS = true;
-               break;
-            }
-         }
-         if (!foundS) {
-            return false;
-         }
-      }
-
-      return true;
+   public void error(Throwable e) {
+      error(e, 0);
    }
 
-   protected void error(Throwable e) {
-      error(e, 0);
+   /**
+    * Provides an error API for resources of the broker connection that
+    * encounter errors during the normal operation of the resource that
+    * represent a terminal outcome for the connection. The connection
+    * retry counter will be reset to zero for these types of errors as
+    * these indicate a connection interruption that should initiate the
+    * start of a reconnect cycle if reconnection is configured.
+    *
+    * @param error
+    *    The exception that describes the terminal connection error.
+    */
+   public void runtimeError(Throwable error) {
+      error(error, 0);
+   }
+
+   /**
+    * Provides an error API for resources of the broker connection that
+    * encounter errors during the connection / resource initialization
+    * phase that should constitute a terminal outcome for the connection.
+    * The connection retry counter will be incremented for these types of
+    * errors which can result in eventual termination of reconnect attempts
+    * when the limit is exceeded.
+    *
+    * @param error
+    *    The exception that describes the terminal connection error.
+    */
+   public void connectError(Throwable error) {
+      error(error, lastRetryCounter);
    }
 
    // the retryCounter is passed here
@@ -678,9 +799,17 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
 
    private void redoConnection() {
 
-      // avoiding retro-feeding an error call from the close after anyting else that happened.
+      // avoiding retro-feeding an error call from the close after anything else that happened.
       if (protonRemotingConnection != null) {
-         protonRemotingConnection.getAmqpConnection().setLinkCloseListener(null);
+         protonRemotingConnection.getAmqpConnection().clearLinkRemoteCloseListeners();
+      }
+
+      if (brokerFederation != null) {
+         try {
+            brokerFederation.handleConnectionDropped();
+         } catch (ActiveMQException e) {
+            logger.debug("Broker Federation on connection {} threw an error on stop before connection attempt", getName());
+         }
       }
 
       // we need to use the connectExecutor to initiate a redoConnection
@@ -828,5 +957,4 @@ public class AMQPBrokerConnection implements ClientConnectionLifeCycleListener, 
          return null;
       }
    }
-
 }

@@ -50,9 +50,9 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    private final ActiveMQServer server;
    private volatile boolean started = false;
 
-   List<AMQPBrokerConnectConfiguration> amqpConnectionsConfig;
-   List<AMQPBrokerConnection> amqpBrokerConnectionList;
-   ProtonProtocolManager protonProtocolManager;
+   private List<AMQPBrokerConnectConfiguration> amqpConnectionsConfig;
+   private List<AMQPBrokerConnection> amqpBrokerConnectionList;
+   private ProtonProtocolManager protonProtocolManager;
 
    public AMQPBrokerConnectionManager(ProtonProtocolManagerFactory factory, List<AMQPBrokerConnectConfiguration> amqpConnectionsConfig, ActiveMQServer server) {
       this.amqpConnectionsConfig = amqpConnectionsConfig;
@@ -67,7 +67,6 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
       }
 
       amqpBrokerConnectionList = new ArrayList<>();
-
 
       for (AMQPBrokerConnectConfiguration config : amqpConnectionsConfig) {
          NettyConnectorFactory factory = new NettyConnectorFactory().setServerConnector(true);
@@ -108,7 +107,6 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
    public void connectionCreated(ActiveMQComponent component, Connection connection, ClientProtocolManager protocol) {
    }
 
-
    @Override
    public void connectionDestroyed(Object connectionID) {
       for (AMQPBrokerConnection connection : amqpBrokerConnectionList) {
@@ -125,7 +123,6 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
             connection.connectionException(connectionID, me);
          }
       }
-
    }
 
    @Override
@@ -245,6 +242,4 @@ public class AMQPBrokerConnectionManager implements ActiveMQComponent, ClientCon
          return null;
       }
    }
-
-
 }

@@ -73,6 +73,7 @@ import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
 import org.apache.activemq.artemis.core.config.HAPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.StoreConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
 import org.apache.activemq.artemis.core.config.impl.ConfigurationImpl;
 import org.apache.activemq.artemis.core.config.impl.LegacyJMSConfiguration;
 import org.apache.activemq.artemis.core.config.storage.DatabaseStorageConfiguration;
@@ -2651,6 +2652,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public List<AMQPFederationBrokerPlugin> getBrokerAMQPFederationPlugins() {
+      return configuration.getBrokerAMQPFederationPlugins();
+   }
+
+   @Override
    public List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins() {
       return configuration.getBrokerResourcePlugins();
    }
@@ -2732,6 +2738,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    }
 
    @Override
+   public void callBrokerAMQPFederationPlugins(final ActiveMQPluginRunnable<AMQPFederationBrokerPlugin> pluginRun) throws ActiveMQException {
+      callBrokerPlugins(getBrokerAMQPFederationPlugins(), pluginRun);
+   }
+
+   @Override
    public void callBrokerResourcePlugins(final ActiveMQPluginRunnable<ActiveMQServerResourcePlugin> pluginRun) throws ActiveMQException {
       callBrokerPlugins(getBrokerResourcePlugins(), pluginRun);
    }
@@ -2806,6 +2817,11 @@ public class ActiveMQServerImpl implements ActiveMQServer {
    @Override
    public boolean hasBrokerFederationPlugins() {
       return !getBrokerFederationPlugins().isEmpty();
+   }
+
+   @Override
+   public boolean hasBrokerAMQPFederationPlugins() {
+      return !getBrokerAMQPFederationPlugins().isEmpty();
    }
 
    @Override
