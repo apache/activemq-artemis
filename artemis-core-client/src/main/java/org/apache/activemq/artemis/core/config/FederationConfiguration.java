@@ -73,8 +73,7 @@ public class FederationConfiguration implements Serializable {
       return federationPolicyMap;
    }
 
-   // strange spelling!, it allows a type match for singular of correct plural Policies from properties
-   public FederationConfiguration addQueuePolicie(FederationQueuePolicyConfiguration federationPolicy) {
+   public FederationConfiguration addQueuePolicy(FederationQueuePolicyConfiguration federationPolicy) {
       federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
       return this;
    }
@@ -83,7 +82,7 @@ public class FederationConfiguration implements Serializable {
       return federationPolicyMap;
    }
 
-   public FederationConfiguration addAddressPolicie(FederationAddressPolicyConfiguration federationPolicy) {
+   public FederationConfiguration addAddressPolicy(FederationAddressPolicyConfiguration federationPolicy) {
       federationPolicyMap.put(federationPolicy.getName(), federationPolicy);
       return this;
    }

@@ -2047,6 +2047,7 @@
             <xsd:element name="receiver" type="amqp-address-match-type"/>
             <xsd:element name="peer" type="amqp-address-match-type"/>
             <xsd:element name="mirror" type="amqp-mirror-type"/>
+            <xsd:element name="federation" type="amqp-federation-type"/>
          </xsd:choice>
       </xsd:sequence>
       <xsd:attribute name="uri" type="xsd:string" use="required">
@@ -2173,6 +2174,102 @@
          </xsd:annotation>
       </xsd:attribute>
 
+   </xsd:complexType>
+
+   <xsd:complexType name="amqp-federation-type">
+      <xsd:annotation>
+         <xsd:documentation>
+            This create a federation between this broker and the remote that is being
+            connected to, federation can occur in either direction over this connection
+            depending on the address and queue policy configurations.
+         </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence minOccurs="1" maxOccurs="unbounded">
+         <xsd:choice maxOccurs="unbounded">
+            <xsd:element name="local-queue-policy" type="amqpFederationQueuePolicyType" />
+            <xsd:element name="local-address-policy" type="amqpFederationAddressPolicyType" />
+            <xsd:element name="remote-queue-policy" type="amqpFederationQueuePolicyType" />
+            <xsd:element name="remote-address-policy" type="amqpFederationAddressPolicyType" />
+         </xsd:choice>
+          <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded">
+             <xsd:annotation>
+                <xsd:documentation>
+                   Optional properties that can be applied to the federation configuration
+                </xsd:documentation>
+             </xsd:annotation>
+          </xsd:element>
+      </xsd:sequence>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqpFederationQueuePolicyType">
+      <xsd:sequence>
+         <xsd:element name="include" type="queueMatchType" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="exclude" type="queueMatchType" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Optional properties that can be applied to the Queue federation policy
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:choice minOccurs="0" maxOccurs="1">
+            <xsd:element name="transformer-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     an optional class name of a transformer
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="transformer" type="transformerType" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     optional transformer configuration
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:choice>
+      </xsd:sequence>
+      <xsd:attribute name="priority-adjustment" type="xsd:int" use="optional" />
+      <xsd:attribute name="include-federated" type="xsd:boolean" use="optional" />
+      <xsd:attribute name="name" type="xsd:ID" use="required" />
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
+   </xsd:complexType>
+
+   <xsd:complexType name="amqpFederationAddressPolicyType">
+      <xsd:sequence>
+         <xsd:element name="include" type="addressMatchType" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="exclude" type="addressMatchType" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Optional properties that can be applied to the Address federation policy
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:choice minOccurs="0" maxOccurs="1">
+            <xsd:element name="transformer-class-name" type="xsd:string" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     an optional class name of a transformer
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="transformer" type="transformerType" minOccurs="0" maxOccurs="1">
+               <xsd:annotation>
+                  <xsd:documentation>
+                     optional transformer configuration
+                  </xsd:documentation>
+               </xsd:annotation>
+            </xsd:element>
+         </xsd:choice>
+      </xsd:sequence>
+      <xsd:attribute name="auto-delete" type="xsd:boolean" use="optional" />
+      <xsd:attribute name="auto-delete-delay" type="xsd:long" use="optional" />
+      <xsd:attribute name="auto-delete-message-count" type="xsd:long" use="optional" />
+      <xsd:attribute name="max-hops" type="xsd:int" use="optional" />
+      <xsd:attribute name="name" type="xsd:ID" use="required" />
+      <xsd:attribute name="enable-divert-bindings" type="xsd:boolean" use="optional" />
+      <xsd:attributeGroup ref="xml:specialAttrs"/>
    </xsd:complexType>
 
    <xsd:complexType name="cluster-connectionUriType">

@@ -108,6 +108,11 @@ public class ProtonHandler extends ProtonInitializable implements SaslListener {
    private Runnable afterFlush;
    protected Set<Runnable> afterFlushSet;
 
+   @Override
+   public void initialize() throws Exception {
+      initialized = true;
+   }
+
    public void afterFlush(Runnable runnable) {
       requireHandler();
       if (afterFlush == null) {

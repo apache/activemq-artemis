@@ -35,6 +35,7 @@ import org.apache.activemq.artemis.core.config.BridgeConfiguration;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.config.DivertConfiguration;
 import org.apache.activemq.artemis.core.config.FederationConfiguration;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationBrokerPlugin;
 import org.apache.activemq.artemis.core.io.IOCriticalErrorListener;
 import org.apache.activemq.artemis.core.management.impl.ActiveMQServerControlImpl;
 import org.apache.activemq.artemis.core.paging.PagingManager;
@@ -280,6 +281,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    List<ActiveMQServerFederationPlugin> getBrokerFederationPlugins();
 
+   List<AMQPFederationBrokerPlugin> getBrokerAMQPFederationPlugins();
+
    List<ActiveMQServerResourcePlugin> getBrokerResourcePlugins();
 
    void callBrokerPlugins(ActiveMQPluginRunnable pluginRun) throws ActiveMQException;
@@ -307,6 +310,8 @@ public interface ActiveMQServer extends ServiceComponent {
 
    void callBrokerFederationPlugins(ActiveMQPluginRunnable<ActiveMQServerFederationPlugin> pluginRun) throws ActiveMQException;
 
+   void callBrokerAMQPFederationPlugins(ActiveMQPluginRunnable<AMQPFederationBrokerPlugin> pluginRun) throws ActiveMQException;
+
    void callBrokerResourcePlugins(ActiveMQPluginRunnable<ActiveMQServerResourcePlugin> pluginRun) throws ActiveMQException;
 
    boolean hasBrokerPlugins();
@@ -330,6 +335,8 @@ public interface ActiveMQServer extends ServiceComponent {
    boolean hasBrokerCriticalPlugins();
 
    boolean hasBrokerFederationPlugins();
+
+   boolean hasBrokerAMQPFederationPlugins();
 
    boolean hasBrokerResourcePlugins();
 

@@ -151,7 +151,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
    }
 
    // in a regular case we should not have more than amqpCredits on the pool, that's the max we would need
-   private final MpscPool<ACKMessageOperation> ackMessageMpscPool = new MpscPool<>(amqpCredits, ACKMessageOperation::reset, ACKMessageOperation::new);
+   private final MpscPool<ACKMessageOperation> ackMessageMpscPool = new MpscPool<>(connection.getAmqpCredits(), ACKMessageOperation::reset, ACKMessageOperation::new);
 
    final RoutingContextImpl routingContext = new RoutingContextImpl(null);
 
@@ -260,7 +260,7 @@ public class AMQPMirrorControllerTarget extends ProtonAbstractReceiver implement
 
    @Override
    public void initialize() throws Exception {
-      super.initialize();
+      initialized = true;
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());

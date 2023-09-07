@@ -16,24 +16,35 @@
  */
 package org.apache.activemq.artemis.protocol.amqp.proton;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation.FEDERATION_INSTANCE_RECORD;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONFIGURATION;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.api.core.ActiveMQSecurityException;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederation;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationCommandProcessor;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConfiguration;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationTarget;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerTarget;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.client.ProtonClientSenderContext;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
 import org.apache.activemq.artemis.protocol.amqp.proton.transaction.ProtonTransactionHandler;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
+import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Receiver;
 import org.apache.qpid.proton.engine.Sender;
@@ -74,10 +85,22 @@ public class AMQPSessionContext extends ProtonInitializable {
       return sessionSPI;
    }
 
+   public AMQPConnectionContext getAMQPConnectionContext() {
+      return connection;
+   }
+
+   public Session getSession() {
+      return session;
+   }
+
+   public ActiveMQServer getServer() {
+      return server;
+   }
+
    @Override
    public void initialize() throws Exception {
       if (!isInitialized()) {
-         super.initialize();
+         initialized = true;
 
          if (sessionSPI != null) {
             try {
@@ -222,33 +245,85 @@ public class AMQPSessionContext extends ProtonInitializable {
    }
 
    public void addReplicaTarget(Receiver receiver) throws Exception {
-      try {
-         AMQPMirrorControllerTarget protonReceiver = new AMQPMirrorControllerTarget(sessionSPI, connection, this, receiver, server);
-         protonReceiver.initialize();
-         receivers.put(receiver, protonReceiver);
-         sessionSPI.addProducer(receiver.getName(), receiver.getTarget().getAddress());
-         receiver.setContext(protonReceiver);
-         HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
+      addReceiver(receiver, (r, s) -> {
+         final AMQPMirrorControllerTarget protonReceiver =
+            new AMQPMirrorControllerTarget(sessionSPI, connection, this, receiver, server);
+
+         final HashMap<Symbol, Object> brokerIDProperties = new HashMap<>();
          brokerIDProperties.put(AMQPMirrorControllerSource.BROKER_ID, server.getNodeID().toString());
          receiver.setProperties(brokerIDProperties);
-         connection.runNow(() -> {
-            receiver.open();
-            connection.flush();
-         });
-      } catch (ActiveMQAMQPException e) {
-         receivers.remove(receiver);
-         receiver.setTarget(null);
-         receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-         connection.runNow(() -> {
-            receiver.close();
-            connection.flush();
-         });
-      }
+
+         return protonReceiver;
+      });
+   }
+
+   @SuppressWarnings("unchecked")
+   public void addFederationCommandProcessor(Receiver receiver) throws Exception {
+      addReceiver(receiver, (r, s) -> {
+         final Connection protonConnection = receiver.getSession().getConnection();
+         final org.apache.qpid.proton.engine.Record attachments = protonConnection.attachments();
+
+         try {
+            if (attachments.get(FEDERATION_INSTANCE_RECORD, AMQPFederation.class) != null) {
+               throw new ActiveMQAMQPIllegalStateException(
+                  "Unexpected federation instance found on connection when creating control link processor");
+            }
+
+            final Map<String, Object> federationConfigurationMap;
+
+            if (receiver.getRemoteProperties() == null || !receiver.getRemoteProperties().containsKey(FEDERATION_CONFIGURATION)) {
+               federationConfigurationMap = Collections.EMPTY_MAP;
+            } else {
+               federationConfigurationMap = (Map<String, Object>) receiver.getRemoteProperties().get(FEDERATION_CONFIGURATION);
+            }
+
+            final AMQPFederationConfiguration configuration = new AMQPFederationConfiguration(connection, federationConfigurationMap);
+            final AMQPFederationTarget federation = new AMQPFederationTarget(receiver.getName(), configuration, this, server);
+
+            federation.start();
+
+            final AMQPFederationCommandProcessor commandProcessor =
+               new AMQPFederationCommandProcessor(federation, sessionSPI.getAMQPSessionContext(), receiver);
+
+            attachments.set(FEDERATION_INSTANCE_RECORD, AMQPFederationTarget.class, federation);
+
+            return commandProcessor;
+         } catch (ActiveMQException e) {
+            final ActiveMQAMQPException cause;
+
+            if (e instanceof ActiveMQAMQPException) {
+               cause = (ActiveMQAMQPException) e;
+            } else {
+               cause = new ActiveMQAMQPInternalErrorException(e.getMessage());
+            }
+
+            throw new RuntimeException(e.getMessage(), cause);
+         }
+      });
    }
 
    public void addReceiver(Receiver receiver) throws Exception {
+      addReceiver(receiver, (r, s) -> {
+         return new ProtonServerReceiverContext(sessionSPI, connection, this, receiver);
+      });
+   }
+
+   @SuppressWarnings("unchecked")
+   public <T extends ProtonAbstractReceiver> T addReceiver(Receiver receiver, BiFunction<AMQPSessionContext, Receiver, T> receiverBuilder) throws Exception {
       try {
-         ProtonServerReceiverContext protonReceiver = new ProtonServerReceiverContext(sessionSPI, connection, this, receiver);
+         final ProtonAbstractReceiver protonReceiver;
+         try {
+            protonReceiver = receiverBuilder.apply(this, receiver);
+         } catch (RuntimeException e) {
+            if (e.getCause() instanceof ActiveMQAMQPException) {
+               throw (ActiveMQAMQPException) e.getCause();
+            } else if (e.getCause() != null) {
+               throw new ActiveMQAMQPInternalErrorException(e.getCause().getMessage(), e.getCause());
+            } else {
+               throw new ActiveMQAMQPInternalErrorException(e.getMessage(), e);
+            }
+         }
+
          protonReceiver.initialize();
          receivers.put(receiver, protonReceiver);
          sessionSPI.addProducer(receiver.getName(), receiver.getTarget().getAddress());
@@ -257,6 +332,8 @@ public class AMQPSessionContext extends ProtonInitializable {
             receiver.open();
             connection.flush();
          });
+
+         return (T) protonReceiver;
       } catch (ActiveMQAMQPException e) {
          receivers.remove(receiver);
          receiver.setTarget(null);
@@ -265,6 +342,8 @@ public class AMQPSessionContext extends ProtonInitializable {
             receiver.close();
             connection.flush();
          });
+
+         return null;
       }
    }
 

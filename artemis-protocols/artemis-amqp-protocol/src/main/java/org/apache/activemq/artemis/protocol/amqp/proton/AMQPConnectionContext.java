@@ -42,8 +42,11 @@ import org.apache.activemq.artemis.core.security.SecurityAuth;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPConnectionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPSessionCallback;
 import org.apache.activemq.artemis.protocol.amqp.broker.ProtonProtocolManager;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationAddressSenderController;
+import org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationQueueSenderController;
 import org.apache.activemq.artemis.protocol.amqp.connect.mirror.AMQPMirrorControllerSource;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPException;
+import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPSecurityException;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolLogger;
 import org.apache.activemq.artemis.protocol.amqp.logger.ActiveMQAMQPProtocolMessageBundle;
 import org.apache.activemq.artemis.protocol.amqp.proton.handler.EventHandler;
@@ -76,11 +79,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_ADDRESS_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS;
+import static org.apache.activemq.artemis.protocol.amqp.connect.federation.AMQPFederationConstants.FEDERATION_QUEUE_RECEIVER;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.AMQP_LINK_INITIALIZER_KEY;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.FAILOVER_SERVER_LIST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.HOSTNAME;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.NETWORK_HOST;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.PORT;
 import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.SCHEME;
+import static org.apache.activemq.artemis.protocol.amqp.proton.AmqpSupport.verifyDesiredCapability;;
 
 public class AMQPConnectionContext extends ProtonInitializable implements EventHandler {
 
@@ -98,8 +107,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    private final ClientSASLFactory saslClientFactory;
    private final Map<Symbol, Object> connectionProperties = new HashMap<>();
    private final ScheduledExecutorService scheduledPool;
-
-   private LinkCloseListener linkCloseListener;
+   private final Map<String, LinkCloseListener> linkCloseListeners = new ConcurrentHashMap<>();
 
    private final Map<Session, AMQPSessionContext> sessions = new ConcurrentHashMap<>();
 
@@ -111,7 +119,7 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    private final boolean bridgeConnection;
 
    private final ScheduleOperator scheduleOp = new ScheduleOperator(new ScheduleRunnable());
-   private final AtomicReference<Future<?>> scheduledFutureRef = new AtomicReference(VOID_FUTURE);
+   private final AtomicReference<Future<?>> scheduledFutureRef = new AtomicReference<>(VOID_FUTURE);
 
    private String user;
    private String password;
@@ -182,13 +190,44 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
-   public LinkCloseListener getLinkCloseListener() {
-      return linkCloseListener;
+   @Override
+   public void initialize() throws Exception {
+      initialized = true;
    }
 
-   public AMQPConnectionContext setLinkCloseListener(LinkCloseListener linkCloseListener) {
-      this.linkCloseListener = linkCloseListener;
+   /**
+    * Adds a listener that will be invoked any time an AMQP link is remotely closed
+    * before having been closed on this end of the connection.
+    *
+    * @param id
+    *    A unique ID assigned to the listener used to later remove it if needed.
+    * @param linkCloseListener
+    *    The instance of a closed listener.
+    *
+    * @return this connection context instance.
+    */
+   public AMQPConnectionContext addLinkRemoteCloseListener(String id, LinkCloseListener linkCloseListener) {
+      linkCloseListeners.put(id, linkCloseListener);
       return this;
+   }
+
+   /**
+    * Remove the link remote close listener that is identified by the given ID.
+    *
+    * @param id
+    *    The unique ID assigned to the listener when it was added.
+    */
+   public void removeLinkRemoteCloseListener(String id) {
+      linkCloseListeners.remove(id);
+   }
+
+   /**
+    * Clear all link remote close listeners, usually done before connection
+    * termination to avoid any remote close events triggering processing
+    * after the connection shutdown has already started.
+    */
+   public void clearLinkRemoteCloseListeners() {
+      linkCloseListeners.clear();
    }
 
    public boolean isBridgeConnection() {
@@ -342,12 +381,11 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    }
 
    protected void remoteLinkOpened(Link link) throws Exception {
+      final AMQPSessionContext protonSession = getSessionExtension(link.getSession());
 
-      AMQPSessionContext protonSession = getSessionExtension(link.getSession());
-
-      Runnable runnable = link.attachments().get(Runnable.class, Runnable.class);
+      final Runnable runnable = link.attachments().get(AMQP_LINK_INITIALIZER_KEY, Runnable.class);
       if (runnable != null) {
-         link.attachments().set(Runnable.class, Runnable.class, null);
+         link.attachments().set(AMQP_LINK_INITIALIZER_KEY, Runnable.class, null);
          runnable.run();
          return;
       }
@@ -358,69 +396,91 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
 
       link.setSource(link.getRemoteSource());
       link.setTarget(link.getRemoteTarget());
+
       if (link instanceof Receiver) {
          Receiver receiver = (Receiver) link;
          if (link.getRemoteTarget() instanceof Coordinator) {
             Coordinator coordinator = (Coordinator) link.getRemoteTarget();
             protonSession.addTransactionHandler(coordinator, receiver);
+         } else if (isReplicaTarget(receiver)) {
+            handleReplicaTargetLinkOpened(protonSession, receiver);
+         } else if (isFederationControlLink(receiver)) {
+            handleFederationControlLinkOpened(protonSession, receiver);
          } else {
-            if (isReplicaTarget(receiver)) {
-               try {
-                  try {
-                     protonSession.getSessionSPI().check(SimpleString.toSimpleString(link.getTarget().getAddress()), CheckType.SEND, getSecurityAuth());
-                  } catch (ActiveMQSecurityException e) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
-                  }
-
-                  if (!verifyDesiredCapabilities(receiver, AMQPMirrorControllerSource.MIRROR_CAPABILITY)) {
-                     throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingDesiredCapability(AMQPMirrorControllerSource.MIRROR_CAPABILITY.toString());
-                  }
-               } catch (ActiveMQAMQPException e) {
-                  logger.warn(e.getMessage(), e);
-
-                  link.setTarget(null);
-                  link.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
-                  link.close();
-
-                  return;
-               }
-
-               receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
-               protonSession.addReplicaTarget(receiver);
-            } else {
-               protonSession.addReceiver(receiver);
-            }
+            protonSession.addReceiver(receiver);
          }
       } else {
-         Sender sender = (Sender) link;
-         protonSession.addSender(sender);
-      }
-   }
-
-
-   protected boolean verifyDesiredCapabilities(Receiver reciever, Symbol s) {
-
-      if (reciever.getRemoteDesiredCapabilities() == null) {
-         return false;
-      }
-
-      boolean foundS = false;
-      for (Symbol b : reciever.getRemoteDesiredCapabilities()) {
-         if (b.equals(s)) {
-            foundS = true;
-            break;
+         final Sender sender = (Sender) link;
+         if (isFederationAddressReceiver(sender)) {
+            protonSession.addSender(sender, new AMQPFederationAddressSenderController(protonSession));
+         } else if (isFederationQueueReceiver(sender)) {
+            protonSession.addSender(sender, new AMQPFederationQueueSenderController(protonSession));
+         } else {
+            protonSession.addSender(sender);
          }
       }
-      if (!foundS) {
-         return false;
-      }
-
-      return true;
    }
 
+   private void handleReplicaTargetLinkOpened(AMQPSessionContext protonSession, Receiver receiver) throws Exception {
+      try {
+         try {
+            protonSession.getSessionSPI().check(SimpleString.toSimpleString(receiver.getTarget().getAddress()), CheckType.SEND, getSecurityAuth());
+         } catch (ActiveMQSecurityException e) {
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.securityErrorCreatingProducer(e.getMessage());
+         }
 
-   private boolean isReplicaTarget(Link link) {
+         if (!verifyDesiredCapability(receiver, AMQPMirrorControllerSource.MIRROR_CAPABILITY)) {
+            throw ActiveMQAMQPProtocolMessageBundle.BUNDLE.missingDesiredCapability(AMQPMirrorControllerSource.MIRROR_CAPABILITY.toString());
+         }
+      } catch (ActiveMQAMQPException e) {
+         logger.warn(e.getMessage(), e);
+
+         receiver.setTarget(null);
+         receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
+         receiver.close();
+
+         return;
+      }
+
+      receiver.setOfferedCapabilities(new Symbol[]{AMQPMirrorControllerSource.MIRROR_CAPABILITY});
+      protonSession.addReplicaTarget(receiver);
+   }
+
+   private void handleFederationControlLinkOpened(AMQPSessionContext protonSession, Receiver receiver) throws Exception {
+      try {
+         try {
+            protonSession.getSessionSPI().check(SimpleString.toSimpleString(FEDERATION_CONTROL_LINK_VALIDATION_ADDRESS), CheckType.SEND, getSecurityAuth());
+         } catch (ActiveMQSecurityException e) {
+            throw new ActiveMQAMQPSecurityException(
+               "User does not have permission to attach to the federation control address");
+         }
+
+         protonSession.addFederationCommandProcessor(receiver);
+      } catch (ActiveMQAMQPException e) {
+         logger.warn(e.getMessage(), e);
+
+         receiver.setTarget(null);
+         receiver.setCondition(new ErrorCondition(e.getAmqpError(), e.getMessage()));
+         receiver.close();
+
+         return;
+      }
+   }
+
+   private static boolean isReplicaTarget(Link link) {
       return link != null && link.getTarget() != null && link.getTarget().getAddress() != null && link.getTarget().getAddress().startsWith(ProtonProtocolManager.MIRROR_ADDRESS);
+   }
+
+   private static boolean isFederationControlLink(Receiver receiver) {
+      return verifyDesiredCapability(receiver, FEDERATION_CONTROL_LINK);
+   }
+
+   private static boolean isFederationQueueReceiver(Sender sender) {
+      return verifyDesiredCapability(sender, FEDERATION_QUEUE_RECEIVER);
+   }
+
+   private static boolean isFederationAddressReceiver(Sender sender) {
+      return verifyDesiredCapability(sender, FEDERATION_ADDRESS_RECEIVER);
    }
 
    public Symbol[] getConnectionCapabilitiesOffered() {
@@ -730,9 +790,15 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
    public void onRemoteClose(Link link) throws Exception {
       handler.requireHandler();
 
-      if (linkCloseListener != null) {
-         linkCloseListener.onClose(link);
-      }
+      final AtomicReference<Exception> handlerThrew = new AtomicReference<>();
+
+      linkCloseListeners.forEach((k, v) -> {
+         try {
+            v.onClose(link);
+         } catch (Exception e) {
+            handlerThrew.compareAndSet(null, e);
+         }
+      });
 
       ProtonDeliveryHandler linkContext = (ProtonDeliveryHandler) link.getContext();
       if (linkContext != null) {
@@ -746,6 +812,10 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       link.close();
       link.free();
       flush();
+
+      if (handlerThrew.get() != null) {
+         throw handlerThrew.get();
+      }
    }
 
    @Override
@@ -782,7 +852,6 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
       }
    }
 
-
    private class LocalSecurity implements SecurityAuth {
       @Override
       public String getUsername() {
@@ -818,5 +887,4 @@ public class AMQPConnectionContext extends ProtonInitializable implements EventH
          return getProtocolManager().getSecurityDomain();
       }
    }
-
 }

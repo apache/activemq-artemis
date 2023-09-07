@@ -107,9 +107,9 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-   private static final Symbol COPY = Symbol.valueOf("copy");
-   private static final Symbol TOPIC = Symbol.valueOf("topic");
-   private static final Symbol QUEUE = Symbol.valueOf("queue");
+   private static final Symbol COPY = AmqpSupport.COPY;
+   private static final Symbol TOPIC = AmqpSupport.TOPIC_CAPABILITY;
+   private static final Symbol QUEUE = AmqpSupport.QUEUE_CAPABILITY;
    private static final Symbol SHARED = Symbol.valueOf("shared");
    private static final Symbol GLOBAL = Symbol.valueOf("global");
 
@@ -134,7 +134,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
    volatile boolean hasLarge = false;
    volatile LargeMessageDeliveryContext pendingLargeMessage = null;
    volatile Runnable afterLargeMessage;
-
 
    private int credits = 0;
 
@@ -272,13 +271,12 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       }
    }
 
-
    /**
     * create the actual underlying ActiveMQ Artemis Server Consumer
     */
    @Override
    public void initialize() throws Exception {
-      super.initialize();
+      initialized = true;
 
       if (controller == null) {
          controller = new DefaultController(sessionSPI);
@@ -286,6 +284,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       try {
          brokerConsumer = controller.init(this);
+         preSettle = sender.getSenderSettleMode() == SenderSettleMode.SETTLED;
          onflowControlReady = brokerConsumer::promptDelivery;
       } catch (ActiveMQAMQPResourceLimitExceededException e1) {
          throw e1;
@@ -357,7 +356,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // any durable resources for say pub subs
          if (remoteLinkClose) {
             controller.close();
-
          }
       } catch (Exception e) {
          logger.warn(e.getMessage(), e);
@@ -766,7 +764,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             position = proposedPosition;
             return (int)position;
          } finally {
-
             TLSEncode.getEncoder().setByteBuffer((WritableBuffer)null);
          }
       }
@@ -848,7 +845,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
       message.usageUp();
       pendingLargeMessage = new LargeMessageDeliveryContext(messageReference, message, delivery);
       pendingLargeMessage.deliver();
-
    }
 
    private void deliverStandard(MessageReference messageReference, AMQPMessage message) {
@@ -966,7 +962,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
    class DefaultController implements SenderController {
 
-
       private boolean shared = false;
       boolean global = false;
       boolean multicast;
@@ -981,7 +976,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
       DefaultController(AMQPSessionCallback sessionSPI) {
          this.sessionSPI = sessionSPI;
-
       }
 
       @Override
@@ -992,7 +986,7 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          // Match the settlement mode of the remote instead of relying on the default of MIXED.
          sender.setSenderSettleMode(sender.getRemoteSenderSettleMode());
 
-         // We don't currently support SECOND so enforce that the answer is anlways FIRST
+         // We don't currently support SECOND so enforce that the answer is always FIRST
          sender.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
          if (source != null) {
@@ -1259,7 +1253,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
                      queue = addressToUse;
                   }
                }
-
             }
 
             if (queue == null) {
@@ -1277,9 +1270,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
          }
 
-         // Detect if sender is in pre-settle mode.
-         preSettle = sender.getRemoteSenderSettleMode() == SenderSettleMode.SETTLED;
-
          // We need to update the source with any filters we support otherwise the client
          // is free to consider the attach as having failed if we don't send back what we
          // do support or if we send something we don't support the client won't know we
@@ -1290,7 +1280,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
 
          return (Consumer) sessionSPI.createSender(senderContext, queue, multicast ? null : selector, browseOnly);
       }
-
 
       private SimpleString getMatchingQueue(SimpleString queueName, SimpleString address, RoutingType routingType, SimpleString filter, boolean matchFilter) throws Exception {
          if (queueName != null) {
@@ -1310,7 +1299,6 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
          }
          return null;
       }
-
 
       @Override
       public void close() throws Exception {
@@ -1345,6 +1333,5 @@ public class ProtonServerSenderContext extends ProtonInitializable implements Pr
             }
          }
       }
-
    }
 }

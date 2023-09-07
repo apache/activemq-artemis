@@ -18,6 +18,7 @@ package org.apache.activemq.artemis.protocol.amqp.logger;
 
 import org.apache.activemq.artemis.logs.annotation.LogBundle;
 import org.apache.activemq.artemis.logs.annotation.Message;
+import org.apache.activemq.artemis.api.core.ActiveMQException;
 import org.apache.activemq.artemis.logs.BundleFactory;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPIllegalStateException;
 import org.apache.activemq.artemis.protocol.amqp.exceptions.ActiveMQAMQPInternalErrorException;
@@ -101,4 +102,10 @@ public interface ActiveMQAMQPProtocolMessageBundle {
 
    @Message(id = 119024, value = "link is missing a desired capability declaration {}")
    ActiveMQAMQPIllegalStateException missingDesiredCapability(String capability);
+
+   @Message(id = 119025, value = "Federation control link refused: address = {}")
+   ActiveMQAMQPIllegalStateException federationControlLinkRefused(String address);
+
+   @Message(id = 119026, value = "Malformed Federation control message: {}")
+   ActiveMQException malformedFederationControlMessage(String address);
 }

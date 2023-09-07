@@ -65,28 +65,27 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
    protected AddressFullMessagePolicy lastAddressPolicy;
    protected boolean addressAlreadyClashed = false;
 
-
    protected final Runnable spiFlow = this::sessionSPIFlow;
 
-   private RoutingType defRoutingType;
+   protected RoutingType defRoutingType;
 
    public ProtonServerReceiverContext(AMQPSessionCallback sessionSPI,
                                       AMQPConnectionContext connection,
                                       AMQPSessionContext protonSession,
                                       Receiver receiver) {
       super(sessionSPI, connection, protonSession, receiver);
-
    }
 
    @Override
    public void initialize() throws Exception {
-      super.initialize();
+      initialized = true;
+
       org.apache.qpid.proton.amqp.messaging.Target target = (org.apache.qpid.proton.amqp.messaging.Target) receiver.getRemoteTarget();
 
       // Match the settlement mode of the remote instead of relying on the default of MIXED.
       receiver.setSenderSettleMode(receiver.getRemoteSenderSettleMode());
 
-      // We don't currently support SECOND so enforce that the answer is anlways FIRST
+      // We don't currently support SECOND so enforce that the answer is always FIRST
       receiver.setReceiverSettleMode(ReceiverSettleMode.FIRST);
 
       if (target != null) {
@@ -156,7 +155,7 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
       return target != null ? getRoutingType(target.getCapabilities(), address) : getRoutingType((Symbol[]) null, address);
    }
 
-   private RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
+   protected RoutingType getRoutingType(Symbol[] symbols, SimpleString address) {
       RoutingType explicitRoutingType = getExplicitRoutingType(symbols);
       if (explicitRoutingType != null) {
          return explicitRoutingType;
@@ -207,7 +206,6 @@ public class ProtonServerReceiverContext extends ProtonAbstractReceiver {
          logger.warn(e.getMessage(), e);
 
          deliveryFailed(delivery, receiver, e);
-
       }
    }
 

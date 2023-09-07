@@ -45,6 +45,9 @@ import org.apache.activemq.artemis.core.config.ConfigurationUtils;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectConfiguration;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionAddressType;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederatedBrokerConnectionElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationAddressPolicyElement;
+import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPFederationQueuePolicyElement;
 import org.apache.activemq.artemis.core.config.amqpBrokerConnectivity.AMQPMirrorBrokerConnectionElement;
 import org.apache.activemq.artemis.core.config.federation.FederationAddressPolicyConfiguration;
 import org.apache.activemq.artemis.core.config.federation.FederationPolicySet;
@@ -77,6 +80,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.lang.invoke.MethodHandles;
 import org.junit.Assert;
 import org.junit.Before;
@@ -768,6 +772,256 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals("foo", amqpMirrorBrokerConnectionElement.getAddressFilter());
    }
 
+   @Test
+   public void testAMQPFederationLocalAddressPolicyConfiguration() throws Throwable {
+      doTestAMQPFederationAddressPolicyConfiguration(true);
+   }
+
+   @Test
+   public void testAMQPFederationRemoteAddressPolicyConfiguration() throws Throwable {
+      doTestAMQPFederationAddressPolicyConfiguration(false);
+   }
+
+   private void doTestAMQPFederationAddressPolicyConfiguration(boolean local) throws Throwable {
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      final String policyType = local ? "localAddressPolicies" : "remoteAddressPolicies";
+
+      final Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
+      insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
+      insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
+      insertionOrderedProperties.put("AMQPConnections.target.password", "password");
+      insertionOrderedProperties.put("AMQPConnections.target.autostart", "false");
+      // This line is unnecessary but serves as a match to what the mirror connectionElements style
+      // configuration does as a way of explicitly documenting what you are configuring here.
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc.type", "FEDERATION");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m1.addressMatch", "a");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m2.addressMatch", "b");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m3.addressMatch", "c");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.maxHops", "2");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.autoDelete", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.autoDeleteMessageCount", "42");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.autoDeleteDelay", "10000");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.includes.m4.addressMatch", "y");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.excludes.m5.addressMatch", "z");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.enableDivertBindings", "true");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.properties.a", "b");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertEquals(1, configuration.getAMQPConnections().size());
+      AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
+      Assert.assertEquals("target", connectConfiguration.getName());
+      Assert.assertEquals("localhost:61617", connectConfiguration.getUri());
+      Assert.assertEquals(55, connectConfiguration.getRetryInterval());
+      Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      Assert.assertEquals("admin", connectConfiguration.getUser());
+      Assert.assertEquals("password", connectConfiguration.getPassword());
+      Assert.assertEquals(false, connectConfiguration.isAutostart());
+      Assert.assertEquals(1,connectConfiguration.getFederations().size());
+      AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
+      Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
+      AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
+      Assert.assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
+
+      if (local) {
+         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
+      } else {
+         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
+      }
+
+      final Set<AMQPFederationAddressPolicyElement> addressPolicies = local ? amqpFederationBrokerConnectionElement.getLocalAddressPolicies()
+                                                                            : amqpFederationBrokerConnectionElement.getRemoteAddressPolicies();
+
+      AMQPFederationAddressPolicyElement addressPolicy1 = null;
+      AMQPFederationAddressPolicyElement addressPolicy2 = null;
+
+      for (AMQPFederationAddressPolicyElement policy : addressPolicies) {
+         if (policy.getName().equals("policy1")) {
+            addressPolicy1 = policy;
+         } else if (policy.getName().equals("policy2")) {
+            addressPolicy2 = policy;
+         } else {
+            throw new AssertionError("Found federation queue policy with unexpected name: " + policy.getName());
+         }
+      }
+
+      Assert.assertNotNull(addressPolicy1);
+      Assert.assertEquals(2, addressPolicy1.getMaxHops());
+      Assert.assertEquals(42L, addressPolicy1.getAutoDeleteMessageCount().longValue());
+      Assert.assertEquals(10000L, addressPolicy1.getAutoDeleteDelay().longValue());
+      Assert.assertNull(addressPolicy1.isEnableDivertBindings());
+      Assert.assertTrue(addressPolicy1.getProperties().isEmpty());
+
+      addressPolicy1.getIncludes().forEach(match -> {
+         if (match.getName().equals("m1")) {
+            Assert.assertEquals("a", match.getAddressMatch());
+         } else if (match.getName().equals("m2")) {
+            Assert.assertEquals("b", match.getAddressMatch());
+         } else if (match.getName().equals("m3")) {
+            Assert.assertEquals("c", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      Assert.assertNotNull(addressPolicy2);
+      Assert.assertEquals(0, addressPolicy2.getMaxHops());
+      Assert.assertNull(addressPolicy2.getAutoDeleteMessageCount());
+      Assert.assertNull(addressPolicy2.getAutoDeleteDelay());
+      Assert.assertTrue(addressPolicy2.isEnableDivertBindings());
+      Assert.assertFalse(addressPolicy2.getProperties().isEmpty());
+      Assert.assertEquals("b", addressPolicy2.getProperties().get("a"));
+
+      addressPolicy2.getIncludes().forEach(match -> {
+         if (match.getName().equals("m4")) {
+            Assert.assertEquals("y", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      addressPolicy2.getExcludes().forEach(match -> {
+         if (match.getName().equals("m5")) {
+            Assert.assertEquals("z", match.getAddressMatch());
+         } else {
+            throw new AssertionError("Found address match that was not expected: " + match.getName());
+         }
+      });
+
+      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
+      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+   }
+
+   @Test
+   public void testAMQPFederationLocalQueuePolicyConfiguration() throws Throwable {
+      doTestAMQPFederationQueuePolicyConfiguration(true);
+   }
+
+   @Test
+   public void testAMQPFederationRemoteQueuePolicyConfiguration() throws Throwable {
+      doTestAMQPFederationQueuePolicyConfiguration(false);
+   }
+
+   public void doTestAMQPFederationQueuePolicyConfiguration(boolean local) throws Throwable {
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      final String policyType = local ? "localQueuePolicies" : "remoteQueuePolicies";
+
+      final Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+      insertionOrderedProperties.put("AMQPConnections.target.uri", "localhost:61617");
+      insertionOrderedProperties.put("AMQPConnections.target.retryInterval", 55);
+      insertionOrderedProperties.put("AMQPConnections.target.reconnectAttempts", -2);
+      insertionOrderedProperties.put("AMQPConnections.target.user", "admin");
+      insertionOrderedProperties.put("AMQPConnections.target.password", "password");
+      insertionOrderedProperties.put("AMQPConnections.target.autostart", "false");
+      // This line is unnecessary but serves as a match to what the mirror connectionElements style
+      // configuration does as a way of explicitly documenting what you are configuring here.
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc.type", "FEDERATION");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m1.addressMatch", "#");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m1.queueMatch", "b");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m2.addressMatch", "a");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy1.includes.m2.queueMatch", "c");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.includes.m3.queueMatch", "d");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.excludes.m3.addressMatch", "e");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.excludes.m3.queueMatch", "e");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.properties.p1", "value1");
+      insertionOrderedProperties.put("AMQPConnections.target.federations.abc." + policyType + ".policy2.properties.p2", "value2");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertEquals(1, configuration.getAMQPConnections().size());
+      AMQPBrokerConnectConfiguration connectConfiguration = configuration.getAMQPConnections().get(0);
+      Assert.assertEquals("target", connectConfiguration.getName());
+      Assert.assertEquals("localhost:61617", connectConfiguration.getUri());
+      Assert.assertEquals(55, connectConfiguration.getRetryInterval());
+      Assert.assertEquals(-2, connectConfiguration.getReconnectAttempts());
+      Assert.assertEquals("admin", connectConfiguration.getUser());
+      Assert.assertEquals("password", connectConfiguration.getPassword());
+      Assert.assertEquals(false, connectConfiguration.isAutostart());
+      Assert.assertEquals(1,connectConfiguration.getFederations().size());
+      AMQPBrokerConnectionElement amqpBrokerConnectionElement = connectConfiguration.getConnectionElements().get(0);
+      Assert.assertTrue(amqpBrokerConnectionElement instanceof AMQPFederatedBrokerConnectionElement);
+      AMQPFederatedBrokerConnectionElement amqpFederationBrokerConnectionElement = (AMQPFederatedBrokerConnectionElement) amqpBrokerConnectionElement;
+      Assert.assertEquals("abc", amqpFederationBrokerConnectionElement.getName());
+
+      if (local) {
+         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
+      } else {
+         Assert.assertEquals(2, amqpFederationBrokerConnectionElement.getRemoteQueuePolicies().size());
+         Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalQueuePolicies().size());
+      }
+
+      final Set<AMQPFederationQueuePolicyElement> addressPolicies = local ? amqpFederationBrokerConnectionElement.getLocalQueuePolicies() :
+                                                                            amqpFederationBrokerConnectionElement.getRemoteQueuePolicies();
+
+      AMQPFederationQueuePolicyElement queuePolicy1 = null;
+      AMQPFederationQueuePolicyElement queuePolicy2 = null;
+
+      for (AMQPFederationQueuePolicyElement policy : addressPolicies) {
+         if (policy.getName().equals("policy1")) {
+            queuePolicy1 = policy;
+         } else if (policy.getName().equals("policy2")) {
+            queuePolicy2 = policy;
+         } else {
+            throw new AssertionError("Found federation queue policy with unexpected name: " + policy.getName());
+         }
+      }
+
+      Assert.assertNotNull(queuePolicy1);
+      Assert.assertFalse(queuePolicy1.getIncludes().isEmpty());
+      Assert.assertTrue(queuePolicy1.getExcludes().isEmpty());
+      Assert.assertEquals(2, queuePolicy1.getIncludes().size());
+      Assert.assertEquals(0, queuePolicy1.getProperties().size());
+
+      queuePolicy1.getIncludes().forEach(match -> {
+         if (match.getName().equals("m1")) {
+            Assert.assertEquals("#", match.getAddressMatch());
+            Assert.assertEquals("b", match.getQueueMatch());
+         } else if (match.getName().equals("m2")) {
+            Assert.assertEquals("a", match.getAddressMatch());
+            Assert.assertEquals("c", match.getQueueMatch());
+         } else {
+            throw new AssertionError("Found queue match that was not expected: " + match.getName());
+         }
+      });
+
+      Assert.assertNotNull(queuePolicy2);
+      Assert.assertFalse(queuePolicy2.getIncludes().isEmpty());
+      Assert.assertFalse(queuePolicy2.getExcludes().isEmpty());
+
+      queuePolicy2.getIncludes().forEach(match -> {
+         if (match.getName().equals("m3")) {
+            Assert.assertNull(match.getAddressMatch());
+            Assert.assertEquals("d", match.getQueueMatch());
+         } else {
+            throw new AssertionError("Found queue match that was not expected: " + match.getName());
+         }
+      });
+
+      queuePolicy2.getExcludes().forEach(match -> {
+         if (match.getName().equals("m3")) {
+            Assert.assertEquals("e", match.getAddressMatch());
+            Assert.assertEquals("e", match.getQueueMatch());
+         } else {
+            throw new AssertionError("Found queue match that was not expected: " + match.getName());
+         }
+      });
+
+      Assert.assertEquals(2, queuePolicy2.getProperties().size());
+      Assert.assertTrue(queuePolicy2.getProperties().containsKey("p1"));
+      Assert.assertTrue(queuePolicy2.getProperties().containsKey("p2"));
+      Assert.assertEquals("value1", queuePolicy2.getProperties().get("p1"));
+      Assert.assertEquals("value2", queuePolicy2.getProperties().get("p2"));
+
+      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getLocalAddressPolicies().size());
+      Assert.assertEquals(0, amqpFederationBrokerConnectionElement.getRemoteAddressPolicies().size());
+   }
 
    @Test
    public void testAMQPConnectionsConfigurationUriEnc() throws Throwable {

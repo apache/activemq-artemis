@@ -136,6 +136,10 @@ public class AMQPSessionCallback implements SessionCallback {
       return coreMessageObjectPools;
    }
 
+   public AMQPSessionContext getAMQPSessionContext() {
+      return protonSession;
+   }
+
    public ProtonProtocolManager getProtocolManager() {
       return manager;
    }
@@ -154,9 +158,7 @@ public class AMQPSessionCallback implements SessionCallback {
             logger.warn(e.getMessage(), e);
          }
       });
-
    }
-
 
    public void withinContext(Runnable run) throws Exception {
       OperationContext context = recoverContext();
@@ -305,33 +307,38 @@ public class AMQPSessionCallback implements SessionCallback {
       }
    }
 
-   public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate) throws Exception {
-      return queueQuery(queueName, routingType, autoCreate, null);
-   }
-
-   public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate, SimpleString filter) throws Exception {
-      QueueQueryResult queueQueryResult = serverSession.executeQueueQuery(queueName);
+   public QueueQueryResult queueQuery(QueueConfiguration configuration, boolean autoCreate) throws Exception {
+      QueueQueryResult queueQueryResult = serverSession.executeQueueQuery(configuration.getName());
 
       if (!queueQueryResult.isExists() && queueQueryResult.isAutoCreateQueues() && autoCreate) {
          try {
-            serverSession.createQueue(new QueueConfiguration(queueName).setRoutingType(routingType).setFilterString(filter).setAutoCreated(true));
+            serverSession.createQueue(configuration.setAutoCreated(true));
          } catch (ActiveMQQueueExistsException e) {
             // The queue may have been created by another thread in the mean time.  Catch and do nothing.
          }
-         queueQueryResult = serverSession.executeQueueQuery(queueName);
+         queueQueryResult = serverSession.executeQueueQuery(configuration.getName());
       }
 
       // if auto-create we will return whatever type was used before
       if (queueQueryResult.isExists() && !queueQueryResult.isAutoCreated()) {
-         //if routingType is null we bypass the check
-         if (routingType != null && queueQueryResult.getRoutingType() != routingType) {
-            throw new IllegalStateException("Incorrect Routing Type for queue " + queueName + ", expecting: " + routingType + " while it had " + queueQueryResult.getRoutingType());
+         final RoutingType desiredRoutingType = configuration.getRoutingType();
+         if (desiredRoutingType != null && queueQueryResult.getRoutingType() != desiredRoutingType) {
+            throw new IllegalStateException("Incorrect Routing Type for queried queue " + configuration.getName() +
+                                            ", expecting: " + desiredRoutingType + " while the actual type was: " +
+                                            queueQueryResult.getRoutingType());
          }
       }
 
       return queueQueryResult;
    }
 
+   public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate) throws Exception {
+      return queueQuery(queueName, routingType, autoCreate, null);
+   }
+
+   public QueueQueryResult queueQuery(SimpleString queueName, RoutingType routingType, boolean autoCreate, SimpleString filter) throws Exception {
+      return queueQuery(new QueueConfiguration(queueName).setRoutingType(routingType).setFilterString(filter), autoCreate);
+   }
 
    public boolean checkAddressAndAutocreateIfPossible(SimpleString address, RoutingType routingType) throws Exception {
       AutoCreateResult autoCreateResult = serverSession.checkAutoCreate(new QueueConfiguration(address).setRoutingType(routingType));
@@ -447,7 +454,7 @@ public class AMQPSessionCallback implements SessionCallback {
                           Delivery delivery,
                           SimpleString address,
                           RoutingContext routingContext,
-                          AMQPMessage message) throws Exception {
+                          Message message) throws Exception {
 
       context.incrementSettle();
 
@@ -709,6 +716,24 @@ public class AMQPSessionCallback implements SessionCallback {
          return this.transactionHandler.getCurrentTransaction();
       }
       return null;
+   }
+
+   /**
+    * Adds key / value based metadata into the underlying server session implementation
+    * for use by the connection resources.
+    *
+    * @param key
+    *    The key to add into the linked server session.
+    * @param value
+    *    The value to add into the linked server session attached to the given key.
+    *
+    * @return this {@link AMQPSessionCallback} instance.
+    *
+    * @throws Exception if an error occurs while adding the metadata.
+    */
+   public AMQPSessionCallback addMetaData(String key, String value) throws Exception {
+      serverSession.addMetaData(key, value);
+      return this;
    }
 
    public Transaction getTransaction(Binary txid, boolean remove) throws ActiveMQAMQPException {

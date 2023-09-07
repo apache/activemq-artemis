@@ -447,12 +447,52 @@
             <peer address-match="TEST-PEER"/>
             <receiver queue-name="TEST-WITH-QUEUE-NAME"/>
             <mirror message-acknowledgements="false" queue-creation="false" durable="false" queue-removal="false" address-filter="TEST-QUEUE,!IGNORE-QUEUE" sync="true"/>
+            <federation>
+               <local-queue-policy name="composite" priority-adjustment="1" include-federated="false">
+                  <include address-match="test" queue-match="tracking" />
+               </local-queue-policy>
+            </federation>
          </amqp-connection>
          <amqp-connection uri="tcp://test2:222" name="test2">
             <mirror durable="false"/>
          </amqp-connection>
          <amqp-connection uri="tcp://false" name="auto-start-false" auto-start="false">
             <mirror/>
+         </amqp-connection>
+         <amqp-connection uri="tcp://federation" name="federation-test" auto-start="false">
+            <federation>
+               <local-queue-policy name="lqp1" priority-adjustment="1" include-federated="false">
+                  <include address-match="test" queue-match="tracking" />
+                  <property key="amqpCredits" value="1"/>
+                  <transformer-class-name>class-another</transformer-class-name>
+               </local-queue-policy>
+                <remote-queue-policy name="rqp1" priority-adjustment="-1" include-federated="true">
+                  <include address-match="#" queue-match="tracking" />
+                  <property key="amqpCredits" value="2"/>
+                  <property key="amqpLowCredits" value="1"/>
+               </remote-queue-policy>
+               <local-address-policy name="lap1" auto-delete="false" auto-delete-delay="1" auto-delete-message-count="12" max-hops="2" enable-divert-bindings="true">
+                  <include address-match="orders" />
+                  <exclude address-match="all.#" />
+                  <transformer-class-name>class-name</transformer-class-name>
+               </local-address-policy>
+               <local-queue-policy name="lqp2">
+                  <include address-match="address" queue-match="theQueue" />
+                  <transformer-class-name>class-another</transformer-class-name>
+               </local-queue-policy>
+               <remote-address-policy name="rap1" auto-delete="true" auto-delete-delay="2" auto-delete-message-count="42" max-hops="1" enable-divert-bindings="false">
+                  <include address-match="support" />
+                  <property key="amqpCredits" value="2"/>
+                  <property key="amqpLowCredits" value="1"/>
+                  <transformer>
+                     <class-name>something</class-name>
+                     <property key="key1" value="value1"/>
+                     <property key="key2" value="value2"/>
+                  </transformer>
+               </remote-address-policy>
+               <property key="amqpCredits" value="7"/>
+               <property key="amqpLowCredits" value="1"/>
+            </federation>
          </amqp-connection>
       </broker-connections>
       <grouping-handler name="gh1">

@@ -302,6 +302,11 @@
          <artifactId>proton-j</artifactId>
          <scope>test</scope>
       </dependency>
+      <dependency>
+         <groupId>org.apache.qpid</groupId>
+         <artifactId>protonj2-test-driver</artifactId>
+         <scope>test</scope>
+      </dependency>
       <!-- logging -->
       <dependency>
          <groupId>org.slf4j</groupId>
@@ -435,7 +440,6 @@
          <artifactId>mockito-core</artifactId>
          <scope>test</scope>
       </dependency>
-
    </dependencies>
 
    <build>

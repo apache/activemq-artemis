@@ -19,7 +19,6 @@ package org.apache.activemq.artemis.core.config.amqpBrokerConnectivity;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.activemq.artemis.api.core.TransportConfiguration;
 import org.apache.activemq.artemis.core.config.brokerConnectivity.BrokerConnectConfiguration;
 import org.apache.activemq.artemis.uri.ConnectorTransportConfigurationParser;
@@ -44,7 +43,6 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
    public AMQPBrokerConnectConfiguration addElement(AMQPBrokerConnectionElement amqpBrokerConnectionElement) {
       amqpBrokerConnectionElement.setParent(this);
 
-
       if (amqpBrokerConnectionElement.getType() == AMQPBrokerConnectionAddressType.MIRROR && !(amqpBrokerConnectionElement instanceof AMQPMirrorBrokerConnectionElement)) {
          throw new IllegalArgumentException("must be an AMQPMirrorConnectionElement");
       }
@@ -59,6 +57,17 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
    }
 
    public List<AMQPBrokerConnectionElement> getConnectionElements() {
+      return connectionElements;
+   }
+
+   public AMQPBrokerConnectConfiguration addFederation(AMQPFederatedBrokerConnectionElement amqpFederationElement) {
+      return addElement(amqpFederationElement);
+   }
+
+   public List<AMQPBrokerConnectionElement> getFederations() {
+      // This returns all elements not just federation elements, broker properties relies on being able
+      // to modify the collection from the getter...it does not actually call the add method, it only
+      // uses the method to infer the type.
       return connectionElements;
    }
 
@@ -117,5 +126,4 @@ public class AMQPBrokerConnectConfiguration extends BrokerConnectConfiguration {
       super.setAutostart(autostart);
       return this;
    }
-
 }
