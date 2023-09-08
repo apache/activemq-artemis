@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.activemq.artemis.api.core.JsonUtil;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.tools.cluster.ClusterVerifier;
+import org.apache.activemq.artemis.cli.commands.check.ClusterNodeVerifier;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Assert;
@@ -47,10 +47,10 @@ public class ClusterVerifyTest {
       // A:1 topology:[{"nodeID":"A1","live":"A:1", "backup":"B:1"}, {"nodeID":"A2","live":"A:2", "backup":"B:2"}, {"nodeID":"A3","live":"A:3", "backup":"B:3"}]
       // A:2 topology:[{"nodeID":"A1","live":"A:1"}, {"nodeID":"A2","live":"A:2"}, {"nodeID":"A3","live":"A:3"}]
       // A:3 topology:[{"nodeID":"A1","live":"A:1", "backup":"B:1"}, {"nodeID":"A2","live":"A:2", "backup":"B:2"}] [
-      ClusterVerifier fakeVerifier = new ClusterVerifier("fake", "a", "b") {
+      ClusterNodeVerifier fakeVerifier = new ClusterNodeVerifier("fake", "a", "b") {
          @Override
          protected void verifyTime(ActionContext context,
-                                   Map<String, ClusterVerifier.TopologyItem> mainTopology,
+                                   Map<String, ClusterNodeVerifier.TopologyItem> mainTopology,
                                    AtomicBoolean verificationResult,
                                    boolean supportTime) {
             // not doing it
@@ -112,7 +112,7 @@ public class ClusterVerifyTest {
    // The server is not clustered, and listTopology will return []
    @Test
    public void testReadEmpty() throws Exception {
-      ClusterVerifier fakeVerifier = new ClusterVerifier("fake", "a", "b") {
+      ClusterNodeVerifier fakeVerifier = new ClusterNodeVerifier("fake", "a", "b") {
          @Override
          protected void verifyTime(ActionContext context,
                                    Map<String, TopologyItem> mainTopology,

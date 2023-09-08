@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands.tools.cluster;
+package org.apache.activemq.artemis.cli.commands.check;
 
 import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.messages.ConnectionAbstract;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "verify", description = "Verify if all the nodes match the same topology.")
-public class Verify extends ConnectionAbstract {
+@CommandLine.Command(name = "cluster", description = "Verify if all the nodes on the cluster match the same topology and time configuration.")
+public class ClusterCheck extends ConnectionAbstract {
 
    @CommandLine.Option(names = "--variance", description = "Allowed variance in milliseconds before considered a failure. (default=1000)")
    public long variance = 1000;
@@ -33,7 +33,7 @@ public class Verify extends ConnectionAbstract {
 
       createConnectionFactory();
 
-      try (ClusterVerifier clusterVerifier = new ClusterVerifier(brokerURL, user, password, variance).open()) {
+      try (ClusterNodeVerifier clusterVerifier = new ClusterNodeVerifier(brokerURL, user, password, variance).open()) {
          return clusterVerifier.verify(context);
       }
    }

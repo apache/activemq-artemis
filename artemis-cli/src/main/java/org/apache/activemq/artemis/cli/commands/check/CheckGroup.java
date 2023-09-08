@@ -21,7 +21,7 @@ import org.apache.activemq.artemis.cli.commands.HelpAction;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 
-@Command(name = "check", description = "use 'help check' for sub commands list", subcommands = {NodeCheck.class, QueueCheck.class})
+@Command(name = "check", description = "use 'help check' for sub commands list", subcommands = {NodeCheck.class, QueueCheck.class, ClusterCheck.class})
 public class CheckGroup implements Runnable {
 
    CommandLine commandLine;

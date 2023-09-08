@@ -21,7 +21,7 @@ import java.lang.invoke.MethodHandles;
 
 import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.cli.commands.ActionContext;
-import org.apache.activemq.artemis.cli.commands.tools.cluster.ClusterVerifier;
+import org.apache.activemq.artemis.cli.commands.check.ClusterNodeVerifier;
 import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonString;
@@ -134,7 +134,7 @@ public class TopologyCheckTest extends SmokeTestBase {
          }
       }
 
-      ClusterVerifier clusterVerifier = new ClusterVerifier(uris[validNodes[0]], "admin", "admin");
+      ClusterNodeVerifier clusterVerifier = new ClusterNodeVerifier(uris[validNodes[0]], "admin", "admin");
       Assert.assertTrue(clusterVerifier.verify(new ActionContext()));
    }
 

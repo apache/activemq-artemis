@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.activemq.artemis.cli.commands.tools.cluster;
+package org.apache.activemq.artemis.cli.commands.check;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.apache.activemq.artemis.json.JsonArray;
 import org.apache.activemq.artemis.json.JsonObject;
 import org.apache.activemq.artemis.json.JsonString;
 
-public class ClusterVerifier implements AutoCloseable {
+public class ClusterNodeVerifier implements AutoCloseable {
 
    final String uri, user, password;
 
@@ -39,11 +39,11 @@ public class ClusterVerifier implements AutoCloseable {
 
    final long allowedVariance;
 
-   public ClusterVerifier(String uri, String user, String password) {
+   public ClusterNodeVerifier(String uri, String user, String password) {
       this(uri, user, password, 1000);
    }
 
-   public ClusterVerifier(String uri, String user, String password, long variance) {
+   public ClusterNodeVerifier(String uri, String user, String password, long variance) {
       this.uri = uri;
       this.user = user;
       this.password = password;
@@ -56,7 +56,7 @@ public class ClusterVerifier implements AutoCloseable {
       simpleManagement.close();
    }
 
-   public ClusterVerifier open() throws Exception {
+   public ClusterNodeVerifier open() throws Exception {
       simpleManagement.open();
       return this;
    }
