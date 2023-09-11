@@ -478,7 +478,8 @@ Please see the examples for a full working example of using Netty HTTP.
 Netty HTTP uses the same properties as Netty TCP but adds the following additional properties:
 
 httpEnabled::
-This is now no longer needed.
+Activates http on the client.
+This is not needed on the broker.
 With single port support Apache ActiveMQ Artemis will now automatically detect if http is being used and configure itself.
 
 httpClientIdleTime::
