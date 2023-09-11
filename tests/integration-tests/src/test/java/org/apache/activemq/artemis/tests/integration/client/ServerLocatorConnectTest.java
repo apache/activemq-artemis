@@ -29,10 +29,12 @@ import org.apache.activemq.artemis.api.core.client.ActiveMQClient;
 import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal;
+import org.apache.activemq.artemis.core.client.impl.ServerLocatorImpl;
 import org.apache.activemq.artemis.core.client.impl.ServerLocatorInternal;
 import org.apache.activemq.artemis.core.config.Configuration;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
+import org.apache.activemq.artemis.logs.AssertionLoggerHandler;
 import org.apache.activemq.artemis.tests.util.ActiveMQTestBase;
 import org.apache.activemq.artemis.uri.ServerLocatorParser;
 import org.junit.Assert;
@@ -49,11 +51,11 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       super.setUp();
       Configuration configuration = createDefaultConfig(isNetty());
       server = createServer(false, configuration);
-      server.start();
    }
 
    @Test
    public void testFailFastConnectOnClosing() throws Exception {
+      server.start();
       CountDownLatch connectLatch = new CountDownLatch(1);
       CountDownLatch subscribeLatch = new CountDownLatch(1);
       AtomicBoolean connectTimedOut = new AtomicBoolean(false);
@@ -95,6 +97,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testURL() throws Exception {
+      server.start();
       ServerLocatorParser parser = new ServerLocatorParser();
       // This URL was failing in some ConnectionFactoryTests.
       // The issue seemed to be the # to be creating extra spaces on the parsing
@@ -124,6 +127,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testSingleConnectorSingleServer() throws Exception {
+      server.start();
       ServerLocator locator = ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
       ClientSessionFactory csf = createSessionFactory(locator);
       csf.close();
@@ -132,6 +136,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testSingleConnectorSingleServerConnect() throws Exception {
+      server.start();
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())));
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
@@ -141,6 +146,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleConnectorSingleServerConnect() throws Exception {
+      server.start();
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())));
       ClientSessionFactoryInternal csf = locator.connect();
       assertNotNull(csf);
@@ -150,6 +156,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleConnectorSingleServerConnectReconnect() throws Exception {
+      server.start();
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(0, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())));
       locator.setReconnectAttempts(15);
       ClientSessionFactoryInternal csf = locator.connect();
@@ -160,6 +167,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleConnectorSingleServerNoConnect() throws Exception {
+      server.start();
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(5, isNetty())));
       ClientSessionFactoryInternal csf = null;
       try {
@@ -176,6 +184,7 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
 
    @Test
    public void testMultipleConnectorSingleServerNoConnectAttemptReconnect() throws Exception {
+      server.start();
       ServerLocatorInternal locator = (ServerLocatorInternal) ActiveMQClient.createServerLocatorWithoutHA(createTransportConfiguration(isNetty(), false, generateParams(1, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(2, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(3, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(4, isNetty())), createTransportConfiguration(isNetty(), false, generateParams(5, isNetty())));
       locator.setReconnectAttempts(15);
       CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -188,6 +197,23 @@ public class ServerLocatorConnectTest extends ActiveMQTestBase {
       assertTrue(countDownLatch.await(5, TimeUnit.SECONDS));
       assertNull(target.csf);
    }
+
+   @Test
+   public void testNoWarningWhenNotConnecting() throws Exception {
+      try (AssertionLoggerHandler handler = new AssertionLoggerHandler()) {
+         try (ServerLocatorImpl locator = (ServerLocatorImpl) ServerLocatorImpl.newLocator("tcp://localhost:61616")) {
+            locator.connect();
+            Assert.fail("Expected an exception");
+         } catch (Exception expected) {
+         }
+
+         // The connect operation used to log a warning and throw an exception.
+         // which will flood the logs when a server is being started for the first time.
+         // Having the exception thrown only should be enough.
+         Assert.assertFalse(handler.findText("AMQ212025"));
+      }
+   }
+
 
    public boolean isNetty() {
       return true;
