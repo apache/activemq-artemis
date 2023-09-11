@@ -1786,7 +1786,10 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
             return null;
          }
 
-         ActiveMQClientLogger.LOGGER.errorConnectingToNodes(traceException);
+         if (logger.isTraceEnabled()) {
+            logger.trace("Could not connect to any nodes. throwing an error now.", new Exception("trace"));
+         }
+
          throw ActiveMQClientMessageBundle.BUNDLE.cannotConnectToStaticConnectors2();
       }
 
