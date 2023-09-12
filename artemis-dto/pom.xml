@@ -151,9 +151,9 @@
                   <version>${version.jaxb.runtime}</version>
                </dependency>
                <dependency>
-                   <groupId>jakarta.activation</groupId>
-                   <artifactId>jakarta.activation-api</artifactId>
-                   <version>${jakarta.activation-api.version}</version>
+                  <groupId>jakarta.activation</groupId>
+                  <artifactId>jakarta.activation-api</artifactId>
+                  <version>${jakarta.activation-api.version}</version>
                </dependency>
             </dependencies>
          </plugin>

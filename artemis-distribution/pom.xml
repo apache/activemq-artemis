@@ -36,7 +36,7 @@
    </properties>
 
    <dependencies>
-     <!-- ActiveMQ Artemis artifacts -->
+      <!-- ActiveMQ Artemis artifacts -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-boot</artifactId>
@@ -52,21 +52,21 @@
          <artifactId>artemis-cli</artifactId>
          <version>${project.version}</version>
       </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-jms-server</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-jms-client</artifactId>
-        <version>${project.version}</version>
-     </dependency>
-     <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>artemis-ra</artifactId>
-        <version>${project.version}</version>
-     </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-server</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-jms-client</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-ra</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-web</artifactId>
@@ -77,26 +77,26 @@
          <artifactId>artemis-core-client</artifactId>
          <version>${project.version}</version>
       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-amqp-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-stomp-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-openwire-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-hornetq-protocol</artifactId>
-           <version>${project.version}</version>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-amqp-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-stomp-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-openwire-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-hornetq-protocol</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>org.apache.activemq</groupId>
          <artifactId>artemis-mqtt-protocol</artifactId>
@@ -121,30 +121,30 @@
       </dependency>
 
       <!-- dependencies -->
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-openwire-legacy</artifactId>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-openwire-legacy</artifactId>
+      </dependency>
 
       <!-- Management Console Dependencies -->
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-console</artifactId>
-           <version>${project.version} </version>
-           <type>war</type>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>activemq-branding</artifactId>
-           <version>${project.version} </version>
-           <type>war</type>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.activemq</groupId>
-           <artifactId>artemis-plugin</artifactId>
-           <version>${project.version} </version>
-           <type>war</type>
-       </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-console</artifactId>
+         <version>${project.version} </version>
+         <type>war</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-branding</artifactId>
+         <version>${project.version} </version>
+         <type>war</type>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>artemis-plugin</artifactId>
+         <version>${project.version} </version>
+         <type>war</type>
+      </dependency>
       <!-- quorum -->
       <dependency>
          <groupId>org.apache.activemq</groupId>
@@ -183,7 +183,7 @@
                   <id>bin</id>
                   <configuration>
                      <descriptors>
-                       <descriptor>src/main/assembly/bin.xml</descriptor>
+                        <descriptor>src/main/assembly/bin.xml</descriptor>
                      </descriptors>
                      <tarLongFileMode>posix</tarLongFileMode>
                   </configuration>
@@ -197,7 +197,7 @@
                   <configuration>
                      <attach>false</attach>
                      <descriptors>
-                       <descriptor>src/main/assembly/dir.xml</descriptor>
+                        <descriptor>src/main/assembly/dir.xml</descriptor>
                      </descriptors>
                      <tarLongFileMode>posix</tarLongFileMode>
                   </configuration>

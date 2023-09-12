@@ -522,8 +522,8 @@
       </profile>
       <profile>
          <id>jdk16on</id>
-            <activation>
-         <jdk>[16,)</jdk>
+         <activation>
+            <jdk>[16,)</jdk>
          </activation>
          <properties>
             <its-surefire-extra-args>--add-exports java.security.jgss/sun.security.krb5=ALL-UNNAMED</its-surefire-extra-args>

@@ -1417,7 +1417,7 @@
                      <noWeb>true</noWeb>
                      <instance>${basedir}/target/mirrored-subscriptions/broker1</instance>
                      <configuration>${basedir}/target/classes/servers/mirrored-subscriptions/broker1</configuration>
-                </configuration>
+                  </configuration>
                </execution>
                <execution>
                   <phase>test-compile</phase>
