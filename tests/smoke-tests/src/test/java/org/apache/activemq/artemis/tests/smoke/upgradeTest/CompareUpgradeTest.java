@@ -22,15 +22,24 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Stream;
 
+import org.apache.activemq.artemis.cli.commands.ActionContext;
 import org.apache.activemq.artemis.cli.commands.Create;
 import org.apache.activemq.artemis.cli.commands.Upgrade;
+import org.apache.activemq.artemis.utils.FileUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -54,8 +63,8 @@ public class CompareUpgradeTest {
       String windowsExpectedBin = windowsExpected + "/bin";
       String windowsExpectedETC = basedir + "/target/classes/servers/windowsUpgradeETCExpected";
 
-      compareDirectories(windowsExpectedBin, windowsBin);
-      compareDirectories(windowsExpectedETC, windowsETC, "broker.xml", "artemis-users.properties", "management.xml");
+      compareDirectories(true, windowsExpectedBin, windowsBin);
+      compareDirectories(true, windowsExpectedETC, windowsETC, "broker.xml", "artemis-users.properties", "management.xml");
 
       String referenceBin = basedir + "/target/reference-for-backup-check/servers/windowsUpgrade/bin";
       String referenceEtc = basedir + "/target/reference-for-backup-check/servers/windowsUpgradeETC";
@@ -74,8 +83,8 @@ public class CompareUpgradeTest {
       String linuxExpectedBin = linuxExpected + "/bin";
       String linuxExpectedETC = basedir + "/target/classes/servers/linuxUpgradeETCExpected";
 
-      compareDirectories(linuxExpectedBin, linuxBin);
-      compareDirectories(linuxExpectedETC, linuxETC, "broker.xml", "artemis-users.properties", "management.xml");
+      compareDirectories(true, linuxExpectedBin, linuxBin);
+      compareDirectories(true, linuxExpectedETC, linuxETC, "broker.xml", "artemis-users.properties", "management.xml");
 
       String referenceBin = basedir + "/target/reference-for-backup-check/servers/linuxUpgrade/bin";
       String referenceEtc = basedir + "/target/reference-for-backup-check/servers/linuxUpgradeETC";
@@ -113,7 +122,7 @@ public class CompareUpgradeTest {
       }
    }
 
-   private void compareDirectories(String expectedFolder, String upgradeFolder, String... ignoredFiles) throws Exception {
+   private void compareDirectories(boolean allowExpectedWord, String expectedFolder, String upgradeFolder, String... ignoredFiles) throws Exception {
       File expectedFolderFile = new File(expectedFolder);
       File[] foundFiles = expectedFolderFile.listFiles(pathname -> {
          for (String i :ignoredFiles) {
@@ -137,30 +146,39 @@ public class CompareUpgradeTest {
          if (f.getName().endsWith(".exe")) {
             Assert.assertArrayEquals(f.getName() + " is different after upgrade", Files.readAllBytes(f.toPath()), Files.readAllBytes(upgradeFile.toPath()));
          } else {
-            try (Stream<String> expectedStream = Files.lines(f.toPath());
-                 Stream<String> upgradeStream = Files.lines(upgradeFile.toPath())) {
-
-               Iterator<String> expectedIterator = expectedStream.iterator();
-               Iterator<String> upgradeIterator = upgradeStream.iterator();
-
-               int line = 1;
-
-               while (expectedIterator.hasNext()) {
-                  Assert.assertTrue(upgradeIterator.hasNext());
-
-                  String expectedString = expectedIterator.next().replace("Expected", "").trim();
-                  String upgradeString = upgradeIterator.next().trim();
-                  Assert.assertEquals("error on line " + line + " at " + upgradeFile, expectedString, upgradeString);
-                  line++;
-               }
-
-               Assert.assertFalse(upgradeIterator.hasNext());
-            }
+            compareFiles(allowExpectedWord, f, upgradeFile);
          }
       }
+   }
 
+   private static void compareFiles(boolean allowExpectedWord, File expectedFile, File upgradeFile) throws IOException {
+      logger.debug("comparing: {} to {}", upgradeFile, upgradeFile);
+      try (Stream<String> expectedStream = Files.lines(expectedFile.toPath());
+           Stream<String> upgradeStream = Files.lines(upgradeFile.toPath())) {
 
+         Iterator<String> expectedIterator = expectedStream.iterator();
+         Iterator<String> upgradeIterator = upgradeStream.iterator();
 
+         int line = 1;
+
+         while (expectedIterator.hasNext()) {
+            Assert.assertTrue(upgradeIterator.hasNext());
+
+            String expectedString = expectedIterator.next().replace("Expected", "").trim();
+            String upgradeString = upgradeIterator.next().trim();
+
+            // there's a test in this class that will use a different name ID. on that case we replace Expected by ""
+            // on the comparison
+            if (allowExpectedWord) {
+               expectedString = expectedString.replace("Expected", "");
+            }
+
+            Assert.assertEquals("error on line " + line + " at " + upgradeFile, expectedString, upgradeString);
+            line++;
+         }
+
+         Assert.assertFalse(upgradeIterator.hasNext());
+      }
    }
 
    @Test
@@ -235,6 +253,73 @@ public class CompareUpgradeTest {
       Assert.assertTrue("New Logging must be installed by upgrade", newLogging.exists());
    }
 
+   @Test
+   public void testCompareUpgradeCurrentVersion() throws Throwable {
+      File upgradeConfig = new File(basedir + "/target/upgrade/currentVersion");
+      File originalConfig = new File(basedir + "/target/upgrade/currentVersionCopy");
+      FileUtil.deleteDirectory(originalConfig); // removing eventual previous runs
+
+      // for previous runs
+      removeBackups(upgradeConfig);
+
+      // I'm keeping the current configuration as originalConfig, to make a comparisson after upgrade is called
+      FileUtil.copyDirectory(upgradeConfig, originalConfig);
+
+      // looking up for the ARTEMIS_HOME from the profile file
+      Properties properties = new Properties();
+      properties.load(new FileInputStream(new File(originalConfig, "/etc/artemis.profile")));
+      File home = new File(parseProperty(properties, "ARTEMIS_HOME"));
+
+      Upgrade upgrade = new Upgrade();
+      upgrade.setHomeValues(home, null, null);
+      upgrade.setDirectory(upgradeConfig);
+      upgrade.run(new ActionContext());
+
+      // for current run
+      removeBackups(upgradeConfig);
+
+      // Calling upgrade on itself should not cause any changes to *any* file
+      // output should be exactly the same
+      Assert.assertTrue(compareDirectories(false, originalConfig.toPath(), upgradeConfig.toPath()));
+   }
+
+   private void removeBackups(File upgradeConfig) {
+      File[] bkpFiles = upgradeConfig.listFiles(f -> f.isDirectory() && f.getName().contains("config-bkp"));
+      for (File f : bkpFiles) {
+         logger.debug("Removing {}", f);
+         FileUtil.deleteDirectory(f);
+      }
+   }
+
+   private static String parseProperty(Properties properties, String name) {
+      String property = properties.getProperty(name);
+      if (property == null) {
+         return null;
+      }
+      // the property value might have quotes needed for bash. We need to remove those here
+      if (property.startsWith("'") && property.endsWith("'")) {
+         property = property.substring(1, property.length() - 1);
+      }
+      return property;
+   }
+
+
+   public static boolean compareDirectories(boolean allowExpectedWord, Path expected, Path upgrade) throws IOException {
+      Files.walkFileTree(expected, new SimpleFileVisitor<Path>() {
+         @Override
+         public FileVisitResult visitFile(Path expectedFile, BasicFileAttributes attrs) throws IOException {
+            FileVisitResult result = super.visitFile(expectedFile, attrs);
+
+            Path relativize = expected.relativize(expectedFile);
+            Path upgradeFile = upgrade.resolve(relativize);
+
+            compareFiles(allowExpectedWord, expectedFile.toFile(), upgradeFile.toFile());
+
+            return result;
+         }
+      });
+      return true;
+   }
 
    private Map<String, String> checkExpectedValues(String fileName, String... expectedPairs) throws Exception {
       Assert.assertTrue("You must pass a pair of expected values", expectedPairs.length > 0 && expectedPairs.length % 2 == 0);

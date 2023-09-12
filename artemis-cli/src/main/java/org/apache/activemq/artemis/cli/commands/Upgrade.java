@@ -58,7 +58,6 @@ public class Upgrade extends InstallAbstract {
       }
    }
 
-
    @Override
    public Object execute(ActionContext context) throws Exception {
       this.checkDirectory();
@@ -185,10 +184,9 @@ public class Upgrade extends InstallAbstract {
       replaceLines(context, bootstrapXmlTmp, bootstrapXml, bootstrapXmlBkp,
          "^(.*)<web path.*$", "$1<web path=\"web\" rootRedirectLocation=\"console\">",
          "^(.*)<binding uri=\"http://localhost:8161\"(.*)$", "$1<binding name=\"artemis\" uri=\"http://localhost:8161\"$2",
-         "^(.*)<app(.*branding.*)$", "$1<app name=\"branding\"$2",
-         "^(.*)<app(.*plugin.*)$", "$1<app name=\"plugin\"$2",
+         "^(.*)<app url=(.*branding.*)$", "$1<app name=\"branding\" url=$2",
+         "^(.*)<app url=(.*plugin.*)$", "$1<app name=\"plugin\" url=$2",
          "^(.*)<app url=\"([^\"]+)\"(.*)$", "$1<app name=\"$2\" url=\"$2\"$3");
-
       upgradeLogging(context, etcFolder, etcBkp);
 
       context.out.println();

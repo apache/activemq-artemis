@@ -1537,6 +1537,21 @@
                      <staticCluster>tcp://localhost:61616</staticCluster>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>upgrade-current-version-phrase1</id>
+                  <goals>
+                     <goal>create</goal>
+                  </goals>
+                  <configuration>
+                     <noWeb>false</noWeb>
+                     <instance>${basedir}/target/upgrade/currentVersion</instance>
+                     <args>
+                        <arg>--disable-persistence</arg>
+                        <arg>--linux</arg>
+                     </args>
+                  </configuration>
+               </execution>
             </executions>
             <dependencies>
                <dependency>

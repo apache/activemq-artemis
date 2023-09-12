@@ -18,11 +18,19 @@ package org.apache.activemq.artemis.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.HashSet;
 
 import org.apache.activemq.artemis.logs.ActiveMQUtilLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.nio.file.attribute.PosixFilePermission.GROUP_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.GROUP_READ;
@@ -34,6 +42,8 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 public class FileUtil {
+
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
    public static void makeExec(File file) throws IOException {
       try {
@@ -72,4 +82,27 @@ public class FileUtil {
       return directory.delete();
    }
 
+   public static final void copyDirectory(final File directorySource, final File directoryTarget) throws Exception {
+      Path sourcePath = directorySource.toPath();
+      Path targetPath = directoryTarget.toPath();
+
+      try {
+         Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+               Path targetDir = targetPath.resolve(sourcePath.relativize(dir));
+               Files.createDirectories(targetDir);
+               return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+               Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+               return FileVisitResult.CONTINUE;
+            }
+         });
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
 }

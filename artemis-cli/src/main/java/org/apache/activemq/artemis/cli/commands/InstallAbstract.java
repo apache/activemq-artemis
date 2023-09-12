@@ -61,6 +61,11 @@ public class InstallAbstract extends InputAbstract {
    @Option(names = "--java-memory", description = "Define the -Xmx memory parameter for the broker. Default: 2G.")
    protected String javaMemory = "2G";
 
+   // "calculated" during run
+   protected boolean IS_WINDOWS;
+   // "calculated" during run
+   protected boolean IS_NIX;
+
    protected String getJavaOptions() {
       StringBuilder builder = new StringBuilder();
       if (javaOptions != null) {
@@ -92,8 +97,32 @@ public class InstallAbstract extends InputAbstract {
       return home;
    }
 
-   protected boolean IS_WINDOWS;
-   protected boolean IS_NIX;
+   public File getDirectory() {
+      return directory;
+   }
+
+   public InstallAbstract setDirectory(File directory) {
+      this.directory = directory;
+      return this;
+   }
+
+   public boolean isWindows() {
+      return windows;
+   }
+
+   public InstallAbstract setWindows(boolean windows) {
+      this.windows = windows;
+      return this;
+   }
+
+   public boolean isNix() {
+      return nix;
+   }
+
+   public InstallAbstract setNix(boolean nix) {
+      this.nix = nix;
+      return this;
+   }
 
    public Object run(ActionContext context) throws Exception {
       IS_NIX = false;
