@@ -23,11 +23,11 @@ Here an example of an `address-setting` entry that might be found in the `broker
    <address-setting match="order.foo">
       <dead-letter-address>DLA</dead-letter-address>
       <auto-create-dead-letter-resources>false</auto-create-dead-letter-resources>
-      <dead-letter-queue-prefix>DLQ.</dead-letter-queue-prefix>
+      <dead-letter-queue-prefix></dead-letter-queue-prefix>
       <dead-letter-queue-suffix></dead-letter-queue-suffix>
       <expiry-address>ExpiryQueue</expiry-address>
       <auto-create-expiry-resources>false</auto-create-expiry-resources>
-      <expiry-queue-prefix>EXP.</expiry-queue-prefix>
+      <expiry-queue-prefix></expiry-queue-prefix>
       <expiry-queue-suffix></expiry-queue-suffix>
       <expiry-delay>123</expiry-delay>
       <redelivery-delay>5000</redelivery-delay>
@@ -35,19 +35,19 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <redelivery-collision-avoidance-factor>0.0</redelivery-collision-avoidance-factor>
       <max-redelivery-delay>10000</max-redelivery-delay>
       <max-delivery-attempts>3</max-delivery-attempts>
-      <max-size-bytes>100000</max-size-bytes>
-      <max-size-messages>1000</max-size-messages>
+      <max-size-bytes>-1</max-size-bytes>
+      <max-size-messages>-1</max-size-messages>
       <max-size-bytes-reject-threshold>-1</max-size-bytes-reject-threshold>
-      <page-size-bytes>20000</page-size-bytes>
+      <page-size-bytes>10MB</page-size-bytes>
       <address-full-policy>PAGE</address-full-policy>
       <message-counter-history-day-limit></message-counter-history-day-limit>
-      <last-value-queue>true</last-value-queue> <!-- deprecated! see default-last-value-queue -->
+      <last-value-queue>false</last-value-queue> <!-- deprecated! see default-last-value-queue -->
       <default-last-value-queue>false</default-last-value-queue>
       <default-non-destructive>false</default-non-destructive>
       <default-exclusive-queue>false</default-exclusive-queue>
       <default-consumers-before-dispatch>0</default-consumers-before-dispatch>
       <default-delay-before-dispatch>-1</default-delay-before-dispatch>
-      <redistribution-delay>0</redistribution-delay>
+      <redistribution-delay>-1</redistribution-delay>
       <send-to-dla-on-no-route>false</send-to-dla-on-no-route>
       <slow-consumer-threshold>-1</slow-consumer-threshold>
       <slow-consumer-threshold-measurement-unit>MESSAGES_PER_SECOND</slow-consumer-threshold-measurement-unit>
@@ -70,8 +70,9 @@ Here an example of an `address-setting` entry that might be found in the `broker
       <management-message-attribute-size-limit>256</management-message-attribute-size-limit>
       <default-purge-on-no-consumers>false</default-purge-on-no-consumers>
       <default-max-consumers>-1</default-max-consumers>
-      <default-queue-routing-type></default-queue-routing-type>
-      <default-address-routing-type></default-address-routing-type>
+      <default-queue-routing-type>MULTICAST</default-queue-routing-type>
+      <default-address-routing-type>MULTICAST</default-address-routing-type>
+      <default-consumer-window-size>1048576</default-consumer-window-size>
       <default-ring-size>-1</default-ring-size>
       <retroactive-message-count>0</retroactive-message-count>
       <enable-metrics>true</enable-metrics>
@@ -92,10 +93,12 @@ Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery
 
 dead-letter-queue-prefix::
 The prefix used for automatically created dead-letter queues.
+Default is empty.
 Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery-and-undelivered-messages[undelivered messages].
 
 dead-letter-queue-suffix::
 The suffix used for automatically created dead-letter queues.
+Default is empty.
 Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery-and-undelivered-messages[undelivered messages].
 
 expiry-address::
@@ -109,10 +112,12 @@ Read more in the chapter about xref:undelivered-messages.adoc#message-redelivery
 
 expiry-queue-prefix::
 The prefix used for automatically created expiry queues.
+Default is empty.
 Read more in the chapter about xref:message-expiry.adoc#message-expiry[message expiry].
 
 expiry-queue-suffix::
 The suffix used for automatically created expiry queues.
+Default is empty.
 Read more in the chapter about xref:message-expiry.adoc#message-expiry[message expiry].
 
 expiry-delay::
@@ -141,9 +146,14 @@ defines an additional factor used to calculate an adjustment to the `redelivery-
 Default is `0.0`.
 Valid values are between 0.0 and 1.0.
 Read more about xref:undelivered-messages.adoc#configuring-delayed-redelivery[undelivered messages].
-+
-`max-size-bytes`, `max-size-messages`, `page-size-bytes`, `max-read-page-messages` & `max-read-page-bytes` are used to configure paging on an address.
-This is explained xref:paging.adoc#configuration[here].
+
+max-size-bytes::
+max-size-messages::
+page-size-bytes::
+max-read-page-messages::
+max-read-page-bytes::
+All these are used to configure paging on an address.
+This is explained in the xref:paging.adoc#configuration[paging documentation].
 
 max-size-bytes-reject-threshold::
 is used with the address full `BLOCK` policy, the maximum size (in bytes) an address can reach before messages start getting rejected.
@@ -187,6 +197,7 @@ Default is `-1` (wait forever).
 
 redistribution-delay::
 How long to wait when the last consumer is closed on a queue before redistributing any messages.
+Default is `-1`.
 Read more about xref:clusters.adoc#message-redistribution[clusters].
 
 send-to-dla-on-no-route::
