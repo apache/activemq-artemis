@@ -20,7 +20,7 @@
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.31.0-SNAPSHOT</version>
+      <version>2.31.0</version>
    </parent>
 
    <artifactId>artemis-website</artifactId>
@@ -301,7 +301,7 @@
                            <outputDirectory>${project.build.outputDirectory}/user-manual</outputDirectory>
                            <backend>html5</backend>
                            <attributes>
-                              <toc-title>&lt;a href="index.html">User Manual for ${project.version}&lt;/a></toc-title>
+                              <toc-title>&lt;a href="index.html"&gt;User Manual for ${project.version}&lt;/a&gt;</toc-title>
                               <favicon>images/favicon.png</favicon>
                            </attributes>
                         </configuration>
@@ -368,11 +368,11 @@
                         <toc>left</toc>
                         <icons>font</icons>
                         <toclevels>2</toclevels>
-                        <sectlinks/>
-                        <sectanchors/>
+                        <sectlinks />
+                        <sectanchors />
                         <sectnumlevels>3</sectnumlevels>
-                        <sectnums/>
-                        <idprefix/>
+                        <sectnums />
+                        <idprefix />
                         <idseparator>-</idseparator>
                         <project-version>${project.version}</project-version>
                         <nofooter>true</nofooter>
