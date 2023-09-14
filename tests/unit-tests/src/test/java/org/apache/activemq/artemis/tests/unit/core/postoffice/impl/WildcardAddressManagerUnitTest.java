@@ -221,6 +221,59 @@ public class WildcardAddressManagerUnitTest extends ActiveMQTestBase {
 
    }
 
+   @Test
+   public void testSingleWordWildCardAddressBindingsForRouting() throws Exception {
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("news.*"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("news.*.sport"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("news.*", "one"));
+      ad.addBinding(new BindingFake("news.*.sport", "two"));
+
+      Collection<Binding> bindings = ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe")).getBindings();
+      assertEquals(1, bindings.size());
+      assertEquals("one", bindings.iterator().next().getUniqueName().toString());
+      bindings = ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.usa")).getBindings();
+      assertEquals(1, bindings.size());
+      assertEquals("one", bindings.iterator().next().getUniqueName().toString());
+      bindings = ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe.sport")).getBindings();
+      assertEquals(1, bindings.size());
+      assertEquals("two", bindings.iterator().next().getUniqueName().toString());
+      bindings = ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.usa.sport")).getBindings();
+      assertEquals(1, bindings.size());
+      assertEquals("two", bindings.iterator().next().getUniqueName().toString());
+      assertNull(ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe.fr.sport")));
+   }
+
+   @Test
+   public void testAnyWordsWildCardAddressBindingsForRouting() throws Exception {
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("news.europe.#"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("news.europe.#", "one"));
+
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe.sport")).getBindings().size());
+      assertEquals(1, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe.politics.fr")).getBindings().size());
+      assertNull(ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.usa")));
+      assertNull(ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("europe")));
+   }
+
+   @Test
+   public void testAnyWordsMultipleWildCardsAddressBindingsForRouting() throws Exception {
+      WildcardAddressManager ad = new WildcardAddressManager(new BindingFactoryFake(), null, null);
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("news.#"), RoutingType.MULTICAST));
+      ad.addAddressInfo(new AddressInfo(SimpleString.toSimpleString("news.europe.#"), RoutingType.MULTICAST));
+      ad.addBinding(new BindingFake("news.#", "one"));
+      ad.addBinding(new BindingFake("news.europe.#", "two"));
+
+      assertEquals(2, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe")).getBindings().size());
+      assertEquals(2, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe.sport")).getBindings().size());
+      assertEquals(2, ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.europe.politics.fr")).getBindings().size());
+
+      Collection<Binding> bindings = ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("news.usa")).getBindings();
+      assertEquals(1, bindings.size());
+      assertEquals("one", bindings.iterator().next().getUniqueName().toString());
+      assertNull(ad.getBindingsForRoutingAddress(SimpleString.toSimpleString("europe")));
+   }
 
    @Test
    public void testNumberOfBindingsThatMatch() throws Exception {

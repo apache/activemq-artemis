@@ -24,6 +24,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 import java.lang.invoke.MethodHandles;
 
@@ -250,6 +252,42 @@ public class MessageTest extends JMSTestBase {
          logger.debug("{}", message.getDoubleProperty(MessageTest.propName1));
       } catch (NullPointerException e) {
          // Ok
+      }
+   }
+
+   /**
+    * @see <a href="https://issues.apache.org/jira/browse/ARTEMIS-4270">ARTEMIS-4270</a>
+    */
+   @Test
+   public void testWildcardRoutingHierarchyWithMultipleConsumers() throws Exception {
+      Topic parentTopic = createTopic(true, "a.#");
+      Topic childTopic = createTopic(true, "a.b.#");
+      try (Connection conn = cf.createConnection()) {
+         conn.start();
+
+         try (Session session = conn.createSession(false, Session.CLIENT_ACKNOWLEDGE)) {
+            MessageConsumer parentConsumer = session.createConsumer(parentTopic);
+            MessageConsumer childConsumer = session.createConsumer(childTopic);
+
+            MessageProducer producer = session.createProducer(null);
+
+            producer.send(session.createTopic("a.b.c"), session.createTextMessage("m1"));
+            producer.send(session.createTopic("a.b"), session.createTextMessage("m2"));
+
+            Message m = parentConsumer.receive(5_000);
+            assertTrue(m instanceof TextMessage);
+            assertEquals("m1", ((TextMessage) m).getText());
+            m = parentConsumer.receive(5_000);
+            assertTrue(m instanceof TextMessage);
+            assertEquals("m2", ((TextMessage) m).getText());
+
+            m = childConsumer.receive(5_000);
+            assertTrue(m instanceof TextMessage);
+            assertEquals("m1", ((TextMessage) m).getText());
+            m = childConsumer.receive(5_000);
+            assertTrue(m instanceof TextMessage);
+            assertEquals("m2", ((TextMessage) m).getText());
+         }
       }
    }
 
