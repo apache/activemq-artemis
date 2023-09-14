@@ -12,6 +12,22 @@ NOTE: If the upgrade spans multiple versions then the steps from *each* version 
 
 NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#upgrading-the-broker[Upgrading the Broker]  chapter in addition to any version-specific upgrade instructions outlined here.
 
+== 2.31.0
+
+https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353446[Full release notes]
+
+=== Highlights
+
+* Artemis shell was introduced as part of 2.31.0. When you run `./artemis shell` a new terminal screen will help you navigate through the CLI commands.
+* The shell terminal will also be presented when you run `./artemis`.
+* It is also possible to use bash auto-complete. When you run `./artemis auto-complete` a bash script is generate to provide auto-complete information for your bash shell.
+* A CLI cluster verification tool was added to help you monitor your broker topologies. Type `./artemis check cluster` for that functionality.
+* `./artemis queue stat` now can be used to verify the message counts on the whole cluster topology (when clustering is in use)
+* AMQP Federation was added to broker connections.
+* MQTT Session State are now persisted.
+* Paging JDBC Persistence was significantly improved.
+* Many other bug fixes and improvements as usual.
+
 == 2.30.0
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353357[Full release notes]
