@@ -225,10 +225,9 @@ public final class AddressPartNode<T> {
 
    // non wildcard paths, match any expanded wildcards in the map
    public void visitMatchingWildcards(final String[] paths, final int startIndex, final AddressMapVisitor<T> collector) throws Exception {
-      boolean canVisitAnyDescendent = true;
       AddressPartNode<T> node = this;
-      AddressPartNode<T> anyDescendentNode = null;
-      AddressPartNode<T> anyChildNode = null;
+      AddressPartNode<T> anyDescendentNode;
+      AddressPartNode<T> anyChildNode;
       final int size = paths.length;
       for (int i = startIndex; i < size && node != null; i++) {
 
@@ -240,7 +239,6 @@ public final class AddressPartNode<T> {
             anyDescendentNode.visitValues(collector);
             // match tail with current path, such that ANY_DESCENDENT can match zero
             anyDescendentNode.visitPathTailMatch(paths, i, collector);
-            canVisitAnyDescendent = false;
          }
 
          anyChildNode = node.getChild(ANY_CHILD);
@@ -260,13 +258,10 @@ public final class AddressPartNode<T> {
 
          node.visitValues(collector);
 
-         if (canVisitAnyDescendent) {
-
-            // allow zero node any descendant at the end of path node
-            anyDescendentNode = node.getChild(ANY_DESCENDENT);
-            if (anyDescendentNode != null) {
-               anyDescendentNode.visitValues(collector);
-            }
+         // allow zero node any descendant at the end of path node
+         anyDescendentNode = node.getChild(ANY_DESCENDENT);
+         if (anyDescendentNode != null) {
+            anyDescendentNode.visitValues(collector);
          }
       }
    }
