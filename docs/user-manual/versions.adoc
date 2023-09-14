@@ -16,17 +16,37 @@ NOTE: Follow the general upgrade procedure outlined in the xref:upgrading.adoc#u
 
 https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&version=12353446[Full release notes]
 
-=== Highlights
 
-* Artemis shell was introduced as part of 2.31.0. When you run `./artemis shell` a new terminal screen will help you navigate through the CLI commands.
-* The shell terminal will also be presented when you run `./artemis`.
-* It is also possible to use bash auto-complete. When you run `./artemis auto-complete` a bash script is generate to provide auto-complete information for your bash shell.
-* A CLI cluster verification tool was added to help you monitor your broker topologies. Type `./artemis check cluster` for that functionality.
-* `./artemis queue stat` now can be used to verify the message counts on the whole cluster topology (when clustering is in use)
-* AMQP Federation was added to broker connections.
-* MQTT Session State are now persisted.
-* Paging JDBC Persistence was significantly improved.
-* Many other bug fixes and improvements as usual.
+== Highlights
+
+* *Artemis Shell*:
+- Introduced a new feature, Artemis shell, as part of 2.31.0. When you run `./artemis shell`, a new terminal screen will help you navigate through the CLI commands.
+- The shell terminal will also be presented when you run `./artemis`.
+- You can use bash auto-complete. Run `./artemis auto-complete` to generate a bash script that provides auto-complete information for your bash shell.
+
+* *CLI Cluster Verification Tool*:
+- Added a CLI cluster verification tool to help you monitor your broker topologies. Type `./artemis check cluster` to access this functionality.
+
+* *Cluster Message Count Verification*:
+- You can now use `./artemis queue stat` to verify the message counts on the entire cluster topology when clustering is in use.
+
+* *AMQP Federation*:
+- Added AMQP Federation support to broker connections.
+
+* *MQTT Session State Persistence*:
+- MQTT Session State is now persisted.
+
+* *Paging JDBC Persistence*:
+- Significantly improved the Paging JDBC Persistence.
+
+* *Bug Fixes and Improvements*:
+- Many other bug fixes and improvements, as usual.
+
+
+== Upgrading from 2.30.0
+
+* You should be able to use `artemis upgrade` to switch the Artemis home of your installation and migrate configuration files.
+* Note that with the introduction of the new Artemis shell feature, when you invoke `./artemis`, it will now start the new terminal shell to navigate through the CLI commands.
 
 == 2.30.0
 
