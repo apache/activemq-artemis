@@ -1539,7 +1539,7 @@
                </execution>
                <execution>
                   <phase>test-compile</phase>
-                  <id>upgrade-current-version-phrase1</id>
+                  <id>upgrade-current-version-phase1</id>
                   <goals>
                      <goal>create</goal>
                   </goals>
