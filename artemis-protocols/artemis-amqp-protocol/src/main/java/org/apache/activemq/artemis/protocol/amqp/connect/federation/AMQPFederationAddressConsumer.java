@@ -374,6 +374,9 @@ public class AMQPFederationAddressConsumer implements FederationConsumerInternal
          message.setAnnotation(MESSAGE_HOPS_ANNOTATION, numHops.intValue() + 1);
       }
 
+      // Annotations need to be rewritten to carry the change forward.
+      message.reencode();
+
       return message;
    }
 
