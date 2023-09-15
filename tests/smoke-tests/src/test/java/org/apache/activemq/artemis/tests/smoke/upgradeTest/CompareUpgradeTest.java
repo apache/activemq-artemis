@@ -164,7 +164,7 @@ public class CompareUpgradeTest {
          while (expectedIterator.hasNext()) {
             Assert.assertTrue(upgradeIterator.hasNext());
 
-            String expectedString = expectedIterator.next().replace("Expected", "").trim();
+            String expectedString = expectedIterator.next().trim();
             String upgradeString = upgradeIterator.next().trim();
 
             // there's a test in this class that will use a different name ID. on that case we replace Expected by ""

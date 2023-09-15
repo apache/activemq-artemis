@@ -85,24 +85,19 @@ public class FileUtil {
    public static final void copyDirectory(final File directorySource, final File directoryTarget) throws Exception {
       Path sourcePath = directorySource.toPath();
       Path targetPath = directoryTarget.toPath();
+      Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
+         @Override
+         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+            Path targetDir = targetPath.resolve(sourcePath.relativize(dir));
+            Files.createDirectories(targetDir);
+            return FileVisitResult.CONTINUE;
+         }
 
-      try {
-         Files.walkFileTree(sourcePath, new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-               Path targetDir = targetPath.resolve(sourcePath.relativize(dir));
-               Files.createDirectories(targetDir);
-               return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-               Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
-               return FileVisitResult.CONTINUE;
-            }
-         });
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
+         @Override
+         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
+            return FileVisitResult.CONTINUE;
+         }
+      });
    }
 }
