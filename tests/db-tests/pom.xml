@@ -420,6 +420,7 @@
             <mysql.load>true</mysql.load>
             <mssql.load>true</mssql.load>
             <db2.load>true</db2.load>
+            <derby.load>true</derby.load>
             <postgres.load>true</postgres.load>
          </properties>
       </profile>
