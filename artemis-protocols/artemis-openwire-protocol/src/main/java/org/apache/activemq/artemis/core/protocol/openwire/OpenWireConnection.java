@@ -681,6 +681,24 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
       return this.inWireFormat;
    }
 
+   private void rollbackInProgressLocalTransactions() {
+
+      for (Transaction tx : txMap.values()) {
+         AMQSession session = (AMQSession) tx.getProtocolData();
+         if (session != null) {
+            session.getCoreSession().resetTX(tx);
+            try {
+               session.getCoreSession().rollback(false);
+            } catch (Exception expectedOnExistingOutcome) {
+            } finally {
+               session.getCoreSession().resetTX(null);
+            }
+         } else {
+            tx.tryRollback();
+         }
+      }
+   }
+
    private void shutdown(boolean fail) {
 
       try {
@@ -754,9 +772,19 @@ public class OpenWireConnection extends AbstractRemotingConnection implements Se
    @Override
    public void fail(ActiveMQException me, String message) {
 
-      for (Transaction tx : txMap.values()) {
-         tx.tryRollback();
+      final ThresholdActor<Command> localVisibleActor = openWireActor;
+      if (localVisibleActor != null) {
+         localVisibleActor.shutdown(() -> doFail(me, message));
+      } else {
+         doFail(me, message);
       }
+   }
+
+   private void doFail(ActiveMQException me, String message) {
+
+      recoverOperationContext();
+
+      rollbackInProgressLocalTransactions();
 
       if (me != null) {
          //filter it like the other protocols
