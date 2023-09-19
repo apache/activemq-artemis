@@ -39,6 +39,8 @@ https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315920&versio
 * *Paging JDBC Persistence*:
 - Significantly improved the Paging JDBC Persistence.
 
+* *Documentation converted to AsciiDoc*
+
 * *Bug Fixes and Improvements*:
 - Many other bug fixes and improvements, as usual.
 
