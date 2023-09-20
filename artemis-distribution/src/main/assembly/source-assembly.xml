@@ -123,6 +123,10 @@
             <exclude>
                %regex[(?!((?!${project.build.directory}/)[^/]+/)*src/)(.*/)?release\.properties]
             </exclude>
+            <!-- maven-shade-plugin -->
+            <exclude>
+               %regex[(?!((?!${project.build.directory}/)[^/]+/)*src/)(.*/)?dependency-reduced-pom\.xml]
+            </exclude>
 
          </excludes>
       </fileSet>
