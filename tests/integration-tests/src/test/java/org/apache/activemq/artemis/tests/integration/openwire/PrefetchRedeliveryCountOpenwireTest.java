@@ -231,7 +231,6 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
          exConn.close();
 
          final int batch = numMessages;
-         AtomicInteger commits = new AtomicInteger(0);
          AtomicBoolean done = new AtomicBoolean(false);
          while (!done.get()) {
             // connection per batch attempt
@@ -264,7 +263,6 @@ public class PrefetchRedeliveryCountOpenwireTest extends OpenWireTestBase {
                   try {
                      latch.countDown();
                      finalSession.commit();
-                     commits.incrementAndGet();
 
                   } catch (JMSException e) {
                   }
