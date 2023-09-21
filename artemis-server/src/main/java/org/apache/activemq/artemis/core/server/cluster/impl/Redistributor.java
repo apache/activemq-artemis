@@ -113,6 +113,10 @@ public class Redistributor implements Consumer {
          return HandleStatus.NO_MATCH;
       }
 
+      if (logger.isDebugEnabled()) {
+         logger.debug("Redistributing message {}, originatingQueue={}", reference.getMessage(), queue.getName());
+      }
+
       final Pair<RoutingContext, Message> routingInfo = postOffice.redistribute(reference.getMessage(), queue);
 
       if (routingInfo == null) {

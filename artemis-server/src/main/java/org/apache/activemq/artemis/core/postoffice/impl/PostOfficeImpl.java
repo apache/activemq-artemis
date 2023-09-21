@@ -1394,6 +1394,9 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
       Bindings bindings = addressManager.getBindingsForRoutingAddress(message.getAddressSimpleString());
 
       if (bindings != null && bindings.allowRedistribute()) {
+         if (logger.isDebugEnabled()) {
+            logger.debug("Redistributing message {}, originatingQueue={}, bindings={}", message, originatingQueue.getName(), bindings);
+         }
          RoutingContext context = new RoutingContextImpl(null);
 
          // the redistributor will make a copy of the message if it can be redistributed
@@ -1401,7 +1404,11 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
          if (redistributedMessage != null) {
             return new Pair<>(context, redistributedMessage);
+         } else {
+            logger.debug("Redistribution of message {} did not happen because bindings.redistribute returned null", message);
          }
+      } else {
+         logger.debug("not able to redistribute message={} towards bindings={}", message, bindings);
       }
 
       return null;
