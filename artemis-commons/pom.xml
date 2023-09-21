@@ -140,14 +140,6 @@
                   </goals>
                   <configuration>
                      <createDependencyReducedPom>true</createDependencyReducedPom>
-                     <filters>
-                        <filter>
-                           <artifact>*:*</artifact>
-                           <excludes>
-                              <exclude>META-INF/**/*</exclude>
-                           </excludes>
-                        </filter>
-                     </filters>
                      <relocations>
                         <relocation>
                            <pattern>javax.json</pattern>
