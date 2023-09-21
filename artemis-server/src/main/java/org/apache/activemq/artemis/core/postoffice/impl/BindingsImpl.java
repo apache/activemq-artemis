@@ -218,16 +218,20 @@ public final class BindingsImpl implements Bindings {
                                final RoutingContext context) throws Exception {
       final MessageLoadBalancingType loadBalancingType = this.messageLoadBalancingType;
       if (loadBalancingType.equals(MessageLoadBalancingType.STRICT) || loadBalancingType.equals(MessageLoadBalancingType.OFF)) {
+         logger.debug("Rejecting redistribution of message={} as the loadBalancingType is {}", message, loadBalancingType);
          return null;
       }
 
-      logger.trace("Redistributing message {}", message);
+      if (logger.isDebugEnabled()) {
+         logger.debug("Redistributing message {}, originatingQueue={}, currentBindings={}", message, originatingQueue.getName(), this.name);
+      }
 
       final SimpleString routingName = CompositeAddress.isFullyQualified(message.getAddress()) && originatingQueue.getRoutingType() == RoutingType.ANYCAST ? CompositeAddress.extractAddressName(message.getAddressSimpleString()) : originatingQueue.getName();
 
       final Pair<Binding[], CopyOnWriteBindings.BindingIndex> bindingsAndPosition = routingNameBindingMap.getBindings(routingName);
 
       if (bindingsAndPosition == null) {
+         logger.debug("Rejecting message redistribution for message={} as bindingsAndPosition is null", message);
          // The value can become null if it's concurrently removed while we're iterating - this is expected
          // ConcurrentHashMap behaviour!
          return null;
@@ -259,6 +263,7 @@ public final class BindingsImpl implements Bindings {
          }
       }
       if (nextBinding == null) {
+         logger.debug("there was no nextBinding, returning null while redistributing message={}", message);
          return null;
       }
 
@@ -279,6 +284,7 @@ public final class BindingsImpl implements Bindings {
 
       bindingIndex.setIndex(nextPosition);
       nextBinding.route(copyRedistribute, context);
+      logger.debug("Redistribution successful on message={}, towards bindings={}", message, bindings);
       return copyRedistribute;
    }
 
