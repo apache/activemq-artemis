@@ -37,6 +37,7 @@ image::images/activemq-logo.png[align="center"]
 
 == Getting Started
 
+* xref:docker.adoc#docker[Docker]
 * xref:using-server.adoc#using-the-server[Using the Server]
 * xref:using-cli.adoc#command-line-interface[Using the Command-Line Interface]
 * xref:client-classpath.adoc#the-client-classpath[JMS & Jakarta Client Classpath]
