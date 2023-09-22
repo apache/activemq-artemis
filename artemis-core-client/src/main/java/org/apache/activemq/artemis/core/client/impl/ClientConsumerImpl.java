@@ -992,11 +992,16 @@ public final class ClientConsumerImpl implements ClientConsumerInternal {
 
                logger.trace("{}::Handler.onMessage done", this);
 
-               if (message.isLargeMessage()) {
-                  message.discardBody();
-               }
             } else {
+               theHandler.onMessageExpired(message);
+
+               logger.trace("{}::Handler.onMessageExpired done", this);
+
                session.expire(this, message);
+            }
+
+            if (message.isLargeMessage()) {
+               message.discardBody();
             }
 
             // If slow consumer, we need to send 1 credit to make sure we get another message

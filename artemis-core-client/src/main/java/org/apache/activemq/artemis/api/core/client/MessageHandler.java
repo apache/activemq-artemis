@@ -32,4 +32,13 @@ public interface MessageHandler {
     * @param message a message
     */
    void onMessage(ClientMessage message);
+
+   /**
+    * Notifies the MessageHandler that an expired message has been received.
+    *
+    * @param message a message
+    */
+   default void onMessageExpired(ClientMessage message) {
+      // Do nothing by default
+   }
 }
