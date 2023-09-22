@@ -42,6 +42,7 @@ import org.apache.activemq.artemis.core.client.impl.ClientSessionFactoryInternal
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.protocol.core.impl.PacketImpl;
 import org.apache.activemq.artemis.jms.client.ActiveMQDestination;
+import org.apache.activemq.artemis.jms.client.ActiveMQJMSClientLogger;
 import org.apache.activemq.artemis.jms.client.ActiveMQMessage;
 import org.apache.activemq.artemis.jms.client.ConnectionFactoryOptions;
 import org.apache.activemq.artemis.jms.client.compatible1X.ActiveMQCompatibleMessage;
@@ -395,6 +396,16 @@ public class ActiveMQMessageHandler implements MessageHandler, FailoverEventList
          }
       }
 
+   }
+
+
+   @Override
+   public void onMessageExpired(ClientMessage message) {
+      try {
+         message.checkCompletion();
+      } catch (ActiveMQException e) {
+         ActiveMQJMSClientLogger.LOGGER.errorProcessingMessage(e);
+      }
    }
 
    public void start() throws ActiveMQException {
