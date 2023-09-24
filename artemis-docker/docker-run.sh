@@ -16,11 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
-
 # This is the entry point for the docker images.
-# This file is executed when docker run is called.
-
+# This file is executed when "docker container create" or "docker run" is called.
 
 set -e
 
@@ -34,19 +31,15 @@ else
   LOGIN_OPTION="--require-login"
 fi
 
-CREATE_ARGUMENTS="--user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent ${LOGIN_OPTION} ${EXTRA_ARGS}"
-
-echo CREATE_ARGUMENTS=${CREATE_ARGUMENTS}
-
 if ! [ -f ./etc/broker.xml ]; then
+    CREATE_ARGUMENTS="--user ${ARTEMIS_USER} --password ${ARTEMIS_PASSWORD} --silent ${LOGIN_OPTION} ${EXTRA_ARGS}"
+    echo CREATE_ARGUMENTS=${CREATE_ARGUMENTS}
     /opt/activemq-artemis/bin/artemis create ${CREATE_ARGUMENTS} .
     if [ -d ./etc-override ]; then
         for file in `ls ./etc-override`; do echo copying file to etc folder: $file; cp ./etc-override/$file ./etc || :; done
     fi
 else
-    echo "broker already created, ignoring creation"
+    echo "skipping broker instance creation; instance already exists"
 fi
 
 exec ./bin/artemis "$@"
-
-
