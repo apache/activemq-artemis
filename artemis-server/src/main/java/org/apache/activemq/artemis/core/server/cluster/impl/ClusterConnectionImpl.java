@@ -554,9 +554,13 @@ public final class ClusterConnectionImpl implements ClusterConnection, AfterConn
     * @return
     */
    @Override
-   public boolean removeMember(final long uniqueEventID, final String nodeId) {
+   public boolean removeMember(final long uniqueEventID, final String nodeId, final boolean disconnect) {
       if (nodeId.equals(nodeManager.getNodeId().toString())) {
-         ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId);
+         if (!disconnect) {
+            ActiveMQServerLogger.LOGGER.possibleSplitBrain(nodeId);
+         } else {
+            ActiveMQServerLogger.LOGGER.nodeLeavingCluster(nodeId);
+         }
          return false;
       }
       return true;

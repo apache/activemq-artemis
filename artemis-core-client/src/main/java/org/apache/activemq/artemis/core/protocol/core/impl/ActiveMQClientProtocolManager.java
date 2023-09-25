@@ -532,7 +532,7 @@ public class ActiveMQClientProtocolManager implements ClientProtocolManager {
             logger.debug("Notifying {} going down", topMessage.getNodeID());
 
             if (topologyResponseHandler != null) {
-               topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID());
+               topologyResponseHandler.notifyNodeDown(eventUID, topMessage.getNodeID(), topMessage.isExit());
             }
          } else {
             Pair<TransportConfiguration, TransportConfiguration> transportConfig = topMessage.getPair();

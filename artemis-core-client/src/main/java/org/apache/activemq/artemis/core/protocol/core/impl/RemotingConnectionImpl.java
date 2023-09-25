@@ -49,6 +49,7 @@ import org.apache.activemq.artemis.utils.SimpleIDGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 
 public class RemotingConnectionImpl extends AbstractRemotingConnection implements CoreRemotingConnection {
 
@@ -198,8 +199,10 @@ public class RemotingConnectionImpl extends AbstractRemotingConnection implement
          destroyed = true;
       }
 
-      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRoutingException)) {
+      if (!(me instanceof ActiveMQRemoteDisconnectException) && !(me instanceof ActiveMQRoutingException) && !(me instanceof ActiveMQDisconnectedException)) {
          ActiveMQClientLogger.LOGGER.connectionFailureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
+      } else if (me instanceof ActiveMQDisconnectedException) {
+         ActiveMQClientLogger.LOGGER.connectionClosureDetected(transportConnection.getRemoteAddress(), me.getMessage(), me.getType());
       }
 
       try {

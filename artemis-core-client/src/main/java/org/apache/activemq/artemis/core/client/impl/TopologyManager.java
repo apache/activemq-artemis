@@ -19,5 +19,5 @@ package org.apache.activemq.artemis.core.client.impl;
 
 public interface TopologyManager {
    boolean updateMember(long uniqueEventID, String nodeId, TopologyMemberImpl memberInput);
-   boolean removeMember(long uniqueEventID, String nodeId);
+   boolean removeMember(long uniqueEventID, String nodeId, boolean disconnect);
 }

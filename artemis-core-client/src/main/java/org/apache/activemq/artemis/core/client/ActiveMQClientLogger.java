@@ -350,4 +350,7 @@ public interface ActiveMQClientLogger {
 
    @LogMessage(id = 214035, value = "Couldn't finish the client globalFlowControlThreadPool in less than 10 seconds, interrupting it now", level = LogMessage.Level.WARN)
    void unableToProcessGlobalFlowControlThreadPoolIn10Sec();
+
+   @LogMessage(id = 214036, value = "Connection closure to {} has been detected: {} [code={}]", level = LogMessage.Level.INFO)
+   void connectionClosureDetected(String remoteAddress, String message, ActiveMQExceptionType type);
 }
