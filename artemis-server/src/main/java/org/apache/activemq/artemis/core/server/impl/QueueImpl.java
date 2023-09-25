@@ -1602,6 +1602,10 @@ public class QueueImpl extends CriticalComponentImpl implements Queue {
          } catch (Exception e) {
             ActiveMQServerLogger.LOGGER.unableToCancelRedistributor(e);
          } finally {
+            if (redistributor.iter != null) {
+               redistributor.iter.close();
+               redistributor.iter = null;
+            }
             consumers.remove(redistributor);
             redistributor = null;
          }
