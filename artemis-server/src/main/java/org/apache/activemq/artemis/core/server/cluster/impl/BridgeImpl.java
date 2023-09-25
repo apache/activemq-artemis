@@ -75,6 +75,7 @@ import org.apache.activemq.artemis.utils.collections.TypedProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import org.apache.activemq.artemis.api.core.ActiveMQDisconnectedException;
 
 /**
  * A Core BridgeImpl
@@ -661,7 +662,11 @@ public class BridgeImpl implements Bridge, SessionFailureListener, SendAcknowled
    @Override
    public void connectionFailed(final ActiveMQException me, boolean failedOver, String scaleDownTargetNodeID) {
       if (server.isStarted()) {
-         ActiveMQServerLogger.LOGGER.bridgeConnectionFailed(failedOver);
+         if (me instanceof ActiveMQDisconnectedException) {
+            ActiveMQServerLogger.LOGGER.bridgeConnectionClosed(failedOver);
+         } else {
+            ActiveMQServerLogger.LOGGER.bridgeConnectionFailed(failedOver);
+         }
       }
 
       synchronized (connectionGuard) {

@@ -1500,7 +1500,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
     * Look for callers of this method!
     */
    @Override
-   public void notifyNodeDown(final long eventTime, final String nodeID) {
+   public void notifyNodeDown(final long eventTime, final String nodeID, boolean disconnect) {
 
       if (!ha) {
          // there's no topology here
@@ -1511,7 +1511,7 @@ public final class ServerLocatorImpl implements ServerLocatorInternal, Discovery
          logger.trace("nodeDown {} nodeID={} as being down", this, nodeID, new Exception("trace"));
       }
 
-      topology.removeMember(eventTime, nodeID);
+      topology.removeMember(eventTime, nodeID, disconnect);
 
       if (clusterConnection) {
          updateArraysAndPairs(eventTime);

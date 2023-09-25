@@ -302,11 +302,11 @@ public final class Topology {
       return listenersCopy;
    }
 
-   boolean removeMember(final long uniqueEventID, final String nodeId) {
+   boolean removeMember(final long uniqueEventID, final String nodeId, final boolean disconnect) {
       TopologyMemberImpl member;
 
 
-      if (manager != null && !manager.removeMember(uniqueEventID, nodeId)) {
+      if (manager != null && !manager.removeMember(uniqueEventID, nodeId, disconnect)) {
          logger.debug("TopologyManager rejected the update towards {}", nodeId);
          return false;
       }

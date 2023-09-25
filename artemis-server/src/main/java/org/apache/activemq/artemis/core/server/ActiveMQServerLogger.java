@@ -1602,4 +1602,10 @@ public interface ActiveMQServerLogger {
 
    @LogMessage(id = 224133, value = "{} orphaned page transactions have been removed", level = LogMessage.Level.INFO)
    void cleaningOrphanedTXCleanup(long numberOfPageTx);
+
+   @LogMessage(id = 224134, value = "Connection closed with failedOver={}", level = LogMessage.Level.INFO)
+   void bridgeConnectionClosed(Boolean failedOver);
+
+   @LogMessage(id = 224135, value = "nodeID {} is closing. Topology update ignored", level = LogMessage.Level.INFO)
+   void nodeLeavingCluster(String nodeID);
 }
