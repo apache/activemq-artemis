@@ -543,6 +543,8 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
 
       conf.registerBrokerPlugin(new LoggingActiveMQServerPlugin());
       Assert.assertEquals("ensure one plugin registered", 1, conf.getBrokerPlugins().size());
+      Assert.assertEquals("ensure one connection plugin registered", 1, conf.getBrokerConnectionPlugins().size());
+
 
       // This will use serialization to perform a deep copy of the object
       Configuration conf2 = conf.copy();
@@ -2108,6 +2110,42 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       assertTrue(jsonStatus.contains(UPDATED_SHA));
       assertFalse(jsonStatus.contains(SHA));
       assertTrue(jsonStatus.contains("alder32"));
+   }
+
+   @Test
+   public void testPlugin() throws Exception {
+
+      final ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin.class\".init", "LOG_ALL_EVENTS=true,LOG_SESSION_EVENTS=false");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
+      Assert.assertTrue(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogAll());
+      Assert.assertFalse(((LoggingActiveMQServerPlugin)(configuration.getBrokerPlugins().get(0))).isLogSessionEvents());
+
+      // mimic server initialisePart1
+      configuration.registerBrokerPlugins(configuration.getBrokerPlugins());
+
+      Assert.assertEquals(1, configuration.getBrokerPlugins().size());
+      Assert.assertEquals(1, configuration.getBrokerMessagePlugins().size());
+      Assert.assertEquals(1, configuration.getBrokerConnectionPlugins().size());
+
+      Assert.assertTrue(configuration.getStatus().contains("\"errors\":[]"));
+
+      // verify invalid map errors out
+      insertionOrderedProperties = new ConfigurationImpl.InsertionOrderedProperties();
+
+      // possible to change any attribute, but plugins only registered on start
+      insertionOrderedProperties.put("brokerPlugins.\"org.apache.activemq.artemis.core.server.plugin.impl.LoggingActiveMQServerPlugin.class\".init", "LOG_ALL_EVENTS");
+
+      configuration.parsePrefixedProperties(insertionOrderedProperties, null);
+
+      Assert.assertFalse(configuration.getStatus().contains("\"errors\":[]"));
+      Assert.assertTrue(configuration.getStatus().contains("LOG_ALL_EVENTS"));
    }
 
    /**

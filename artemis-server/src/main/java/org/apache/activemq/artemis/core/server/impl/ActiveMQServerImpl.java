@@ -3364,7 +3364,7 @@ public class ActiveMQServerImpl implements ActiveMQServer {
       }
 
       if (hasBrokerPlugins()) {
-         callBrokerPlugins(plugin -> plugin.registered(this));
+         registerBrokerPlugins(getBrokerPlugins());
       }
 
       return true;

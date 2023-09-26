@@ -138,6 +138,8 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    public static final JournalType DEFAULT_JOURNAL_TYPE = JournalType.ASYNCIO;
 
+   public static final String DOT_CLASS = ".class";
+
    private static final int DEFAULT_JMS_MESSAGE_SIZE = 1864;
 
    private static final int RANGE_SIZE_MIN = 0;
@@ -810,6 +812,21 @@ public class ConfigurationImpl implements Configuration, Serializable {
             return (T) convertedValue;
          }
       }, java.util.Set.class);
+
+      beanUtils.getConvertUtils().register(new Converter() {
+         @Override
+         public <T> T convert(Class<T> type, Object value) {
+            Map convertedValue = new HashMap();
+            for (String entry : value.toString().split(",")) {
+               String[] kv = entry.split("=");
+               if (2 != kv.length) {
+                  throw new IllegalArgumentException("map value " + value + " not in k=v format");
+               }
+               convertedValue.put(kv[0], kv[1]);
+            }
+            return (T) convertedValue;
+         }
+      }, java.util.Map.class);
 
       // support 25K or 25m etc like xml config
       beanUtils.getConvertUtils().register(new Converter() {
@@ -2139,41 +2156,44 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
    @Override
    public void registerBrokerPlugin(final ActiveMQServerBasePlugin plugin) {
-      brokerPlugins.add(plugin);
-      if (plugin instanceof ActiveMQServerConnectionPlugin) {
+      // programmatic call can be a duplicate if used before server start
+      if (!brokerPlugins.contains(plugin)) {
+         brokerPlugins.add(plugin);
+      }
+      if (plugin instanceof ActiveMQServerConnectionPlugin && !brokerConnectionPlugins.contains(plugin)) {
          brokerConnectionPlugins.add((ActiveMQServerConnectionPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerSessionPlugin) {
+      if (plugin instanceof ActiveMQServerSessionPlugin && !brokerSessionPlugins.contains(plugin)) {
          brokerSessionPlugins.add((ActiveMQServerSessionPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerConsumerPlugin) {
+      if (plugin instanceof ActiveMQServerConsumerPlugin && !brokerConsumerPlugins.contains(plugin)) {
          brokerConsumerPlugins.add((ActiveMQServerConsumerPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerAddressPlugin) {
+      if (plugin instanceof ActiveMQServerAddressPlugin && !brokerAddressPlugins.contains(plugin)) {
          brokerAddressPlugins.add((ActiveMQServerAddressPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerQueuePlugin) {
+      if (plugin instanceof ActiveMQServerQueuePlugin && !brokerQueuePlugins.contains(plugin)) {
          brokerQueuePlugins.add((ActiveMQServerQueuePlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerBindingPlugin) {
+      if (plugin instanceof ActiveMQServerBindingPlugin && !brokerBindingPlugins.contains(plugin)) {
          brokerBindingPlugins.add((ActiveMQServerBindingPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerMessagePlugin) {
+      if (plugin instanceof ActiveMQServerMessagePlugin && !brokerMessagePlugins.contains(plugin)) {
          brokerMessagePlugins.add((ActiveMQServerMessagePlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerBridgePlugin) {
+      if (plugin instanceof ActiveMQServerBridgePlugin && !brokerBridgePlugins.contains(plugin)) {
          brokerBridgePlugins.add((ActiveMQServerBridgePlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerCriticalPlugin) {
+      if (plugin instanceof ActiveMQServerCriticalPlugin && !brokerCriticalPlugins.contains(plugin)) {
          brokerCriticalPlugins.add((ActiveMQServerCriticalPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerFederationPlugin) {
+      if (plugin instanceof ActiveMQServerFederationPlugin && !brokerFederationPlugins.contains(plugin)) {
          brokerFederationPlugins.add((ActiveMQServerFederationPlugin) plugin);
       }
-      if (plugin instanceof AMQPFederationBrokerPlugin) {
+      if (plugin instanceof AMQPFederationBrokerPlugin && !brokerAMQPFederationPlugins.contains(plugin)) {
          brokerAMQPFederationPlugins.add((AMQPFederationBrokerPlugin) plugin);
       }
-      if (plugin instanceof ActiveMQServerResourcePlugin) {
+      if (plugin instanceof ActiveMQServerResourcePlugin && !brokerResourcePlugins.contains(plugin)) {
          brokerResourcePlugins.add((ActiveMQServerResourcePlugin) plugin);
       }
    }
@@ -3341,24 +3361,28 @@ public class ConfigurationImpl implements Configuration, Serializable {
             }
          }
 
-         // we don't know the type, infer from add method add(X x) or add(String key, X x)
-         final String addPropertyName = addPropertyNameBuilder.toString();
-         final Method[] methods = hostingBean.getClass().getMethods();
-         final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) &&
-            ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
-               // has a String key
-               && String.class.equals(method.getParameterTypes()[0])
-               // but not initialised from a String form (eg: uri)
-               && !String.class.equals(method.getParameterTypes()[1]))))
-            .sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
-
-         if (candidate == null) {
-            throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
-         }
-
-         // create one and initialise with name
+         Object instance = null;
          try {
-            Object instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
+            if (name.indexOf(DOT_CLASS) > 0) {
+               final String clazzName = name.substring(0, name.length() - DOT_CLASS.length());
+               instance = this.getClass().getClassLoader().loadClass(clazzName).getDeclaredConstructor().newInstance();
+            } else {
+               // we don't know the type, infer from add method add(X x) or add(String key, X x)
+               final String addPropertyName = addPropertyNameBuilder.toString();
+               final Method[] methods = hostingBean.getClass().getMethods();
+               final Method candidate = Arrays.stream(methods).filter(method -> method.getName().equals(addPropertyName) && ((method.getParameterCount() == 1) || (method.getParameterCount() == 2
+                  // has a String key
+                  && String.class.equals(method.getParameterTypes()[0])
+                  // but not initialised from a String form (eg: uri)
+                  && !String.class.equals(method.getParameterTypes()[1])))).sorted((method1, method2) -> method2.getParameterCount() - method1.getParameterCount()).findFirst().orElse(null);
+
+               if (candidate == null) {
+                  throw new IllegalArgumentException("failed to locate add method for collection property " + addPropertyName);
+               }
+
+               instance = candidate.getParameterTypes()[candidate.getParameterCount() - 1].getDeclaredConstructor().newInstance();
+            }
+            // initialise with name
 
             try {
                beanUtilsBean.setProperty(instance, "name", name);
@@ -3374,7 +3398,7 @@ public class ConfigurationImpl implements Configuration, Serializable {
 
          } catch (Exception e) {
             if (logger.isDebugEnabled()) {
-               logger.debug("Failed to add entry for {} with method: {}", name, candidate, e);
+               logger.debug("Failed to add entry for {} to collection: {}", name, hostingBean, e);
             }
             throw new IllegalArgumentException("failed to add entry for collection key " + name, e);
          }
