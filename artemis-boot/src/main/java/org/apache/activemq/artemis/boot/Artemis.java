@@ -35,6 +35,9 @@ import java.util.List;
  */
 public class Artemis {
 
+   public static final String EXTRA_LIBS_SYSTEM_PROPERTY = "artemis.extra.libs";
+   public static final String EXTRA_LIBS_ENVIRONMENT_VARIABLE = "ARTEMIS_EXTRA_LIBS";
+
    public static void main(String[] args) throws Throwable {
       String home = System.getProperty("artemis.home");
 
@@ -82,6 +85,16 @@ public class Artemis {
       }
       if (fileInstance != null) {
          dirs.add(new File(fileInstance, "lib"));
+      }
+
+      String extraLibs = System.getProperty(EXTRA_LIBS_SYSTEM_PROPERTY);
+      if (extraLibs == null) {
+         extraLibs = System.getenv(EXTRA_LIBS_ENVIRONMENT_VARIABLE);
+      }
+      if (extraLibs != null) {
+         for (String extraLib: extraLibs.split(",")) {
+            dirs.add(new File(extraLib));
+         }
       }
 
       ArrayList<URL> urls = new ArrayList<>();
