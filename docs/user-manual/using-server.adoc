@@ -532,10 +532,22 @@ NOTE: the environment variable `JAVA_ARGS_APPEND` can be used to append or overr
 
 Runtime dependencies like diverts, transformers, broker plugins, JDBC drivers, password decoders, etc. must be accessible by the broker at runtime.
 Package the dependency in a jar, and put it on the broker's classpath.
-This can be done by placing the jar file in the `lib` directory of the broker distribution itself or in the `lib` directory of the broker instance.
+This can be done by placing the jar file in the `lib` directory of the broker distribution itself,
+by placing the jar file in the `lib` directory of the broker instance,
+by setting the system property `artemis.extra.libs` with the directory that contains the jar file, or
+by setting the environment variable `ARTEMIS_EXTRA_LIBS` with the directory that contains the jar file,
 A broker instance does not have a `lib` directory by default so it may need to be created.
 It should be on the "top" level with the `bin`, `data`, `log`, etc.
 directories.
+The system property `artemis.extra.libs` is a comma separated list of directories that contains jar files, i.e.
+```
+-Dartemis.extra.libs=/usr/local/share/java/lib1,/usr/local/share/java/lib2
+```
+The environment variable `ARTEMIS_EXTRA_LIBS` is a comma separated list of directories that contains jar files and
+is ignored if the system property `artemis.extra.libs` is defined, i.e.
+```
+export ARTEMIS_EXTRA_LIBS=/usr/local/share/java/lib1,/usr/local/share/java/lib2
+```
 
 === Library Path
 

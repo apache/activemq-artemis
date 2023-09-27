@@ -233,18 +233,31 @@
                      <instance>${basedir}/target/derby</instance>
                      <configuration>${basedir}/target/classes/servers/derby</configuration>
                      <noWeb>true</noWeb>
-                     <libList>
-                        <arg>org.apache.derby:derby:${apache.derby.version}</arg>
-                     </libList>
                      <args>
                         <arg>--jdbc</arg>
                         <arg>--global-max-messages</arg>
                         <arg>100</arg>
                         <arg>--java-options</arg>
+                        <arg>-Dartemis.extra.libs=${basedir}/target/derby/jdbc-jars</arg>
+                        <arg>--java-options</arg>
                         <arg>-ea</arg>
                      </args>
                   </configuration>
                </execution>
+               <execution>
+                  <phase>test-compile</phase>
+                  <id>create-derby-jdbc</id>
+                  <goals>
+                     <goal>dependency-scan</goal>
+                  </goals>
+                  <configuration>
+                     <libList>
+                        <arg>org.apache.derby:derby:${apache.derby.version}</arg>
+                     </libList>
+                     <targetFolder>${basedir}/target/derby/jdbc-jars</targetFolder>
+                  </configuration>
+               </execution>
+
                <execution>
                   <phase>test-compile</phase>
                   <id>create-mysql</id>
