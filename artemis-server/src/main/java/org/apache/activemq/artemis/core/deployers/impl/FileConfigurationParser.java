@@ -227,7 +227,11 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
 
    private static final String MAX_READ_PAGE_BYTES_NODE_NAME = "max-read-page-bytes";
 
+   private static final String PREFETCH_PAGE_BYTES_NODE_NAME = "prefetch-page-bytes";
+
    private static final String MAX_READ_PAGE_MESSAGES_NODE_NAME = "max-read-page-messages";
+
+   private static final String PREFETCH_PAGE_MESSAGES_NODE_NAME = "prefetch-page-messages";
 
    private static final String PAGE_SIZE_BYTES_NODE_NAME = "page-size-bytes";
 
@@ -1294,14 +1298,22 @@ public final class FileConfigurationParser extends XMLConfigurationUtil {
             long pageSizeLong = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
             Validators.POSITIVE_INT.validate(PAGE_SIZE_BYTES_NODE_NAME, pageSizeLong);
             addressSettings.setPageSizeBytes((int) pageSizeLong);
-         }  else if (MAX_READ_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (MAX_READ_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
             long maxReadPageMessages = Long.parseLong(getTrimmedTextContent(child));
             Validators.MINUS_ONE_OR_POSITIVE_INT.validate(MAX_READ_PAGE_MESSAGES_NODE_NAME, maxReadPageMessages);
             addressSettings.setMaxReadPageMessages((int)maxReadPageMessages);
-         }  else if (MAX_READ_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+         } else if (MAX_READ_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
             long maxReadPageBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
             Validators.MINUS_ONE_OR_POSITIVE_INT.validate(MAX_READ_PAGE_BYTES_NODE_NAME, maxReadPageBytes);
             addressSettings.setMaxReadPageBytes((int)maxReadPageBytes);
+         } else if (PREFETCH_PAGE_MESSAGES_NODE_NAME.equalsIgnoreCase(name)) {
+            long prefetchPageMessages = Long.parseLong(getTrimmedTextContent(child));
+            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(PREFETCH_PAGE_MESSAGES_NODE_NAME, prefetchPageMessages);
+            addressSettings.setPrefetchPageMessages((int)prefetchPageMessages);
+         }  else if (PREFETCH_PAGE_BYTES_NODE_NAME.equalsIgnoreCase(name)) {
+            long prefetchPageBytes = ByteUtil.convertTextBytes(getTrimmedTextContent(child));
+            Validators.MINUS_ONE_OR_POSITIVE_INT.validate(PREFETCH_PAGE_BYTES_NODE_NAME, prefetchPageBytes);
+            addressSettings.setPrefetchPageBytes((int)prefetchPageBytes);
          } else if (PAGE_MAX_CACHE_SIZE_NODE_NAME.equalsIgnoreCase(name)) {
             if (!printPageMaxSizeUsed) {
                printPageMaxSizeUsed = true;

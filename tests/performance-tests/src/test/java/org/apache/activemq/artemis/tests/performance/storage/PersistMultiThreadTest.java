@@ -422,6 +422,16 @@ public class PersistMultiThreadTest extends ActiveMQTestBase {
       }
 
       @Override
+      public int getPrefetchPageBytes() {
+         return 0;
+      }
+
+      @Override
+      public int getPrefetchPageMessages() {
+         return 0;
+      }
+
+      @Override
       public boolean page(Message message,
                           Transaction tx,
                           RouteContextList listCtx) throws Exception {

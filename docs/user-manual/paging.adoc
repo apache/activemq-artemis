@@ -99,14 +99,20 @@ If the value is `BLOCK` then client message producers will block when they try a
 | `PAGE`
 
 | `max-read-page-messages`
-| how many message can be read from paging into the Queue whenever more messages are needed.
-The system wtill stop reading if `max-read-page-bytes hits the limit first.
-| -1
+|  Maximum number of paged messages that the broker can read into memory per-queue. The default value is -1, which means that no limit applies.
+| -1 (disabled)
 
 | `max-read-page-bytes`
-| how much memory the messages read from paging can take on the Queue whenever more messages are needed.
-The system will stop reading if `max-read-page-messages` hits the limit first.
+|Maximum memory, in bytes, that can be used to read paged messages into memory per-queue. When applying this limit, the broker takes into account both messages that are currently delivering and messages that are ready to be delivered to consumers. The default value is 2 * page-size (usually being 20 MB). If consumers are slow to acknowledge messages, you can increase the default value to ensure that the memory is not consumed by messages pending acknowledgment, which can starve the broker of messages.
 | 2 * page-size-bytes
+
+|prefetch-page-messages
+|Number of paged messages that the broker can read from disk into memory per-queue. The default value is taken from max-read-page-messages, usually at -1, which means that no limit applies.
+|`max-read-page-messages`
+
+|prefetch-page-bytes
+|Number of paged messages that the broker can read from disk into memory per-queue. The default value is taken from max-read-page-messages, usually at -1, which means that no limit applies.
+|if not defined, `max-read-page-bytes`
 
 | `page-limit-bytes`
 | After entering page mode, how much data would the system allow incoming.
@@ -135,10 +141,10 @@ The configured policy will start based on the first value to reach its mark.
 
 ==== Maximum read from page
 
-`max-read-page-messages` and `max-read-page-bytes` are used to control messaging reading from paged file into the Queue.
-The broker will add messages on the Queue until either `max-read-page-meessages` or `max-read-page-bytes` reaches the limit.
+`max-read-page-messages`, `max-read-page-bytes`, `prefetch-page-messages` and `prefetch-page-bytes` are used to control reading from paged file into the Queue.
+The broker will add messages as long as all these limits are satisfied.
 
-If both values are set to -1 the broker will keep reading messages as long as the consumer is reaching for more messages.
+If all these values are set to -1 the broker will keep reading messages as long as the consumer is reaching for more messages.
 However this would keep the broker unprotected from consumers allocating huge transactions or consumers that don't have flow control enabled.
 
 == Global Max Size

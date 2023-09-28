@@ -414,7 +414,7 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
 
    @Test
    public void testParsePageLimitSettings() throws Exception {
-      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-read-page-bytes>1k</max-read-page-bytes><page-limit-bytes>10G</page-limit-bytes><page-limit-messages>3221225472</page-limit-messages><page-full-policy>FAIL</page-full-policy><max-read-page-messages>33</max-read-page-messages>.\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
+      String configStr = "<configuration><address-settings>" + "\n" + "<address-setting match=\"foo\">" + "\n" + "<max-read-page-bytes>1k</max-read-page-bytes><prefetch-page-bytes>100M</prefetch-page-bytes><prefetch-page-messages>777</prefetch-page-messages><page-limit-bytes>10G</page-limit-bytes><page-limit-messages>3221225472</page-limit-messages><page-full-policy>FAIL</page-full-policy><max-read-page-messages>33</max-read-page-messages>.\n" + "</address-setting>" + "\n" + "</address-settings></configuration>" + "\n";
 
       FileConfigurationParser parser = new FileConfigurationParser();
       ByteArrayInputStream input = new ByteArrayInputStream(configStr.getBytes(StandardCharsets.UTF_8));
@@ -424,6 +424,8 @@ public class FileConfigurationParserTest extends ActiveMQTestBase {
       Assert.assertEquals(1024, settings.getMaxReadPageBytes());
       Assert.assertEquals(33, settings.getMaxReadPageMessages());
       Assert.assertEquals(10L * 1024 * 1024 * 1024, settings.getPageLimitBytes().longValue());
+      Assert.assertEquals(100 * 1024 * 1024, settings.getPrefetchPageBytes());
+      Assert.assertEquals(777, settings.getPrefetchPageMessages());
       Assert.assertEquals(3L * 1024 * 1024 * 1024, settings.getPageLimitMessages().longValue());
       Assert.assertEquals("FAIL", settings.getPageFullMessagePolicy().toString());
    }

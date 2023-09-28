@@ -92,6 +92,10 @@ public interface PagingStore extends ActiveMQComponent, RefCountMessageListener 
 
    int getMaxPageReadMessages();
 
+   int getPrefetchPageBytes();
+
+   int getPrefetchPageMessages();
+
    void applySetting(AddressSettings addressSettings);
 
    /** This method will look if the current state of paging is not paging,

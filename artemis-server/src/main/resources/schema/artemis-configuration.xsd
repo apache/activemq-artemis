@@ -3923,7 +3923,7 @@
          <xsd:element name="page-max-cache-size" default="5" type="xsd:int" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  Number of paging files to cache in memory to avoid IO during paging navigation
+                  Number of paging files to cache in memory to avoid IO during paging navigation. This is not used any more. and it will be ignored.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3931,8 +3931,14 @@
          <xsd:element name="max-read-page-messages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  How many messages are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
-                  Between this and max-read-page-bytes the system will stop reading based on whatever hits the mark first.
+                  Maximum number of paged messages that the broker can read into memory per-queue. The default value is -1, which means that no limit applies. </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="prefetch-page-messages" type="xsd:int" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  How many messages we are reading from paging and keeping ready in queues ready to deliver to consumers. Default: If not defined max-read-page-messages is used.
                </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
@@ -3940,9 +3946,16 @@
          <xsd:element name="max-read-page-bytes" type="xsd:string" default="20M" maxOccurs="1" minOccurs="0">
             <xsd:annotation>
                <xsd:documentation>
-                  How many bytes are we allowed to read from page into the Queue each time. We should read more data from pages as messages are acknowledged until it fills up the size.
-                  Between this and max-read-page-messages the system will stop reading based on whatever hits the mark first.
-               </xsd:documentation>
+                  Maximum memory, in bytes, that can be used to read paged messages into memory per-queue.
+                  When applying this limit, the broker takes into account both messages that are currently delivering and messages that are ready to be delivered to consumers.
+                  The default value is 2 * page-size (usually being 20 MB). If consumers are slow to acknowledge messages, you can increase the default value to ensure that the memory is not consumed by messages pending acknowledgment, which can starve the broker of messages.               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+
+         <xsd:element name="prefetch-page-bytes" type="xsd:string" default="-1" maxOccurs="1" minOccurs="0">
+            <xsd:annotation>
+               <xsd:documentation>
+                  Number of paged messages that the broker can read from disk into memory per-queue. The default value is taken from max-read-page-messages, usually at -1, which means that no limit applies. </xsd:documentation>
             </xsd:annotation>
          </xsd:element>
 

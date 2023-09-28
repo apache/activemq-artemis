@@ -100,6 +100,10 @@ public class PagingStoreImpl implements PagingStore {
 
    private int maxPageReadMessages = -1;
 
+   private int prefetchPageBytes = -1;
+
+   private int prefetchPageMessages = -1;
+
    private long maxMessages;
 
    private volatile boolean pageFull;
@@ -227,7 +231,11 @@ public class PagingStoreImpl implements PagingStore {
 
       maxPageReadMessages = addressSettings.getMaxReadPageMessages();
 
+      prefetchPageMessages = addressSettings.getPrefetchPageMessages();
+
       maxPageReadBytes = addressSettings.getMaxReadPageBytes();
+
+      prefetchPageBytes = addressSettings.getPrefetchPageBytes();
 
       maxMessages = addressSettings.getMaxSizeMessages();
 
@@ -409,8 +417,18 @@ public class PagingStoreImpl implements PagingStore {
    }
 
    @Override
+   public int getPrefetchPageBytes() {
+      return prefetchPageBytes;
+   }
+
+   @Override
    public int getMaxPageReadMessages() {
       return maxPageReadMessages;
+   }
+
+   @Override
+   public int getPrefetchPageMessages() {
+      return prefetchPageMessages;
    }
 
    @Override

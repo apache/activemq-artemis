@@ -1624,6 +1624,59 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
    }
 
    @Test
+   public void testPagePrefetch() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      String randomString = RandomUtil.randomString();
+
+      properties.put("addressSettings.#.expiryAddress", randomString);
+      properties.put("addressSettings.#.prefetchPageMessages", "333");
+      properties.put("addressSettings.#.prefetchPageBytes", "777");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressSettings().size());
+      Assert.assertEquals(SimpleString.toSimpleString(randomString), configuration.getAddressSettings().get("#").getExpiryAddress());
+      Assert.assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
+      Assert.assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
+
+      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+
+      Assert.assertEquals(333, storeImpl.getPrefetchPageMessages());
+      Assert.assertEquals(777, storeImpl.getPrefetchPageBytes());
+   }
+
+   @Test
+   public void testPagePrefetchDefault() throws Throwable {
+      ConfigurationImpl configuration = new ConfigurationImpl();
+
+      Properties properties = new Properties();
+
+      String randomString = RandomUtil.randomString();
+
+      properties.put("addressSettings.#.maxReadPageMessages", "333");
+      properties.put("addressSettings.#.maxReadPageBytes", "777");
+
+      configuration.parsePrefixedProperties(properties, null);
+
+      Assert.assertEquals(1, configuration.getAddressSettings().size());
+      Assert.assertEquals(333, configuration.getAddressSettings().get("#").getPrefetchPageMessages());
+      Assert.assertEquals(777, configuration.getAddressSettings().get("#").getPrefetchPageBytes());
+      Assert.assertEquals(333, configuration.getAddressSettings().get("#").getMaxReadPageMessages());
+      Assert.assertEquals(777, configuration.getAddressSettings().get("#").getMaxReadPageBytes());
+
+      PagingStore storeImpl = new PagingStoreImpl(new SimpleString("Test"), (ScheduledExecutorService) null, 100L, Mockito.mock(PagingManager.class), Mockito.mock(StorageManager.class), Mockito.mock(SequentialFileFactory.class), Mockito.mock(PagingStoreFactory.class), new SimpleString("Test"), configuration.getAddressSettings().get("#"), null, null, true);
+
+      Assert.assertEquals(333, storeImpl.getPrefetchPageMessages());
+      Assert.assertEquals(777, storeImpl.getPrefetchPageBytes());
+      Assert.assertEquals(333, storeImpl.getMaxPageReadMessages());
+      Assert.assertEquals(777, storeImpl.getMaxPageReadBytes());
+   }
+
+
+   @Test
    public void testDivertViaProperties() throws Exception {
       ConfigurationImpl configuration = new ConfigurationImpl();
 
