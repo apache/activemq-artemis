@@ -216,21 +216,12 @@ under the License.
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
             <redelivery-delay>0</redelivery-delay>
-
-
-            <!-- if max-size-bytes and max-size-messages were both enabled, the system will enter into paging
-                 based on the first attribute to hits the maximum value -->
-            <!-- limit for the address in bytes, -1 means unlimited -->
             <max-size-bytes>0</max-size-bytes>
-            <!-- limit for the address in messages, -1 means unlimited -->
             <max-size-messages>0</max-size-messages>
-            <!-- the size of each file on paging. Notice we keep files in memory while they are in use.
-                 Lower this setting if you have too many queues in memory. -->
             <page-size-bytes>5M</page-size-bytes>
+            <max-read-page-bytes>100M</max-read-page-bytes>
             <max-read-page-messages>-1</max-read-page-messages>
-            <!-- how many bytes equivalent of messages are kept in memory from paging (based on memory estimate). The system will stop reading whenever this or max-read-page-messages hits the max first. -->
-            <max-read-page-bytes>1M</max-read-page-bytes>
-
+            <prefetch-page-bytes>1M</prefetch-page-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
             <auto-create-queues>true</auto-create-queues>

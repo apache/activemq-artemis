@@ -151,6 +151,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    private Integer maxReadPageMessages = null;
 
+   private Integer prefetchPageBytes = null;
+
+   private Integer prefetchPageMessages = null;
+
    private Long pageLimitBytes = null;
 
    private Long pageLimitMessages = null;
@@ -684,6 +688,16 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       return this;
    }
 
+
+   public int getPrefetchPageMessages() {
+      return prefetchPageMessages != null ? prefetchPageMessages : getMaxReadPageMessages();
+   }
+
+   public AddressSettings setPrefetchPageMessages(final int prefetchPageMessages) {
+      this.prefetchPageMessages = prefetchPageMessages <= 0 ? null : prefetchPageMessages;
+      return this;
+   }
+
    public Long getPageLimitBytes() {
       return pageLimitBytes;
    }
@@ -717,6 +731,15 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
 
    public AddressSettings setMaxReadPageBytes(final int maxReadPageBytes) {
       this.maxReadPageBytes = maxReadPageBytes;
+      return this;
+   }
+
+   public int getPrefetchPageBytes() {
+      return prefetchPageBytes != null ? prefetchPageBytes : getMaxReadPageBytes();
+   }
+
+   public AddressSettings setPrefetchPageBytes(final int prefetchPageBytes) {
+      this.prefetchPageBytes = prefetchPageBytes <= 0 ? null : prefetchPageBytes;
       return this;
    }
 
@@ -1317,6 +1340,12 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (idCacheSize == null) {
          idCacheSize = merged.idCacheSize;
       }
+      if (prefetchPageMessages == null) {
+         prefetchPageMessages = merged.prefetchPageMessages;
+      }
+      if (prefetchPageBytes == null) {
+         prefetchPageBytes = merged.prefetchPageBytes;
+      }
    }
 
    @Override
@@ -1596,6 +1625,14 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       if (buffer.readableBytes() > 0) {
          idCacheSize = BufferHelper.readNullableInteger(buffer);
       }
+
+      if (buffer.readableBytes() > 0) {
+         prefetchPageBytes = BufferHelper.readNullableInteger(buffer);
+      }
+
+      if (buffer.readableBytes() > 0) {
+         prefetchPageMessages = BufferHelper.readNullableInteger(buffer);
+      }
    }
 
    @Override
@@ -1672,7 +1709,9 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          BufferHelper.sizeOfNullableLong(pageLimitBytes) +
          BufferHelper.sizeOfNullableLong(pageLimitMessages) +
          BufferHelper.sizeOfNullableInteger(idCacheSize) +
-         BufferHelper.sizeOfNullableSimpleString(pageFullMessagePolicy != null ? pageFullMessagePolicy.toString() : null);
+         BufferHelper.sizeOfNullableSimpleString(pageFullMessagePolicy != null ? pageFullMessagePolicy.toString() : null) +
+         BufferHelper.sizeOfNullableInteger(prefetchPageBytes) +
+         BufferHelper.sizeOfNullableInteger(prefetchPageMessages);
    }
 
    @Override
@@ -1824,6 +1863,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       BufferHelper.writeNullableBoolean(buffer, autoDeleteAddressesSkipUsageCheck);
 
       BufferHelper.writeNullableInteger(buffer, idCacheSize);
+
+      BufferHelper.writeNullableInteger(buffer, prefetchPageBytes);
+
+      BufferHelper.writeNullableInteger(buffer, prefetchPageMessages);
    }
 
    /* (non-Javadoc)
@@ -1906,6 +1949,8 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
       result = prime * result + ((pageLimitMessages == null) ? 0 : pageLimitMessages.hashCode());
       result = prime * result + ((pageFullMessagePolicy == null) ? 0 : pageFullMessagePolicy.hashCode());
       result = prime * result + ((idCacheSize == null) ? 0 : idCacheSize.hashCode());
+      result = prime * result + ((prefetchPageBytes == null) ? 0 : prefetchPageBytes.hashCode());
+      result = prime * result + ((prefetchPageMessages == null) ? 0 : prefetchPageMessages.hashCode());
 
       return result;
    }
@@ -2321,6 +2366,22 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          return false;
       }
 
+      if (prefetchPageMessages == null) {
+         if (other.prefetchPageMessages != null) {
+            return false;
+         }
+      } else if (!prefetchPageMessages.equals(other.prefetchPageMessages)) {
+         return false;
+      }
+
+      if (prefetchPageBytes == null) {
+         if (other.prefetchPageBytes != null) {
+            return false;
+         }
+      } else if (!prefetchPageBytes.equals(other.prefetchPageBytes)) {
+         return false;
+      }
+
       return true;
    }
 
@@ -2470,6 +2531,10 @@ public class AddressSettings implements Mergeable<AddressSettings>, Serializable
          pageFullMessagePolicy +
          ", idCacheSize=" +
          idCacheSize +
+         ", prefetchPageMessages=" +
+         prefetchPageMessages +
+         ", prefetchPageBytes=" +
+         prefetchPageBytes +
          "]";
    }
 }
