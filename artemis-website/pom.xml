@@ -381,6 +381,8 @@
                         <stylesdir>css</stylesdir>
                         <webfonts>false</webfonts>
                         <prewrap>false</prewrap>
+                        <!-- enable "experimental" for keyboard macros - https://docs.asciidoctor.org/asciidoc/latest/macros/keyboard-macro/ -->
+                        <experimental>true</experimental>
                      </attributes>
                   </configuration>
                </plugin>

@@ -1,23 +1,24 @@
 = Command Line Interface
 
-ActiveMQ Artemis has a Command Line Interface (CLI) that can used to manage a few aspects of the broker like instance creation, basic user management, queues, etc.
+ActiveMQ Artemis has a Command Line Interface (CLI) that can used to manage a few aspects of the broker like instance creation, basic user management, queue & address management, etc.
 
 There are two ways the CLI can be used:
 
-* Bash Shell
-** A traditional CLI that can be accessed by `./artemis <COMMAND> ARGUMENTS...`
-* Artemis Shell
-** A shell emulation that is accesssed by `./artemis` or `./artemis shell`.
+* Traditional CLI commands, e.g.: `./artemis [COMMAND] [PARAMETERS]`
+* A custom shell that is accesssed using the `./artemis` or `./artemis shell` commands.
 
-All commands available through the traditional Command Line Interface (CLI) are also available through the Shell interface.
+All commands available through the traditional CLI commands are also available through the shell interface.
 
-The Shell interface will reuse some information as you repeat commands, such as the user, password, and target broker URI making the repetitive use a bit simpler.
+One benefit of the traditional CLI commands is that they can be used in your own bash scripts for automation, etc.
 
-The CLI interface however could be used in your bash scripts for your own automation while the Shell session being a user interface in a terminal session.
+One benefit of the shell is that it will *reuse* some information as you repeat commands.
+For example, once you supply the broker URI and username & password to one command those values will be transparently applied other commands in the same shell session.
+Of course, the shell also allows you to avoid retyping `./artemis` for every command.
+
 
 == Getting Help
 
-All of these commands can be accessed in the form of calling "artemis [COMMAND] [PARAMETERS]". You can get a complete list of available commands by typing:
+You can get a complete list of available commands by typing:
 [,console]
 ----
 $ ./artemis help
@@ -45,13 +46,14 @@ Commands:
                    before using this command and compare the files.
 ----
 
-It is also possible to use help at a specific command or sub-command for more information.
-Examples:
-
-To get a list of sub commands for data, you type `./artemis help data`, e.g.:
+It is also possible to use `help` at a specific command or sub-command for more information.
+For example, to get a list of sub-commands for `data` you type `./artemis help data`:
 
 [,console]
 ----
+$ ./artemis help data
+Usage: artemis data [COMMAND]
+use 'help data' for sub commands list
 Commands:
   recover  Recover (undelete) every message on the journal by creating a new
              output journal. Rolled back and acked messages will be sent out to
@@ -67,7 +69,8 @@ Commands:
   compact  Compact the journal of a non running server.
 ----
 
-Or getting information about a particular command (e.g. `./artemis help create`).
+Or you can get help for a particular command.
+For example, `./artemis help create`:
 
 [,console]
 ----
@@ -275,23 +278,23 @@ Create a new broker instance.
                                your actual system.
 ----
 
-== Bash and ZSH auto complete
+== Bash and Zsh auto complete
 
-Bash and ZSH provide ways to auto-complete command line interfaces. To integrate with that functionality you have the option to generate the 'auto-complete' script:
+Bash and Zsh provide ways to auto-complete commands. To integrate with that functionality you have the option to generate the auto-complete script, i.e.:
 
 [,console]
 ----
 $ ./artemis auto-complete
 ----
 
-This will generate a file named auto-complete-artemis.sh that should be used with:
+This will generate a file named `auto-complete-artemis.sh` that can be installed using:
 
 [,console]
 ----
 $ source ./auto-complete-artemis.sh
 ----
 
-After the auto completion installed in the bash session, bash would start to show auto-completion information upon the pressure of the key [TAB]:
+After the auto-completion is installed you can view auto-completion information by pressing kbd:[TAB]:
 
 [,console]
 ----
@@ -301,8 +304,9 @@ address        check          data           mask           producer       shell
 auto-complete  consumer       help           perf           queue          stop           user
 ----
 
-Same showing options:
+In order to see the various parameters available you must type `--` then press kbd:[TAB]:
 
+[,console]
 ----
 $ ./artemis create --
 --addresses                             --jdbc-bindings-table-name              --paging
@@ -318,9 +322,8 @@ $ ./artemis create --
 
 == Input required
 
-Some functionality on the CLI may require user input if not provided through a parameter in cases like connecting to a broker or creating the broker instance.
-
-For example:
+Some functionality may require interactive user input if not explicitly provided through a parameter.
+For example, in cases like connecting to a broker or creating the broker instance:
 
 [,console]
 ----
@@ -330,7 +333,7 @@ Connection failed::AMQ229031: Unable to validate user from /127.0.0.1:56320. Use
 
 --user:
 Type the username for a retry
-a
+myUser
 
 --password: is mandatory with this configuration:
 Type the password for a retry
@@ -338,14 +341,14 @@ Type the password for a retry
 
 == Artemis Shell
 
-To initialize the shell session, type './artemis shell' (or just ./artemis if you prefer):
+To initialize the shell session, type `./artemis shell` (or just `./artemis` if you prefer):
 
 [,console]
 ----
 $ ./artemis
 ----
 
-The ActiveMQ Artemis Shell provides an interface that can be used to call the CLI commands directly without leaving the Java Virtual Machine.
+The ActiveMQ Artemis shell provides an interface that can be used to execute commands directly without leaving the Java Virtual Machine.
 
 [,console]
 ----
@@ -362,21 +365,21 @@ Type exit or press <CTRL-D> to leave the session:
 Apache ActiveMQ Artemis >
 ----
 
-=== Connecting
+=== Connecting Interactively
 
-It is possible to authenticate your CLI client once to the server, and reuse the connection information for future commands being performed:
+It is possible to authenticate your CLI client once to the server and reuse the connection information for additional commands:
 
 [,console]
 ----
-Apache ActiveMQ Artemis > connect --user=a --password=b --url tcp://localhost:61616
+Apache ActiveMQ Artemis > connect --user=myUser --password=myPass --url tcp://localhost:61616
 Connection brokerURL = tcp://localhost:61616
 Connection Successful!
 ----
 Now any command requiring authentication will reuse these parameters.
 
-For example the sub-command 'queue stat' will reuse previous information to perform its connection to the broker.
+For example the sub-command `queue stat` will reuse previous information to perform its connection to the broker.
 
-[,console]
+[%nowrap,console]
 ----
 Apache ActiveMQ Artemis > queue stat
 Connection brokerURL = tcp://localhost:61616
@@ -387,22 +390,20 @@ Connection brokerURL = tcp://localhost:61616
 |activemq.management.0b...|activemq.management.0b...|1             |0            |0             |0               |0             |0              |MULTICAST   |
 ----
 
-==== Connecting from Command Line
+=== Connecting Statically
 
-To make the initial connection simpler, it is possible to start the shell with an initial connection from the startup:
-
-[,console]
-----
-$ ./artemis shell --user <username> --password <password> --url <tcp://myserver:myport>
-----
-
-The CLI should not ask for an user/password for any further commands with this option being used:
-
-Example:
+It is possible to start the shell with an initial connection configured statically, e.g.:
 
 [,console]
 ----
-$ ./artemis shell --user a --password b
+$ ./artemis shell --user <username> --password <password> --url tcp://<hostname>:<port>
+----
+
+The CLI should not ask for a the broker URL or user/password for any further commands, e.g.:
+
+[%nowrap,console]
+----
+$ ./artemis shell --user myUser --password myPass
 ...
 
 
