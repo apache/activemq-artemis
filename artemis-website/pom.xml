@@ -380,6 +380,7 @@
                         <iconfont-remote>false</iconfont-remote>
                         <stylesdir>css</stylesdir>
                         <webfonts>false</webfonts>
+                        <prewrap>false</prewrap>
                      </attributes>
                   </configuration>
                </plugin>
