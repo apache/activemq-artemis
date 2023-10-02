@@ -32,7 +32,7 @@ These are set on the `URL` as part of the query, like so:
 
 [,xml]
 ----
-<acceptor name="netty">tcp://localhost:61617?sslEnabled=true&keyStorePath=/path</acceptor>
+<acceptor name="netty">tcp://localhost:61617?sslEnabled=true;keyStorePath=/path</acceptor>
 ----
 
 == Connectors
