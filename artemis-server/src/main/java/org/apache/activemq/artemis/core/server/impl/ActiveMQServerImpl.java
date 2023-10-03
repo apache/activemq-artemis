@@ -3367,6 +3367,10 @@ public class ActiveMQServerImpl implements ActiveMQServer {
          registerBrokerPlugins(getBrokerPlugins());
       }
 
+      if (configuration.getMetricsConfiguration() != null && configuration.getMetricsConfiguration().getPlugin() != null) {
+         configuration.getMetricsConfiguration().getPlugin().registered(this);
+      }
+
       return true;
    }
 

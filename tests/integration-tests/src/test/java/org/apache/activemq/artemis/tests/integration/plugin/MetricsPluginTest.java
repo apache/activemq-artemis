@@ -270,6 +270,12 @@ public class MetricsPluginTest extends ActiveMQTestBase {
       checkMetric(getMetrics(), "artemis.message.count", "queue", queueName, Double.valueOf(messageCount * 2));
    }
 
+   @Test
+   public void testMetricsPluginRegistration() {
+      assertEquals(SimpleMetricsPlugin.class, server.getConfiguration().getMetricsConfiguration().getPlugin().getClass());
+      assertEquals(server, ((SimpleMetricsPlugin)server.getConfiguration().getMetricsConfiguration().getPlugin()).getServer());
+   }
+
    public Map<Meter.Id, Double> getMetrics() {
       return getMetrics(server);
    }
