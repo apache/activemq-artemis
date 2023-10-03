@@ -20,6 +20,7 @@ import java.util.Map;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 import org.apache.activemq.artemis.core.server.metrics.ActiveMQMetricsPlugin;
 
 /**
@@ -30,6 +31,8 @@ public class SimpleMetricsPlugin implements ActiveMQMetricsPlugin {
    private transient MeterRegistry meterRegistry;
 
    private Map<String, String> options;
+
+   private ActiveMQServer server;
 
    @Override
    public ActiveMQMetricsPlugin init(Map<String, String> options) {
@@ -43,7 +46,16 @@ public class SimpleMetricsPlugin implements ActiveMQMetricsPlugin {
       return meterRegistry;
    }
 
+   @Override
+   public void registered(ActiveMQServer server) {
+      this.server = server;
+   }
+
    public Map<String, String> getOptions() {
       return options;
+   }
+
+   public ActiveMQServer getServer() {
+      return server;
    }
 }

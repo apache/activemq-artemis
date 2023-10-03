@@ -20,10 +20,19 @@ import java.io.Serializable;
 import java.util.Map;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import org.apache.activemq.artemis.core.server.ActiveMQServer;
 
 public interface ActiveMQMetricsPlugin extends Serializable {
 
    ActiveMQMetricsPlugin init(Map<String, String> options);
 
    MeterRegistry getRegistry();
+
+   /**
+    * The plugin has been registered with the server
+    *
+    * @param server The ActiveMQServer the plugin has been registered to
+    */
+   default void registered(ActiveMQServer server) {
+   }
 }
