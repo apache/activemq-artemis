@@ -98,21 +98,26 @@ public class AuditLoggerResourceTest extends AuditLoggerTestBase {
 
    @Test
    public void testCoreConnectionAuditLog() throws Exception {
-      testConnectionAuditLog("CORE");
+      testConnectionAuditLog("CORE", "tcp://localhost:61616");
    }
 
    @Test
    public void testAMQPConnectionAuditLog() throws Exception {
-      testConnectionAuditLog("AMQP");
+      testConnectionAuditLog("AMQP", "amqp://localhost:61616");
+   }
+
+   @Test
+   public void testAMQPNoSaslConnectionAuditLog() throws Exception {
+      testConnectionAuditLog("AMQP", "amqp://localhost:61616?amqp.saslLayer=false");
    }
 
    @Test
    public void testOpenWireConnectionAuditLog() throws Exception {
-      testConnectionAuditLog("OPENWIRE");
+      testConnectionAuditLog("OPENWIRE", "tcp://localhost:61616");
    }
 
-   private void testConnectionAuditLog(String protocol) throws Exception {
-      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, "tcp://localhost:61616");
+   private void testConnectionAuditLog(String protocol, String url) throws Exception {
+      ConnectionFactory factory = CFUtil.createConnectionFactory(protocol, url);
       Connection connection = factory.createConnection();
       Session s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
       checkAuditLogRecord(true, "AMQ601767: " + protocol + " connection");

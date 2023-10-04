@@ -130,7 +130,7 @@ public class AMQPConnectionCallback implements FailureListener, CloseListener {
    public boolean isSupportsAnonymous() {
       boolean supportsAnonymous = false;
       try {
-         server.getSecurityStore().authenticate(null, null, null);
+         server.getSecurityStore().authenticate(null, null, protonConnectionDelegate);
          supportsAnonymous = true;
       } catch (Exception e) {
          // authentication failed so no anonymous support
