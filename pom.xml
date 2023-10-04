@@ -244,7 +244,6 @@
          -Dlog4j2.configurationFile="file:${activemq.basedir}/tests/config/${logging.config}"
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
-      <skipOWASP>true</skipOWASP>
       <proton.trace.frames>false</proton.trace.frames>
 
       <directory-version>2.0.0.AM25</directory-version>
@@ -1219,9 +1218,27 @@
       </profile>
       <profile>
          <id>owasp</id>
-         <properties>
-            <skipOWASP>false</skipOWASP>
-         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.owasp</groupId>
+                  <artifactId>dependency-check-maven</artifactId>
+                  <version>${owasp.version}</version>
+                  <configuration>
+                     <!-- <skipProvidedScope>true</skipProvidedScope>
+                      <skipRuntimeScope>true</skipRuntimeScope> -->
+                  </configuration>
+                  <executions>
+                     <execution>
+                        <goals>
+                           <!-- combine results for all modules into a single report -->
+                           <goal>aggregate</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
       </profile>
       <profile>
          <id>dev</id>
@@ -1905,24 +1922,6 @@
             <artifactId>maven-bundle-plugin</artifactId>
             <version>${maven.bundle.plugin.version}</version>
             <extensions>true</extensions>
-         </plugin>
-         <plugin>
-            <groupId>org.owasp</groupId>
-            <artifactId>dependency-check-maven</artifactId>
-            <version>${owasp.version}</version>
-            <configuration>
-               <skip>${skipOWASP}</skip>
-               <!-- <skipProvidedScope>true</skipProvidedScope>
-                <skipRuntimeScope>true</skipRuntimeScope> -->
-            </configuration>
-            <executions>
-               <execution>
-                  <goals>
-                     <!-- combine results for all modules into a single report -->
-                     <goal>aggregate</goal>
-                  </goals>
-               </execution>
-            </executions>
          </plugin>
 
          <!-- This is placing the .so in the root target/bin/ dir, so the testsuite can use it, by
