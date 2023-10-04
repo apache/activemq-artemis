@@ -1269,7 +1269,7 @@ public class PostOfficeImpl implements PostOffice, NotificationListener, Binding
 
    Bindings simpleRoute(SimpleString address, RoutingContext context, Message message, AddressInfo addressInfo) throws Exception {
       Bindings bindings = addressManager.getBindingsForRoutingAddress(address);
-      if (bindings == null && context.getServerSession() != null) {
+      if ((bindings == null || !bindings.contains(LocalQueueBinding.class)) && context.getServerSession() != null) {
          AutoCreateResult autoCreateResult = context.getServerSession().checkAutoCreate(new QueueConfiguration(address).setRoutingType(context.getRoutingType()));
          if (autoCreateResult == AutoCreateResult.NOT_FOUND) {
             ActiveMQException e = ActiveMQMessageBundle.BUNDLE.addressDoesNotExist(address);
