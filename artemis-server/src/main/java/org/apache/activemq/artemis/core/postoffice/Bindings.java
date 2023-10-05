@@ -63,7 +63,5 @@ public interface Bindings extends UnproposalListener {
 
    int size();
 
-   default boolean contains(Class clazz) {
-      return false;
-   }
+   boolean hasLocalBinding();
 }
