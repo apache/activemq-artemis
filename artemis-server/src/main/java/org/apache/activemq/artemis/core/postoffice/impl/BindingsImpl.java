@@ -52,6 +52,7 @@ import org.apache.activemq.artemis.utils.CompositeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.BiConsumer;
 
 public final class BindingsImpl implements Bindings {
@@ -86,7 +87,12 @@ public final class BindingsImpl implements Bindings {
    /**
     * This has a version about adds and removes
     */
-   private final AtomicInteger version = new AtomicInteger(sequenceVersion.incrementAndGet());
+   private volatile int version;
+
+   private static final AtomicIntegerFieldUpdater<BindingsImpl> VERSION_UPDATER = AtomicIntegerFieldUpdater
+      .newUpdater(BindingsImpl.class, "version");
+
+   private volatile boolean hasLocal;
 
    public BindingsImpl(final SimpleString name, final GroupingHandler groupingHandler, StorageManager storageManager) {
       this.groupingHandler = groupingHandler;
@@ -157,7 +163,19 @@ public final class BindingsImpl implements Bindings {
    }
 
    private void updated() {
-      version.set(sequenceVersion.incrementAndGet());
+      VERSION_UPDATER.set(this, sequenceVersion.incrementAndGet());
+      checkBindingsIdMap();
+   }
+
+   private void checkBinding(Long bindingID, Binding binding) {
+      if (binding instanceof LocalQueueBinding) {
+         hasLocal = true;
+      }
+   }
+
+   private void checkBindingsIdMap() {
+      hasLocal = false;
+      bindingsIdMap.forEach(this::checkBinding);
    }
 
    @Override
@@ -201,14 +219,8 @@ public final class BindingsImpl implements Bindings {
    }
 
    @Override
-   public boolean contains(Class clazz) {
-      for (Binding binding : getBindings()) {
-         if (clazz.isInstance(binding)) {
-            return true;
-         }
-      }
-
-      return false;
+   public boolean hasLocalBinding() {
+      return hasLocal;
    }
 
 
@@ -296,7 +308,7 @@ public final class BindingsImpl implements Bindings {
    private void route(final Message message,
                       final RoutingContext context,
                       final boolean groupRouting) throws Exception {
-      final int currentVersion = version.get();
+      final int currentVersion = VERSION_UPDATER.get(this);
       final boolean reusableContext = context.isReusable(message, currentVersion);
 
       if (!reusableContext) {
