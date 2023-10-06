@@ -20,7 +20,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.SimpleString;
+import org.apache.activemq.artemis.api.core.client.ClientMessage;
+import org.apache.activemq.artemis.api.core.client.ClientProducer;
+import org.apache.activemq.artemis.api.core.client.ClientSession;
+import org.apache.activemq.artemis.api.core.client.ClientSessionFactory;
 import org.apache.activemq.artemis.core.postoffice.Binding;
 import org.apache.activemq.artemis.core.server.cluster.ClusterConnection;
 import org.apache.activemq.artemis.core.server.cluster.MessageFlowRecord;
@@ -34,6 +39,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class SimpleSymmetricClusterTest extends ClusterTestBase {
 
@@ -125,6 +134,78 @@ public class SimpleSymmetricClusterTest extends ClusterTestBase {
       waitForBindings(1, "queues.testaddress", 2, 2, false);
       waitForBindings(2, "queues.testaddress", 2, 2, false);
 
+   }
+
+   @Test
+   public void testWildcardFlowControl() throws Exception {
+      final int PRODUCER_COUNT = 3000;
+      final int ITERATIONS = 4;
+      final CountDownLatch consumerLatch = new CountDownLatch(PRODUCER_COUNT * ITERATIONS);
+      final CountDownLatch producerLatch = new CountDownLatch(PRODUCER_COUNT * ITERATIONS);
+
+      setupServer(0, true, isNetty());
+      setupServer(1, true, isNetty());
+      servers[0].getConfiguration().setWildcardRoutingEnabled(true);
+      servers[1].getConfiguration().setWildcardRoutingEnabled(true);
+
+      setupClusterConnection("cluster0", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 0, 1);
+      setupClusterConnection("cluster1", "queues", MessageLoadBalancingType.ON_DEMAND, 1, isNetty(), 1, 0);
+
+      startServers(0, 1);
+
+      waitForTopology(servers[0], 2);
+      waitForTopology(servers[1], 2);
+
+      setupSessionFactory(0, isNetty());
+      setupSessionFactory(1, isNetty());
+
+      logger.info("Creating " + PRODUCER_COUNT + " multicast addresses on node 1...");
+      for (int i = 0; i < PRODUCER_COUNT; i++) {
+         createAddressInfo(1, "queues." + i, RoutingType.MULTICAST, -1, false);
+      }
+      logger.info("Addresses created.");
+
+      createQueue(0, "queues.#", "queue", null, false, RoutingType.MULTICAST);
+
+      logger.info("Creating consumer on node 0");
+      addConsumer(0, 0, "queue", null);
+
+      consumers[0].getConsumer().setMessageHandler(message -> {
+         logger.debug("Received: " + message);
+         consumerLatch.countDown();
+      });
+
+      waitForBindings(0, "queues.#", 1, 1, true);
+
+      logger.info("Creating " + PRODUCER_COUNT + " producers...");
+      ClientProducer[] producers = new ClientProducer[PRODUCER_COUNT];
+      ClientSession[] sessions = new ClientSession[PRODUCER_COUNT];
+      for (int i = 0; i < PRODUCER_COUNT; i++) {
+         ClientSessionFactory sf = sfs[1];
+         sessions[i] = addClientSession(sf.createSession(true, true, 0));
+         producers[i] = addClientProducer(sessions[i].createProducer("queues." + i));
+      }
+
+      ExecutorService executorService = Executors.newFixedThreadPool(PRODUCER_COUNT);
+      runAfter(executorService::shutdownNow);
+      for (int i = 0; i < PRODUCER_COUNT; i++) {
+         final ClientProducer producer = producers[i];
+         final ClientMessage message = sessions[i].createMessage(true);
+         executorService.submit(() -> {
+            for (int j = 0; j < ITERATIONS; j++) {
+               try {
+                  producer.send(message);
+                  producerLatch.countDown();
+                  logger.debug("Sent message");
+               } catch (Exception e) {
+                  logger.error(e.getMessage(), e);
+               }
+            }
+         });
+      }
+      producerLatch.await(30, TimeUnit.SECONDS);
+      logger.info("Waiting for messages on node 0");
+      assertTrue(consumerLatch.await(30, TimeUnit.SECONDS));
    }
 
    @Test

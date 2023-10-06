@@ -149,6 +149,7 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
       return --refCount;
    }
 
+   @Override
    public abstract int getBalance();
 
    protected void checkCredits(final int credits) {

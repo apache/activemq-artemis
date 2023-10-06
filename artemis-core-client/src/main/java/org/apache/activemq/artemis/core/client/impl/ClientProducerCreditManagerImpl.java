@@ -19,6 +19,9 @@ package org.apache.activemq.artemis.core.client.impl;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
@@ -37,10 +40,16 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
    private ClientProducerFlowCallback callback;
 
-   public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize) {
+   private final ScheduledExecutorService scheduledThreadPool;
+
+   private ScheduledFuture future;
+
+   public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize, ScheduledExecutorService scheduledThreadPool) {
       this.session = session;
 
       this.windowSize = windowSize;
+
+      this.scheduledThreadPool = scheduledThreadPool;
    }
 
 
@@ -146,6 +155,10 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       producerCredits.clear();
 
       unReferencedCredits.clear();
+
+      if (future != null) {
+         future.cancel(false);
+      }
    }
 
    @Override
@@ -162,24 +175,28 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       unReferencedCredits.put(address, credits);
 
       if (unReferencedCredits.size() > MAX_UNREFERENCED_CREDITS_CACHE_SIZE) {
-         // Remove the oldest entry
-
-         Iterator<Map.Entry<SimpleString, ClientProducerCredits>> iter = unReferencedCredits.entrySet().iterator();
-
-         Map.Entry<SimpleString, ClientProducerCredits> oldest = iter.next();
-
-         iter.remove();
-
-         removeEntry(oldest.getKey(), oldest.getValue());
+         // if we've exceeded our limit then try to clean up
+         if (future == null) {
+            future = scheduledThreadPool.scheduleWithFixedDelay(() -> {
+               synchronized (this) {
+                  Iterator<Map.Entry<SimpleString, ClientProducerCredits>> iter = unReferencedCredits.entrySet().iterator();
+                  while (iter.hasNext()) {
+                     Map.Entry<SimpleString, ClientProducerCredits> entry = iter.next();
+                     if (entry.getValue().getBalance() == 0) {
+                        iter.remove();
+                        producerCredits.remove(entry.getKey());
+                        entry.getValue().close();
+                     }
+                  }
+               }
+            }, 0, 30, TimeUnit.SECONDS);
+         }
+      } else {
+         // if we're below our limit make sure we're not trying to clean up
+         if (future != null) {
+            future.cancel(false);
+         }
       }
-   }
-
-   private void removeEntry(final SimpleString address, final ClientProducerCredits credits) {
-      producerCredits.remove(address);
-
-      credits.releaseOutstanding();
-
-      credits.close();
    }
 
    static class ClientProducerCreditsNoFlowControl implements ClientProducerCredits {
@@ -225,12 +242,13 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       }
 
       @Override
-      public void releaseOutstanding() {
+      public SimpleString getAddress() {
+         return SimpleString.toSimpleString("");
       }
 
       @Override
-      public SimpleString getAddress() {
-         return SimpleString.toSimpleString("");
+      public int getBalance() {
+         return 0;
       }
    }
 

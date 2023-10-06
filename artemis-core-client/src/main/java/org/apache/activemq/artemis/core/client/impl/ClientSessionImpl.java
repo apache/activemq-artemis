@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
@@ -193,7 +194,8 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
                      final Executor executor,
                      final Executor confirmationExecutor,
                      final Executor flowControlExecutor,
-                     final Executor closeExecutor) throws ActiveMQException {
+                     final Executor closeExecutor,
+                     final ScheduledExecutorService scheduledThreadPool) throws ActiveMQException {
       this.sessionFactory = sessionFactory;
 
       this.name = name;
@@ -246,7 +248,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       this.groupID = groupID;
 
-      producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize);
+      producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize, scheduledThreadPool);
 
       this.sessionContext = sessionContext;
 
