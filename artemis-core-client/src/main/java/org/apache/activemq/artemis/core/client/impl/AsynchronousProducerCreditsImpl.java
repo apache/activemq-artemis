@@ -76,7 +76,6 @@ public class AsynchronousProducerCreditsImpl extends AbstractProducerCreditsImpl
 
    }
 
-
    @Override
    public void receiveFailCredits(final int credits) {
       super.receiveFailCredits(credits);
@@ -84,17 +83,5 @@ public class AsynchronousProducerCreditsImpl extends AbstractProducerCreditsImpl
          logger.debug("creditsFail {}, callback={}", credits, callback.getClass());
       }
       callback.onCreditsFail(this);
-   }
-
-   @Override
-   public void releaseOutstanding() {
-      synchronized (this) {
-         balance = 0;
-         callback.onCreditsFlow(true, this);
-         if (logger.isDebugEnabled()) {
-            logger.debug("releaseOutstanding credits, balance={}, callback={}", balance, callback.getClass());
-         }
-      }
-
    }
 }
