@@ -36,6 +36,7 @@ import org.apache.activemq.artemis.api.core.client.MessageHandler;
 import org.apache.activemq.artemis.api.core.client.ServerLocator;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCreditManagerImpl;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerCredits;
+import org.apache.activemq.artemis.core.client.impl.ClientProducerFlowCallback;
 import org.apache.activemq.artemis.core.client.impl.ClientProducerInternal;
 import org.apache.activemq.artemis.core.client.impl.ClientSessionInternal;
 import org.apache.activemq.artemis.core.server.ActiveMQServer;
@@ -483,7 +484,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       ClientProducerCredits credits = null;
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE * 2; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE * 2; i++) {
          ClientProducer prod = session.createProducer("address");
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
@@ -495,7 +496,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          credits = newCredits;
 
          Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
    }
 
@@ -513,7 +514,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       ClientProducerCredits credits = null;
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE * 2; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE * 2; i++) {
          ClientProducer prod = session.createProducer("address");
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
@@ -527,7 +528,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          prod.close();
 
          Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
    }
 
@@ -546,7 +547,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       ClientProducerCredits credits = null;
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer("address" + i);
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
@@ -558,7 +559,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          credits = newCredits;
 
          Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
    }
 
@@ -576,7 +577,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       ClientProducerCredits credits = null;
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer("address" + i);
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
@@ -590,7 +591,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          prod.close();
 
          Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
    }
 
@@ -611,7 +612,7 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       List<ClientProducerCredits> creditsList = new ArrayList<>();
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer("address" + i);
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
@@ -623,29 +624,29 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
          credits = newCredits;
 
          Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
 
          creditsList.add(credits);
       }
 
       Iterator<ClientProducerCredits> iter = creditsList.iterator();
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer("address" + i);
 
          ClientProducerCredits newCredits = ((ClientProducerInternal) prod).getProducerCredits();
 
          Assert.assertTrue(newCredits == iter.next());
 
-         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
+         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
 
       for (int i = 0; i < 10; i++) {
-         session.createProducer("address" + (i + ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE));
+         session.createProducer("address" + (i + ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE));
 
-         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE + i + 1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE + i + 1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
+         Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
    }
 
@@ -661,13 +662,13 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer((String) null);
 
          prod.send("address", session.createMessage(false));
 
          Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
    }
 
@@ -684,13 +685,13 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
 
-      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE; i++) {
+      for (int i = 0; i < ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
          ClientProducer prod = session.createProducer((String) null);
 
          prod.send("address" + i, session.createMessage(false));
 
          Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(i + 1, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
 
       for (int i = 0; i < 10; i++) {
@@ -698,8 +699,8 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
          prod.send("address" + i, session.createMessage(false));
 
-         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
+         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
 
       for (int i = 0; i < 10; i++) {
@@ -707,9 +708,61 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
          prod.send("address2-" + i, session.createMessage(false));
 
-         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_UNREFERENCED_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
+         Assert.assertEquals(ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
       }
+   }
+
+
+   @Test
+   public void testProducerCreditsCachingAsync() throws Exception {
+
+      class FlowCallback implements ClientProducerFlowCallback {
+         boolean blocked = false;
+
+         @Override
+         public void onCreditsFlow(boolean blocked, ClientProducerCredits producerCredits) {
+            if (blocked) {
+               this.blocked = true;
+            }
+         }
+
+         @Override
+         public void onCreditsFail(ClientProducerCredits credits) {
+
+         }
+      }
+
+      FlowCallback flowCallback = new FlowCallback();
+
+
+      server = createServer(false, isNetty());
+
+      server.start();
+      waitForServerToStart(server);
+
+      locator.setConfirmationWindowSize(10 * 1024);
+      sf = createSessionFactory(locator);
+
+      session = sf.createSession(false, true, true, true);
+
+      session.createQueue(new QueueConfiguration("queue1").setAddress("address").setDurable(false));
+
+      ((ClientSessionInternal)session).getProducerCreditManager().setCallback(flowCallback);
+
+      for (int i = 0; i < 2 * ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE; i++) {
+         ClientProducer prod = session.createProducer((String) null);
+
+         prod.send("address" + i, session.createMessage(false));
+
+         Assert.assertTrue(((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize() <= ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE);
+         Assert.assertTrue(((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize() <= ClientProducerCreditManagerImpl.MAX_ANONYMOUS_CREDITS_CACHE_SIZE);
+      }
+
+      session.close();
+      sf.createSession();
+
+      Assert.assertFalse(flowCallback.blocked);
    }
 
    @Test
@@ -727,30 +780,30 @@ public class ProducerFlowControlTest extends ActiveMQTestBase {
 
       ClientProducer prod1 = session.createProducer("address");
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
 
       ClientProducer prod2 = session.createProducer("address");
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
 
       ClientProducer prod3 = session.createProducer("address");
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
 
       prod1.close();
 
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
 
       prod2.close();
 
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+      Assert.assertEquals(0, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
 
       prod3.close();
 
       Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().creditsMapSize());
-      Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().unReferencedCreditsSize());
+      Assert.assertEquals(1, ((ClientSessionInternal) session).getProducerCreditManager().getMaxAnonymousCacheSize());
    }
 
 }

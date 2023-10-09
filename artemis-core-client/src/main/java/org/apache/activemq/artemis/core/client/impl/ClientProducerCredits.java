@@ -43,4 +43,6 @@ public interface ClientProducerCredits {
    SimpleString getAddress();
 
    int getBalance();
+
+   int getArriving();
 }
