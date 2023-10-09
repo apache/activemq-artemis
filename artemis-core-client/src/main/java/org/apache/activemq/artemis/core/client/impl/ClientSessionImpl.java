@@ -248,7 +248,7 @@ public final class ClientSessionImpl implements ClientSessionInternal, FailureLi
 
       this.groupID = groupID;
 
-      producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize, scheduledThreadPool);
+      producerCreditManager = new ClientProducerCreditManagerImpl(this, producerWindowSize);
 
       this.sessionContext = sessionContext;
 

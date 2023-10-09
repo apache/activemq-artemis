@@ -16,23 +16,25 @@
  */
 package org.apache.activemq.artemis.core.client.impl;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.activemq.artemis.api.core.SimpleString;
 import org.apache.activemq.artemis.spi.core.remoting.SessionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientProducerCreditManagerImpl implements ClientProducerCreditManager {
 
-   public static final int MAX_UNREFERENCED_CREDITS_CACHE_SIZE = 1000;
+   private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+   public static final int MAX_ANONYMOUS_CREDITS_CACHE_SIZE = 1000;
 
    private final Map<SimpleString, ClientProducerCredits> producerCredits = new LinkedHashMap<>();
 
-   private final Map<SimpleString, ClientProducerCredits> unReferencedCredits = new LinkedHashMap<>();
+   private final Map<SimpleString, ClientProducerCredits> anonymousCredits = new LinkedHashMap<>();
 
    private final ClientSessionInternal session;
 
@@ -40,16 +42,10 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
    private ClientProducerFlowCallback callback;
 
-   private final ScheduledExecutorService scheduledThreadPool;
-
-   private ScheduledFuture future;
-
-   public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize, ScheduledExecutorService scheduledThreadPool) {
+   public ClientProducerCreditManagerImpl(final ClientSessionInternal session, final int windowSize) {
       this.session = session;
 
       this.windowSize = windowSize;
-
-      this.scheduledThreadPool = scheduledThreadPool;
    }
 
 
@@ -81,13 +77,13 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
                producerCredits.put(address, credits);
             }
 
-            if (!anon) {
+            if (anon) {
+               addToAnonymousList(address, credits);
+            } else {
                credits.incrementRefCount();
 
                // Remove from anon credits (if there)
-               unReferencedCredits.remove(address);
-            } else {
-               addToUnReferencedCache(address, credits);
+               anonymousCredits.remove(address);
             }
          }
 
@@ -115,7 +111,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
       ClientProducerCredits credits = producerCredits.get(address);
 
       if (credits != null && credits.decrementRefCount() == 0) {
-         addToUnReferencedCache(address, credits);
+         addToAnonymousList(address, credits);
       }
    }
 
@@ -154,11 +150,7 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
 
       producerCredits.clear();
 
-      unReferencedCredits.clear();
-
-      if (future != null) {
-         future.cancel(false);
-      }
+      anonymousCredits.clear();
    }
 
    @Override
@@ -167,34 +159,31 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
    }
 
    @Override
-   public synchronized int unReferencedCreditsSize() {
-      return unReferencedCredits.size();
+   public synchronized int getMaxAnonymousCacheSize() {
+      return anonymousCredits.size();
    }
 
-   private void addToUnReferencedCache(final SimpleString address, final ClientProducerCredits credits) {
-      unReferencedCredits.put(address, credits);
+   private void addToAnonymousList(final SimpleString address, final ClientProducerCredits credits) {
+      anonymousCredits.put(address, credits);
 
-      if (unReferencedCredits.size() > MAX_UNREFERENCED_CREDITS_CACHE_SIZE) {
-         // if we've exceeded our limit then try to clean up
-         if (future == null) {
-            future = scheduledThreadPool.scheduleWithFixedDelay(() -> {
-               synchronized (this) {
-                  Iterator<Map.Entry<SimpleString, ClientProducerCredits>> iter = unReferencedCredits.entrySet().iterator();
-                  while (iter.hasNext()) {
-                     Map.Entry<SimpleString, ClientProducerCredits> entry = iter.next();
-                     if (entry.getValue().getBalance() == 0) {
-                        iter.remove();
-                        producerCredits.remove(entry.getKey());
-                        entry.getValue().close();
-                     }
-                  }
+      if (anonymousCredits.size() > MAX_ANONYMOUS_CREDITS_CACHE_SIZE) {
+         logger.trace("Producer list has more than MAX_ANONYMOUS_CREDITS_CACHE_SIZE={}. clearing elements from the list", anonymousCredits.size());
+         try {
+            Iterator<Map.Entry<SimpleString, ClientProducerCredits>> iter = anonymousCredits.entrySet().iterator();
+            while (iter.hasNext() && anonymousCredits.size() > MAX_ANONYMOUS_CREDITS_CACHE_SIZE) {
+               Map.Entry<SimpleString, ClientProducerCredits> entry = iter.next();
+               if (entry.getValue().getArriving() <= 0) {
+                  logger.trace("Removing credit {}, {}", entry.getKey(), entry.getValue());
+                  iter.remove();
+                  producerCredits.remove(entry.getKey());
+                  entry.getValue().close();
+               } else {
+                  logger.trace("Keeping credit for {}, {}", entry.getKey(), entry.getValue());
                }
-            }, 0, 30, TimeUnit.SECONDS);
-         }
-      } else {
-         // if we're below our limit make sure we're not trying to clean up
-         if (future != null) {
-            future.cancel(false);
+            }
+         } catch (Throwable e) {
+            // this is not really an expected error. no need for a logger code
+            logger.warn("Error clearing anonymousList - {}", e.getMessage(), e);
          }
       }
    }
@@ -202,6 +191,11 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
    static class ClientProducerCreditsNoFlowControl implements ClientProducerCredits {
 
       static ClientProducerCreditsNoFlowControl instance = new ClientProducerCreditsNoFlowControl();
+
+      @Override
+      public int getArriving() {
+         return 0;
+      }
 
       @Override
       public void acquireCredits(int credits) {
@@ -251,5 +245,4 @@ public class ClientProducerCreditManagerImpl implements ClientProducerCreditMana
          return 0;
       }
    }
-
 }

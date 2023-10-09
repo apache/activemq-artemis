@@ -35,7 +35,7 @@ public interface ClientProducerCreditManager {
 
    int creditsMapSize();
 
-   int unReferencedCreditsSize();
+   int getMaxAnonymousCacheSize();
 
    /** This will determine the flow control as asynchronous,
     *  no actual block should happen instead a callback will be sent whenever blockages change  */

@@ -60,6 +60,11 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
    }
 
    @Override
+   public int getArriving() {
+      return arriving;
+   }
+
+   @Override
    public SimpleString getAddress() {
       return address;
    }
@@ -86,12 +91,11 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
    }
 
    protected void afterAcquired(int credits) throws ActiveMQAddressFullException {
-      if (logger.isDebugEnabled()) {
-         logger.debug("AfterAcquire {} credits on address {}", credits, address);
-      }
-
       synchronized (this) {
          pendingCredits -= credits;
+      }
+      if (logger.isDebugEnabled()) {
+         logger.debug("AfterAcquire {} credits on address {}, pendingCredits={}", credits, address, pendingCredits);
       }
    }
 
@@ -149,9 +153,6 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
       return --refCount;
    }
 
-   @Override
-   public abstract int getBalance();
-
    protected void checkCredits(final int credits) {
       int needed = Math.max(credits, windowSize);
       if (logger.isTraceEnabled()) {
@@ -191,5 +192,10 @@ public abstract class AbstractProducerCreditsImpl implements ClientProducerCredi
          arriving += credits;
       }
       session.sendProducerCreditsMessage(credits, address);
+   }
+
+   @Override
+   public String toString() {
+      return this.getClass().getName() + "{" + "pendingCredits=" + pendingCredits + ", windowSize=" + windowSize + ", closed=" + closed + ", blocked=" + blocked + ", address=" + address + ", arriving=" + arriving + ", refCount=" + refCount + ", serverRespondedWithFail=" + serverRespondedWithFail + '}';
    }
 }
