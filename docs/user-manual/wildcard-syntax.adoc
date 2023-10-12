@@ -9,7 +9,7 @@ The syntax is similar to that used by https://www.amqp.org[AMQP].
 An Apache ActiveMQ Artemis wildcard expression contains *words separated by a delimiter*.
 The default delimiter is `.` (full stop).
 
-The special characters `#` and `*` also have special meaning and can take the place of a *word*.
+The special characters `#` and `*` also have special meaning and can take the place of a **word**.
 
 To be clear, the wildcard characters cannot be used like wildcards in a https://en.wikipedia.org/wiki/Regular_expression[regular expression].
 They operate exclusively on *words separated by a delimiter*.
