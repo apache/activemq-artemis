@@ -223,10 +223,11 @@ public class MQTTPublishManager {
          if (qos > 0) {
             serverMessage.setDurable(MQTTUtil.DURABLE_MESSAGES);
          }
-         int messageId = message.variableHeader().packetId();
-         if (qos < 2 || !state.getPubRec().contains(messageId)) {
+         int packetId = message.variableHeader().packetId();
+         boolean qos2PublishAlreadyReceived = state.getPubRec().contains(packetId);
+         if (qos < 2 || !qos2PublishAlreadyReceived) {
             if (qos == 2 && !internal)
-               state.getPubRec().add(messageId);
+               state.getPubRec().add(packetId);
 
             Transaction tx = session.getServerSession().newTransaction();
             try {
@@ -252,7 +253,7 @@ public class MQTTPublishManager {
                   throw e;
                }
                if (session.getVersion() == MQTTVersion.MQTT_5) {
-                  sendMessageAck(internal, qos, messageId, MQTTReasonCodes.NOT_AUTHORIZED);
+                  sendMessageAck(internal, qos, packetId, MQTTReasonCodes.NOT_AUTHORIZED);
                   return;
                } else if (session.getVersion() == MQTTVersion.MQTT_3_1_1) {
                   /*
@@ -287,9 +288,11 @@ public class MQTTPublishManager {
                tx.rollback();
                throw t;
             }
+         } else if (qos2PublishAlreadyReceived) {
+            MQTTLogger.LOGGER.ignoringQoS2Publish(state.getClientId(), packetId);
          }
 
-         createMessageAck(messageId, qos, internal);
+         createMessageAck(packetId, qos, internal);
       }
    }
 
