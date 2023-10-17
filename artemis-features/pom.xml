@@ -49,6 +49,33 @@
             <type>kar</type>
             <scope>provided</scope>
         </dependency>
+
+        <!--  these dependencies are here to ensure order on a multi-thread maven build -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>apache-artemis</artifactId>
+            <version>${project.version}</version>
+            <type>pom</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-core-client-osgi</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-jms-client-osgi</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>artemis-server-osgi</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
