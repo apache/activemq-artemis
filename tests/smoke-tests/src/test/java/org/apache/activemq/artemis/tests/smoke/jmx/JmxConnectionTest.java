@@ -22,16 +22,19 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnection;
 import javax.management.remote.rmi.RMIConnector;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.rmi.server.RemoteObject;
 import java.rmi.server.RemoteRef;
 
 import io.netty.util.internal.PlatformDependent;
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.jctools.util.UnsafeAccess;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import sun.rmi.server.UnicastRef;
 import sun.rmi.transport.LiveRef;
@@ -50,6 +53,21 @@ public class JmxConnectionTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_0 = "jmx";
    private Class<?> proxyRefClass;
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_0);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(server0Location).
+            setConfiguration("./src/main/resources/servers/jmx").setArgs("--java-options", "-Djava.rmi.server.hostname=localhost");
+         cliCreateServer.createServer();
+      }
+   }
+
 
    @Before
    public void before() throws Exception {

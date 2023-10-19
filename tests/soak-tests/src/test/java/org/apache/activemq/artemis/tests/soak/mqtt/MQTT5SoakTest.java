@@ -17,19 +17,18 @@
 
 package org.apache.activemq.artemis.tests.soak.mqtt;
 
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.activemq.artemis.api.config.ActiveMQDefaultConfiguration;
-import org.apache.activemq.artemis.api.core.RoutingType;
-import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.apache.activemq.artemis.api.core.management.QueueControl;
+import org.apache.activemq.artemis.api.core.management.SimpleManagement;
 import org.apache.activemq.artemis.core.protocol.mqtt.MQTTUtil;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.eclipse.paho.mqttv5.client.IMqttToken;
 import org.eclipse.paho.mqttv5.client.MqttCallback;
 import org.eclipse.paho.mqttv5.client.MqttClient;
@@ -40,6 +39,7 @@ import org.eclipse.paho.mqttv5.common.MqttMessage;
 import org.eclipse.paho.mqttv5.common.packet.MqttProperties;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,11 +50,22 @@ public class MQTT5SoakTest extends SoakTestBase {
 
    public static final String SERVER_NAME_0 = "mqtt";
 
-   private static final String JMX_SERVER_HOSTNAME = "localhost";
-   private static final int JMX_SERVER_PORT_0 = 1099;
 
-   static String serverURI = "service:jmx:rmi:///jndi/rmi://" + JMX_SERVER_HOSTNAME + ":" + JMX_SERVER_PORT_0 + "/jmxrmi";
-   static ObjectNameBuilder builderServer = ObjectNameBuilder.create(ActiveMQDefaultConfiguration.getDefaultJmxDomain(), "mqtt", true);
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("artemis").setPassword("artemis").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         cliCreateServer.setArgs("--addresses", "MQTT_SOAK");
+         cliCreateServer.createServer();
+      }
+   }
+
+
    Process serverProcess;
 
    protected MqttClient createPahoClient(String clientId) throws MqttException {
@@ -119,8 +130,9 @@ public class MQTT5SoakTest extends SoakTestBase {
 
       assertTrue(latch.await(30, TimeUnit.SECONDS));
 
-      QueueControl queueControl = getQueueControl(serverURI, builderServer, "MQTT_SOAK", "consumer.MQTT_SOAK", RoutingType.MULTICAST, 5000);
-      Wait.assertEquals(1, queueControl::getMessagesAdded);
+      SimpleManagement simpleManagement = new SimpleManagement("tcp://localhost:61616", null, null);
+      Wait.assertEquals(1, () -> simpleManagement.getMessagesAddedOnQueue("consumer.MQTT_SOAK"), 5000);
+
 
       consumer.disconnect();
 

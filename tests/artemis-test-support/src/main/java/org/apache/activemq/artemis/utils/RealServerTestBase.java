@@ -49,7 +49,6 @@ import org.slf4j.LoggerFactory;
 public class RealServerTestBase extends ActiveMQTestBase {
 
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
    public static final String STOP_FILE_NAME = "STOP_ME";
 
    Set<Process> processes = new HashSet<>();
@@ -91,6 +90,10 @@ public class RealServerTestBase extends ActiveMQTestBase {
 
    public static String getServerLocation(String serverName) {
       return basedir + "/target/" + serverName;
+   }
+
+   public static File getFileServerLocation(String serverName) {
+      return new File(getServerLocation(serverName));
    }
 
    public static boolean cleanupData(String serverName) {

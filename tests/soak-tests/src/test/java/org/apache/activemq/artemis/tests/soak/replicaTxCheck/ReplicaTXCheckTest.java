@@ -25,16 +25,19 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.HashSet;
 
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.apache.qpid.jms.JmsConnectionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +52,26 @@ public class ReplicaTXCheckTest  extends SoakTestBase {
    public static final String SERVER_NAME_3 = "replica-tx-check/live-one";
    public static final String SERVER_NAME_4 = "replica-tx-check/backup-two";
    public static final String SERVER_NAME_5 = "replica-tx-check/live-two";
+
+   private static void createServer(String name) throws Exception {
+      File serverLocation = getFileServerLocation(name);
+      deleteDirectory(serverLocation);
+
+      HelperCreate cliCreateServer = new HelperCreate();
+      cliCreateServer.setAllowAnonymous(true).setNoWeb(true).setArtemisInstance(serverLocation);
+      cliCreateServer.setConfiguration("./src/main/resources/servers/" + name);
+      cliCreateServer.createServer();
+   }
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+      createServer(SERVER_NAME_0);
+      createServer(SERVER_NAME_1);
+      createServer(SERVER_NAME_2);
+      createServer(SERVER_NAME_3);
+      createServer(SERVER_NAME_4);
+      createServer(SERVER_NAME_5);
+   }
 
    private static Process server0;
    private static Process server1;

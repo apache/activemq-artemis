@@ -26,16 +26,42 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.Topic;
 
+import java.io.File;
+
 import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DualFederationTest extends SmokeTestBase {
 
    public static final String SERVER_NAME_A = "brokerConnect/federationA";
    public static final String SERVER_NAME_B = "brokerConnect/federationB";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_A);
+      File server1Location = getFileServerLocation(SERVER_NAME_B);
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(true).setUser("A").setPassword("A").setRole("amq").setNoWeb(true).setConfiguration("./src/main/resources/servers/brokerConnect/federationA").setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(true).setUser("B").setPassword("B").setRole("amq").setNoWeb(true).setPortOffset(1).setConfiguration("./src/main/resources/servers/brokerConnect/federationB").setArtemisInstance(server1Location);
+         cliCreateServer.createServer();
+      }
+   }
+
 
    Process processB;
    Process processA;

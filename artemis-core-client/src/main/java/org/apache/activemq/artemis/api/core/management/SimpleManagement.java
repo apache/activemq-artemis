@@ -98,6 +98,10 @@ public class SimpleManagement implements AutoCloseable {
       return simpleManagementLong(ResourceNames.QUEUE + queueName, "getMessageCount");
    }
 
+   public long getMessagesAddedOnQueue(String queueName) throws Exception {
+      return simpleManagementLong(ResourceNames.QUEUE + queueName, "getMessagesAdded");
+   }
+
    public Map<String, Long> getQueueCounts(int maxRows) throws Exception {
       String responseString = simpleManagement("broker", "listQueues", SIMPLE_OPTIONS, 1, maxRows);
 

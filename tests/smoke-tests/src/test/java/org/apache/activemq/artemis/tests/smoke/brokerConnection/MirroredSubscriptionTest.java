@@ -24,6 +24,7 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicSubscriber;
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -37,8 +38,10 @@ import org.apache.activemq.artemis.tests.smoke.common.SmokeTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.util.ServerUtil;
 import org.apache.activemq.artemis.utils.Wait;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +52,34 @@ public class MirroredSubscriptionTest extends SmokeTestBase {
    public static final String SERVER_NAME_B = "mirrored-subscriptions/broker2";
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+   @BeforeClass
+   public static void createServers() throws Exception {
+
+      File server0Location = getFileServerLocation(SERVER_NAME_A);
+      File server1Location = getFileServerLocation(SERVER_NAME_B);
+      deleteDirectory(server1Location);
+      deleteDirectory(server0Location);
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(true).setRole("amq").setUser("admin").setPassword("admin").setNoWeb(true).setConfiguration("./src/main/resources/servers/mirrored-subscriptions/broker1").setArtemisInstance(server0Location);
+         cliCreateServer.createServer();
+      }
+
+      {
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setAllowAnonymous(true).setRole("amq").setUser("admin").setPassword("admin").setNoWeb(true).setConfiguration("./src/main/resources/servers/mirrored-subscriptions/broker2").setArtemisInstance(server1Location);
+         cliCreateServer.createServer();
+      }
+   }
+
+
    Process processB;
    Process processA;
 
    @Before
    public void beforeClass() throws Exception {
-      cleanupData(SERVER_NAME_A);
-      cleanupData(SERVER_NAME_B);
+
       startServers();
    }
 

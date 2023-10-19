@@ -23,6 +23,7 @@ import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import java.io.File;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,16 +39,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.activemq.artemis.tests.soak.SoakTestBase;
 import org.apache.activemq.artemis.tests.util.CFUtil;
 import org.apache.activemq.artemis.utils.SpawnedVMSupport;
+import org.apache.activemq.artemis.utils.TestParameters;
+import org.apache.activemq.artemis.utils.cli.helper.HelperCreate;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.apache.activemq.artemis.utils.TestParameters.intMandatoryProperty;
 import static org.apache.activemq.artemis.utils.TestParameters.testProperty;
 
 /**
@@ -62,6 +65,19 @@ public class OWLeakTest extends SoakTestBase {
    private static final int OK = 33; // arbitrary code. if the spawn returns this the test went fine
 
    public static final String SERVER_NAME_0 = "openwire-leaktest";
+
+   @BeforeClass
+   public static void createServers() throws Exception {
+      {
+         File serverLocation = getFileServerLocation(SERVER_NAME_0);
+         deleteDirectory(serverLocation);
+
+         HelperCreate cliCreateServer = new HelperCreate();
+         cliCreateServer.setRole("amq").setUser("admin").setPassword("admin").setAllowAnonymous(true).setNoWeb(false).setArtemisInstance(serverLocation);
+         cliCreateServer.createServer();
+      }
+   }
+
    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
    private static final String TEST_NAME = "OW_LEAK";
    private static final boolean TEST_ENABLED = Boolean.parseBoolean(testProperty(TEST_NAME, "TEST_ENABLED", "true"));
@@ -75,9 +91,9 @@ public class OWLeakTest extends SoakTestBase {
 
    public OWLeakTest(String protocol) {
       this.protocol = protocol;
-      NUMBER_OF_MESSAGES = intMandatoryProperty(TEST_NAME, protocol + "_NUMBER_OF_MESSAGES");
-      PRODUCERS = intMandatoryProperty(TEST_NAME, protocol + "_PRODUCERS");
-      MESSAGE_SIZE = intMandatoryProperty(TEST_NAME, protocol + "_MESSAGE_SIZE");
+      NUMBER_OF_MESSAGES = TestParameters.testProperty(TEST_NAME, protocol + "_NUMBER_OF_MESSAGES", 50);
+      PRODUCERS = TestParameters.testProperty(TEST_NAME, protocol + "_PRODUCERS", 5);
+      MESSAGE_SIZE = TestParameters.testProperty(TEST_NAME, protocol + "_MESSAGE_SIZE", 10_000);
    }
 
    @Parameterized.Parameters(name = "protocol={0}")
